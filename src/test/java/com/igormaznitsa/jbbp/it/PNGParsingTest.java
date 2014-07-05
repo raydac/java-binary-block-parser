@@ -58,7 +58,7 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
       assertEquals(chunkNames.length,chunks.size());
       
       for(int i=0;i<chunks.size();i++){
-        assertChunk(chunkNames[i], chunkSizes[i], (JBBPFieldStruct)chunks.getElementAt(i));
+        assertChunk(chunkNames[i], chunkSizes[i], chunks.getElementAt(i));
       }
     }
     finally {
@@ -127,7 +127,7 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
       assertEquals(chunkNames.length, chunks.size());
 
       for (int i = 0; i < chunks.size(); i++) {
-        assertChunk(chunkNames[i], chunkSizes[i], (JBBPFieldStruct) chunks.getElementAt(i));
+        assertChunk(chunkNames[i], chunkSizes[i], chunks.getElementAt(i));
       }
     }
     finally {

@@ -40,6 +40,7 @@ public class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPToken> {
     disabledFieldNames.add("ushort");
     disabledFieldNames.add("int");
     disabledFieldNames.add("long");
+    disabledFieldNames.add("$");
   }
 
   private final Matcher matcher;
@@ -189,7 +190,7 @@ public class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPToken> {
       if (normalized.indexOf('.') >= 0) {
         return new JBBPTokenizerException("Field name must not contain '.' char", position);
       }
-      if (disabledFieldNames.contains(normalized)) {
+      if (disabledFieldNames.contains(normalized) || normalized.startsWith("$")) {
         return new JBBPTokenizerException("'" + name + "' can't be used as field name", position);
       }
     }

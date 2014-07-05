@@ -42,8 +42,8 @@ public class JBBPFieldShortTest {
 
   @Test
   public void testgetAsInt() {
-    assertEquals((int)23432, new JBBPFieldShort(new JBBPNamedFieldInfo("test.field", "field", 123), (short)23432).getAsInt());
-    assertEquals((int)-23432, new JBBPFieldShort(new JBBPNamedFieldInfo("test.field", "field", 123), (short)-23432).getAsInt());
+    assertEquals(23432, new JBBPFieldShort(new JBBPNamedFieldInfo("test.field", "field", 123), (short)23432).getAsInt());
+    assertEquals(-23432, new JBBPFieldShort(new JBBPNamedFieldInfo("test.field", "field", 123), (short)-23432).getAsInt());
   }
 
   @Test

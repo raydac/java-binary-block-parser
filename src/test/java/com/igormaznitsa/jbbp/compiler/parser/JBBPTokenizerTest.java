@@ -239,6 +239,19 @@ public class JBBPTokenizerTest {
   }
 
   @Test
+  public void testStructure_Named_Start_ErrorForDollarAsTheFirstChar() {
+    final JBBPTokenizer parser = new JBBPTokenizer("   $struct { ");
+
+    final Iterator<JBBPToken> iterator = parser.iterator();
+    try{
+      iterator.next();
+      fail("Must throw parser exception for disabled dot char at name");
+    }catch(JBBPTokenizerException ex){
+      assertEquals(3, ex.getPosition());
+    }
+  }
+
+  @Test
   public void testStructure_Named_WithoutSpacesToBracket() {
     final JBBPTokenizer parser = new JBBPTokenizer("  struct{ ");
 
