@@ -29,23 +29,23 @@ public class JBBPOut {
   public static final JBBPByteOrder DEFAULT_BYTE_ORDER = JBBPByteOrder.BIG_ENDIAN;
   public static final JBBPBitOrder DEFAULT_BIT_ORDER = JBBPBitOrder.LSB0;
   
-  public static JBBPOut binStart(final JBBPByteOrder byteOrder, final JBBPBitOrder bitOrder) {
+  public static JBBPOut BeginBin(final JBBPByteOrder byteOrder, final JBBPBitOrder bitOrder) {
     return new JBBPOut(new ByteArrayOutputStream(), byteOrder, bitOrder);
   }
 
-  public static JBBPOut binStart() {
+  public static JBBPOut BeginBin() {
     return new JBBPOut(new ByteArrayOutputStream());
   }
 
-  public static JBBPOut binStart(final OutputStream out) {
+  public static JBBPOut BeginBin(final OutputStream out) {
     return new JBBPOut(out);
   }
 
-  public static JBBPOut binStart(final JBBPByteOrder byteOrder) {
+  public static JBBPOut BeginBin(final JBBPByteOrder byteOrder) {
     return new JBBPOut(new ByteArrayOutputStream(), byteOrder, DEFAULT_BIT_ORDER);
   }
 
-  public static JBBPOut binStart(final JBBPBitOrder bitOrder) {
+  public static JBBPOut BeginBin(final JBBPBitOrder bitOrder) {
     return new JBBPOut(new ByteArrayOutputStream(), DEFAULT_BYTE_ORDER, bitOrder);
   }
 
@@ -141,10 +141,14 @@ public class JBBPOut {
     return this;
   }
 
+  private void _writeBits(final JBBPNumberOfBits numberOfBits, final int value) throws IOException {
+    this.outStream.writeBits(numberOfBits.getNumberOfBits(), value);
+  }
+  
   public JBBPOut Bits(final JBBPNumberOfBits numberOfBits, final int value) throws IOException {
     assertNotEnded();
     JBBPUtils.assertNotNull(numberOfBits, "Number of bits must not be null");
-    this.outStream.writeBits(numberOfBits.getNumberOfBits(), value);
+    _writeBits(numberOfBits, value);
     return this;
   }
 
@@ -152,7 +156,7 @@ public class JBBPOut {
     assertNotEnded();
     JBBPUtils.assertNotNull(value, "Array must not be null");
     for (final int v : value) {
-      this.Bits(numberOfBits, v);
+      _writeBits(numberOfBits, v);
     }
     return this;
   }
@@ -161,14 +165,18 @@ public class JBBPOut {
     assertNotEnded();
     JBBPUtils.assertNotNull(value, "Array must not be null");
     for (final byte b : value) {
-      this.Bits(numberOfBits, b);
+      _writeBits(numberOfBits, b);
     }
     return this;
   }
 
+  private void _writeByte(final int value) throws IOException {
+    this.outStream.write(value);
+  }
+  
   public JBBPOut Byte(final int value) throws IOException {
     assertNotEnded();
-    this.outStream.write(value);
+    _writeByte(value);
     return this;
   }
 
@@ -176,7 +184,7 @@ public class JBBPOut {
     assertNotEnded();
     JBBPUtils.assertNotNull(value, "Array must not be null");
     for (final int v : value) {
-      this.Byte(v);
+      _writeByte(v);
     }
     return this;
   }
@@ -184,9 +192,7 @@ public class JBBPOut {
   public JBBPOut Byte(final byte... value) throws IOException {
     assertNotEnded();
     JBBPUtils.assertNotNull(value, "Array must not be null");
-    for (final byte v : value) {
-      this.Byte((int) v);
-    }
+    this.outStream.write(value);
     return this;
   }
 
@@ -205,9 +211,13 @@ public class JBBPOut {
     return this;
   }
 
+  private void _writeShort(final int value) throws IOException {
+    this.outStream.writeShort(value, this.byteOrder);
+  }
+  
   public JBBPOut Short(final int value) throws IOException {
     assertNotEnded();
-    this.outStream.writeShort(value, this.byteOrder);
+    _writeShort(value);
     return this;
   }
 
@@ -215,7 +225,7 @@ public class JBBPOut {
     assertNotEnded();
     JBBPUtils.assertNotNull(value, "Array must not be null");
     for (final short v : value) {
-      this.Short(v);
+      this._writeShort(v);
     }
     return this;
   }
@@ -224,14 +234,18 @@ public class JBBPOut {
     assertNotEnded();
     JBBPUtils.assertNotNull(value, "Array must not be null");
     for (final int v : value) {
-      this.Short(v);
+      this._writeShort(v);
     }
     return this;
   }
 
+  private void _writeInt(final int value) throws IOException {
+    this.outStream.writeInt(value, this.byteOrder);
+  }
+  
   public JBBPOut Int(final int value) throws IOException {
     assertNotEnded();
-    this.outStream.writeInt(value, this.byteOrder);
+    _writeInt(value);
     return this;
   }
 
@@ -239,14 +253,18 @@ public class JBBPOut {
     assertNotEnded();
     JBBPUtils.assertNotNull(value, "Array must not be null");
     for (final int v : value) {
-      this.Int(v);
+      _writeInt(v);
     }
     return this;
   }
 
+  private void _writeLong(final long value) throws IOException {
+    this.outStream.writeLong(value, this.byteOrder);
+  }
+  
   public JBBPOut Long(final long value) throws IOException {
     assertNotEnded();
-    this.outStream.writeLong(value, this.byteOrder);
+    _writeLong(value);
     return this;
   }
 
@@ -254,7 +272,7 @@ public class JBBPOut {
     assertNotEnded();
     JBBPUtils.assertNotNull(value, "Array must not be null");
     for (final long l : value) {
-      this.Long(l);
+      _writeLong(l);
     }
     return this;
   }
@@ -265,7 +283,7 @@ public class JBBPOut {
     return this;
   }
 
-  public ByteArrayOutputStream end() throws IOException {
+  public ByteArrayOutputStream End() throws IOException {
     assertNotEnded();
     this.ended = true;
     this.outStream.flush();
