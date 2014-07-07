@@ -19,6 +19,17 @@ import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
 import com.igormaznitsa.jbbp.compiler.*;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 
+/**
+ * The Interface describes an evaluator. I call as an evaluator, a class which can calculate some expression and return the result as integer.
+ */
 public interface JBBPLengthEvaluator {
+  /**
+   * Calculate an integer value.
+   * @param inStream  a bit input stream
+   * @param currentCompiledBlockOffset the current offset in the compiled block
+   * @param block a compiled script block
+   * @param fieldMap a named numeric field map
+   * @return calculated value as integer
+   */
   int eval(JBBPBitInputStream inStream, int currentCompiledBlockOffset, JBBPCompiledBlock block, JBBPNamedNumericFieldMap fieldMap);
 }

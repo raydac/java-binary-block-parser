@@ -19,20 +19,38 @@ import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 
+/**
+ * Class implements an evaluator which works with only field.
+ */
 public class JBBPOnlyFieldEvaluator implements JBBPLengthEvaluator {
 
+  /**
+   * The Index in named field area for the field which is used by the evaluator.
+   */
   private final int namedFieldIndex;
+  /**
+   * An External field name which value will be requested by the evaluator. It
+   * can be null.
+   */
   private final String externalFieldName;
 
+  /**
+   * The Constructor.
+   *
+   * @param externalFieldName the external field name, it can be null.
+   * @param namedFieldIndex the index of a named field in named field area.
+   */
   public JBBPOnlyFieldEvaluator(final String externalFieldName, final int namedFieldIndex) {
     this.externalFieldName = externalFieldName;
     this.namedFieldIndex = namedFieldIndex;
   }
 
   public int eval(final JBBPBitInputStream inStream, final int currentCompiledBlockOffset, final JBBPCompiledBlock block, final JBBPNamedNumericFieldMap fieldMap) {
-    final int result = externalFieldName == null ? 
-            fieldMap.get(block.getNamedFields()[this.namedFieldIndex]).getAsInt() 
-            : this.externalFieldName.equals("$") ? (int)inStream.getCounter() : fieldMap.getExternalFieldValue(this.externalFieldName,block);
+    final int result = externalFieldName == null
+            ? fieldMap.get(block.getNamedFields()[this.namedFieldIndex]).getAsInt()
+            : this.externalFieldName.equals("$")
+            ? (int) inStream.getCounter()
+            : fieldMap.getExternalFieldValue(this.externalFieldName, block);
     return result;
   }
 

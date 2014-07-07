@@ -15,25 +15,55 @@
  */
 package com.igormaznitsa.jbbp.compiler;
 
+/**
+ * The Class describes a named field info item. Such objects are presented inside of compiled blocks only for fields which have names.
+ */
 public final class JBBPNamedFieldInfo {
+  /**
+   * The Field path.
+   */
   private final String fieldPath;
+  /**
+   * The Field name.
+   */
   private final String fieldName;
+  /**
+   * The Field byte-code offset in the compiled block.
+   */
   private final int offsetInCompiledBlock;
   
+  /**
+   * The Constructor
+   * @param fieldPath the field path
+   * @param fieldName the field name
+   * @param offsetInCompiledBlock the offset in the compiled block for the field
+   */
   public JBBPNamedFieldInfo(final String fieldPath, final String fieldName, final int offsetInCompiledBlock) {
     this.fieldPath = fieldPath;
     this.fieldName = fieldName;
     this.offsetInCompiledBlock = offsetInCompiledBlock;
   }
 
+  /**
+   * Get the field path.
+   * @return the field path as string
+   */
   public String getFieldPath() {
     return this.fieldPath;
   }
 
+  /**
+   * Get the field name.
+   * @return the field name as string
+   */
   public String getFieldName(){
     return this.fieldName;
   }
   
+  /**
+   * Get the field offset in the compiled byte-code block.
+   * @return the field offset in the byte-code block
+   */
   public int getFieldOffsetInCompiledBlock() {
     return this.offsetInCompiledBlock;
   }

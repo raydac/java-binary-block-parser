@@ -90,7 +90,7 @@ public class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
         prevoperator = false;
         counterVarsAndConstants++;
 
-        final String normalized = JBBPCompilerUtils.normalizeFieldName(variable);
+        final String normalized = JBBPCompilerUtils.normalizeFieldNameOrPath(variable);
         final int nameIndex;
         final boolean extValue;
         if (normalized.startsWith("$")) {
@@ -100,7 +100,7 @@ public class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
         }
         else {
           extValue = false;
-          nameIndex = JBBPCompilerUtils.findIndexForName(normalized, namedFields);
+          nameIndex = JBBPCompilerUtils.findIndexForFieldPath(normalized, namedFields);
           if (nameIndex < 0) {
             throw new JBBPCompilationException("Unknown variable [" + variable + ']');
           }

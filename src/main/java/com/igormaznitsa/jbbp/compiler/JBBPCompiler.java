@@ -23,18 +23,42 @@ import com.igormaznitsa.jbbp.compiler.utils.JBBPCompilerUtils;
 import com.igormaznitsa.jbbp.compiler.varlen.JBBPLengthEvaluator;
 import com.igormaznitsa.jbbp.compiler.varlen.JBBPEvaluatorFactory;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
+import com.igormaznitsa.jbbp.exceptions.JBBPException;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.*;
 import java.util.*;
 
+/**
+ * The Class implements the compiler of a bin source script represented as a
+ * text value into byte codes.
+ */
 public final class JBBPCompiler {
 
-  private static class StructStackItem {
+  /**
+   * Inside auxiliary class to keep information about structures.
+   */
+  private static final class StructStackItem {
 
+    /**
+     * The Structure start offset.
+     */
     private final int startOffset;
+    /**
+     * The Start byte-code of the structure.
+     */
     private final int code;
+    /**
+     * The Parsed Token.
+     */
     private final JBBPToken token;
 
+    /**
+     * The Constructor.
+     *
+     * @param startOffset the structure start offset
+     * @param code the start byte code
+     * @param token the token
+     */
     private StructStackItem(int startOffset, int code, JBBPToken token) {
       this.startOffset = startOffset;
       this.code = code;
@@ -42,24 +66,80 @@ public final class JBBPCompiler {
     }
   }
 
+  /**
+   * The Byte code of the 'ALIGN' command.
+   */
   public static final int CODE_ALIGN = 0x00;
+  /**
+   * The Byte code of the 'BIT' command.
+   */
   public static final int CODE_BIT = 0x01;
+  /**
+   * The Byte code of the 'BOOL' (boolean) command.
+   */
   public static final int CODE_BOOL = 0x02;
+  /**
+   * The Byte code of the 'UBYTE' (unsigned byte) command.
+   */
   public static final int CODE_UBYTE = 0x03;
+  /**
+   * The Byte code of the 'BYTE' command.
+   */
   public static final int CODE_BYTE = 0x04;
+  /**
+   * The Byte code of the 'USHORT' (unsigned short) command.
+   */
   public static final int CODE_USHORT = 0x05;
+  /**
+   * The Byte code of the 'SHORT' command.
+   */
   public static final int CODE_SHORT = 0x06;
+  /**
+   * The Byte code of the 'INT' (integer) command.
+   */
   public static final int CODE_INT = 0x07;
+  /**
+   * The Byte code of the 'LONG' command.
+   */
   public static final int CODE_LONG = 0x08;
+
+  /**
+   * The Byte code of the Structure start command.
+   */
   public static final int CODE_STRUCT_START = 0x09;
+
+  /**
+   * The Byte code of the Structure end command.
+   */
   public static final int CODE_STRUCT_END = 0x0A;
 
+  /**
+   * The Byte-Code Flag shows that the field is a named one.
+   */
   public static final int FLAG_NAMED = 0x10;
+  /**
+   * The Byte-Code Flag shows that the field is an array which size is defined by an expression or the array is unsized and must be read till the end of a stream.
+   */
   public static final int FLAG_EXPRESSIONORWHOLE = 0x20;
+  /**
+   * The Byte-Code Flag shows that the field is an array but it must be omitted for unlimited field arrays.
+   */
   public static final int FLAG_ARRAY = 0x40;
+  /**
+   * The Byte-Code Flag shows that a multi-byte field must be decoded as Little-endian one.
+   */
   public static final int FLAG_LITTLE_ENDIAN = 0x80;
 
+  /**
+   * Compile a text script into its byte code representation/
+   * @param script a text script to be compiled, must not be null.
+   * @return a compiled block for the script.
+   * @throws IOException it will be thrown for an inside IO error.
+   * @throws JBBPException it will be thrown for any logical or work exception for the parser and compiler
+   */
   public static JBBPCompiledBlock compile(final String script) throws IOException {
+    JBBPUtils.assertNotNull(script, "Script must not be null");
+    
     final JBBPCompiledBlock.Builder builder = JBBPCompiledBlock.prepare().setSource(script);
 
     final List<JBBPNamedFieldInfo> namedFields = new ArrayList<JBBPNamedFieldInfo>();
@@ -101,9 +181,10 @@ public final class JBBPCompiler {
         case CODE_SHORT:
         case CODE_USHORT:
         case CODE_INT:
-        case CODE_LONG:{
+        case CODE_LONG: {
           // do nothing
-        }break;
+        }
+        break;
         case CODE_ALIGN: {
           if (token.getArraySizeAsString() != null) {
             throw new IllegalArgumentException("An Align field can't be array");
@@ -190,14 +271,14 @@ public final class JBBPCompiler {
       }
 
       if ((code & FLAG_NAMED) != 0) {
-        final String normalizedName = JBBPCompilerUtils.normalizeFieldName(token.getFieldName());
+        final String normalizedName = JBBPCompilerUtils.normalizeFieldNameOrPath(token.getFieldName());
         assertName(normalizedName, token);
         registerNamedField(normalizedName, startFieldOffset, namedFields, token);
       }
       else {
         if (currentClosedStructure != null && (currentClosedStructure.code & FLAG_NAMED) != 0) {
           // it is structure, process field names
-          final String normalizedName = JBBPCompilerUtils.normalizeFieldName(currentClosedStructure.token.getFieldName());
+          final String normalizedName = JBBPCompilerUtils.normalizeFieldNameOrPath(currentClosedStructure.token.getFieldName());
           for (int i = namedFields.size() - 1; i >= 0; i--) {
             final JBBPNamedFieldInfo f = namedFields.get(i);
             if (f.getFieldOffsetInCompiledBlock() <= currentClosedStructure.startOffset) {
@@ -222,19 +303,33 @@ public final class JBBPCompiler {
 
     return builder
             .setNamedFieldData(namedFields)
-            .setVarLengthProcessors(varLengthEvaluators)
+            .setArraySizeEvaluators(varLengthEvaluators)
             .setCompiledData(compiledBlock)
             .build();
   }
 
+  /**
+   * The Method check that a field name supports business rules.
+   * @param name the name to be checked
+   * @param token the token contains the name
+   * @throws JBBPCompilationException if the name doesn't support business rules
+   */
   private static void assertName(final String name, final JBBPToken token) {
     if (name.indexOf('.') >= 0) {
       throw new JBBPCompilationException("Detected disallowed char '.' in name [" + name + ']', token);
     }
   }
 
+  /**
+   * Register a name field info item in a named field list.
+   * @param normalizedName normalized name of the named field
+   * @param offset the named field offset
+   * @param namedFields the named field info list for registration
+   * @param token the token for the field
+   * @throws JBBPCompilationException if there is already a registered field for the path 
+   */
   private static void registerNamedField(final String normalizedName, final int offset, final List<JBBPNamedFieldInfo> namedFields, final JBBPToken token) {
-    if (JBBPCompilerUtils.findForName(normalizedName, namedFields) == null) {
+    if (JBBPCompilerUtils.findForFieldPath(normalizedName, namedFields) == null) {
       namedFields.add(new JBBPNamedFieldInfo(normalizedName, normalizedName, offset));
     }
     else {
@@ -242,12 +337,24 @@ public final class JBBPCompiler {
     }
   }
 
+  /**
+   * Write an integer value in packed form into an output stream.
+   * @param out the output stream to be used to write the value into
+   * @param value the value to be written into the output stream
+   * @return the length of packed data in bytes
+   * @throws IOException it will be thrown for any IO problems
+   */
   private static int writePackedInt(final OutputStream out, final int value) throws IOException {
     final byte[] packedInt = JBBPUtils.packInt(value);
     out.write(packedInt);
     return packedInt.length;
   }
 
+  /**
+   * The Method prepares a byte-code for a token field type and modifiers.
+   * @param token a token to be processed, must not be null
+   * @return the prepared byte code for the token
+   */
   private static int prepareCodeForToken(final JBBPToken token) {
     int result = -1;
     switch (token.getType()) {

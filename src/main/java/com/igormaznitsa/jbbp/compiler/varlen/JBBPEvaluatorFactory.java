@@ -19,6 +19,10 @@ import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.utils.JBBPCompilerUtils;
 import java.util.List;
 
+/**
+ * The Factory generates a special evaluator which is appropriate for variable array size text.
+ * It is a singleton and can't be created directly, only through the special getInstance method.
+ */
 public final class JBBPEvaluatorFactory {
   private static final JBBPEvaluatorFactory instance = new JBBPEvaluatorFactory();
   
@@ -26,15 +30,27 @@ public final class JBBPEvaluatorFactory {
     
   }
   
+  /**
+   * Get an Instance of the factory.
+   * @return the factory instance.
+   */
   public static JBBPEvaluatorFactory getInstance(){
     return instance;
   }
   
+  /**
+   * Make an appropriate evaluator for an expression text.
+   * @param expression an expression text, must not be null
+   * @param namedFields a named field list
+   * @param compiledScript a compiled script block
+   * @return a generated evaluator, it will not be null in any case
+   * @see JBBPExpressionEvaluator
+   * @see JBBPOnlyFieldEvaluator
+   */
   public JBBPLengthEvaluator make(final String expression, final List<JBBPNamedFieldInfo> namedFields, final byte [] compiledScript){
     final JBBPLengthEvaluator result;
-    final boolean hasOperators = JBBPExpressionEvaluator.hasExpressionOperators(expression);
     
-    if (hasOperators){
+    if (JBBPExpressionEvaluator.hasExpressionOperators(expression)){
       // expression
       result = new JBBPExpressionEvaluator(expression, namedFields, compiledScript);
     }else{

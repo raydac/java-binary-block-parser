@@ -22,13 +22,20 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.util.List;
 import java.util.Locale;
 
-public final class JBBPCompilerUtils {
-  private JBBPCompilerUtils(){
-    
-  }
-  
-  public static int findIndexForName(final String name, final List<JBBPNamedFieldInfo> namedFields) {
-    final String normalized = normalizeFieldName(name);
+/**
+ * Class contains specific common auxiliary methods for parser classes.
+ */
+public enum JBBPCompilerUtils {
+;
+        
+  /**
+   * Find a named field info index in a list for its path.
+   * @param fieldPath a field path, it must not be null.
+   * @param namedFields a list contains named field info items.
+   * @return the index of a field for the path if found one, -1 otherwise
+   */
+  public static int findIndexForFieldPath(final String fieldPath, final List<JBBPNamedFieldInfo> namedFields) {
+    final String normalized = normalizeFieldNameOrPath(fieldPath);
     for (int i = namedFields.size() - 1; i >= 0; i--) {
       final JBBPNamedFieldInfo f = namedFields.get(i);
       if (normalized.equals(f.getFieldPath())) {
@@ -38,8 +45,14 @@ public final class JBBPCompilerUtils {
     return -1;
   }
   
-  public static JBBPNamedFieldInfo findForName(final String name, final List<JBBPNamedFieldInfo> namedFields) {
-    final String normalized = normalizeFieldName(name);
+  /**
+   * Find a named field info for its path inside a named field list.
+   * @param fieldPath a field path, must not be null.
+   * @param namedFields a named field list.
+   * @return found item for the path, null otherwise
+   */
+  public static JBBPNamedFieldInfo findForFieldPath(final String fieldPath, final List<JBBPNamedFieldInfo> namedFields) {
+    final String normalized = normalizeFieldNameOrPath(fieldPath);
     for (int i = namedFields.size() - 1; i >= 0; i--) {
       final JBBPNamedFieldInfo f = namedFields.get(i);
       if (normalized.equals(f.getFieldPath())) {
@@ -49,10 +62,21 @@ public final class JBBPCompilerUtils {
     return null;
   }
 
-  public static String normalizeFieldName(final String name) {
-    return name.trim().toLowerCase(Locale.ENGLISH);
+  /**
+   * Normalize a field name or a path.
+   * @param nameOrPath a field name or a path to be processed, must not be null
+   * @return the normalized version of the name or the path
+   */
+  public static String normalizeFieldNameOrPath(final String nameOrPath) {
+    return nameOrPath.trim().toLowerCase(Locale.ENGLISH);
   }
 
+  /**
+   * Check a field in a compiled list defined by its named field info, that the field is not an array and it is not inside a structure array.
+   * @param fieldToCheck a named field info to be checked, must not be null
+   * @param namedFieldList a named field info list, must not be null.
+   * @param compiledScript a compiled script body
+   */
   public static void assertFieldIsNotArrayOrInArray(final JBBPNamedFieldInfo fieldToCheck, final List<JBBPNamedFieldInfo> namedFieldList, final byte[] compiledScript) {
     // check that the field is not array
     if ((compiledScript[fieldToCheck.getFieldOffsetInCompiledBlock()] & FLAG_ARRAY) != 0) {
@@ -68,7 +92,7 @@ public final class JBBPCompilerUtils {
           fieldPath.append('.');
         }
         fieldPath.append(splittedFieldPath[i]);
-        final JBBPNamedFieldInfo structureEnd = JBBPCompilerUtils.findForName(fieldPath.toString(), namedFieldList);
+        final JBBPNamedFieldInfo structureEnd = JBBPCompilerUtils.findForFieldPath(fieldPath.toString(), namedFieldList);
         if ((compiledScript[structureEnd.getFieldOffsetInCompiledBlock()] & FLAG_ARRAY) != 0) {
           throw new JBBPCompilationException("Field from structure array can't be use as array size [" + fieldToCheck.getFieldPath() + ';' + structureEnd.getFieldPath() + ']');
         }

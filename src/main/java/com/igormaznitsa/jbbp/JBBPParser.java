@@ -79,7 +79,7 @@ public final class JBBPParser {
         }
         break;
         case JBBPCompiler.FLAG_ARRAY | JBBPCompiler.FLAG_EXPRESSIONORWHOLE: {
-          final JBBPLengthEvaluator evaluator = this.compiledBlock.getVarLengthProcessorList()[positionAtVarLengthProcessors.getAndIncrease()];
+          final JBBPLengthEvaluator evaluator = this.compiledBlock.getArraySizeEvaluators()[positionAtVarLengthProcessors.getAndIncrease()];
           arrayLength = evaluator.eval(inStream, instructionStartOffset, this.compiledBlock, fieldMap);
           nonsizedArray = false;
           checkArrayLength = true;
