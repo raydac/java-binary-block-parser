@@ -19,24 +19,24 @@ import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class JBBPTokenParametersTest {
+public class JBBPFieldTypeParameterContainerTest {
 
   @Test
   public void testConstructorAndGetters(){
     final String name = "name";
     final String extra = "extra";
-    final JBBPTokenParameters params = new JBBPTokenParameters(JBBPByteOrder.BIG_ENDIAN, name, extra);
-    assertSame(name, params.getName());
-    assertSame(extra, params.getExtraField());
+    final JBBPFieldTypeParameterContainer params = new JBBPFieldTypeParameterContainer(JBBPByteOrder.BIG_ENDIAN, name, extra);
+    assertSame(name, params.getTypeName());
+    assertSame(extra, params.getExtraData());
     assertEquals(JBBPByteOrder.BIG_ENDIAN, params.getByteOrder());
   }
   
   @Test
   public void testToString() {
-    assertEquals(">int hello",new JBBPTokenParameters(JBBPByteOrder.BIG_ENDIAN, "int hello", null).toString());
-    assertEquals("<int hello",new JBBPTokenParameters(JBBPByteOrder.LITTLE_ENDIAN, "int hello", null).toString());
-    assertEquals("<bit:8 hello",new JBBPTokenParameters(JBBPByteOrder.LITTLE_ENDIAN, "bit hello", "8").toString());
-    assertEquals("<bit:8",new JBBPTokenParameters(JBBPByteOrder.LITTLE_ENDIAN, "bit", "8").toString());
+    assertEquals(">int hello",new JBBPFieldTypeParameterContainer(JBBPByteOrder.BIG_ENDIAN, "int hello", null).toString());
+    assertEquals("<int hello",new JBBPFieldTypeParameterContainer(JBBPByteOrder.LITTLE_ENDIAN, "int hello", null).toString());
+    assertEquals("<bit:8 hello",new JBBPFieldTypeParameterContainer(JBBPByteOrder.LITTLE_ENDIAN, "bit hello", "8").toString());
+    assertEquals("<bit:8",new JBBPFieldTypeParameterContainer(JBBPByteOrder.LITTLE_ENDIAN, "bit", "8").toString());
   }
   
 }

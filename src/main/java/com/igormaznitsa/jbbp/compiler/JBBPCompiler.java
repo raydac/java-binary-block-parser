@@ -18,7 +18,7 @@ package com.igormaznitsa.jbbp.compiler;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.compiler.parser.JBBPTokenizer;
 import com.igormaznitsa.jbbp.compiler.parser.JBBPToken;
-import com.igormaznitsa.jbbp.compiler.parser.JBBPTokenParameters;
+import com.igormaznitsa.jbbp.compiler.parser.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.compiler.utils.JBBPCompilerUtils;
 import com.igormaznitsa.jbbp.compiler.varlen.JBBPLengthEvaluator;
 import com.igormaznitsa.jbbp.compiler.varlen.JBBPEvaluatorFactory;
@@ -105,14 +105,14 @@ public final class JBBPCompiler {
           // do nothing
         }break;
         case CODE_ALIGN: {
-          if (token.getSizeAsString() != null) {
+          if (token.getArraySizeAsString() != null) {
             throw new IllegalArgumentException("An Align field can't be array");
           }
           if (token.getFieldName() != null) {
             throw new IllegalArgumentException("An Align field can't be named [" + token.getFieldName() + ']');
           }
 
-          final String parsedAlignBytesNumber = token.getFieldType().getExtraField();
+          final String parsedAlignBytesNumber = token.getFieldTypeParameters().getExtraData();
           if (parsedAlignBytesNumber == null) {
             extraField = 1;
           }
@@ -124,13 +124,13 @@ public final class JBBPCompiler {
               extraField = -1;
             }
             if (extraField <= 0) {
-              throw new JBBPCompilationException("Align byte number must be greater than zero [" + token.getFieldType().getExtraField() + ']', token);
+              throw new JBBPCompilationException("Align byte number must be greater than zero [" + token.getFieldTypeParameters().getExtraData() + ']', token);
             }
           }
         }
         break;
         case CODE_BIT: {
-          final String parsedBitNumber = token.getFieldType().getExtraField();
+          final String parsedBitNumber = token.getFieldTypeParameters().getExtraData();
           if (parsedBitNumber == null) {
             extraField = 1;
           }
@@ -142,7 +142,7 @@ public final class JBBPCompiler {
               extraField = -1;
             }
             if (extraField < 1 || extraField > 8) {
-              throw new JBBPCompilationException("Wrong bit number, must be 1..8 [" + token.getFieldType().getExtraField() + ']', token);
+              throw new JBBPCompilationException("Wrong bit number, must be 1..8 [" + token.getFieldTypeParameters().getExtraData() + ']', token);
             }
           }
         }
@@ -167,7 +167,7 @@ public final class JBBPCompiler {
 
       if ((code & FLAG_ARRAY) != 0) {
         if ((code & FLAG_EXPRESSIONORWHOLE) != 0) {
-          if ("_".equals(token.getSizeAsString())) {
+          if ("_".equals(token.getArraySizeAsString())) {
             if (fieldUnrestrictedArrayOffset >= 0) {
               throw new JBBPCompilationException("Detected two or more unlimited arrays [" + script + ']', token);
             }
@@ -176,11 +176,11 @@ public final class JBBPCompiler {
             }
           }
           else {
-            varLengthEvaluators.add(JBBPEvaluatorFactory.getInstance().make(token.getSizeAsString(), namedFields, out.toByteArray()));
+            varLengthEvaluators.add(JBBPEvaluatorFactory.getInstance().make(token.getArraySizeAsString(), namedFields, out.toByteArray()));
           }
         }
         else {
-          offset += writePackedInt(out, token.getSizeAsInt());
+          offset += writePackedInt(out, token.getArraySizeAsInt());
         }
       }
 
@@ -252,13 +252,13 @@ public final class JBBPCompiler {
     int result = -1;
     switch (token.getType()) {
       case ATOM: {
-        final JBBPTokenParameters descriptor = token.getFieldType();
+        final JBBPFieldTypeParameterContainer descriptor = token.getFieldTypeParameters();
 
         result = descriptor.getByteOrder() == JBBPByteOrder.LITTLE_ENDIAN ? FLAG_LITTLE_ENDIAN : 0;
-        result |= token.getSizeAsString() == null ? 0 : (token.isVarArrayLength() ? FLAG_ARRAY | FLAG_EXPRESSIONORWHOLE : FLAG_ARRAY);
+        result |= token.getArraySizeAsString() == null ? 0 : (token.isVarArrayLength() ? FLAG_ARRAY | FLAG_EXPRESSIONORWHOLE : FLAG_ARRAY);
         result |= token.getFieldName() == null ? 0 : FLAG_NAMED;
 
-        final String name = descriptor.getName().toLowerCase(Locale.ENGLISH);
+        final String name = descriptor.getTypeName().toLowerCase(Locale.ENGLISH);
         if ("align".equals(name)) {
           result = 0;
         }
@@ -287,7 +287,7 @@ public final class JBBPCompiler {
           result |= CODE_LONG;
         }
         else {
-          throw new JBBPCompilationException("Unsupported type [" + descriptor.getName() + ']', token);
+          throw new JBBPCompilationException("Unsupported type [" + descriptor.getTypeName() + ']', token);
         }
       }
       break;
@@ -296,7 +296,7 @@ public final class JBBPCompiler {
       }
       break;
       case STRUCT_START: {
-        result = token.getSizeAsString() == null ? 0 : (token.isVarArrayLength() ? FLAG_ARRAY | FLAG_EXPRESSIONORWHOLE : FLAG_ARRAY);
+        result = token.getArraySizeAsString() == null ? 0 : (token.isVarArrayLength() ? FLAG_ARRAY | FLAG_EXPRESSIONORWHOLE : FLAG_ARRAY);
         result |= token.getFieldName() == null ? 0 : FLAG_NAMED;
         result |= CODE_STRUCT_START;
       }

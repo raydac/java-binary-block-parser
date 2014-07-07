@@ -15,10 +15,24 @@
  */
 package com.igormaznitsa.jbbp.compiler.parser;
 
+/**
+ * The Enumeration represents allowed token types to be met in binary block parser script.
+ */
 public enum JBBPTokenType {
-
+  /**
+   * A Commentaries.
+   */
   COMMENT,
+  /**
+   * A Structure opening token.
+   */
   STRUCT_START,
+  /**
+   * A Regular field or field array.
+   */
   ATOM,
+  /**
+   * A Structure closing token.
+   */
   STRUCT_END
 }

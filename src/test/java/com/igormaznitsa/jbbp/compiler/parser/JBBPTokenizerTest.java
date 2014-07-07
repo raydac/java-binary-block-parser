@@ -73,7 +73,7 @@ public class JBBPTokenizerTest {
       if (item.getType() == JBBPTokenType.COMMENT) {
         assertEquals(3, item.getPosition());
         assertEquals("only comment line", item.getFieldName());
-        assertNull(item.getSizeAsString());
+        assertNull(item.getArraySizeAsString());
         assertFalse(item.isArray());
         assertTrue(item.isComment());
         commentCount++;
@@ -97,7 +97,7 @@ public class JBBPTokenizerTest {
       if (item.getType() == JBBPTokenType.COMMENT) {
         assertEquals(3, item.getPosition());
         assertEquals("only comment line", item.getFieldName());
-        assertNull(item.getSizeAsString());
+        assertNull(item.getArraySizeAsString());
         assertFalse(item.isArray());
         assertTrue(item.isComment());
         commentCount++;
@@ -133,8 +133,8 @@ public class JBBPTokenizerTest {
 
     assertEquals(JBBPTokenType.STRUCT_END, item.getType());
     assertNull(item.getFieldName());
-    assertNull(item.getFieldType());
-    assertNull(item.getSizeAsString());
+    assertNull(item.getFieldTypeParameters());
+    assertNull(item.getArraySizeAsString());
     assertEquals(3, item.getPosition());
 
     try {
@@ -156,8 +156,8 @@ public class JBBPTokenizerTest {
 
     assertEquals(JBBPTokenType.STRUCT_END, item.getType());
     assertNull(item.getFieldName());
-    assertNull(item.getFieldType());
-    assertNull(item.getSizeAsString());
+    assertNull(item.getFieldTypeParameters());
+    assertNull(item.getArraySizeAsString());
     assertEquals(0, item.getPosition());
 
     try {
@@ -179,8 +179,8 @@ public class JBBPTokenizerTest {
 
     assertEquals(JBBPTokenType.STRUCT_END, item.getType());
     assertNull(item.getFieldName());
-    assertNull(item.getFieldType());
-    assertNull(item.getSizeAsString());
+    assertNull(item.getFieldTypeParameters());
+    assertNull(item.getArraySizeAsString());
     assertEquals(0, item.getPosition());
   }
 
@@ -194,8 +194,8 @@ public class JBBPTokenizerTest {
 
     assertEquals(JBBPTokenType.STRUCT_START, item.getType());
     assertEquals("struct", item.getFieldName());
-    assertNull(item.getFieldType());
-    assertNull(item.getSizeAsString());
+    assertNull(item.getFieldTypeParameters());
+    assertNull(item.getArraySizeAsString());
     assertEquals(4, item.getPosition());
 
     try {
@@ -261,8 +261,8 @@ public class JBBPTokenizerTest {
 
     assertEquals(JBBPTokenType.STRUCT_START, item.getType());
     assertEquals("struct", item.getFieldName());
-    assertNull(item.getFieldType());
-    assertNull(item.getSizeAsString());
+    assertNull(item.getFieldTypeParameters());
+    assertNull(item.getArraySizeAsString());
     assertEquals(2, item.getPosition());
 
     try {
@@ -284,9 +284,9 @@ public class JBBPTokenizerTest {
 
     assertEquals(JBBPTokenType.STRUCT_START, item.getType());
     assertNull(item.getFieldName());
-    assertNull(item.getFieldType());
+    assertNull(item.getFieldTypeParameters());
     assertTrue(item.isArray());
-    assertEquals(333, item.getSizeAsInt().intValue());
+    assertEquals(333, item.getArraySizeAsInt().intValue());
     assertEquals(4, item.getPosition());
 
     try {
@@ -308,9 +308,9 @@ public class JBBPTokenizerTest {
 
     assertEquals(JBBPTokenType.STRUCT_START, item.getType());
     assertNull(item.getFieldName());
-    assertNull(item.getFieldType());
+    assertNull(item.getFieldTypeParameters());
     assertTrue(item.isArray());
-    assertEquals(333, item.getSizeAsInt().intValue());
+    assertEquals(333, item.getArraySizeAsInt().intValue());
     assertEquals(4, item.getPosition());
 
     try {
@@ -346,9 +346,9 @@ public class JBBPTokenizerTest {
 
     assertEquals(JBBPTokenType.STRUCT_START, item.getType());
     assertEquals("test",item.getFieldName());
-    assertNull(item.getFieldType());
+    assertNull(item.getFieldTypeParameters());
     assertTrue(item.isArray());
-    assertEquals(333, item.getSizeAsInt().intValue());
+    assertEquals(333, item.getArraySizeAsInt().intValue());
     assertEquals(2, item.getPosition());
 
     try {
@@ -427,7 +427,7 @@ public class JBBPTokenizerTest {
     assertFalse(item.isComment());
     assertFalse(item.isArray());
     assertEquals(JBBPTokenType.ATOM, item.getType());
-    assertEquals("boolean", item.getFieldType().getName());
+    assertEquals("boolean", item.getFieldTypeParameters().getTypeName());
     assertNull(item.getFieldName());
     assertEquals(29, item.getPosition());
 
@@ -440,8 +440,8 @@ public class JBBPTokenizerTest {
     assertFalse(item.isComment());
     assertTrue(item.isArray());
     assertEquals(JBBPTokenType.ATOM, item.getType());
-    assertEquals("int", item.getFieldType().getName());
-    assertEquals(123, item.getSizeAsInt().intValue());
+    assertEquals("int", item.getFieldTypeParameters().getTypeName());
+    assertEquals(123, item.getArraySizeAsInt().intValue());
     assertEquals("items", item.getFieldName());
     assertEquals(64, item.getPosition());
 
@@ -449,7 +449,7 @@ public class JBBPTokenizerTest {
     assertFalse(item.isComment());
     assertFalse(item.isArray());
     assertEquals(JBBPTokenType.ATOM, item.getType());
-    assertEquals("bit:3", item.getFieldType().toString());
+    assertEquals("bit:3", item.getFieldTypeParameters().toString());
     assertEquals("bitField", item.getFieldName());
     assertEquals(81, item.getPosition());
 
@@ -471,13 +471,13 @@ public class JBBPTokenizerTest {
     assertNotNull(item);
     assertEquals(itemType, item.getType());
     if (fieldType == null) {
-      assertNull(item.getFieldType());
+      assertNull(item.getFieldTypeParameters());
     }
     else {
-      assertEquals(fieldType, item.getFieldType().toString());
+      assertEquals(fieldType, item.getFieldTypeParameters().toString());
     }
     assertEquals(fieldName, item.getFieldName());
-    assertEquals(length, item.getSizeAsString());
+    assertEquals(length, item.getArraySizeAsString());
   }
 
   @Test

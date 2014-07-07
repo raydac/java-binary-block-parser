@@ -17,17 +17,38 @@ package com.igormaznitsa.jbbp.compiler.parser;
 
 import com.igormaznitsa.jbbp.exceptions.JBBPTokenizerException;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
+import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.util.*;
 import java.util.regex.*;
 
-public class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPToken> {
+/**
+ * The Class implements a token parser which parses a String to binary block parser tokens and check their format.
+ */
+public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPToken> {
 
+  /**
+   * The Next available token.
+   */
   private JBBPToken nextItem;
+  
+  /**
+   * The Field contains deferred error. 
+   */
   private JBBPTokenizerException detectedError;
 
+  /**
+   * The Pattern to break a string to tokens.
+   */
   private static final Pattern PATTERN = Pattern.compile("\\s*\\/\\/.*$|\\s*(\\})|\\s*([^\\s\\;\\[\\]\\}\\{\\/]+)?\\s*(?:\\[\\s*(\\S+)\\s*\\])?\\s*([^\\d\\s\\;\\[\\]\\}\\{\\/][^\\s\\;\\[\\]\\}\\{\\/]*)?\\s*([\\{\\;])", Pattern.MULTILINE);
-  private static final Pattern TYPE_PATTERN = Pattern.compile("^([<>])?(\\w+)(?::(\\d+))?$");
+  
+  /**
+   * The Pattern to break field type to parameters.
+   */
+  private static final Pattern FIELD_TYPE_BREAK_PATTERN = Pattern.compile("^([<>])?(\\w+)(?::(\\d+))?$");
 
+  /**
+   * Inside table to keep disabled names for fields.
+   */
   private static final Set<String> disabledFieldNames;
 
   static {
@@ -47,12 +68,20 @@ public class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPToken> {
   private int lastCharSubstingFound = -1;
   private final String processingString;
 
+  /**
+   * The Constructor.
+   * @param str a string to be parsed, must not be null.
+   */
   public JBBPTokenizer(final String str) {
+    JBBPUtils.assertNotNull(str, "String must not be null");
     this.processingString = str;
     this.matcher = PATTERN.matcher(this.processingString);
     readNextItem();
   }
 
+  /**
+   * Inside method to read the next token from the string and place it into inside storage.
+   */
   private void readNextItem() {
     if (matcher.find()) {
       final String groupWholeFound = this.matcher.group(0);
@@ -120,9 +149,9 @@ public class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPToken> {
           }
         }
 
-        JBBPTokenParameters parsedType = null;
+        JBBPFieldTypeParameterContainer parsedType = null;
         if (fieldType != null) {
-          final Matcher typeMatcher = TYPE_PATTERN.matcher(fieldType);
+          final Matcher typeMatcher = FIELD_TYPE_BREAK_PATTERN.matcher(fieldType);
           boolean wrongFormat = true;
 
           if (typeMatcher.find()) {
@@ -146,7 +175,7 @@ public class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPToken> {
             }
 
             if (!wrongFormat) {
-              parsedType = new JBBPTokenParameters(byteOrder, groupTypeName, groupTypeBitNumber);
+              parsedType = new JBBPFieldTypeParameterContainer(byteOrder, groupTypeName, groupTypeBitNumber);
             }
           }
 
@@ -184,6 +213,13 @@ public class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPToken> {
     }
   }
 
+  /**
+   * Check a field name 
+   * @param name the name to be checked.
+   * @param position the token position in the string.
+   * @return JBBPTokenizerException if the field name has wrong chars or
+   * presented in disabled name set, null otherwise
+   */
   private static JBBPTokenizerException checkFieldName(final String name, final int position) {
     if (name != null) {
       final String normalized = name.toLowerCase(Locale.ENGLISH);
@@ -220,6 +256,9 @@ public class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPToken> {
     return current;
   }
 
+  /**
+   * The Operation is unsupported one.
+   */
   public void remove() {
     throw new UnsupportedOperationException("Unsupported operation");
   }

@@ -18,29 +18,54 @@ package com.igormaznitsa.jbbp.compiler.parser;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import java.io.Serializable;
 
-public class JBBPTokenParameters implements Serializable {
+/**
+ * The Class is a container to keep parsed field type parameters.
+ */
+public final class JBBPFieldTypeParameterContainer implements Serializable {
 
   private static final long serialVersionUID = 1557492283811982431L;
+  
+  /**
+   * The Byte order for the field.
+   */
   private final JBBPByteOrder byteOrder;
-  private final String name;
-  private final String extraField;
+  /**
+   * The field type.
+   */
+  private final String typeName;
+  /**
+   * Extra data for the field (for instance number of bits for a bit field).
+   */
+  private final String extraData;
 
-  public JBBPTokenParameters(final JBBPByteOrder byteOrder, final String name, final String extraField) {
+  public JBBPFieldTypeParameterContainer(final JBBPByteOrder byteOrder, final String typeName, final String extraData) {
     this.byteOrder = byteOrder;
-    this.name = name;
-    this.extraField = extraField;
+    this.typeName = typeName;
+    this.extraData = extraData;
   }
 
+  /**
+   * Get the byte order for the field. It can be null.
+   * @return the defined byte order for the field.
+   */
   public JBBPByteOrder getByteOrder() {
     return this.byteOrder;
   }
 
-  public String getName() {
-    return this.name;
+  /**
+   * Get the type name of the field.
+   * @return the type name as String.
+   */
+  public String getTypeName() {
+    return this.typeName;
   }
 
-  public String getExtraField() {
-    return this.extraField;
+  /**
+   * Get the extra data for the field.
+   * @return the extra data as string or null.
+   */
+  public String getExtraData() {
+    return this.extraData;
   }
 
   @Override
@@ -50,16 +75,16 @@ public class JBBPTokenParameters implements Serializable {
     if (byteOrder != null) {
       result.append(byteOrder == JBBPByteOrder.BIG_ENDIAN ? '>' : '<');
     }
-    result.append(this.name);
-    if (extraField != null) {
-      int insertIndex = name.indexOf(' ');
+    result.append(this.typeName);
+    if (extraData != null) {
+      int insertIndex = typeName.indexOf(' ');
       if (insertIndex < 0) {
         insertIndex = result.length();
       }
       else {
         insertIndex++;
       }
-      result.insert(insertIndex, ':' + extraField);
+      result.insert(insertIndex, ':' + extraData);
 
     }
 
