@@ -17,16 +17,33 @@ package com.igormaznitsa.jbbp.exceptions;
 
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 
+/**
+ * The Exception will be thrown during search operation for only field, if there are too many variants.
+ */
 public class JBBPTooManyFieldsFoundException extends JBBPFinderException {
   private static final long serialVersionUID = -7805676497685397609L;
 
+  /**
+   * Number of found variants.
+   */
   private final int numberOfInstances;
   
+  /**
+   * The Constructor.
+   * @param numberOfInstances the number of found variants.
+   * @param message the exception message
+   * @param nameOrPath the name or the path used for search
+   * @param fieldType the field type used for search
+   */
   public JBBPTooManyFieldsFoundException(final int numberOfInstances, final String message, final String nameOrPath, final Class<? extends JBBPAbstractField> fieldType) {
     super(message, nameOrPath, fieldType);
     this.numberOfInstances = numberOfInstances;
   }
 
+  /**
+   * Get the number of found instances.
+   * @return the number of found instances as integer
+   */
   public int getNumberOfFoundInstances(){
     return this.numberOfInstances;
   }

@@ -18,31 +18,73 @@ package com.igormaznitsa.jbbp.io;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.*;
 
+/**
+ * A Filter stream implementing a countable bit stream interface. It allows read not only bytes but also bits from an input stream.
+ */
 public class JBBPBitInputStream extends FilterInputStream implements JBBPBitStream {
 
   private static final int INITIAL_ARRAY_BUFFER_SIZE = 32;
 
+  /**
+   * The Inside bit buffer,
+   */
   private int bitBuffer;
+  /**
+   * The Inside counter of bits in the bit buffer.
+   */
   private int bitsInBuffer;
+  /**
+   * The Byte counter.
+   */
   private long byteCounter;
 
+  /**
+   * Inside temp variable to keep the bit buffer temporarily.
+   */
   private int markedBitBuffer;
+  /**
+   * Inside temp variable to keep the bit buffer counter temporarily.
+   */
   private int markedBitsInBuffer;
+  /**
+   * Inside temp variable to keep the byte counter temporarily.
+   */
   private long markedByteCounter;
 
+  /**
+   * Flag shows that bit operations must be processed for MSB0 (most significant bit 0) mode.
+   */
   private final boolean msb0;
 
+  /**
+   * A Constructor, the LSB0 bit order will be used by default.
+   * @param in an input stream to be filtered.
+   */
   public JBBPBitInputStream(final InputStream in) {
     this(in, JBBPBitOrder.LSB0);
   }
 
+  /**
+   * A Constructor.
+   * @param in an input stream to be filtered.
+   * @param order a bit order mode for the filter.
+   * @see JBBPBitOrder#LSB0
+   * @see JBBPBitOrder#MSB0
+   */
   public JBBPBitInputStream(final InputStream in, final JBBPBitOrder order) {
     super(in);
     this.bitsInBuffer = 0;
     this.msb0 = order == JBBPBitOrder.MSB0;
   }
 
-  public byte[] readBitsArray(final int bitNumber, final int items) throws IOException {
+  /**
+   * Read array of bit sequence.
+   * @param bitNumber bit number for each bit sequence item, must be 1..8
+   * @param items number of items to be read, if less than zero then read whole stream till the end
+   * @return array of read bit items as a byte array
+   * @throws IOException it will be thrown for any transport problem during the operation
+   */
+  public byte[] readBitsArray(final int items, final JBBPBitNumber bitNumber) throws IOException {
     int pos = 0;
     if (items < 0) {
       byte[] buffer = new byte[INITIAL_ARRAY_BUFFER_SIZE];
@@ -80,6 +122,13 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPBitStre
     }
   }
 
+  /**
+   * Read number of bytes for the stream.
+   * @param items number of items to be read, if less than zero then read whole stream till the end
+   * @return read byte items as a byte array
+   * @throws IOException it will be thrown for any transport problem during the
+   * operation
+   */
   public byte[] readByteArray(final int items) throws IOException {
     int pos = 0;
     if (items < 0) {
@@ -118,6 +167,16 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPBitStre
     }
   }
 
+  /**
+   * Read number of short items from the input stream.
+   * @param items number of items to be read from the input stream, if less than zero then all stream till the end will be read
+   * @param byteOrder the order of bytes to be used to decode short values
+   * @return read items as a short array
+   * @throws IOException it will be thrown for any transport problem during the
+   * operation
+   * @see JBBPByteOrder#BIG_ENDIAN
+   * @see JBBPByteOrder#LITTLE_ENDIAN
+   */
   public short[] readShortArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
     int pos = 0;
     if (items < 0) {
@@ -149,6 +208,18 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPBitStre
     }
   }
 
+  /**
+   * Read number of integer items from the input stream.
+   *
+   * @param items number of items to be read from the input stream, if less than
+   * zero then all stream till the end will be read
+   * @param byteOrder the order of bytes to be used to decode values
+   * @return read items as an integer array
+   * @throws IOException it will be thrown for any transport problem during the
+   * operation
+   * @see JBBPByteOrder#BIG_ENDIAN
+   * @see JBBPByteOrder#LITTLE_ENDIAN
+   */
   public int[] readIntArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
     int pos = 0;
     if (items < 0) {
@@ -180,6 +251,18 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPBitStre
     }
   }
 
+  /**
+   * Read number of long items from the input stream.
+   *
+   * @param items number of items to be read from the input stream, if less than
+   * zero then all stream till the end will be read
+   * @param byteOrder the order of bytes to be used to decode values
+   * @return read items as a long array
+   * @throws IOException it will be thrown for any transport problem during the
+   * operation
+   * @see JBBPByteOrder#BIG_ENDIAN
+   * @see JBBPByteOrder#LITTLE_ENDIAN
+   */
   public long[] readLongArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
     int pos = 0;
     if (items < 0) {
@@ -211,6 +294,16 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPBitStre
     }
   }
 
+  /**
+   * Read a unsigned short value from the stream.
+   * @param byteOrder he order of bytes to be used to decode the read value
+   * @return the unsigned short value read from stream
+   * @throws IOException it will be thrown for any transport problem during the
+   * operation
+   * @throws EOFException if the end of the stream has been reached
+   * @see JBBPByteOrder#BIG_ENDIAN
+   * @see JBBPByteOrder#LITTLE_ENDIAN
+   */
   public int readUnsignedShort(final JBBPByteOrder byteOrder) throws IOException {
     final int b0 = this.read();
     if (b0 < 0) {
@@ -223,6 +316,18 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPBitStre
     return byteOrder == JBBPByteOrder.BIG_ENDIAN ? (b0 << 8) | b1 : (b1 << 8) | b0;
   }
 
+  /**
+   * Read an integer value from the stream.
+   *
+   * @param byteOrder he order of bytes to be used to decode the read value
+   * @return the unsigned short value read from stream or -1 if the end of
+   * stream has been reached
+   * @throws IOException it will be thrown for any transport problem during the
+   * operation
+   * @throws EOFException if the end of the stream has been reached
+   * @see JBBPByteOrder#BIG_ENDIAN
+   * @see JBBPByteOrder#LITTLE_ENDIAN
+   */
   public int readInt(final JBBPByteOrder byteOrder) throws IOException {
     if (byteOrder == JBBPByteOrder.BIG_ENDIAN) {
       return (readUnsignedShort(byteOrder) << 16) | readUnsignedShort(byteOrder);
@@ -232,6 +337,18 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPBitStre
     }
   }
 
+  /**
+   * Read a long value from the stream.
+   *
+   * @param byteOrder he order of bytes to be used to decode the read value
+   * @return the unsigned short value read from stream or -1 if the end of
+   * stream has been reached
+   * @throws IOException it will be thrown for any transport problem during the
+   * operation
+   * @throws EOFException if the end of the stream has been reached
+   * @see JBBPByteOrder#BIG_ENDIAN
+   * @see JBBPByteOrder#LITTLE_ENDIAN
+   */
   public long readLong(final JBBPByteOrder byteOrder) throws IOException {
     if (byteOrder == JBBPByteOrder.BIG_ENDIAN) {
       return (((long) readInt(byteOrder) & 0xFFFFFFFFL) << 32) | ((long) readInt(byteOrder) & 0xFFFFFFFFL);
@@ -241,43 +358,68 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPBitStre
     }
   }
 
+  /**
+   * Get the current byte counter state.
+   * @return the number of bytes read from the stream currently
+   */
   public long getCounter() {
     return this.byteCounter;
   }
 
+  /**
+   * Get the value of the inside bit buffer
+   * @return the bit buffer state
+   */
   public int getBitBuffer() {
     return this.bitBuffer;
   }
 
+  /**
+   * Get the number of buffered bits in the inside bit buffer
+   * @return the number of buffered bits in the bit buffer
+   */
   public int getBufferedBitsNumber() {
     return this.bitsInBuffer;
   }
 
-  public JBBPBitOrder getOrder() {
+  /**
+   * Get the bit order option for read operations.
+   * @return the bit order parameter
+   * @see JBBPBitOrder#LSB0
+   * @see JBBPBitOrder#MSB0
+   */
+  public JBBPBitOrder getBitOrder() {
     return this.msb0 ? JBBPBitOrder.MSB0 : JBBPBitOrder.LSB0;
   }
 
-  public int readBits(final int numOfBitsToRead) throws IOException {
-    if (numOfBitsToRead <= 0 || numOfBitsToRead > 8) {
-      throw new IllegalArgumentException("Only 1..8 bits allowed to be read by the method");
-    }
-
+  /**
+   * Read number of bits from the input stream.
+   * @param numOfBitsToRead the number of bits to be read, must be 1..8
+   * @return the read bits as integer, -1 if the end of stream has been reached
+   * @throws IOException it will be thrown for transport errors
+   * @throws IllegalArgumentException it will be thrown for wrong number of bits to be read
+   */
+  public int readBits(final JBBPBitNumber numOfBitsToRead) throws IOException {
+    JBBPUtils.assertNotNull(numOfBitsToRead, "Number of bits must not be null");
+    
     int result;
 
-    if (bitsInBuffer == 0 && numOfBitsToRead == 8) {
+    final int numOfBitsAsNumber = numOfBitsToRead.getBitNumber();
+    
+    if (bitsInBuffer == 0 && numOfBitsAsNumber == 8) {
       result = this.readByteFromStream();
       return result;
     }
     else {
       result = 0;
-      int i = numOfBitsToRead;
+      int i = numOfBitsToRead.getBitNumber();
       int mask = 0x80;
 
       while (i > 0) {
         if (this.bitsInBuffer == 0) {
           final int nextByte = this.readByteFromStream();
           if (nextByte < 0) {
-            if (i == numOfBitsToRead) {
+            if (i == numOfBitsAsNumber) {
               return nextByte;
             }
             else {
@@ -342,7 +484,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPBitStre
       long i = numOfBytes;
       long count = 0L;
       while (i > 0) {
-        final int nxt = readBits(8);
+        final int nxt = readBits(JBBPBitNumber.BITS_8);
         if (nxt < 0) {
           break;
         }
@@ -353,6 +495,11 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPBitStre
     }
   }
 
+  /**
+   * Inside method to read a byte from stream.
+   * @return the read byte or -1 if the end of the stream has been reached
+   * @throws IOException it will be thrown for transport errors
+   */
   private int readByteFromStream() throws IOException {
     int result = this.in.read();
     if (result >= 0) {
@@ -364,6 +511,11 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPBitStre
     return result;
   }
 
+  /**
+   * Read the next stream byte into bit buffer.
+   * @return the read byte or -1 if the endo of stream has been reached.
+   * @throws IOException it will be thrown for transport errors
+   */
   private int loadNextByteInBuffer() throws IOException {
     final int value = this.readByteFromStream();
     if (value < 0) {
@@ -376,12 +528,20 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPBitStre
     return value;
   }
 
+  /**
+   * Align read byte. If there are unread bits in inside bit buffer, it will be aligned to read the next byte from stream instead of reading from the bit buffer. 
+   */
   public void alignByte() {
-    if (this.bitsInBuffer > 0) {
+    if (this.bitsInBuffer > 0 && this.bitsInBuffer<8) {
       this.bitsInBuffer = 0;
     }
   }
 
+  /**
+   * Check that there is available data to read from stream.
+   * @return true if there is data to be read
+   * @throws IOException it will be thrown for transport errors
+   */
   public boolean hasAvailableData() throws IOException {
     if (this.bitsInBuffer > 0) {
       return true;
@@ -411,7 +571,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPBitStre
       int count = length;
       int i = offset;
       while (count > 0) {
-        final int nextByte = this.readBits(8);
+        final int nextByte = this.readBits(JBBPBitNumber.BITS_8);
         if (nextByte < 0) {
           break;
         }
@@ -438,7 +598,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPBitStre
       return result;
     }
     else {
-      return this.readBits(8);
+      return this.readBits(JBBPBitNumber.BITS_8);
     }
   }
 

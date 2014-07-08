@@ -19,7 +19,7 @@ public interface JBBPBitStream {
 
   long getCounter();
 
-  JBBPBitOrder getOrder();
+  JBBPBitOrder getBitOrder();
 
   int getBitBuffer();
 

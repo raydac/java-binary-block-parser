@@ -18,26 +18,66 @@ package com.igormaznitsa.jbbp.io;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.*;
 
+/**
+ * The Filter allows to write bit by bit into an output stream and count the written byte number.
+ */
 public class JBBPBitOutputStream extends FilterOutputStream implements JBBPBitStream {
-
+  /**
+   * Inside bit buffer.
+   */
   private int bitBuffer;
+  /**
+   * Number of bits inside the bit buffer.
+   */
   private int bitBufferCount;
+  /**
+   * The byte counter of written bytes.
+   */
   private long byteCounter;
+  /**
+   * Flag shows that bit operations must be processed for MSB0 (most significant
+   * bit 0) mode.
+   */
   private final boolean msb0;
 
+  /**
+   * A Constructor. The Default LSB0 bit mode will be used for bit writing operations.
+   * @param out the output stream to be filtered.
+   */
   public JBBPBitOutputStream(final OutputStream out) {
     this(out, JBBPBitOrder.LSB0);
   }
 
+  /**
+   * A Constructor.
+   * @param out an output stream to be filtered.
+   * @param order a bit writing mode to used for writing operations.
+   * @see JBBPBitOrder#LSB0
+   * @see JBBPBitOrder#MSB0
+   */
   public JBBPBitOutputStream(final OutputStream out, final JBBPBitOrder order) {
     super(out);
     this.msb0 = order == JBBPBitOrder.MSB0;
   }
 
-  public JBBPBitOrder getOrder() {
+  /**
+   * Get the bit mode for writing operations.
+   * @return the bit order for reading operations.
+   * @see JBBPBitOrder#LSB0
+   * @see JBBPBitOrder#MSB0
+   */
+  public JBBPBitOrder getBitOrder() {
     return this.msb0 ? JBBPBitOrder.MSB0 : JBBPBitOrder.LSB0;
   }
 
+  /**
+   * Write a signed short value into the output stream.
+   * @param value a value to be written. Only two bytes will be written.
+   * @param byteOrder the byte order of the value bytes to be used for writing.
+   * @throws IOException it will be thrown for transport errors
+   * @see JBBPByteOrder#BIG_ENDIAN
+   * @see JBBPByteOrder#LITTLE_ENDIAN
+   */
   public void writeShort(final int value, final JBBPByteOrder byteOrder) throws IOException {
     if (byteOrder == JBBPByteOrder.BIG_ENDIAN) {
       this.write(value >>> 8);
@@ -49,6 +89,14 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPBitSt
     }
   }
 
+  /**
+   * Write an integer value into the output stream.
+   * @param value a value to be written into the output stream.
+   * @param byteOrder the byte order of the value bytes to be used for writing.
+   * @throws IOException it will be thrown for transport errors
+   * @see JBBPByteOrder#BIG_ENDIAN
+   * @see JBBPByteOrder#LITTLE_ENDIAN
+   */
   public void writeInt(final int value, final JBBPByteOrder byteOrder) throws IOException {
     if (byteOrder == JBBPByteOrder.BIG_ENDIAN) {
       this.writeShort(value >>> 16, byteOrder);
@@ -60,6 +108,15 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPBitSt
     }
   }
 
+  /**
+   * Write a long value into the output stream.
+   *
+   * @param value a value to be written into the output stream.
+   * @param byteOrder the byte order of the value bytes to be used for writing.
+   * @throws IOException it will be thrown for transport errors
+   * @see JBBPByteOrder#BIG_ENDIAN
+   * @see JBBPByteOrder#LITTLE_ENDIAN
+   */
   public void writeLong(final long value, final JBBPByteOrder byteOrder) throws IOException {
     if (byteOrder == JBBPByteOrder.BIG_ENDIAN) {
       this.writeInt((int) (value >>> 32), byteOrder);
@@ -71,18 +128,34 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPBitSt
     }
   }
 
+  /**
+   * Get number of bytes written into the output stream.
+   * @return the long value contains number of bytes written into the stream
+   */
   public long getCounter() {
     return this.byteCounter;
   }
 
+  /**
+   * Get the inside bit buffer value.
+   * @return the inside bit buffer value
+   */
   public int getBitBuffer() {
     return this.bitBuffer;
   }
 
+  /**
+   * Get the number of bits cached in the inside bit buffer.
+   * @return the number of cached bits in the bit buffer
+   */
   public int getBufferedBitsNumber() {
     return this.bitBufferCount;
   }
 
+  /**
+   * Flush the bit buffer into the output stream
+   * @throws IOException it will be thrown for transport errors
+   */
   private void flushBitBuffer() throws IOException {
     if (this.bitBufferCount > 0) {
       this.bitBufferCount = 0;
@@ -117,12 +190,15 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPBitSt
     this.write(b, 0, b.length);
   }
 
-  public void writeBits(final int bitNumber, final int value) throws IOException {
-    if (bitNumber <= 0 || bitNumber > 8) {
-      throw new IllegalArgumentException("Number of bits to be saved must be 1..8");
-    }
-
-    if (this.bitBufferCount == 0 && bitNumber == 8) {
+  /**
+   * Write bits into the output stream.
+   * @param value the value which bits will be written in the output stream
+   * @param bitNumber number of bits from the value to be written, must be in 1..8
+   * @throws IOException it will be thrown for transport errors
+   * @throws IllegalArgumentException it will be thrown for wrong bit number
+   */
+  public void writeBits(final int value, final JBBPBitNumber bitNumber) throws IOException {
+    if (this.bitBufferCount == 0 && bitNumber == JBBPBitNumber.BITS_8) {
       write(value);
     }
     else {
@@ -132,7 +208,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPBitSt
       mask = initialMask << this.bitBufferCount;
 
       int accum = value;
-      int i = bitNumber;
+      int i = bitNumber.getBitNumber();
 
       while (i > 0) {
         this.bitBuffer = this.bitBuffer | ((accum & 1) == 0 ? 0 : mask);
@@ -152,11 +228,16 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPBitSt
     }
   }
 
-  private void writeByte(int b) throws IOException {
+  /**
+   * Inside method tp process byte writing operation/
+   * @param value a byte value to be written
+   * @throws IOException it will be thrown for transport problems
+   */
+  private void writeByte(int value) throws IOException {
     if (this.msb0){
-      b = JBBPUtils.reverseByte((byte)b) & 0xFF;
+      value = JBBPUtils.reverseByte((byte)value) & 0xFF;
     }
-    this.out.write(b);
+    this.out.write(value);
     this.byteCounter++;
   }
 
@@ -172,7 +253,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPBitSt
       writeByte(value);
     }
     else {
-      writeBits(8, value);
+      writeBits(value, JBBPBitNumber.BITS_8);
     }
   }
 

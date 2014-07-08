@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Class contains specific common auxiliary methods for parser classes.
+ * Class contains specific common auxiliary methods for parser and compiler classes.
  */
 public enum JBBPCompilerUtils {
 ;

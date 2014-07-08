@@ -15,21 +15,40 @@
  */
 package com.igormaznitsa.jbbp.exceptions;
 
+/**
+ * The Root Exception for all JBBP exceptions.
+ */
 public class JBBPException extends RuntimeException {
   private static final long serialVersionUID = -3311082983804835019L;
 
+  /**
+   * A Constructor.
+   */
   public JBBPException() {
   }
 
-  public JBBPException(String message) {
+  /**
+   * A Constructor.
+   * @param message the message for the exception 
+   */
+  public JBBPException(final String message) {
     super(message);
   }
 
-  public JBBPException(String message, Throwable cause) {
+  /**
+   * A Constructor.
+   * @param message the message for the exception
+   * @param cause the root cause for the exception
+   */
+  public JBBPException(final String message, final Throwable cause) {
     super(message, cause);
   }
 
-  public JBBPException(Throwable cause) {
+  /**
+   * A Constructor.
+   * @param cause the root cause for the exception
+   */
+  public JBBPException(final Throwable cause) {
     super(cause);
   }
   

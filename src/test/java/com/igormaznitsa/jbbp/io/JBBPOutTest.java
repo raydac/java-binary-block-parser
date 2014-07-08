@@ -94,17 +94,17 @@ public class JBBPOutTest {
 
   @Test
   public void testBits_Int() throws Exception {
-    assertArrayEquals(new byte[]{0xD}, BeginBin().Bits(JBBPNumberOfBits.BITS_4, 0xFD).End().toByteArray());
+    assertArrayEquals(new byte[]{0xD}, BeginBin().Bits(JBBPBitNumber.BITS_4, 0xFD).End().toByteArray());
   }
 
   @Test
   public void testBits_IntArray() throws Exception {
-    assertArrayEquals(new byte[]{(byte) 0xED}, BeginBin().Bits(JBBPNumberOfBits.BITS_4, 0xFD, 0xFE).End().toByteArray());
+    assertArrayEquals(new byte[]{(byte) 0xED}, BeginBin().Bits(JBBPBitNumber.BITS_4, 0xFD, 0xFE).End().toByteArray());
   }
 
   @Test
   public void testBits_ByteArray() throws Exception {
-    assertArrayEquals(new byte[]{(byte) 0xED}, BeginBin().Bits(JBBPNumberOfBits.BITS_4, (byte) 0xFD, (byte) 0x8E).End().toByteArray());
+    assertArrayEquals(new byte[]{(byte) 0xED}, BeginBin().Bits(JBBPBitNumber.BITS_4, (byte) 0xFD, (byte) 0x8E).End().toByteArray());
   }
 
   @Test
@@ -263,19 +263,19 @@ public class JBBPOutTest {
     }
 
     try{
-      out.Bits(JBBPNumberOfBits.BITS_3, 12);
+      out.Bits(JBBPBitNumber.BITS_3, 12);
       fail("Must throw ISE");
     }catch(IllegalStateException ex){
     }
 
     try{
-      out.Bits(JBBPNumberOfBits.BITS_3, 12,13,14);
+      out.Bits(JBBPBitNumber.BITS_3, 12,13,14);
       fail("Must throw ISE");
     }catch(IllegalStateException ex){
     }
 
     try{
-      out.Bits(JBBPNumberOfBits.BITS_3, (byte)1,(byte)2,(byte)3);
+      out.Bits(JBBPBitNumber.BITS_3, (byte)1,(byte)2,(byte)3);
       fail("Must throw ISE");
     }catch(IllegalStateException ex){
     }

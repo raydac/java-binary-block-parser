@@ -15,6 +15,9 @@
  */
 package com.igormaznitsa.jbbp.io;
 
+/**
+ * Constants for bit order of reading operations.
+ */
 public enum JBBPBitOrder {
   /**
    * Most Significant Bit First means that the most significant bit will arrive first, the 7th bit will be read as the first one

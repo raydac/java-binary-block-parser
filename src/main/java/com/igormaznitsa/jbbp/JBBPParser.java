@@ -117,17 +117,17 @@ public final class JBBPParser {
         break;
         case JBBPCompiler.CODE_BIT: {
           if (nonskip) {
-            final int bitNumber = compiled[positionAtCompiledBlock.getAndIncrease()] & 0xFF;
+            final JBBPBitNumber bitNumber = JBBPBitNumber.decode(compiled[positionAtCompiledBlock.getAndIncrease()] & 0xFF);
             if (arrayLength < 0) {
               singleValueField = new JBBPFieldBit(name, inStream.readBits(bitNumber));
             }
             else {
               if (nonsizedArray) {
-                fields.add(new JBBPFieldArrayBit(name, inStream.readBitsArray(bitNumber, -1)));
+                fields.add(new JBBPFieldArrayBit(name, inStream.readBitsArray(-1, bitNumber)));
               }
               else {
                 if (arrayLength > 0) {
-                  fields.add(new JBBPFieldArrayBit(name, inStream.readBitsArray(bitNumber, arrayLength)));
+                  fields.add(new JBBPFieldArrayBit(name, inStream.readBitsArray(arrayLength, bitNumber)));
                 }
               }
             }

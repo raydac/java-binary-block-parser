@@ -15,22 +15,42 @@
  */
 package com.igormaznitsa.jbbp.exceptions;
 
-public class JBBPParsingException extends JBBPException {
+/**
+ * The Exception can be thrown during parsing process.
+ */
+public class JBBPParsingException extends JBBPCompilationException {
   private static final long serialVersionUID = 3397335881291955769L;
 
+  /**
+   * A Constructor.
+   */
   public JBBPParsingException() {
+    this("Parsing exception");
   }
 
-  public JBBPParsingException(String message) {
-    super(message);
+  /**
+   * A Constructor.
+   * @param message the exception error message 
+   */
+  public JBBPParsingException(final String message) {
+    this(message,null);
   }
 
-  public JBBPParsingException(String message, Throwable cause) {
-    super(message, cause);
+  /**
+   * A Constructor.
+   * @param message the exception error message
+   * @param cause the root cause for the exception
+   */
+  public JBBPParsingException(final String message, final Throwable cause) {
+    super(message,null, cause);
   }
 
-  public JBBPParsingException(Throwable cause) {
-    super(cause);
+  /**
+   * A Constructor.
+   * @param cause the root cause for the exception
+   */
+  public JBBPParsingException(final Throwable cause) {
+    this("Parsing exception",cause);
   }
   
 }

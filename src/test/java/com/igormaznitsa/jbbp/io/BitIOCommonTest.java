@@ -48,14 +48,14 @@ public class BitIOCommonTest {
     int writenBits = 0;
     for (int i = 0; i < LEN; i++) {
       writenBits += len[i];
-      out.writeBits(len[i], array[i]);
+      out.writeBits(array[i], JBBPBitNumber.decode(len[i]));
     }
 
     out.close();
 
     final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(buff.toByteArray()));
     for (int i = 0; i < LEN; i++) {
-      assertEquals("Index i=" + i, array[i] & 0xFF, in.readBits(len[i]));
+      assertEquals("Index i=" + i, array[i] & 0xFF, in.readBits(JBBPBitNumber.decode(len[i])));
     }
 
     if (writenBits % 8 == 0) {
@@ -88,14 +88,14 @@ public class BitIOCommonTest {
     int writtenBits = 0;
     for (int i = 0; i < LEN; i++) {
       writtenBits += len[i];
-      out.writeBits(len[i], array[i]);
+      out.writeBits(array[i], JBBPBitNumber.decode(len[i]));
     }
 
     out.close();
 
     final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(buff.toByteArray()), JBBPBitOrder.MSB0);
     for (int i = 0; i < LEN; i++) {
-      assertEquals("Index i=" + i, array[i] & 0xFF, in.readBits(len[i]));
+      assertEquals("Index i=" + i, array[i] & 0xFF, in.readBits(JBBPBitNumber.decode(len[i])));
     }
 
     if (writtenBits % 8 == 0) {
@@ -129,14 +129,14 @@ public class BitIOCommonTest {
 
     for (int i = 0; i < LEN; i++) {
       writtenBits += len[i];
-      out.writeBits(len[i], array[i]);
+      out.writeBits(array[i], JBBPBitNumber.decode(len[i]));
     }
 
     out.close();
 
     final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(buff.toByteArray()), JBBPBitOrder.LSB0);
     for (int i = 0; i < LEN; i++) {
-      assertEquals("Index i=" + i, array[i] & 0xFF, in.readBits(len[i]));
+      assertEquals("Index i=" + i, array[i] & 0xFF, in.readBits(JBBPBitNumber.decode(len[i])));
     }
 
     if (writtenBits % 8 == 0) {

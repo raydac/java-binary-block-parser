@@ -59,7 +59,7 @@ public class JBBPOut {
     JBBPUtils.assertNotNull(bitOrder, "Bit order must not be null");
 
     this.outStream = outStream instanceof JBBPBitOutputStream ? (JBBPBitOutputStream) outStream : new JBBPBitOutputStream(outStream, bitOrder);
-    this.bitOrder = this.outStream.getOrder();
+    this.bitOrder = this.outStream.getBitOrder();
     if (this.bitOrder != bitOrder) {
       throw new IllegalArgumentException("Detected JBBPBitOutputStream as argument with already defined different bit order [" + this.bitOrder + ']');
     }
@@ -77,7 +77,7 @@ public class JBBPOut {
     assertNotEnded();
     final int numberOfBufferedBits = this.outStream.getBufferedBitsNumber();
     if (numberOfBufferedBits > 0) {
-      this.outStream.writeBits(8 - numberOfBufferedBits, 0);
+      this.outStream.writeBits(0, JBBPBitNumber.decode(8 - numberOfBufferedBits));
     }
     return this;
   }
@@ -104,13 +104,13 @@ public class JBBPOut {
 
   public JBBPOut Bit(final boolean value) throws IOException {
     assertNotEnded();
-    this.outStream.writeBits(1, value ? 1 : 0);
+    this.outStream.writeBits(value ? 1 : 0, JBBPBitNumber.BITS_1);
     return this;
   }
 
   public JBBPOut Bit(final byte value) throws IOException {
     assertNotEnded();
-    this.outStream.writeBits(1, value & 1);
+    this.outStream.writeBits(value & 1, JBBPBitNumber.BITS_1);
     return this;
   }
 
@@ -141,18 +141,18 @@ public class JBBPOut {
     return this;
   }
 
-  private void _writeBits(final JBBPNumberOfBits numberOfBits, final int value) throws IOException {
-    this.outStream.writeBits(numberOfBits.getNumberOfBits(), value);
+  private void _writeBits(final JBBPBitNumber numberOfBits, final int value) throws IOException {
+    this.outStream.writeBits(value, numberOfBits);
   }
   
-  public JBBPOut Bits(final JBBPNumberOfBits numberOfBits, final int value) throws IOException {
+  public JBBPOut Bits(final JBBPBitNumber numberOfBits, final int value) throws IOException {
     assertNotEnded();
     JBBPUtils.assertNotNull(numberOfBits, "Number of bits must not be null");
     _writeBits(numberOfBits, value);
     return this;
   }
 
-  public JBBPOut Bits(final JBBPNumberOfBits numberOfBits, final int... value) throws IOException {
+  public JBBPOut Bits(final JBBPBitNumber numberOfBits, final int... value) throws IOException {
     assertNotEnded();
     JBBPUtils.assertNotNull(value, "Array must not be null");
     for (final int v : value) {
@@ -161,7 +161,7 @@ public class JBBPOut {
     return this;
   }
 
-  public JBBPOut Bits(final JBBPNumberOfBits numberOfBits, final byte... value) throws IOException {
+  public JBBPOut Bits(final JBBPBitNumber numberOfBits, final byte... value) throws IOException {
     assertNotEnded();
     JBBPUtils.assertNotNull(value, "Array must not be null");
     for (final byte b : value) {

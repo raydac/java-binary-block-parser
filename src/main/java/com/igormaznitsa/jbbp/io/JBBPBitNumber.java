@@ -15,29 +15,45 @@
  */
 package com.igormaznitsa.jbbp.io;
 
-public enum JBBPNumberOfBits {
+/**
+ * Constants allowed bit numbers for bit operations.
+ */
+public enum JBBPBitNumber {
   BITS_1(1),
   BITS_2(2),
   BITS_3(3),
   BITS_4(4),
   BITS_5(5),
   BITS_6(6),
-  BITS_7(7);
-  
+  BITS_7(7),
+  BITS_8(8);
+
+  /**
+   * Number of bits.
+   */
   private final int numberOfBits;
   
-  private JBBPNumberOfBits(final int numberOfBits){
+  private JBBPBitNumber(final int numberOfBits){
     this.numberOfBits = numberOfBits;
   }
   
-  public int getNumberOfBits(){
+  /**
+   * Get the numeric value of the bit number.
+   * @return the number of bits as integer
+   */
+  public int getBitNumber(){
     return this.numberOfBits;
   }
   
-  public static JBBPNumberOfBits decode(final int numberOfBits){
-    for(final JBBPNumberOfBits b : values()){
-      if (b.numberOfBits == numberOfBits) return b;
-    }
-    throw new IllegalArgumentException("Unsupported bit number, allowed 1..7");
+  /**
+   * Decode a numeric value to a constant.
+   * @param numberOfBits the numeric value to be decoded
+   * @return decoded constant
+   * @throws IllegalArgumentException if the value less than 1 or greater than 8
+   */
+  public static JBBPBitNumber decode(final int numberOfBits){
+    if (numberOfBits <= 0 || numberOfBits>8) 
+      throw new IllegalArgumentException("Unsupported bit number, allowed 1..8");
+    return values()[numberOfBits-1];
   }
 }
