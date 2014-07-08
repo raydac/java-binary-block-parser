@@ -152,6 +152,56 @@ public class JBBPCompilerTest {
   }
 
   @Test
+  public void testCompile_ErrorForNamedSkipField() throws Exception {
+    try {
+      JBBPCompiler.compile("skip hello;");
+      fail("Must throw IAE");
+    }
+    catch (IllegalArgumentException ex) {
+    }
+  }
+
+  @Test
+  public void testCompile_ErrorForArraySkipField() throws Exception {
+    try {
+      JBBPCompiler.compile("skip [445] hello;");
+      fail("Must throw IAE");
+    }
+    catch (IllegalArgumentException ex) {
+    }
+  }
+
+  @Test
+  public void testCompile_ErrorForZeroSkipValue() throws Exception {
+    try {
+      JBBPCompiler.compile("skip:0;");
+      fail("Must throw IAE");
+    }
+    catch (JBBPCompilationException ex) {
+    }
+  }
+
+  @Test
+  public void testCompile_ErrorForNegativeSkipValue() throws Exception {
+    try {
+      JBBPCompiler.compile("skip:-1;");
+      fail("Must throw IAE");
+    }
+    catch (JBBPTokenizerException ex) {
+    }
+  }
+
+  @Test
+  public void testCompile_ErrorForNonNumericSkipValue() throws Exception {
+    try {
+      JBBPCompiler.compile("skip:hhh;");
+      fail("Must throw IAE");
+    }
+    catch (JBBPTokenizerException ex) {
+    }
+  }
+
+  @Test
   public void testCompile_ErrorForUnknownTypeAsSecondField() throws Exception {
     try {
       JBBPCompiler.compile("byte; somewrong; int;");

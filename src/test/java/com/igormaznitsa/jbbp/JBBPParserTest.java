@@ -18,6 +18,7 @@ package com.igormaznitsa.jbbp;
 import com.igormaznitsa.jbbp.exceptions.JBBPParsingException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTooManyFieldsFoundException;
 import com.igormaznitsa.jbbp.model.*;
+import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import static org.junit.Assert.*;
 import org.junit.Test;
@@ -213,6 +214,55 @@ public class JBBPParserTest {
     assertEquals(0xFE04,result.findFieldForType(JBBPFieldUShort.class).getAsInt());
     assertEquals(0x06070809,result.findFieldForType(JBBPFieldInt.class).getAsInt());
     assertEquals(0xFF01020305060708L,result.findFieldForType(JBBPFieldLong.class).getAsLong());
+  }
+
+  @Test
+  public void testParse_Align_LongDistance() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("ubyte; align:32000; short;");
+    
+    final byte [] data = new byte [32002];
+    data[0] = (byte) 0xFE;
+    data[32000] = 0x12;
+    data[32001] = 0x34;
+    
+    final JBBPFieldStruct root = parser.parse(data);
+    
+    assertEquals(0xFE, root.findFieldForType(JBBPFieldUByte.class).getAsInt());
+    assertEquals(0x1234, root.findFieldForType(JBBPFieldShort.class).getAsInt());
+  }
+
+  @Test
+  public void testParse_Skip_WithoutArgument() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("byte; skip; short;");
+    final JBBPFieldStruct result = parser.parse(new byte[]{1, 2, 3, 4, 5, 6, 7, 8});
+    assertEquals(1, result.findFirstFieldForType(JBBPFieldByte.class).getAsInt());
+    assertEquals(0x0304, result.findFieldForType(JBBPFieldShort.class).getAsInt());
+  }
+
+  @Test
+  public void testParse_Skip_ShortDistance() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("byte; skip:3; short;");
+    final JBBPFieldStruct result = parser.parse(new byte[]{1, 2, 3, 4, 5, 6, 7, 8});
+    assertEquals(1, result.findFirstFieldForType(JBBPFieldByte.class).getAsInt());
+    assertEquals(0x0506, result.findFieldForType(JBBPFieldShort.class).getAsInt());
+  }
+
+  @Test
+  public void testParse_Skip_LongDistance() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("byte; skip:32000; short;");
+    final byte [] data = new byte [32003];
+    data[0] = 1;
+    data[32001]=0x0A;
+    data[32002]=0x0B;
+    final JBBPFieldStruct result = parser.parse(data);
+    assertEquals(1, result.findFirstFieldForType(JBBPFieldByte.class).getAsInt());
+    assertEquals(0x0A0B, result.findFieldForType(JBBPFieldShort.class).getAsInt());
+  }
+
+  @Test(expected = EOFException.class)
+  public void testParse_Skip_TooLongDistance() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("byte; skip:33; short;");
+    parser.parse(new byte[]{1, 2, 3, 4, 5, 6, 7, 8});
   }
 
   @Test

@@ -86,7 +86,7 @@ public final class JBBPCompiler {
    * The Byte code of the 'BYTE' command.
    */
   public static final int CODE_BYTE = 0x04;
-  /**
+  /**p
    * The Byte code of the 'USHORT' (unsigned short) command.
    */
   public static final int CODE_USHORT = 0x05;
@@ -104,42 +104,53 @@ public final class JBBPCompiler {
   public static final int CODE_LONG = 0x08;
 
   /**
-   * The Byte code of the Structure start command.
+   * The Byte code of the 'STRUCTURE_START' command.
    */
   public static final int CODE_STRUCT_START = 0x09;
 
   /**
-   * The Byte code of the Structure end command.
+   * The Byte code of the 'STRUCTURE_END' command.
    */
   public static final int CODE_STRUCT_END = 0x0A;
+
+  /**
+   * The Byte code of the SKIP command.
+   */
+  public static final int CODE_SKIP = 0x0B;
 
   /**
    * The Byte-Code Flag shows that the field is a named one.
    */
   public static final int FLAG_NAMED = 0x10;
   /**
-   * The Byte-Code Flag shows that the field is an array which size is defined by an expression or the array is unsized and must be read till the end of a stream.
+   * The Byte-Code Flag shows that the field is an array which size is defined
+   * by an expression or the array is unsized and must be read till the end of a
+   * stream.
    */
   public static final int FLAG_EXPRESSIONORWHOLE = 0x20;
   /**
-   * The Byte-Code Flag shows that the field is an array but it must be omitted for unlimited field arrays.
+   * The Byte-Code Flag shows that the field is an array but it must be omitted
+   * for unlimited field arrays.
    */
   public static final int FLAG_ARRAY = 0x40;
   /**
-   * The Byte-Code Flag shows that a multi-byte field must be decoded as Little-endian one.
+   * The Byte-Code Flag shows that a multi-byte field must be decoded as
+   * Little-endian one.
    */
   public static final int FLAG_LITTLE_ENDIAN = 0x80;
 
   /**
    * Compile a text script into its byte code representation/
+   *
    * @param script a text script to be compiled, must not be null.
    * @return a compiled block for the script.
    * @throws IOException it will be thrown for an inside IO error.
-   * @throws JBBPException it will be thrown for any logical or work exception for the parser and compiler
+   * @throws JBBPException it will be thrown for any logical or work exception
+   * for the parser and compiler
    */
   public static JBBPCompiledBlock compile(final String script) throws IOException {
     JBBPUtils.assertNotNull(script, "Script must not be null");
-    
+
     final JBBPCompiledBlock.Builder builder = JBBPCompiledBlock.prepare().setSource(script);
 
     final List<JBBPNamedFieldInfo> namedFields = new ArrayList<JBBPNamedFieldInfo>();
@@ -183,6 +194,30 @@ public final class JBBPCompiler {
         case CODE_INT:
         case CODE_LONG: {
           // do nothing
+        }
+        break;
+        case CODE_SKIP: {
+          if (token.getArraySizeAsString() != null) {
+            throw new IllegalArgumentException("A Skip field can't be array");
+          }
+          if (token.getFieldName() != null) {
+            throw new IllegalArgumentException("A Skip field can't be named [" + token.getFieldName() + ']');
+          }
+          final String parsedSkipByteNumber = token.getFieldTypeParameters().getExtraData();
+          if (parsedSkipByteNumber == null) {
+            extraField = 1;
+          }
+          else {
+            try {
+              extraField = Integer.parseInt(parsedSkipByteNumber);
+            }
+            catch (NumberFormatException ex) {
+              extraField = -1;
+            }
+            if (extraField <= 0) {
+              throw new JBBPCompilationException("Skip byte number must be greater than zero [" + token.getFieldTypeParameters().getExtraData() + ']', token);
+            }
+          }
         }
         break;
         case CODE_ALIGN: {
@@ -266,8 +301,7 @@ public final class JBBPCompiler {
       }
 
       if (extraField >= 0) {
-        out.write(extraField);
-        offset++;
+        offset += writePackedInt(out, extraField);
       }
 
       if ((code & FLAG_NAMED) != 0) {
@@ -310,6 +344,7 @@ public final class JBBPCompiler {
 
   /**
    * The Method check that a field name supports business rules.
+   *
    * @param name the name to be checked
    * @param token the token contains the name
    * @throws JBBPCompilationException if the name doesn't support business rules
@@ -322,11 +357,13 @@ public final class JBBPCompiler {
 
   /**
    * Register a name field info item in a named field list.
+   *
    * @param normalizedName normalized name of the named field
    * @param offset the named field offset
    * @param namedFields the named field info list for registration
    * @param token the token for the field
-   * @throws JBBPCompilationException if there is already a registered field for the path 
+   * @throws JBBPCompilationException if there is already a registered field for
+   * the path
    */
   private static void registerNamedField(final String normalizedName, final int offset, final List<JBBPNamedFieldInfo> namedFields, final JBBPToken token) {
     if (JBBPCompilerUtils.findForFieldPath(normalizedName, namedFields) == null) {
@@ -339,6 +376,7 @@ public final class JBBPCompiler {
 
   /**
    * Write an integer value in packed form into an output stream.
+   *
    * @param out the output stream to be used to write the value into
    * @param value the value to be written into the output stream
    * @return the length of packed data in bytes
@@ -352,6 +390,7 @@ public final class JBBPCompiler {
 
   /**
    * The Method prepares a byte-code for a token field type and modifiers.
+   *
    * @param token a token to be processed, must not be null
    * @return the prepared byte code for the token
    */
@@ -366,8 +405,11 @@ public final class JBBPCompiler {
         result |= token.getFieldName() == null ? 0 : FLAG_NAMED;
 
         final String name = descriptor.getTypeName().toLowerCase(Locale.ENGLISH);
-        if ("align".equals(name)) {
-          result = 0;
+        if ("skip".equals(name)) {
+          result |= CODE_SKIP;
+        }
+        else if ("align".equals(name)) {
+          result |= CODE_ALIGN;
         }
         else if ("bit".equals(name)) {
           result |= CODE_BIT;

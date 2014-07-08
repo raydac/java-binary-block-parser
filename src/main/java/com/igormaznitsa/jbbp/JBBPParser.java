@@ -103,13 +103,28 @@ public final class JBBPParser {
       switch (code & 0xF) {
         case JBBPCompiler.CODE_ALIGN: {
           if (nonskip) {
-            final int alignByteNumber = compiled[positionAtCompiledBlock.getAndIncrease()] & 0xFF;
+            final int alignByteNumber = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
+
             inStream.alignByte();
-            final long skipByteNumber = inStream.getCounter() % (long) alignByteNumber;
+            
+            if (alignByteNumber > 0) {
+              while(inStream.getCounter() % alignByteNumber != 0){
+                final int skeptByte = inStream.read();
+                if (skeptByte<0) throw new EOFException("Can't align for "+alignByteNumber+" for EOFException");
+              }
+            }
+          }
+        }
+        break;
+        case JBBPCompiler.CODE_SKIP: {
+          if (nonskip) {
+            final int skipByteNumber = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
             if (skipByteNumber > 0) {
-              final int skeptBytes = (int) inStream.skip(skipByteNumber);
+              
+              final long skeptBytes = inStream.skip(skipByteNumber);
+
               if (skeptBytes != skipByteNumber){
-                throw new IOException("Can't skip "+skipByteNumber+" byte(s), skept only "+skeptBytes);
+                throw new EOFException("Can't skip "+skipByteNumber+" byte(s), skept only "+skeptBytes);
               }
             }
           }
@@ -117,7 +132,7 @@ public final class JBBPParser {
         break;
         case JBBPCompiler.CODE_BIT: {
           if (nonskip) {
-            final JBBPBitNumber bitNumber = JBBPBitNumber.decode(compiled[positionAtCompiledBlock.getAndIncrease()] & 0xFF);
+            final JBBPBitNumber bitNumber = JBBPBitNumber.decode(JBBPUtils.unpackInt(compiled, positionAtCompiledBlock));
             if (arrayLength < 0) {
               singleValueField = new JBBPFieldBit(name, inStream.readBits(bitNumber));
             }
