@@ -23,6 +23,8 @@ import com.igormaznitsa.jbbp.model.*;
 import com.igormaznitsa.jbbp.utils.*;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public final class JBBPParser {
 
@@ -41,19 +43,19 @@ public final class JBBPParser {
     }
   }
 
-  private List<JBBPAbstractField> parseStruct(final JBBPBitInputStream inStream, final JBBPPositionCounter positionAtCompiledBlock, final JBBPNamedNumericFieldMap fieldMap, final JBBPPositionCounter positionAtNamedFieldList, final JBBPPositionCounter positionAtVarLengthProcessors, final boolean nonskip) throws IOException {
+  private List<JBBPAbstractField> parseStruct(final JBBPBitInputStream inStream, final AtomicInteger positionAtCompiledBlock, final JBBPNamedNumericFieldMap fieldMap, final AtomicInteger positionAtNamedFieldList, final AtomicInteger positionAtVarLengthProcessors, final boolean nonskip) throws IOException {
     final List<JBBPAbstractField> fields = nonskip ? new ArrayList<JBBPAbstractField>() : null;
     final byte[] compiled = this.compiledBlock.getCompiledData();
 
     boolean structEndNotMeet = true;
 
     while (structEndNotMeet && positionAtCompiledBlock.get() < compiled.length) {
-      final int instructionStartOffset = positionAtCompiledBlock.getAndIncrease();
+      final int instructionStartOffset = positionAtCompiledBlock.getAndIncrement();
       final int code = compiled[instructionStartOffset] & 0xFF;
 
       final JBBPNamedFieldInfo name;
       if ((code & JBBPCompiler.FLAG_NAMED) != 0) {
-        name = compiledBlock.getNamedFields()[positionAtNamedFieldList.getAndIncrease()];
+        name = compiledBlock.getNamedFields()[positionAtNamedFieldList.getAndIncrement()];
         if (name == null) {
           throw new Error("Internal exception, contact developer!");
         }
@@ -79,7 +81,7 @@ public final class JBBPParser {
         }
         break;
         case JBBPCompiler.FLAG_ARRAY | JBBPCompiler.FLAG_EXPRESSIONORWHOLE: {
-          final JBBPLengthEvaluator evaluator = this.compiledBlock.getArraySizeEvaluators()[positionAtVarLengthProcessors.getAndIncrease()];
+          final JBBPLengthEvaluator evaluator = this.compiledBlock.getArraySizeEvaluators()[positionAtVarLengthProcessors.getAndIncrement()];
           arrayLength = evaluator.eval(inStream, instructionStartOffset, this.compiledBlock, fieldMap);
           nonsizedArray = false;
           checkArrayLength = true;
@@ -398,7 +400,7 @@ public final class JBBPParser {
       fieldMap = null;
     }
 
-    return new JBBPFieldStruct(new JBBPNamedFieldInfo("", "", -1), parseStruct(bitInStream, new JBBPPositionCounter(0), fieldMap, new JBBPPositionCounter(0), new JBBPPositionCounter(0), true));
+    return new JBBPFieldStruct(new JBBPNamedFieldInfo("", "", -1), parseStruct(bitInStream, new AtomicInteger(), fieldMap, new AtomicInteger(), new AtomicInteger(), true));
   }
 
   public JBBPFieldStruct parse(final byte[] array) throws IOException {

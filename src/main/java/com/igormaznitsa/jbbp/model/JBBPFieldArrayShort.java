@@ -16,16 +16,32 @@
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
+/**
+ * Describes a short array.
+ */
 public final class JBBPFieldArrayShort extends JBBPAbstractArrayField<JBBPFieldShort>{
-
+  /**
+   * Inside value storage.
+   */
   private final short [] array;
 
+  /**
+   * The Constructor.
+   * @param name a field name info, it can be null.
+   * @param array a value array, it must not be null
+   */
   public JBBPFieldArrayShort(final JBBPNamedFieldInfo name, final short[] array) {
     super(name);
+    JBBPUtils.assertNotNull(array, "Array must not be null");
     this.array = array;
   }
   
+  /**
+   * Get the value array.
+   * @return the value array as a short array
+   */
   public short [] getArray(){
     return this.array.clone();
   }
@@ -37,7 +53,7 @@ public final class JBBPFieldArrayShort extends JBBPAbstractArrayField<JBBPFieldS
 
   @Override
   public JBBPFieldShort getElementAt(final int index) {
-    return new JBBPFieldShort(this.namedField, this.array[index]);
+    return new JBBPFieldShort(this.fieldNameInfo, this.array[index]);
   }
 
   @Override

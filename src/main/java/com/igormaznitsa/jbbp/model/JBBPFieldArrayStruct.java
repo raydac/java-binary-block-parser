@@ -16,16 +16,32 @@
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
+/**
+ * Describes a structure array. It doesn't support operations to get an array value as a numeric one.
+ */
 public final class JBBPFieldArrayStruct extends JBBPAbstractArrayField<JBBPFieldStruct>{
-
+  /**
+   * Inside value storage.
+   */
   private final JBBPFieldStruct [] structs;
   
-  public JBBPFieldArrayStruct(final JBBPNamedFieldInfo name, final JBBPFieldStruct [] structs) {
+  /**
+   * The Constructor.
+   * @param name a field name info, it can be null
+   * @param array a value array, it must not be null
+   */
+  public JBBPFieldArrayStruct(final JBBPNamedFieldInfo name, final JBBPFieldStruct [] array) {
     super(name);
-    this.structs = structs;
+    JBBPUtils.assertNotNull(array, "Array must not be null");
+    this.structs = array;
   }
 
+  /**
+   * Get the value array.
+   * @return the value array as a structure array
+   */
   public JBBPFieldStruct [] getArray(){
     return this.structs.clone();
   }

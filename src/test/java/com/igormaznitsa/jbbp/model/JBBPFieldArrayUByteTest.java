@@ -26,7 +26,7 @@ public class JBBPFieldArrayUByteTest {
   @Test
   public void testNameAndOffset() {
     assertEquals("test.field", test.getFieldPath());
-    assertEquals("field", test.getName());
+    assertEquals("field", test.getFieldName());
     assertNotNull(test.getNameInfo());
     assertEquals(999, test.getNameInfo().getFieldOffsetInCompiledBlock());
   }

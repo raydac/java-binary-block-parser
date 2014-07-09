@@ -19,12 +19,15 @@ import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import java.io.ByteArrayOutputStream;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public final class JBBPUtils {
+public enum JBBPUtils {;
 
-  private JBBPUtils() {
-  }
-
+  /**
+   * Check that a string is a number.
+   * @param num a string to be checked, it can be null
+   * @return true if the string represents a number, false if it is not number or it is null
+   */
   public static boolean isNumber(final String num){
     if (num == null || num.length() == 0) return false;
     final boolean firstIsDigit = Character.isDigit(num.charAt(0));
@@ -37,39 +40,57 @@ public final class JBBPUtils {
     return dig;
   }
   
-  public static byte[] packInt(final int code) {
-    if ((code & 0xFFFFFF80) == 0) {
-      return new byte[]{(byte) code};
+  /**
+   * Pack an integer value as a byte array.
+   * @param value a code to be packed
+   * @return a byte array contains the packed code
+   */
+  public static byte[] packInt(final int value) {
+    if ((value & 0xFFFFFF80) == 0) {
+      return new byte[]{(byte) value};
     }
-    else if ((code & 0xFFFF0000) == 0) {
-      return new byte[]{(byte) 0x80, (byte) (code >>> 8), (byte) code};
+    else if ((value & 0xFFFF0000) == 0) {
+      return new byte[]{(byte) 0x80, (byte) (value >>> 8), (byte) value};
     }
     else {
-      return new byte[]{(byte) 0x81, (byte) (code >>> 24), (byte) (code >>> 16), (byte) (code >>> 8), (byte) code};
+      return new byte[]{(byte) 0x81, (byte) (value >>> 24), (byte) (value >>> 16), (byte) (value >>> 8), (byte) value};
     }
   }
 
-  public static int packInt(final byte[] array, final JBBPPositionCounter position, final int code) {
-    if ((code & 0xFFFFFF80) == 0) {
-      array[position.getAndIncrease()] = (byte) code;
+  /**
+   * Pack an integer value and save that into a byte array since defined position.
+   * @param array a byte array where to write the packed data, it must not be null
+   * @param position the position of the first byte of the packed value, it must not be null
+   * @param value the value to be packed
+   * @return number of bytes written into the array, the position will be increased
+   */
+  public static int packInt(final byte[] array, final AtomicInteger position, final int value) {
+    if ((value & 0xFFFFFF80) == 0) {
+      array[position.getAndIncrement()] = (byte) value;
       return 1;
     }
-    else if ((code & 0xFFFF0000) == 0) {
-      array[position.getAndIncrease()] = (byte) 0x80;
-      array[position.getAndIncrease()] = (byte) (code >>> 8);
-      array[position.getAndIncrease()] = (byte) code;
+    else if ((value & 0xFFFF0000) == 0) {
+      array[position.getAndIncrement()] = (byte) 0x80;
+      array[position.getAndIncrement()] = (byte) (value >>> 8);
+      array[position.getAndIncrement()] = (byte) value;
       return 3;
     }
-    array[position.getAndIncrease()] = (byte) 0x81;
-    array[position.getAndIncrease()] = (byte) (code >>> 24);
-    array[position.getAndIncrease()] = (byte) (code >>> 16);
-    array[position.getAndIncrease()] = (byte) (code >>> 8);
-    array[position.getAndIncrease()] = (byte) code;
+    array[position.getAndIncrement()] = (byte) 0x81;
+    array[position.getAndIncrement()] = (byte) (value >>> 24);
+    array[position.getAndIncrement()] = (byte) (value >>> 16);
+    array[position.getAndIncrement()] = (byte) (value >>> 8);
+    array[position.getAndIncrement()] = (byte) value;
     return 5;
   }
 
-  public static int unpackInt(final byte[] array, final JBBPPositionCounter position) {
-    final int code = array[position.getAndIncrease()] & 0xFF;
+  /**
+   * Unpack an integer value from defined position in a byte array.
+   * @param array the source byte array
+   * @param position the position of the first byte of packed value 
+   * @return the unpacked value, the position will be increased
+   */
+  public static int unpackInt(final byte[] array, final AtomicInteger position) {
+    final int code = array[position.getAndIncrement()] & 0xFF;
     if (code < 0x80) {
       return code;
     }
@@ -77,14 +98,14 @@ public final class JBBPUtils {
     final int result;
     switch (code) {
       case 0x80: {
-        result = ((array[position.getAndIncrease()] & 0xFF) << 8) | (array[position.getAndIncrease()] & 0xFF);
+        result = ((array[position.getAndIncrement()] & 0xFF) << 8) | (array[position.getAndIncrement()] & 0xFF);
       }
       break;
       case 0x81: {
-        result = ((array[position.getAndIncrease()] & 0xFF) << 24)
-                | ((array[position.getAndIncrease()] & 0xFF) << 16)
-                | ((array[position.getAndIncrease()] & 0xFF) << 8)
-                | (array[position.getAndIncrease()] & 0xFF);
+        result = ((array[position.getAndIncrement()] & 0xFF) << 24)
+                | ((array[position.getAndIncrement()] & 0xFF) << 16)
+                | ((array[position.getAndIncrement()] & 0xFF) << 8)
+                | (array[position.getAndIncrement()] & 0xFF);
       }
       break;
       default:
@@ -93,14 +114,31 @@ public final class JBBPUtils {
     return result;
   }
 
+  /**
+   * A Byte array into its hex string representation
+   * @param array an array to be converted
+   * @return a string of hex representations of values from the array
+   */
   public static String array2hex(final byte[] array) {
     return byteArray2String(array, "0x", ", ", true, 16);
   }
 
+  /**
+   * A Byte array into its bin string representation
+   *
+   * @param array an array to be converted
+   * @return a string of bin representations of values from the array
+   */
   public static String array2bin(final byte[] array) {
     return byteArray2String(array, "0b", ", ", true, 2);
   }
 
+  /**
+   * A Byte array into its octal string representation
+   *
+   * @param array an array to be converted
+   * @return a string of octal representations of values from the array
+   */
   public static String array2oct(final byte[] array) {
     return byteArray2String(array, "0o", ", ", true, 8);
   }

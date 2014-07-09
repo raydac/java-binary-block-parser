@@ -16,16 +16,33 @@
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
+/**
+ * Describes an array contains bit fields.
+ */
 public final class JBBPFieldArrayBit extends JBBPAbstractArrayField<JBBPFieldBit> {
 
+  /**
+   * Bit values.
+   */
   private final byte [] array;
 
+  /**
+   * The Constructor.
+   * @param name the field name info, it can be null.
+   * @param array the byte array contains values, it must not be null
+   */
   public JBBPFieldArrayBit(final JBBPNamedFieldInfo name,final byte[] array) {
     super(name);
+    JBBPUtils.assertNotNull(array, "Array must not be null");
     this.array = array;
   }
   
+  /**
+   * Get values as a byte array.
+   * @return the value array
+   */
   public byte [] getArray(){
     return this.array.clone();
   }
@@ -37,7 +54,7 @@ public final class JBBPFieldArrayBit extends JBBPAbstractArrayField<JBBPFieldBit
 
   @Override
   public JBBPFieldBit getElementAt(final int index) {
-    return new JBBPFieldBit(this.namedField, this.getAsInt(index));
+    return new JBBPFieldBit(this.fieldNameInfo, this.getAsInt(index));
   }
 
   @Override

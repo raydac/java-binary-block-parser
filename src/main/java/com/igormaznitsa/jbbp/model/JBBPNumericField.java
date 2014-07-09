@@ -15,8 +15,23 @@
  */
 package com.igormaznitsa.jbbp.model;
 
+/**
+ * The Interface describes a field which content can be represented as a numeric value.
+ */
 public interface JBBPNumericField {
+  /**
+   * Get the field value as integer.
+   * @return the field value as integer
+   */
   int getAsInt();
+  /**
+   * Get the field value as long
+   * @return the field value as long
+   */
   long getAsLong();
+  /**
+   * Get the field value as boolean, usually if the value is 0 then false, true otherwise.
+   * @return the field value as boolean
+   */
   boolean getAsBool();
 }

@@ -16,15 +16,32 @@
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
+/**
+ * Describes an array of boolean values.
+ */
 public final class JBBPFieldArrayBoolean extends JBBPAbstractArrayField<JBBPFieldBoolean>{
+  /**
+   * The Inside value storage.
+   */
   private final boolean [] array;
   
+  /**
+   * The Constructor.
+   * @param name the field name info, it can be null
+   * @param array the value array, it must not be null
+   */
   public JBBPFieldArrayBoolean(final JBBPNamedFieldInfo name, final boolean [] array) {
     super(name);
+    JBBPUtils.assertNotNull(array, "Array must not be null");
     this.array = array;
   }
   
+  /**
+   * Get values of the array.
+   * @return values as a boolean array
+   */
   public boolean [] getArray(){
     return this.array.clone();
   }
@@ -36,7 +53,7 @@ public final class JBBPFieldArrayBoolean extends JBBPAbstractArrayField<JBBPFiel
 
   @Override
   public JBBPFieldBoolean getElementAt(final int index) {
-    return new JBBPFieldBoolean(this.namedField, getAsBool(index));
+    return new JBBPFieldBoolean(this.fieldNameInfo, getAsBool(index));
   }
 
   @Override

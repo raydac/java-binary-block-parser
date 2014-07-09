@@ -17,6 +17,8 @@ package com.igormaznitsa.jbbp.utils;
 
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -62,7 +64,7 @@ public class JBBPUtilsTest {
   public void testPackUnpackIntFromByteArray() {
     final byte [] array = new byte[5];
     
-    final JBBPPositionCounter pos = new JBBPPositionCounter(0);
+    final AtomicInteger pos = new AtomicInteger();
     
     int counter1 = 0;
     int counter2 = 0;

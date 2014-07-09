@@ -19,22 +19,60 @@ import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public abstract class JBBPAbstractArrayField<T> extends JBBPAbstractField implements Iterable<T> {
+/**
+ * The Class is the ancestor for all field which represent arrays.
+ * @param <T> type of field which can be contained in the array
+ */
+public abstract class JBBPAbstractArrayField<T extends JBBPAbstractField> extends JBBPAbstractField implements Iterable<T> {
 
+  /**
+   * The Constructor.
+   * @param name the name descriptor for the array field, it can be null.
+   */
   public JBBPAbstractArrayField(final JBBPNamedFieldInfo name) {
     super(name);
   }
 
+  /**
+   * Get number of elements in the array.
+   * @return the array size
+   */
   public abstract int size();
 
+  /**
+   * Get element from the array for its index.
+   * @param index the array index
+   * @return the array element for its index
+   */
   public abstract T getElementAt(int index);
 
+  /**
+   * Get an array element for its index as integer value
+   * @param index the array index
+   * @return the array element as integer
+   */
   public abstract int getAsInt(int index);
 
+  /**
+   * Get an array element for its index as long value
+   *
+   * @param index the array index
+   * @return the array element as long
+   */
   public abstract long getAsLong(int index);
 
+  /**
+   * Get an array element for its index as boolean value
+   *
+   * @param index the array index
+   * @return the array element as boolean
+   */
   public abstract boolean getAsBool(int index);
 
+  /**
+   * Generates an iterator to allow the array processing in loops.
+   * @return an iterator for the array
+   */
   public Iterator<T> iterator() {
     return new Iterator<T>() {
       private int index = 0;

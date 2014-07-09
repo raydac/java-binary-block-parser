@@ -17,9 +17,20 @@ package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 
+/**
+ * Describes a short value field.
+ */
 public final class JBBPFieldShort extends JBBPAbstractField implements JBBPNumericField{
+  /**
+   * Inside value storage.
+   */
   private final short value;
 
+  /**
+   * The Constructor.
+   * @param name a field name info. it can be null
+   * @param value the field value
+   */
   public JBBPFieldShort(final JBBPNamedFieldInfo name, final short value) {
     super(name);
     this.value = value;

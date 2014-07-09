@@ -17,9 +17,20 @@ package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 
+/**
+ * Describes a unsigned byte value field.
+ */
 public final class JBBPFieldUByte extends JBBPAbstractField implements JBBPNumericField{
+  /**
+   * Inside value storage.
+   */
   private final byte value;
 
+  /**
+   * The Constructor.
+   * @param name a field name info, it can be null
+   * @param value the field value
+   */
   public JBBPFieldUByte(final JBBPNamedFieldInfo name, final byte value) {
     super(name);
     this.value = value;

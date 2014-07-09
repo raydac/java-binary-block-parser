@@ -17,22 +17,46 @@ package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 
+/**
+ * The Class is the ancestor for all fields and arrays of fields.
+ */
 public class JBBPAbstractField {
-  protected final JBBPNamedFieldInfo namedField;
-  
+  /**
+   * The Field contains the field name info
+   */
+  protected final JBBPNamedFieldInfo fieldNameInfo;
+
+  /**
+   * The Constructor.
+   * @param namedField the name field info for the field, it can be null. 
+   */
   public JBBPAbstractField(final JBBPNamedFieldInfo namedField){
-    this.namedField = namedField;
+    this.fieldNameInfo = namedField;
   }
   
+  /**
+   * Get the field name info.
+   * @return the field name info if it is presented, otherwise null
+   */
   public JBBPNamedFieldInfo getNameInfo(){
-    return this.namedField;
+    return this.fieldNameInfo;
   }
   
+  /**
+   * Get the field path.
+   * @return the field path or null if the field doesn't contain any field name info
+   */
   public String getFieldPath(){
-    return this.namedField == null ? null : this.namedField.getFieldPath();
+    return this.fieldNameInfo == null ? null : this.fieldNameInfo.getFieldPath();
   }
 
-  public String getName(){
-    return this.namedField == null ? null : this.namedField.getFieldName();
+  /**
+   * Get the field name.
+   *
+   * @return the field name or null if the field doesn't contain any field name
+   * info
+   */
+  public String getFieldName(){
+    return this.fieldNameInfo == null ? null : this.fieldNameInfo.getFieldName();
   }
 }

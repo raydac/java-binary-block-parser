@@ -20,10 +20,10 @@ import com.igormaznitsa.jbbp.compiler.*;
 import com.igormaznitsa.jbbp.compiler.utils.JBBPCompilerUtils;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
-import com.igormaznitsa.jbbp.utils.JBBPPositionCounter;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.*;
 
 public class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
@@ -289,10 +289,10 @@ public class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
     final int[] stack = new int[MAX_STACK_DEPTH];
     int stackDepth = 0;
 
-    final JBBPPositionCounter counter = new JBBPPositionCounter(0);
+    final AtomicInteger counter = new AtomicInteger();
 
     while (counter.get() < this.compiledExpression.length) {
-      final int code = this.compiledExpression[counter.getAndIncrease()];
+      final int code = this.compiledExpression[counter.getAndIncrement()];
       switch (code) {
         case CODE_EXTVAR:
         case CODE_VAR: {

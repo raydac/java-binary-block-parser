@@ -22,20 +22,40 @@ import com.igormaznitsa.jbbp.model.finder.JBBPFieldFinder;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.util.List;
 
+/**
+ * Describes a structure.
+ */
 public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFieldFinder {
 
+  /**
+   * Structure fields.
+   */
   private final JBBPAbstractField[] fields;
 
+  /**
+   * A Constructor.
+   * @param name a field name info, it can be null
+   * @param fields a field array, it must not be null
+   */
   public JBBPFieldStruct(final JBBPNamedFieldInfo name, final JBBPAbstractField[] fields) {
     super(name);
     JBBPUtils.assertNotNull(fields, "Array of fields must not be null");
     this.fields = fields;
   }
 
+  /**
+   * A Constructor.
+   * @param name a field name info, it can be null
+   * @param fields a field list, it must not be null
+   */
   public JBBPFieldStruct(final JBBPNamedFieldInfo name, final List<JBBPAbstractField> fields) {
     this(name, fields.toArray(new JBBPAbstractField[fields.size()]));
   }
 
+  /**
+   * Get the fields of the structure as an array.
+   * @return the field array of the structure.
+   */
   public JBBPAbstractField[] getArray() {
     return this.fields.clone();
   }
@@ -63,7 +83,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
 
   public JBBPAbstractField findFieldForName(final String name) {
     for (final JBBPAbstractField f : this.fields) {
-      if (name.equals(f.getName())) {
+      if (name.equals(f.getFieldName())) {
         return f;
       }
     }
@@ -114,7 +134,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
   @SuppressWarnings("unchecked")
   public <T extends JBBPAbstractField> T findFieldForNameAndType(final String name, final Class<T> klazz) {
     for (final JBBPAbstractField f : this.fields) {
-      if (f.getClass() == klazz && name.equals(f.getName())) {
+      if (f.getClass() == klazz && name.equals(f.getFieldName())) {
         return (T) f;
       }
     }
@@ -123,7 +143,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
 
   public boolean nameExists(final String fieldName) {
     for (final JBBPAbstractField f : this.fields) {
-      if (fieldName.equals(f.getName())) {
+      if (fieldName.equals(f.getFieldName())) {
         return true;
       }
     }

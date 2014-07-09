@@ -17,10 +17,20 @@ package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 
+/**
+ * Describes a bit field.
+ */
 public final class JBBPFieldBit extends JBBPAbstractField implements JBBPNumericField {
-
+  /**
+   * Inside value storage.
+   */
   private final int value;
   
+  /**
+   * The Constructor.
+   * @param name a field name info, it can be null.
+   * @param value the field value
+   */
   public JBBPFieldBit(final JBBPNamedFieldInfo name,final int value) {
     super(name);
     this.value = value;

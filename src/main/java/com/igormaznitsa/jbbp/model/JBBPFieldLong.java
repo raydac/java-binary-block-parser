@@ -17,9 +17,20 @@ package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 
+/**
+ * Describes a long value field.
+ */
 public final class JBBPFieldLong extends JBBPAbstractField implements JBBPNumericField{
+  /**
+   * Inside value storage.
+   */
   private final long value;
 
+  /**
+   * The COnstructor.
+   * @param name a field name info, it can be null
+   * @param value the field value
+   */
   public JBBPFieldLong(final JBBPNamedFieldInfo name, final long value) {
     super(name);
     this.value = value;
