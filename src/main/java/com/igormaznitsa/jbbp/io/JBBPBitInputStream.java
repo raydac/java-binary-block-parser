@@ -19,9 +19,9 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.*;
 
 /**
- * A Filter stream implementing a countable bit stream interface. It allows read not only bytes but also bits from an input stream.
+ * A Filter stream implementing a countable bit stream interface. It allows read not only bytes but also bits from an input stream. The Class is not a thread-safe one.
  */
-public class JBBPBitInputStream extends FilterInputStream implements JBBPBitStream {
+public class JBBPBitInputStream extends FilterInputStream implements JBBPCountableBitStream {
 
   private static final int INITIAL_ARRAY_BUFFER_SIZE = 32;
 

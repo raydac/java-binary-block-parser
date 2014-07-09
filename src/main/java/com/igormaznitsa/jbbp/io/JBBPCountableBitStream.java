@@ -15,13 +15,34 @@
  */
 package com.igormaznitsa.jbbp.io;
 
-public interface JBBPBitStream {
+/**
+ * The Interface describes a stream which can manipulate bits and count number of bytes.
+ */
+public interface JBBPCountableBitStream {
 
+  /**
+   * Get the number of bytes which have passed through the stream.
+   * @return the number of passed bytes
+   */
   long getCounter();
 
+  /**
+   * Get the bit order for the stream.
+   * @return the bit order
+   * @see JBBPBitOrder#LSB0
+   * @see JBBPBitOrder#MSB0
+   */
   JBBPBitOrder getBitOrder();
 
+  /**
+   * Get the inside stream bit buffer.
+   * @return the value from inside the stream bit buffer
+   */
   int getBitBuffer();
 
+  /**
+   * Get the number of bits cached in the bit buffer.
+   * @return the number of bits cached in the stream bit buffer
+   */
   int getBufferedBitsNumber();
 }

@@ -19,9 +19,9 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.*;
 
 /**
- * The Filter allows to write bit by bit into an output stream and count the written byte number.
+ * The Filter allows to write bit by bit into an output stream and count the written byte number. The Class is not a thread-safe one.
  */
-public class JBBPBitOutputStream extends FilterOutputStream implements JBBPBitStream {
+public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCountableBitStream {
   /**
    * Inside bit buffer.
    */

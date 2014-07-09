@@ -20,10 +20,6 @@ import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 public class JBBPAbstractField {
   protected final JBBPNamedFieldInfo namedField;
   
-  public JBBPAbstractField(){
-    this(null);
-  }
-  
   public JBBPAbstractField(final JBBPNamedFieldInfo namedField){
     this.namedField = namedField;
   }

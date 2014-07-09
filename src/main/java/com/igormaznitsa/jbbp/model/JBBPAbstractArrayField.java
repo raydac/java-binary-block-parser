@@ -21,10 +21,6 @@ import java.util.NoSuchElementException;
 
 public abstract class JBBPAbstractArrayField<T> extends JBBPAbstractField implements Iterable<T> {
 
-  public JBBPAbstractArrayField() {
-    this(null);
-  }
-
   public JBBPAbstractArrayField(final JBBPNamedFieldInfo name) {
     super(name);
   }

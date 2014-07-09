@@ -32,34 +32,47 @@ public class JBBPOutTest {
     final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
     assertSame(buffer, BeginBin(buffer).End());
   }
+
+  @Test
+  public void testSkip() throws Exception {
+    assertArrayEquals(new byte[]{(byte) 0x01, (byte) 0xFF}, JBBPOut.BeginBin().Bit(1).Skip(0).Byte(0xFF).End().toByteArray());
+    assertArrayEquals(new byte[]{(byte) 0x01, 0x00, (byte) 0xFF}, JBBPOut.BeginBin().Bit(1).Skip(1).Byte(0xFF).End().toByteArray());
+    assertArrayEquals(new byte[]{(byte) 0x01, 0x00, 0x00, (byte) 0xFF}, JBBPOut.BeginBin().Bit(1).Skip(2).Byte(0xFF).End().toByteArray());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSkip_ErrorForNegativeValue() throws Exception {
+    JBBPOut.BeginBin().Skip(-1);
+  }
+
   
   @Test
   public void testAlign() throws Exception {
-    assertArrayEquals(new byte[]{(byte) 0x01, (byte) 0xFF}, new JBBPOut(new ByteArrayOutputStream()).Bit(1).Align().Byte(0xFF).End().toByteArray());
+    assertArrayEquals(new byte[]{(byte) 0x01, (byte) 0xFF}, JBBPOut.BeginBin().Bit(1).Align().Byte(0xFF).End().toByteArray());
   }
 
   @Test
   public void testAlignWithArgument() throws Exception {
-    assertEquals(0, new JBBPOut(new ByteArrayOutputStream()).Align(2).End().toByteArray().length);
-    assertArrayEquals(new byte[]{(byte) 0x01, (byte) 0xFF}, new JBBPOut(new ByteArrayOutputStream()).Bit(1).Align(1).Byte(0xFF).End().toByteArray());
-    assertArrayEquals(new byte[]{(byte) 0xFF}, new JBBPOut(new ByteArrayOutputStream()).Align(3).Byte(0xFF).End().toByteArray());
-    assertArrayEquals(new byte[]{0x01, (byte) 0xFF}, new JBBPOut(new ByteArrayOutputStream()).Bit(1).Align(1).Byte(0xFF).End().toByteArray());
-    assertArrayEquals(new byte[]{0x01, 0x00, (byte) 0xFF}, new JBBPOut(new ByteArrayOutputStream()).Bit(1).Align(2).Byte(0xFF).End().toByteArray());
-    assertArrayEquals(new byte[]{0x01, 0x00, 0x00, 0x00, (byte) 0xFF}, new JBBPOut(new ByteArrayOutputStream()).Bit(1).Align(4).Byte(0xFF).End().toByteArray());
-    assertArrayEquals(new byte[]{0x01, 0x02, 0x00, 0x00, (byte) 0xFF}, new JBBPOut(new ByteArrayOutputStream()).Byte(1, 2).Align(4).Byte(0xFF).End().toByteArray());
-    assertArrayEquals(new byte[]{0x01, 0x02, 0x03, 0x00, 0x00, (byte) 0xFF}, new JBBPOut(new ByteArrayOutputStream()).Byte(1, 2, 3).Align(5).Byte(0xFF).End().toByteArray());
-    assertArrayEquals(new byte[]{0x01, 0x02, 0x03, 0x04, 0x00, (byte) 0xFF}, new JBBPOut(new ByteArrayOutputStream()).Byte(1, 2, 3, 4).Align(5).Byte(0xFF).End().toByteArray());
-    assertArrayEquals(new byte[]{0x01, 0x02, 0x03, 0x04, 0x05, (byte) 0xFF}, new JBBPOut(new ByteArrayOutputStream()).Byte(1, 2, 3, 4, 5).Align(5).Byte(0xFF).End().toByteArray());
-    assertArrayEquals(new byte[]{(byte) 0x01, 0x00, 0x02, 0x00, (byte) 0x03}, new JBBPOut(new ByteArrayOutputStream()).Align(2).Byte(1).Align(2).Byte(2).Align(2).Byte(3).End().toByteArray());
-    assertArrayEquals(new byte[]{(byte) 0xF1, 0x00, (byte) 0x01, 0x00, 0x02, 0x00, (byte) 0x03}, new JBBPOut(new ByteArrayOutputStream()).Byte(0xF1).Align(2).Byte(1).Align(2).Byte(2).Align(2).Byte(3).End().toByteArray());
-    assertArrayEquals(new byte[]{(byte) 0xF1, 0x00, 0x00, (byte) 0x01, 0x00, 00, 0x02, 0x00, 00, (byte) 0x03}, new JBBPOut(new ByteArrayOutputStream()).Byte(0xF1).Align(3).Byte(1).Align(3).Byte(2).Align(3).Byte(3).End().toByteArray());
-    assertArrayEquals(new byte[]{0x01, 0x02, 03, 0x04, 0x00, (byte)0xF1}, new JBBPOut(new ByteArrayOutputStream()).Int(0x01020304).Align(5).Byte(0xF1).End().toByteArray());
-    assertArrayEquals(new byte[]{0x01, 0x00, 0x00, 0x00, 0x00, (byte)0xF1}, new JBBPOut(new ByteArrayOutputStream()).Bit(1).Align(5).Byte(0xF1).End().toByteArray());
+    assertEquals(0, JBBPOut.BeginBin().Align(2).End().toByteArray().length);
+    assertArrayEquals(new byte[]{(byte) 0x01, (byte) 0xFF}, JBBPOut.BeginBin().Bit(1).Align(1).Byte(0xFF).End().toByteArray());
+    assertArrayEquals(new byte[]{(byte) 0xFF}, JBBPOut.BeginBin().Align(3).Byte(0xFF).End().toByteArray());
+    assertArrayEquals(new byte[]{0x01, (byte) 0xFF}, JBBPOut.BeginBin().Bit(1).Align(1).Byte(0xFF).End().toByteArray());
+    assertArrayEquals(new byte[]{0x01, 0x00, (byte) 0xFF}, JBBPOut.BeginBin().Bit(1).Align(2).Byte(0xFF).End().toByteArray());
+    assertArrayEquals(new byte[]{0x01, 0x00, 0x00, 0x00, (byte) 0xFF}, JBBPOut.BeginBin().Bit(1).Align(4).Byte(0xFF).End().toByteArray());
+    assertArrayEquals(new byte[]{0x01, 0x02, 0x00, 0x00, (byte) 0xFF}, JBBPOut.BeginBin().Byte(1, 2).Align(4).Byte(0xFF).End().toByteArray());
+    assertArrayEquals(new byte[]{0x01, 0x02, 0x03, 0x00, 0x00, (byte) 0xFF}, JBBPOut.BeginBin().Byte(1, 2, 3).Align(5).Byte(0xFF).End().toByteArray());
+    assertArrayEquals(new byte[]{0x01, 0x02, 0x03, 0x04, 0x00, (byte) 0xFF}, JBBPOut.BeginBin().Byte(1, 2, 3, 4).Align(5).Byte(0xFF).End().toByteArray());
+    assertArrayEquals(new byte[]{0x01, 0x02, 0x03, 0x04, 0x05, (byte) 0xFF}, JBBPOut.BeginBin().Byte(1, 2, 3, 4, 5).Align(5).Byte(0xFF).End().toByteArray());
+    assertArrayEquals(new byte[]{(byte) 0x01, 0x00, 0x02, 0x00, (byte) 0x03}, JBBPOut.BeginBin().Align(2).Byte(1).Align(2).Byte(2).Align(2).Byte(3).End().toByteArray());
+    assertArrayEquals(new byte[]{(byte) 0xF1, 0x00, (byte) 0x01, 0x00, 0x02, 0x00, (byte) 0x03}, JBBPOut.BeginBin().Byte(0xF1).Align(2).Byte(1).Align(2).Byte(2).Align(2).Byte(3).End().toByteArray());
+    assertArrayEquals(new byte[]{(byte) 0xF1, 0x00, 0x00, (byte) 0x01, 0x00, 00, 0x02, 0x00, 00, (byte) 0x03}, JBBPOut.BeginBin().Byte(0xF1).Align(3).Byte(1).Align(3).Byte(2).Align(3).Byte(3).End().toByteArray());
+    assertArrayEquals(new byte[]{0x01, 0x02, 03, 0x04, 0x00, (byte)0xF1}, JBBPOut.BeginBin().Int(0x01020304).Align(5).Byte(0xF1).End().toByteArray());
+    assertArrayEquals(new byte[]{0x01, 0x00, 0x00, 0x00, 0x00, (byte)0xF1}, JBBPOut.BeginBin().Bit(1).Align(5).Byte(0xF1).End().toByteArray());
   }
 
   @Test
   public void testEmptyArray() throws Exception {
-    assertEquals(0, new JBBPOut(new ByteArrayOutputStream()).End().toByteArray().length);
+    assertEquals(0, JBBPOut.BeginBin().End().toByteArray().length);
   }
 
   @Test
@@ -385,7 +398,7 @@ public class JBBPOutTest {
     final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
     final JBBPBitOutputStream bitstream = new JBBPBitOutputStream(buffer,JBBPBitOrder.LSB0);
     
-    new JBBPOut(bitstream,JBBPByteOrder.BIG_ENDIAN,JBBPBitOrder.MSB0);
+    JBBPOut.BeginBin(bitstream, JBBPByteOrder.BIG_ENDIAN,JBBPBitOrder.MSB0);
   }
   
   @Test
