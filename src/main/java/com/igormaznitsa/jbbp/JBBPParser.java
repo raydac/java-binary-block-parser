@@ -24,13 +24,25 @@ import com.igormaznitsa.jbbp.utils.*;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * the Main class allows a user to parse a binary stream or block for predefined and precompiled script.
+ */
 public final class JBBPParser {
-
+  /**
+   * the Compiled block contains compiled script and extra information.
+   */
   private final JBBPCompiledBlock compiledBlock;
+  /**
+   * The Bit order for stream operations.
+   */
   private final JBBPBitOrder bitOrder;
 
+  /**
+   * The Constructor.
+   * @param source the source script to parse binary blocks and streams, must not be null
+   * @param bitOrder the bit order for bit reading operations, must not be null
+   */
   private JBBPParser(final String source, final JBBPBitOrder bitOrder) {
     JBBPUtils.assertNotNull(source, "Script is null");
     JBBPUtils.assertNotNull(bitOrder, "Bit order is null");
@@ -43,7 +55,18 @@ public final class JBBPParser {
     }
   }
 
-  private List<JBBPAbstractField> parseStruct(final JBBPBitInputStream inStream, final AtomicInteger positionAtCompiledBlock, final JBBPNamedNumericFieldMap fieldMap, final AtomicInteger positionAtNamedFieldList, final AtomicInteger positionAtVarLengthProcessors, final boolean nonskip) throws IOException {
+  /**
+   * Inside method to parse a structure.
+   * @param inStream the input stream, must not be null
+   * @param positionAtCompiledBlock the current position in the compiled script block
+   * @param namedNumericFieldMap the named numeric field map
+   * @param positionAtNamedFieldList the current position at the named field list
+   * @param positionAtVarLengthProcessors the current position at the variable array length processor list
+   * @param nonskip the flag shows that the read fields must be processed if it is true, or their content must be ignored if it is false
+   * @return list of read fields for the structure
+   * @throws IOException it will be thrown for transport errors
+   */
+  private List<JBBPAbstractField> parseStruct(final JBBPBitInputStream inStream, final AtomicInteger positionAtCompiledBlock, final JBBPNamedNumericFieldMap namedNumericFieldMap, final AtomicInteger positionAtNamedFieldList, final AtomicInteger positionAtVarLengthProcessors, final boolean nonskip) throws IOException {
     final List<JBBPAbstractField> fields = nonskip ? new ArrayList<JBBPAbstractField>() : null;
     final byte[] compiled = this.compiledBlock.getCompiledData();
 
@@ -82,7 +105,7 @@ public final class JBBPParser {
         break;
         case JBBPCompiler.FLAG_ARRAY | JBBPCompiler.FLAG_EXPRESSIONORWHOLE: {
           final JBBPLengthEvaluator evaluator = this.compiledBlock.getArraySizeEvaluators()[positionAtVarLengthProcessors.getAndIncrement()];
-          arrayLength = evaluator.eval(inStream, instructionStartOffset, this.compiledBlock, fieldMap);
+          arrayLength = evaluator.eval(inStream, instructionStartOffset, this.compiledBlock, namedNumericFieldMap);
           nonsizedArray = false;
           checkArrayLength = true;
         }
@@ -292,7 +315,7 @@ public final class JBBPParser {
         break;
         case JBBPCompiler.CODE_STRUCT_START: {
           if (arrayLength < 0) {
-            final List<JBBPAbstractField> structFields = parseStruct(inStream, positionAtCompiledBlock, fieldMap, positionAtNamedFieldList, positionAtVarLengthProcessors, nonskip);
+            final List<JBBPAbstractField> structFields = parseStruct(inStream, positionAtCompiledBlock, namedNumericFieldMap, positionAtNamedFieldList, positionAtVarLengthProcessors, nonskip);
             // offset
             JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
             if (nonskip) {
@@ -312,7 +335,7 @@ public final class JBBPParser {
                   positionAtNamedFieldList.set(nameFieldCurrent);
                   positionAtVarLengthProcessors.set(varLenProcCurrent);
 
-                  final List<JBBPAbstractField> fieldsForStruct = parseStruct(inStream, positionAtCompiledBlock, fieldMap, positionAtNamedFieldList, positionAtVarLengthProcessors, nonskip);
+                  final List<JBBPAbstractField> fieldsForStruct = parseStruct(inStream, positionAtCompiledBlock, namedNumericFieldMap, positionAtNamedFieldList, positionAtVarLengthProcessors, nonskip);
                   list.add(new JBBPFieldStruct(name, fieldsForStruct));
 
                   final int structStart = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
@@ -334,7 +357,7 @@ public final class JBBPParser {
                 if (arrayLength == 0) {
                   // skip the structure
                   result = null;
-                  parseStruct(inStream, positionAtCompiledBlock, fieldMap, positionAtNamedFieldList, positionAtVarLengthProcessors, false);
+                  parseStruct(inStream, positionAtCompiledBlock, namedNumericFieldMap, positionAtNamedFieldList, positionAtVarLengthProcessors, false);
                   JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
                 }
                 else {
@@ -342,7 +365,7 @@ public final class JBBPParser {
                   for (int i = 0; i < arrayLength; i++) {
                     positionAtNamedFieldList.set(nameFieldCurrent);
 
-                    final List<JBBPAbstractField> fieldsForStruct = parseStruct(inStream, positionAtCompiledBlock, fieldMap, positionAtNamedFieldList, positionAtVarLengthProcessors, nonskip);
+                    final List<JBBPAbstractField> fieldsForStruct = parseStruct(inStream, positionAtCompiledBlock, namedNumericFieldMap, positionAtNamedFieldList, positionAtVarLengthProcessors, nonskip);
                     final int structStart = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
 
                     result[i] = new JBBPFieldStruct(name, fieldsForStruct);
@@ -358,7 +381,7 @@ public final class JBBPParser {
               if (result!=null) fields.add(new JBBPFieldArrayStruct(name, result));
             }
             else {
-              parseStruct(inStream, positionAtCompiledBlock, fieldMap, positionAtNamedFieldList, positionAtVarLengthProcessors, nonskip);
+              parseStruct(inStream, positionAtCompiledBlock, namedNumericFieldMap, positionAtNamedFieldList, positionAtVarLengthProcessors, nonskip);
               JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
             }
           }
@@ -375,8 +398,8 @@ public final class JBBPParser {
 
       if (singleValueField != null) {
         fields.add(singleValueField);
-        if (fieldMap != null && singleValueField.getNameInfo() != null) {
-          fieldMap.putField(singleValueField);
+        if (namedNumericFieldMap != null && singleValueField instanceof JBBPNumericField && singleValueField.getNameInfo() != null) {
+          namedNumericFieldMap.putField((JBBPNumericField)singleValueField);
         }
       }
 
@@ -385,16 +408,29 @@ public final class JBBPParser {
     return fields;
   }
 
+  /**
+   * Parse an input stream.
+   * @param in an input stream which content should be parsed, it must not be null
+   * @return the parsed content as the root structure
+   * @throws IOException it will be thrown for transport errors
+   */
   public JBBPFieldStruct parse(final InputStream in) throws IOException {
     return this.parse(in, null);
   }
   
-  public JBBPFieldStruct parse(final InputStream in, final JBBPExternalValueProvider arraySizeProvider) throws IOException {
+  /**
+   * Parse am input stream with defined external value provider.
+   * @param in an input stream which content will be parsed, it must not be null
+   * @param externalValueProvider an external value provider, it can be null but only if the script doesn't have fields desired the provider
+   * @return the parsed content as the root structure
+   * @throws IOException it will be thrown for transport errors
+   */
+  public JBBPFieldStruct parse(final InputStream in, final JBBPExternalValueProvider externalValueProvider) throws IOException {
     final JBBPBitInputStream bitInStream = in instanceof JBBPBitInputStream ? (JBBPBitInputStream) in : new JBBPBitInputStream(in, bitOrder);
 
     final JBBPNamedNumericFieldMap fieldMap;
     if (this.compiledBlock.hasVarArrays()) {
-      fieldMap = new JBBPNamedNumericFieldMap(arraySizeProvider);
+      fieldMap = new JBBPNamedNumericFieldMap(externalValueProvider);
     }
     else {
       fieldMap = null;
@@ -403,18 +439,50 @@ public final class JBBPParser {
     return new JBBPFieldStruct(new JBBPNamedFieldInfo("", "", -1), parseStruct(bitInStream, new AtomicInteger(), fieldMap, new AtomicInteger(), new AtomicInteger(), true));
   }
 
+  /**
+   * Parse a byte array content.
+   * @param array a byte array which content should be parsed, it must not be null
+   * @return the parsed content as the root structure
+   * @throws IOException it will be thrown for transport errors
+   */
   public JBBPFieldStruct parse(final byte[] array) throws IOException {
+    JBBPUtils.assertNotNull(array, "Array must not be null");
     return this.parse(new ByteArrayInputStream(array),null);
   }
 
-  public JBBPFieldStruct parse(final byte[] array, final JBBPExternalValueProvider arraySizeProvider) throws IOException {
-    return this.parse(new ByteArrayInputStream(array), arraySizeProvider);
+  /**
+   * Parse a byte array content with defined external value provider.
+   * @param array a byte array which content should be parsed, it must not be
+   * null
+   * @param externalValueProvider an external value provider, it can be null but
+   * only if the script doesn't have fields desired the provider
+   * @return the parsed content as the root structure
+   * @throws IOException it will be thrown for transport errors
+   */
+  public JBBPFieldStruct parse(final byte[] array, final JBBPExternalValueProvider externalValueProvider) throws IOException {
+    JBBPUtils.assertNotNull(array, "Array must not be null");
+    return this.parse(new ByteArrayInputStream(array), externalValueProvider);
   }
 
+  /**
+   * Prepare a parser for a script and a bit order.
+   * @param script a text script contains field order and types reference, it must not be null 
+   * @param bitOrder the bit order for reading operations, it must not be null
+   * @return the prepared parser for the script
+   * @see JBBPBitOrder#LSB0
+   * @see JBBPBitOrder#MSB0
+   */
   public static JBBPParser prepare(final String script, final JBBPBitOrder bitOrder) {
     return new JBBPParser(script, bitOrder);
   }
 
+  /**
+   * Prepare a parser for a script with usage of the default bit order LSB0.
+   * @param script a text script contains field order and types reference, it
+   * must not be null
+   * @return the prepared parser for the script
+   * @see JBBPBitOrder#LSB0
+   */
   public static JBBPParser prepare(final String script) {
     return JBBPParser.prepare(script, JBBPBitOrder.LSB0);
   }

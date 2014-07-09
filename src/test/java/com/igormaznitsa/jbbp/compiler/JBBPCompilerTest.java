@@ -20,7 +20,6 @@ import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTokenizerException;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import static org.junit.Assert.*;
 import org.junit.Test;
 

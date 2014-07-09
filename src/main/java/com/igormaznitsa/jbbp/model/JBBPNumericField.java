@@ -15,6 +15,8 @@
  */
 package com.igormaznitsa.jbbp.model;
 
+import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+
 /**
  * The Interface describes a field which content can be represented as a numeric value.
  */
@@ -34,4 +36,10 @@ public interface JBBPNumericField {
    * @return the field value as boolean
    */
   boolean getAsBool();
+  
+  /**
+   * Get field name info for the field.
+   * @return the field name info, it can be null for anonymous fields
+   */
+  JBBPNamedFieldInfo getNameInfo();
 }
