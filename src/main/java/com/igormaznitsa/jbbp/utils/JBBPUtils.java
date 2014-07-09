@@ -143,6 +143,15 @@ public enum JBBPUtils {;
     return byteArray2String(array, "0o", ", ", true, 8);
   }
 
+  /**
+   * Convert a byte array into string representation
+   * @param array the array to be converted, it must not be null
+   * @param prefix the prefix for each converted value, it can be null
+   * @param delimiter the delimeter for string representations
+   * @param brackets if true then place the result into square brackets
+   * @param radix the base for conversion 
+   * @return the string representation of the byte array
+   */
   public static String byteArray2String(final byte[] array, final String prefix, final String delimiter, final boolean brackets, final int radix) {
     if (array == null) {
       return null;
@@ -186,26 +195,42 @@ public enum JBBPUtils {;
     return result.toString();
   }
 
-  public static byte reverseLowerBits(final byte value, final int bitsNumber) {
-    if (bitsNumber <= 0 || bitsNumber > 8) {
-      throw new IllegalArgumentException("Bits number must be in 1..8");
-    }
-    return (byte) ((reverseByte(value) & 0xFF) >>> (8 - bitsNumber));
-  }
-
+  /**
+   * Reverse a byte.
+   * @param value a byte value to be reversed.
+   * @return the reversed version of the byte
+   */
   public static byte reverseByte(final byte value) {
     final int v = value & 0xFF;
     return (byte) (((v * 0x0802 & 0x22110) | (v * 0x8020 & 0x88440)) * 0x10101 >> 16);
   }
 
+  /**
+   * Convert a byte array into string binary representation  with LSB0 order.
+   * @param values a byte array to be converted
+   * @return the string representation of the array
+   */
   public static String bin2str(final byte[] values) {
     return bin2str(values, JBBPBitOrder.LSB0, false);
   }
 
+  /**
+   * Convert a byte array into string binary representation with LSB0 order and possibility to separate bytes.
+   * @param values a byte array to be converted
+   * @param separateBytes if true then bytes will be separated by spaces
+   * @return the string representation of the array
+   */
   public static String bin2str(final byte[] values, final boolean separateBytes) {
     return bin2str(values, JBBPBitOrder.LSB0, separateBytes);
   }
 
+  /**
+   * Convert a byte array into string binary representation with defined bit order and possibility to separate bytes.
+   * @param values a byte array to be converted
+   * @param bitOrder the bit order for byte decoding
+   * @param separateBytes if true then bytes will be separated by spaces
+   * @return the string representation of the array
+   */
   public static String bin2str(final byte[] values, final JBBPBitOrder bitOrder, final boolean separateBytes) {
     if (values == null) {
       return null;
@@ -243,6 +268,11 @@ public enum JBBPUtils {;
     return result.toString();
   }
 
+  /**
+   * Convert array of JBBP fields into a list.
+   * @param fields an array of fields, must not be null
+   * @return a list of JBBP fields
+   */
   public static List<JBBPAbstractField> fieldsAsList(final JBBPAbstractField ... fields){
     final List<JBBPAbstractField> result = new ArrayList<JBBPAbstractField>();
     for(final JBBPAbstractField f : fields){
@@ -251,10 +281,22 @@ public enum JBBPUtils {;
     return result;
   }
   
+  /**
+   * Convert string representation of binary data into byte array with LSB0 bit order.
+   * @param values a string represents binary data
+   * @return a byte array generated from the decoded string, empty array for null string
+   */
   public static byte[] str2bin(final String values) {
     return str2bin(values, JBBPBitOrder.LSB0);
   }
 
+  /**
+   * Convert string representation of binary data into byte array/
+   * @param values a string represents binary data
+   * @param bitOrder the bit order to be used for operation
+   * @return a byte array generated from the decoded string, empty array for
+   * null string
+   */
   public static byte[] str2bin(final String values, final JBBPBitOrder bitOrder) {
     if (values == null) {
       return new byte[0];
@@ -310,6 +352,12 @@ public enum JBBPUtils {;
     return buffer.toByteArray();
   }
 
+  /**
+   * Split a string for a char used as the delimeter.
+   * @param str a string to be split
+   * @param splitChar a char to be used as delimeter
+   * @return array contains split string parts without delimeter chars
+   */
   public static String[] splitString(final String str, final char splitChar) {
     final int length = str.length();
     final StringBuilder bulder = new StringBuilder(Math.max(8, length));
@@ -340,10 +388,21 @@ public enum JBBPUtils {;
     return result;
   }
   
+  /**
+   * Check that an object is null and throw NullPointerException in the case.
+   * @param object an object to be checked
+   * @param message message to be used as the exception message
+   * @throws NullPointerException it will be thrown if the object is null
+   */
   public static void assertNotNull(final Object object, final String message){
     if (object == null) throw new NullPointerException(message == null ? "Object is null" : message);
   }
 
+  /**
+   * Convert an integer number into human readable hexadecimal format.
+   * @param number a number to be converted
+   * @return a string with human readable hexadecimal number representation
+   */
   public static String int2msg(final int number){
     return number+" (0x"+Long.toHexString((long)number & 0xFFFFFFFFL).toUpperCase(Locale.ENGLISH)+')';
   }

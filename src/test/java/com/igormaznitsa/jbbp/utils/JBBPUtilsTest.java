@@ -18,7 +18,6 @@ package com.igormaznitsa.jbbp.utils;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -99,29 +98,6 @@ public class JBBPUtilsTest {
     assertTrue(counter1>0);
     assertTrue(counter2>0);
     assertTrue(counter3>0);
-  }
-
-  @Test
-  public void testReverseLowerBits() {
-    try {
-      JBBPUtils.reverseLowerBits((byte) 1, 0);
-      fail("Must throw IAE");
-    }
-    catch (IllegalArgumentException ex) {
-
-    }
-
-    try {
-      JBBPUtils.reverseLowerBits((byte) 1, 9);
-      fail("Must throw IAE");
-    }
-    catch (IllegalArgumentException ex) {
-
-    }
-
-    assertEquals(0x80, (JBBPUtils.reverseLowerBits((byte) 1, 8) & 0xFF));
-    assertEquals(0x23, (JBBPUtils.reverseLowerBits((byte) 0x31, 6) & 0xFF));
-    assertEquals(0x1, (JBBPUtils.reverseLowerBits((byte) 0x1, 1) & 0xFF));
   }
 
   @Test
