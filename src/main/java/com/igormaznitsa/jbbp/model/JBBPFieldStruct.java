@@ -34,6 +34,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
 
   /**
    * A Constructor.
+   *
    * @param name a field name info, it can be null
    * @param fields a field array, it must not be null
    */
@@ -45,6 +46,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
 
   /**
    * A Constructor.
+   *
    * @param name a field name info, it can be null
    * @param fields a field list, it must not be null
    */
@@ -54,6 +56,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
 
   /**
    * Get the fields of the structure as an array.
+   *
    * @return the field array of the structure.
    */
   public JBBPAbstractField[] getArray() {
@@ -64,12 +67,21 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
     JBBPUtils.assertNotNull(fieldPath, "Path must not be null");
     final String[] parsedName = JBBPUtils.splitString(fieldPath, '.');
 
-    JBBPAbstractField found = null;
-    if (this.getNameInfo().getFieldName().equals(parsedName[0])) {
+    JBBPAbstractField found = this;
+    final int firstIndex;
+    if ("".equals(this.getFieldName())) {
+      firstIndex = 0;
+    }
+    else if (parsedName[0].equals(this.getNameInfo().getFieldName())) {
+      firstIndex = 1;
       found = this;
     }
+    else {
+      firstIndex = 0;
+      found = null;
+    }
 
-    for (int i = 1; found != null && i < parsedName.length; i++) {
+    for (int i = firstIndex; found != null && i < parsedName.length; i++) {
       if (found instanceof JBBPFieldStruct) {
         found = ((JBBPFieldStruct) found).findFieldForName(parsedName[i]);
       }
@@ -97,7 +109,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
     int counter = 0;
 
     for (final JBBPAbstractField f : this.fields) {
-      if (f.getClass() == klazz) {
+      if (klazz.isAssignableFrom(f.getClass())) {
         if (result == null) {
           result = (T) f;
         }
@@ -113,7 +125,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
   @SuppressWarnings("unchecked")
   public <T extends JBBPAbstractField> T findFirstFieldForType(final Class<T> klazz) {
     for (final JBBPAbstractField f : this.fields) {
-      if (f.getClass() == klazz) {
+      if (klazz.isAssignableFrom(f.getClass())) {
         return (T) f;
       }
     }
@@ -124,7 +136,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
   public <T extends JBBPAbstractField> T findLastFieldForType(final Class<T> klazz) {
     for (int i = this.fields.length - 1; i >= 0; i--) {
       final JBBPAbstractField f = this.fields[i];
-      if (f.getClass() == klazz) {
+      if (klazz.isAssignableFrom(f.getClass())) {
         return (T) f;
       }
     }
@@ -134,7 +146,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
   @SuppressWarnings("unchecked")
   public <T extends JBBPAbstractField> T findFieldForNameAndType(final String name, final Class<T> klazz) {
     for (final JBBPAbstractField f : this.fields) {
-      if (f.getClass() == klazz && name.equals(f.getFieldName())) {
+      if (klazz.isAssignableFrom(f.getClass()) && name.equals(f.getFieldName())) {
         return (T) f;
       }
     }
@@ -161,10 +173,9 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
 
   @SuppressWarnings("unchecked")
   public <T extends JBBPAbstractField> T findFieldForPathAndType(final String fieldPath, final Class<T> fieldType) {
-    for (final JBBPAbstractField f : this.fields) {
-      if (f.getClass() == fieldType && fieldPath.equals(f.getFieldPath())) {
-        return (T) f;
-      }
+    final JBBPAbstractField field = this.findFieldForPath(fieldPath);
+    if (field != null && fieldType.isAssignableFrom(field.getClass())) {
+      return (T) field;
     }
     return null;
   }

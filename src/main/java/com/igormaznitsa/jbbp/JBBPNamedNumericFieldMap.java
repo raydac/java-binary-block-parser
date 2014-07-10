@@ -112,7 +112,7 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
   public <T extends JBBPAbstractField> T findFirstFieldForType(final Class<T> fieldType) {
     JBBPUtils.assertNotNull(fieldType, "Type must not be null");
     for (final JBBPNumericField f : fieldMap.values()) {
-      if (fieldType == f.getClass()) {
+      if (fieldType.isAssignableFrom(f.getClass())) {
         return (T) f;
       }
     }
@@ -153,7 +153,7 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
     JBBPUtils.assertNotNull(fieldName, "Name must not be null");
     JBBPUtils.assertNotNull(fieldType, "Field type must not be null");
     for (final Map.Entry<JBBPNamedFieldInfo, JBBPNumericField> f : fieldMap.entrySet()) {
-      if (fieldName.equals(f.getKey().getFieldName()) && fieldType == f.getValue().getClass()) {
+      if (fieldName.equals(f.getKey().getFieldName()) && fieldType.isAssignableFrom(f.getValue().getClass())) {
         return (T) f.getValue();
       }
     }
@@ -165,7 +165,7 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
     JBBPUtils.assertNotNull(fieldPath, "Path must not be null");
     JBBPUtils.assertNotNull(fieldType, "Field type must not be null");
     for (final Map.Entry<JBBPNamedFieldInfo, JBBPNumericField> f : fieldMap.entrySet()) {
-      if (fieldPath.equals(f.getKey().getFieldPath()) && fieldType == f.getValue().getClass()) {
+      if (fieldPath.equals(f.getKey().getFieldPath()) && fieldType.isAssignableFrom(f.getValue().getClass())) {
         return (T) f.getValue();
       }
     }

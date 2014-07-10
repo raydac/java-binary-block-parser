@@ -1026,7 +1026,7 @@ public class JBBPParserTest {
   @Test
   public void testParse_StructArray_IgnoredForZeroLength() throws Exception {
     final JBBPFieldStruct parsed = JBBPParser.prepare("byte len; sss [len] { byte a; byte b; byte c;}  ushort;").parse(new byte[]{0x0, 0x01, (byte) 0x02});
-    assertNull(parsed.findFieldForType(JBBPFieldArrayStruct.class));
+    assertEquals(0,parsed.findFieldForType(JBBPFieldArrayStruct.class).size());
     assertEquals(0x0102, parsed.findFieldForType(JBBPFieldUShort.class).getAsInt());
   }
   
@@ -1055,20 +1055,20 @@ public class JBBPParserTest {
   @Test
   public void testParse_EmptyStructArray_WholeStream() throws Exception {
     final JBBPFieldStruct parsed = JBBPParser.prepare("sss [_] { }").parse(new byte[0]);
-    assertNull(parsed.findFieldForPathAndType("sss", JBBPFieldArrayStruct.class));
+    assertEquals(0,parsed.findFieldForPathAndType("sss", JBBPFieldArrayStruct.class).size());
   }
   
   @Test
   public void testParse_EmptyStructArrayInsideStruct_WholeStream() throws Exception {
     final JBBPFieldStruct parsed = JBBPParser.prepare("sss { sss2[_]{}}").parse(new byte[0]);
-    assertNull(parsed.findFieldForPathAndType("sss", JBBPFieldStruct.class));
+    assertEquals(0,parsed.findFieldForPathAndType("sss.sss2", JBBPFieldArrayStruct.class).size());
   }
   
   @Test
   public void testParse_SkipStructureForZeroItems() throws Exception {
     final JBBPFieldStruct parsed = JBBPParser.prepare("byte len; sss [len]{ sss2[10]{byte;}} byte end;").parse(new byte[]{0x00,0x1F});
     assertEquals(0,parsed.findFieldForPathAndType("len", JBBPFieldByte.class).getAsInt());
-    assertNull(parsed.findFieldForPathAndType("sss", JBBPFieldStruct.class));
+    assertEquals(0,parsed.findFieldForPathAndType("sss", JBBPFieldArrayStruct.class).size());
     assertEquals(0x1F,parsed.findFieldForPathAndType("end", JBBPFieldByte.class).getAsInt());
   }
   

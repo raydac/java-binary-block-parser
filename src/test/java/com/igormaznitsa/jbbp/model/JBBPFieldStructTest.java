@@ -104,9 +104,9 @@ public class JBBPFieldStructTest {
 
     try{
       struct1.findFieldForPath("struct1.struct2.field3.unknown");
-      fail("Must throw finder exception");
+      fail("Must throw finder exception for attempt to find inside a field");
     }catch(JBBPFinderException ex){
-      
+    
     }
     
     assertNull(struct1.findFieldForPath("struct1.struct2.field0"));

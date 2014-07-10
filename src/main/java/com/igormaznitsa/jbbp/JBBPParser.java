@@ -41,6 +41,11 @@ public final class JBBPParser {
   private final JBBPBitOrder bitOrder;
 
   /**
+   * Empty structure array
+   */
+  private static final JBBPFieldStruct [] EMPTY_STRUCT_ARRAY = new JBBPFieldStruct[0];
+  
+  /**
    * The Constructor.
    *
    * @param source the source script to parse binary blocks and streams, must
@@ -356,13 +361,13 @@ public final class JBBPParser {
                   }
                 }
 
-                result = list.isEmpty() ? null : list.toArray(new JBBPFieldStruct[list.size()]);
+                result = list.isEmpty() ? EMPTY_STRUCT_ARRAY : list.toArray(new JBBPFieldStruct[list.size()]);
               }
               else {
                 // read number of items
                 if (arrayLength == 0) {
                   // skip the structure
-                  result = null;
+                  result = EMPTY_STRUCT_ARRAY;
                   parseStruct(inStream, positionAtCompiledBlock, namedNumericFieldMap, positionAtNamedFieldList, positionAtVarLengthProcessors, false);
                   JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
                 }
