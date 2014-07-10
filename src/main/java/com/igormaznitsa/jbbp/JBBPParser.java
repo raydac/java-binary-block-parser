@@ -26,9 +26,11 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * the Main class allows a user to parse a binary stream or block for predefined and precompiled script.
+ * the Main class allows a user to parse a binary stream or block for predefined
+ * and precompiled script.
  */
 public final class JBBPParser {
+
   /**
    * the Compiled block contains compiled script and extra information.
    */
@@ -40,7 +42,9 @@ public final class JBBPParser {
 
   /**
    * The Constructor.
-   * @param source the source script to parse binary blocks and streams, must not be null
+   *
+   * @param source the source script to parse binary blocks and streams, must
+   * not be null
    * @param bitOrder the bit order for bit reading operations, must not be null
    */
   private JBBPParser(final String source, final JBBPBitOrder bitOrder) {
@@ -57,12 +61,17 @@ public final class JBBPParser {
 
   /**
    * Inside method to parse a structure.
+   *
    * @param inStream the input stream, must not be null
-   * @param positionAtCompiledBlock the current position in the compiled script block
+   * @param positionAtCompiledBlock the current position in the compiled script
+   * block
    * @param namedNumericFieldMap the named numeric field map
-   * @param positionAtNamedFieldList the current position at the named field list
-   * @param positionAtVarLengthProcessors the current position at the variable array length processor list
-   * @param nonskip the flag shows that the read fields must be processed if it is true, or their content must be ignored if it is false
+   * @param positionAtNamedFieldList the current position at the named field
+   * list
+   * @param positionAtVarLengthProcessors the current position at the variable
+   * array length processor list
+   * @param nonskip the flag shows that the read fields must be processed if it
+   * is true, or their content must be ignored if it is false
    * @return list of read fields for the structure
    * @throws IOException it will be thrown for transport errors
    */
@@ -89,7 +98,7 @@ public final class JBBPParser {
 
       final int arrayLength;
       final boolean nonsizedArray;
-      
+
       boolean checkArrayLength = false;
       switch (code & (JBBPCompiler.FLAG_ARRAY | JBBPCompiler.FLAG_EXPRESSIONORWHOLE)) {
         case JBBPCompiler.FLAG_ARRAY: {
@@ -117,46 +126,48 @@ public final class JBBPParser {
         break;
       }
 
-      if (checkArrayLength){
+      if (checkArrayLength) {
         if (arrayLength < 0) {
-          throw new JBBPParsingException("Detected negative calculated array length for field '" + (name == null ? "<NONAMED>" : name.getFieldPath()) + "\' [" + JBBPUtils.int2msg(arrayLength)+']');
+          throw new JBBPParsingException("Detected negative calculated array length for field '" + (name == null ? "<NONAMED>" : name.getFieldPath()) + "\' [" + JBBPUtils.int2msg(arrayLength) + ']');
         }
       }
-      
+
       JBBPAbstractField singleValueField = null;
 
       switch (code & 0xF) {
         case JBBPCompiler.CODE_ALIGN: {
-          if (nonskip) {
+          if (fields != null) {
             final int alignByteNumber = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
 
             inStream.alignByte();
-            
+
             if (alignByteNumber > 0) {
-              while(inStream.getCounter() % alignByteNumber != 0){
+              while (inStream.getCounter() % alignByteNumber != 0) {
                 final int skeptByte = inStream.read();
-                if (skeptByte<0) throw new EOFException("Can't align for "+alignByteNumber+" for EOFException");
+                if (skeptByte < 0) {
+                  throw new EOFException("Can't align for " + alignByteNumber + " for EOFException");
+                }
               }
             }
           }
         }
         break;
         case JBBPCompiler.CODE_SKIP: {
-          if (nonskip) {
+          if (fields != null) {
             final int skipByteNumber = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
             if (skipByteNumber > 0) {
-              
+
               final long skeptBytes = inStream.skip(skipByteNumber);
 
-              if (skeptBytes != skipByteNumber){
-                throw new EOFException("Can't skip "+skipByteNumber+" byte(s), skept only "+skeptBytes);
+              if (skeptBytes != skipByteNumber) {
+                throw new EOFException("Can't skip " + skipByteNumber + " byte(s), skept only " + skeptBytes);
               }
             }
           }
         }
         break;
         case JBBPCompiler.CODE_BIT: {
-          if (nonskip) {
+          if (fields != null) {
             final JBBPBitNumber bitNumber = JBBPBitNumber.decode(JBBPUtils.unpackInt(compiled, positionAtCompiledBlock));
             if (arrayLength < 0) {
               singleValueField = new JBBPFieldBit(name, inStream.readBits(bitNumber));
@@ -175,7 +186,7 @@ public final class JBBPParser {
         }
         break;
         case JBBPCompiler.CODE_BOOL: {
-          if (nonskip) {
+          if (fields != null) {
             if (arrayLength < 0) {
               final int value = inStream.read();
               if (value < 0) {
@@ -206,7 +217,7 @@ public final class JBBPParser {
         }
         break;
         case JBBPCompiler.CODE_BYTE: {
-          if (nonskip) {
+          if (fields != null) {
             if (arrayLength < 0) {
               final int value = inStream.read();
               if (value < 0) {
@@ -226,7 +237,7 @@ public final class JBBPParser {
         }
         break;
         case JBBPCompiler.CODE_UBYTE: {
-          if (nonskip) {
+          if (fields != null) {
             if (arrayLength < 0) {
               final int value = inStream.read();
               if (value < 0) {
@@ -246,7 +257,7 @@ public final class JBBPParser {
         }
         break;
         case JBBPCompiler.CODE_INT: {
-          if (nonskip) {
+          if (fields != null) {
             if (arrayLength < 0) {
               final int value = inStream.readInt((code & JBBPCompiler.FLAG_LITTLE_ENDIAN) == 0 ? JBBPByteOrder.BIG_ENDIAN : JBBPByteOrder.LITTLE_ENDIAN);
               singleValueField = new JBBPFieldInt(name, value);
@@ -263,7 +274,7 @@ public final class JBBPParser {
         }
         break;
         case JBBPCompiler.CODE_LONG: {
-          if (nonskip) {
+          if (fields != null) {
             if (arrayLength < 0) {
               final long value = inStream.readLong((code & JBBPCompiler.FLAG_LITTLE_ENDIAN) == 0 ? JBBPByteOrder.BIG_ENDIAN : JBBPByteOrder.LITTLE_ENDIAN);
               singleValueField = new JBBPFieldLong(name, value);
@@ -280,7 +291,7 @@ public final class JBBPParser {
         }
         break;
         case JBBPCompiler.CODE_SHORT: {
-          if (nonskip) {
+          if (fields != null) {
             if (arrayLength < 0) {
               final int value = inStream.readUnsignedShort((code & JBBPCompiler.FLAG_LITTLE_ENDIAN) == 0 ? JBBPByteOrder.BIG_ENDIAN : JBBPByteOrder.LITTLE_ENDIAN);
               singleValueField = new JBBPFieldShort(name, (short) value);
@@ -297,7 +308,7 @@ public final class JBBPParser {
         }
         break;
         case JBBPCompiler.CODE_USHORT: {
-          if (nonskip) {
+          if (fields != null) {
             if (arrayLength < 0) {
               final int value = inStream.readUnsignedShort((code & JBBPCompiler.FLAG_LITTLE_ENDIAN) == 0 ? JBBPByteOrder.BIG_ENDIAN : JBBPByteOrder.LITTLE_ENDIAN);
               singleValueField = new JBBPFieldUShort(name, (short) value);
@@ -318,7 +329,7 @@ public final class JBBPParser {
             final List<JBBPAbstractField> structFields = parseStruct(inStream, positionAtCompiledBlock, namedNumericFieldMap, positionAtNamedFieldList, positionAtVarLengthProcessors, nonskip);
             // offset
             JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
-            if (nonskip) {
+            if (fields != null && !structFields.isEmpty()) {
               fields.add(new JBBPFieldStruct(name, structFields.toArray(new JBBPAbstractField[structFields.size()])));
             }
           }
@@ -327,7 +338,7 @@ public final class JBBPParser {
             final int varLenProcCurrent = positionAtVarLengthProcessors.get();
 
             final JBBPFieldStruct[] result;
-            if (nonskip) {
+            if (fields != null) {
               if (nonsizedArray) {
                 // read till the stream end
                 final List<JBBPFieldStruct> list = new ArrayList<JBBPFieldStruct>();
@@ -345,12 +356,7 @@ public final class JBBPParser {
                   }
                 }
 
-                if (list.isEmpty()){
-                  // list is empty then we need to skip start struct offset manually
-                  JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
-                }
-                
-                result = list.toArray(new JBBPFieldStruct[list.size()]);
+                result = list.isEmpty() ? null : list.toArray(new JBBPFieldStruct[list.size()]);
               }
               else {
                 // read number of items
@@ -378,7 +384,9 @@ public final class JBBPParser {
                 }
               }
 
-              if (result!=null) fields.add(new JBBPFieldArrayStruct(name, result));
+              if (result != null) {
+                fields.add(new JBBPFieldArrayStruct(name, result));
+              }
             }
             else {
               parseStruct(inStream, positionAtCompiledBlock, namedNumericFieldMap, positionAtNamedFieldList, positionAtVarLengthProcessors, nonskip);
@@ -399,7 +407,7 @@ public final class JBBPParser {
       if (singleValueField != null) {
         fields.add(singleValueField);
         if (namedNumericFieldMap != null && singleValueField instanceof JBBPNumericField && singleValueField.getNameInfo() != null) {
-          namedNumericFieldMap.putField((JBBPNumericField)singleValueField);
+          namedNumericFieldMap.putField((JBBPNumericField) singleValueField);
         }
       }
 
@@ -410,18 +418,22 @@ public final class JBBPParser {
 
   /**
    * Parse an input stream.
-   * @param in an input stream which content should be parsed, it must not be null
+   *
+   * @param in an input stream which content should be parsed, it must not be
+   * null
    * @return the parsed content as the root structure
    * @throws IOException it will be thrown for transport errors
    */
   public JBBPFieldStruct parse(final InputStream in) throws IOException {
     return this.parse(in, null);
   }
-  
+
   /**
    * Parse am input stream with defined external value provider.
+   *
    * @param in an input stream which content will be parsed, it must not be null
-   * @param externalValueProvider an external value provider, it can be null but only if the script doesn't have fields desired the provider
+   * @param externalValueProvider an external value provider, it can be null but
+   * only if the script doesn't have fields desired the provider
    * @return the parsed content as the root structure
    * @throws IOException it will be thrown for transport errors
    */
@@ -441,17 +453,20 @@ public final class JBBPParser {
 
   /**
    * Parse a byte array content.
-   * @param array a byte array which content should be parsed, it must not be null
+   *
+   * @param array a byte array which content should be parsed, it must not be
+   * null
    * @return the parsed content as the root structure
    * @throws IOException it will be thrown for transport errors
    */
   public JBBPFieldStruct parse(final byte[] array) throws IOException {
     JBBPUtils.assertNotNull(array, "Array must not be null");
-    return this.parse(new ByteArrayInputStream(array),null);
+    return this.parse(new ByteArrayInputStream(array), null);
   }
 
   /**
    * Parse a byte array content with defined external value provider.
+   *
    * @param array a byte array which content should be parsed, it must not be
    * null
    * @param externalValueProvider an external value provider, it can be null but
@@ -466,7 +481,9 @@ public final class JBBPParser {
 
   /**
    * Prepare a parser for a script and a bit order.
-   * @param script a text script contains field order and types reference, it must not be null 
+   *
+   * @param script a text script contains field order and types reference, it
+   * must not be null
    * @param bitOrder the bit order for reading operations, it must not be null
    * @return the prepared parser for the script
    * @see JBBPBitOrder#LSB0
@@ -478,6 +495,7 @@ public final class JBBPParser {
 
   /**
    * Prepare a parser for a script with usage of the default bit order LSB0.
+   *
    * @param script a text script contains field order and types reference, it
    * must not be null
    * @return the prepared parser for the script

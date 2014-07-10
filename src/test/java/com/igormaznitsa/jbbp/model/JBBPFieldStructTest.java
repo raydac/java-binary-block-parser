@@ -16,6 +16,7 @@
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.exceptions.JBBPFinderException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTooManyFieldsFoundException;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.util.Arrays;
@@ -98,6 +99,13 @@ public class JBBPFieldStructTest {
       struct1.findFieldForPath(null);
       fail("Must throw NPE");
     }catch(NullPointerException ex){
+      
+    }
+
+    try{
+      struct1.findFieldForPath("struct1.struct2.field3.unknown");
+      fail("Must throw finder exception");
+    }catch(JBBPFinderException ex){
       
     }
     

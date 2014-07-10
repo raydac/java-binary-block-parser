@@ -239,8 +239,34 @@ public class JBBPTokenizerTest {
   }
 
   @Test
+  public void testRegularField_ErrorForDisabledCharAtName() {
+    final JBBPTokenizer parser = new JBBPTokenizer("   int.a; ");
+
+    final Iterator<JBBPToken> iterator = parser.iterator();
+    try{
+      iterator.next();
+      fail("Must throw parser exception for disabled dot char at name");
+    }catch(JBBPTokenizerException ex){
+      assertEquals(3, ex.getPosition());
+    }
+  }
+
+  @Test
   public void testStructure_Named_Start_ErrorForDollarAsTheFirstChar() {
     final JBBPTokenizer parser = new JBBPTokenizer("   $struct { ");
+
+    final Iterator<JBBPToken> iterator = parser.iterator();
+    try{
+      iterator.next();
+      fail("Must throw parser exception for disabled dot char at name");
+    }catch(JBBPTokenizerException ex){
+      assertEquals(3, ex.getPosition());
+    }
+  }
+
+  @Test
+  public void testRegularField_Name_ErrorForDollarAsTheFirstChar() {
+    final JBBPTokenizer parser = new JBBPTokenizer("   $int; ");
 
     final Iterator<JBBPToken> iterator = parser.iterator();
     try{

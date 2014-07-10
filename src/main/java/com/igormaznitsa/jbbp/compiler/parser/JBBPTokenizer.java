@@ -22,7 +22,8 @@ import java.util.*;
 import java.util.regex.*;
 
 /**
- * The Class implements a token parser which parses a String to binary block parser tokens and check their format.
+ * The Class implements a token parser which parses a String to binary block
+ * parser tokens and check their format.
  */
 public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPToken> {
 
@@ -30,9 +31,9 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
    * The Next available token.
    */
   private JBBPToken nextItem;
-  
+
   /**
-   * The Field contains deferred error. 
+   * The Field contains deferred error.
    */
   private JBBPTokenizerException detectedError;
 
@@ -40,7 +41,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
    * The Pattern to break a string to tokens.
    */
   private static final Pattern PATTERN = Pattern.compile("\\s*\\/\\/.*$|\\s*(\\})|\\s*([^\\s\\;\\[\\]\\}\\{\\/]+)?\\s*(?:\\[\\s*(\\S+)\\s*\\])?\\s*([^\\d\\s\\;\\[\\]\\}\\{\\/][^\\s\\;\\[\\]\\}\\{\\/]*)?\\s*([\\{\\;])", Pattern.MULTILINE);
-  
+
   /**
    * The Pattern to break field type to parameters.
    */
@@ -70,6 +71,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
 
   /**
    * The Constructor.
+   *
    * @param str a string to be parsed, must not be null.
    */
   public JBBPTokenizer(final String str) {
@@ -80,7 +82,8 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
   }
 
   /**
-   * Inside method to read the next token from the string and place it into inside storage.
+   * Inside method to read the next token from the string and place it into
+   * inside storage.
    */
   private void readNextItem() {
     if (matcher.find()) {
@@ -188,15 +191,8 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
           parsedType = null;
         }
 
-        final JBBPTokenizerException exception = checkFieldName(fieldName, position);
-        if (exception == null) {
-          this.nextItem = new JBBPToken(type, position, parsedType, arrayLength, fieldName);
-          lastCharSubstingFound = matcher.end();
-        }
-        else {
-          this.detectedError = exception;
-          this.nextItem = null;
-        }
+        this.nextItem = new JBBPToken(type, position, parsedType, arrayLength, fieldName);
+        lastCharSubstingFound = matcher.end();
       }
     }
     else {
@@ -214,7 +210,8 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
   }
 
   /**
-   * Check a field name 
+   * Check a field name
+   *
    * @param name the name to be checked.
    * @param position the token position in the string.
    * @return JBBPTokenizerException if the field name has wrong chars or
