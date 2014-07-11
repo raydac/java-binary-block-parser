@@ -450,21 +450,6 @@ public final class JBBPParser {
   }
 
   /**
-   * Parse a byte array content with defined external value provider.
-   *
-   * @param array a byte array which content should be parsed, it must not be
-   * null
-   * @param externalValueProvider an external value provider, it can be null but
-   * only if the script doesn't have fields desired the provider
-   * @return the parsed content as the root structure
-   * @throws IOException it will be thrown for transport errors
-   */
-  public JBBPFieldStruct parse(final byte[] array, final JBBPExternalValueProvider externalValueProvider) throws IOException {
-    JBBPUtils.assertNotNull(array, "Array must not be null");
-    return this.parse(new ByteArrayInputStream(array), externalValueProvider);
-  }
-
-  /**
    * Prepare a parser for a script and a bit order.
    *
    * @param script a text script contains field order and types reference, it
