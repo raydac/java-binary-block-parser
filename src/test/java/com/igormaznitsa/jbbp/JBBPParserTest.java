@@ -1077,7 +1077,7 @@ public class JBBPParserTest {
 
   @Test
   public void testParse_SkipStructureForZeroItems() throws Exception {
-    final JBBPFieldStruct parsed = JBBPParser.prepare("byte len; sss [len]{ sss2[10]{byte;}} byte end;").parse(new byte[]{0x00, 0x1F});
+    final JBBPFieldStruct parsed = JBBPParser.prepare("byte len; sss [len]{ sss2[10]{ sss3{long;} sss4[45]{ushort; bool [11]; short; bit:4;} byte;}} byte end;").parse(new byte[]{0x00, 0x1F});
     assertEquals(0, parsed.findFieldForPathAndType("len", JBBPFieldByte.class).getAsInt());
     assertEquals(0, parsed.findFieldForPathAndType("sss", JBBPFieldArrayStruct.class).size());
     assertEquals(0x1F, parsed.findFieldForPathAndType("end", JBBPFieldByte.class).getAsInt());

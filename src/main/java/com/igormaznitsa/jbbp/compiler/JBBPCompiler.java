@@ -128,7 +128,7 @@ public final class JBBPCompiler {
    * by an expression or the array is unsized and must be read till the end of a
    * stream.
    */
-  public static final int FLAG_EXPRESSIONORWHOLE = 0x20;
+  public static final int FLAG_EXPRESSION_OR_WHOLESTREAM = 0x20;
   /**
    * The Byte-Code Flag shows that the field is an array but it must be omitted
    * for unlimited field arrays.
@@ -283,7 +283,7 @@ public final class JBBPCompiler {
       }
 
       if ((code & FLAG_ARRAY) != 0) {
-        if ((code & FLAG_EXPRESSIONORWHOLE) != 0) {
+        if ((code & FLAG_EXPRESSION_OR_WHOLESTREAM) != 0) {
           if ("_".equals(token.getArraySizeAsString())) {
             if (fieldUnrestrictedArrayOffset >= 0) {
               throw new JBBPCompilationException("Detected two or more unlimited arrays [" + script + ']', token);
@@ -406,7 +406,7 @@ public final class JBBPCompiler {
         final JBBPFieldTypeParameterContainer descriptor = token.getFieldTypeParameters();
 
         result = descriptor.getByteOrder() == JBBPByteOrder.LITTLE_ENDIAN ? FLAG_LITTLE_ENDIAN : 0;
-        result |= token.getArraySizeAsString() == null ? 0 : (token.isVarArrayLength() ? FLAG_ARRAY | FLAG_EXPRESSIONORWHOLE : FLAG_ARRAY);
+        result |= token.getArraySizeAsString() == null ? 0 : (token.isVarArrayLength() ? FLAG_ARRAY | FLAG_EXPRESSION_OR_WHOLESTREAM : FLAG_ARRAY);
         result |= token.getFieldName() == null ? 0 : FLAG_NAMED;
 
         final String name = descriptor.getTypeName().toLowerCase(Locale.ENGLISH);
@@ -450,7 +450,7 @@ public final class JBBPCompiler {
       }
       break;
       case STRUCT_START: {
-        result = token.getArraySizeAsString() == null ? 0 : (token.isVarArrayLength() ? FLAG_ARRAY | FLAG_EXPRESSIONORWHOLE : FLAG_ARRAY);
+        result = token.getArraySizeAsString() == null ? 0 : (token.isVarArrayLength() ? FLAG_ARRAY | FLAG_EXPRESSION_OR_WHOLESTREAM : FLAG_ARRAY);
         result |= token.getFieldName() == null ? 0 : FLAG_NAMED;
         result |= CODE_STRUCT_START;
       }

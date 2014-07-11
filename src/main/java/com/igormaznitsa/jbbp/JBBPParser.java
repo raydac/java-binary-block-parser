@@ -108,18 +108,18 @@ public final class JBBPParser {
 
       final boolean wholeStreamArray;
       final int arrayLength;
-      switch (code & (JBBPCompiler.FLAG_ARRAY | JBBPCompiler.FLAG_EXPRESSIONORWHOLE)) {
+      switch (code & (JBBPCompiler.FLAG_ARRAY | JBBPCompiler.FLAG_EXPRESSION_OR_WHOLESTREAM)) {
         case JBBPCompiler.FLAG_ARRAY: {
           arrayLength = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
           wholeStreamArray = false;
         }
         break;
-        case JBBPCompiler.FLAG_EXPRESSIONORWHOLE: {
+        case JBBPCompiler.FLAG_EXPRESSION_OR_WHOLESTREAM: {
           wholeStreamArray = true;
           arrayLength = 0;
         }
         break;
-        case JBBPCompiler.FLAG_ARRAY | JBBPCompiler.FLAG_EXPRESSIONORWHOLE: {
+        case JBBPCompiler.FLAG_ARRAY | JBBPCompiler.FLAG_EXPRESSION_OR_WHOLESTREAM: {
           final JBBPLengthEvaluator evaluator = this.compiledBlock.getArraySizeEvaluators()[positionAtVarLengthProcessors.getAndIncrement()];
           arrayLength = evaluator.eval(inStream, positionAtCompiledBlock.get(), this.compiledBlock, namedNumericFieldMap);
           assertArrayLength(arrayLength, name);
@@ -162,7 +162,7 @@ public final class JBBPParser {
               final long skippedBytes = inStream.skip(skipByteNumber);
 
               if (skippedBytes != skipByteNumber) {
-                throw new EOFException("Can't skip " + skipByteNumber + " byte(s), skipped only " + skippedBytes+" byte(s)");
+                throw new EOFException("Can't skip " + skipByteNumber + " byte(s), skipped only " + skippedBytes + " byte(s)");
               }
             }
           }
@@ -266,7 +266,7 @@ public final class JBBPParser {
             final List<JBBPAbstractField> structFields = parseStruct(inStream, positionAtCompiledBlock, namedNumericFieldMap, positionAtNamedFieldList, positionAtVarLengthProcessors, skipStructureFields);
             // offset
             JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
-            if (structureFields != null && !structFields.isEmpty()) {
+            if (resultNotIgnored) {
               structureFields.add(new JBBPFieldStruct(name, structFields.toArray(new JBBPAbstractField[structFields.size()])));
             }
           }
@@ -275,7 +275,7 @@ public final class JBBPParser {
             final int varLenProcCurrent = positionAtVarLengthProcessors.get();
 
             final JBBPFieldStruct[] result;
-            if (structureFields != null) {
+            if (resultNotIgnored) {
               if (wholeStreamArray) {
                 // read till the stream end
                 final List<JBBPFieldStruct> list = new ArrayList<JBBPFieldStruct>();
