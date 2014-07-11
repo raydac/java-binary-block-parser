@@ -117,7 +117,7 @@ public class JBBPOutTest {
 
   @Test
   public void testBits_ByteArray() throws Exception {
-    assertArrayEquals(new byte[]{(byte) 0xED}, BeginBin().Bits(JBBPBitNumber.BITS_4, (byte) 0xFD, (byte) 0x8E).End().toByteArray());
+    assertArrayEquals(new byte[]{(byte) 0xED}, BeginBin().Bits(JBBPBitNumber.BITS_4, new byte[]{(byte) 0xFD, (byte) 0x8E}).End().toByteArray());
   }
 
   @Test
@@ -170,7 +170,7 @@ public class JBBPOutTest {
 
   @Test
   public void testShortArray_AsShorts() throws Exception {
-    assertArrayEquals(new byte[]{1, 2, 3, 4}, BeginBin().Short((short)0x0102, (short)0x0304).End().toByteArray());
+    assertArrayEquals(new byte[]{1, 2, 3, 4}, BeginBin().Short(new short[]{(short)0x0102, (short)0x0304}).End().toByteArray());
   }
   
   @Test
@@ -264,7 +264,7 @@ public class JBBPOutTest {
     }
 
     try{
-      out.Bit((byte)34,(byte)12);
+      out.Bit(new byte[]{(byte)34,(byte)12});
       fail("Must throw ISE");
     }catch(IllegalStateException ex){
     }
@@ -288,7 +288,7 @@ public class JBBPOutTest {
     }
 
     try{
-      out.Bits(JBBPBitNumber.BITS_3, (byte)1,(byte)2,(byte)3);
+      out.Bits(JBBPBitNumber.BITS_3, new byte[]{(byte)1,(byte)2,(byte)3});
       fail("Must throw ISE");
     }catch(IllegalStateException ex){
     }
@@ -306,7 +306,7 @@ public class JBBPOutTest {
     }
 
     try{
-      out.Byte((byte)1,(byte)2,(byte)3);
+      out.Byte(new byte[]{(byte)1,(byte)2,(byte)3});
       fail("Must throw ISE");
     }catch(IllegalStateException ex){
     }
@@ -372,7 +372,7 @@ public class JBBPOutTest {
     }
 
     try{
-      out.Short((short)1,(short)2,(short)3);
+      out.Short(new short[]{(short)1,(short)2,(short)3});
       fail("Must throw ISE");
     }catch(IllegalStateException ex){
     }
