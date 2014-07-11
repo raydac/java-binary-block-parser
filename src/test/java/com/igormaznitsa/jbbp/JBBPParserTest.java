@@ -1072,4 +1072,20 @@ public class JBBPParserTest {
     assertEquals(0x1F,parsed.findFieldForPathAndType("end", JBBPFieldByte.class).getAsInt());
   }
   
+  @Test
+  public void testParseWithStreamPositionMacros() throws Exception {
+    final JBBPFieldStruct parsed = JBBPParser.prepare("int start; byte [$$] array; int end;").parse(new byte[]{1,2,3,4,0x1A,0x1B,0x1C,0x1D,4,3,2,1});
+    assertEquals(0x01020304, parsed.findFieldForPathAndType("start", JBBPFieldInt.class).getAsInt());
+    assertArrayEquals(new byte[]{0x1A,0x1B,0x1C,0x1D}, parsed.findFieldForPathAndType("array", JBBPFieldArrayByte.class).getArray());
+    assertEquals(0x04030201, parsed.findFieldForPathAndType("end", JBBPFieldInt.class).getAsInt());
+  }
+
+  @Test
+  public void testParseWithStreamPositionMacrosInExpressions() throws Exception {
+    final JBBPFieldStruct parsed = JBBPParser.prepare("int start; byte [$$-2] array; byte [$$-4] array2; int end;").parse(new byte[]{1,2,3,4,0x1A,0x1B,0x1C,0x1D,4,3,2,1});
+    assertEquals(0x01020304, parsed.findFieldForPathAndType("start", JBBPFieldInt.class).getAsInt());
+    assertArrayEquals(new byte[]{0x1A,0x1B}, parsed.findFieldForPathAndType("array", JBBPFieldArrayByte.class).getArray());
+    assertArrayEquals(new byte[]{0x1C,0x1D}, parsed.findFieldForPathAndType("array2", JBBPFieldArrayByte.class).getArray());
+    assertEquals(0x04030201, parsed.findFieldForPathAndType("end", JBBPFieldInt.class).getAsInt());
+  }
 }
