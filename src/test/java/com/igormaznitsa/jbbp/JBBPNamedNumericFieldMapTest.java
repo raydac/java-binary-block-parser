@@ -19,7 +19,6 @@ import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.exceptions.JBBPException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTooManyFieldsFoundException;
-import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.model.JBBPFieldByte;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
@@ -108,7 +107,7 @@ public class JBBPNamedNumericFieldMapTest {
     final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap();
     final JBBPNumericField field = new JBBPFieldInt(new JBBPNamedFieldInfo("test.test", "test", 0), 123);
     map.putField(field);
-    assertSame(field, map.findFieldForName("test"));
+    assertSame(field, map.findFieldForName("tESt"));
     assertNull(map.findFieldForName("test1"));
 
     try {
@@ -259,7 +258,7 @@ public class JBBPNamedNumericFieldMapTest {
     final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap();
     final JBBPNumericField field = new JBBPFieldInt(new JBBPNamedFieldInfo("test.test", "test", 0), 123);
     map.putField(field);
-    assertSame(field, map.findFieldForPathAndType("test.test",JBBPFieldInt.class));
+    assertSame(field, map.findFieldForPathAndType("TesT.tESt",JBBPFieldInt.class));
     assertNull(map.findFieldForPathAndType("test.test",JBBPFieldByte.class));
     assertNull(map.findFieldForPathAndType("test.test1",JBBPFieldInt.class));
 
@@ -281,7 +280,7 @@ public class JBBPNamedNumericFieldMapTest {
     final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap();
     final JBBPNumericField field = new JBBPFieldInt(new JBBPNamedFieldInfo("test.test", "test", 0), 123);
     map.putField(field);
-    assertSame(field, map.findFieldForNameAndType("test",JBBPFieldInt.class));
+    assertSame(field, map.findFieldForNameAndType("tESt",JBBPFieldInt.class));
     assertNull(map.findFieldForNameAndType("test",JBBPFieldByte.class));
     assertNull(map.findFieldForNameAndType("test1",JBBPFieldInt.class));
 
@@ -303,7 +302,7 @@ public class JBBPNamedNumericFieldMapTest {
     final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap();
     final JBBPNumericField field = new JBBPFieldInt(new JBBPNamedFieldInfo("test.test", "test", 0), 123);
     map.putField(field);
-    assertTrue(map.pathExists("test.test"));
+    assertTrue(map.pathExists("tESt.teSt"));
     assertFalse(map.pathExists("test.test1"));
     assertFalse(map.pathExists("test"));
     
@@ -320,7 +319,7 @@ public class JBBPNamedNumericFieldMapTest {
     final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap();
     final JBBPNumericField field = new JBBPFieldInt(new JBBPNamedFieldInfo("test.test", "test", 0), 123);
     map.putField(field);
-    assertTrue(map.nameExists("test"));
+    assertTrue(map.nameExists("tESt"));
     assertFalse(map.nameExists("test1"));
     assertFalse(map.nameExists("test.test"));
     

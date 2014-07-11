@@ -15,6 +15,7 @@
  */
 package com.igormaznitsa.jbbp;
 
+import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPParsingException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTooManyFieldsFoundException;
 import com.igormaznitsa.jbbp.model.*;
@@ -23,6 +24,21 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 public class JBBPParserTest {
+
+  @Test(expected=JBBPCompilationException.class)
+  public void testFieldNameCaseInsensetive_ExceptionForDuplicationOfFieldNames() throws Exception {
+    JBBPParser.prepare("bool Field1; byte field1;");
+  }
+
+  @Test
+  public void testFieldNameCaseInsensetive() throws Exception {
+    final JBBPFieldStruct parsed = JBBPParser.prepare("bool FiElD1;").parse(new byte []{1});
+    assertTrue(parsed.nameExists("fiELD1"));
+    assertTrue(parsed.pathExists("fiELD1"));
+    assertNotNull(parsed.findFieldForName("fiELD1"));
+    assertNotNull(parsed.findFieldForNameAndType("fiELD1",JBBPFieldBoolean.class));
+    assertNotNull(parsed.findFieldForPathAndType("fiELD1",JBBPFieldBoolean.class));
+  }
 
   @Test(expected=EOFException.class)
   public void testParse_Bool_ErrorForEOF() throws Exception {

@@ -93,8 +93,9 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
   }
 
   public JBBPAbstractField findFieldForName(final String name) {
+    final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(name);
     for (final JBBPAbstractField f : this.fields) {
-      if (name.equals(f.getFieldName())) {
+      if (normalizedName.equals(f.getFieldName())) {
         return f;
       }
     }
