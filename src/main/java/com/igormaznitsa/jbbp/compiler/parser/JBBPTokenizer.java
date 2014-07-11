@@ -35,7 +35,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
   /**
    * The Field contains deferred error.
    */
-  private JBBPTokenizerException detectedError;
+  private JBBPTokenizerException detectedException;
 
   /**
    * The Pattern to break a string to tokens.
@@ -86,6 +86,10 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
    * inside storage.
    */
   private void readNextItem() {
+    if (this.detectedException != null) {
+      throw this.detectedException;
+    }
+
     if (matcher.find()) {
       final String groupWholeFound = this.matcher.group(0);
       final String groupWholeFoundTrimmed = groupWholeFound.trim();
@@ -98,7 +102,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
 
       final String skipString = this.processingString.substring(Math.max(this.lastCharSubstingFound, 0), matcher.start()).trim();
       if (skipString.length() != 0 && !skipString.startsWith("//")) {
-        this.detectedError = new JBBPTokenizerException(skipString, Math.max(this.lastCharSubstingFound, 0));
+        this.detectedException = new JBBPTokenizerException(skipString, Math.max(this.lastCharSubstingFound, 0));
       }
       else {
         JBBPTokenType type = JBBPTokenType.ATOM;
@@ -111,7 +115,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
           type = JBBPTokenType.STRUCT_START;
           if (groupName != null) {
             final int position = matcher.start() + groupWholeFound.length() - groupWholeFoundTrimmed.length();
-            this.detectedError = new JBBPTokenizerException("Wrong structure format, it must have only name (and may be array definition)", position);
+            this.detectedException = new JBBPTokenizerException("Wrong structure format, it must have only name (and may be array definition)", position);
             return;
           }
         }
@@ -120,7 +124,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
         }
         else if (groupTypeOrName == null) {
           final int position = matcher.start() + groupWholeFound.length() - groupWholeFoundTrimmed.length();
-          this.detectedError = new JBBPTokenizerException("Detected atomic field definition without type", position);
+          this.detectedException = new JBBPTokenizerException("Detected atomic field definition without type", position);
           return;
         }
 
@@ -145,9 +149,9 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
 
           position += groupWholeFound.length() - groupWholeFound.trim().length();
 
-          this.detectedError = checkFieldName(fieldName, position);
+          this.detectedException = checkFieldName(fieldName, position);
 
-          if (this.detectedError != null) {
+          if (this.detectedException != null) {
             return;
           }
         }
@@ -183,7 +187,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
           }
 
           if (wrongFormat) {
-            this.detectedError = new JBBPTokenizerException("Wrong format of type definition [" + fieldType + ']', position);
+            this.detectedException = new JBBPTokenizerException("Wrong format of type definition [" + fieldType + ']', position);
             return;
           }
         }
@@ -197,7 +201,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
     }
     else {
       if (this.lastCharSubstingFound < 0) {
-        this.detectedError = new JBBPTokenizerException("Wrong format of whole string", 0);
+        this.detectedException = new JBBPTokenizerException("Wrong format of whole string", 0);
       }
       else {
         final String restOfString = this.processingString.substring(this.lastCharSubstingFound);
@@ -235,13 +239,13 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
   }
 
   public boolean hasNext() {
-    return this.detectedError != null || nextItem != null;
+    return !(this.detectedException == null && this.nextItem == null);
   }
 
   public JBBPToken next() {
-    if (this.detectedError != null) {
-      final JBBPTokenizerException ex = this.detectedError;
-      this.detectedError = null;
+    if (this.detectedException != null) {
+      final JBBPTokenizerException ex = this.detectedException;
+      this.detectedException = null;
       throw ex;
     }
     final JBBPToken current = this.nextItem;

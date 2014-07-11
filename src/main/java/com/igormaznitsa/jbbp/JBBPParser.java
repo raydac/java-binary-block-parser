@@ -193,29 +193,14 @@ public final class JBBPParser {
         case JBBPCompiler.CODE_BOOL: {
           if (fields != null) {
             if (arrayLength < 0) {
-              final int value = inStream.read();
-              if (value < 0) {
-                throw new EOFException("Can't read boolean value for field '" + name + '\'');
-              }
-              singleValueField = new JBBPFieldBoolean(name, value != 0);
+              singleValueField = new JBBPFieldBoolean(name, inStream.readBoolean());
             }
             else {
-              final byte[] bytearray;
               if (nonsizedArray) {
-                bytearray = inStream.readByteArray(-1);
+                fields.add(new JBBPFieldArrayBoolean(name,inStream.readBooleanArray(-1)));
               }
               else if (arrayLength > 0) {
-                bytearray = inStream.readByteArray(arrayLength);
-              }
-              else {
-                bytearray = null;
-              }
-              if (bytearray != null) {
-                final boolean[] result = new boolean[bytearray.length];
-                for (int i = 0; i < bytearray.length; i++) {
-                  result[i] = bytearray[i] != 0;
-                }
-                fields.add(new JBBPFieldArrayBoolean(name, result));
+                fields.add(new JBBPFieldArrayBoolean(name,inStream.readBooleanArray(arrayLength)));
               }
             }
           }
