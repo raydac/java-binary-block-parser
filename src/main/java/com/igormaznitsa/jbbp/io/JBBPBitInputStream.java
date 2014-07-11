@@ -526,6 +526,20 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     return read != 0;
   }
 
+  /**
+   * Read a byte value.
+   *
+   * @return the byte value read from the stream
+   * @throws IOException it will be thrown for transport errors.
+   */
+  public int readByte() throws IOException {
+    final int read = this.read();
+    if (read < 0) {
+      throw new EOFException("Can't read a byte value");
+    }
+    return read;
+  }
+
   @Override
   public boolean markSupported() {
     return super.markSupported();

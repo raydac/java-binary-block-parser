@@ -104,7 +104,10 @@ public final class JBBPParser {
       final int arrayLength;
       final boolean nonsizedArray;
 
+      final JBBPByteOrder byteOrder = (code & JBBPCompiler.FLAG_LITTLE_ENDIAN) == 0 ? JBBPByteOrder.BIG_ENDIAN : JBBPByteOrder.LITTLE_ENDIAN;
+      
       boolean checkArrayLength = false;
+      
       switch (code & (JBBPCompiler.FLAG_ARRAY | JBBPCompiler.FLAG_EXPRESSIONORWHOLE)) {
         case JBBPCompiler.FLAG_ARRAY: {
           arrayLength = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
@@ -209,11 +212,7 @@ public final class JBBPParser {
         case JBBPCompiler.CODE_BYTE: {
           if (fields != null) {
             if (arrayLength < 0) {
-              final int value = inStream.read();
-              if (value < 0) {
-                throw new EOFException("Can't read byte value for field '" + name + '\'');
-              }
-              singleValueField = new JBBPFieldByte(name, (byte) value);
+              singleValueField = new JBBPFieldByte(name, (byte) inStream.readByte());
             }
             else {
               if (nonsizedArray) {
@@ -229,11 +228,7 @@ public final class JBBPParser {
         case JBBPCompiler.CODE_UBYTE: {
           if (fields != null) {
             if (arrayLength < 0) {
-              final int value = inStream.read();
-              if (value < 0) {
-                throw new EOFException("Can't read unsigned byte value for field '" + name + '\'');
-              }
-              singleValueField = new JBBPFieldUByte(name, (byte) value);
+              singleValueField = new JBBPFieldUByte(name, (byte)inStream.readByte());
             }
             else {
               if (nonsizedArray) {
@@ -249,15 +244,15 @@ public final class JBBPParser {
         case JBBPCompiler.CODE_INT: {
           if (fields != null) {
             if (arrayLength < 0) {
-              final int value = inStream.readInt((code & JBBPCompiler.FLAG_LITTLE_ENDIAN) == 0 ? JBBPByteOrder.BIG_ENDIAN : JBBPByteOrder.LITTLE_ENDIAN);
+              final int value = inStream.readInt(byteOrder);
               singleValueField = new JBBPFieldInt(name, value);
             }
             else {
               if (nonsizedArray) {
-                fields.add(new JBBPFieldArrayInt(name, inStream.readIntArray(-1, (code & JBBPCompiler.FLAG_LITTLE_ENDIAN) == 0 ? JBBPByteOrder.BIG_ENDIAN : JBBPByteOrder.LITTLE_ENDIAN)));
+                fields.add(new JBBPFieldArrayInt(name, inStream.readIntArray(-1, byteOrder)));
               }
               else if (arrayLength > 0) {
-                fields.add(new JBBPFieldArrayInt(name, inStream.readIntArray(arrayLength, (code & JBBPCompiler.FLAG_LITTLE_ENDIAN) == 0 ? JBBPByteOrder.BIG_ENDIAN : JBBPByteOrder.LITTLE_ENDIAN)));
+                fields.add(new JBBPFieldArrayInt(name, inStream.readIntArray(arrayLength, byteOrder)));
               }
             }
           }
@@ -266,15 +261,15 @@ public final class JBBPParser {
         case JBBPCompiler.CODE_LONG: {
           if (fields != null) {
             if (arrayLength < 0) {
-              final long value = inStream.readLong((code & JBBPCompiler.FLAG_LITTLE_ENDIAN) == 0 ? JBBPByteOrder.BIG_ENDIAN : JBBPByteOrder.LITTLE_ENDIAN);
+              final long value = inStream.readLong(byteOrder);
               singleValueField = new JBBPFieldLong(name, value);
             }
             else {
               if (nonsizedArray) {
-                fields.add(new JBBPFieldArrayLong(name, inStream.readLongArray(-1, (code & JBBPCompiler.FLAG_LITTLE_ENDIAN) == 0 ? JBBPByteOrder.BIG_ENDIAN : JBBPByteOrder.LITTLE_ENDIAN)));
+                fields.add(new JBBPFieldArrayLong(name, inStream.readLongArray(-1, byteOrder)));
               }
               else if (arrayLength > 0) {
-                fields.add(new JBBPFieldArrayLong(name, inStream.readLongArray(arrayLength, (code & JBBPCompiler.FLAG_LITTLE_ENDIAN) == 0 ? JBBPByteOrder.BIG_ENDIAN : JBBPByteOrder.LITTLE_ENDIAN)));
+                fields.add(new JBBPFieldArrayLong(name, inStream.readLongArray(arrayLength, byteOrder)));
               }
             }
           }
@@ -283,15 +278,15 @@ public final class JBBPParser {
         case JBBPCompiler.CODE_SHORT: {
           if (fields != null) {
             if (arrayLength < 0) {
-              final int value = inStream.readUnsignedShort((code & JBBPCompiler.FLAG_LITTLE_ENDIAN) == 0 ? JBBPByteOrder.BIG_ENDIAN : JBBPByteOrder.LITTLE_ENDIAN);
+              final int value = inStream.readUnsignedShort(byteOrder);
               singleValueField = new JBBPFieldShort(name, (short) value);
             }
             else {
               if (nonsizedArray) {
-                fields.add(new JBBPFieldArrayShort(name, inStream.readShortArray(-1, (code & JBBPCompiler.FLAG_LITTLE_ENDIAN) == 0 ? JBBPByteOrder.BIG_ENDIAN : JBBPByteOrder.LITTLE_ENDIAN)));
+                fields.add(new JBBPFieldArrayShort(name, inStream.readShortArray(-1, byteOrder)));
               }
               else if (arrayLength > 0) {
-                fields.add(new JBBPFieldArrayShort(name, inStream.readShortArray(arrayLength, (code & JBBPCompiler.FLAG_LITTLE_ENDIAN) == 0 ? JBBPByteOrder.BIG_ENDIAN : JBBPByteOrder.LITTLE_ENDIAN)));
+                fields.add(new JBBPFieldArrayShort(name, inStream.readShortArray(arrayLength, byteOrder)));
               }
             }
           }
@@ -300,15 +295,15 @@ public final class JBBPParser {
         case JBBPCompiler.CODE_USHORT: {
           if (fields != null) {
             if (arrayLength < 0) {
-              final int value = inStream.readUnsignedShort((code & JBBPCompiler.FLAG_LITTLE_ENDIAN) == 0 ? JBBPByteOrder.BIG_ENDIAN : JBBPByteOrder.LITTLE_ENDIAN);
+              final int value = inStream.readUnsignedShort(byteOrder);
               singleValueField = new JBBPFieldUShort(name, (short) value);
             }
             else {
               if (nonsizedArray) {
-                fields.add(new JBBPFieldArrayUShort(name, inStream.readShortArray(-1, (code & JBBPCompiler.FLAG_LITTLE_ENDIAN) == 0 ? JBBPByteOrder.BIG_ENDIAN : JBBPByteOrder.LITTLE_ENDIAN)));
+                fields.add(new JBBPFieldArrayUShort(name, inStream.readShortArray(-1, byteOrder)));
               }
               else if (arrayLength > 0) {
-                fields.add(new JBBPFieldArrayUShort(name, inStream.readShortArray(arrayLength, (code & JBBPCompiler.FLAG_LITTLE_ENDIAN) == 0 ? JBBPByteOrder.BIG_ENDIAN : JBBPByteOrder.LITTLE_ENDIAN)));
+                fields.add(new JBBPFieldArrayUShort(name, inStream.readShortArray(arrayLength, byteOrder)));
               }
             }
           }
