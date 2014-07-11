@@ -90,7 +90,7 @@ public class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
         prevoperator = false;
         counterVarsAndConstants++;
 
-        final String normalized = JBBPCompilerUtils.normalizeFieldNameOrPath(variable);
+        final String normalized = JBBPUtils.normalizeFieldNameOrPath(variable);
         final int nameIndex;
         final boolean extValue;
         if (normalized.startsWith("$")) {

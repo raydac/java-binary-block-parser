@@ -219,7 +219,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
    */
   private static JBBPTokenizerException checkFieldName(final String name, final int position) {
     if (name != null) {
-      final String normalized = name.toLowerCase(Locale.ENGLISH);
+      final String normalized = JBBPUtils.normalizeFieldNameOrPath(name);
       if (normalized.indexOf('.') >= 0) {
         return new JBBPTokenizerException("Field name must not contain '.' char", position);
       }

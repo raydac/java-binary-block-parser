@@ -20,7 +20,6 @@ import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Class contains specific common auxiliary methods for parser and compiler classes.
@@ -34,7 +33,7 @@ public enum JBBPCompilerUtils {;
    * @return the index of a field for the path if found one, -1 otherwise
    */
   public static int findIndexForFieldPath(final String fieldPath, final List<JBBPNamedFieldInfo> namedFields) {
-    final String normalized = normalizeFieldNameOrPath(fieldPath);
+    final String normalized = JBBPUtils.normalizeFieldNameOrPath(fieldPath);
     for (int i = namedFields.size() - 1; i >= 0; i--) {
       final JBBPNamedFieldInfo f = namedFields.get(i);
       if (normalized.equals(f.getFieldPath())) {
@@ -51,7 +50,7 @@ public enum JBBPCompilerUtils {;
    * @return found item for the path, null otherwise
    */
   public static JBBPNamedFieldInfo findForFieldPath(final String fieldPath, final List<JBBPNamedFieldInfo> namedFields) {
-    final String normalized = normalizeFieldNameOrPath(fieldPath);
+    final String normalized = JBBPUtils.normalizeFieldNameOrPath(fieldPath);
     for (int i = namedFields.size() - 1; i >= 0; i--) {
       final JBBPNamedFieldInfo f = namedFields.get(i);
       if (normalized.equals(f.getFieldPath())) {
@@ -59,15 +58,6 @@ public enum JBBPCompilerUtils {;
       }
     }
     return null;
-  }
-
-  /**
-   * Normalize a field name or a path.
-   * @param nameOrPath a field name or a path to be processed, must not be null
-   * @return the normalized version of the name or the path
-   */
-  public static String normalizeFieldNameOrPath(final String nameOrPath) {
-    return nameOrPath.trim().toLowerCase(Locale.ENGLISH);
   }
 
   /**

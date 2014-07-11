@@ -15,6 +15,8 @@
  */
 package com.igormaznitsa.jbbp.compiler;
 
+import com.igormaznitsa.jbbp.utils.JBBPUtils;
+
 /**
  * The Class describes a named field info item. Such objects are presented inside of compiled blocks only for fields which have names.
  */
@@ -39,8 +41,8 @@ public final class JBBPNamedFieldInfo {
    * @param offsetInCompiledBlock the offset in the compiled block for the field
    */
   public JBBPNamedFieldInfo(final String fieldPath, final String fieldName, final int offsetInCompiledBlock) {
-    this.fieldPath = fieldPath;
-    this.fieldName = fieldName;
+    this.fieldPath = JBBPUtils.normalizeFieldNameOrPath(fieldPath);
+    this.fieldName = JBBPUtils.normalizeFieldNameOrPath(fieldName);
     this.offsetInCompiledBlock = offsetInCompiledBlock;
   }
 

@@ -64,8 +64,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
   }
 
   public JBBPAbstractField findFieldForPath(final String fieldPath) {
-    JBBPUtils.assertNotNull(fieldPath, "Path must not be null");
-    final String[] parsedName = JBBPUtils.splitString(fieldPath, '.');
+    final String[] parsedName = JBBPUtils.splitString(JBBPUtils.normalizeFieldNameOrPath(fieldPath), '.');
 
     JBBPAbstractField found = this;
     final int firstIndex;
@@ -144,9 +143,10 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
   }
 
   @SuppressWarnings("unchecked")
-  public <T extends JBBPAbstractField> T findFieldForNameAndType(final String name, final Class<T> klazz) {
+  public <T extends JBBPAbstractField> T findFieldForNameAndType(final String fieldName, final Class<T> klazz) {
+    final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(fieldName);
     for (final JBBPAbstractField f : this.fields) {
-      if (klazz.isAssignableFrom(f.getClass()) && name.equals(f.getFieldName())) {
+      if (klazz.isAssignableFrom(f.getClass()) && normalizedName.equals(f.getFieldName())) {
         return (T) f;
       }
     }
@@ -154,8 +154,9 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
   }
 
   public boolean nameExists(final String fieldName) {
+    final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(fieldName);
     for (final JBBPAbstractField f : this.fields) {
-      if (fieldName.equals(f.getFieldName())) {
+      if (normalizedName.equals(f.getFieldName())) {
         return true;
       }
     }
@@ -163,8 +164,9 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
   }
 
   public boolean pathExists(final String fieldPath) {
+    final String normalizedPath = JBBPUtils.normalizeFieldNameOrPath(fieldPath);
     for (final JBBPAbstractField f : this.fields) {
-      if (fieldPath.equals(f.getFieldPath())) {
+      if (normalizedPath.equals(f.getFieldPath())) {
         return true;
       }
     }

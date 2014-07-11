@@ -407,4 +407,13 @@ public enum JBBPUtils {;
     return number+" (0x"+Long.toHexString((long)number & 0xFFFFFFFFL).toUpperCase(Locale.ENGLISH)+')';
   }
   
+  /**
+   * Normalize field name or path.
+   * @param nameOrPath a field name or a path to be normalized, must not be null
+   * @return the normalized version of the name or path
+   */
+  public static String normalizeFieldNameOrPath(final String nameOrPath) {
+    assertNotNull(nameOrPath, "Name of path must not be null");
+    return nameOrPath.trim().toLowerCase(Locale.ENGLISH);
+  }
 }

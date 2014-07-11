@@ -305,14 +305,14 @@ public final class JBBPCompiler {
       }
 
       if ((code & FLAG_NAMED) != 0) {
-        final String normalizedName = JBBPCompilerUtils.normalizeFieldNameOrPath(token.getFieldName());
+        final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(token.getFieldName());
         assertName(normalizedName, token);
         registerNamedField(normalizedName, startFieldOffset, namedFields, token);
       }
       else {
         if (currentClosedStructure != null && (currentClosedStructure.code & FLAG_NAMED) != 0) {
           // it is structure, process field names
-          final String normalizedName = JBBPCompilerUtils.normalizeFieldNameOrPath(currentClosedStructure.token.getFieldName());
+          final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(currentClosedStructure.token.getFieldName());
           for (int i = namedFields.size() - 1; i >= 0; i--) {
             final JBBPNamedFieldInfo f = namedFields.get(i);
             if (f.getFieldOffsetInCompiledBlock() <= currentClosedStructure.startOffset) {

@@ -150,10 +150,10 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
 
   @SuppressWarnings("unchecked")
   public <T extends JBBPAbstractField> T findFieldForNameAndType(final String fieldName, final Class<T> fieldType) {
-    JBBPUtils.assertNotNull(fieldName, "Name must not be null");
+    final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(fieldName);
     JBBPUtils.assertNotNull(fieldType, "Field type must not be null");
     for (final Map.Entry<JBBPNamedFieldInfo, JBBPNumericField> f : fieldMap.entrySet()) {
-      if (fieldName.equals(f.getKey().getFieldName()) && fieldType.isAssignableFrom(f.getValue().getClass())) {
+      if (normalizedName.equals(f.getKey().getFieldName()) && fieldType.isAssignableFrom(f.getValue().getClass())) {
         return (T) f.getValue();
       }
     }
@@ -162,10 +162,10 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
 
   @SuppressWarnings("unchecked")
   public <T extends JBBPAbstractField> T findFieldForPathAndType(final String fieldPath, final Class<T> fieldType) {
-    JBBPUtils.assertNotNull(fieldPath, "Path must not be null");
+    final String normalizedPath = JBBPUtils.normalizeFieldNameOrPath(fieldPath);
     JBBPUtils.assertNotNull(fieldType, "Field type must not be null");
     for (final Map.Entry<JBBPNamedFieldInfo, JBBPNumericField> f : fieldMap.entrySet()) {
-      if (fieldPath.equals(f.getKey().getFieldPath()) && fieldType.isAssignableFrom(f.getValue().getClass())) {
+      if (normalizedPath.equals(f.getKey().getFieldPath()) && fieldType.isAssignableFrom(f.getValue().getClass())) {
         return (T) f.getValue();
       }
     }
@@ -173,8 +173,9 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
   }
 
   public JBBPAbstractField findFieldForName(final String fieldName) {
+    final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(fieldName);
     for (final Map.Entry<JBBPNamedFieldInfo, JBBPNumericField> f : fieldMap.entrySet()) {
-      if (fieldName.equals(f.getKey().getFieldName())) {
+      if (normalizedName.equals(f.getKey().getFieldName())) {
         return (JBBPAbstractField) f.getValue();
       }
     }
@@ -182,8 +183,9 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
   }
 
   public JBBPAbstractField findFieldForPath(final String fieldPath) {
+    final String normalizedPath = JBBPUtils.normalizeFieldNameOrPath(fieldPath);
     for (final Map.Entry<JBBPNamedFieldInfo, JBBPNumericField> f : fieldMap.entrySet()) {
-      if (fieldPath.equals(f.getKey().getFieldPath())) {
+      if (normalizedPath.equals(f.getKey().getFieldPath())) {
         return (JBBPAbstractField) f.getValue();
       }
     }
@@ -191,8 +193,9 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
   }
 
   public boolean nameExists(final String fieldName) {
+    final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(fieldName);
     for (final JBBPNamedFieldInfo f : fieldMap.keySet()) {
-      if (fieldName.equals(f.getFieldName())) {
+      if (normalizedName.equals(f.getFieldName())) {
         return true;
       }
     }
@@ -200,8 +203,9 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
   }
 
   public boolean pathExists(final String fieldPath) {
+    final String normalizedPath = JBBPUtils.normalizeFieldNameOrPath(fieldPath);
     for (final JBBPNamedFieldInfo f : fieldMap.keySet()) {
-      if (fieldPath.equals(f.getFieldPath())) {
+      if (normalizedPath.equals(f.getFieldPath())) {
         return true;
       }
     }
@@ -239,11 +243,12 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
    * @throws JBBPException if there is not any external value provider
    */
   public int getExternalFieldValue(final String externalFieldName, final JBBPCompiledBlock compiledBlock) {
+    final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(externalFieldName);
     if (this.externalValueProvider == null) {
       throw new JBBPException("Request for '" + externalFieldName + "' but there is not any value provider");
     }
     else {
-      return this.externalValueProvider.provideArraySize(externalFieldName, this, compiledBlock);
+      return this.externalValueProvider.provideArraySize(normalizedName, this, compiledBlock);
     }
   }
 }

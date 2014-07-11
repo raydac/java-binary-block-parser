@@ -350,8 +350,9 @@ public class JBBPParserTest {
   }
   
   @Test
-  public void testParse_NonFixedBitArray_EOFException() throws Exception {
-    JBBPParser.prepare("byte; bit:4[_];").parse(new byte[]{1});
+  public void testParse_NonFixedBitArray_ParsedAsEmptyArray() throws Exception {
+    final JBBPFieldStruct parsed = JBBPParser.prepare("byte; bit:4[_] array;").parse(new byte[]{1});
+    assertEquals(0,parsed.findFieldForNameAndType("array", JBBPFieldArrayBit.class).size());
   }
 
 
@@ -389,8 +390,9 @@ public class JBBPParserTest {
   }
 
   @Test
-  public void testParse_NonFixedByteArray_EOFException() throws Exception {
-    JBBPParser.prepare("byte; byte[_];").parse(new byte[]{1});
+  public void testParse_NonFixedByteArray_ParsedAsEmptyArray() throws Exception {
+    final JBBPFieldStruct parsed = JBBPParser.prepare("byte; byte[_] array;").parse(new byte[]{1});
+    assertEquals(0, parsed.findFieldForNameAndType("array", JBBPFieldArrayByte.class).size());
   }
 
   @Test
@@ -460,10 +462,11 @@ public class JBBPParserTest {
   }
 
   @Test
-  public void testParse_NonFixedUByteArray_EOFException() throws Exception {
-    JBBPParser.prepare("byte; ubyte[_];").parse(new byte[]{1});
+  public void testParse_NonFixedUByteArray_ParsedAsEmptyArray() throws Exception {
+    final JBBPFieldStruct parsed = JBBPParser.prepare("byte; ubyte[_] array;").parse(new byte[]{1});
+    assertEquals(0, parsed.findFieldForNameAndType("array", JBBPFieldArrayUByte.class).size());
   }
-  
+
   @Test
   public void testParse_FixedUByteArray_Default() throws Exception {
     final JBBPFieldArrayUByte bytes = JBBPParser.prepare("ubyte[4];").parse(new byte[]{0x21, 0x43, 0x65, (byte)0x87}).findFieldForType(JBBPFieldArrayUByte.class);
@@ -531,10 +534,11 @@ public class JBBPParserTest {
   }
 
   @Test
-  public void testParse_NonFixedBooleanArray_EOFException() throws Exception {
-    JBBPParser.prepare("byte; bool[_];").parse(new byte[]{1});
+  public void testParse_NonFixedBoolArray_ParsedAsEmptyArray() throws Exception {
+    final JBBPFieldStruct parsed = JBBPParser.prepare("byte; bool[_] array;").parse(new byte[]{1});
+    assertEquals(0, parsed.findFieldForNameAndType("array", JBBPFieldArrayBoolean.class).size());
   }
-  
+
   @Test
   public void testParse_FixedBooleanArray_Default() throws Exception {
     final JBBPFieldArrayBoolean bools = JBBPParser.prepare("bool[4];").parse(new byte[]{0, 0x43, 0x65, 0}).findFieldForType(JBBPFieldArrayBoolean.class);
@@ -601,8 +605,9 @@ public class JBBPParserTest {
   }
 
   @Test
-  public void testParse_NonFixedShortArray_EOFException() throws Exception {
-    JBBPParser.prepare("byte; short[_];").parse(new byte[]{1});
+  public void testParse_NonFixedShortArray_ParsedAsEmptyArray() throws Exception {
+    final JBBPFieldStruct parsed = JBBPParser.prepare("byte; short[_] array;").parse(new byte[]{1});
+    assertEquals(0, parsed.findFieldForNameAndType("array", JBBPFieldArrayShort.class).size());
   }
 
   @Test
@@ -659,8 +664,9 @@ public class JBBPParserTest {
   }
 
   @Test
-  public void testParse_NonFixedUShortArray_EOFException() throws Exception {
-    JBBPParser.prepare("byte; ushort[_];").parse(new byte[]{1});
+  public void testParse_NonFixedUShortArray_ParsedAsEmptyArray() throws Exception {
+    final JBBPFieldStruct parsed = JBBPParser.prepare("byte; ushort[_] array;").parse(new byte[]{1});
+    assertEquals(0, parsed.findFieldForNameAndType("array", JBBPFieldArrayUShort.class).size());
   }
 
   @Test
@@ -717,9 +723,12 @@ public class JBBPParserTest {
   }
 
   @Test
-  public void testParse_NonFixedIntArray_EOFException() throws Exception {
-    JBBPParser.prepare("byte; int[_];").parse(new byte[]{1});
+  public void testParse_NonFixedIntArray_ParsedAsEmptyArray() throws Exception {
+    final JBBPFieldStruct parsed = JBBPParser.prepare("byte; int[_] array;").parse(new byte[]{1});
+    assertEquals(0, parsed.findFieldForNameAndType("array", JBBPFieldArrayInt.class).size());
   }
+
+
 
   @Test
   public void testParse_FixedIntArray_Default() throws Exception {
@@ -775,8 +784,9 @@ public class JBBPParserTest {
   }
 
   @Test
-  public void testParse_NonFixedLongArray_EOFException() throws Exception {
-    JBBPParser.prepare("byte; long[_];").parse(new byte[]{1});
+  public void testParse_NonFixedLongArray_ParsedAsEmptyArray() throws Exception {
+    final JBBPFieldStruct parsed = JBBPParser.prepare("byte; long[_] array;").parse(new byte[]{1});
+    assertEquals(0, parsed.findFieldForNameAndType("array", JBBPFieldArrayLong.class).size());
   }
 
   @Test
