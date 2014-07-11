@@ -72,7 +72,7 @@ public class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
 
     while (matcher.find()) {
       if (lastFound >= 0) {
-        // check for skept substring
+        // check for skipped substring
         final String substr = expression.substring(lastFound, matcher.start());
         if (substr.trim().length() != 0) {
           throw new JBBPCompilationException("Can't recognize part of expression '" + substr + "' [" + expression + ']');
