@@ -125,7 +125,7 @@ public class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
 
         }
         catch (IOException ex) {
-          throw new RuntimeException("UNexpected IO exception", ex);
+          throw new RuntimeException("Unexpected IO exception", ex);
         }
       }
       else if (operator != null) {
