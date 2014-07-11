@@ -64,6 +64,11 @@ public final class JBBPParser {
     }
   }
 
+  /**
+   * Ensure that an array length is not a negative one.
+   * @param length the array length to be checked
+   * @param name the name information of a field, it can be null
+   */
   private static void assertArrayLength(final int length, final JBBPNamedFieldInfo name) {
     if (length < 0) {
       throw new JBBPParsingException("Detected negative calculated array length for field '" + (name == null ? "<NONAMED>" : name.getFieldPath()) + "\' [" + JBBPUtils.int2msg(length) + ']');
