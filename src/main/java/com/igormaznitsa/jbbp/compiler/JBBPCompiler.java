@@ -86,7 +86,8 @@ public final class JBBPCompiler {
    * The Byte code of the 'BYTE' command.
    */
   public static final int CODE_BYTE = 0x04;
-  /**p
+  /**
+   * p
    * The Byte code of the 'USHORT' (unsigned short) command.
    */
   public static final int CODE_USHORT = 0x05;
@@ -198,10 +199,10 @@ public final class JBBPCompiler {
         break;
         case CODE_SKIP: {
           if (token.getArraySizeAsString() != null) {
-            throw new IllegalArgumentException("A Skip field can't be array");
+            throw new JBBPCompilationException("A Skip field can't be array", token);
           }
           if (token.getFieldName() != null) {
-            throw new IllegalArgumentException("A Skip field can't be named [" + token.getFieldName() + ']');
+            throw new JBBPCompilationException("A Skip field can't be named [" + token.getFieldName() + ']', token);
           }
           final String parsedSkipByteNumber = token.getFieldTypeParameters().getExtraData();
           if (parsedSkipByteNumber == null) {
@@ -222,10 +223,10 @@ public final class JBBPCompiler {
         break;
         case CODE_ALIGN: {
           if (token.getArraySizeAsString() != null) {
-            throw new IllegalArgumentException("An Align field can't be array");
+            throw new JBBPCompilationException("An Align field can't be array", token);
           }
           if (token.getFieldName() != null) {
-            throw new IllegalArgumentException("An Align field can't be named [" + token.getFieldName() + ']');
+            throw new JBBPCompilationException("An Align field can't be named [" + token.getFieldName() + ']', token);
           }
 
           final String parsedAlignBytesNumber = token.getFieldTypeParameters().getExtraData();
@@ -296,6 +297,10 @@ public final class JBBPCompiler {
           }
         }
         else {
+          final int fixedArraySize = token.getArraySizeAsInt();
+          if (fixedArraySize <= 0) {
+            throw new JBBPCompilationException("Detected an array with negative or zero fixed length", token);
+          }
           offset += writePackedInt(out, token.getArraySizeAsInt());
         }
       }

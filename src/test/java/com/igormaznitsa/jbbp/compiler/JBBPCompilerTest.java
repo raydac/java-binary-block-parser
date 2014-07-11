@@ -61,25 +61,25 @@ public class JBBPCompilerTest {
 
   @Test
   public void testCompile_WholeStreamArrayInsideStructure() throws Exception {
-      final JBBPCompiledBlock block = JBBPCompiler.compile("test {byte [_];}");
-      assertEquals(4,block.getCompiledData().length);
-      assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_NAMED, block.getCompiledData()[0]);
-      assertEquals(JBBPCompiler.CODE_BYTE | JBBPCompiler.FLAG_EXPRESSIONORWHOLE, block.getCompiledData()[1]);
-      assertEquals(JBBPCompiler.CODE_STRUCT_END, block.getCompiledData()[2]);
-      assertEquals(0, block.getCompiledData()[3]);
+    final JBBPCompiledBlock block = JBBPCompiler.compile("test {byte [_];}");
+    assertEquals(4, block.getCompiledData().length);
+    assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_NAMED, block.getCompiledData()[0]);
+    assertEquals(JBBPCompiler.CODE_BYTE | JBBPCompiler.FLAG_EXPRESSIONORWHOLE, block.getCompiledData()[1]);
+    assertEquals(JBBPCompiler.CODE_STRUCT_END, block.getCompiledData()[2]);
+    assertEquals(0, block.getCompiledData()[3]);
   }
 
   @Test
   public void testCompile_WholeStreamStructureArrayInsideStructure() throws Exception {
-      final JBBPCompiledBlock block = JBBPCompiler.compile("test { whole[_]{ byte;}}");
-      assertEquals(7,block.getCompiledData().length);
-      assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_NAMED, block.getCompiledData()[0]);
-      assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_EXPRESSIONORWHOLE, block.getCompiledData()[1]);
-      assertEquals(JBBPCompiler.CODE_BYTE, block.getCompiledData()[2]);
-      assertEquals(JBBPCompiler.CODE_STRUCT_END, block.getCompiledData()[3]);
-      assertEquals(1, block.getCompiledData()[4]);
-      assertEquals(JBBPCompiler.CODE_STRUCT_END, block.getCompiledData()[5]);
-      assertEquals(0, block.getCompiledData()[6]);
+    final JBBPCompiledBlock block = JBBPCompiler.compile("test { whole[_]{ byte;}}");
+    assertEquals(7, block.getCompiledData().length);
+    assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_NAMED, block.getCompiledData()[0]);
+    assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_EXPRESSIONORWHOLE, block.getCompiledData()[1]);
+    assertEquals(JBBPCompiler.CODE_BYTE, block.getCompiledData()[2]);
+    assertEquals(JBBPCompiler.CODE_STRUCT_END, block.getCompiledData()[3]);
+    assertEquals(1, block.getCompiledData()[4]);
+    assertEquals(JBBPCompiler.CODE_STRUCT_END, block.getCompiledData()[5]);
+    assertEquals(0, block.getCompiledData()[6]);
   }
 
   @Test
@@ -97,108 +97,58 @@ public class JBBPCompilerTest {
       fail("Must throw IAE");
     }
     catch (JBBPCompilationException ex) {
-      assertTrue(ex.getToken().toString().indexOf("somewrong")>=0);
+      assertTrue(ex.getToken().toString().indexOf("somewrong") >= 0);
     }
   }
 
-  @Test
+  @Test(expected = JBBPCompilationException.class)
   public void testCompile_ErrorForNamedAlignField() throws Exception {
-    try {
-      JBBPCompiler.compile("align hello;");
-      fail("Must throw IAE");
-    }
-    catch (IllegalArgumentException ex) {
-    }
+    JBBPCompiler.compile("align hello;");
   }
 
-  @Test
+  @Test(expected = JBBPCompilationException.class)
   public void testCompile_ErrorForArrayAlignField() throws Exception {
-    try {
-      JBBPCompiler.compile("align [445] hello;");
-      fail("Must throw IAE");
-    }
-    catch (IllegalArgumentException ex) {
-    }
+    JBBPCompiler.compile("align [445] hello;");
   }
 
-  @Test
+  @Test(expected = JBBPCompilationException.class)
   public void testCompile_ErrorForZeroAlignValue() throws Exception {
-    try {
-      JBBPCompiler.compile("align:0;");
-      fail("Must throw IAE");
-    }
-    catch (JBBPCompilationException ex) {
-    }
+    JBBPCompiler.compile("align:0;");
   }
 
-  @Test
+  @Test(expected = JBBPTokenizerException.class)
   public void testCompile_ErrorForNegativeAlignValue() throws Exception {
-    try {
-      JBBPCompiler.compile("align:-1;");
-      fail("Must throw IAE");
-    }
-    catch (JBBPTokenizerException ex) {
-    }
+    JBBPCompiler.compile("align:-1;");
   }
 
-  @Test
+  @Test(expected = JBBPTokenizerException.class)
   public void testCompile_ErrorForNonNumericAlignValue() throws Exception {
-    try {
-      JBBPCompiler.compile("align:hhh;");
-      fail("Must throw IAE");
-    }
-    catch (JBBPTokenizerException ex) {
-    }
+    JBBPCompiler.compile("align:hhh;");
   }
 
-  @Test
+  @Test(expected = JBBPCompilationException.class)
   public void testCompile_ErrorForNamedSkipField() throws Exception {
-    try {
-      JBBPCompiler.compile("skip hello;");
-      fail("Must throw IAE");
-    }
-    catch (IllegalArgumentException ex) {
-    }
+    JBBPCompiler.compile("skip hello;");
   }
 
-  @Test
+  @Test(expected = JBBPCompilationException.class)
   public void testCompile_ErrorForArraySkipField() throws Exception {
-    try {
-      JBBPCompiler.compile("skip [445] hello;");
-      fail("Must throw IAE");
-    }
-    catch (IllegalArgumentException ex) {
-    }
+    JBBPCompiler.compile("skip [445] hello;");
   }
 
-  @Test
+  @Test(expected = JBBPCompilationException.class)
   public void testCompile_ErrorForZeroSkipValue() throws Exception {
-    try {
-      JBBPCompiler.compile("skip:0;");
-      fail("Must throw IAE");
-    }
-    catch (JBBPCompilationException ex) {
-    }
+    JBBPCompiler.compile("skip:0;");
   }
 
-  @Test
+  @Test(expected = JBBPTokenizerException.class)
   public void testCompile_ErrorForNegativeSkipValue() throws Exception {
-    try {
-      JBBPCompiler.compile("skip:-1;");
-      fail("Must throw IAE");
-    }
-    catch (JBBPTokenizerException ex) {
-    }
+    JBBPCompiler.compile("skip:-1;");
   }
 
-  @Test
+  @Test(expected = JBBPTokenizerException.class)
   public void testCompile_ErrorForNonNumericSkipValue() throws Exception {
-    try {
-      JBBPCompiler.compile("skip:hhh;");
-      fail("Must throw IAE");
-    }
-    catch (JBBPTokenizerException ex) {
-    }
+    JBBPCompiler.compile("skip:hhh;");
   }
 
   @Test
