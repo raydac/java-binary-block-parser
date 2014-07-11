@@ -66,6 +66,7 @@ public final class JBBPParser {
 
   /**
    * Ensure that an array length is not a negative one.
+   *
    * @param length the array length to be checked
    * @param name the name information of a field, it can be null
    */
@@ -185,9 +186,8 @@ public final class JBBPParser {
                 structureFields.add(new JBBPFieldArrayBit(name, inStream.readBitsArray(-1, bitNumber)));
               }
               else {
-                if (arrayLength > 0) {
-                  structureFields.add(new JBBPFieldArrayBit(name, inStream.readBitsArray(arrayLength, bitNumber)));
-                }
+                structureFields.add(new JBBPFieldArrayBit(name, inStream.readBitsArray(arrayLength, bitNumber)));
+
               }
             }
           }
@@ -202,7 +202,7 @@ public final class JBBPParser {
               if (wholeStreamArray) {
                 structureFields.add(new JBBPFieldArrayBoolean(name, inStream.readBooleanArray(-1)));
               }
-              else if (arrayLength > 0) {
+              else {
                 structureFields.add(new JBBPFieldArrayBoolean(name, inStream.readBooleanArray(arrayLength)));
               }
             }
@@ -218,7 +218,7 @@ public final class JBBPParser {
               if (wholeStreamArray) {
                 structureFields.add(new JBBPFieldArrayByte(name, inStream.readByteArray(-1)));
               }
-              else if (arrayLength > 0) {
+              else {
                 structureFields.add(new JBBPFieldArrayByte(name, inStream.readByteArray(arrayLength)));
               }
             }
@@ -234,7 +234,7 @@ public final class JBBPParser {
               if (wholeStreamArray) {
                 structureFields.add(new JBBPFieldArrayUByte(name, inStream.readByteArray(-1)));
               }
-              else if (arrayLength > 0) {
+              else {
                 structureFields.add(new JBBPFieldArrayUByte(name, inStream.readByteArray(arrayLength)));
               }
             }
@@ -251,7 +251,7 @@ public final class JBBPParser {
               if (wholeStreamArray) {
                 structureFields.add(new JBBPFieldArrayInt(name, inStream.readIntArray(-1, byteOrder)));
               }
-              else if (arrayLength > 0) {
+              else {
                 structureFields.add(new JBBPFieldArrayInt(name, inStream.readIntArray(arrayLength, byteOrder)));
               }
             }
@@ -268,7 +268,7 @@ public final class JBBPParser {
               if (wholeStreamArray) {
                 structureFields.add(new JBBPFieldArrayLong(name, inStream.readLongArray(-1, byteOrder)));
               }
-              else if (arrayLength > 0) {
+              else {
                 structureFields.add(new JBBPFieldArrayLong(name, inStream.readLongArray(arrayLength, byteOrder)));
               }
             }
@@ -285,7 +285,7 @@ public final class JBBPParser {
               if (wholeStreamArray) {
                 structureFields.add(new JBBPFieldArrayShort(name, inStream.readShortArray(-1, byteOrder)));
               }
-              else if (arrayLength > 0) {
+              else {
                 structureFields.add(new JBBPFieldArrayShort(name, inStream.readShortArray(arrayLength, byteOrder)));
               }
             }
@@ -302,7 +302,7 @@ public final class JBBPParser {
               if (wholeStreamArray) {
                 structureFields.add(new JBBPFieldArrayUShort(name, inStream.readShortArray(-1, byteOrder)));
               }
-              else if (arrayLength > 0) {
+              else {
                 structureFields.add(new JBBPFieldArrayUShort(name, inStream.readShortArray(arrayLength, byteOrder)));
               }
             }

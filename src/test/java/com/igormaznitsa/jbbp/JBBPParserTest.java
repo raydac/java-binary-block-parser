@@ -981,56 +981,56 @@ public class JBBPParserTest {
   @Test
   public void testParse_BitArray_IgnoredForZeroLength() throws Exception {
     final JBBPFieldStruct parsed = JBBPParser.prepare("byte len; bit:4 [len]; ushort;").parse(new byte[]{0x0, 0x01, (byte) 0x02});
-    assertNull(parsed.findFieldForType(JBBPFieldArrayBit.class));
+    assertEquals(0, parsed.findFieldForType(JBBPFieldArrayBit.class).size());
     assertEquals(0x0102, parsed.findFieldForType(JBBPFieldUShort.class).getAsInt());
   }
 
   @Test
   public void testParse_BoolArray_IgnoredForZeroLength() throws Exception {
     final JBBPFieldStruct parsed = JBBPParser.prepare("byte len; bool [len]; ushort;").parse(new byte[]{0x0, 0x01, (byte) 0x02});
-    assertNull(parsed.findFieldForType(JBBPFieldArrayBoolean.class));
+    assertEquals(0, parsed.findFieldForType(JBBPFieldArrayBoolean.class).size());
     assertEquals(0x0102, parsed.findFieldForType(JBBPFieldUShort.class).getAsInt());
   }
 
   @Test
   public void testParse_ByteArray_IgnoredForZeroLength() throws Exception {
     final JBBPFieldStruct parsed = JBBPParser.prepare("byte len; byte [len]; ushort;").parse(new byte[]{0x0, 0x01, (byte) 0x02});
-    assertNull(parsed.findFieldForType(JBBPFieldArrayByte.class));
+    assertEquals(0, parsed.findFieldForType(JBBPFieldArrayByte.class).size());
     assertEquals(0x0102, parsed.findFieldForType(JBBPFieldUShort.class).getAsInt());
   }
 
   @Test
   public void testParse_UByteArray_IgnoredForZeroLength() throws Exception {
     final JBBPFieldStruct parsed = JBBPParser.prepare("byte len; ubyte [len]; ushort;").parse(new byte[]{0x0, 0x01, (byte) 0x02});
-    assertNull(parsed.findFieldForType(JBBPFieldArrayUByte.class));
+    assertEquals(0,parsed.findFieldForType(JBBPFieldArrayUByte.class).size());
     assertEquals(0x0102, parsed.findFieldForType(JBBPFieldUShort.class).getAsInt());
   }
 
   @Test
   public void testParse_ShortArray_IgnoredForZeroLength() throws Exception {
     final JBBPFieldStruct parsed = JBBPParser.prepare("byte len; short [len]; ushort;").parse(new byte[]{0x0, 0x01, (byte) 0x02});
-    assertNull(parsed.findFieldForType(JBBPFieldArrayShort.class));
+    assertEquals(0,parsed.findFieldForType(JBBPFieldArrayShort.class).size());
     assertEquals(0x0102, parsed.findFieldForType(JBBPFieldUShort.class).getAsInt());
   }
 
   @Test
   public void testParse_UShortArray_IgnoredForZeroLength() throws Exception {
     final JBBPFieldStruct parsed = JBBPParser.prepare("byte len; ushort [len]; ushort;").parse(new byte[]{0x0, 0x01, (byte) 0x02});
-    assertNull(parsed.findFieldForType(JBBPFieldArrayUShort.class));
+    assertEquals(0, parsed.findFieldForType(JBBPFieldArrayUShort.class).size());
     assertEquals(0x0102, parsed.findFieldForType(JBBPFieldUShort.class).getAsInt());
   }
 
   @Test
   public void testParse_IntArray_IgnoredForZeroLength() throws Exception {
     final JBBPFieldStruct parsed = JBBPParser.prepare("byte len; int [len]; ushort;").parse(new byte[]{0x0, 0x01, (byte) 0x02});
-    assertNull(parsed.findFieldForType(JBBPFieldArrayInt.class));
+    assertEquals(0, parsed.findFieldForType(JBBPFieldArrayInt.class).size());
     assertEquals(0x0102, parsed.findFieldForType(JBBPFieldUShort.class).getAsInt());
   }
 
   @Test
   public void testParse_LongArray_IgnoredForZeroLength() throws Exception {
     final JBBPFieldStruct parsed = JBBPParser.prepare("byte len; long [len]; ushort;").parse(new byte[]{0x0, 0x01, (byte) 0x02});
-    assertNull(parsed.findFieldForType(JBBPFieldArrayLong.class));
+    assertEquals(0, parsed.findFieldForType(JBBPFieldArrayLong.class).size());
     assertEquals(0x0102, parsed.findFieldForType(JBBPFieldUShort.class).getAsInt());
   }
 
