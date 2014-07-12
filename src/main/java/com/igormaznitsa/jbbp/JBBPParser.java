@@ -264,7 +264,7 @@ public final class JBBPParser {
         case JBBPCompiler.CODE_STRUCT_START: {
           if (arrayLength < 0) {
             final List<JBBPAbstractField> structFields = parseStruct(inStream, positionAtCompiledBlock, namedNumericFieldMap, positionAtNamedFieldList, positionAtVarLengthProcessors, skipStructureFields);
-            // offset
+            // skip offset
             JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
             if (resultNotIgnored) {
               structureFields.add(new JBBPFieldStruct(name, structFields.toArray(new JBBPAbstractField[structFields.size()])));
