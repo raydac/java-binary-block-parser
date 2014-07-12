@@ -217,7 +217,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       final byte[] buffer = new byte[items];
       final int read = this.read(buffer, 0, items);
       if (read != items) {
-        throw new EOFException("Have read only " + read + " bit portions instead of " + items);
+        throw new EOFException("Have read only " + read + " byte(s) instead of " + items + " byte(s)");
       }
       return buffer;
     }

@@ -21,7 +21,7 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 /**
  * Describes a structure array. It doesn't support operations to get an array value as a numeric one.
  */
-public final class JBBPFieldArrayStruct extends JBBPAbstractArrayField<JBBPFieldStruct>{
+public final class JBBPFieldArrayStruct extends JBBPAbstractArrayField<JBBPFieldStruct> {
   /**
    * Inside value storage.
    */
