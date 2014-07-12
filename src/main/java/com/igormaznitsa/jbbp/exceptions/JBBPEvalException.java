@@ -21,15 +21,15 @@ import com.igormaznitsa.jbbp.compiler.varlen.JBBPLengthEvaluator;
 /**
  * The Exception is thrown if any errors during execution of an array length evaluator.
  */
-public class JBBPEvaluationException extends JBBPException {
+public class JBBPEvalException extends JBBPException {
   private static final long serialVersionUID = -8580688001091915787L;
   private final JBBPLengthEvaluator evaluator;
   
-  public JBBPEvaluationException(final String message, final JBBPLengthEvaluator evaluator) {
+  public JBBPEvalException(final String message, final JBBPLengthEvaluator evaluator) {
     this(message,evaluator,null);
   }
 
-  public JBBPEvaluationException(String message, final JBBPLengthEvaluator evaluator, Throwable cause) {
+  public JBBPEvalException(String message, final JBBPLengthEvaluator evaluator, Throwable cause) {
     super(message, cause);
     this.evaluator = evaluator;
   }

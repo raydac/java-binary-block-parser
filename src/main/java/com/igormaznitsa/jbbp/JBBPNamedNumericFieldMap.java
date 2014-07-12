@@ -17,6 +17,8 @@ package com.igormaznitsa.jbbp;
 
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.compiler.varlen.JBBPLengthEvaluator;
+import com.igormaznitsa.jbbp.exceptions.JBBPEvalException;
 import com.igormaznitsa.jbbp.exceptions.JBBPException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTooManyFieldsFoundException;
 import com.igormaznitsa.jbbp.model.*;
@@ -74,8 +76,10 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
   /**
    * Put a numeric field into map.
    *
-   * @param field a field to be added into map or replace already exists one, it must not be null
-   * @throws NullPointerException if the field is null or if it is an anonymous field
+   * @param field a field to be added into map or replace already exists one, it
+   * must not be null
+   * @throws NullPointerException if the field is null or if it is an anonymous
+   * field
    */
   public void putField(final JBBPNumericField field) {
     JBBPUtils.assertNotNull(field, "Field must not be null");
@@ -86,8 +90,9 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
 
   /**
    * Remove a field for its field name info descriptor.
+   *
    * @param nameInfo the field name info, it must not be null
-   * @return 
+   * @return
    */
   public JBBPNumericField remove(final JBBPNamedFieldInfo nameInfo) {
     JBBPUtils.assertNotNull(nameInfo, "Name info must not be null");
@@ -96,6 +101,7 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
 
   /**
    * Find a registered field for its field offset in compiled script.
+   *
    * @param offset the field offset
    * @return found field or null if there is not any found for the offset
    */
@@ -221,6 +227,7 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
 
   /**
    * Check that the map is empty.
+   *
    * @return true if the map is empty, false otherwise
    */
   public boolean isEmpty() {
@@ -229,6 +236,7 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
 
   /**
    * Get number of registered fields in the map.
+   *
    * @return number of registered fields as integer
    */
   public int size() {
@@ -237,15 +245,17 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
 
   /**
    * Ask the registered external value provider for a field value.
+   *
    * @param externalFieldName the name of a field, it must not be null
    * @param compiledBlock the compiled block, it must not be null
+   * @param evaluator an evaluator which is calling the method, it can be null
    * @return integer value for the field
    * @throws JBBPException if there is not any external value provider
    */
-  public int getExternalFieldValue(final String externalFieldName, final JBBPCompiledBlock compiledBlock) {
+  public int getExternalFieldValue(final String externalFieldName, final JBBPCompiledBlock compiledBlock, final JBBPLengthEvaluator evaluator) {
     final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(externalFieldName);
     if (this.externalValueProvider == null) {
-      throw new JBBPException("Request for '" + externalFieldName + "' but there is not any value provider");
+      throw new JBBPEvalException("Request for '" + externalFieldName + "' but there is not any value provider", evaluator);
     }
     else {
       return this.externalValueProvider.provideArraySize(normalizedName, this, compiledBlock);

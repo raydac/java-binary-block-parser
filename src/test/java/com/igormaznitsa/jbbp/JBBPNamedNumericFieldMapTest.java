@@ -17,6 +17,7 @@ package com.igormaznitsa.jbbp;
 
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.exceptions.JBBPEvalException;
 import com.igormaznitsa.jbbp.exceptions.JBBPException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTooManyFieldsFoundException;
 import com.igormaznitsa.jbbp.model.JBBPFieldByte;
@@ -69,9 +70,9 @@ public class JBBPNamedNumericFieldMapTest {
   
     final JBBPNamedNumericFieldMap map2 = new JBBPNamedNumericFieldMap(null);
     try{
-      map2.getExternalFieldValue("test", JBBPCompiledBlock.prepare().setSource("").setCompiledData(new byte[]{0}).build());
-      fail("Must throw JBBPException");
-    }catch(JBBPException ex){
+      map2.getExternalFieldValue("test", JBBPCompiledBlock.prepare().setSource("").setCompiledData(new byte[]{0}).build(), null);
+      fail("Must throw JBBPEvalException");
+    }catch(JBBPEvalException ex){
     }
   }
 

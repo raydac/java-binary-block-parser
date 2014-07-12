@@ -19,7 +19,7 @@ import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
 import com.igormaznitsa.jbbp.compiler.*;
 import com.igormaznitsa.jbbp.compiler.utils.JBBPCompilerUtils;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
-import com.igormaznitsa.jbbp.exceptions.JBBPEvaluationException;
+import com.igormaznitsa.jbbp.exceptions.JBBPEvalException;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.*;
@@ -355,7 +355,7 @@ public final class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
           final int index = JBBPUtils.unpackInt(this.compiledExpression, counter);
 
           stack[stackDepth++] = code == CODE_EXTVAR
-                  ? "$".equals(this.externalValueNames[index]) ? (int) inStream.getCounter() : fieldMap.getExternalFieldValue(this.externalValueNames[index], compiledBlockData)
+                  ? "$".equals(this.externalValueNames[index]) ? (int) inStream.getCounter() : fieldMap.getExternalFieldValue(this.externalValueNames[index], compiledBlockData, this)
                   : fieldMap.get(compiledBlockData.getNamedFields()[index]).getAsInt();
         }
         break;
@@ -367,7 +367,7 @@ public final class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
         break;
         case CODE_ADD: {
           if (stackDepth < 2) {
-            throw new JBBPEvaluationException("'+' needs two arguments [" + this.expressionSource + ']',this);
+            throw new JBBPEvalException("'+' needs two arguments [" + this.expressionSource + ']',this);
           }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] += top;
@@ -375,7 +375,7 @@ public final class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
         break;
         case CODE_AND: {
           if (stackDepth < 2) {
-            throw new JBBPEvaluationException("'&' needs two arguments [" + this.expressionSource + ']',this);
+            throw new JBBPEvalException("'&' needs two arguments [" + this.expressionSource + ']',this);
           }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] &= top;
@@ -383,7 +383,7 @@ public final class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
         break;
         case CODE_OR: {
           if (stackDepth < 2) {
-            throw new JBBPEvaluationException("'|' needs two arguments [" + this.expressionSource + ']',this);
+            throw new JBBPEvalException("'|' needs two arguments [" + this.expressionSource + ']',this);
           }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] |= top;
@@ -391,7 +391,7 @@ public final class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
         break;
         case CODE_XOR: {
           if (stackDepth < 2) {
-            throw new JBBPEvaluationException("'^' needs two arguments [" + this.expressionSource + ']',this);
+            throw new JBBPEvalException("'^' needs two arguments [" + this.expressionSource + ']',this);
           }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] ^= top;
@@ -399,7 +399,7 @@ public final class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
         break;
         case CODE_MINUS: {
           if (stackDepth < 2) {
-            throw new JBBPEvaluationException("'-' needs one or two arguments [" + this.expressionSource + ']',this);
+            throw new JBBPEvalException("'-' needs one or two arguments [" + this.expressionSource + ']',this);
           }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] -= top;
@@ -407,27 +407,27 @@ public final class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
         break;
         case CODE_UNARYMINUS: {
           if (stackDepth < 1) {
-            throw new JBBPEvaluationException("Unary operator '-' needs one argument [" + this.expressionSource + ']',this);
+            throw new JBBPEvalException("Unary operator '-' needs one argument [" + this.expressionSource + ']',this);
           }
           stack[stackDepth - 1] = -stack[stackDepth - 1];
         }
         break;
         case CODE_UNARYPLUS: {
           if (stackDepth < 1) {
-            throw new JBBPEvaluationException("Unary operator '-' needs one argument [" + this.expressionSource + ']',this);
+            throw new JBBPEvalException("Unary operator '-' needs one argument [" + this.expressionSource + ']',this);
           }
         }
         break;
         case CODE_NOT: {
           if (stackDepth < 1) {
-            throw new JBBPEvaluationException("Unary operator '~' needs one argument [" + this.expressionSource + ']',this);
+            throw new JBBPEvalException("Unary operator '~' needs one argument [" + this.expressionSource + ']',this);
           }
           stack[stackDepth - 1] = ~stack[stackDepth - 1];
         }
         break;
         case CODE_DIV: {
           if (stackDepth < 2) {
-            throw new JBBPEvaluationException("'/' needs two arguments [" + this.expressionSource + ']',this);
+            throw new JBBPEvalException("'/' needs two arguments [" + this.expressionSource + ']',this);
           }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] /= top;
@@ -435,7 +435,7 @@ public final class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
         break;
         case CODE_MUL: {
           if (stackDepth < 2) {
-            throw new JBBPEvaluationException("'*' needs two arguments [" + this.expressionSource + ']',this);
+            throw new JBBPEvalException("'*' needs two arguments [" + this.expressionSource + ']',this);
           }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] *= top;
@@ -443,7 +443,7 @@ public final class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
         break;
         case CODE_MOD: {
           if (stackDepth < 2) {
-            throw new JBBPEvaluationException("'%' needs two arguments [" + this.expressionSource + ']',this);
+            throw new JBBPEvalException("'%' needs two arguments [" + this.expressionSource + ']',this);
           }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] %= top;
@@ -455,7 +455,7 @@ public final class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
     }
 
     if (stackDepth != 1) {
-      throw new JBBPEvaluationException("Wrong expression [" + this.expressionSource + ']',this);
+      throw new JBBPEvalException("Wrong expression [" + this.expressionSource + ']',this);
     }
     return stack[0];
   }

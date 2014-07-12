@@ -19,7 +19,7 @@ import com.igormaznitsa.jbbp.JBBPExternalValueProvider;
 import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
 import com.igormaznitsa.jbbp.compiler.*;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
-import com.igormaznitsa.jbbp.exceptions.JBBPEvaluationException;
+import com.igormaznitsa.jbbp.exceptions.JBBPEvalException;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import java.io.ByteArrayInputStream;
@@ -89,42 +89,42 @@ public class JBBPExpressionEvaluatorTest {
     new JBBPExpressionEvaluator("*", null, null);
   }
 
-  @Test(expected = JBBPEvaluationException.class)
+  @Test(expected = JBBPEvalException.class)
   public void testExpression_Error_MulWithoutSecondArgument() {
     new JBBPExpressionEvaluator("123*", null, null).eval(null, 0, null, null);
   }
 
-  @Test(expected = JBBPEvaluationException.class)
+  @Test(expected = JBBPEvalException.class)
   public void testExpression_Error_SubWithoutSecondArgument() {
     new JBBPExpressionEvaluator("123-", null, null).eval(null, 0, null, null);
   }
 
-  @Test(expected = JBBPEvaluationException.class)
+  @Test(expected = JBBPEvalException.class)
   public void testExpression_Error_AddWithoutSecondArgument() {
     new JBBPExpressionEvaluator("123+", null, null).eval(null, 0, null, null);
   }
 
-  @Test(expected = JBBPEvaluationException.class)
+  @Test(expected = JBBPEvalException.class)
   public void testExpression_Error_ModWithoutSecondArgument() {
     new JBBPExpressionEvaluator("123%", null, null).eval(null, 0, null, null);
   }
 
-  @Test(expected = JBBPEvaluationException.class)
+  @Test(expected = JBBPEvalException.class)
   public void testExpression_Error_DivWithoutSecondArgument() {
     new JBBPExpressionEvaluator("123/", null, null).eval(null, 0, null, null);
   }
 
-  @Test(expected = JBBPEvaluationException.class)
+  @Test(expected = JBBPEvalException.class)
   public void testExpression_Error_AndWithoutSecondArgument() {
     new JBBPExpressionEvaluator("123&", null, null).eval(null, 0, null, null);
   }
 
-  @Test(expected = JBBPEvaluationException.class)
+  @Test(expected = JBBPEvalException.class)
   public void testExpression_Error_OrWithoutSecondArgument() {
     new JBBPExpressionEvaluator("123|", null, null).eval(null, 0, null, null);
   }
 
-  @Test(expected = JBBPEvaluationException.class)
+  @Test(expected = JBBPEvalException.class)
   public void testExpression_Error_XorWithoutSecondArgument() {
     new JBBPExpressionEvaluator("123^", null, null).eval(null, 0, null, null);
   }

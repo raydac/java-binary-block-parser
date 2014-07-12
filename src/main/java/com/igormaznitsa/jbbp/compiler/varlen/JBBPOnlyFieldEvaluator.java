@@ -50,7 +50,7 @@ public final class JBBPOnlyFieldEvaluator implements JBBPLengthEvaluator {
             ? fieldMap.get(block.getNamedFields()[this.namedFieldIndex]).getAsInt()
             : this.externalFieldName.equals("$")
             ? (int) inStream.getCounter()
-            : fieldMap.getExternalFieldValue(this.externalFieldName, block);
+            : fieldMap.getExternalFieldValue(this.externalFieldName, block, this);
     return result;
   }
 
