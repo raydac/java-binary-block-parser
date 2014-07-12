@@ -46,8 +46,8 @@ public class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
   private static final int CODE_XOR = 13;
   private static final int CODE_AND = 14;
 
-  private static final int[] PRIORITIES = new int[]{0, 1000, 1000, 1000, 500, 500,500, 200, 200, 300, 300, 300, 50, 100, 150};
-  private static final char[] SYMBOLS = new char[]{'(', ' ', ' ', ' ', '~', '-','+', '+', '-', '*', '/', '%', '|', '^', '&'};
+  private static final int[] PRIORITIES = new int[]{0, 1000, 1000, 1000, 500, 500, 500, 200, 200, 300, 300, 300, 50, 100, 150};
+  private static final char[] SYMBOLS = new char[]{'(', ' ', ' ', ' ', '~', '-', '+', '+', '-', '*', '/', '%', '|', '^', '&'};
 
   private final byte[] compiledExpression;
   private final String expressionSource;
@@ -62,14 +62,17 @@ public class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
     }
   }
 
-  private int codeToUnary(final int code){
-    switch(code){
-      case CODE_MINUS : return CODE_UNARYMINUS;
-      case CODE_ADD : return CODE_UNARYPLUS;
-      default: return code;
+  private static int codeToUnary(final int code) {
+    switch (code) {
+      case CODE_MINUS:
+        return CODE_UNARYMINUS;
+      case CODE_ADD:
+        return CODE_UNARYPLUS;
+      default:
+        return code;
     }
   }
-  
+
   public JBBPExpressionEvaluator(final String expression, final List<JBBPNamedFieldInfo> namedFields, final byte[] compiledData) {
     this.expressionSource = expression;
 
@@ -83,7 +86,7 @@ public class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
     boolean prevoperator = false;
 
     int unaryOperatorCode = -1;
-    boolean first = true;
+    boolean theFirstInTheSubExpression = true;
 
     int counterOperators = 0;
     int counterVarsAndConstants = 0;
@@ -131,7 +134,7 @@ public class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
           compiedScript.write(extValue ? CODE_EXTVAR : CODE_VAR);
           compiedScript.write(JBBPUtils.packInt(nameIndex));
 
-          if (unaryOperatorCode >= 0) {
+          if (unaryOperatorCode > 0) {
             switch (unaryOperatorCode) {
               case CODE_ADD: {
                 // do nothing
@@ -156,6 +159,7 @@ public class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
         catch (IOException ex) {
           throw new RuntimeException("Unexpected IO exception", ex);
         }
+        theFirstInTheSubExpression = false;
       }
       else if (operator != null) {
         counterOperators++;
@@ -192,56 +196,48 @@ public class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
           throw new Error("Detected unsupported operator, connect developer for the error [" + operator + ']');
         }
 
-        if (operationStack.isEmpty()) {
-          if (first) {
+        if (theFirstInTheSubExpression) {
+          assertUnaryOperator(operator);
+          unaryOperatorCode = codeToUnary(code);
+        }
+        else if (prevoperator) {
+          if (unaryOperatorCode > 0) {
             assertUnaryOperator(operator);
+            operationStack.add(unaryOperatorCode);
             unaryOperatorCode = codeToUnary(code);
           }
           else {
-            if (unaryOperatorCode >= 0) {
-              assertUnaryOperator(operator);
-              operationStack.add(codeToUnary(unaryOperatorCode));
-              unaryOperatorCode = codeToUnary(code);
-            }
-            else {
-              operationStack.add(code);
-            }
+            assertUnaryOperator(operator);
+            unaryOperatorCode = codeToUnary(code);
           }
         }
         else {
-          if (prevoperator) {
-            if (unaryOperatorCode >= 0) {
-              assertUnaryOperator(operator);
-              operationStack.add(codeToUnary(unaryOperatorCode));
-              unaryOperatorCode = codeToUnary(code);
+          unaryOperatorCode = -1;
+          final int currentPriority = PRIORITIES[code];
+          while (!operationStack.isEmpty()) {
+            final int top = operationStack.get(operationStack.size() - 1);
+            if (PRIORITIES[top] >= currentPriority) {
+              operationStack.remove(operationStack.size() - 1);
+              compiedScript.write(top);
             }
             else {
-              assertUnaryOperator(operator);
-              unaryOperatorCode = codeToUnary(code);
+              break;
             }
           }
-          else {
-            unaryOperatorCode = -1;
-            final int currentPriority = PRIORITIES[code];
-            while (!operationStack.isEmpty()) {
-              final int top = operationStack.get(operationStack.size() - 1);
-              if (PRIORITIES[top] >= currentPriority) {
-                operationStack.remove(operationStack.size() - 1);
-                compiedScript.write(top);
-              }
-              else {
-                break;
-              }
-            }
-            operationStack.add(code);
-          }
+          operationStack.add(code);
         }
         prevoperator = true;
+        theFirstInTheSubExpression = false;
       }
       else if (bracket != null) {
         prevoperator = false;
         if ("(".equals(bracket)) {
+          if (unaryOperatorCode > 0) {
+            operationStack.add(unaryOperatorCode);
+            unaryOperatorCode = -1;
+          }
           operationStack.add(PSEUDOCODE_LEFT_BRACKET);
+          theFirstInTheSubExpression = true;
         }
         else if (")".equals(bracket)) {
           boolean metLeftPart = false;
@@ -272,7 +268,7 @@ public class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
 
           if (unaryOperatorCode >= 0) {
             switch (unaryOperatorCode) {
-              case CODE_UNARYPLUS: 
+              case CODE_UNARYPLUS:
               case CODE_ADD: {
                 // do nothing
               }
@@ -304,11 +300,11 @@ public class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
         catch (NumberFormatException ex) {
           throw new JBBPCompilationException("Can't parse number '" + number + "' [" + this.expressionSource + ']', null, ex);
         }
+        theFirstInTheSubExpression = false;
       }
-      first = false;
     }
 
-    if (unaryOperatorCode >= 0) {
+    if (unaryOperatorCode > 0) {
       throw new JBBPCompilationException("Unary operator without argument '" + SYMBOLS[unaryOperatorCode] + "' [" + this.expressionSource + ']');
     }
 

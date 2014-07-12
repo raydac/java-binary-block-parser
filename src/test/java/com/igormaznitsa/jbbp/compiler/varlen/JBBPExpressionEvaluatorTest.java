@@ -253,6 +253,30 @@ public class JBBPExpressionEvaluatorTest {
   }
 
   @Test
+  public void testExpression_TestComplexUnaryWithConstantAndBrackets() {
+    JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("-(~-(~~567))", null, null);
+    assertEquals(-(~-(~~567)), expr.eval(null, 0, null, null));
+  }
+
+  @Test
+  public void testExpression_TestComplexUnaryWithExpressionAndBrackets() {
+    JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("-(~+-(~+~567*-(+34)))", null, null);
+    assertEquals(-(~+-(~+~567 * -(+34))), expr.eval(null, 0, null, null));
+  }
+
+  @Test
+  public void testExpression_MultipleUnaryPlusOutsideBracketsAndOneInBrackets() {
+    JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("++++++(+54)", null, null);
+    assertEquals(+(+54), expr.eval(null, 0, null, null));
+  }
+
+  @Test
+  public void testExpression_ConstantAndMultipleUnaryPlusOutsideBracketsAndOneInBrackets() {
+    JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("112++++++(+54)", null, null);
+    assertEquals(112+(+54), expr.eval(null, 0, null, null));
+  }
+
+  @Test
   public void testExpression_TestComplexUnaryInConstantExpression() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("445*-~-~+~567", null, null);
     assertEquals(445*-~-~+~567, expr.eval(null, 0, null, null));
