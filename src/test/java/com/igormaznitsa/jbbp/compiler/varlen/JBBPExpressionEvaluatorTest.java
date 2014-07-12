@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -102,10 +102,10 @@ public class JBBPExpressionEvaluatorTest {
     final byte[] compiled = new byte[]{JBBPCompiler.CODE_INT | JBBPCompiler.FLAG_NAMED};
     final List<JBBPNamedFieldInfo> list = Collections.singletonList(info);
 
-    JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("2*hello*6/4+3*2-11%3", list, compiled);
+    JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("2*hello*6/4+3*2-11%3&hello-~hello", list, compiled);
     final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap();
     map.putField(new JBBPFieldInt(info, 8));
-    assertEquals(2 * 8 * 6 / 4 + 3 * 2 - 11 % 3, expr.eval(null, 0, JBBPCompiledBlock.prepare().setCompiledData(compiled).setNamedFieldData(list).setSource("no source").build(), map));
+    assertEquals(2 * 8 * 6 / 4 + 3 * 2 - 11 % 3 & 8 - ~8, expr.eval(null, 0, JBBPCompiledBlock.prepare().setCompiledData(compiled).setNamedFieldData(list).setSource("no source").build(), map));
   }
 
   @Test
@@ -118,6 +118,12 @@ public class JBBPExpressionEvaluatorTest {
   public void testExpression_UnaryMinusWithSingleConstantInBrackets() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("-(5678)", null, null);
     assertEquals(-5678, expr.eval(null, 0, null, null));
+  }
+
+  @Test
+  public void testExpression_UnaryNotWithSingleConstantInBrackets() {
+    JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("~(5678)", null, null);
+    assertEquals(~5678, expr.eval(null, 0, null, null));
   }
 
   @Test
@@ -177,73 +183,141 @@ public class JBBPExpressionEvaluatorTest {
   @Test
   public void testExpression_Mod() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("5623%567", null, null);
-    assertEquals(5623 % 567, expr.eval(null,0, null, null));
+    assertEquals(5623 % 567, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_Sub() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("5623-567", null, null);
-    assertEquals(5623 - 567, expr.eval(null,0, null, null));
+    assertEquals(5623 - 567, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_Add() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("5623+567", null, null);
-    assertEquals(5623 + 567, expr.eval(null,0, null, null));
+    assertEquals(5623 + 567, expr.eval(null, 0, null, null));
+  }
+
+  @Test
+  public void testExpression_And() {
+    JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("5623&567", null, null);
+    assertEquals(5623 & 567, expr.eval(null, 0, null, null));
+  }
+
+  @Test
+  public void testExpression_Or() {
+    JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("5623|567", null, null);
+    assertEquals(5623 | 567, expr.eval(null, 0, null, null));
+  }
+
+  @Test
+  public void testExpression_Xor() {
+    JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("5623^567", null, null);
+    assertEquals(5623 ^ 567, expr.eval(null, 0, null, null));
+  }
+
+  @Test
+  public void testExpression_Not() {
+    JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("~567", null, null);
+    assertEquals(~567, expr.eval(null, 0, null, null));
+  }
+
+  @Test
+  public void testExpression_TestUnaryTwoOperators() {
+    JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("-~567", null, null);
+    assertEquals(-~567, expr.eval(null, 0, null, null));
+  }
+
+  @Test
+  public void testExpression_TestUnaryThreeOperators() {
+    JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("~-~567", null, null);
+    assertEquals(~-~567, expr.eval(null, 0, null, null));
+  }
+
+  @Test
+  public void testExpression_TestUnaryTwoOperatorsInExpression() {
+    JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("~-567-~567", null, null);
+    assertEquals(~-567 - ~567, expr.eval(null, 0, null, null));
+  }
+
+  @Test
+  public void testExpression_TestUnaryThreeOperatorsInExpression() {
+    JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("-~-567-~-567", null, null);
+    assertEquals(-~-567-~-567, expr.eval(null, 0, null, null));
+  }
+
+  @Test
+  public void testExpression_TestComplexUnaryWithConstant() {
+    JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("-~-~~567", null, null);
+    assertEquals(-~-~~567, expr.eval(null, 0, null, null));
+  }
+
+  @Test
+  public void testExpression_TestComplexUnaryInConstantExpression() {
+    JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("445*-~-~+~567", null, null);
+    assertEquals(445*-~-~+~567, expr.eval(null, 0, null, null));
+  }
+
+  @Test
+  public void testExpression_ComplexLogicalWithConstants() {
+    JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("~23*-1234&~123/(34+89)|3232%56^~2234", null, null);
+    assertEquals(~23 * -1234 & ~123 / (34 + 89) | 3232 % 56 ^ ~2234, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_CheckExternalField() {
-    final int value = 1234; 
+    final int value = 1234;
     final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap(new JBBPExternalValueProvider() {
 
       public int provideArraySize(final String fieldName, final JBBPNamedNumericFieldMap numericFieldMap, final JBBPCompiledBlock compiledBlock) {
-        if (fieldName.equals("value")) return value;
+        if (fieldName.equals("value")) {
+          return value;
+        }
         assertNotNull(numericFieldMap);
         assertNotNull(compiledBlock);
-        fail("Unexpected request for value ["+fieldName+']');
+        fail("Unexpected request for value [" + fieldName + ']');
         return -1;
       }
     });
-   
+
     final List<JBBPNamedFieldInfo> list = new ArrayList<JBBPNamedFieldInfo>();
-    
-    final byte [] compiled = new byte[]{0}; 
+
+    final byte[] compiled = new byte[]{0};
     final JBBPCompiledBlock compiledBlock = JBBPCompiledBlock.prepare().setCompiledData(compiled).setSource("none").setNamedFieldData(list).build();
-    
+
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("123*($value-45/3)", list, compiled);
     assertEquals(123 * (value - 45 / 3), expr.eval(null, 0, compiledBlock, map));
   }
 
   @Test
   public void testExpression_CheckExternalFieldAndStreamOffset() throws Exception {
-    final int value = 1234; 
+    final int value = 1234;
     final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap(new JBBPExternalValueProvider() {
 
       public int provideArraySize(final String fieldName, final JBBPNamedNumericFieldMap numericFieldMap, final JBBPCompiledBlock compiledBlock) {
-        if (fieldName.equals("value")) return value;
+        if (fieldName.equals("value")) {
+          return value;
+        }
         assertNotNull(numericFieldMap);
         assertNotNull(compiledBlock);
-        fail("Unexpected request for value ["+fieldName+']');
+        fail("Unexpected request for value [" + fieldName + ']');
         return -1;
       }
     });
-   
+
     final List<JBBPNamedFieldInfo> list = new ArrayList<JBBPNamedFieldInfo>();
-    
-    final byte [] compiled = new byte[]{0}; 
+
+    final byte[] compiled = new byte[]{0};
     final JBBPCompiledBlock compiledBlock = JBBPCompiledBlock.prepare().setCompiledData(compiled).setSource("none").setNamedFieldData(list).build();
-    
+
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("123*($value-45/3)*$$", list, compiled);
-    
+
     final JBBPBitInputStream inStream = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5}));
     inStream.read();
     inStream.read();
     inStream.read();
-    
-    
-    assertEquals(123 * (value - 45 / 3)*3, expr.eval(inStream, 0, compiledBlock, map));
+
+    assertEquals(123 * (value - 45 / 3) * 3, expr.eval(inStream, 0, compiledBlock, map));
   }
 
-  
 }
