@@ -22,7 +22,7 @@ import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 /**
  * Class implements an evaluator which works with only field.
  */
-public class JBBPOnlyFieldEvaluator implements JBBPLengthEvaluator {
+public final class JBBPOnlyFieldEvaluator implements JBBPLengthEvaluator {
 
   /**
    * The Index in named field area for the field which is used by the evaluator.
@@ -52,6 +52,11 @@ public class JBBPOnlyFieldEvaluator implements JBBPLengthEvaluator {
             ? (int) inStream.getCounter()
             : fieldMap.getExternalFieldValue(this.externalFieldName, block);
     return result;
+  }
+
+  @Override
+  public String toString() {
+    return this.externalFieldName == null ? "NamedFieldIndex=" + this.namedFieldIndex : this.externalFieldName;
   }
 
 }
