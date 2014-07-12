@@ -29,10 +29,10 @@ public class TCPParsingTest extends AbstractParserIntegrationTest {
 
   @Test
   public void testParsingTCPFrameInsideNetworkFrame() throws Exception {
-    final InputStream pngStream = getResourceAsInputStream("tcppacket.bin");
+    final InputStream tcpFrameStream = getResourceAsInputStream("tcppacket.bin");
     try {
 
-      final JBBPParser pngParser = JBBPParser.prepare(
+      final JBBPParser tcpParser = JBBPParser.prepare(
               "skip:34; // skip bytes till the frame\n"
               + "ushort SourcePort;"
               + "ushort DestinationPort;"
@@ -59,7 +59,7 @@ public class TCPParsingTest extends AbstractParserIntegrationTest {
               + "byte [_] Data;"
       );
 
-      final JBBPFieldStruct result = pngParser.parse(pngStream);
+      final JBBPFieldStruct result = tcpParser.parse(tcpFrameStream);
 
       assertEquals(40018, result.findFieldForNameAndType("SourcePort", JBBPFieldUShort.class).getAsInt());
       assertEquals(56344, result.findFieldForNameAndType("DestinationPort", JBBPFieldUShort.class).getAsInt());
@@ -88,7 +88,7 @@ public class TCPParsingTest extends AbstractParserIntegrationTest {
 
     }
     finally {
-      closeResource(pngStream);
+      closeResource(tcpFrameStream);
     }
   }
 }
