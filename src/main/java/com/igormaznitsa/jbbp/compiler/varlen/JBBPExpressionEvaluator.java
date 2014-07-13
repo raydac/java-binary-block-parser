@@ -46,16 +46,19 @@ public final class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
   private static final int CODE_OR = 12;
   private static final int CODE_XOR = 13;
   private static final int CODE_AND = 14;
+  private static final int CODE_LSHIFT = 15;
+  private static final int CODE_RSHIFT = 16;
+  private static final int CODE_RSIGNSHIFT = 17;
 
-  private static final int[] PRIORITIES = new int[]{0, 1000, 1000, 1000, 500, 500, 500, 200, 200, 300, 300, 300, 50, 100, 150};
-  private static final char[] SYMBOLS = new char[]{'(', ' ', ' ', ' ', '~', '-', '+', '+', '-', '*', '/', '%', '|', '^', '&'};
+  private static final int[] PRIORITIES = new int[]{0, 1000, 1000, 1000, 500, 500, 500, 200, 200, 300, 300, 300, 50, 100, 150, 175, 175, 175};
+  private static final String[] SYMBOLS = new String[]{"(", "", "", "", "~", "-", "+", "+", "-", "*", "/", "%", "|", "^", "&", "<<", ">>", ">>>"};
 
   private final byte[] compiledExpression;
   private final String expressionSource;
   private final String[] externalValueNames;
 
   private static final char[] supportedOperators = new char[]{'(', '+', '-', '*', '/', '%', '|', '&', '^', '~'};
-  private static final Pattern pattern = Pattern.compile("([0-9]+)|([\\(\\)])|([\\%\\*\\+\\-\\/\\&\\|\\^\\~])|([\\S][^\\s\\+\\%\\*\\-\\/\\(\\)\\&\\|\\^\\~]+)");
+  private static final Pattern pattern = Pattern.compile("([0-9]+)|([\\(\\)])|(<<|>>>|>>|[\\%\\*\\+\\-\\/\\&\\|\\^\\~])|([\\S][^\\<\\>\\s\\+\\%\\*\\-\\/\\(\\)\\&\\|\\^\\~]+)");
 
   private void assertUnaryOperator(final String operator) {
     if (!("+".equals(operator) || "-".equals(operator) || "~".equals(operator))) {
@@ -193,6 +196,15 @@ public final class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
         else if ("~".equals(operator)) {
           code = CODE_NOT;
         }
+        else if ("<<".equals(operator)) {
+          code = CODE_LSHIFT;
+        }
+        else if (">>".equals(operator)) {
+          code = CODE_RSHIFT;
+        }
+        else if (">>>".equals(operator)) {
+          code = CODE_RSIGNSHIFT;
+        }
         else {
           throw new Error("Detected unsupported operator, connect developer for the error [" + operator + ']');
         }
@@ -299,7 +311,7 @@ public final class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
           }
         }
         catch (NumberFormatException ex) {
-          throw new JBBPCompilationException("Can't parse number '" + number + "' [" + this.expressionSource + ']', null, ex);
+          throw new JBBPCompilationException("Can't parse a numeric constant, only decimal integers are supported '" + number + "' [" + this.expressionSource + ']', null, ex);
         }
         theFirstInTheSubExpression = false;
       }
@@ -447,6 +459,30 @@ public final class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
           }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] %= top;
+        }
+        break;
+        case CODE_LSHIFT: {
+          if (stackDepth < 2) {
+            throw new JBBPEvalException("'<<' needs two arguments [" + this.expressionSource + ']',this);
+          }
+          final int top = stack[--stackDepth];
+          stack[stackDepth - 1] <<= top;
+        }
+        break;
+        case CODE_RSHIFT: {
+          if (stackDepth < 2) {
+            throw new JBBPEvalException("'>>' needs two arguments [" + this.expressionSource + ']',this);
+          }
+          final int top = stack[--stackDepth];
+          stack[stackDepth - 1] >>= top;
+        }
+        break;
+        case CODE_RSIGNSHIFT: {
+          if (stackDepth < 2) {
+            throw new JBBPEvalException("'>>>' needs two arguments [" + this.expressionSource + ']',this);
+          }
+          final int top = stack[--stackDepth];
+          stack[stackDepth - 1] >>>= top;
         }
         break;
         default:

@@ -22,6 +22,7 @@ import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPEvalException;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
+import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.ByteArrayInputStream;
 import java.util.*;
 import static org.junit.Assert.*;
@@ -133,6 +134,16 @@ public class JBBPExpressionEvaluatorTest {
   public void testExpression_Constant() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("5678", null, null);
     assertEquals(5678, expr.eval(null, 0, null, null));
+  }
+
+  @Test
+  public void testExpression_ErrorForTooBigConstant() {
+    try{
+      new JBBPExpressionEvaluator("5678892374982347", null, null);
+      fail("Must throw compilation exception");
+    }catch(JBBPCompilationException ex){
+      assertTrue(ex.getCause() instanceof NumberFormatException);
+    }
   }
 
   @Test
@@ -294,19 +305,19 @@ public class JBBPExpressionEvaluatorTest {
   @Test
   public void testExpression_TestUnaryThreeOperatorsInExpression() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("-~-567-~-567", null, null);
-    assertEquals(-~-567-~-567, expr.eval(null, 0, null, null));
+    assertEquals(-~-567 - ~-567, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_TestComplexUnaryWithConstant() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("-~-~~567", null, null);
-    assertEquals(-~-~~567, expr.eval(null, 0, null, null));
+    assertEquals(-~-~ ~567, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_TestComplexUnaryWithConstantAndBrackets() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("-(~-(~~567))", null, null);
-    assertEquals(-(~-(~~567)), expr.eval(null, 0, null, null));
+    assertEquals(-(~-(~ ~567)), expr.eval(null, 0, null, null));
   }
 
   @Test
@@ -324,19 +335,75 @@ public class JBBPExpressionEvaluatorTest {
   @Test
   public void testExpression_ConstantAndMultipleUnaryPlusOutsideBracketsAndOneInBrackets() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("112++++++(+54)", null, null);
-    assertEquals(112+(+54), expr.eval(null, 0, null, null));
+    assertEquals(112 + (+54), expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_TestComplexUnaryInConstantExpression() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("445*-~-~+~567", null, null);
-    assertEquals(445*-~-~+~567, expr.eval(null, 0, null, null));
+    assertEquals(445 * -~-~+~567, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_ComplexLogicalWithConstants() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("~23*-1234&~123/(34+89)|3232%56^~2234", null, null);
     assertEquals(~23 * -1234 & ~123 / (34 + 89) | 3232 % 56 ^ ~2234, expr.eval(null, 0, null, null));
+  }
+
+  @Test
+  public void testExpression_LeftShift() {
+    JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("1234<<3", null, null);
+    assertEquals(1234 << 3, expr.eval(null, 0, null, null));
+  }
+
+  @Test(expected = JBBPEvalException.class)
+  public void testExpression_LeftShift_ErrorWithoutSecondArgument() {
+    new JBBPExpressionEvaluator("1234<<", null, null).eval(null, 0, null, null);
+  }
+
+  @Test
+  public void testExpression_RightShift() {
+    JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("1234>>3", null, null);
+    assertEquals(1234 >> 3, expr.eval(null, 0, null, null));
+  }
+
+  @Test(expected = JBBPEvalException.class)
+  public void testExpression_RightShift_ErrorWithoutSecondArgument() {
+    new JBBPExpressionEvaluator("1234 >>", null, null).eval(null, 0, null, null);
+  }
+
+  @Test
+  public void testExpression_RightSignShift() {
+    JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("-1>>>3", null, null);
+    assertEquals(-1 >>> 3, expr.eval(null, 0, null, null));
+  }
+
+  @Test
+  public void testExpression_RightSignShiftWithInversion() {
+    JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("-1>>>~3&7", null, null);
+    assertEquals(-1 >>> ~3 & 7, expr.eval(null, 0, null, null));
+  }
+
+  @Test(expected = JBBPEvalException.class)
+  public void testExpression_RightSignShift_ErrorWithoutSecondArgument() {
+    new JBBPExpressionEvaluator("1234 >>>", null, null).eval(null, 0, null, null);
+  }
+
+  @Test
+  public void testExpression_ReverseByte() {
+    JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("((($v*2050&139536)|($v*32800&558144))*65793>>16)&255", null, null);
+    assertEquals(JBBPUtils.reverseByte((byte) 123) & 0xFF, expr.eval(null, 0, null, new JBBPNamedNumericFieldMap(new JBBPExternalValueProvider() {
+
+      public int provideArraySize(final String fieldName, final JBBPNamedNumericFieldMap numericFieldMap, final JBBPCompiledBlock compiledBlock) {
+        if ("v".equals(fieldName)) {
+          return 123;
+        }
+        else {
+          fail("Unexpected field [" + fieldName + ']');
+          return 0;
+        }
+      }
+    })));
   }
 
   @Test
