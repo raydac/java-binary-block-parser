@@ -16,25 +16,25 @@
 
 package com.igormaznitsa.jbbp.exceptions;
 
-import com.igormaznitsa.jbbp.compiler.varlen.JBBPLengthEvaluator;
+import com.igormaznitsa.jbbp.compiler.varlen.JBBPIntegerValueEvaluator;
 
 /**
  * The Exception is thrown if any errors during execution of an array length evaluator.
  */
 public class JBBPEvalException extends JBBPException {
   private static final long serialVersionUID = -8580688001091915787L;
-  private final JBBPLengthEvaluator evaluator;
+  private final JBBPIntegerValueEvaluator evaluator;
   
-  public JBBPEvalException(final String message, final JBBPLengthEvaluator evaluator) {
+  public JBBPEvalException(final String message, final JBBPIntegerValueEvaluator evaluator) {
     this(message,evaluator,null);
   }
 
-  public JBBPEvalException(String message, final JBBPLengthEvaluator evaluator, Throwable cause) {
+  public JBBPEvalException(String message, final JBBPIntegerValueEvaluator evaluator, Throwable cause) {
     super(message, cause);
     this.evaluator = evaluator;
   }
   
-  public JBBPLengthEvaluator getEvaluator(){
+  public JBBPIntegerValueEvaluator getEvaluator(){
     return this.evaluator;
   }
   

@@ -15,7 +15,7 @@
  */
 package com.igormaznitsa.jbbp.compiler;
 
-import com.igormaznitsa.jbbp.compiler.varlen.JBBPLengthEvaluator;
+import com.igormaznitsa.jbbp.compiler.varlen.JBBPIntegerValueEvaluator;
 import com.igormaznitsa.jbbp.exceptions.JBBPException;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.util.*;
@@ -39,7 +39,7 @@ public class JBBPCompiledBlock {
   /**
    * The Array of variable size array evaluators.
    */
-  private final JBBPLengthEvaluator[] arraySizeEvaluators;
+  private final JBBPIntegerValueEvaluator[] arraySizeEvaluators;
   
   /**
    * Inside helper to build a compiled block
@@ -48,7 +48,7 @@ public class JBBPCompiledBlock {
     private String source;
     private final List<JBBPNamedFieldInfo> namedFields = new ArrayList<JBBPNamedFieldInfo>();
     private byte [] compiledData;
-    private final List<JBBPLengthEvaluator> varLenProcessors = new ArrayList<JBBPLengthEvaluator>();
+    private final List<JBBPIntegerValueEvaluator> varLenProcessors = new ArrayList<JBBPIntegerValueEvaluator>();
     
     /**
      * Build a compiled block based on the data and check that all needed data is provided.
@@ -59,7 +59,7 @@ public class JBBPCompiledBlock {
       JBBPUtils.assertNotNull(source, "Source is not defined");
       JBBPUtils.assertNotNull(compiledData, "Compiled data is not defined");
     
-      return new JBBPCompiledBlock(this.source, this.namedFields.toArray(new JBBPNamedFieldInfo[this.namedFields.size()]), this.varLenProcessors.isEmpty() ? null : this.varLenProcessors.toArray(new JBBPLengthEvaluator[this.varLenProcessors.size()]) , this.compiledData);
+      return new JBBPCompiledBlock(this.source, this.namedFields.toArray(new JBBPNamedFieldInfo[this.namedFields.size()]), this.varLenProcessors.isEmpty() ? null : this.varLenProcessors.toArray(new JBBPIntegerValueEvaluator[this.varLenProcessors.size()]) , this.compiledData);
     }
     
     /**
@@ -100,7 +100,7 @@ public class JBBPCompiledBlock {
      * @param evaluators
      * @return this object
      */
-    public Builder setArraySizeEvaluators(final List<JBBPLengthEvaluator> evaluators){
+    public Builder setArraySizeEvaluators(final List<JBBPIntegerValueEvaluator> evaluators){
       this.varLenProcessors.clear();
       if (evaluators!=null){
         this.varLenProcessors.addAll(evaluators);
@@ -124,7 +124,7 @@ public class JBBPCompiledBlock {
    * @param arraySizeEvaluators array size evaluator array
    * @param compiledData compiled data block
    */
-  private JBBPCompiledBlock(final String source, final JBBPNamedFieldInfo[] namedFields, final JBBPLengthEvaluator[] arraySizeEvaluators, final byte [] compiledData){
+  private JBBPCompiledBlock(final String source, final JBBPNamedFieldInfo[] namedFields, final JBBPIntegerValueEvaluator[] arraySizeEvaluators, final byte [] compiledData){
     this.source = source;
     this.namedFieldData = namedFields;
     this.compiledArray = compiledData;
@@ -167,7 +167,7 @@ public class JBBPCompiledBlock {
    * Get the array size evaluators
    * @return the array size evaluators, it can be null if there is not any variable size array
    */
-  public JBBPLengthEvaluator[] getArraySizeEvaluators(){
+  public JBBPIntegerValueEvaluator[] getArraySizeEvaluators(){
     return this.arraySizeEvaluators;
   }
   

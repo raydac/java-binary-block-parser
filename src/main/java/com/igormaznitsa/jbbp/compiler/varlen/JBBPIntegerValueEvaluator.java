@@ -20,9 +20,9 @@ import com.igormaznitsa.jbbp.compiler.*;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 
 /**
- * The Interface describes an evaluator. I call as an evaluator, a class which can calculate some expression and return the result as integer.
+ * The Interface describes a class which can evaluate and provide an integer value. .
  */
-public interface JBBPLengthEvaluator {
+public interface JBBPIntegerValueEvaluator {
   /**
    * Calculate an integer value.
    * @param inStream  a bit input stream

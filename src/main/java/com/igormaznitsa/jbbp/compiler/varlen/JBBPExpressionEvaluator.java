@@ -27,7 +27,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.*;
 
-public final class JBBPExpressionEvaluator implements JBBPLengthEvaluator {
+public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator {
 
   private static final int MAX_STACK_DEPTH = 16;
 

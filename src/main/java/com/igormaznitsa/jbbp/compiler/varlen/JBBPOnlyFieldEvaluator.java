@@ -22,7 +22,7 @@ import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 /**
  * Class implements an evaluator which works with only field.
  */
-public final class JBBPOnlyFieldEvaluator implements JBBPLengthEvaluator {
+public final class JBBPOnlyFieldEvaluator implements JBBPIntegerValueEvaluator {
 
   /**
    * The Index in named field area for the field which is used by the evaluator.

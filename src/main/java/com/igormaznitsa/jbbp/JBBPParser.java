@@ -16,7 +16,7 @@
 package com.igormaznitsa.jbbp;
 
 import com.igormaznitsa.jbbp.compiler.*;
-import com.igormaznitsa.jbbp.compiler.varlen.JBBPLengthEvaluator;
+import com.igormaznitsa.jbbp.compiler.varlen.JBBPIntegerValueEvaluator;
 import com.igormaznitsa.jbbp.exceptions.JBBPParsingException;
 import com.igormaznitsa.jbbp.io.*;
 import com.igormaznitsa.jbbp.model.*;
@@ -120,7 +120,7 @@ public final class JBBPParser {
         }
         break;
         case JBBPCompiler.FLAG_ARRAY | JBBPCompiler.FLAG_EXPRESSION_OR_WHOLESTREAM: {
-          final JBBPLengthEvaluator evaluator = this.compiledBlock.getArraySizeEvaluators()[positionAtVarLengthProcessors.getAndIncrement()];
+          final JBBPIntegerValueEvaluator evaluator = this.compiledBlock.getArraySizeEvaluators()[positionAtVarLengthProcessors.getAndIncrement()];
           arrayLength = evaluator.eval(inStream, positionAtCompiledBlock.get(), this.compiledBlock, namedNumericFieldMap);
           assertArrayLength(arrayLength, name);
           wholeStreamArray = false;

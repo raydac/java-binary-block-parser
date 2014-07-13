@@ -20,7 +20,7 @@ import com.igormaznitsa.jbbp.compiler.parser.JBBPTokenizer;
 import com.igormaznitsa.jbbp.compiler.parser.JBBPToken;
 import com.igormaznitsa.jbbp.compiler.parser.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.compiler.utils.JBBPCompilerUtils;
-import com.igormaznitsa.jbbp.compiler.varlen.JBBPLengthEvaluator;
+import com.igormaznitsa.jbbp.compiler.varlen.JBBPIntegerValueEvaluator;
 import com.igormaznitsa.jbbp.compiler.varlen.JBBPEvaluatorFactory;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPException;
@@ -155,7 +155,7 @@ public final class JBBPCompiler {
     final JBBPCompiledBlock.Builder builder = JBBPCompiledBlock.prepare().setSource(script);
 
     final List<JBBPNamedFieldInfo> namedFields = new ArrayList<JBBPNamedFieldInfo>();
-    final List<JBBPLengthEvaluator> varLengthEvaluators = new ArrayList<JBBPLengthEvaluator>();
+    final List<JBBPIntegerValueEvaluator> varLengthEvaluators = new ArrayList<JBBPIntegerValueEvaluator>();
 
     final ByteArrayOutputStream out = new ByteArrayOutputStream();
     int offset = 0;

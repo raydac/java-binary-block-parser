@@ -17,7 +17,7 @@ package com.igormaznitsa.jbbp;
 
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
-import com.igormaznitsa.jbbp.compiler.varlen.JBBPLengthEvaluator;
+import com.igormaznitsa.jbbp.compiler.varlen.JBBPIntegerValueEvaluator;
 import com.igormaznitsa.jbbp.exceptions.JBBPEvalException;
 import com.igormaznitsa.jbbp.exceptions.JBBPException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTooManyFieldsFoundException;
@@ -252,7 +252,7 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
    * @return integer value for the field
    * @throws JBBPException if there is not any external value provider
    */
-  public int getExternalFieldValue(final String externalFieldName, final JBBPCompiledBlock compiledBlock, final JBBPLengthEvaluator evaluator) {
+  public int getExternalFieldValue(final String externalFieldName, final JBBPCompiledBlock compiledBlock, final JBBPIntegerValueEvaluator evaluator) {
     final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(externalFieldName);
     if (this.externalValueProvider == null) {
       throw new JBBPEvalException("Request for '" + externalFieldName + "' but there is not any value provider", evaluator);

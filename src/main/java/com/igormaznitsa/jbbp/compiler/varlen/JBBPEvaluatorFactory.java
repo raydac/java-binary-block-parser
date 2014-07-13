@@ -47,8 +47,8 @@ public final class JBBPEvaluatorFactory {
    * @see JBBPExpressionEvaluator
    * @see JBBPOnlyFieldEvaluator
    */
-  public JBBPLengthEvaluator make(final String expression, final List<JBBPNamedFieldInfo> namedFields, final byte [] compiledScript){
-    final JBBPLengthEvaluator result;
+  public JBBPIntegerValueEvaluator make(final String expression, final List<JBBPNamedFieldInfo> namedFields, final byte [] compiledScript){
+    final JBBPIntegerValueEvaluator result;
     
     if (JBBPExpressionEvaluator.hasExpressionOperators(expression)){
       // expression
