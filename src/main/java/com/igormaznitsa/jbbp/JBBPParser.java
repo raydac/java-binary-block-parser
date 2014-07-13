@@ -295,7 +295,6 @@ public final class JBBPParser {
                 else {
                   result = new JBBPFieldStruct[arrayLength];
                   for (int i = 0; i < arrayLength; i++) {
-                    positionAtNamedFieldList.set(nameFieldCurrent);
 
                     final List<JBBPAbstractField> fieldsForStruct = parseStruct(inStream, positionAtCompiledBlock, namedNumericFieldMap, positionAtNamedFieldList, positionAtVarLengthProcessors, skipStructureFields);
                     final int structStart = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
@@ -304,6 +303,8 @@ public final class JBBPParser {
 
                     if (i < arrayLength - 1) {
                       // not the last
+                      positionAtNamedFieldList.set(nameFieldCurrent);
+                      positionAtVarLengthProcessors.set(varLenProcCurrent);
                       positionAtCompiledBlock.set(structStart + 1);
                     }
                   }

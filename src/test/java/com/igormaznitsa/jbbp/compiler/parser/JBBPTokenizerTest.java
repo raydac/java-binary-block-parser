@@ -522,6 +522,14 @@ public class JBBPTokenizerTest {
     assertParsedItem(iterator.next(), JBBPTokenType.ATOM, "align:8", null, null);
     assertFalse(iterator.hasNext());
   }
+
+  @Test
+  public void testParse_StructureArrayStartWithComplexExpressionAsSize(){
+    final JBBPTokenizer parser = new JBBPTokenizer("ColorMap [ (Header.ColorMapType & 1) * Header.CMapLength] {");
+    final Iterator<JBBPToken> iterator = parser.iterator();
+    assertParsedItem(iterator.next(), JBBPTokenType.STRUCT_START, null, "(Header.ColorMapType & 1) * Header.CMapLength", "ColorMap");
+    assertFalse(iterator.hasNext());
+  }
   
   @Test
   public void testParseScript_WithStructure() {
