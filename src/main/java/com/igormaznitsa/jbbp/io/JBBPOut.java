@@ -146,10 +146,7 @@ public final class JBBPOut {
    */
   public JBBPOut Align() throws IOException {
     assertNotEnded();
-    final int numberOfBufferedBits = this.outStream.getBufferedBitsNumber();
-    if (numberOfBufferedBits > 0) {
-      this.outStream.writeBits(0, JBBPBitNumber.decode(8 - numberOfBufferedBits));
-    }
+    this.outStream.align(0);
     return this;
   }
 
@@ -161,14 +158,7 @@ public final class JBBPOut {
    */
   public JBBPOut Align(final int value) throws IOException {
     assertNotEnded();
-    this.Align();
-
-    if (this.outStream.getCounter()>0){
-      while(this.outStream.getCounter() % value!=0){
-        this.outStream.write(0);
-      }
-    }
-    
+    this.outStream.align(value);
     return this;
   }
 

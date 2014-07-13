@@ -567,20 +567,23 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   }
 
   /**
-   * Make the input stream alignment for defined byte number.
+   * Read padding bytes from the stream and ignore them to align the stream counter.
    * @param alignByteNumber the byte number to align the stream
    * @throws IOException it will be thrown for transport errors
    * @throws EOFException it will be thrown if the stream end has been reached the before align border.
    */
   public void align(final long alignByteNumber) throws IOException {
     this.alignByte();
-
+    
     if (alignByteNumber > 0) {
-      while (this.byteCounter % alignByteNumber != 0) {
+      long padding = (alignByteNumber - (this.byteCounter %  alignByteNumber)) % alignByteNumber;
+      
+      while (padding>0) {
         final int skippedByte = this.read();
         if (skippedByte < 0) {
           throw new EOFException("Can't align for " + alignByteNumber + " byte(s)");
         }
+        padding--;
       }
     }
     

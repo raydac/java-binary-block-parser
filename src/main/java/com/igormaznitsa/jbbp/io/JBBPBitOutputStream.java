@@ -229,6 +229,26 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
   }
 
   /**
+   * Write padding bytes to align the stream counter for the border.
+   * @param alignByteNumber the alignment border
+   * @throws IOException it will be thrown for transport errors
+   */
+  public void align(final long alignByteNumber) throws IOException {
+    if (this.bitBufferCount > 0) {
+      this.writeBits(0, JBBPBitNumber.decode(8 - this.bitBufferCount));
+    }
+    
+    if (alignByteNumber>0){
+      long padding = (alignByteNumber - (this.byteCounter % alignByteNumber)) % alignByteNumber;
+      while(padding>0){
+        this.out.write(0);
+        this.byteCounter++;
+        padding--;
+      }
+    }
+  }
+  
+  /**
    * Inside method tp process byte writing operation/
    * @param value a byte value to be written
    * @throws IOException it will be thrown for transport problems
