@@ -139,18 +139,7 @@ public final class JBBPParser {
       switch (code & 0xF) {
         case JBBPCompiler.CODE_ALIGN: {
           if (resultNotIgnored) {
-            final int alignByteNumber = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
-
-            inStream.alignByte();
-
-            if (alignByteNumber > 0) {
-              while (inStream.getCounter() % alignByteNumber != 0) {
-                final int skippedByte = inStream.read();
-                if (skippedByte < 0) {
-                  throw new EOFException("Can't align for " + alignByteNumber + " for EOFException");
-                }
-              }
-            }
+            inStream.align(JBBPUtils.unpackInt(compiled, positionAtCompiledBlock));
           }
         }
         break;
@@ -186,7 +175,7 @@ public final class JBBPParser {
               singleAtomicField = new JBBPFieldBoolean(name, inStream.readBoolean());
             }
             else {
-              structureFields.add(new JBBPFieldArrayBoolean(name, inStream.readBooleanArray(wholeStreamArray ? -1 : arrayLength)));
+              structureFields.add(new JBBPFieldArrayBoolean(name, inStream.readBoolArray(wholeStreamArray ? -1 : arrayLength)));
             }
           }
         }

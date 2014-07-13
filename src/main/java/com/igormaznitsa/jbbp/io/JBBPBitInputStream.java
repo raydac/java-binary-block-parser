@@ -90,7 +90,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * @return read values as boolean array
    * @throws IOException it will be thrown for transport error
    */
-  public boolean[] readBooleanArray(final int items) throws IOException {
+  public boolean[] readBoolArray(final int items) throws IOException {
     int pos = 0;
     byte[] buffer;
     if (items < 0) {
@@ -566,6 +566,26 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     return super.available();
   }
 
+  /**
+   * Make the input stream alignment for defined byte number.
+   * @param alignByteNumber the byte number to align the stream
+   * @throws IOException it will be thrown for transport errors
+   * @throws EOFException it will be thrown if the stream end has been reached the before align border.
+   */
+  public void align(final long alignByteNumber) throws IOException {
+    this.alignByte();
+
+    if (alignByteNumber > 0) {
+      while (this.byteCounter % alignByteNumber != 0) {
+        final int skippedByte = this.read();
+        if (skippedByte < 0) {
+          throw new EOFException("Can't align for " + alignByteNumber + " byte(s)");
+        }
+      }
+    }
+    
+  }
+  
   @Override
   public long skip(final long numOfBytes) throws IOException {
     if (this.bitsInBuffer == 0) {

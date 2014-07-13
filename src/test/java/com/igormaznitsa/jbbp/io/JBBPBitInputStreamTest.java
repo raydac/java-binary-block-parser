@@ -372,6 +372,25 @@ public class JBBPBitInputStreamTest {
   }
 
   @Test
+  public void testAlignBytes() throws Exception {
+    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(JBBPUtils.str2bin("01010101_01010101_01011101_00011000_01010101_01010101_00000001", JBBPBitOrder.MSB0)));
+    
+    assertEquals(0xAA, in.read());
+    in.align(3);
+    assertEquals(0x18, in.read());
+    in.align(6);
+    assertEquals(0x80, in.read());
+    assertEquals(-1, in.read());
+    
+    try{
+      in.align(10);
+      fail("Must throw EOF");
+    }catch(EOFException ex){
+      
+    }
+  }
+
+  @Test
   public void testRead_WithoutOffset() throws Exception {
     final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(JBBPUtils.str2bin("01010111_01010111_01010111_00011000_01010101_01100011_00000001", JBBPBitOrder.MSB0)));
 
