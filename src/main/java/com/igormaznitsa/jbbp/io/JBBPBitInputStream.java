@@ -567,18 +567,21 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   }
 
   /**
-   * Read padding bytes from the stream and ignore them to align the stream counter.
+   * Read padding bytes from the stream and ignore them to align the stream
+   * counter.
+   *
    * @param alignByteNumber the byte number to align the stream
    * @throws IOException it will be thrown for transport errors
-   * @throws EOFException it will be thrown if the stream end has been reached the before align border.
+   * @throws EOFException it will be thrown if the stream end has been reached
+   * the before align border.
    */
   public void align(final long alignByteNumber) throws IOException {
     this.alignByte();
-    
+
     if (alignByteNumber > 0) {
-      long padding = (alignByteNumber - (this.byteCounter %  alignByteNumber)) % alignByteNumber;
-      
-      while (padding>0) {
+      long padding = (alignByteNumber - (this.byteCounter % alignByteNumber)) % alignByteNumber;
+
+      while (padding > 0) {
         final int skippedByte = this.read();
         if (skippedByte < 0) {
           throw new EOFException("Can't align for " + alignByteNumber + " byte(s)");
@@ -586,9 +589,19 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
         padding--;
       }
     }
-    
+
   }
-  
+
+  /**
+   * The Method allows to reset inside counters of the stream, it will reset the
+   * bit cache and byte counter so that next operations will be working like
+   * from the stream start.
+   */
+  public void resetInsideCounters() {
+    this.alignByte();
+    this.byteCounter = 0;
+  }
+
   @Override
   public long skip(final long numOfBytes) throws IOException {
     if (this.bitsInBuffer == 0) {

@@ -496,5 +496,24 @@ public class JBBPBitInputStreamTest {
     assertArrayEquals(new long[]{0x0102030405060700L, 0xFECABE0102030405L}, in.readLongArray(2,JBBPByteOrder.BIG_ENDIAN));
   }
 
+  @Test
+  public void testResetInsideCounters_ForStartOfStream() throws Exception {
+    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5, 6, 7, 0, (byte) 0xFE, (byte) 0xCA, (byte) 0xBE, (byte) 0x01, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4}));
+    in.resetInsideCounters();
+    assertEquals(1, in.readByte());
+    assertEquals(1, in.getCounter());
+  }
+  
+  @Test
+  public void testResetInsideCounters_ForCachedBits() throws Exception {
+    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5, 6, 7, 0, (byte) 0xFE, (byte) 0xCA, (byte) 0xBE, (byte) 0x01, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4}));
+    assertEquals(1, in.readBits(JBBPBitNumber.BITS_3));
+    assertEquals(1, in.getCounter());
+    assertTrue(in.getBufferedBitsNumber()!=0);
+    in.resetInsideCounters();
+    assertEquals(0, in.getCounter());
+    assertEquals(0, in.getBufferedBitsNumber());
+    assertEquals(2, in.readByte());
+  }
   
 }
