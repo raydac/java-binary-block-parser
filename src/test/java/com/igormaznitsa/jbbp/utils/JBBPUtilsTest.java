@@ -58,6 +58,11 @@ public class JBBPUtilsTest {
     }
 
   }
+  
+  @Test(expected = NullPointerException.class)
+  public void testUnpackInt_NPEForArrayIsNull(){
+    JBBPUtils.unpackInt(null, new AtomicInteger(0));
+  }
 
   @Test
   public void testPackUnpackIntFromByteArray() {

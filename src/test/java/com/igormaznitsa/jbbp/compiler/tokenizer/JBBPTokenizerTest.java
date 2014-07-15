@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.igormaznitsa.jbbp.compiler.parser;
+package com.igormaznitsa.jbbp.compiler.tokenizer;
 
+import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPToken;
+import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPTokenType;
+import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPTokenizer;
 import com.igormaznitsa.jbbp.exceptions.JBBPTokenizerException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -528,6 +531,14 @@ public class JBBPTokenizerTest {
     final JBBPTokenizer parser = new JBBPTokenizer("ColorMap [ (Header.ColorMapType & 1) * Header.CMapLength] {");
     final Iterator<JBBPToken> iterator = parser.iterator();
     assertParsedItem(iterator.next(), JBBPTokenType.STRUCT_START, null, "(Header.ColorMapType & 1) * Header.CMapLength", "ColorMap");
+    assertFalse(iterator.hasNext());
+  }
+  
+  @Test
+  public void testParse_VarFieldArrayWithNegativeExtra() {
+    final JBBPTokenizer parser = new JBBPTokenizer("var:-123 [size] name;");
+    final Iterator<JBBPToken> iterator = parser.iterator();
+    assertParsedItem(iterator.next(), JBBPTokenType.ATOM, "var:-123", "size", "name");
     assertFalse(iterator.hasNext());
   }
   

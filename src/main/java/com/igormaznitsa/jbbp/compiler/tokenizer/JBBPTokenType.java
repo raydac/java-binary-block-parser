@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.igormaznitsa.jbbp.compiler.parser;
+package com.igormaznitsa.jbbp.compiler.tokenizer;
 
 /**
  * The Enumeration represents allowed token types to be met in binary block parser script.

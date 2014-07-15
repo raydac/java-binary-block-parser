@@ -23,7 +23,7 @@ import java.util.*;
 /**
  * The Class describes a data block contains compiled information for a bin parser script.
  */
-public class JBBPCompiledBlock {
+public final class JBBPCompiledBlock {
   /**
    * The Array of named field info items.
    */
@@ -42,12 +42,18 @@ public class JBBPCompiledBlock {
   private final JBBPIntegerValueEvaluator[] arraySizeEvaluators;
   
   /**
+   * The Flag shows that the compiled block contains var fields.
+   */
+  private final boolean hasVarFields;
+  
+  /**
    * Inside helper to build a compiled block
    */
   public final static class Builder {
     private String source;
     private final List<JBBPNamedFieldInfo> namedFields = new ArrayList<JBBPNamedFieldInfo>();
     private byte [] compiledData;
+    private boolean hasVarFields; 
     private final List<JBBPIntegerValueEvaluator> varLenProcessors = new ArrayList<JBBPIntegerValueEvaluator>();
     
     /**
@@ -59,7 +65,17 @@ public class JBBPCompiledBlock {
       JBBPUtils.assertNotNull(source, "Source is not defined");
       JBBPUtils.assertNotNull(compiledData, "Compiled data is not defined");
     
-      return new JBBPCompiledBlock(this.source, this.namedFields.toArray(new JBBPNamedFieldInfo[this.namedFields.size()]), this.varLenProcessors.isEmpty() ? null : this.varLenProcessors.toArray(new JBBPIntegerValueEvaluator[this.varLenProcessors.size()]) , this.compiledData);
+      return new JBBPCompiledBlock(this.source, this.namedFields.toArray(new JBBPNamedFieldInfo[this.namedFields.size()]), this.varLenProcessors.isEmpty() ? null : this.varLenProcessors.toArray(new JBBPIntegerValueEvaluator[this.varLenProcessors.size()]) , this.compiledData, this.hasVarFields);
+    }
+    
+    /**
+     * Set the flag that the compiled block has var fields or array.
+     * @param flag the flag, true shows that the compiled block contains a var file, false otherwise
+     * @return this object
+     */
+    public Builder setHasVarFields(final boolean flag){
+      this.hasVarFields = flag;
+      return this;
     }
     
     /**
@@ -123,10 +139,12 @@ public class JBBPCompiledBlock {
    * @param namedFields named field info array
    * @param arraySizeEvaluators array size evaluator array
    * @param compiledData compiled data block
+   * @param hasVarFields the flag shows that te block contains var fields
    */
-  private JBBPCompiledBlock(final String source, final JBBPNamedFieldInfo[] namedFields, final JBBPIntegerValueEvaluator[] arraySizeEvaluators, final byte [] compiledData){
+  private JBBPCompiledBlock(final String source, final JBBPNamedFieldInfo[] namedFields, final JBBPIntegerValueEvaluator[] arraySizeEvaluators, final byte [] compiledData, final boolean hasVarFields){
     this.source = source;
     this.namedFieldData = namedFields;
+    this.hasVarFields = hasVarFields;
     this.compiledArray = compiledData;
     this.arraySizeEvaluators = arraySizeEvaluators;
   }
@@ -140,10 +158,18 @@ public class JBBPCompiledBlock {
   }
   
   /**
-   * Check that the compiled block contains variable size arrays
-   * @return true if variable  size arrays are presented, false otherwise
+   * Check that the compiled block has var fields or arrays.
+   * @return true if the compiled block contains any VAR field or VAR array, false otherwise
    */
-  public boolean hasVarArrays(){
+  public boolean hasVarFields() {
+    return this.hasVarFields;
+  }
+  
+  /**
+   * Check that the compiled block contains array fields with calculated size.
+   * @return true if calculated size arrays are presented, false otherwise
+   */
+  public boolean hasEvaluatedSizeArrays(){
     return this.arraySizeEvaluators!=null;
   }
   

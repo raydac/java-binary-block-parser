@@ -16,9 +16,9 @@
 package com.igormaznitsa.jbbp.compiler;
 
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
-import com.igormaznitsa.jbbp.compiler.parser.JBBPTokenizer;
-import com.igormaznitsa.jbbp.compiler.parser.JBBPToken;
-import com.igormaznitsa.jbbp.compiler.parser.JBBPFieldTypeParameterContainer;
+import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPTokenizer;
+import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPToken;
+import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.compiler.utils.JBBPCompilerUtils;
 import com.igormaznitsa.jbbp.compiler.varlen.JBBPIntegerValueEvaluator;
 import com.igormaznitsa.jbbp.compiler.varlen.JBBPEvaluatorFactory;
@@ -120,6 +120,11 @@ public final class JBBPCompiler {
   public static final int CODE_SKIP = 0x0B;
 
   /**
+   * The Byte code of the VAR command. It describes a request to an external processor to load values from a stream.
+   */
+  public static final int CODE_VAR = 0x0C;
+
+  /**
    * The Byte-Code Flag shows that the field is a named one.
    */
   public static final int FLAG_NAMED = 0x10;
@@ -165,6 +170,8 @@ public final class JBBPCompiler {
 
     int fieldUnrestrictedArrayOffset = -1;
 
+    boolean hasVarFields = false;
+    
     for (final JBBPToken token : parser) {
       if (token.isComment()) {
         continue;
@@ -177,6 +184,7 @@ public final class JBBPCompiler {
       offset++;
 
       StructStackItem currentClosedStructure = null;
+      boolean extraFieldPresented = false;
       int extraField = -1;
 
       if ((code & 0xF) != CODE_STRUCT_END && fieldUnrestrictedArrayOffset >= 0) {
@@ -205,18 +213,17 @@ public final class JBBPCompiler {
             throw new JBBPCompilationException("A Skip field can't be named [" + token.getFieldName() + ']', token);
           }
           final String parsedSkipByteNumber = token.getFieldTypeParameters().getExtraData();
+          extraFieldPresented = true;
           if (parsedSkipByteNumber == null) {
             extraField = 1;
           }
           else {
             try {
               extraField = Integer.parseInt(parsedSkipByteNumber);
+              assertNonNegativeValue(extraField, token);
             }
             catch (NumberFormatException ex) {
               extraField = -1;
-            }
-            if (extraField <= 0) {
-              throw new JBBPCompilationException("Skip byte number must be greater than zero [" + token.getFieldTypeParameters().getExtraData() + ']', token);
             }
           }
         }
@@ -230,12 +237,14 @@ public final class JBBPCompiler {
           }
 
           final String parsedAlignBytesNumber = token.getFieldTypeParameters().getExtraData();
+          extraFieldPresented = true;
           if (parsedAlignBytesNumber == null) {
             extraField = 1;
           }
           else {
             try {
               extraField = Integer.parseInt(parsedAlignBytesNumber);
+              assertNonNegativeValue(extraField, token);
             }
             catch (NumberFormatException ex) {
               extraField = -1;
@@ -248,18 +257,37 @@ public final class JBBPCompiler {
         break;
         case CODE_BIT: {
           final String parsedBitNumber = token.getFieldTypeParameters().getExtraData();
+          extraFieldPresented = true;
           if (parsedBitNumber == null) {
             extraField = 1;
           }
           else {
             try {
               extraField = Integer.parseInt(parsedBitNumber);
+              assertNonNegativeValue(extraField, token);
             }
             catch (NumberFormatException ex) {
               extraField = -1;
             }
             if (extraField < 1 || extraField > 8) {
               throw new JBBPCompilationException("Wrong bit number, must be 1..8 [" + token.getFieldTypeParameters().getExtraData() + ']', token);
+            }
+          }
+        }
+        break;
+        case CODE_VAR: {
+          hasVarFields = true;
+          final String parsedExtraField = token.getFieldTypeParameters().getExtraData();
+          extraFieldPresented = true;
+          if (parsedExtraField == null) {
+            extraField = 0;
+          }
+          else {
+            try {
+              extraField = Integer.parseInt(parsedExtraField);
+            }
+            catch (NumberFormatException ex) {
+              throw new JBBPCompilationException("Can't parse the extra value of a VAR field, must be integer [" + token.getFieldTypeParameters().getExtraData() + ']', token);
             }
           }
         }
@@ -305,7 +333,7 @@ public final class JBBPCompiler {
         }
       }
 
-      if (extraField >= 0) {
+      if (extraFieldPresented) {
         offset += writePackedInt(out, extraField);
       }
 
@@ -344,9 +372,22 @@ public final class JBBPCompiler {
             .setNamedFieldData(namedFields)
             .setArraySizeEvaluators(varLengthEvaluators)
             .setCompiledData(compiledBlock)
+            .setHasVarFields(hasVarFields)
             .build();
   }
 
+  /**
+   * The Method checks a value for negative.
+   * @param value a value to be checked
+   * @param token the tokens related to the value
+   * @throws JBBPCompilationException if the value is a negative one
+   */
+  private static void assertNonNegativeValue(final int value, final JBBPToken token){
+    if (value<0) {
+      throw new JBBPCompilationException("Detected unsupported negative value for a field must have only zero or a positive one", token);
+    }
+  }
+  
   /**
    * The Method check that a field name supports business rules.
    *
@@ -418,6 +459,9 @@ public final class JBBPCompiler {
         }
         else if ("bit".equals(name)) {
           result |= CODE_BIT;
+        }
+        else if ("var".equals(name)) {
+          result |= CODE_VAR;
         }
         else if ("bool".equals(name)) {
           result |= CODE_BOOL;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.igormaznitsa.jbbp.compiler.parser;
+package com.igormaznitsa.jbbp.compiler.tokenizer;
 
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import java.io.Serializable;

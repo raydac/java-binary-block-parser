@@ -15,11 +15,16 @@
  */
 package com.igormaznitsa.jbbp;
 
+import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPParsingException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTooManyFieldsFoundException;
+import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
+import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.model.*;
 import java.io.EOFException;
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -236,6 +241,234 @@ public class JBBPParserTest {
   }
 
   @Test
+  public void testParse_SingleNonamedVar() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("short k; var; int;");
+
+    final AtomicInteger counter = new AtomicInteger(0);
+    
+    final JBBPFieldStruct struct = parser.parse(new byte[]{9,8,33,1,2,3,4}, new JBBPVarFieldProcessor() {
+
+      public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        fail("Must not be called");
+        return null;
+      }
+
+      public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        assertNotNull(inStream);
+        final int value = inStream.readByte();
+        assertEquals(33, value);
+        assertEquals(0x0908, numericFieldMap.findFieldForType(JBBPFieldShort.class).getAsInt());
+        
+        assertNull(fieldName);
+        assertEquals(0,extraValue);
+        assertEquals(JBBPByteOrder.BIG_ENDIAN, byteOrder);
+        
+        counter.incrementAndGet();
+        
+        return new JBBPFieldByte(fieldName, (byte)value);
+      }
+    }, null);
+  
+    assertEquals(33,struct.findFieldForType(JBBPFieldByte.class).getAsInt());
+    assertEquals(1, counter.get());
+  }  
+
+  @Test
+  public void testParse_NamedVarWithCustomOrder() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("short k; <var:-12345 Some; int;");
+
+    final AtomicInteger counter = new AtomicInteger(0);
+    
+    final JBBPFieldStruct struct = parser.parse(new byte[]{9,8,33,1,2,3,4}, new JBBPVarFieldProcessor() {
+
+      public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        fail("Must not be called");
+        return null;
+      }
+
+      public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        assertNotNull(inStream);
+        final int value = inStream.readByte();
+        assertEquals(33, value);
+        assertEquals(0x0908, numericFieldMap.findFieldForType(JBBPFieldShort.class).getAsInt());
+        
+        assertEquals("some",fieldName.getFieldName());
+        assertEquals(-12345,extraValue);
+        assertEquals(JBBPByteOrder.LITTLE_ENDIAN, byteOrder);
+        
+        counter.incrementAndGet();
+        
+        return new JBBPFieldByte(fieldName, (byte)value);
+      }
+    }, null);
+  
+    
+    assertEquals(33, struct.findFieldForNameAndType("some",JBBPFieldByte.class).getAsInt());
+    assertEquals(1, counter.get());
+  }  
+
+  @Test(expected = NullPointerException.class)
+  public void testParse_SingleNonamedVar_ErrorForNullResult() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("short k; var; int;");
+
+    final JBBPFieldStruct struct = parser.parse(new byte[]{9,8,33,1,2,3,4}, new JBBPVarFieldProcessor() {
+
+      public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        fail("Must not be called");
+        return null;
+      }
+
+      public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        return null;
+      }
+    }, null);
+  }  
+
+  @Test(expected = JBBPParsingException.class)
+  public void testParse_SingleNonamedVar_ErrorForArrayResult() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("short k; var; int;");
+
+    final JBBPFieldStruct struct = parser.parse(new byte[]{9,8,33,1,2,3,4}, new JBBPVarFieldProcessor() {
+
+      public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        fail("Must not be called");
+        return null;
+      }
+
+      public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        return new JBBPFieldArrayByte(fieldName, new byte[]{1,2,3});
+      }
+    }, null);
+  }  
+
+  @Test(expected = JBBPParsingException.class)
+  public void testParse_SingleNonamedVar_ErrorForDifferentName() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("short k; var name; int;");
+
+    final JBBPFieldStruct struct = parser.parse(new byte[]{9,8,33,1,2,3,4}, new JBBPVarFieldProcessor() {
+
+      public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        fail("Must not be called");
+        return null;
+      }
+
+      public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        assertNotNull(fieldName);
+        return new JBBPFieldByte(new JBBPNamedFieldInfo("jskdjhsd", "dlkjsf", 0), (byte)1);
+      }
+    }, null);
+  }  
+
+
+  
+  @Test
+  public void testParse_SingleNonamedVarArray() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("short k; var[18]; int;");
+
+    final AtomicInteger counter = new AtomicInteger(0);
+
+    final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
+
+      public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        assertNotNull(inStream);
+        final int value = inStream.readByte();
+        assertEquals(33, value);
+        assertEquals(0x0908, numericFieldMap.findFieldForType(JBBPFieldShort.class).getAsInt());
+
+        assertNull(fieldName);
+        assertEquals(0, extraValue);
+        assertEquals(18, arraySize);
+        assertEquals(JBBPByteOrder.BIG_ENDIAN, byteOrder);
+
+        counter.incrementAndGet();
+
+        return new JBBPFieldArrayByte(fieldName, new byte[]{(byte)value});
+      }
+
+      public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        fail("Must not be called");
+        return null;
+      }
+    }, null);
+
+    assertArrayEquals(new byte[]{33}, struct.findFieldForType(JBBPFieldArrayByte.class).getArray());
+    assertEquals(1, counter.get());
+  }
+
+  @Test
+  public void testParse_NamedVarArrayWithCustomOrder() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("short k; <var:-12345 [2334] Some; int;");
+
+    final AtomicInteger counter = new AtomicInteger(0);
+
+    final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
+
+      public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        assertNotNull(inStream);
+        final int value = inStream.readByte();
+        assertEquals(33, value);
+        assertEquals(0x0908, numericFieldMap.findFieldForType(JBBPFieldShort.class).getAsInt());
+
+        assertEquals("some", fieldName.getFieldName());
+        assertEquals(-12345, extraValue);
+        assertEquals(2334, arraySize);
+        assertEquals(JBBPByteOrder.LITTLE_ENDIAN, byteOrder);
+
+        counter.incrementAndGet();
+
+        return new JBBPFieldArrayByte(fieldName, new byte[]{(byte) value});
+      }
+
+      public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        fail("Must not be called");
+        return null;
+      }
+    }, null);
+
+    assertArrayEquals(new byte[]{33}, struct.findFieldForNameAndType("some", JBBPFieldArrayByte.class).getArray());
+    assertEquals(1, counter.get());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testParse_SingleNonamedVarArray_ErrorForNullResult() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("short k; var [k]; int;");
+
+    final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
+
+      public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        assertEquals(0x0908,arraySize);
+        return null;
+      }
+
+      public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        fail("Must not be called");
+        return null;
+      }
+    }, null);
+  }
+
+  @Test(expected = JBBPParsingException.class)
+  public void testParse_SingleNonamedVarArray_ErrorForDifferentName() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("short k; var [234] name; int;");
+
+    final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
+
+      public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        assertNotNull(fieldName);
+        return new JBBPFieldArrayByte(new JBBPNamedFieldInfo("jskdjhsd", "dlkjsf", 0), new byte[]{1});
+      }
+
+      public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        fail("Must not be called");
+        return null;
+      }
+    }, null);
+  }
+
+  
+  
+  
+  @Test
   public void testParse_SeveralPrimitiveFields() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("bit:4; bit:4; bool; byte; ubyte; short; ushort; int; long;");
     final JBBPFieldStruct result = parser.parse(new byte[]{0x12, 1, 87, (byte) 0xF3, 1, 2, (byte) 0xFE, 4, 6, 7, 8, 9, (byte) 0xFF, 1, 2, 3, 5, 6, 7, 8, 9});
@@ -370,6 +603,40 @@ public class JBBPParserTest {
   public void testParse_NonFixedBitArray_ParsedAsEmptyArray() throws Exception {
     final JBBPFieldStruct parsed = JBBPParser.prepare("byte; bit:4[_] array;").parse(new byte[]{1});
     assertEquals(0, parsed.findFieldForNameAndType("array", JBBPFieldArrayBit.class).size());
+  }
+
+  @Test
+  public void testParse_ProcessingOfExtraFieldValuesInSkippedStructureFields() throws Exception {
+    final JBBPFieldStruct parsed = JBBPParser.prepare("byte len; struct1 [len] { int a; var:23231223 [1024] helloarray; int b; bit:3; bit:7 [10233]; var:-1332 hello; skip:34221223; bit:7; bit:1; align:3445; bit:2; int skippedInt; long lng; insidestruct {bit:1; bit:2; bit:3;} } int end; ").parse(new byte[]{0,1,2,3,4},new JBBPVarFieldProcessor() {
+
+      public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(JBBPBitInputStream inStream, int arraySize, JBBPNamedFieldInfo fieldName, int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        fail("Must not be called");
+        return null;
+      }
+
+      public JBBPAbstractField readVarField(JBBPBitInputStream inStream, JBBPNamedFieldInfo fieldName, int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        fail("Must not be called");
+        return null;
+      }
+    },null);
+    assertEquals(0x01020304, parsed.findFieldForNameAndType("end", JBBPFieldInt.class).getAsInt());
+  }
+
+  @Test
+  public void testParse_ProcessingOfExtraFieldValuesInSkippedStructureFields1() throws Exception {
+    final JBBPFieldStruct parsed = JBBPParser.prepare("byte len; struct1 [len] {var:-1332 hello; align:3445; } int end; ").parse(new byte[]{0,1,2,3,4},new JBBPVarFieldProcessor() {
+
+      public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(JBBPBitInputStream inStream, int arraySize, JBBPNamedFieldInfo fieldName, int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        fail("Must not be called");
+        return null;
+      }
+
+      public JBBPAbstractField readVarField(JBBPBitInputStream inStream, JBBPNamedFieldInfo fieldName, int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        fail("Must not be called");
+        return null;
+      }
+    },null);
+    assertEquals(0x01020304, parsed.findFieldForNameAndType("end", JBBPFieldInt.class).getAsInt());
   }
 
   @Test

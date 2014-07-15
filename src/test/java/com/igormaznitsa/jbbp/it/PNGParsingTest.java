@@ -106,7 +106,7 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
               + "}"
       );
 
-      final JBBPFieldStruct result = pngParser.parse(pngStream, new JBBPExternalValueProvider() {
+      final JBBPFieldStruct result = pngParser.parse(pngStream, null, new JBBPExternalValueProvider() {
 
         public int provideArraySize(final String fieldName, final JBBPNamedNumericFieldMap numericFieldMap, final JBBPCompiledBlock compiledBlock) {
           if ("value".equals(fieldName)){

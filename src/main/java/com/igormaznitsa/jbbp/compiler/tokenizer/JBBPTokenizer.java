@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.igormaznitsa.jbbp.compiler.parser;
+package com.igormaznitsa.jbbp.compiler.tokenizer;
 
 import com.igormaznitsa.jbbp.exceptions.JBBPTokenizerException;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
@@ -45,7 +45,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
   /**
    * The Pattern to break field type to parameters.
    */
-  private static final Pattern FIELD_TYPE_BREAK_PATTERN = Pattern.compile("^([<>])?(\\w+)(?::(\\d+))?$");
+  private static final Pattern FIELD_TYPE_BREAK_PATTERN = Pattern.compile("^([<>])?(\\w+)(?::([-]?\\d+))?$");
 
   /**
    * Inside table to keep disabled names for fields.
@@ -164,7 +164,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
           if (typeMatcher.find()) {
             final String groupTypeByteOrder = typeMatcher.group(1);
             final String groupTypeName = typeMatcher.group(2);
-            final String groupTypeBitNumber = typeMatcher.group(3);
+            final String groupTypeExtraField = typeMatcher.group(3);
 
             wrongFormat = false;
 
@@ -182,7 +182,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
             }
 
             if (!wrongFormat) {
-              parsedType = new JBBPFieldTypeParameterContainer(byteOrder, groupTypeName, groupTypeBitNumber);
+              parsedType = new JBBPFieldTypeParameterContainer(byteOrder, groupTypeName, groupTypeExtraField);
             }
           }
 

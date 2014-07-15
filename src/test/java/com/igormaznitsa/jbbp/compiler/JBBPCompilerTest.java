@@ -15,7 +15,7 @@
  */
 package com.igormaznitsa.jbbp.compiler;
 
-import com.igormaznitsa.jbbp.compiler.parser.JBBPTokenType;
+import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPTokenType;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTokenizerException;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
@@ -85,7 +85,7 @@ public class JBBPCompilerTest {
   @Test
   public void testCompile_StructureAndArrayWithLengthFromStructureField() throws Exception {
     final JBBPCompiledBlock block = JBBPCompiler.compile("str {byte size;} byte[str.size] some;");
-    assertTrue(block.hasVarArrays());
+    assertTrue(block.hasEvaluatedSizeArrays());
     assertNotNull(block.findFieldForPath("str.size"));
     assertNotNull(block.findFieldForPath("some"));
   }
@@ -116,7 +116,7 @@ public class JBBPCompilerTest {
     JBBPCompiler.compile("align:0;");
   }
 
-  @Test(expected = JBBPTokenizerException.class)
+  @Test(expected = JBBPCompilationException.class)
   public void testCompile_ErrorForNegativeAlignValue() throws Exception {
     JBBPCompiler.compile("align:-1;");
   }
@@ -136,12 +136,12 @@ public class JBBPCompilerTest {
     JBBPCompiler.compile("skip [445] hello;");
   }
 
-  @Test(expected = JBBPCompilationException.class)
-  public void testCompile_ErrorForZeroSkipValue() throws Exception {
-    JBBPCompiler.compile("skip:0;");
+  @Test
+  public void testCompile_ZeroSkipValueIsAllowed() throws Exception {
+    assertArrayEquals(new byte[]{JBBPCompiler.CODE_SKIP, 0},JBBPCompiler.compile("skip:0;").getCompiledData());
   }
 
-  @Test(expected = JBBPTokenizerException.class)
+  @Test(expected = JBBPCompilationException.class)
   public void testCompile_ErrorForNegativeSkipValue() throws Exception {
     JBBPCompiler.compile("skip:-1;");
   }
@@ -229,7 +229,61 @@ public class JBBPCompilerTest {
   }
 
   @Test
-  public void testCompile_SingleAlignFieldWithoutValue() throws Exception {
+  public void testCompile_NonamedVarWithoutExtra() throws Exception {
+    final byte[] compiled = JBBPCompiler.compile("var;").getCompiledData();
+    assertArrayEquals(new byte[]{JBBPCompiler.CODE_VAR,0}, compiled);
+  }
+
+  @Test
+  public void testCompile_NonamedVarWithPositiveExtra() throws Exception {
+    final byte[] compiled = JBBPCompiler.compile("var:12;").getCompiledData();
+    assertArrayEquals(new byte[]{JBBPCompiler.CODE_VAR,12}, compiled);
+  }
+
+  @Test
+  public void testCompile_NonamedVarWithNegativeExtra() throws Exception {
+    final byte[] compiled = JBBPCompiler.compile("var:-1;").getCompiledData();
+    assertArrayEquals(new byte[]{JBBPCompiler.CODE_VAR,(byte)0x81,(byte)0xFF,(byte)0xFF,(byte)0xFF,(byte)0xFF}, compiled);
+  }
+
+  @Test
+  public void testCompile_NamedVarWithoutExtra() throws Exception {
+    final byte[] compiled = JBBPCompiler.compile("var VVV;").getCompiledData();
+    assertArrayEquals(new byte[]{JBBPCompiler.CODE_VAR | JBBPCompiler.FLAG_NAMED,0}, compiled);
+  }
+
+  @Test
+  public void testCompile_NamedVarWithPositiveExtra() throws Exception {
+    final byte[] compiled = JBBPCompiler.compile("var:12 VVV;").getCompiledData();
+    assertArrayEquals(new byte[]{JBBPCompiler.CODE_VAR | JBBPCompiler.FLAG_NAMED,12}, compiled);
+  }
+
+  @Test
+  public void testCompile_NamedVarWithNegativeExtra() throws Exception {
+    final byte[] compiled = JBBPCompiler.compile("var:-1 VVV;").getCompiledData();
+    assertArrayEquals(new byte[]{JBBPCompiler.CODE_VAR | JBBPCompiler.FLAG_NAMED,(byte)0x81,(byte)0xFF,(byte)0xFF,(byte)0xFF,(byte)0xFF}, compiled);
+  }
+
+  @Test
+  public void testCompile_NamedVarArrayWithoutExtra() throws Exception {
+    final byte[] compiled = JBBPCompiler.compile("var [98] VVV;").getCompiledData();
+    assertArrayEquals(new byte[]{JBBPCompiler.CODE_VAR | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_ARRAY,98,0}, compiled);
+  }
+
+  @Test
+  public void testCompile_NamedVarArrayWithPositiveExtra() throws Exception {
+    final byte[] compiled = JBBPCompiler.compile("var:12 [98] VVV;").getCompiledData();
+    assertArrayEquals(new byte[]{JBBPCompiler.CODE_VAR | JBBPCompiler.FLAG_ARRAY |JBBPCompiler.FLAG_NAMED, 98, 12}, compiled);
+  }
+
+  @Test
+  public void testCompile_NamedVarArrayWithNegativeExtra() throws Exception {
+    final byte[] compiled = JBBPCompiler.compile("var:-1 [98] VVV;").getCompiledData();
+    assertArrayEquals(new byte[]{JBBPCompiler.CODE_VAR | JBBPCompiler.FLAG_ARRAY|JBBPCompiler.FLAG_NAMED,98,(byte)0x81,(byte)0xFF,(byte)0xFF,(byte)0xFF,(byte)0xFF}, compiled);
+  }
+
+  @Test
+  public void testCompile_SingleAlignFieldWithoutExtra() throws Exception {
     final byte[] compiled = JBBPCompiler.compile("align;").getCompiledData();
     assertEquals(2, compiled.length);
     assertEquals(JBBPCompiler.CODE_ALIGN, compiled[0]);

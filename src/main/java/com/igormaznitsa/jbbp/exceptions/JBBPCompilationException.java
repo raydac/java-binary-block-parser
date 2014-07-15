@@ -15,7 +15,7 @@
  */
 package com.igormaznitsa.jbbp.exceptions;
 
-import com.igormaznitsa.jbbp.compiler.parser.JBBPToken;
+import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPToken;
 
 /**
  * The Exception can be thrown during compilation phase and may provide the problematic token.
