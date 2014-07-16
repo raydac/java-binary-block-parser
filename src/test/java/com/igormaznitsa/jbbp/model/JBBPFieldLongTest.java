@@ -52,5 +52,10 @@ public class JBBPFieldLongTest {
     assertEquals(-2343249987234L, new JBBPFieldLong(new JBBPNamedFieldInfo("test.field", "field", 123), -2343249987234L).getAsLong());
   }
 
+  @Test
+  public void testGetAsInvertedBitOrder() {
+    assertEquals(0x10E060A020C04080L, new JBBPFieldLong(new JBBPNamedFieldInfo("test.field", "field", 123), 0x0102030405060708L).getAsInvertedBitOrder());
+  }
+
   
 }

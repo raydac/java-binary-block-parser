@@ -19,22 +19,35 @@ package com.igormaznitsa.jbbp.io;
  * Constants allowed bit numbers for bit operations.
  */
 public enum JBBPBitNumber {
-  BITS_1(1),
-  BITS_2(2),
-  BITS_3(3),
-  BITS_4(4),
-  BITS_5(5),
-  BITS_6(6),
-  BITS_7(7),
-  BITS_8(8);
+  BITS_1(1,0x01),
+  BITS_2(2,0x03),
+  BITS_3(3,0x07),
+  BITS_4(4,0x0F),
+  BITS_5(5,0x1F),
+  BITS_6(6,0x3F),
+  BITS_7(7,0x7F),
+  BITS_8(8,0xFF);
 
   /**
    * Number of bits.
    */
   private final int numberOfBits;
+  /**
+   * Mask for the number of bits.
+   */
+  private final int mask;
   
-  private JBBPBitNumber(final int numberOfBits){
+  private JBBPBitNumber(final int numberOfBits, final int mask){
     this.numberOfBits = numberOfBits;
+    this.mask = mask;
+  }
+
+  /**
+   * Get the mask for the number of bits.
+   * @return the mask for the number of bits
+   */
+  public int getMask(){
+    return this.mask;
   }
   
   /**

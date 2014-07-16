@@ -26,11 +26,13 @@ public interface JBBPNumericField {
    * @return the field value as integer
    */
   int getAsInt();
+ 
   /**
    * Get the field value as long
    * @return the field value as long
    */
   long getAsLong();
+  
   /**
    * Get the field value as boolean, usually if the value is 0 then false, true otherwise.
    * @return the field value as boolean
@@ -42,4 +44,10 @@ public interface JBBPNumericField {
    * @return the field name info, it can be null for anonymous fields
    */
   JBBPNamedFieldInfo getNameInfo();
+  
+  /**
+   * Get the value in inverted bit order.
+   * @return the value in inverted bit order
+   */
+  long getAsInvertedBitOrder();
 }

@@ -16,6 +16,7 @@
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
  * Describes a unsigned short value field.
@@ -46,5 +47,12 @@ public final class JBBPFieldUShort extends JBBPAbstractField implements JBBPNume
 
   public boolean getAsBool() {
     return this.value != 0;
+  }
+  
+  public long getAsInvertedBitOrder() {
+    final int b0 = JBBPUtils.reverseByte((byte) this.value) & 0xFF;
+    final int b1 = JBBPUtils.reverseByte((byte) (this.value >> 8)) & 0xFF;
+
+    return (long) ((b0 << 8) | b1) & 0xFFFFL;
   }
 }

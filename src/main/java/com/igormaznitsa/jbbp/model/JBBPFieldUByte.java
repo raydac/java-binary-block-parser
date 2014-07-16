@@ -16,6 +16,7 @@
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
  * Describes a unsigned byte value field.
@@ -47,4 +48,9 @@ public final class JBBPFieldUByte extends JBBPAbstractField implements JBBPNumer
   public boolean getAsBool() {
     return this.value != 0;
   }
+  
+  public long getAsInvertedBitOrder() {
+    return JBBPUtils.reverseByte(this.value) & 0xFF;
+  }
+
 }

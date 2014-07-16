@@ -47,4 +47,8 @@ public final class JBBPFieldBoolean extends JBBPAbstractField implements JBBPNum
   public boolean getAsBool() {
     return this.value;
   }
+
+  public long getAsInvertedBitOrder() {
+    return this.getAsInt();
+  }  
 }

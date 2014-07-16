@@ -16,6 +16,8 @@
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.io.JBBPBitNumber;
+import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
  * Describes a bit field.
@@ -27,13 +29,29 @@ public final class JBBPFieldBit extends JBBPAbstractField implements JBBPNumeric
   private final int value;
   
   /**
+   * The Value shows how many bits are really contain the value in the byte.
+   */
+  private final JBBPBitNumber bitNumber;
+  
+  /**
    * The Constructor.
    * @param name a field name info, it can be null.
    * @param value the field value
+   * @param bitNumber number of valuable bits in the value, must not be null
    */
-  public JBBPFieldBit(final JBBPNamedFieldInfo name,final int value) {
+  public JBBPFieldBit(final JBBPNamedFieldInfo name,final int value, final JBBPBitNumber bitNumber) {
     super(name);
+    JBBPUtils.assertNotNull(bitNumber, "Number of bits must not be null");
+    this.bitNumber = bitNumber;
     this.value = value;
+  }
+  
+  /**
+   * Get number of valuable bits in the value. It plays informative role and doesn't play role during numeric value getting.
+   * @return the number of valuable bits in the value.
+   */
+  public JBBPBitNumber getBitNumber(){
+    return this.bitNumber;
   }
   
   public int getAsInt() {
@@ -47,6 +65,9 @@ public final class JBBPFieldBit extends JBBPAbstractField implements JBBPNumeric
   public boolean getAsBool() {
     return this.value != 0;
   }
+
+  public long getAsInvertedBitOrder() {
+    return JBBPUtils.reverseByte((byte)this.value) >>> (8-this.bitNumber.getBitNumber()) & this.bitNumber.getMask();
+  }
  
-  
 }

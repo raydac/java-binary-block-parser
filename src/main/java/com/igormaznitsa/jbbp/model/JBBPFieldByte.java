@@ -16,6 +16,7 @@
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
  * Describes a byte field.
@@ -47,6 +48,8 @@ public final class JBBPFieldByte extends JBBPAbstractField implements JBBPNumeri
   public boolean getAsBool() {
     return this.value != 0;
   }
-  
-  
+
+  public long getAsInvertedBitOrder() {
+    return JBBPUtils.reverseByte(this.value);
+  }
 }

@@ -16,19 +16,26 @@
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class JBBPFieldArrayBitTest {
   
-  private final JBBPFieldArrayBit test = new JBBPFieldArrayBit(new JBBPNamedFieldInfo("test.field", "field", 999),new byte [] {(byte)-1,0,1,2,3});
+  private final JBBPFieldArrayBit test = new JBBPFieldArrayBit(new JBBPNamedFieldInfo("test.field", "field", 999),new byte [] {(byte)-1,0,1,2,3}, JBBPBitNumber.BITS_1);
 
+  @Test(expected=NullPointerException.class)
+  public void testConstructor_NPEForNullBitNumber(){
+    new JBBPFieldArrayBit(new JBBPNamedFieldInfo("test.field", "field", 999), new byte[]{(byte) -1, 0, 1, 2, 3}, null);
+  }
+  
   @Test
   public void testNameAndOffset(){
     assertEquals("test.field",test.getFieldPath());
     assertEquals("field",test.getFieldName());
     assertNotNull(test.getNameInfo());
     assertEquals(999,test.getNameInfo().getFieldOffsetInCompiledBlock());
+    assertEquals(JBBPBitNumber.BITS_1,test.getBitNumber());
   }
   
   @Test

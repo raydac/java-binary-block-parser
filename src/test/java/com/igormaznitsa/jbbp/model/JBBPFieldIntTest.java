@@ -53,5 +53,12 @@ public class JBBPFieldIntTest {
   }
 
   
+  @Test
+  public void testGetAsInvertedBitOrder() {
+    assertEquals(0x0000000020C04080L, new JBBPFieldInt(new JBBPNamedFieldInfo("test.field", "field", 123), 0x01020304).getAsInvertedBitOrder());
+    assertEquals(0x000000007FFFFFFFL, new JBBPFieldInt(new JBBPNamedFieldInfo("test.field", "field", 123), 0xFFFFFFFE).getAsInvertedBitOrder());
+    assertEquals(0xFFFFFFFF80000000L, new JBBPFieldInt(new JBBPNamedFieldInfo("test.field", "field", 123), 0x00000001).getAsInvertedBitOrder());
+  }
+
   
 }

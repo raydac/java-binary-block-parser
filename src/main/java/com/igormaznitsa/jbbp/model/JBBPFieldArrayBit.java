@@ -16,6 +16,7 @@
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
@@ -24,28 +25,48 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 public final class JBBPFieldArrayBit extends JBBPAbstractArrayField<JBBPFieldBit> {
 
   /**
+   * Number of value bits in values of the array.
+   */
+  private final JBBPBitNumber bitNumber;
+
+  /**
    * Bit values.
    */
-  private final byte [] array;
+  private final byte[] array;
 
   /**
    * The Constructor.
+   *
    * @param name the field name info, it can be null.
    * @param array the byte array contains values, it must not be null
+   * @param bitNumber number of valuable bits in values of the array, it must
+   * not be null
    */
-  public JBBPFieldArrayBit(final JBBPNamedFieldInfo name,final byte[] array) {
+  public JBBPFieldArrayBit(final JBBPNamedFieldInfo name, final byte[] array, final JBBPBitNumber bitNumber) {
     super(name);
     JBBPUtils.assertNotNull(array, "Array must not be null");
+    JBBPUtils.assertNotNull(bitNumber, "Bit number must not be null");
     this.array = array;
+    this.bitNumber = bitNumber;
   }
-  
+
   /**
    * Get values as a byte array.
+   *
    * @return the value array
    */
-  public byte [] getArray(){
+  public byte[] getArray() {
     return this.array.clone();
   }
+
+  /**
+   * get the valuable bit number of values in the array.
+   * @return the valuable bit number, must not be null
+   */
+  public JBBPBitNumber getBitNumber() {
+    return this.bitNumber;
+  }
+  
   
   @Override
   public int size() {
@@ -54,7 +75,7 @@ public final class JBBPFieldArrayBit extends JBBPAbstractArrayField<JBBPFieldBit
 
   @Override
   public JBBPFieldBit getElementAt(final int index) {
-    return new JBBPFieldBit(this.fieldNameInfo, this.getAsInt(index));
+    return new JBBPFieldBit(this.fieldNameInfo, this.getAsInt(index), this.bitNumber);
   }
 
   @Override
@@ -69,8 +90,7 @@ public final class JBBPFieldArrayBit extends JBBPAbstractArrayField<JBBPFieldBit
 
   @Override
   public boolean getAsBool(final int index) {
-    return this.array[index]!=0;
+    return this.array[index] != 0;
   }
 
-  
 }

@@ -16,6 +16,7 @@
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
  * Describes an integer field.
@@ -48,5 +49,12 @@ public final class JBBPFieldInt extends JBBPAbstractField implements JBBPNumeric
     return this.value != 0;
   }
 
-  
+  public long getAsInvertedBitOrder() {
+    final int b0 = JBBPUtils.reverseByte((byte)this.value) & 0xFF;
+    final int b1 = JBBPUtils.reverseByte((byte)(this.value>>8)) & 0xFF;
+    final int b2 = JBBPUtils.reverseByte((byte)(this.value>>16)) & 0xFF;
+    final int b3 = JBBPUtils.reverseByte((byte)(this.value>>24)) & 0xFF;
+    
+    return (long)((b0<<24) | (b1<<16) | (b2<<8) | b3);
+  }
 }

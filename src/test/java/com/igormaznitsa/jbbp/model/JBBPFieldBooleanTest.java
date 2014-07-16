@@ -16,6 +16,7 @@
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -52,5 +53,10 @@ public class JBBPFieldBooleanTest {
     assertEquals(0L & 0xFFL, new JBBPFieldBoolean(new JBBPNamedFieldInfo("test.field", "field", 123), false).getAsLong());
   }
 
+  @Test
+  public void testGetAsInvertedBitOrder() {
+    assertEquals(0L, new JBBPFieldBoolean(new JBBPNamedFieldInfo("test.field", "field", 123), false).getAsInvertedBitOrder());
+    assertEquals(1L, new JBBPFieldBoolean(new JBBPNamedFieldInfo("test.field", "field", 123), true).getAsInvertedBitOrder());
+  }
   
 }

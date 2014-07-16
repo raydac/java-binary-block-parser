@@ -16,6 +16,7 @@
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
  * Describes a short value field.
@@ -48,5 +49,11 @@ public final class JBBPFieldShort extends JBBPAbstractField implements JBBPNumer
     return this.value != 0;
   }
   
+  public long getAsInvertedBitOrder() {
+    final int b0 = JBBPUtils.reverseByte((byte) this.value) & 0xFF;
+    final int b1 = JBBPUtils.reverseByte((byte) (this.value >> 8)) & 0xFF;
+
+    return (long) ((short)(b0 << 8) | (short)b1);
+  }
   
 }
