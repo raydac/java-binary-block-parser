@@ -172,7 +172,6 @@ public final class JBBPParser {
         }
         break;
         case JBBPCompiler.CODE_VAR: {
-          JBBPUtils.assertNotNull(varFieldProcessor, "A Var field processor must be defined if a script contains any var field.");
           final int extraField = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
           if (resultNotIgnored) {
             if (arrayLength < 0) {
@@ -186,7 +185,7 @@ public final class JBBPParser {
               }
             }
             else {
-              final JBBPAbstractArrayField<? extends JBBPAbstractField> array = varFieldProcessor.readVarArray(inStream, arrayLength, name, extraField, byteOrder, namedNumericFieldMap);
+              final JBBPAbstractArrayField<? extends JBBPAbstractField> array = varFieldProcessor.readVarArray(inStream, wholeStreamArray ? -1 : arrayLength, name, extraField, byteOrder, namedNumericFieldMap);
               JBBPUtils.assertNotNull(array, "A Var processor must not return null as a result of an array field reading [" + name + ':' + extraField + ']');
               if (array.getNameInfo() != name) {
                 throw new JBBPParsingException("Detected wrong name for a read field array, must be " + name + " but detected " + array.getNameInfo() + ']');
@@ -402,6 +401,10 @@ public final class JBBPParser {
     }
     else {
       fieldMap = null;
+    }
+
+    if (this.compiledBlock.hasVarFields()) {
+      JBBPUtils.assertNotNull(varFieldProcessor, "The Script contains VAR fields, a var field processor must be provided");
     }
 
     return new JBBPFieldStruct(new JBBPNamedFieldInfo("", "", -1), parseStruct(bitInStream, new AtomicInteger(), varFieldProcessor, fieldMap, new AtomicInteger(), new AtomicInteger(), false));

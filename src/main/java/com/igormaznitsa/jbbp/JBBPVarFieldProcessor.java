@@ -29,7 +29,7 @@ public interface JBBPVarFieldProcessor {
   /**
    * Read a field array from a stream. The Method must read a field array from a stream and return the value with the provided field name info.
    * @param inStream the data source bit stream, it must not be null
-   * @param arraySize the array size, it can be 0 but must not be negative one
+   * @param arraySize the array size, if it is negative one then whole stream must be read
    * @param fieldName the field name info for the VAR field, it can be null for anonymous fields
    * @param extraValue the extra value for the field, by default it is 0, it is the integer value after ':' char in the field type
    * @param byteOrder the byte order for the field, it must not be null
