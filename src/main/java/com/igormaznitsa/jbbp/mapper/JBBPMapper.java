@@ -22,24 +22,27 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.lang.reflect.*;
 
 /**
- * The Class processes mapping of a parsed binary data to class fields.
+ * The Class processes mapping of a parsed binary data to class fields. The
+ * Class uses sun.misc.Unsafe which creates class instances without any
+ * constructor call.
+ *
+ * @see sun.misc.Unsafe
  */
 public class JBBPMapper {
 
-  private static final Object[] DEFAULT_CONSTRUCTOR_ARGUMENTS = new Object[0];
-  private static final sun.misc.Unsafe SUN_UNSAFE;
-  
+  private static final sun.misc.Unsafe SUN_MISC_UNSAFE;
+
   static {
     try {
-        Field singleoneInstanceField = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
-        singleoneInstanceField.setAccessible(true);
-        SUN_UNSAFE = (sun.misc.Unsafe) singleoneInstanceField.get(null);
-      }
-      catch (Exception e) {
-        throw new Error("Can't get sun.misc.Unsafe");
-      }
+      final Field singleoneInstanceField = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
+      singleoneInstanceField.setAccessible(true);
+      SUN_MISC_UNSAFE = (sun.misc.Unsafe) singleoneInstanceField.get(null);
+    }
+    catch (Exception e) {
+      throw new Error("Can't get sun.misc.Unsafe");
+    }
   }
-  
+
   /**
    * Create a class instance, map binary data of a structure for its path to its
    * fields and return the instance.
@@ -62,7 +65,8 @@ public class JBBPMapper {
 
   /**
    * Create a class instance, map binary data of a structure to the instance and
-   * return it.
+   * return it. It will create a class instance through a hack method and its
+   * constructor will not be called, thus use the method carefully.
    *
    * @param <T> the mapping class type
    * @param root a parsed structure to be mapped to the class instance, must not
@@ -73,7 +77,7 @@ public class JBBPMapper {
    * @throws JBBPMapperException for any error
    */
   public static <T> T map(final JBBPFieldStruct root, final Class<T> mappingClass) {
-    return mappingClass.cast(map(root,makeInstanceOfClass(root, mappingClass)));
+    return mappingClass.cast(map(root, makeInstanceOfClass(root, mappingClass)));
   }
 
   /**
@@ -259,26 +263,11 @@ public class JBBPMapper {
   }
 
   private static <T> T makeInstanceOfClass(final JBBPFieldStruct root, final Class<T> klazz) {
-    Object result;
-
-    if (Modifier.isStatic(klazz.getModifiers())) {
-      try {
-        final Constructor constr = klazz.getDeclaredConstructors()[0];
-        constr.setAccessible(true);
-        result = constr.newInstance(DEFAULT_CONSTRUCTOR_ARGUMENTS);
-      }
-      catch (Exception ex) {
-        throw new JBBPMapperException("Can't make an instance of a mapping class, may be it has not the default empty constructor or it is not accessible", root, klazz, null, ex);
-      }
+    try {
+      return klazz.cast(SUN_MISC_UNSAFE.allocateInstance(klazz));
     }
-    else {
-      try {
-        result = SUN_UNSAFE.allocateInstance(klazz);
-      }
-      catch (Exception ex) {
-        throw new JBBPMapperException("Can't make an instance of a non-static internal class", root, klazz, null, ex);
-      }
+    catch (InstantiationException ex) {
+      throw new JBBPMapperException("Can't make an instance of a class", root, klazz, null, ex);
     }
-    return klazz.cast(result);
   }
 }
