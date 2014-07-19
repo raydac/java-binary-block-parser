@@ -48,12 +48,16 @@ public final class JBBPFieldShort extends JBBPAbstractField implements JBBPNumer
   public boolean getAsBool() {
     return this.value != 0;
   }
+
+  public static long reverseBits(final short value) {
+    final int b0 = JBBPUtils.reverseByte((byte) value) & 0xFF;
+    final int b1 = JBBPUtils.reverseByte((byte) (value >> 8)) & 0xFF;
+
+    return (long) ((short) (b0 << 8) | (short) b1);
+  }
   
   public long getAsInvertedBitOrder() {
-    final int b0 = JBBPUtils.reverseByte((byte) this.value) & 0xFF;
-    final int b1 = JBBPUtils.reverseByte((byte) (this.value >> 8)) & 0xFF;
-
-    return (long) ((short)(b0 << 8) | (short)b1);
+    return reverseBits(this.value);
   }
   
 }

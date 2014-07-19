@@ -66,8 +66,12 @@ public final class JBBPFieldBit extends JBBPAbstractField implements JBBPNumeric
     return this.value != 0;
   }
 
+  public static long reverseBits(final byte value, final JBBPBitNumber bits){
+    return JBBPUtils.reverseByte(value) >>> (8 - bits.getBitNumber()) & bits.getMask();
+  }
+  
   public long getAsInvertedBitOrder() {
-    return JBBPUtils.reverseByte((byte)this.value) >>> (8-this.bitNumber.getBitNumber()) & this.bitNumber.getMask();
+    return reverseBits((byte)this.value, this.bitNumber);
   }
  
 }

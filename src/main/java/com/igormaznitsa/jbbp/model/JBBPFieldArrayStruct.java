@@ -71,5 +71,8 @@ public final class JBBPFieldArrayStruct extends JBBPAbstractArrayField<JBBPField
     throw new UnsupportedOperationException("Structure can't be mapped to boolean");
   }
 
-  
+  @Override
+  public Object getValueArrayAsObject(final boolean reverseBits) {
+    return this.structs.clone();
+  }
 }

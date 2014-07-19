@@ -49,7 +49,11 @@ public final class JBBPFieldByte extends JBBPAbstractField implements JBBPNumeri
     return this.value != 0;
   }
 
+  public static long reverseBits(final byte value){
+    return JBBPUtils.reverseByte(value);
+  }
+  
   public long getAsInvertedBitOrder() {
-    return JBBPUtils.reverseByte(this.value);
+    return reverseBits(this.value);
   }
 }

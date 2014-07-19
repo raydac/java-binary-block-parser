@@ -49,17 +49,21 @@ public final class JBBPFieldLong extends JBBPAbstractField implements JBBPNumeri
     return this.value != 0;
   }
 
-  public long getAsInvertedBitOrder() {
-    final long b0 = JBBPUtils.reverseByte((byte) this.value) & 0xFFL;
-    final long b1 = JBBPUtils.reverseByte((byte) (this.value >> 8)) & 0xFFL;
-    final long b2 = JBBPUtils.reverseByte((byte) (this.value >> 16)) & 0xFFL;
-    final long b3 = JBBPUtils.reverseByte((byte) (this.value >> 24)) & 0xFFL;
-    final long b4 = JBBPUtils.reverseByte((byte) (this.value >> 32)) & 0xFFL;
-    final long b5 = JBBPUtils.reverseByte((byte) (this.value >> 40)) & 0xFFL;
-    final long b6 = JBBPUtils.reverseByte((byte) (this.value >> 48)) & 0xFFL;
-    final long b7 = JBBPUtils.reverseByte((byte) (this.value >> 56)) & 0xFFL;
+  public static long reverseBits(final long value) {
+    final long b0 = JBBPUtils.reverseByte((byte) value) & 0xFFL;
+    final long b1 = JBBPUtils.reverseByte((byte) (value >> 8)) & 0xFFL;
+    final long b2 = JBBPUtils.reverseByte((byte) (value >> 16)) & 0xFFL;
+    final long b3 = JBBPUtils.reverseByte((byte) (value >> 24)) & 0xFFL;
+    final long b4 = JBBPUtils.reverseByte((byte) (value >> 32)) & 0xFFL;
+    final long b5 = JBBPUtils.reverseByte((byte) (value >> 40)) & 0xFFL;
+    final long b6 = JBBPUtils.reverseByte((byte) (value >> 48)) & 0xFFL;
+    final long b7 = JBBPUtils.reverseByte((byte) (value >> 56)) & 0xFFL;
 
     return (b0 << 56) | (b1 << 48) | (b2 << 40) | (b3 << 32) | (b4 << 24) | (b5 << 16) | (b6 << 8) | b7;
+  }
+  
+  public long getAsInvertedBitOrder() {
+    return reverseBits(this.value);
   }
 
 }

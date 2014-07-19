@@ -18,6 +18,7 @@ package com.igormaznitsa.jbbp.model;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.exceptions.JBBPFinderException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTooManyFieldsFoundException;
+import com.igormaznitsa.jbbp.mapper.JBBPMapper;
 import com.igormaznitsa.jbbp.model.finder.JBBPFieldFinder;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.util.List;
@@ -102,53 +103,49 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
     return null;
   }
 
-  @SuppressWarnings("unchecked")
-  public <T extends JBBPAbstractField> T findFieldForType(final Class<T> klazz) {
+  public <T extends JBBPAbstractField> T findFieldForType(final Class<T> fieldType) {
     T result = null;
 
     int counter = 0;
 
     for (final JBBPAbstractField f : this.fields) {
-      if (klazz.isAssignableFrom(f.getClass())) {
+      if (fieldType.isAssignableFrom(f.getClass())) {
         if (result == null) {
-          result = (T) f;
+          result = fieldType.cast(f);
         }
         counter++;
       }
     }
     if (counter > 1) {
-      throw new JBBPTooManyFieldsFoundException(counter, "Detected more than one field", null, klazz);
+      throw new JBBPTooManyFieldsFoundException(counter, "Detected more than one field", null, fieldType);
     }
     return result;
   }
 
-  @SuppressWarnings("unchecked")
-  public <T extends JBBPAbstractField> T findFirstFieldForType(final Class<T> klazz) {
+  public <T extends JBBPAbstractField> T findFirstFieldForType(final Class<T> fieldType) {
     for (final JBBPAbstractField f : this.fields) {
-      if (klazz.isAssignableFrom(f.getClass())) {
-        return (T) f;
+      if (fieldType.isAssignableFrom(f.getClass())) {
+        return fieldType.cast(f);
       }
     }
     return null;
   }
 
-  @SuppressWarnings("unchecked")
-  public <T extends JBBPAbstractField> T findLastFieldForType(final Class<T> klazz) {
+ public <T extends JBBPAbstractField> T findLastFieldForType(final Class<T> fieldType) {
     for (int i = this.fields.length - 1; i >= 0; i--) {
       final JBBPAbstractField f = this.fields[i];
-      if (klazz.isAssignableFrom(f.getClass())) {
-        return (T) f;
+      if (fieldType.isAssignableFrom(f.getClass())) {
+        return fieldType.cast(f);
       }
     }
     return null;
   }
 
-  @SuppressWarnings("unchecked")
-  public <T extends JBBPAbstractField> T findFieldForNameAndType(final String fieldName, final Class<T> klazz) {
+  public <T extends JBBPAbstractField> T findFieldForNameAndType(final String fieldName, final Class<T> fieldType) {
     final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(fieldName);
     for (final JBBPAbstractField f : this.fields) {
-      if (klazz.isAssignableFrom(f.getClass()) && normalizedName.equals(f.getFieldName())) {
-        return (T) f;
+      if (fieldType.isAssignableFrom(f.getClass()) && normalizedName.equals(f.getFieldName())) {
+        return fieldType.cast(f);
       }
     }
     return null;
@@ -183,4 +180,23 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
     return null;
   }
 
+  /**
+   * Map the structure fields to a class fields.
+   * @param <T> a class type
+   * @param mappingClass a mapping class to be mapped by the structure fields, must not be null and must have the default constructor
+   * @return a mapped instance of the class, must not be null
+   */
+  public <T> T mapTo(final Class<T> mappingClass){
+    return JBBPMapper.map(this, mappingClass);
+  }
+  
+  /**
+   * Map the structure fields to object fields.
+   * @param objectToMap an object to map fields of the structure, must not be null
+   * @return the same object from the arguments but with filled fields by values of the structure
+   */
+  public Object mapTo(final Object objectToMap){
+    return JBBPMapper.map(this, objectToMap);
+  }
+  
 }

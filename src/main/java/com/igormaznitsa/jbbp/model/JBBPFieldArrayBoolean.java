@@ -71,5 +71,8 @@ public final class JBBPFieldArrayBoolean extends JBBPAbstractArrayField<JBBPFiel
     return this.array[index];
   }
 
-
+  @Override
+  public Object getValueArrayAsObject(final boolean reverseBits) {
+    return this.array.clone ();
+  }
 }

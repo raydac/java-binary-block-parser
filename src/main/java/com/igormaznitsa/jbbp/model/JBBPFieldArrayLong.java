@@ -71,5 +71,18 @@ public final class JBBPFieldArrayLong extends JBBPAbstractArrayField<JBBPFieldLo
     return this.array[index]!=0L;
   }
   
-  
+  @Override
+  public Object getValueArrayAsObject(final boolean reverseBits) {
+    final long[] result;
+    if (reverseBits) {
+      result = this.array.clone();
+      for (int i = 0; i < result.length; i++) {
+        result[i] = JBBPFieldLong.reverseBits(result[i]);
+      }
+    }
+    else {
+      result = this.array.clone();
+    }
+    return result;
+  }
 }

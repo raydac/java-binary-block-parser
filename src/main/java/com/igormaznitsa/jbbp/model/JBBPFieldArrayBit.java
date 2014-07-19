@@ -93,4 +93,17 @@ public final class JBBPFieldArrayBit extends JBBPAbstractArrayField<JBBPFieldBit
     return this.array[index] != 0;
   }
 
+  @Override
+  public Object getValueArrayAsObject(final boolean reverseBits) {
+    final byte [] result;
+    if (reverseBits){
+      result = this.array.clone();
+      for(int i =0; i<result.length; i++){
+        result[i] = (byte)JBBPFieldBit.reverseBits(result[i], this.bitNumber);
+      }
+    }else{
+      result = this.array.clone();
+    }
+    return result;
+  }
 }

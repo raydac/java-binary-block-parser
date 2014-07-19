@@ -70,6 +70,13 @@ public abstract class JBBPAbstractArrayField<T extends JBBPAbstractField> extend
   public abstract boolean getAsBool(int index);
 
   /**
+   * Get the value array as an object.
+   * @param reverseBits reverse bit order in values
+   * @return the value array as an object
+   */
+  public abstract Object getValueArrayAsObject(boolean reverseBits);
+  
+  /**
    * Generates an iterator to allow the array processing in loops.
    * @return an iterator for the array
    */

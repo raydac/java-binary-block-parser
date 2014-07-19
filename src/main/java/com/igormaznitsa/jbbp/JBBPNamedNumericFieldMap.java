@@ -114,37 +114,34 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
     return null;
   }
 
-  @SuppressWarnings("unchecked")
   public <T extends JBBPAbstractField> T findFirstFieldForType(final Class<T> fieldType) {
     JBBPUtils.assertNotNull(fieldType, "Type must not be null");
     for (final JBBPNumericField f : fieldMap.values()) {
       if (fieldType.isAssignableFrom(f.getClass())) {
-        return (T) f;
+        return fieldType.cast(f);
       }
     }
     return null;
   }
 
-  @SuppressWarnings("unchecked")
   public <T extends JBBPAbstractField> T findLastFieldForType(final Class<T> fieldType) {
     JBBPUtils.assertNotNull(fieldType, "Type must not be null");
     T result = null;
     for (final JBBPNumericField f : fieldMap.values()) {
       if (fieldType == f.getClass()) {
-        result = (T) f;
+        result = fieldType.cast(f);
       }
     }
     return result;
   }
 
-  @SuppressWarnings("unchecked")
   public <T extends JBBPAbstractField> T findFieldForType(final Class<T> fieldType) {
     JBBPUtils.assertNotNull(fieldType, "Type must not be null");
     int count = 0;
     T result = null;
     for (final JBBPNumericField f : fieldMap.values()) {
       if (fieldType == f.getClass()) {
-        result = (T) f;
+        result = fieldType.cast(f);
         count++;
       }
     }
@@ -154,25 +151,23 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
     return result;
   }
 
-  @SuppressWarnings("unchecked")
   public <T extends JBBPAbstractField> T findFieldForNameAndType(final String fieldName, final Class<T> fieldType) {
     final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(fieldName);
     JBBPUtils.assertNotNull(fieldType, "Field type must not be null");
     for (final Map.Entry<JBBPNamedFieldInfo, JBBPNumericField> f : fieldMap.entrySet()) {
       if (normalizedName.equals(f.getKey().getFieldName()) && fieldType.isAssignableFrom(f.getValue().getClass())) {
-        return (T) f.getValue();
+        return fieldType.cast(f.getValue());
       }
     }
     return null;
   }
 
-  @SuppressWarnings("unchecked")
   public <T extends JBBPAbstractField> T findFieldForPathAndType(final String fieldPath, final Class<T> fieldType) {
     final String normalizedPath = JBBPUtils.normalizeFieldNameOrPath(fieldPath);
     JBBPUtils.assertNotNull(fieldType, "Field type must not be null");
     for (final Map.Entry<JBBPNamedFieldInfo, JBBPNumericField> f : fieldMap.entrySet()) {
       if (normalizedPath.equals(f.getKey().getFieldPath()) && fieldType.isAssignableFrom(f.getValue().getClass())) {
-        return (T) f.getValue();
+        return fieldType.cast(f.getValue());
       }
     }
     return null;

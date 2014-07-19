@@ -15,11 +15,12 @@
  */
 package com.igormaznitsa.jbbp.model;
 
+import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.exceptions.JBBPFinderException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTooManyFieldsFoundException;
+import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-import java.util.Arrays;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -184,4 +185,24 @@ public class JBBPFieldStructTest {
     assertTrue(struct.nameExists("field3"));
   }
 
+  private class ClassTestMapToClass {
+    @Bin byte b;
+    @Bin byte a;
+    @Bin byte c;
+  }
+  
+  @Test
+  public void testMapTo_Class() throws Exception {
+    final ClassTestMapToClass mapped = JBBPParser.prepare("byte a; byte b; byte c;").parse(new byte[]{1,2,3}).mapTo(ClassTestMapToClass.class);
+  
+    assertEquals(1, mapped.a);
+    assertEquals(2, mapped.b);
+    assertEquals(3, mapped.c);
+  }
+  
+  @Test
+  public void testMapTo_Object() throws Exception {
+    
+  }
+  
 }
