@@ -207,7 +207,7 @@ public class JBBPMapper {
    * be reversed in its bit before setting
    */
   private static void mapNumericField(final Object mappingClassInstance, final Field mappingField, final JBBPNumericField numericField, final boolean invertBitOrder) {
-    final Class fieldClass = mappingField.getType();
+    final Class<?> fieldClass = mappingField.getType();
     try {
       if (fieldClass == byte.class) {
         mappingField.setByte(mappingClassInstance, (byte) (invertBitOrder ? numericField.getAsInvertedBitOrder() : numericField.getAsInt()));
@@ -257,7 +257,16 @@ public class JBBPMapper {
    */
   private static void mapArrayField(final Object mappingClassInstance, final Field mappingField, final JBBPAbstractArrayField<?> arrayField, final boolean invertBitOrder) {
     try {
-      mappingField.set(mappingClassInstance, arrayField.getValueArrayAsObject(invertBitOrder));
+      if(arrayField instanceof JBBPFieldArrayUShort && mappingField.getType().getComponentType() == char.class){
+        final short [] shortarray = (short[])arrayField.getValueArrayAsObject(invertBitOrder);
+        final char [] chararray = new char[shortarray.length];
+        for(int i=0;i<shortarray.length;i++){
+          chararray[i] = (char)shortarray[i];
+        }
+        mappingField.set(mappingClassInstance, chararray);
+      }else{
+        mappingField.set(mappingClassInstance, arrayField.getValueArrayAsObject(invertBitOrder));
+      }
     }
     catch (IllegalAccessException ex) {
       throw new JBBPMapperException("Can't get access to a mapping field", arrayField, mappingClassInstance.getClass(), mappingField, ex);

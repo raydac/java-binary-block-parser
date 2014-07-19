@@ -91,7 +91,7 @@ public class JBBPMapperTest {
   @Test
   public void testMap_UShort() throws Exception {
     class Mapped {
-      @Bin(type = BinType.USHORT) int a;
+      @Bin char a;
     };
     assertEquals(0x0102,JBBPParser.prepare("ushort a;").parse(new byte[]{1,2}).mapTo(Mapped.class).a);
   }
@@ -138,9 +138,9 @@ public class JBBPMapperTest {
   @Test
   public void testMap_UShortArray() throws Exception {
     class Mapped {
-      @Bin(type = BinType.USHORT_ARRAY) short[] a;
+      @Bin char[] a;
     };
-    assertArrayEquals(new short[]{0x0102, 0x0304}, JBBPParser.prepare("ushort [_] a;").parse(new byte[]{1, 2, 3, 4}).mapTo(Mapped.class).a);
+    assertArrayEquals(new char[]{0x0102, 0x0304}, JBBPParser.prepare("ushort [_] a;").parse(new byte[]{1, 2, 3, 4}).mapTo(Mapped.class).a);
   }
 
   @Test
