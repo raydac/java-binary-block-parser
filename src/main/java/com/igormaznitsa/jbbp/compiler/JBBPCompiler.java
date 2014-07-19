@@ -53,13 +53,19 @@ public final class JBBPCompiler {
     private final JBBPToken token;
 
     /**
+     * Named field counter value for the structure start.
+     */
+    private final int namedFieldCounter;
+    
+    /**
      * The Constructor.
-     *
+     * @param namedFieldCounter the named field counter value for the structure start
      * @param startOffset the structure start offset
      * @param code the start byte code
      * @param token the token
      */
-    private StructStackItem(int startOffset, int code, JBBPToken token) {
+    private StructStackItem(final int namedFieldCounter, final int startOffset, final int code, final JBBPToken token) {
+      this.namedFieldCounter = namedFieldCounter;
       this.startOffset = startOffset;
       this.code = code;
       this.token = token;
@@ -293,7 +299,7 @@ public final class JBBPCompiler {
         }
         break;
         case CODE_STRUCT_START: {
-          structureStack.add(new StructStackItem(offset - 1, code, token));
+          structureStack.add(new StructStackItem(namedFields.size() + ((code & JBBPCompiler.FLAG_NAMED)==0 ? 0 : 1), offset - 1, code, token));
         }
         break;
         case CODE_STRUCT_END: {
@@ -340,7 +346,7 @@ public final class JBBPCompiler {
       if ((code & FLAG_NAMED) != 0) {
         final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(token.getFieldName());
         assertName(normalizedName, token);
-        registerNamedField(normalizedName, startFieldOffset, namedFields, token);
+        registerNamedField(normalizedName, structureStack.isEmpty() ? 0 : structureStack.get(structureStack.size()-1).namedFieldCounter, startFieldOffset, namedFields, token);
       }
       else {
         if (currentClosedStructure != null && (currentClosedStructure.code & FLAG_NAMED) != 0) {
@@ -411,13 +417,14 @@ public final class JBBPCompiler {
    * @throws JBBPCompilationException if there is already a registered field for
    * the path
    */
-  private static void registerNamedField(final String normalizedName, final int offset, final List<JBBPNamedFieldInfo> namedFields, final JBBPToken token) {
-    if (JBBPCompilerUtils.findForFieldPath(normalizedName, namedFields) == null) {
-      namedFields.add(new JBBPNamedFieldInfo(normalizedName, normalizedName, offset));
+  private static void registerNamedField(final String normalizedName, final int structureBorder, final int offset, final List<JBBPNamedFieldInfo> namedFields, final JBBPToken token) {
+    for(int i=namedFields.size()-1;i>=structureBorder;i--){
+      final JBBPNamedFieldInfo info = namedFields.get(i);
+      if (info.getFieldPath().equals(normalizedName)){
+        throw new JBBPCompilationException("Duplicated named field detected [" + normalizedName + ']', token);
+      }
     }
-    else {
-      throw new JBBPCompilationException("Duplicated named field detected [" + normalizedName + ']', token);
-    }
+    namedFields.add(new JBBPNamedFieldInfo(normalizedName, normalizedName, offset));
   }
 
   /**

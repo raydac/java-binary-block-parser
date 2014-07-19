@@ -22,7 +22,6 @@ import com.igormaznitsa.jbbp.exceptions.JBBPTooManyFieldsFoundException;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.model.*;
-import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -519,7 +518,20 @@ public class JBBPParserTest {
     }, null);
   }
 
+  @Test(expected = EOFException.class)
+  public void testParse_BitFields_EOF() throws Exception {
+    JBBPParser.prepare("bit:4;").parse(new byte[0]);
+  }
   
+  @Test(expected = EOFException.class)
+  public void testParse_BitFieldArray_EOF() throws Exception {
+    JBBPParser.prepare("bit:4 [1];").parse(new byte[0]);
+  }
+  
+  @Test
+  public void testParse_BitFieldArrayWholeStream() throws Exception {
+    assertEquals(0,JBBPParser.prepare("bit:4 [_];").parse(new byte[0]).findFieldForType(JBBPFieldArrayBit.class).size());
+  }
   
   
   @Test

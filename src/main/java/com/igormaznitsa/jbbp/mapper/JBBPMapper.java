@@ -104,10 +104,15 @@ public class JBBPMapper {
         continue;
       }
 
-      final BinType fieldType = mappedAnno.type() == BinType.UNDEFINED ? BinType.findCompatible(mappingField.getType()) : mappedAnno.type();
-
-      if (fieldType == null) {
-        throw new JBBPMapperException("Can't find compatible type for a mapping field", rootStructure, mappingClass, mappingField, null);
+      final BinType fieldType;
+      if (mappedAnno.type() == BinType.UNDEFINED) {
+        fieldType = BinType.findCompatible(mappingField.getType());
+        if (fieldType == null) {
+          throw new JBBPMapperException("Can't find compatible type for a mapping field", rootStructure, mappingClass, mappingField, null);
+        }
+      }
+      else {
+        fieldType = mappedAnno.type();
       }
 
       final String fieldName = mappedAnno.name().length() == 0 ? mappingField.getName() : mappedAnno.name();

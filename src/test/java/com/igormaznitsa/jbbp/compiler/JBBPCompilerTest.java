@@ -505,4 +505,11 @@ public class JBBPCompilerTest {
     assertEquals(JBBPCompiler.CODE_BYTE | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_EXPRESSION_OR_WHOLESTREAM, compiled.getCompiledData()[0]);
   }
 
+  @Test
+  public void testCompile_StructFieldWithNameOfExternalField() throws Exception {
+    final JBBPCompiledBlock compiled = JBBPCompiler.compile("int a; ins{ int a;}");
+    final byte [] data = compiled.getCompiledData();
+    assertEquals(5, data.length);
+  }
+
 }
