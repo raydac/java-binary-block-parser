@@ -243,4 +243,21 @@ public class JBBPMapperTest {
     }
     JBBPParser.prepare("test { byte [_] a;}").parse(new byte[]{1, 2, 3, 4}).mapTo(Mapped.class);
   }
+
+  @Test
+  public void testMap_mapInsideStructureDefinedByItsPath() throws Exception {
+    class Mapped {
+      @Bin long a;
+    }
+    final Mapped mapped = JBBPParser.prepare("byte f; test { inside {long a;} }").parse(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9}).mapTo("test.inside",Mapped.class);
+    assertEquals(0x0203040506070809L, mapped.a);
+  }
+
+  @Test(expected=JBBPMapperException.class)
+  public void testMap_mapInsideStructureDefinedByItsPath_ErrorForNonStructure() throws Exception {
+    class Mapped {
+      @Bin long a;
+    }
+    JBBPParser.prepare("byte f; test { inside {long a;} }").parse(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9}).mapTo("f",Mapped.class);
+  }
 }

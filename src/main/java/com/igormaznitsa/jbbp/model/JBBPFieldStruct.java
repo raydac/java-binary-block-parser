@@ -191,6 +191,17 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
   }
   
   /**
+   * Find a structure by its path and map the structure fields to a class fields.
+   * @param <T> a class type
+   * @param path the path to the structure to be mapped, must not be null
+   * @param mappingClass a mapping class to be mapped by the structure fields, must not be null and must have the default constructor
+   * @return a mapped instance of the class, must not be null
+   */
+  public <T> T mapTo(final String path, final Class<T> mappingClass){
+    return JBBPMapper.map(this, path, mappingClass);
+  }
+  
+  /**
    * Map the structure fields to object fields.
    * @param objectToMap an object to map fields of the structure, must not be null
    * @return the same object from the arguments but with filled fields by values of the structure

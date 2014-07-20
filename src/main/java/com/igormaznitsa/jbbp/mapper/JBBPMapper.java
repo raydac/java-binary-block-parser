@@ -59,7 +59,9 @@ public class JBBPMapper {
   public static <T> T map(final JBBPFieldStruct root, final String structPath, final Class<T> mappingClass) {
     JBBPUtils.assertNotNull(structPath, "Path must not be null");
     final JBBPFieldStruct struct = root.findFieldForPathAndType(structPath, JBBPFieldStruct.class);
-    JBBPUtils.assertNotNull(struct, "Can't find a structure for path '" + structPath + '\'');
+    if (struct == null) {
+      throw new JBBPMapperException("Can't find a structure field for its path [" + structPath + ']', struct, mappingClass, null, null);
+    }
     return map(struct, mappingClass);
   }
 
