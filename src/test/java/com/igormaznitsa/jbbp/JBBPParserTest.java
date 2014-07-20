@@ -1432,4 +1432,31 @@ public class JBBPParserTest {
     assertArrayEquals(new byte[]{0x1C, 0x1D}, parsed.findFieldForPathAndType("array2", JBBPFieldArrayByte.class).getArray());
     assertEquals(0x04030201, parsed.findFieldForPathAndType("end", JBBPFieldInt.class).getAsInt());
   }
+
+  @Test
+  public void testParseManyFieldsWithTheSameName() throws Exception {
+    final JBBPFieldStruct parsed = JBBPParser.prepare("byte l; a { byte a; b { byte a; c { byte a;}}} byte [a.b.c.a] aa;").parse(new byte[]{1,2,3,4,5,6,7,8});
+    assertEquals(1, parsed.findFieldForPathAndType("l", JBBPFieldByte.class).getAsInt());
+    assertEquals(2, parsed.findFieldForPathAndType("a.a", JBBPFieldByte.class).getAsInt());
+    assertEquals(3, parsed.findFieldForPathAndType("a.b.a", JBBPFieldByte.class).getAsInt());
+    assertEquals(4, parsed.findFieldForPathAndType("a.b.c.a", JBBPFieldByte.class).getAsInt());
+    assertArrayEquals(new byte[]{5,6,7,8}, parsed.findFieldForPathAndType("aa", JBBPFieldArrayByte.class).getArray());
+  }
+
+  @Test
+  public void testParseScopeOfVisibilityOfFieldIfTheSameInStructBefore() throws Exception {
+    final JBBPFieldStruct parsed = JBBPParser.prepare("byte a; b { byte a;} byte [a] aa;").parse(new byte[]{1,2,3});
+    assertEquals(1, parsed.findFieldForPathAndType("a", JBBPFieldByte.class).getAsInt());
+    assertEquals(2, parsed.findFieldForPathAndType("b.a", JBBPFieldByte.class).getAsInt());
+    assertArrayEquals(new byte[]{3}, parsed.findFieldForPathAndType("aa", JBBPFieldArrayByte.class).getArray());
+  }
+
+  @Test
+  public void testParseScopeOfVisibilityOfFieldInsideStructure() throws Exception {
+    final JBBPFieldStruct parsed = JBBPParser.prepare("byte a; b { byte a; byte [a] d; } byte [a] aa;").parse(new byte[]{1,2,3,4,5,6});
+    assertEquals(1, parsed.findFieldForPathAndType("a", JBBPFieldByte.class).getAsInt());
+    assertEquals(2, parsed.findFieldForPathAndType("b.a", JBBPFieldByte.class).getAsInt());
+    assertArrayEquals(new byte[]{3,4}, parsed.findFieldForPathAndType("b.d", JBBPFieldArrayByte.class).getArray());
+    assertArrayEquals(new byte[]{5}, parsed.findFieldForPathAndType("aa", JBBPFieldArrayByte.class).getArray());
+  }
 }
