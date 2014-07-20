@@ -137,6 +137,14 @@ public class JBBPMapperTest {
     assertEquals("JFIF",JBBPParser.prepare("short [_] a;").parse(new byte[]{0,(byte)0x4A, 0,(byte)0x46, 0,(byte)0x49, 0,(byte)0x46}).mapTo(Mapped.class).a);
   }
 
+  @Test(expected = JBBPMapperException.class)
+  public void testMap_IntArrayToString_Error() throws Exception {
+    class Mapped {
+      @Bin(type = BinType.INT_ARRAY) String a;
+    }
+    JBBPParser.prepare("int [_] a;").parse(new byte[]{0,(byte)0x4A, 0,(byte)0x46, 0,(byte)0x49, 0,(byte)0x46}).mapTo(Mapped.class);
+  }
+
   @Test
   public void testMap_UShortArrayToString() throws Exception {
     class Mapped {
