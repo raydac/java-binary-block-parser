@@ -49,21 +49,21 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
         @Bin int crc;
       }
       class Png {
-        @Bin long header;
-        @Bin Chunk [] chunk;
+        @Bin long hEAder;
+        @Bin Chunk [] chuNK;
       }
       
       final Png png = pngParser.parse(pngStream).mapTo(Png.class);
 
-      assertEquals(0x89504E470D0A1A0AL, png.header);
+      assertEquals(0x89504E470D0A1A0AL, png.hEAder);
 
       final String[] chunkNames = new String[]{"IHDR", "gAMA", "bKGD", "pHYs", "tIME", "tEXt", "IDAT", "IEND"};
       final int[] chunkSizes = new int[]{0x0D, 0x04, 0x06, 0x09, 0x07, 0x19, 0x0E5F, 0x00};
 
-      assertEquals(chunkNames.length, png.chunk.length);
+      assertEquals(chunkNames.length, png.chuNK.length);
 
-      for (int i = 0; i < png.chunk.length; i++) {
-        assertChunk(chunkNames[i], chunkSizes[i], png.chunk[i].type, png.chunk[i].length, png.chunk[i].crc, png.chunk[i].data);
+      for (int i = 0; i < png.chuNK.length; i++) {
+        assertChunk(chunkNames[i], chunkSizes[i], png.chuNK[i].type, png.chuNK[i].length, png.chuNK[i].crc, png.chuNK[i].data);
       }
       
     }finally{
