@@ -166,11 +166,64 @@ public class JBBPMapper {
           }
         }
         else {
-          throw new Error("Unexpected state of fields, contact developer!");
+          boolean processed = false;
+          if (mappingField.getType() == String.class && binField instanceof JBBPAbstractArrayField) {
+            final String convertedValue = convertFieldValueToString((JBBPAbstractArrayField<?>) binField);
+            if (convertedValue != null) {
+              setNonStaticFieldValue(mappingClassInstance, mappingField, binField, convertedValue);
+              processed = true;
+            }
+          }
+          if (!processed) {
+            throw new JBBPMapperException("Can't map a field for its value incompatibility", binField, mappingClass, mappingField, null);
+          }
         }
       }
     }
     return mappingClassInstance;
+  }
+
+  private static String convertFieldValueToString(final JBBPAbstractArrayField<?> field) {
+    final StringBuilder result;
+    if (field instanceof JBBPFieldArrayBit) {
+      final JBBPFieldArrayBit array = (JBBPFieldArrayBit) field;
+      result = new StringBuilder(array.size());
+      for (final byte b : array.getArray()) {
+        result.append((char) b);
+      }
+    }
+    else if (field instanceof JBBPFieldArrayByte) {
+      final JBBPFieldArrayByte array = (JBBPFieldArrayByte) field;
+      result = new StringBuilder(array.size());
+      for (final byte b : array.getArray()) {
+        result.append((char) (b & 0xFF));
+      }
+    }
+    else if (field instanceof JBBPFieldArrayUByte) {
+      final JBBPFieldArrayUByte array = (JBBPFieldArrayUByte) field;
+      result = new StringBuilder(array.size());
+      for (final byte b : array.getArray()) {
+        result.append((char) (b & 0xFF));
+      }
+    }
+    else if (field instanceof JBBPFieldArrayShort) {
+      final JBBPFieldArrayShort array = (JBBPFieldArrayShort) field;
+      result = new StringBuilder(array.size());
+      for (final short b : array.getArray()) {
+        result.append((char) b);
+      }
+    }
+    else if (field instanceof JBBPFieldArrayUShort) {
+      final JBBPFieldArrayUShort array = (JBBPFieldArrayUShort) field;
+      result = new StringBuilder(array.size());
+      for (final short b : array.getArray()) {
+        result.append((char) b);
+      }
+    }
+    else {
+      result = null;
+    }
+    return result == null ? null : result.toString();
   }
 
   /**
@@ -257,14 +310,15 @@ public class JBBPMapper {
    */
   private static void mapArrayField(final Object mappingClassInstance, final Field mappingField, final JBBPAbstractArrayField<?> arrayField, final boolean invertBitOrder) {
     try {
-      if(arrayField instanceof JBBPFieldArrayUShort && mappingField.getType().getComponentType() == char.class){
-        final short [] shortarray = (short[])arrayField.getValueArrayAsObject(invertBitOrder);
-        final char [] chararray = new char[shortarray.length];
-        for(int i=0;i<shortarray.length;i++){
-          chararray[i] = (char)shortarray[i];
+      if (arrayField instanceof JBBPFieldArrayUShort && mappingField.getType().getComponentType() == char.class) {
+        final short[] shortarray = (short[]) arrayField.getValueArrayAsObject(invertBitOrder);
+        final char[] chararray = new char[shortarray.length];
+        for (int i = 0; i < shortarray.length; i++) {
+          chararray[i] = (char) shortarray[i];
         }
         mappingField.set(mappingClassInstance, chararray);
-      }else{
+      }
+      else {
         mappingField.set(mappingClassInstance, arrayField.getValueArrayAsObject(invertBitOrder));
       }
     }
