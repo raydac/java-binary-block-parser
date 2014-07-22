@@ -91,4 +91,16 @@ public class JBBPFieldArrayStructTest {
     assertEquals(2, counter);
   }
 
+  @Test
+  public void testGetValueArrayAsObject() throws Exception {
+    final Object resultForFalse = test.getValueArrayAsObject(false);
+    final Object resultForTrue = test.getValueArrayAsObject(true);
+  
+    assertNotSame(test.getArray(), resultForFalse);
+    assertNotSame(test.getArray(), resultForTrue);
+    assertNotSame(resultForTrue, resultForFalse);
+  
+    assertArrayEquals((Object[])resultForTrue, test.getArray());
+    assertArrayEquals((Object[])resultForTrue, (Object[])resultForFalse);
+  }
 }

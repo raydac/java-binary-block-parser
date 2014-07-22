@@ -15,7 +15,6 @@
  */
 package com.igormaznitsa.jbbp.it;
 
-import java.io.Closeable;
 import java.io.InputStream;
 
 public abstract class AbstractParserIntegrationTest {
@@ -26,13 +25,5 @@ public abstract class AbstractParserIntegrationTest {
       throw new NullPointerException("Can't find resource '" + resourceName + '\'');
     }
     return result;
-  }
-  
-  public void closeResource(final Closeable resource){
-    try{
-      resource.close();
-    }catch(Throwable thr){
-      thr.printStackTrace();
-    }
   }
 }

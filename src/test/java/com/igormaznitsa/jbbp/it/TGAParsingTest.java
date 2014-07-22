@@ -22,6 +22,7 @@ import com.igormaznitsa.jbbp.model.JBBPFieldShort;
 import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import com.igormaznitsa.jbbp.model.JBBPFieldUByte;
 import com.igormaznitsa.jbbp.model.JBBPFieldUShort;
+import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.InputStream;
 import static org.junit.Assert.*;
 import org.junit.Test;
@@ -80,7 +81,7 @@ public class TGAParsingTest extends AbstractParserIntegrationTest {
       assertTgaFile(result, "Truevision(R) Sample Image", 128, 128, 8, 0, 8715);
     }
     finally {
-      closeResource(tgaStream);
+      JBBPUtils.closeQuietly(tgaStream);
     }
   }
 
@@ -92,7 +93,7 @@ public class TGAParsingTest extends AbstractParserIntegrationTest {
       assertTgaFile(result, "", 240, 164, 32, 0, 240*164*4);
     }
     finally {
-      closeResource(tgaStream);
+      JBBPUtils.closeQuietly(tgaStream);
     }
   }
 
@@ -106,7 +107,7 @@ public class TGAParsingTest extends AbstractParserIntegrationTest {
       assertEquals(165,result.findFieldForPathAndType("Header.YOffset", JBBPFieldShort.class).getAsInt());
     }
     finally {
-      closeResource(tgaStream);
+      JBBPUtils.closeQuietly(tgaStream);
     }
   }
 
@@ -118,7 +119,7 @@ public class TGAParsingTest extends AbstractParserIntegrationTest {
       assertTgaFile(result, "", 640, 480, 8, 256, 155403);
     }
     finally {
-      closeResource(tgaStream);
+      JBBPUtils.closeQuietly(tgaStream);
     }
   }
 }

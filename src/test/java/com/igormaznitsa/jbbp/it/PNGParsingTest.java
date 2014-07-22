@@ -19,6 +19,7 @@ import com.igormaznitsa.jbbp.*;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.model.*;
+import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.InputStream;
 import java.util.zip.CRC32;
 import static org.junit.Assert.*;
@@ -67,7 +68,7 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
       }
       
     }finally{
-      closeResource(pngStream);
+      JBBPUtils.closeQuietly(pngStream);
     }
   }
   
@@ -104,7 +105,7 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
       }
     }
     finally {
-      closeResource(pngStream);
+      JBBPUtils.closeQuietly(pngStream);
     }
   }
   
@@ -195,7 +196,7 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
       }
     }
     finally {
-      closeResource(pngStream);
+      JBBPUtils.closeQuietly(pngStream);
     }
   }
 

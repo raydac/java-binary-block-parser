@@ -22,9 +22,9 @@ import com.igormaznitsa.jbbp.exceptions.JBBPTooManyFieldsFoundException;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.model.*;
+import com.igormaznitsa.jbbp.utils.JBBPIntCounter;
 import java.io.EOFException;
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -244,9 +244,9 @@ public class JBBPParserTest {
   public void testParse_SingleNonamedVar() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("short k; var; int;");
 
-    final AtomicInteger counter = new AtomicInteger(0);
-    
-    final JBBPFieldStruct struct = parser.parse(new byte[]{9,8,33,1,2,3,4}, new JBBPVarFieldProcessor() {
+    final JBBPIntCounter counter = new JBBPIntCounter();
+
+    final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         fail("Must not be called");
@@ -258,28 +258,28 @@ public class JBBPParserTest {
         final int value = inStream.readByte();
         assertEquals(33, value);
         assertEquals(0x0908, numericFieldMap.findFieldForType(JBBPFieldShort.class).getAsInt());
-        
+
         assertNull(fieldName);
-        assertEquals(0,extraValue);
+        assertEquals(0, extraValue);
         assertEquals(JBBPByteOrder.BIG_ENDIAN, byteOrder);
-        
+
         counter.incrementAndGet();
-        
-        return new JBBPFieldByte(fieldName, (byte)value);
+
+        return new JBBPFieldByte(fieldName, (byte) value);
       }
     }, null);
-  
-    assertEquals(33,struct.findFieldForType(JBBPFieldByte.class).getAsInt());
+
+    assertEquals(33, struct.findFieldForType(JBBPFieldByte.class).getAsInt());
     assertEquals(1, counter.get());
-  }  
+  }
 
   @Test
   public void testParse_NamedVarWithCustomOrder() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("short k; <var:-12345 Some; int;");
 
-    final AtomicInteger counter = new AtomicInteger(0);
-    
-    final JBBPFieldStruct struct = parser.parse(new byte[]{9,8,33,1,2,3,4}, new JBBPVarFieldProcessor() {
+    final JBBPIntCounter counter = new JBBPIntCounter();
+
+    final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         fail("Must not be called");
@@ -291,27 +291,26 @@ public class JBBPParserTest {
         final int value = inStream.readByte();
         assertEquals(33, value);
         assertEquals(0x0908, numericFieldMap.findFieldForType(JBBPFieldShort.class).getAsInt());
-        
-        assertEquals("some",fieldName.getFieldName());
-        assertEquals(-12345,extraValue);
+
+        assertEquals("some", fieldName.getFieldName());
+        assertEquals(-12345, extraValue);
         assertEquals(JBBPByteOrder.LITTLE_ENDIAN, byteOrder);
-        
+
         counter.incrementAndGet();
-        
-        return new JBBPFieldByte(fieldName, (byte)value);
+
+        return new JBBPFieldByte(fieldName, (byte) value);
       }
     }, null);
-  
-    
-    assertEquals(33, struct.findFieldForNameAndType("some",JBBPFieldByte.class).getAsInt());
+
+    assertEquals(33, struct.findFieldForNameAndType("some", JBBPFieldByte.class).getAsInt());
     assertEquals(1, counter.get());
-  }  
+  }
 
   @Test(expected = NullPointerException.class)
   public void testParse_SingleNonamedVar_ErrorForNullResult() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("short k; var; int;");
 
-    final JBBPFieldStruct struct = parser.parse(new byte[]{9,8,33,1,2,3,4}, new JBBPVarFieldProcessor() {
+    final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         fail("Must not be called");
@@ -322,13 +321,13 @@ public class JBBPParserTest {
         return null;
       }
     }, null);
-  }  
+  }
 
   @Test(expected = JBBPParsingException.class)
   public void testParse_SingleNonamedVar_ErrorForArrayResult() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("short k; var; int;");
 
-    final JBBPFieldStruct struct = parser.parse(new byte[]{9,8,33,1,2,3,4}, new JBBPVarFieldProcessor() {
+    final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         fail("Must not be called");
@@ -336,16 +335,16 @@ public class JBBPParserTest {
       }
 
       public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
-        return new JBBPFieldArrayByte(fieldName, new byte[]{1,2,3});
+        return new JBBPFieldArrayByte(fieldName, new byte[]{1, 2, 3});
       }
     }, null);
-  }  
+  }
 
   @Test(expected = JBBPParsingException.class)
   public void testParse_SingleNonamedVar_ErrorForDifferentName() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("short k; var name; int;");
 
-    final JBBPFieldStruct struct = parser.parse(new byte[]{9,8,33,1,2,3,4}, new JBBPVarFieldProcessor() {
+    final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         fail("Must not be called");
@@ -354,18 +353,16 @@ public class JBBPParserTest {
 
       public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         assertNotNull(fieldName);
-        return new JBBPFieldByte(new JBBPNamedFieldInfo("jskdjhsd", "dlkjsf", 0), (byte)1);
+        return new JBBPFieldByte(new JBBPNamedFieldInfo("jskdjhsd", "dlkjsf", 0), (byte) 1);
       }
     }, null);
-  }  
+  }
 
-
-  
   @Test
   public void testParse_SingleNonamedVarArray() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("short k; var[18]; int;");
 
-    final AtomicInteger counter = new AtomicInteger(0);
+    final JBBPIntCounter counter = new JBBPIntCounter();
 
     final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
@@ -382,7 +379,7 @@ public class JBBPParserTest {
 
         counter.incrementAndGet();
 
-        return new JBBPFieldArrayByte(fieldName, new byte[]{(byte)value});
+        return new JBBPFieldArrayByte(fieldName, new byte[]{(byte) value});
       }
 
       public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
@@ -399,7 +396,7 @@ public class JBBPParserTest {
   public void testParse_NamedVarArrayWithCustomOrder() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("short k; <var:-12345 [2334] Some; int;");
 
-    final AtomicInteger counter = new AtomicInteger(0);
+    final JBBPIntCounter counter = new JBBPIntCounter();
 
     final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
@@ -433,18 +430,18 @@ public class JBBPParserTest {
   public void testParse_NamedVarArrayTillEndOfStream() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("short k; var [_] Some;");
 
-    final AtomicInteger counter = new AtomicInteger(0);
+    final JBBPIntCounter counter = new JBBPIntCounter();
 
     final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         assertNotNull(inStream);
-        
+
         assertEquals(0x0908, numericFieldMap.findFieldForType(JBBPFieldShort.class).getAsInt());
 
         assertEquals("some", fieldName.getFieldName());
         assertEquals(0, extraValue);
-        assertTrue(arraySize<0);
+        assertTrue(arraySize < 0);
         assertEquals(JBBPByteOrder.BIG_ENDIAN, byteOrder);
 
         counter.incrementAndGet();
@@ -458,7 +455,7 @@ public class JBBPParserTest {
       }
     }, null);
 
-    assertArrayEquals(new byte[]{33,1,2,3,4}, struct.findFieldForNameAndType("some", JBBPFieldArrayByte.class).getArray());
+    assertArrayEquals(new byte[]{33, 1, 2, 3, 4}, struct.findFieldForNameAndType("some", JBBPFieldArrayByte.class).getArray());
     assertEquals(1, counter.get());
   }
 
@@ -466,10 +463,10 @@ public class JBBPParserTest {
   public void testParse_NamedVarArrayForZeroLength() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("short k; var [k] Some;");
 
-    final JBBPFieldStruct struct = parser.parse(new byte[]{0,0}, new JBBPVarFieldProcessor() {
+    final JBBPFieldStruct struct = parser.parse(new byte[]{0, 0}, new JBBPVarFieldProcessor() {
 
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
-        assertEquals(0,arraySize);
+        assertEquals(0, arraySize);
         return new JBBPFieldArrayByte(fieldName, new byte[0]);
       }
 
@@ -478,8 +475,8 @@ public class JBBPParserTest {
         return null;
       }
     }, null);
-    
-    assertEquals(0,struct.findFieldForNameAndType("some", JBBPFieldArrayByte.class).size());
+
+    assertEquals(0, struct.findFieldForNameAndType("some", JBBPFieldArrayByte.class).size());
   }
 
   @Test(expected = NullPointerException.class)
@@ -489,7 +486,7 @@ public class JBBPParserTest {
     final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
-        assertEquals(0x0908,arraySize);
+        assertEquals(0x0908, arraySize);
         return null;
       }
 
@@ -522,18 +519,17 @@ public class JBBPParserTest {
   public void testParse_BitFields_EOF() throws Exception {
     JBBPParser.prepare("bit:4;").parse(new byte[0]);
   }
-  
+
   @Test(expected = EOFException.class)
   public void testParse_BitFieldArray_EOF() throws Exception {
     JBBPParser.prepare("bit:4 [1];").parse(new byte[0]);
   }
-  
+
   @Test
   public void testParse_BitFieldArrayWholeStream() throws Exception {
-    assertEquals(0,JBBPParser.prepare("bit:4 [_];").parse(new byte[0]).findFieldForType(JBBPFieldArrayBit.class).size());
+    assertEquals(0, JBBPParser.prepare("bit:4 [_];").parse(new byte[0]).findFieldForType(JBBPFieldArrayBit.class).size());
   }
-  
-  
+
   @Test
   public void testParse_SeveralPrimitiveFields() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("bit:4; bit:4; bool; byte; ubyte; short; ushort; int; long;");
@@ -673,7 +669,7 @@ public class JBBPParserTest {
 
   @Test
   public void testParse_ProcessingOfExtraFieldValuesInSkippedStructureFields() throws Exception {
-    final JBBPFieldStruct parsed = JBBPParser.prepare("byte len; struct1 [len] { int a; var:23231223 [1024] helloarray; int b; bit:3; bit:7 [10233]; var:-1332 hello; skip:34221223; bit:7; bit:1; align:3445; bit:2; int skippedInt; long lng; insidestruct {bit:1; bit:2; bit:3;} } int end; ").parse(new byte[]{0,1,2,3,4},new JBBPVarFieldProcessor() {
+    final JBBPFieldStruct parsed = JBBPParser.prepare("byte len; struct1 [len] { int a; var:23231223 [1024] helloarray; int b; bit:3; bit:7 [10233]; var:-1332 hello; skip:34221223; bit:7; bit:1; align:3445; bit:2; int skippedInt; long lng; insidestruct {bit:1; bit:2; bit:3;} } int end; ").parse(new byte[]{0, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(JBBPBitInputStream inStream, int arraySize, JBBPNamedFieldInfo fieldName, int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         fail("Must not be called");
@@ -684,13 +680,13 @@ public class JBBPParserTest {
         fail("Must not be called");
         return null;
       }
-    },null);
+    }, null);
     assertEquals(0x01020304, parsed.findFieldForNameAndType("end", JBBPFieldInt.class).getAsInt());
   }
 
   @Test
   public void testParse_ProcessingOfExtraFieldValuesInSkippedStructureFields1() throws Exception {
-    final JBBPFieldStruct parsed = JBBPParser.prepare("byte len; struct1 [len] {var:-1332 hello; align:3445; } int end; ").parse(new byte[]{0,1,2,3,4},new JBBPVarFieldProcessor() {
+    final JBBPFieldStruct parsed = JBBPParser.prepare("byte len; struct1 [len] {var:-1332 hello; align:3445; } int end; ").parse(new byte[]{0, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(JBBPBitInputStream inStream, int arraySize, JBBPNamedFieldInfo fieldName, int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         fail("Must not be called");
@@ -701,7 +697,7 @@ public class JBBPParserTest {
         fail("Must not be called");
         return null;
       }
-    },null);
+    }, null);
     assertEquals(0x01020304, parsed.findFieldForNameAndType("end", JBBPFieldInt.class).getAsInt());
   }
 
@@ -1335,14 +1331,14 @@ public class JBBPParserTest {
   @Test
   public void testParse_UByteArray_IgnoredForZeroLength() throws Exception {
     final JBBPFieldStruct parsed = JBBPParser.prepare("byte len; ubyte [len]; ushort;").parse(new byte[]{0x0, 0x01, (byte) 0x02});
-    assertEquals(0,parsed.findFieldForType(JBBPFieldArrayUByte.class).size());
+    assertEquals(0, parsed.findFieldForType(JBBPFieldArrayUByte.class).size());
     assertEquals(0x0102, parsed.findFieldForType(JBBPFieldUShort.class).getAsInt());
   }
 
   @Test
   public void testParse_ShortArray_IgnoredForZeroLength() throws Exception {
     final JBBPFieldStruct parsed = JBBPParser.prepare("byte len; short [len]; ushort;").parse(new byte[]{0x0, 0x01, (byte) 0x02});
-    assertEquals(0,parsed.findFieldForType(JBBPFieldArrayShort.class).size());
+    assertEquals(0, parsed.findFieldForType(JBBPFieldArrayShort.class).size());
     assertEquals(0x0102, parsed.findFieldForType(JBBPFieldUShort.class).getAsInt());
   }
 
@@ -1435,17 +1431,17 @@ public class JBBPParserTest {
 
   @Test
   public void testParseManyFieldsWithTheSameName() throws Exception {
-    final JBBPFieldStruct parsed = JBBPParser.prepare("byte l; a { byte a; b { byte a; c { byte a;}}} byte [a.b.c.a] aa;").parse(new byte[]{1,2,3,4,5,6,7,8});
+    final JBBPFieldStruct parsed = JBBPParser.prepare("byte l; a { byte a; b { byte a; c { byte a;}}} byte [a.b.c.a] aa;").parse(new byte[]{1, 2, 3, 4, 5, 6, 7, 8});
     assertEquals(1, parsed.findFieldForPathAndType("l", JBBPFieldByte.class).getAsInt());
     assertEquals(2, parsed.findFieldForPathAndType("a.a", JBBPFieldByte.class).getAsInt());
     assertEquals(3, parsed.findFieldForPathAndType("a.b.a", JBBPFieldByte.class).getAsInt());
     assertEquals(4, parsed.findFieldForPathAndType("a.b.c.a", JBBPFieldByte.class).getAsInt());
-    assertArrayEquals(new byte[]{5,6,7,8}, parsed.findFieldForPathAndType("aa", JBBPFieldArrayByte.class).getArray());
+    assertArrayEquals(new byte[]{5, 6, 7, 8}, parsed.findFieldForPathAndType("aa", JBBPFieldArrayByte.class).getArray());
   }
 
   @Test
   public void testParseScopeOfVisibilityOfFieldIfTheSameInStructBefore() throws Exception {
-    final JBBPFieldStruct parsed = JBBPParser.prepare("byte a; b { byte a;} byte [a] aa;").parse(new byte[]{1,2,3});
+    final JBBPFieldStruct parsed = JBBPParser.prepare("byte a; b { byte a;} byte [a] aa;").parse(new byte[]{1, 2, 3});
     assertEquals(1, parsed.findFieldForPathAndType("a", JBBPFieldByte.class).getAsInt());
     assertEquals(2, parsed.findFieldForPathAndType("b.a", JBBPFieldByte.class).getAsInt());
     assertArrayEquals(new byte[]{3}, parsed.findFieldForPathAndType("aa", JBBPFieldArrayByte.class).getArray());
@@ -1453,10 +1449,10 @@ public class JBBPParserTest {
 
   @Test
   public void testParseScopeOfVisibilityOfFieldInsideStructure() throws Exception {
-    final JBBPFieldStruct parsed = JBBPParser.prepare("byte a; b { byte a; byte [a] d; } byte [a] aa;").parse(new byte[]{1,2,3,4,5,6});
+    final JBBPFieldStruct parsed = JBBPParser.prepare("byte a; b { byte a; byte [a] d; } byte [a] aa;").parse(new byte[]{1, 2, 3, 4, 5, 6});
     assertEquals(1, parsed.findFieldForPathAndType("a", JBBPFieldByte.class).getAsInt());
     assertEquals(2, parsed.findFieldForPathAndType("b.a", JBBPFieldByte.class).getAsInt());
-    assertArrayEquals(new byte[]{3,4}, parsed.findFieldForPathAndType("b.d", JBBPFieldArrayByte.class).getArray());
+    assertArrayEquals(new byte[]{3, 4}, parsed.findFieldForPathAndType("b.d", JBBPFieldArrayByte.class).getArray());
     assertArrayEquals(new byte[]{5}, parsed.findFieldForPathAndType("aa", JBBPFieldArrayByte.class).getArray());
   }
 }

@@ -17,7 +17,6 @@ package com.igormaznitsa.jbbp.utils;
 
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -61,14 +60,19 @@ public class JBBPUtilsTest {
   
   @Test(expected = NullPointerException.class)
   public void testUnpackInt_NPEForArrayIsNull(){
-    JBBPUtils.unpackInt(null, new AtomicInteger(0));
+    JBBPUtils.unpackInt(null, new JBBPIntCounter());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testUnpackInt_IAEForWrongPrefix() {
+    JBBPUtils.unpackInt(new byte [] {(byte)0xAA,0,0,0,0,0}, new JBBPIntCounter());
   }
 
   @Test
   public void testPackUnpackIntFromByteArray() {
     final byte [] array = new byte[5];
     
-    final AtomicInteger pos = new AtomicInteger();
+    final JBBPIntCounter pos = new JBBPIntCounter();
     
     int counter1 = 0;
     int counter2 = 0;
@@ -145,6 +149,7 @@ public class JBBPUtilsTest {
     assertEquals("01010101 10101010", JBBPUtils.bin2str(new byte[]{0x55, (byte) 0xAA}, true));
     assertEquals("0101010110101010", JBBPUtils.bin2str(new byte[]{0x55, (byte) 0xAA}, false));
     assertEquals("00001001", JBBPUtils.bin2str(new byte[]{0x9}, false));
+    assertEquals("1010101001010101", JBBPUtils.bin2str(new byte[]{0x55, (byte) 0xAA}, JBBPBitOrder.MSB0, false));
     assertEquals("0101010110101010", JBBPUtils.bin2str(new byte[]{0x55, (byte) 0xAA}));
   }
 

@@ -19,7 +19,6 @@ import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPTokenizer;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPToken;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
-import com.igormaznitsa.jbbp.compiler.utils.JBBPCompilerUtils;
 import com.igormaznitsa.jbbp.compiler.varlen.JBBPIntegerValueEvaluator;
 import com.igormaznitsa.jbbp.compiler.varlen.JBBPEvaluatorFactory;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;

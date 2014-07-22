@@ -18,10 +18,17 @@ package com.igormaznitsa.jbbp.utils;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
-public enum JBBPUtils {;
+/**
+ * Misc auxiliary methods to be used in the framework.
+ */
+public final class JBBPUtils {
+  
+  private JBBPUtils(){
+    
+  }
 
   /**
    * Check that a string is a number.
@@ -64,7 +71,7 @@ public enum JBBPUtils {;
    * @param value the value to be packed
    * @return number of bytes written into the array, the position will be increased
    */
-  public static int packInt(final byte[] array, final AtomicInteger position, final int value) {
+  public static int packInt(final byte[] array, final JBBPIntCounter position, final int value) {
     if ((value & 0xFFFFFF80) == 0) {
       array[position.getAndIncrement()] = (byte) value;
       return 1;
@@ -89,7 +96,7 @@ public enum JBBPUtils {;
    * @param position the position of the first byte of packed value 
    * @return the unpacked value, the position will be increased
    */
-  public static int unpackInt(final byte[] array, final AtomicInteger position) {
+  public static int unpackInt(final byte[] array, final JBBPIntCounter position) {
     final int code = array[position.getAndIncrement()] & 0xFF;
     if (code < 0x80) {
       return code;
@@ -415,5 +422,17 @@ public enum JBBPUtils {;
   public static String normalizeFieldNameOrPath(final String nameOrPath) {
     assertNotNull(nameOrPath, "Name of path must not be null");
     return nameOrPath.trim().toLowerCase(Locale.ENGLISH);
+  }
+  
+  /**
+   * Quiet closing of a closeable object.
+   * @param closeable a closeable object, can be null
+   */
+  public static void closeQuietly(final Closeable closeable){
+    try{
+      if (closeable!=null) closeable.close();
+    }catch(Exception ex){
+      
+    }
   }
 }

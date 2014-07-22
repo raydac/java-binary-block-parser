@@ -21,6 +21,7 @@ import com.igormaznitsa.jbbp.model.JBBPFieldBit;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import com.igormaznitsa.jbbp.model.JBBPFieldUShort;
+import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.InputStream;
 import static org.junit.Assert.*;
 import org.junit.Test;
@@ -88,7 +89,7 @@ public class TCPParsingTest extends AbstractParserIntegrationTest {
 
     }
     finally {
-      closeResource(tcpFrameStream);
+      JBBPUtils.closeQuietly(tcpFrameStream);
     }
   }
 }

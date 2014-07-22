@@ -23,7 +23,6 @@ import com.igormaznitsa.jbbp.model.*;
 import com.igormaznitsa.jbbp.utils.*;
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * the Main class allows a user to parse a binary stream or block for predefined
@@ -94,7 +93,7 @@ public final class JBBPParser {
    * @return list of read fields for the structure
    * @throws IOException it will be thrown for transport errors
    */
-  private List<JBBPAbstractField> parseStruct(final JBBPBitInputStream inStream, final AtomicInteger positionAtCompiledBlock, final JBBPVarFieldProcessor varFieldProcessor, final JBBPNamedNumericFieldMap namedNumericFieldMap, final AtomicInteger positionAtNamedFieldList, final AtomicInteger positionAtVarLengthProcessors, final boolean skipStructureFields) throws IOException {
+  private List<JBBPAbstractField> parseStruct(final JBBPBitInputStream inStream, final JBBPIntCounter positionAtCompiledBlock, final JBBPVarFieldProcessor varFieldProcessor, final JBBPNamedNumericFieldMap namedNumericFieldMap, final JBBPIntCounter positionAtNamedFieldList, final JBBPIntCounter positionAtVarLengthProcessors, final boolean skipStructureFields) throws IOException {
     final List<JBBPAbstractField> structureFields = skipStructureFields ? null : new ArrayList<JBBPAbstractField>();
     final byte[] compiled = this.compiledBlock.getCompiledData();
 
@@ -411,7 +410,7 @@ public final class JBBPParser {
       JBBPUtils.assertNotNull(varFieldProcessor, "The Script contains VAR fields, a var field processor must be provided");
     }
 
-    return new JBBPFieldStruct(new JBBPNamedFieldInfo("", "", -1), parseStruct(bitInStream, new AtomicInteger(), varFieldProcessor, fieldMap, new AtomicInteger(), new AtomicInteger(), false));
+    return new JBBPFieldStruct(new JBBPNamedFieldInfo("", "", -1), parseStruct(bitInStream, new JBBPIntCounter(), varFieldProcessor, fieldMap, new JBBPIntCounter(), new JBBPIntCounter(), false));
   }
 
   /**

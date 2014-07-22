@@ -18,8 +18,8 @@ package com.igormaznitsa.jbbp.compiler;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPTokenType;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTokenizerException;
+import com.igormaznitsa.jbbp.utils.JBBPIntCounter;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -404,7 +404,7 @@ public class JBBPCompilerTest {
     assertEquals(4, compiled.length);
     assertEquals(JBBPCompiler.CODE_INT | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_LITTLE_ENDIAN | JBBPCompiler.FLAG_ARRAY, compiled[0] & 0xFF);
     assertEquals(0, block.findFieldOffsetForPath("hello"));
-    assertEquals(768, JBBPUtils.unpackInt(compiled, new AtomicInteger(1)));
+    assertEquals(768, JBBPUtils.unpackInt(compiled, new JBBPIntCounter(1)));
   }
 
   @Test

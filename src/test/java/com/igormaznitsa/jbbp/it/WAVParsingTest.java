@@ -17,6 +17,7 @@ package com.igormaznitsa.jbbp.it;
 
 import com.igormaznitsa.jbbp.*;
 import com.igormaznitsa.jbbp.model.*;
+import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.InputStream;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -65,7 +66,7 @@ public class WAVParsingTest extends AbstractParserIntegrationTest {
       assertWavChunks(wavParser.parse(wavFileStream), "fmt ", "fact", "data");
     }
     finally {
-      closeResource(wavFileStream);
+      JBBPUtils.closeQuietly(wavFileStream);
     }
   }
 
@@ -76,7 +77,7 @@ public class WAVParsingTest extends AbstractParserIntegrationTest {
       assertWavChunks(wavParser.parse(wavFileStream), "fmt ", "fact", "data", "afsp", "LIST");
     }
     finally {
-      closeResource(wavFileStream);
+      JBBPUtils.closeQuietly(wavFileStream);
     }
   }
 
@@ -87,7 +88,7 @@ public class WAVParsingTest extends AbstractParserIntegrationTest {
       assertWavChunks(wavParser.parse(wavFileStream), "fmt ", "PEAK", "data");
     }
     finally {
-      closeResource(wavFileStream);
+      JBBPUtils.closeQuietly(wavFileStream);
     }
   }
 
@@ -98,7 +99,7 @@ public class WAVParsingTest extends AbstractParserIntegrationTest {
       assertWavChunks(wavParser.parse(wavFileStream), "fmt ", "fact", "data");
     }
     finally {
-      closeResource(wavFileStream);
+      JBBPUtils.closeQuietly(wavFileStream);
     }
   }
 
@@ -109,7 +110,7 @@ public class WAVParsingTest extends AbstractParserIntegrationTest {
       assertWavChunks(wavParser.parse(wavFileStream), "fmt ", "fact", "data");
     }
     finally {
-      closeResource(wavFileStream);
+      JBBPUtils.closeQuietly(wavFileStream);
     }
   }
 }

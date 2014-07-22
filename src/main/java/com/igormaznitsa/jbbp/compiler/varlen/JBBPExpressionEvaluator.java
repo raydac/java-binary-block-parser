@@ -21,10 +21,10 @@ import com.igormaznitsa.jbbp.compiler.utils.JBBPCompilerUtils;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPEvalException;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
+import com.igormaznitsa.jbbp.utils.JBBPIntCounter;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.*;
 
 public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator {
@@ -356,7 +356,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
     final int[] stack = new int[MAX_STACK_DEPTH];
     int stackDepth = 0;
 
-    final AtomicInteger counter = new AtomicInteger();
+    final JBBPIntCounter counter = new JBBPIntCounter();
 
     while (counter.get() < this.compiledExpression.length) {
       final int code = this.compiledExpression[counter.getAndIncrement()];
