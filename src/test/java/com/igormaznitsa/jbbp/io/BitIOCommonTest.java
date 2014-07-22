@@ -108,6 +108,32 @@ public class BitIOCommonTest {
   }
 
   @Test
+  public void testWriteRead_NotFullByteAsLSB0AndReadAsMSB0() throws Exception {
+    final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+    
+    final JBBPBitOutputStream out = new JBBPBitOutputStream(buffer, JBBPBitOrder.LSB0);
+    out.writeBits(1, JBBPBitNumber.BITS_1);
+    out.writeBits(0, JBBPBitNumber.BITS_1);
+    out.writeBits(1, JBBPBitNumber.BITS_1);
+    out.writeBits(1, JBBPBitNumber.BITS_1);
+    out.writeBits(0, JBBPBitNumber.BITS_1);
+    out.flush();
+    
+    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(buffer.toByteArray()),JBBPBitOrder.MSB0);
+    assertEquals(0, in.readBits(JBBPBitNumber.BITS_1));
+    assertEquals(0, in.readBits(JBBPBitNumber.BITS_1));
+    assertEquals(0, in.readBits(JBBPBitNumber.BITS_1));
+    assertEquals(0, in.readBits(JBBPBitNumber.BITS_1));
+    assertEquals(1, in.readBits(JBBPBitNumber.BITS_1));
+    assertEquals(1, in.readBits(JBBPBitNumber.BITS_1));
+    assertEquals(0, in.readBits(JBBPBitNumber.BITS_1));
+    assertEquals(1, in.readBits(JBBPBitNumber.BITS_1));
+    
+    assertEquals(-1, in.readBits(JBBPBitNumber.BITS_1));
+  
+  }
+  
+  @Test
   public void testWriteRead_LSB0() throws Exception {
     final int LEN = 10000;
 
