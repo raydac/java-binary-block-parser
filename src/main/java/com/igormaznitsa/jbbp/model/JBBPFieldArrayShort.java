@@ -22,6 +22,7 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
  * Describes a short array.
  */
 public final class JBBPFieldArrayShort extends JBBPAbstractArrayField<JBBPFieldShort>{
+  private static final long serialVersionUID = 6119269534023759155L;
   /**
    * Inside value storage.
    */

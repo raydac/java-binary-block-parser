@@ -15,7 +15,6 @@
  */
 package com.igormaznitsa.jbbp.compiler.tokenizer;
 
-import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import org.junit.Test;
 import static org.junit.Assert.*;

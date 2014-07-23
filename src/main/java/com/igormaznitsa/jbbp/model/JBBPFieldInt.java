@@ -16,13 +16,13 @@
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
-import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
  * Describes an integer field.
  */
 public final class JBBPFieldInt extends JBBPAbstractField implements JBBPNumericField{
+  private static final long serialVersionUID = 5493764792042809716L;
   /**
    * Inside value storage.
    */

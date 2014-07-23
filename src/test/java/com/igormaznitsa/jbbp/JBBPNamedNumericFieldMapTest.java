@@ -18,7 +18,6 @@ package com.igormaznitsa.jbbp;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.exceptions.JBBPEvalException;
-import com.igormaznitsa.jbbp.exceptions.JBBPException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTooManyFieldsFoundException;
 import com.igormaznitsa.jbbp.model.JBBPFieldByte;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;

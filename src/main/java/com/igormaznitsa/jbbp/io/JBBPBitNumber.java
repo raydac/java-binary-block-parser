@@ -19,13 +19,37 @@ package com.igormaznitsa.jbbp.io;
  * Constants allowed bit numbers for bit operations.
  */
 public enum JBBPBitNumber {
+  /**
+   * One bit.
+   */
   BITS_1(1,0x01),
+  /**
+   * Two bits.
+   */
   BITS_2(2,0x03),
+  /**
+   * Three bits.
+   */  
   BITS_3(3,0x07),
+  /**
+   * Four bits.
+   */  
   BITS_4(4,0x0F),
+  /**
+   * Five bits.
+   */  
   BITS_5(5,0x1F),
+  /**
+   * Six bits.
+   */  
   BITS_6(6,0x3F),
+  /**
+   * Seven bits.
+   */  
   BITS_7(7,0x7F),
+  /**
+   * Eight bits.
+   */  
   BITS_8(8,0xFF);
 
   /**

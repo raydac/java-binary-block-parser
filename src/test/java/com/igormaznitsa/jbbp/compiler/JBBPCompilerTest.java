@@ -33,7 +33,7 @@ public class JBBPCompilerTest {
     }
     catch (JBBPTokenizerException ex) {
       assertEquals(6, ex.getPosition());
-      assertTrue(ex.getMessage().indexOf("[9]") >= 0);
+      assertTrue(ex.getMessage().contains("[9]"));
     }
   }
 
@@ -55,7 +55,7 @@ public class JBBPCompilerTest {
       fail("Must throw IAE");
     }
     catch (JBBPCompilationException ex) {
-      assertTrue(ex.getToken().toString().indexOf("int error") >= 0);
+      assertTrue(ex.getToken().toString().contains("int error"));
     }
   }
 
@@ -97,7 +97,7 @@ public class JBBPCompilerTest {
       fail("Must throw IAE");
     }
     catch (JBBPCompilationException ex) {
-      assertTrue(ex.getToken().toString().indexOf("somewrong") >= 0);
+      assertTrue(ex.getToken().toString().contains("somewrong"));
     }
   }
 
@@ -158,7 +158,7 @@ public class JBBPCompilerTest {
       fail("Must throw IAE");
     }
     catch (JBBPCompilationException ex) {
-      assertTrue(ex.getToken().toString().indexOf("somewrong") >= 0);
+      assertTrue(ex.getToken().toString().contains("somewrong"));
     }
   }
 

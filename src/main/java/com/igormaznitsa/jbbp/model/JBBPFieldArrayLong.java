@@ -22,6 +22,7 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
  * Describes a long array.
  */
 public final class JBBPFieldArrayLong extends JBBPAbstractArrayField<JBBPFieldLong>{
+  private static final long serialVersionUID = -2146959300724853264L;
   /**
    * Inside value storage.
    */

@@ -23,17 +23,36 @@ import com.igormaznitsa.jbbp.compiler.varlen.JBBPIntegerValueEvaluator;
  */
 public class JBBPEvalException extends JBBPException {
   private static final long serialVersionUID = -8580688001091915787L;
+
+  /**
+   * The Evaluator which is the cause of the exception.
+   */
   private final JBBPIntegerValueEvaluator evaluator;
   
+  /**
+   * A Constructor.
+   * @param message a message, can be null
+   * @param evaluator a cause evaluator, can be null
+   */
   public JBBPEvalException(final String message, final JBBPIntegerValueEvaluator evaluator) {
     this(message,evaluator,null);
   }
 
-  public JBBPEvalException(String message, final JBBPIntegerValueEvaluator evaluator, Throwable cause) {
+  /**
+   * A Constructor.
+   * @param message a message, can be null
+   * @param evaluator a cause evaluator, can be null
+   * @param cause a cause exception, can be null
+   */
+  public JBBPEvalException(final String message, final JBBPIntegerValueEvaluator evaluator, Throwable cause) {
     super(message, cause);
     this.evaluator = evaluator;
   }
   
+  /**
+   * get the cause evaluator.
+   * @return the cause evaluator for the exception, can be null
+   */
   public JBBPIntegerValueEvaluator getEvaluator(){
     return this.evaluator;
   }

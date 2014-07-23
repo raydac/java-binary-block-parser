@@ -18,11 +18,12 @@ package com.igormaznitsa.jbbp.compiler.varlen;
 import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
 import com.igormaznitsa.jbbp.compiler.*;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
+import java.io.Serializable;
 
 /**
  * The Interface describes a class which can evaluate and provide an integer value. .
  */
-public interface JBBPIntegerValueEvaluator {
+public interface JBBPIntegerValueEvaluator extends Serializable {
   /**
    * Calculate an integer value.
    * @param inStream  a bit input stream

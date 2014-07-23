@@ -17,8 +17,7 @@ package com.igormaznitsa.jbbp.utils;
 
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -431,7 +430,7 @@ public final class JBBPUtils {
   public static void closeQuietly(final Closeable closeable){
     try{
       if (closeable!=null) closeable.close();
-    }catch(Exception ex){
+    }catch(IOException ex){
       
     }
   }

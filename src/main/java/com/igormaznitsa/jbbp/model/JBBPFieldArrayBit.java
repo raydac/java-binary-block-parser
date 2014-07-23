@@ -23,6 +23,7 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
  * Describes an array contains bit fields.
  */
 public final class JBBPFieldArrayBit extends JBBPAbstractArrayField<JBBPFieldBit> {
+  private static final long serialVersionUID = -4589044511663149591L;
 
   /**
    * Number of value bits in values of the array.

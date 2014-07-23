@@ -32,7 +32,7 @@ public class JBBPMapperException extends JBBPException {
   /**
    * The Class field which processing generates the exception.
    */
-  private final Field mappingClassField;
+  private final transient Field mappingClassField;
   
   /**
    * The class which mapping generates the exception.

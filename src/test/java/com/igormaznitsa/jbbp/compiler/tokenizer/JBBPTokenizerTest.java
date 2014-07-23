@@ -15,9 +15,6 @@
  */
 package com.igormaznitsa.jbbp.compiler.tokenizer;
 
-import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPToken;
-import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPTokenType;
-import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPTokenizer;
 import com.igormaznitsa.jbbp.exceptions.JBBPTokenizerException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;

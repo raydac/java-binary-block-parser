@@ -27,6 +27,7 @@ import java.util.List;
  * Describes a structure.
  */
 public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFieldFinder {
+  private static final long serialVersionUID = -5862961302858335702L;
 
   /**
    * Structure fields.

@@ -20,6 +20,8 @@ import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.model.*;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.lang.reflect.*;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 /**
  * The Class processes mapping of a parsed binary data to class fields. The
@@ -38,8 +40,17 @@ public class JBBPMapper {
       singleoneInstanceField.setAccessible(true);
       SUN_MISC_UNSAFE = (sun.misc.Unsafe) singleoneInstanceField.get(null);
     }
-    catch (Exception e) {
-      throw new Error("Can't get sun.misc.Unsafe");
+    catch (IllegalAccessException e) {
+      throw new Error("Can't get sun.misc.Unsafe for illegal access",e);
+    }
+    catch (IllegalArgumentException e) {
+      throw new Error("Can't get sun.misc.Unsafe for wrong argument", e);
+    }
+    catch (NoSuchFieldException e) {
+      throw new Error("Can't get sun.misc.Unsafe because it doesn't exist",e);
+    }
+    catch (SecurityException e) {
+      throw new Error("Can't get sun.misc.Unsafe for security exception",e);
     }
   }
 
@@ -60,7 +71,7 @@ public class JBBPMapper {
     JBBPUtils.assertNotNull(structPath, "Path must not be null");
     final JBBPFieldStruct struct = root.findFieldForPathAndType(structPath, JBBPFieldStruct.class);
     if (struct == null) {
-      throw new JBBPMapperException("Can't find a structure field for its path [" + structPath + ']', struct, mappingClass, null, null);
+      throw new JBBPMapperException("Can't find a structure field for its path [" + structPath + ']', null, mappingClass, null, null);
     }
     return map(struct, mappingClass);
   }
@@ -130,7 +141,7 @@ public class JBBPMapper {
       }
 
       if (binField == null) {
-        throw new JBBPMapperException("Can't find value to be mapped to a mapping field", binField, mappingClass, mappingField, null);
+        throw new JBBPMapperException("Can't find value to be mapped to a mapping field", null, mappingClass, mappingField, null);
       }
 
       if (mappingField.getType().isArray()) {

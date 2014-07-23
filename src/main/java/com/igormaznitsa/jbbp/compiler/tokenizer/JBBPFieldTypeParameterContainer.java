@@ -38,6 +38,12 @@ public final class JBBPFieldTypeParameterContainer implements Serializable {
    */
   private final String extraData;
 
+  /**
+   * The Constructor
+   * @param byteOrder the byte order for the field, must not be null
+   * @param typeName the type of the field, can be null
+   * @param extraData the extra data placed after ':' char, can be null
+   */
   public JBBPFieldTypeParameterContainer(final JBBPByteOrder byteOrder, final String typeName, final String extraData) {
     this.byteOrder = byteOrder;
     this.typeName = typeName;

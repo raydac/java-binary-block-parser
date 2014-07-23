@@ -16,11 +16,14 @@
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import java.io.Serializable;
 
 /**
  * The Class is the ancestor for all fields and arrays of fields.
  */
-public class JBBPAbstractField {
+public class JBBPAbstractField implements Serializable {
+  private static final long serialVersionUID = 8142829902016660630L;
+  
   /**
    * The Field contains the field name info
    */

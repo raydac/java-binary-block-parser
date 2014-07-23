@@ -22,6 +22,7 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
  * Describes an array of integers.
  */
 public final class JBBPFieldArrayInt extends JBBPAbstractArrayField<JBBPFieldInt>{
+  private static final long serialVersionUID = 6839868800303265190L;
   /**
    * Inside storage.
    */

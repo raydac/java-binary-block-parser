@@ -18,8 +18,10 @@ package com.igormaznitsa.jbbp.mapper;
 
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.exceptions.JBBPMapperException;
-import org.junit.Test;
+import java.lang.reflect.Field;
+import java.security.*;
 import static org.junit.Assert.*;
+import org.junit.Test;
 
 public class JBBPMapperTest {
   @Test
@@ -84,7 +86,7 @@ public class JBBPMapperTest {
   public void testMap_UByte() throws Exception {
     class Mapped {
       @Bin(type = BinType.UBYTE) int a;
-    };
+    }
     assertEquals(0xFE,JBBPParser.prepare("ubyte a;").parse(new byte[]{(byte)0xFE}).mapTo(Mapped.class).a);
   }
 
@@ -173,7 +175,7 @@ public class JBBPMapperTest {
   public void testMap_BoolArray() throws Exception {
     class Mapped {
       @Bin boolean [] a;
-    };
+    }
     final Mapped mapped = JBBPParser.prepare("bool [_] a;").parse(new byte[]{1, 0, 0, 4, 8, 0}).mapTo(Mapped.class);
     assertEquals(6,mapped.a.length);
     assertTrue(mapped.a[0]);
@@ -259,5 +261,25 @@ public class JBBPMapperTest {
       @Bin long a;
     }
     JBBPParser.prepare("byte f; test { inside {long a;} }").parse(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9}).mapTo("f",Mapped.class);
+  }
+
+  @Test
+  public void testMap_privateFieldInPackagelevelClass() throws Exception {
+    final ClassWithPrivateFields fld = JBBPParser.prepare("int field;").parse(new byte[]{1, 2, 3, 4}).mapTo(ClassWithPrivateFields.class);
+    AccessController.doPrivileged(new PrivilegedAction<Void>(){
+
+      public Void run() {
+        try{
+          final Field field = fld.getClass().getDeclaredField("field");
+          field.setAccessible(true);
+          assertEquals(0x01020304, field.getInt(fld));
+        }catch(Exception ex){
+          throw new RuntimeException(ex);
+        }
+        return null;
+      };
+      
+    });
+    
   }
 }

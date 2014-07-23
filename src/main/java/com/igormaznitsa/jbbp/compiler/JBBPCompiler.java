@@ -74,60 +74,60 @@ public final class JBBPCompiler {
   /**
    * The Byte code of the 'ALIGN' command.
    */
-  public static final int CODE_ALIGN = 0x00;
+  public static final int CODE_ALIGN = 0x01;
   /**
    * The Byte code of the 'BIT' command.
    */
-  public static final int CODE_BIT = 0x01;
+  public static final int CODE_BIT = 0x02;
   /**
    * The Byte code of the 'BOOL' (boolean) command.
    */
-  public static final int CODE_BOOL = 0x02;
+  public static final int CODE_BOOL = 0x03;
   /**
    * The Byte code of the 'UBYTE' (unsigned byte) command.
    */
-  public static final int CODE_UBYTE = 0x03;
+  public static final int CODE_UBYTE = 0x04;
   /**
    * The Byte code of the 'BYTE' command.
    */
-  public static final int CODE_BYTE = 0x04;
+  public static final int CODE_BYTE = 0x05;
   /**
    * p
    * The Byte code of the 'USHORT' (unsigned short) command.
    */
-  public static final int CODE_USHORT = 0x05;
+  public static final int CODE_USHORT = 0x06;
   /**
    * The Byte code of the 'SHORT' command.
    */
-  public static final int CODE_SHORT = 0x06;
+  public static final int CODE_SHORT = 0x07;
   /**
    * The Byte code of the 'INT' (integer) command.
    */
-  public static final int CODE_INT = 0x07;
+  public static final int CODE_INT = 0x08;
   /**
    * The Byte code of the 'LONG' command.
    */
-  public static final int CODE_LONG = 0x08;
+  public static final int CODE_LONG = 0x09;
 
   /**
    * The Byte code of the 'STRUCTURE_START' command.
    */
-  public static final int CODE_STRUCT_START = 0x09;
+  public static final int CODE_STRUCT_START = 0x0A;
 
   /**
    * The Byte code of the 'STRUCTURE_END' command.
    */
-  public static final int CODE_STRUCT_END = 0x0A;
+  public static final int CODE_STRUCT_END = 0x0B;
 
   /**
    * The Byte code of the SKIP command.
    */
-  public static final int CODE_SKIP = 0x0B;
+  public static final int CODE_SKIP = 0x0C;
 
   /**
    * The Byte code of the VAR command. It describes a request to an external processor to load values from a stream.
    */
-  public static final int CODE_VAR = 0x0C;
+  public static final int CODE_VAR = 0x0D;
 
   /**
    * The Byte-Code Flag shows that the field is a named one.

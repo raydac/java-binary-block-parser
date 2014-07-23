@@ -22,6 +22,7 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
  * Describes a byte field.
  */
 public final class JBBPFieldByte extends JBBPAbstractField implements JBBPNumericField {
+  private static final long serialVersionUID = -446415543054607091L;
   /**
    * Inside value storage.
    */

@@ -27,45 +27,137 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.*;
 
+/**
+ * The Class implements an evaluator which can calculate an expression.
+ */
 public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator {
+  private static final long serialVersionUID = -2951446352849455161L;
 
+  /**
+   * The Maximum stack depth for the expression.
+   */
   private static final int MAX_STACK_DEPTH = 16;
 
+  /**
+   * Code for a left bracket.
+   */
   private static final int PSEUDOCODE_LEFT_BRACKET = 0;
+  /**
+   * Code for a variable.
+   */
   private static final int CODE_VAR = 1;
+  /**
+   * Code for a variable provided by an external provider.
+   */
   private static final int CODE_EXTVAR = 2;
+  /**
+   * Code for a constant.
+   */
   private static final int CODE_CONST = 3;
+  /**
+   * Code for unary bit NOT operator.
+   */
   private static final int CODE_NOT = 4;
+  /**
+   * Code for unary '-' operator.
+   */
   private static final int CODE_UNARYMINUS = 5;
+  /**
+   * Code for unary '+' operator.
+   */
   private static final int CODE_UNARYPLUS = 6;
+  /**
+   * Code for ADD '+' operator.
+   */
   private static final int CODE_ADD = 7;
+  /**
+   * Code for SUB '-' operator.
+   */
   private static final int CODE_MINUS = 8;
+  /**
+   * Code for MUL '*' operator.
+   */
   private static final int CODE_MUL = 9;
+  /**
+   * Code for DIV '/' operator.
+   */
   private static final int CODE_DIV = 10;
+  /**
+   * Code for MOD '%' operator.
+   */
   private static final int CODE_MOD = 11;
+  /**
+   * Code for bit OR '|' operator.
+   */
   private static final int CODE_OR = 12;
+  /**
+   * Code for bit XOR '^' operator.
+   */
   private static final int CODE_XOR = 13;
+  /**
+   * Code for bit AND '&' operator.
+   */
   private static final int CODE_AND = 14;
+  /**
+   * Code for left shift '<<' operator.
+   */
   private static final int CODE_LSHIFT = 15;
+  /**
+   * Code for right shift '>>' operator.
+   */
   private static final int CODE_RSHIFT = 16;
+  /**
+   * Code for right sign shift '>>>' operator.
+   */
   private static final int CODE_RSIGNSHIFT = 17;
 
+  /**
+   * Array of operator priorities for their codes.
+   */
   private static final int[] PRIORITIES = new int[]{0, 1000, 1000, 1000, 500, 500, 500, 200, 200, 300, 300, 300, 50, 100, 150, 175, 175, 175};
+  /**
+   * Array of operator symbols mapped to their codes.
+   */
   private static final String[] SYMBOLS = new String[]{"(", "", "", "", "~", "-", "+", "+", "-", "*", "/", "%", "|", "^", "&", "<<", ">>", ">>>"};
 
+  /**
+   * The Array contains byte code of compiled expression.
+   */
   private final byte[] compiledExpression;
+  /**
+   * The String contains the script source for expression.
+   */
   private final String expressionSource;
+  /**
+   * The Array contains external variable names which values should be provided externally.
+   */
   private final String[] externalValueNames;
 
-  private static final char[] supportedOperators = new char[]{'(', '+', '-', '*', '/', '%', '|', '&', '^', '~'};
+  /**
+   * Array of first chars of operators to recognize a string as possible expression.
+   */
+  private static final char[] operatorFirstChars = new char[]{'(', '+', '-', '*', '/', '%', '|', '&', '^', '~', ')', '>', '<'};
+  /**
+   * The Pattern to parse an expression.
+   */
   private static final Pattern pattern = Pattern.compile("([0-9]+)|([\\(\\)])|(<<|>>>|>>|[\\%\\*\\+\\-\\/\\&\\|\\^\\~])|([\\S][^\\<\\>\\s\\+\\%\\*\\-\\/\\(\\)\\&\\|\\^\\~]+)");
 
+  /**
+   * Check that a string represents a unary operator.
+   * @param operator an operator to be checked, must not be null.
+   * @throws JBBPCompilationException if the operator is not supported unary operator.
+   */
   private void assertUnaryOperator(final String operator) {
     if (!("+".equals(operator) || "-".equals(operator) || "~".equals(operator))) {
       throw new JBBPCompilationException("Wrong unary operator '" + operator + "' [" + this.expressionSource + ']');
     }
   }
 
+  /**
+   * Encode code of an operator to code of similar unary operator.
+   * @param code a code of operator.
+   * @return code of an unary similar operator if it exists, the same code otherwise
+   */
   private static int codeToUnary(final int code) {
     switch (code) {
       case CODE_MINUS:
@@ -77,6 +169,13 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
     }
   }
 
+  /**
+   * The Constructor. It makes compilation an expression into internal representation.
+   * @param expression a source expression, must not be null
+   * @param namedFields a named field info list, must not be null 
+   * @param compiledData the current compiled data block of JBBP parent script for the expression, must not be null
+   * @throws JBBPCompilationException if any problem in compilation
+   */
   public JBBPExpressionEvaluator(final String expression, final List<JBBPNamedFieldInfo> namedFields, final byte[] compiledData) {
     this.expressionSource = expression;
 
@@ -346,12 +445,26 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
     this.externalValueNames = externalValueNameList.isEmpty() ? null : externalValueNameList.toArray(new String[externalValueNameList.size()]);
   }
 
+  /**
+   * Check that the current stack depth is enough.
+   * @param stackDepth the current stack depth
+   * @throws JBBPCompilationException if the stack depth is not enough
+   */
   private void assertStackDepth(final int stackDepth) {
     if (stackDepth >= MAX_STACK_DEPTH) {
       throw new JBBPCompilationException("Can't calculate expression, stack overflow [" + expressionSource + ']');
     }
   }
 
+  /**
+   * Evaluate the expression.
+   * @param inStream the input stream of data, must not be null
+   * @param currentCompiledBlockOffset the current offset inside the compiled JBBP script
+   * @param compiledBlockData the compiled JBBP script, must not be null
+   * @param fieldMap the named field info map, must not be null
+   * @return calculated integer result of the expression
+   * @throws JBBPEvalException if there is any problem during processing
+   */
   public int eval(final JBBPBitInputStream inStream, final int currentCompiledBlockOffset, final JBBPCompiledBlock compiledBlockData, final JBBPNamedNumericFieldMap fieldMap) {
     final int[] stack = new int[MAX_STACK_DEPTH];
     int stackDepth = 0;
@@ -496,8 +609,13 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
     return stack[0];
   }
 
+  /**
+   * Check that a string has a char of operators.
+   * @param str a string to be checked, must not be null
+   * @return true if the string contains a char of an operator, false otherwise
+   */
   public static boolean hasExpressionOperators(final String str) {
-    for (final char chr : supportedOperators) {
+    for (final char chr : operatorFirstChars) {
       if (str.indexOf(chr) >= 0) {
         return true;
       }
@@ -505,6 +623,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
     return false;
   }
 
+  @Override
   public String toString() {
     return this.expressionSource;
   }

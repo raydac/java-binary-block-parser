@@ -23,6 +23,7 @@ import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
  * Class implements an evaluator which works with only field.
  */
 public final class JBBPOnlyFieldEvaluator implements JBBPIntegerValueEvaluator {
+  private static final long serialVersionUID = -1031131501937541693L;
 
   /**
    * The Index in named field area for the field which is used by the evaluator.
