@@ -49,6 +49,12 @@ public final class JBBPFieldBoolean extends JBBPAbstractField implements JBBPNum
     return this.value;
   }
 
+  /**
+   * Get the reversed bit representation of the value. But for boolean it doesn't work and made for compatibility
+   *
+   * @param value the value to be reversed
+   * @return the reversed value
+   */
   public static long reverseBits(final boolean value){
     return value ? 1 : 0;
   }

@@ -77,5 +77,10 @@ public class JBBPMapperException extends JBBPException {
   public Field getMappingClassField(){
     return this.mappingClassField;
   }
+ 
+  @Override
+  public String toString(){
+    return this.getMessage()+" [ "+this.getMappingClassField()+" -> "+this.getBinField()+']';
+  }
   
 }

@@ -22,25 +22,81 @@ import com.igormaznitsa.jbbp.model.*;
  * @see BinMapper
  */
 public enum BinType {
-
+  /**
+   * Undefined type, the mapper will be looking for compatible parsed field with the mapping field.
+   */
   UNDEFINED(null),
+  /**
+   * A Mapping field will be mapped to a parsed bit field.
+   */
   BIT(JBBPFieldBit.class),
+  /**
+   * A Mapping field will be mapped to a parsed boolean field.
+   */
   BOOL(JBBPFieldBoolean.class),
+  /**
+   * A Mapping field will be mapped to a parsed byte field.
+   */
   BYTE(JBBPFieldByte.class),
+  /**
+   * A Mapping field will be mapped to a parsed unsigned byte field.
+   */
   UBYTE(JBBPFieldUByte.class),
+  /**
+   * A Mapping field will be mapped to a parsed short field.
+   */
   SHORT(JBBPFieldShort.class),
+  /**
+   * A Mapping field will be mapped to a parsed unsigned short field.
+   */
   USHORT(JBBPFieldUShort.class),
+  /**
+   * A Mapping field will be mapped to a parsed integer field.
+   */  
   INT(JBBPFieldInt.class),
+  /**
+   * A Mapping field will be mapped to a parsed long field.
+   */
   LONG(JBBPFieldLong.class),
+  /**
+   * A Mapping field will be mapped to a parsed bit array field.
+   */
   BIT_ARRAY(JBBPFieldArrayBit.class),
+  /**
+   * A Mapping field will be mapped to a parsed boolean array field.
+   */
   BOOL_ARRAY(JBBPFieldArrayBoolean.class),
+  /**
+   * A Mapping field will be mapped to a parsed byte array field.
+   */  
   BYTE_ARRAY(JBBPFieldArrayByte.class),
+  /**
+   * A Mapping field will be mapped to a parsed unsigned byte array field.
+   */
   UBYTE_ARRAY(JBBPFieldArrayUByte.class),
+  /**
+   * A Mapping field will be mapped to a parsed short array field.
+   */
   SHORT_ARRAY(JBBPFieldArrayShort.class),
+  /**
+   * A Mapping field will be mapped to a parsed unsigned short array field.
+   */
   USHORT_ARRAY(JBBPFieldArrayUShort.class),
+  /**
+   * A Mapping field will be mapped to a parsed integer array field.
+   */
   INT_ARRAY(JBBPFieldArrayInt.class),
+  /**
+   * A Mapping field will be mapped to a parsed long array field.
+   */
   LONG_ARRAY(JBBPFieldArrayLong.class),
+  /**
+   * A Mapping field will be mapped to a parsed structure field.
+   */
   STRUCT(JBBPFieldStruct.class),
+  /**
+   * A Mapping field will be mapped to a parsed structure array field.
+   */
   STRUCT_ARRAY(JBBPFieldArrayStruct.class);
 
   /**

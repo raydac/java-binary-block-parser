@@ -40,6 +40,9 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
    */
   private final JBBPExternalValueProvider externalValueProvider;
 
+  /**
+   * Empty constructor which makes a map with null provider.
+   */
   public JBBPNamedNumericFieldMap() {
     this(null);
   }

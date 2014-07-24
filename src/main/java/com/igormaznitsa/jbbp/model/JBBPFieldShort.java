@@ -50,6 +50,12 @@ public final class JBBPFieldShort extends JBBPAbstractField implements JBBPNumer
     return this.value != 0;
   }
 
+  /**
+   * Get the reversed bit representation of the value.
+   *
+   * @param value the value to be reversed
+   * @return the reversed value
+   */
   public static long reverseBits(final short value) {
     final int b0 = JBBPUtils.reverseByte((byte) value) & 0xFF;
     final int b1 = JBBPUtils.reverseByte((byte) (value >> 8)) & 0xFF;

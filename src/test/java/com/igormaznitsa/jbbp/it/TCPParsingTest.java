@@ -16,11 +16,9 @@
 package com.igormaznitsa.jbbp.it;
 
 import com.igormaznitsa.jbbp.*;
-import com.igormaznitsa.jbbp.model.JBBPFieldArrayByte;
-import com.igormaznitsa.jbbp.model.JBBPFieldBit;
-import com.igormaznitsa.jbbp.model.JBBPFieldInt;
-import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
-import com.igormaznitsa.jbbp.model.JBBPFieldUShort;
+import com.igormaznitsa.jbbp.mapper.Bin;
+import com.igormaznitsa.jbbp.mapper.BinType;
+import com.igormaznitsa.jbbp.model.*;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.InputStream;
 import static org.junit.Assert.*;
@@ -91,5 +89,25 @@ public class TCPParsingTest extends AbstractParserIntegrationTest {
     finally {
       JBBPUtils.closeQuietly(tcpFrameStream);
     }
+  }
+  
+  @Test
+  public void testParseSomePacketGettedOverTCP_ExampleFromStackOverflow() throws Exception {
+    final class Parsed { 
+      @Bin byte begin; 
+      @Bin(type = BinType.BIT) int version; 
+      @Bin(type = BinType.BIT) int returnType;
+      @Bin byte [] productCode;
+      @Bin(type = BinType.USHORT) int dataLength;
+    }
+    final Parsed parsed = JBBPParser.prepare("byte begin; bit:4 version; bit:4 returnType; byte [5] productCode; ushort dataLength;")
+            .parse(new byte[]{0x23,0x21,(byte)0x90,0x23,0x21,0x22,0x12,0x00,(byte)0xAA})
+            .mapTo(Parsed.class);
+    
+    assertEquals(0x23, parsed.begin);
+    assertEquals(0x01, parsed.version);
+    assertEquals(0x02, parsed.returnType);
+    assertArrayEquals(new byte[]{(byte)0x90,0x23,0x21,0x22,0x12}, parsed.productCode);
+    assertEquals(0x00AA,parsed.dataLength);
   }
 }
