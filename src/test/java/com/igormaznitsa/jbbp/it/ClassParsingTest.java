@@ -210,11 +210,11 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
     };
   }
 
-  private String extractClassNameFromConstantPool(final ClassFile klazz, final int cpIndex) throws Exception {
-    final byte [] constantClassInfo = klazz.constant_pool_item[cpIndex-1].cp_item;
-    final int index = (constantClassInfo[1]<<8) | (constantClassInfo[2] & 0xFF);
-    final byte [] utf8 = klazz.constant_pool_item[index - 1].cp_item;
-    return new String(utf8, 3, utf8.length - 3, "UTF-8");
+  private String extractClassNameFromConstantPool(final ClassFile klazz, final int classInfoIndex) throws Exception {
+    final byte [] constantClassInfo = klazz.constant_pool_item[classInfoIndex-1].cp_item;
+    final int utf8Index = (constantClassInfo[1]<<8) | (constantClassInfo[2] & 0xFF);
+    final byte [] utf8data = klazz.constant_pool_item[utf8Index - 1].cp_item;
+    return new String(utf8data, 3, utf8data.length - 3, "UTF-8");
   }
   
   private void assertClass(final ClassFile klazz, final String className, final String superclass, final int interfaces, final int fields, final int methods) throws Exception {
