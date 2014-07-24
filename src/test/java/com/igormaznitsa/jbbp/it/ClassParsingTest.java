@@ -20,7 +20,6 @@ import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.mapper.Bin;
-import com.igormaznitsa.jbbp.mapper.BinType;
 import com.igormaznitsa.jbbp.model.*;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.IOException;
