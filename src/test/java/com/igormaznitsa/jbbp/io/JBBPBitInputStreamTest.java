@@ -17,6 +17,7 @@ package com.igormaznitsa.jbbp.io;
 
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.*;
+import java.util.Random;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -292,6 +293,31 @@ public class JBBPBitInputStreamTest {
   }
 
   @Test
+  public void testReadStream_AsPartOfArray_MSB0() throws IOException {
+    final byte[] testarray = JBBPUtils.str2bin(TEST_BYTES, JBBPBitOrder.MSB0);
+
+    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(testarray),JBBPBitOrder.MSB0);
+
+    final byte[] buff = new byte[27];
+    assertEquals(5, in.read(buff, 9, 5));
+    assertEquals(5, in.getCounter());
+    assertEquals(0xC0, in.read());
+
+    for (int i = 0; i < 9; i++) {
+      assertEquals(0, buff[i]);
+    }
+
+    for (int i = 9; i < 14; i++) {
+      assertEquals(JBBPUtils.reverseByte(testarray[i - 9]), buff[i]);
+    }
+
+    for (int i = 14; i < 27; i++) {
+      assertEquals(0, buff[i]);
+    }
+
+  }
+
+  @Test
   public void testReadStream_AsPartOfArray_1bitOffset() throws IOException {
     final byte[] testarray = JBBPUtils.str2bin(TEST_BYTES, JBBPBitOrder.MSB0);
 
@@ -486,8 +512,38 @@ public class JBBPBitInputStreamTest {
 
   @Test
   public void testReadArray_Int_WholeStream() throws Exception {
-    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5, 6, 7, 0, (byte) 0xFE, (byte) 0xCA, (byte) 0xBE, (byte) 0x01}));
+    JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5, 6, 7, 0, (byte) 0xFE, (byte) 0xCA, (byte) 0xBE, (byte) 0x01}));
     assertArrayEquals(new int[]{0x01020304, 0x05060700, 0xFECABE01}, in.readIntArray(-1, JBBPByteOrder.BIG_ENDIAN));
+  
+    final Random rnd = new Random(1234);
+     
+    final byte [] buff = new byte[JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE*4];
+    rnd.nextBytes(buff);
+    
+    in = new JBBPBitInputStream(new ByteArrayInputStream(buff));
+    
+    final int [] read = in.readIntArray(-1, JBBPByteOrder.BIG_ENDIAN);
+
+    assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE, read.length);
+    for(int i=0;i<read.length;i++){
+      final int val = read[i];
+      final int j = i*4;
+      assertEquals(val, ((buff[j]<<24) | ((buff[j+1] & 0xFF) << 16) | ((buff[j+2] & 0xFF) << 8) | (buff[j+3] & 0xFF)));
+    }
+
+    final byte [] big = new byte[JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE*128];
+    rnd.nextBytes(big);
+    
+    in = new JBBPBitInputStream(new ByteArrayInputStream(big));
+    
+    final int [] readbig = in.readIntArray(-1, JBBPByteOrder.BIG_ENDIAN);
+
+    assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE*32, readbig.length);
+    for(int i=0;i<readbig.length;i++){
+      final int val = readbig[i];
+      final int j = i*4;
+      assertEquals(val, ((big[j]<<24) | ((big[j+1] & 0xFF) << 16) | ((big[j+2] & 0xFF) << 8) | (big[j+3] & 0xFF)));
+    }
   }
 
   @Test
@@ -498,8 +554,40 @@ public class JBBPBitInputStreamTest {
 
   @Test
   public void testReadArray_Long_WholeStream() throws Exception {
-    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5, 6, 7, 0, (byte) 0xFE, (byte) 0xCA, (byte) 0xBE, (byte) 0x01, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4}));
+    JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5, 6, 7, 0, (byte) 0xFE, (byte) 0xCA, (byte) 0xBE, (byte) 0x01, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4}));
     assertArrayEquals(new long[]{0x0102030405060700L, 0xFECABE0102030405L, 0x0607080901020304L}, in.readLongArray(-1, JBBPByteOrder.BIG_ENDIAN));
+
+    final Random rnd = new Random(1234);
+
+    final byte[] buff = new byte[JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE * 8];
+    rnd.nextBytes(buff);
+
+    in = new JBBPBitInputStream(new ByteArrayInputStream(buff));
+
+    final long[] read = in.readLongArray(-1, JBBPByteOrder.BIG_ENDIAN);
+
+    assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE, read.length);
+    for (int i = 0; i < read.length; i++) {
+      final long val = read[i];
+      final int j = i * 8;
+      assertEquals(val, (((long)buff[j] << 56) | (((long)buff[j + 1] & 0xFFL) << 48) | (((long)buff[j + 2] & 0xFFL) << 40) | (((long) buff[j + 3] & 0xFFL) << 32) | (((long) buff[j + 4] & 0xFFL) << 24) | (((long) buff[j + 5] & 0xFFL) << 16) | (((long) buff[j + 6] & 0xFFL) << 8) | ((long)buff[j + 7] & 0xFF)));
+    }
+
+    final byte[] big = new byte[JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE * 128];
+    rnd.nextBytes(big);
+
+    in = new JBBPBitInputStream(new ByteArrayInputStream(big));
+
+    final long[] readbig = in.readLongArray(-1, JBBPByteOrder.BIG_ENDIAN);
+
+    assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE * 16, readbig.length);
+    for (int i = 0; i < readbig.length; i++) {
+      final long val = readbig[i];
+      final int j = i * 8;
+      assertEquals(val, (((long) big[j] << 56) | (((long) big[j + 1] & 0xFFL) << 48) | (((long) big[j + 2] & 0xFFL) << 40) | (((long) big[j + 3] & 0xFFL) << 32) | (((long) big[j + 4] & 0xFFL) << 24) | (((long) big[j + 5] & 0xFFL) << 16) | (((long) big[j + 6] & 0xFFL) << 8) | ((long) big[j + 7] & 0xFF)));
+    }
+  
+  
   }
 
   @Test
@@ -528,4 +616,22 @@ public class JBBPBitInputStreamTest {
     assertEquals(2, in.readByte());
   }
 
+  @Test
+  public void testReadBooleanArray_WholeStream() throws Exception {
+    final byte [] testarray = new byte [16384];
+    final Random rnd = new Random(1234);
+    for(int i=0;i<testarray.length;i++) {
+      testarray[i] = rnd.nextInt(100) > 50 ? 0 : (byte)rnd.nextInt(0x100);
+    }
+    
+    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(testarray));
+    
+    final boolean [] read = in.readBoolArray(-1);
+    
+    assertEquals(testarray.length, read.length);
+    for(int i=0;i<read.length;i++){
+      assertTrue(read[i] == (testarray[i]!=0));
+    }
+  }
+  
 }

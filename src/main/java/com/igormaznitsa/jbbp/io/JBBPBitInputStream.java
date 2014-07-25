@@ -25,7 +25,7 @@ import java.io.*;
  */
 public class JBBPBitInputStream extends FilterInputStream implements JBBPCountableBitStream {
 
-  private static final int INITIAL_ARRAY_BUFFER_SIZE = 32;
+  protected static final int INITIAL_ARRAY_BUFFER_SIZE = 32;
 
   /**
    * The Inside bit buffer,

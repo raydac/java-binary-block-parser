@@ -16,12 +16,14 @@
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class JBBPFieldArrayShortTest {
 
-  private final JBBPFieldArrayShort test = new JBBPFieldArrayShort(new JBBPNamedFieldInfo("test.field", "field", 999), new short[]{(short)-27834, 23423, 0, -2, 3});
+  private final short [] array = new short[]{(short) -27834, 23423, 0, -2, 3};
+  private final JBBPFieldArrayShort test = new JBBPFieldArrayShort(new JBBPNamedFieldInfo("test.field", "field", 999), array);
 
   @Test
   public void testNameAndOffset() {
@@ -74,5 +76,14 @@ public class JBBPFieldArrayShortTest {
     }
   }
 
+  @Test
+  public void testGetValueArrayAsObject() {
+    assertArrayEquals(array, (short[])test.getValueArrayAsObject(false));
   
+    final short [] inverted = (short[])test.getValueArrayAsObject(true);
+    assertEquals(array.length, inverted.length);
+    for(int i=0;i<array.length;i++){
+      assertEquals(JBBPFieldShort.reverseBits(array[i]), inverted[i]);
+    }
+  }
 }
