@@ -29,6 +29,15 @@ import org.junit.Test;
 
 public class ClassParsingTest extends AbstractParserIntegrationTest {
 
+  private static final int FORMAT_J2SE8 = 0x34;
+  private static final int FORMAT_J2SE7 = 0x33;
+  private static final int FORMAT_J2SE6 = 0x32;
+  private static final int FORMAT_J2SE5 = 0x31;
+  private static final int FORMAT_JDK14 = 0x30;
+  private static final int FORMAT_JDK13 = 0x2F;
+  private static final int FORMAT_JDK12 = 0x2E;
+  private static final int FORMAT_JDK11 = 0x2D;
+
   private static final int CONSTANT_Class = 7;
   private static final int CONSTANT_Fieldref = 9;
   private static final int CONSTANT_Methodref = 10;
@@ -44,48 +53,101 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
   private static final int CONSTANT_MethodType = 16;
   private static final int CONSTANT_InvokeDynamic = 18;
 
-  
+  private static final String[] AllowedAttributes = new String[]{
+    "ConstantValue",
+    "Code", 
+    "StackMapTable",
+    "Exceptions",
+    "InnerClasses",
+    "EnclosingMethod",
+    "Synthetic",
+    "Signature",
+    "SourceFile",
+    "SourceDebugExtension",
+    "LineNumberTable",
+    "LocalVariableTable",
+    "LocalVariableTypeTable",
+    "Deprecated",
+    "RuntimeVisibleAnnotations",
+    "RuntimeInvisibleAnnotations",
+    "RuntimeVisibleParameterAnnotations",
+    "RuntimeInvisibleParameterAnnotations",
+    "AnnotationDefault",
+    "BootstrapMethods"
+  };
+
   private class ConstantPoolItem {
-    @Bin byte [] cp_item; 
+
+    @Bin
+    byte[] cp_item;
   }
 
   private class Interface {
-    @Bin char index; 
+
+    @Bin
+    char index;
   }
-  
+
   private class FieldMethodInfo {
-    @Bin char access_flags; 
-    @Bin char name_index;
-    @Bin char descriptor_index;
-    @Bin char attributes_count;
-    @Bin AttributeInfo [] attribute_info;
+
+    @Bin
+    char access_flags;
+    @Bin
+    char name_index;
+    @Bin
+    char descriptor_index;
+    @Bin
+    char attributes_count;
+    @Bin
+    AttributeInfo[] attribute_info;
   }
 
   private class AttributeInfo {
-    @Bin char name_index;
-    @Bin int length;
-    @Bin byte [] info;
+
+    @Bin
+    char name_index;
+    @Bin
+    int length;
+    @Bin
+    byte[] info;
   }
-  
+
   private class ClassFile {
-    @Bin int magic;
-    @Bin char minor_version; 
-    @Bin char major_version; 
-    @Bin char constant_pool_count; 
-    @Bin ConstantPoolItem [] constant_pool_item;
-    @Bin char access_flags;
-    @Bin char this_class;
-    @Bin char super_class;
-    @Bin char interfaces_count;
-    @Bin Interface [] interfaces;
-    @Bin char fields_count;
-    @Bin FieldMethodInfo [] fields;
-    @Bin char methods_count;
-    @Bin FieldMethodInfo [] methods;
-    @Bin char attributes_count;
-    @Bin AttributeInfo [] attribute_info;
+
+    @Bin
+    int magic;
+    @Bin
+    char minor_version;
+    @Bin
+    char major_version;
+    @Bin
+    char constant_pool_count;
+    @Bin
+    ConstantPoolItem[] constant_pool_item;
+    @Bin
+    char access_flags;
+    @Bin
+    char this_class;
+    @Bin
+    char super_class;
+    @Bin
+    char interfaces_count;
+    @Bin
+    Interface[] interfaces;
+    @Bin
+    char fields_count;
+    @Bin
+    FieldMethodInfo[] fields;
+    @Bin
+    char methods_count;
+    @Bin
+    FieldMethodInfo[] methods;
+    @Bin
+    char attributes_count;
+    @Bin
+    AttributeInfo[] attribute_info;
   }
-  
+
   private static final JBBPParser classParser = JBBPParser.prepare(
           "  int magic;"
           + "ushort minor_version;"
@@ -210,27 +272,78 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
   }
 
   private String extractClassNameFromConstantPool(final ClassFile klazz, final int classInfoIndex) throws Exception {
-    final byte [] constantClassInfo = klazz.constant_pool_item[classInfoIndex-1].cp_item;
-    final int utf8Index = (constantClassInfo[1]<<8) | (constantClassInfo[2] & 0xFF);
-    final byte [] utf8data = klazz.constant_pool_item[utf8Index - 1].cp_item;
+    final byte[] constantClassInfo = klazz.constant_pool_item[classInfoIndex - 1].cp_item;
+    final int utf8Index = (constantClassInfo[1] << 8) | (constantClassInfo[2] & 0xFF);
+    return extractUtf8FromConstantPool(klazz, utf8Index);
+  }
+
+  private String extractUtf8FromConstantPool(final ClassFile klazz, final int utf8Index) throws Exception {
+    final byte[] utf8data = klazz.constant_pool_item[utf8Index - 1].cp_item;
     return new String(utf8data, 3, utf8data.length - 3, "UTF-8");
   }
+
+  private void assertAttribute(final ClassFile klass, final AttributeInfo attr) throws Exception {
+    final String attrName = extractUtf8FromConstantPool(klass, attr.name_index);
+    for(final String s : AllowedAttributes){
+      if (s.equals(attrName)) return;
+    }
+    fail("Disallowed attribute '"+attrName+'\'');
+  }
   
-  private void assertClass(final ClassFile klazz, final String className, final String superclass, final int interfaces, final int fields, final int methods) throws Exception {
+  private void assertClass(final ClassFile klazz, final int majorVersion, final String className, final String superclass, final int interfaces, final int fields, final int methods) throws Exception {
     assertEquals(0xCAFEBABE, klazz.magic);
+    assertEquals(0, klazz.minor_version);
+    assertEquals(majorVersion, klazz.major_version);
     assertEquals(className, extractClassNameFromConstantPool(klazz, klazz.this_class));
     assertEquals(superclass, extractClassNameFromConstantPool(klazz, klazz.super_class));
     assertEquals(interfaces, klazz.interfaces.length);
     assertEquals(fields, klazz.fields.length);
     assertEquals(methods, klazz.methods.length);
+
+    if (fields > 0){
+      for (int i = 0; i < klazz.fields.length; i++) {
+        final FieldMethodInfo info = klazz.fields[i];
+        assertTrue(klazz.attribute_info.length > 0);
+        for(final AttributeInfo ainfo : info.attribute_info){
+          assertAttribute(klazz, ainfo);
+        }
+      }
+    }
+    
+    if (methods > 0){
+      for (int i = 0; i < klazz.methods.length; i++) {
+        final FieldMethodInfo info = klazz.methods[i];
+        assertTrue(klazz.attribute_info.length > 0);
+        for(final AttributeInfo ainfo : info.attribute_info){
+          assertAttribute(klazz, ainfo);
+        }
+      }
+    }
+
+    assertTrue(klazz.attribute_info.length > 0);
+    for (final AttributeInfo ainfo : klazz.attribute_info) {
+      assertAttribute(klazz, ainfo);
+    }
   }
-  
+
   @Test
-  public void testParseClassFile() throws Exception {
+  public void testParseClassFile_TestClass() throws Exception {
     final InputStream in = getResourceAsInputStream("test.clazz");
     try {
       final ClassFile klazz = classParser.parse(in, getVarFieldProcessor(), null).mapTo(ClassFile.class);
-      assertClass(klazz, "Test", "java/lang/Object", 0, 2, 4);
+      assertClass(klazz, FORMAT_J2SE7, "Test", "java/lang/Object", 0, 2, 4);
+    }
+    finally {
+      JBBPUtils.closeQuietly(in);
+    }
+  }
+
+  @Test
+  public void testParseClassFile_HexEngineClass() throws Exception {
+    final InputStream in = getResourceAsInputStream("hexengine.clazz");
+    try {
+      final ClassFile klazz = classParser.parse(in, getVarFieldProcessor(), null).mapTo(ClassFile.class);
+      assertClass(klazz, FORMAT_J2SE5, "com/igormaznitsa/jhexed/engine/HexEngine", "java/lang/Object", 0, 22, 44);
     }
     finally {
       JBBPUtils.closeQuietly(in);
