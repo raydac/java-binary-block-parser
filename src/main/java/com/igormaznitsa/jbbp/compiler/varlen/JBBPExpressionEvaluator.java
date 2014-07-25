@@ -31,6 +31,7 @@ import java.util.regex.*;
  * The Class implements an evaluator which can calculate an expression.
  */
 public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator {
+
   private static final long serialVersionUID = -2951446352849455161L;
 
   /**
@@ -129,12 +130,14 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
    */
   private final String expressionSource;
   /**
-   * The Array contains external variable names which values should be provided externally.
+   * The Array contains external variable names which values should be provided
+   * externally.
    */
   private final String[] externalValueNames;
 
   /**
-   * Array of first chars of operators to recognize a string as possible expression.
+   * Array of first chars of operators to recognize a string as possible
+   * expression.
    */
   private static final char[] operatorFirstChars = new char[]{'(', '+', '-', '*', '/', '%', '|', '&', '^', '~', ')', '>', '<'};
   /**
@@ -144,8 +147,10 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
 
   /**
    * Check that a string represents a unary operator.
+   *
    * @param operator an operator to be checked, must not be null.
-   * @throws JBBPCompilationException if the operator is not supported unary operator.
+   * @throws JBBPCompilationException if the operator is not supported unary
+   * operator.
    */
   private void assertUnaryOperator(final String operator) {
     if (!("+".equals(operator) || "-".equals(operator) || "~".equals(operator))) {
@@ -155,25 +160,36 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
 
   /**
    * Encode code of an operator to code of similar unary operator.
+   *
    * @param code a code of operator.
-   * @return code of an unary similar operator if it exists, the same code otherwise
+   * @return code of an unary similar operator if it exists, the same code
+   * otherwise
    */
   private static int codeToUnary(final int code) {
+    final int result;
+
     switch (code) {
       case CODE_MINUS:
-        return CODE_UNARYMINUS;
+        result = CODE_UNARYMINUS;
+        break;
       case CODE_ADD:
-        return CODE_UNARYPLUS;
+        result = CODE_UNARYPLUS;
+        break;
       default:
-        return code;
+        result = code;
+        break;
     }
+    return result;
   }
 
   /**
-   * The Constructor. It makes compilation an expression into internal representation.
+   * The Constructor. It makes compilation an expression into internal
+   * representation.
+   *
    * @param expression a source expression, must not be null
-   * @param namedFields a named field info list, must not be null 
-   * @param compiledData the current compiled data block of JBBP parent script for the expression, must not be null
+   * @param namedFields a named field info list, must not be null
+   * @param compiledData the current compiled data block of JBBP parent script
+   * for the expression, must not be null
    * @throws JBBPCompilationException if any problem in compilation
    */
   public JBBPExpressionEvaluator(final String expression, final List<JBBPNamedFieldInfo> namedFields, final byte[] compiledData) {
@@ -447,6 +463,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
 
   /**
    * Check that the current stack depth is enough.
+   *
    * @param stackDepth the current stack depth
    * @throws JBBPCompilationException if the stack depth is not enough
    */
@@ -458,8 +475,10 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
 
   /**
    * Evaluate the expression.
+   *
    * @param inStream the input stream of data, must not be null
-   * @param currentCompiledBlockOffset the current offset inside the compiled JBBP script
+   * @param currentCompiledBlockOffset the current offset inside the compiled
+   * JBBP script
    * @param compiledBlockData the compiled JBBP script, must not be null
    * @param fieldMap the named field info map, must not be null
    * @return calculated integer result of the expression
@@ -492,7 +511,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
         break;
         case CODE_ADD: {
           if (stackDepth < 2) {
-            throw new JBBPEvalException("'+' needs two arguments [" + this.expressionSource + ']',this);
+            throw new JBBPEvalException("'+' needs two arguments [" + this.expressionSource + ']', this);
           }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] += top;
@@ -500,7 +519,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
         break;
         case CODE_AND: {
           if (stackDepth < 2) {
-            throw new JBBPEvalException("'&' needs two arguments [" + this.expressionSource + ']',this);
+            throw new JBBPEvalException("'&' needs two arguments [" + this.expressionSource + ']', this);
           }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] &= top;
@@ -508,7 +527,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
         break;
         case CODE_OR: {
           if (stackDepth < 2) {
-            throw new JBBPEvalException("'|' needs two arguments [" + this.expressionSource + ']',this);
+            throw new JBBPEvalException("'|' needs two arguments [" + this.expressionSource + ']', this);
           }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] |= top;
@@ -516,7 +535,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
         break;
         case CODE_XOR: {
           if (stackDepth < 2) {
-            throw new JBBPEvalException("'^' needs two arguments [" + this.expressionSource + ']',this);
+            throw new JBBPEvalException("'^' needs two arguments [" + this.expressionSource + ']', this);
           }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] ^= top;
@@ -524,7 +543,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
         break;
         case CODE_MINUS: {
           if (stackDepth < 2) {
-            throw new JBBPEvalException("'-' needs one or two arguments [" + this.expressionSource + ']',this);
+            throw new JBBPEvalException("'-' needs one or two arguments [" + this.expressionSource + ']', this);
           }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] -= top;
@@ -532,27 +551,27 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
         break;
         case CODE_UNARYMINUS: {
           if (stackDepth < 1) {
-            throw new JBBPEvalException("Unary operator '-' needs one argument [" + this.expressionSource + ']',this);
+            throw new JBBPEvalException("Unary operator '-' needs one argument [" + this.expressionSource + ']', this);
           }
           stack[stackDepth - 1] = -stack[stackDepth - 1];
         }
         break;
         case CODE_UNARYPLUS: {
           if (stackDepth < 1) {
-            throw new JBBPEvalException("Unary operator '-' needs one argument [" + this.expressionSource + ']',this);
+            throw new JBBPEvalException("Unary operator '-' needs one argument [" + this.expressionSource + ']', this);
           }
         }
         break;
         case CODE_NOT: {
           if (stackDepth < 1) {
-            throw new JBBPEvalException("Unary operator '~' needs one argument [" + this.expressionSource + ']',this);
+            throw new JBBPEvalException("Unary operator '~' needs one argument [" + this.expressionSource + ']', this);
           }
           stack[stackDepth - 1] = ~stack[stackDepth - 1];
         }
         break;
         case CODE_DIV: {
           if (stackDepth < 2) {
-            throw new JBBPEvalException("'/' needs two arguments [" + this.expressionSource + ']',this);
+            throw new JBBPEvalException("'/' needs two arguments [" + this.expressionSource + ']', this);
           }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] /= top;
@@ -560,7 +579,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
         break;
         case CODE_MUL: {
           if (stackDepth < 2) {
-            throw new JBBPEvalException("'*' needs two arguments [" + this.expressionSource + ']',this);
+            throw new JBBPEvalException("'*' needs two arguments [" + this.expressionSource + ']', this);
           }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] *= top;
@@ -568,7 +587,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
         break;
         case CODE_MOD: {
           if (stackDepth < 2) {
-            throw new JBBPEvalException("'%' needs two arguments [" + this.expressionSource + ']',this);
+            throw new JBBPEvalException("'%' needs two arguments [" + this.expressionSource + ']', this);
           }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] %= top;
@@ -576,7 +595,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
         break;
         case CODE_LSHIFT: {
           if (stackDepth < 2) {
-            throw new JBBPEvalException("'<<' needs two arguments [" + this.expressionSource + ']',this);
+            throw new JBBPEvalException("'<<' needs two arguments [" + this.expressionSource + ']', this);
           }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] <<= top;
@@ -584,7 +603,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
         break;
         case CODE_RSHIFT: {
           if (stackDepth < 2) {
-            throw new JBBPEvalException("'>>' needs two arguments [" + this.expressionSource + ']',this);
+            throw new JBBPEvalException("'>>' needs two arguments [" + this.expressionSource + ']', this);
           }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] >>= top;
@@ -592,7 +611,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
         break;
         case CODE_RSIGNSHIFT: {
           if (stackDepth < 2) {
-            throw new JBBPEvalException("'>>>' needs two arguments [" + this.expressionSource + ']',this);
+            throw new JBBPEvalException("'>>>' needs two arguments [" + this.expressionSource + ']', this);
           }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] >>>= top;
@@ -604,23 +623,28 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
     }
 
     if (stackDepth != 1) {
-      throw new JBBPEvalException("Wrong expression [" + this.expressionSource + ']',this);
+      throw new JBBPEvalException("Wrong expression [" + this.expressionSource + ']', this);
     }
     return stack[0];
   }
 
   /**
    * Check that a string has a char of operators.
+   *
    * @param str a string to be checked, must not be null
    * @return true if the string contains a char of an operator, false otherwise
    */
   public static boolean hasExpressionOperators(final String str) {
+
+    boolean result = false;
+
     for (final char chr : operatorFirstChars) {
       if (str.indexOf(chr) >= 0) {
-        return true;
+        result = true;
+        break;
       }
     }
-    return false;
+    return result;
   }
 
   @Override

@@ -24,30 +24,39 @@ import java.util.*;
  * Misc auxiliary methods to be used in the framework.
  */
 public final class JBBPUtils {
-  
-  private JBBPUtils(){
-    
+
+  private JBBPUtils() {
+
   }
 
   /**
    * Check that a string is a number.
+   *
    * @param num a string to be checked, it can be null
-   * @return true if the string represents a number, false if it is not number or it is null
+   * @return true if the string represents a number, false if it is not number
+   * or it is null
    */
-  public static boolean isNumber(final String num){
-    if (num == null || num.length() == 0) return false;
+  public static boolean isNumber(final String num) {
+    if (num == null || num.length() == 0) {
+      return false;
+    }
     final boolean firstIsDigit = Character.isDigit(num.charAt(0));
-    if (!firstIsDigit && num.charAt(0)!='-') return false;
+    if (!firstIsDigit && num.charAt(0) != '-') {
+      return false;
+    }
     boolean dig = firstIsDigit;
-    for(int i=1; i<num.length(); i++){
-      if (!Character.isDigit(num.charAt(i))) return false;
+    for (int i = 1; i < num.length(); i++) {
+      if (!Character.isDigit(num.charAt(i))) {
+        return false;
+      }
       dig = true;
     }
     return dig;
   }
-  
+
   /**
    * Pack an integer value as a byte array.
+   *
    * @param value a code to be packed
    * @return a byte array contains the packed code
    */
@@ -64,11 +73,16 @@ public final class JBBPUtils {
   }
 
   /**
-   * Pack an integer value and save that into a byte array since defined position.
-   * @param array a byte array where to write the packed data, it must not be null
-   * @param position the position of the first byte of the packed value, it must not be null
+   * Pack an integer value and save that into a byte array since defined
+   * position.
+   *
+   * @param array a byte array where to write the packed data, it must not be
+   * null
+   * @param position the position of the first byte of the packed value, it must
+   * not be null
    * @param value the value to be packed
-   * @return number of bytes written into the array, the position will be increased
+   * @return number of bytes written into the array, the position will be
+   * increased
    */
   public static int packInt(final byte[] array, final JBBPIntCounter position, final int value) {
     if ((value & 0xFFFFFF80) == 0) {
@@ -91,8 +105,9 @@ public final class JBBPUtils {
 
   /**
    * Unpack an integer value from defined position in a byte array.
+   *
    * @param array the source byte array
-   * @param position the position of the first byte of packed value 
+   * @param position the position of the first byte of packed value
    * @return the unpacked value, the position will be increased
    */
   public static int unpackInt(final byte[] array, final JBBPIntCounter position) {
@@ -122,6 +137,7 @@ public final class JBBPUtils {
 
   /**
    * A Byte array into its hex string representation
+   *
    * @param array an array to be converted
    * @return a string of hex representations of values from the array
    */
@@ -151,11 +167,12 @@ public final class JBBPUtils {
 
   /**
    * Convert a byte array into string representation
+   *
    * @param array the array to be converted, it must not be null
    * @param prefix the prefix for each converted value, it can be null
    * @param delimiter the delimeter for string representations
    * @param brackets if true then place the result into square brackets
-   * @param radix the base for conversion 
+   * @param radix the base for conversion
    * @return the string representation of the byte array
    */
   public static String byteArray2String(final byte[] array, final String prefix, final String delimiter, final boolean brackets, final int radix) {
@@ -203,6 +220,7 @@ public final class JBBPUtils {
 
   /**
    * Reverse a byte.
+   *
    * @param value a byte value to be reversed.
    * @return the reversed version of the byte
    */
@@ -212,7 +230,8 @@ public final class JBBPUtils {
   }
 
   /**
-   * Convert a byte array into string binary representation  with LSB0 order.
+   * Convert a byte array into string binary representation with LSB0 order.
+   *
    * @param values a byte array to be converted
    * @return the string representation of the array
    */
@@ -221,7 +240,9 @@ public final class JBBPUtils {
   }
 
   /**
-   * Convert a byte array into string binary representation with LSB0 order and possibility to separate bytes.
+   * Convert a byte array into string binary representation with LSB0 order and
+   * possibility to separate bytes.
+   *
    * @param values a byte array to be converted
    * @param separateBytes if true then bytes will be separated by spaces
    * @return the string representation of the array
@@ -231,7 +252,9 @@ public final class JBBPUtils {
   }
 
   /**
-   * Convert a byte array into string binary representation with defined bit order and possibility to separate bytes.
+   * Convert a byte array into string binary representation with defined bit
+   * order and possibility to separate bytes.
+   *
    * @param values a byte array to be converted
    * @param bitOrder the bit order for byte decoding
    * @param separateBytes if true then bytes will be separated by spaces
@@ -276,21 +299,25 @@ public final class JBBPUtils {
 
   /**
    * Convert array of JBBP fields into a list.
+   *
    * @param fields an array of fields, must not be null
    * @return a list of JBBP fields
    */
-  public static List<JBBPAbstractField> fieldsAsList(final JBBPAbstractField ... fields){
+  public static List<JBBPAbstractField> fieldsAsList(final JBBPAbstractField... fields) {
     final List<JBBPAbstractField> result = new ArrayList<JBBPAbstractField>();
-    for(final JBBPAbstractField f : fields){
+    for (final JBBPAbstractField f : fields) {
       result.add(f);
     }
     return result;
   }
-  
+
   /**
-   * Convert string representation of binary data into byte array with LSB0 bit order.
+   * Convert string representation of binary data into byte array with LSB0 bit
+   * order.
+   *
    * @param values a string represents binary data
-   * @return a byte array generated from the decoded string, empty array for null string
+   * @return a byte array generated from the decoded string, empty array for
+   * null string
    */
   public static byte[] str2bin(final String values) {
     return str2bin(values, JBBPBitOrder.LSB0);
@@ -298,6 +325,7 @@ public final class JBBPUtils {
 
   /**
    * Convert string representation of binary data into byte array/
+   *
    * @param values a string represents binary data
    * @param bitOrder the bit order to be used for operation
    * @return a byte array generated from the decoded string, empty array for
@@ -353,13 +381,14 @@ public final class JBBPUtils {
       }
     }
     if (cnt > 0) {
-      buffer.write(msb0 ? buff>>>(8-cnt) : buff);
+      buffer.write(msb0 ? buff >>> (8 - cnt) : buff);
     }
     return buffer.toByteArray();
   }
 
   /**
    * Split a string for a char used as the delimeter.
+   *
    * @param str a string to be split
    * @param splitChar a char to be used as delimeter
    * @return array contains split string parts without delimeter chars
@@ -383,7 +412,8 @@ public final class JBBPUtils {
       if (chr == splitChar) {
         result[position++] = bulder.toString();
         bulder.setLength(0);
-      }else{
+      }
+      else {
         bulder.append(chr);
       }
     }
@@ -393,28 +423,33 @@ public final class JBBPUtils {
 
     return result;
   }
-  
+
   /**
    * Check that an object is null and throw NullPointerException in the case.
+   *
    * @param object an object to be checked
    * @param message message to be used as the exception message
    * @throws NullPointerException it will be thrown if the object is null
    */
-  public static void assertNotNull(final Object object, final String message){
-    if (object == null) throw new NullPointerException(message == null ? "Object is null" : message);
+  public static void assertNotNull(final Object object, final String message) {
+    if (object == null) {
+      throw new NullPointerException(message == null ? "Object is null" : message);
+    }
   }
 
   /**
    * Convert an integer number into human readable hexadecimal format.
+   *
    * @param number a number to be converted
    * @return a string with human readable hexadecimal number representation
    */
-  public static String int2msg(final int number){
-    return number+" (0x"+Long.toHexString((long)number & 0xFFFFFFFFL).toUpperCase(Locale.ENGLISH)+')';
+  public static String int2msg(final int number) {
+    return number + " (0x" + Long.toHexString((long) number & 0xFFFFFFFFL).toUpperCase(Locale.ENGLISH) + ')';
   }
-  
+
   /**
    * Normalize field name or path.
+   *
    * @param nameOrPath a field name or a path to be normalized, must not be null
    * @return the normalized version of the name or path
    */
@@ -422,16 +457,20 @@ public final class JBBPUtils {
     assertNotNull(nameOrPath, "Name of path must not be null");
     return nameOrPath.trim().toLowerCase(Locale.ENGLISH);
   }
-  
+
   /**
    * Quiet closing of a closeable object.
+   *
    * @param closeable a closeable object, can be null
    */
-  public static void closeQuietly(final Closeable closeable){
-    try{
-      if (closeable!=null) closeable.close();
-    }catch(IOException ex){
-      
+  public static void closeQuietly(final Closeable closeable) {
+    try {
+      if (closeable != null) {
+        closeable.close();
+      }
+    }
+    catch (IOException ex) {
+
     }
   }
 }

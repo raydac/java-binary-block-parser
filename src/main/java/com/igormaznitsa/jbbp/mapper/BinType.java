@@ -19,11 +19,14 @@ import com.igormaznitsa.jbbp.model.*;
 
 /**
  * The Enum contains all supported bin types for mapper.
+ *
  * @see BinMapper
  */
 public enum BinType {
+
   /**
-   * Undefined type, the mapper will be looking for compatible parsed field with the mapping field.
+   * Undefined type, the mapper will be looking for compatible parsed field with
+   * the mapping field.
    */
   UNDEFINED(null),
   /**
@@ -52,7 +55,7 @@ public enum BinType {
   USHORT(JBBPFieldUShort.class),
   /**
    * A Mapping field will be mapped to a parsed integer field.
-   */  
+   */
   INT(JBBPFieldInt.class),
   /**
    * A Mapping field will be mapped to a parsed long field.
@@ -68,7 +71,7 @@ public enum BinType {
   BOOL_ARRAY(JBBPFieldArrayBoolean.class),
   /**
    * A Mapping field will be mapped to a parsed byte array field.
-   */  
+   */
   BYTE_ARRAY(JBBPFieldArrayByte.class),
   /**
    * A Mapping field will be mapped to a parsed unsigned byte array field.
@@ -106,7 +109,8 @@ public enum BinType {
 
   /**
    * The Field class for the value.
-   * @param fieldClass 
+   *
+   * @param fieldClass
    */
   private BinType(final Class<? extends JBBPAbstractField> fieldClass) {
     this.fieldClass = fieldClass;
@@ -114,6 +118,7 @@ public enum BinType {
 
   /**
    * Get The Field class.
+   *
    * @return the field class for the value, it can be null
    */
   public Class<? extends JBBPAbstractField> getFieldClass() {
@@ -122,57 +127,69 @@ public enum BinType {
 
   /**
    * Find compatible type for a class.
+   *
    * @param fieldClazz the field class to find compatible type, must not be null
    * @return found compatible field type or null if not found
    */
   public static BinType findCompatible(final Class<?> fieldClazz) {
+    BinType result;
+
     if (fieldClazz.isArray()) {
       final Class<?> type = fieldClazz.getComponentType();
-      if (type.isPrimitive()){
-        if (type == byte.class){
-          return BYTE_ARRAY;
-        }else if (type == char.class){
-          return USHORT_ARRAY;
-        }else if (type == boolean.class){
-          return BOOL_ARRAY;
-        }else if (type == short.class){
-          return SHORT_ARRAY;
-        }else if (type == int.class){
-          return INT_ARRAY;
-        }else if (type == long.class){
-          return LONG_ARRAY;
-        }else{
-          return null;
+
+      if (type.isPrimitive()) {
+        if (type == byte.class) {
+          result = BYTE_ARRAY;
         }
-      }else{
-        return STRUCT_ARRAY;
+        else if (type == char.class) {
+          result = USHORT_ARRAY;
+        }
+        else if (type == boolean.class) {
+          result = BOOL_ARRAY;
+        }
+        else if (type == short.class) {
+          result = SHORT_ARRAY;
+        }
+        else if (type == int.class) {
+          result = INT_ARRAY;
+        }
+        else if (type == long.class) {
+          result = LONG_ARRAY;
+        }
+        else {
+          result = null;
+        }
+      }
+      else {
+        result = STRUCT_ARRAY;
       }
     }
     else if (fieldClazz.isPrimitive()) {
       if (fieldClazz == byte.class) {
-        return BYTE;
+        result = BYTE;
       }
       else if (fieldClazz == char.class) {
-        return USHORT;
+        result = USHORT;
       }
       else if (fieldClazz == boolean.class) {
-        return BOOL;
+        result = BOOL;
       }
       else if (fieldClazz == short.class) {
-        return SHORT;
+        result = SHORT;
       }
       else if (fieldClazz == int.class) {
-        return INT;
+        result = INT;
       }
       else if (fieldClazz == long.class) {
-        return LONG;
+        result = LONG;
       }
       else {
-        return null;
+        result = null;
       }
     }
     else {
-      return STRUCT;
+      result = STRUCT;
     }
+    return result;
   }
 }

@@ -18,9 +18,7 @@ package com.igormaznitsa.jbbp;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.varlen.JBBPIntegerValueEvaluator;
-import com.igormaznitsa.jbbp.exceptions.JBBPEvalException;
-import com.igormaznitsa.jbbp.exceptions.JBBPException;
-import com.igormaznitsa.jbbp.exceptions.JBBPTooManyFieldsFoundException;
+import com.igormaznitsa.jbbp.exceptions.*;
 import com.igormaznitsa.jbbp.model.*;
 import com.igormaznitsa.jbbp.model.finder.JBBPFieldFinder;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
@@ -109,22 +107,26 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
    * @return found field or null if there is not any found for the offset
    */
   public JBBPNumericField findForFieldOffset(final int offset) {
+    JBBPNumericField result = null;
     for (final Map.Entry<JBBPNamedFieldInfo, JBBPNumericField> f : fieldMap.entrySet()) {
       if (f.getKey().getFieldOffsetInCompiledBlock() == offset) {
-        return f.getValue();
+        result = f.getValue();
+        break;
       }
     }
-    return null;
+    return result;
   }
 
   public <T extends JBBPAbstractField> T findFirstFieldForType(final Class<T> fieldType) {
     JBBPUtils.assertNotNull(fieldType, "Type must not be null");
+    T result = null;
     for (final JBBPNumericField f : fieldMap.values()) {
       if (fieldType.isAssignableFrom(f.getClass())) {
-        return fieldType.cast(f);
+        result = fieldType.cast(f);
+        break;
       }
     }
-    return null;
+    return result;
   }
 
   public <T extends JBBPAbstractField> T findLastFieldForType(final Class<T> fieldType) {
@@ -157,63 +159,87 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
   public <T extends JBBPAbstractField> T findFieldForNameAndType(final String fieldName, final Class<T> fieldType) {
     final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(fieldName);
     JBBPUtils.assertNotNull(fieldType, "Field type must not be null");
+
+    T result = null;
+
     for (final Map.Entry<JBBPNamedFieldInfo, JBBPNumericField> f : fieldMap.entrySet()) {
       if (normalizedName.equals(f.getKey().getFieldName()) && fieldType.isAssignableFrom(f.getValue().getClass())) {
-        return fieldType.cast(f.getValue());
+        result = fieldType.cast(f.getValue());
+        break;
       }
     }
-    return null;
+    return result;
   }
 
   public <T extends JBBPAbstractField> T findFieldForPathAndType(final String fieldPath, final Class<T> fieldType) {
     final String normalizedPath = JBBPUtils.normalizeFieldNameOrPath(fieldPath);
     JBBPUtils.assertNotNull(fieldType, "Field type must not be null");
+
+    T result = null;
+
     for (final Map.Entry<JBBPNamedFieldInfo, JBBPNumericField> f : fieldMap.entrySet()) {
       if (normalizedPath.equals(f.getKey().getFieldPath()) && fieldType.isAssignableFrom(f.getValue().getClass())) {
-        return fieldType.cast(f.getValue());
+        result = fieldType.cast(f.getValue());
+        break;
       }
     }
-    return null;
+    return result;
   }
 
   public JBBPAbstractField findFieldForName(final String fieldName) {
     final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(fieldName);
+
+    JBBPAbstractField result = null;
+
     for (final Map.Entry<JBBPNamedFieldInfo, JBBPNumericField> f : fieldMap.entrySet()) {
       if (normalizedName.equals(f.getKey().getFieldName())) {
-        return (JBBPAbstractField) f.getValue();
+        result = (JBBPAbstractField) f.getValue();
+        break;
       }
     }
-    return null;
+    return result;
   }
 
   public JBBPAbstractField findFieldForPath(final String fieldPath) {
     final String normalizedPath = JBBPUtils.normalizeFieldNameOrPath(fieldPath);
+
+    JBBPAbstractField result = null;
+
     for (final Map.Entry<JBBPNamedFieldInfo, JBBPNumericField> f : fieldMap.entrySet()) {
       if (normalizedPath.equals(f.getKey().getFieldPath())) {
-        return (JBBPAbstractField) f.getValue();
+        result = (JBBPAbstractField) f.getValue();
+        break;
       }
     }
-    return null;
+    return result;
   }
 
   public boolean nameExists(final String fieldName) {
     final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(fieldName);
+
+    boolean result = false;
+
     for (final JBBPNamedFieldInfo f : fieldMap.keySet()) {
       if (normalizedName.equals(f.getFieldName())) {
-        return true;
+        result = true;
+        break;
       }
     }
-    return false;
+    return result;
   }
 
   public boolean pathExists(final String fieldPath) {
     final String normalizedPath = JBBPUtils.normalizeFieldNameOrPath(fieldPath);
+
+    boolean result = false;
+
     for (final JBBPNamedFieldInfo f : fieldMap.keySet()) {
       if (normalizedPath.equals(f.getFieldPath())) {
-        return true;
+        result = true;
+        break;
       }
     }
-    return false;
+    return result;
   }
 
   /**

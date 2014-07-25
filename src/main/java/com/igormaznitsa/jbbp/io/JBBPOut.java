@@ -19,9 +19,11 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.*;
 
 /**
- * The Class implements some kind of DSL to form binary blocks. The Class is not a thread-safe one.
+ * The Class implements some kind of DSL to form binary blocks. The Class is not
+ * a thread-safe one.
  */
 public final class JBBPOut {
+
   /**
    * The Bit order for operations.
    */
@@ -39,7 +41,8 @@ public final class JBBPOut {
    */
   private boolean ended;
   /**
-   * If the DSL session was started for an external byte array output stream then it will be saved into the variable.
+   * If the DSL session was started for an external byte array output stream
+   * then it will be saved into the variable.
    */
   private final ByteArrayOutputStream originalByteArrayOutStream;
 
@@ -47,17 +50,19 @@ public final class JBBPOut {
    * The Default byte order.
    */
   public static final JBBPByteOrder DEFAULT_BYTE_ORDER = JBBPByteOrder.BIG_ENDIAN;
-  
+
   /**
    * The Default bit order.
    */
   public static final JBBPBitOrder DEFAULT_BIT_ORDER = JBBPBitOrder.LSB0;
-  
+
   /**
    * Start a DSL session for defined both byte order and bit order parameters.
+   *
    * @param byteOrder the byte order to be used for the session
    * @param bitOrder the bit order to be used for the session
-   * @return the new DSL session generated with the parameters and inside byte array stream.
+   * @return the new DSL session generated with the parameters and inside byte
+   * array stream.
    */
   public static JBBPOut BeginBin(final JBBPByteOrder byteOrder, final JBBPBitOrder bitOrder) {
     return new JBBPOut(new ByteArrayOutputStream(), byteOrder, bitOrder);
@@ -65,35 +70,41 @@ public final class JBBPOut {
 
   /**
    * Start a DSL session for a defined stream with defined parameters.
+   *
    * @param out the defined stream
    * @param byteOrder the byte order for the session
    * @param bitOrder the bit order for the session
    * @return the new DSL session generated for the stream with parameters
    */
   public static JBBPOut BeginBin(final OutputStream out, final JBBPByteOrder byteOrder, final JBBPBitOrder bitOrder) {
-    return new JBBPOut(out,byteOrder, bitOrder);
+    return new JBBPOut(out, byteOrder, bitOrder);
   }
 
   /**
    * Start a DSL session for default parameters and inside byte array stream.
-   * @return the new DSL session generated with the default parameters and inside byte
-   * array stream.
+   *
+   * @return the new DSL session generated with the default parameters and
+   * inside byte array stream.
    */
   public static JBBPOut BeginBin() {
-    return new JBBPOut(new ByteArrayOutputStream(),DEFAULT_BYTE_ORDER,DEFAULT_BIT_ORDER);
+    return new JBBPOut(new ByteArrayOutputStream(), DEFAULT_BYTE_ORDER, DEFAULT_BIT_ORDER);
   }
 
   /**
    * Start a DSL session for a defined output stream and default parameters.
+   *
    * @param out an output stream to write session data, must not be null.
-   * @return the new DSL session generated for the default parameters and the output stream.
+   * @return the new DSL session generated for the default parameters and the
+   * output stream.
    */
   public static JBBPOut BeginBin(final OutputStream out) {
     return new JBBPOut(out, DEFAULT_BYTE_ORDER, DEFAULT_BIT_ORDER);
   }
 
   /**
-   * Start a DSL session for default bit order and defined byte order. It will be using inside byte array stream.
+   * Start a DSL session for default bit order and defined byte order. It will
+   * be using inside byte array stream.
+   *
    * @param byteOrder the byte order for the session, it must not be null.
    * @return the new DSL session
    */
@@ -114,10 +125,12 @@ public final class JBBPOut {
 
   /**
    * The Constructor.
+   *
    * @param outStream the output stream for the session, it must not be null.
    * @param byteOrder the byte order for the session, it must not be null.
    * @param bitOrder the bit order for the session, it must not be null
-   * @throws IllegalArgumentException if defined a bit stream which parameters incompatible with defined ones
+   * @throws IllegalArgumentException if defined a bit stream which parameters
+   * incompatible with defined ones
    */
   private JBBPOut(final OutputStream outStream, final JBBPByteOrder byteOrder, final JBBPBitOrder bitOrder) {
     JBBPUtils.assertNotNull(outStream, "Out stream must not be null");
@@ -140,7 +153,10 @@ public final class JBBPOut {
   }
 
   /**
-   * Align the current stream for 1 byte. If there are any bites inside bit cache then they will be saved and the stream will be positioning to the next byte.
+   * Align the current stream for 1 byte. If there are any bites inside bit
+   * cache then they will be saved and the stream will be positioning to the
+   * next byte.
+   *
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    */
@@ -152,6 +168,7 @@ public final class JBBPOut {
 
   /**
    * Align number of bytes in the stream to the value.
+   *
    * @param value the byte border to align the stream.
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
@@ -163,25 +180,31 @@ public final class JBBPOut {
   }
 
   /**
-   * Skip number of bytes in the stream, zero bytes will be written and also will be aligned inside bit cache even if the value is 0.
-   * @param numberOfBytes the number of bytes to be skipped 
+   * Skip number of bytes in the stream, zero bytes will be written and also
+   * will be aligned inside bit cache even if the value is 0.
+   *
+   * @param numberOfBytes the number of bytes to be skipped
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
-   * @throws IllegalArgumentException it will be thrown if the value is negative one
+   * @throws IllegalArgumentException it will be thrown if the value is negative
+   * one
    */
   public JBBPOut Skip(int numberOfBytes) throws IOException {
     assertNotEnded();
-    if (numberOfBytes<0) throw new IllegalArgumentException("Value is negative");
+    if (numberOfBytes < 0) {
+      throw new IllegalArgumentException("Value is negative");
+    }
     this.Align();
-    while(numberOfBytes>0){
+    while (numberOfBytes > 0) {
       this.outStream.write(0);
-      numberOfBytes --;
+      numberOfBytes--;
     }
     return this;
   }
-  
+
   /**
    * Define the byte order for next session operations.
+   *
    * @param value the byte order to be used in next operations, must not be null
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
@@ -195,6 +218,7 @@ public final class JBBPOut {
 
   /**
    * Write a bit into the session.
+   *
    * @param value true if the bit is 1, 0 otherwise
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
@@ -207,7 +231,9 @@ public final class JBBPOut {
 
   /**
    * Write the lowest bit from a byte value.
-   * @param value the byte value which lowest bit will be written into the stream
+   *
+   * @param value the byte value which lowest bit will be written into the
+   * stream
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    */
@@ -219,7 +245,9 @@ public final class JBBPOut {
 
   /**
    * Write lowest bits of bytes from an array.
-   * @param value a byte array, lowest bit of each byte will be saved as a bit into the output stream, it must not be null
+   *
+   * @param value a byte array, lowest bit of each byte will be saved as a bit
+   * into the output stream, it must not be null
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    */
@@ -235,8 +263,8 @@ public final class JBBPOut {
   /**
    * Write lowest bits of integers from an array.
    *
-   * @param value an integer array, lowest bit of each integer value will be saved as a bit
-   * into the output stream, it must not be null
+   * @param value an integer array, lowest bit of each integer value will be
+   * saved as a bit into the output stream, it must not be null
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    */
@@ -251,8 +279,9 @@ public final class JBBPOut {
 
   /**
    * Write bits represented as boolean flags into the output stream.
-   * 
-   * @param value a boolean array which values will be saved into the output stream as bits, true is bit on, false is bit off. It must not be null
+   *
+   * @param value a boolean array which values will be saved into the output
+   * stream as bits, true is bit on, false is bit off. It must not be null
    * @return the DSL session.
    * @throws IOException it will be thrown for transport errors
    */
@@ -266,7 +295,9 @@ public final class JBBPOut {
   }
 
   /**
-   * Inside auxiliary method to write bits into output stream without check of the session end
+   * Inside auxiliary method to write bits into output stream without check of
+   * the session end
+   *
    * @param numberOfBits number of bits from value to save, it must not be null
    * @param value the value which bits must be saved
    * @throws IOException it will be thrown for transport errors
@@ -274,9 +305,10 @@ public final class JBBPOut {
   private void _writeBits(final JBBPBitNumber numberOfBits, final int value) throws IOException {
     this.outStream.writeBits(value, numberOfBits);
   }
-  
+
   /**
    * Write bits from a value into the output stream
+   *
    * @param numberOfBits the number of bits to be saved
    * @param value the value which bits must be saved
    * @return the DSL session
@@ -291,8 +323,10 @@ public final class JBBPOut {
 
   /**
    * Write bits of each integer value from an array into the output stream.
+   *
    * @param numberOfBits the number of bits to be saved
-   * @param value an integer array which elements will be used as sources of bits, it must not be null
+   * @param value an integer array which elements will be used as sources of
+   * bits, it must not be null
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    */
@@ -309,8 +343,8 @@ public final class JBBPOut {
    * Write bits of each byte value from an array into the output stream.
    *
    * @param numberOfBits the number of bits to be saved
-   * @param value a byte array which elements will be used as sources of
-   * bits, it must not be null
+   * @param value a byte array which elements will be used as sources of bits,
+   * it must not be null
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    */
@@ -325,15 +359,17 @@ public final class JBBPOut {
 
   /**
    * Inside auxiliary speed version of byte writing method
+   *
    * @param value a byte to write into session stream
    * @throws IOException it will be thrown for transport errors
    */
   private void _writeByte(final int value) throws IOException {
     this.outStream.write(value);
   }
-  
+
   /**
    * Write the lower byte of an integer value into the session stream.
+   *
    * @param value an integer value which byte should be written into
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
@@ -347,7 +383,8 @@ public final class JBBPOut {
   /**
    * Write the lower byte of an integer value into the session stream.
    *
-   * @param value an integer array which values will be byte sources to write their lower byte into the stream
+   * @param value an integer array which values will be byte sources to write
+   * their lower byte into the stream
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    */
@@ -362,6 +399,7 @@ public final class JBBPOut {
 
   /**
    * Write a byte array into the session stream.
+   *
    * @param value a byte array to be written
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
@@ -375,6 +413,7 @@ public final class JBBPOut {
 
   /**
    * Write a boolean value into the session stream as a byte.
+   *
    * @param value a boolean value to be written, true is 1, false is 0
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
@@ -387,7 +426,9 @@ public final class JBBPOut {
 
   /**
    * Write boolean values from an array into the session stream as bytes.
-   * @param value a boolean array to be saved as bytes, true is 1, false is 0. It must not be null
+   *
+   * @param value a boolean array to be saved as bytes, true is 1, false is 0.
+   * It must not be null
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    */
@@ -402,16 +443,20 @@ public final class JBBPOut {
 
   /**
    * Inside auxiliary method to write a short value into the session stream
+   *
    * @param value a value to be written
    * @throws IOException it will be thrown for transport errors
    */
   private void _writeShort(final int value) throws IOException {
     this.outStream.writeShort(value, this.byteOrder);
   }
-  
+
   /**
-   * Write lower pair of bytes of an integer value into the session stream as a short value.
-   * @param value an integer value which lower pair of bytes will be written into
+   * Write lower pair of bytes of an integer value into the session stream as a
+   * short value.
+   *
+   * @param value an integer value which lower pair of bytes will be written
+   * into
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    */
@@ -423,7 +468,9 @@ public final class JBBPOut {
 
   /**
    * Write short values from an array
-   * @param value a short value array which values should be written into, it must not be null
+   *
+   * @param value a short value array which values should be written into, it
+   * must not be null
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    */
@@ -437,8 +484,8 @@ public final class JBBPOut {
   }
 
   /**
-   * Write lower pair of bytes of each integer value from an integer array into the session stream as a
-   * short value.
+   * Write lower pair of bytes of each integer value from an integer array into
+   * the session stream as a short value.
    *
    * @param value an integer array which values will be written into
    * @return the DSL session
@@ -454,16 +501,19 @@ public final class JBBPOut {
   }
 
   /**
-   * Inside auxiliary method to write an integer value into the session stream without extra checking.
+   * Inside auxiliary method to write an integer value into the session stream
+   * without extra checking.
+   *
    * @param value an integer value to be written into
    * @throws IOException it will be thrown for transport errors
    */
   private void _writeInt(final int value) throws IOException {
     this.outStream.writeInt(value, this.byteOrder);
   }
-  
+
   /**
    * Write an integer value into the session stream.
+   *
    * @param value an integer value to be written into
    * @return the DSl session
    * @throws IOException it will be thrown for transport errors
@@ -491,16 +541,19 @@ public final class JBBPOut {
   }
 
   /**
-   * Inside auxiliary method to write a long value into the session stream without checking.
+   * Inside auxiliary method to write a long value into the session stream
+   * without checking.
+   *
    * @param value a long value to be written into
    * @throws IOException it will be thrown for transport errors
    */
   private void _writeLong(final long value) throws IOException {
     this.outStream.writeLong(value, this.byteOrder);
   }
-  
+
   /**
    * Write a long value into the session stream.
+   *
    * @param value a long value to be written into
    * @return the DSL session
    * @throws IOException it will b e thrown for transport errors
@@ -513,6 +566,7 @@ public final class JBBPOut {
 
   /**
    * Write each long value from a long value array into the session stream.
+   *
    * @param value a long value array which values will be written into
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
@@ -527,7 +581,9 @@ public final class JBBPOut {
   }
 
   /**
-   * Flush inside buffers into the stream. Be careful with bit operations because the operation will flush the inside bit buffer.
+   * Flush inside buffers into the stream. Be careful with bit operations
+   * because the operation will flush the inside bit buffer.
+   *
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    */
@@ -539,8 +595,10 @@ public final class JBBPOut {
 
   /**
    * Flush the stream and end the session.
-   * @return if the session output stream is based on a byte array output stream then the stream will be returned, null otherwise
-   * @throws IOException  it will be thrown for transport errors. 
+   *
+   * @return if the session output stream is based on a byte array output stream
+   * then the stream will be returned, null otherwise
+   * @throws IOException it will be thrown for transport errors.
    */
   public ByteArrayOutputStream End() throws IOException {
     assertNotEnded();
@@ -551,11 +609,12 @@ public final class JBBPOut {
 
   /**
    * Assert that the session has not ended.
+   *
    * @throws IllegalStateException if the session has been ended
    */
   private void assertNotEnded() {
     if (this.ended) {
-      throw new IllegalStateException(JBBPOut.class.getSimpleName()+" has been eneded");
+      throw new IllegalStateException(JBBPOut.class.getSimpleName() + " has been eneded");
     }
   }
 }

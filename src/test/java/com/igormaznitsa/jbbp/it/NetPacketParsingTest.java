@@ -24,7 +24,7 @@ import java.io.InputStream;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
-public class TCPParsingTest extends AbstractParserIntegrationTest {
+public class NetPacketParsingTest extends AbstractParserIntegrationTest {
 
   @Test
   public void testParsingTCPFrameInsideNetworkFrame() throws Exception {
@@ -37,11 +37,9 @@ public class TCPParsingTest extends AbstractParserIntegrationTest {
               + "ushort DestinationPort;"
               + "int SequenceNumber;"
               + "int AcknowledgementNumber;"
-                      
               + "bit:1 NONCE;"
               + "bit:3 RESERVED;"
               + "bit:4 HLEN;"
-                      
               + "bit:1 FIN;"
               + "bit:1 SYN;"
               + "bit:1 RST;"
@@ -50,7 +48,6 @@ public class TCPParsingTest extends AbstractParserIntegrationTest {
               + "bit:1 URG;"
               + "bit:1 ECNECHO;"
               + "bit:1 CWR;"
-                      
               + "ushort WindowSize;"
               + "ushort TCPCheckSum;"
               + "ushort UrgentPointer;"
@@ -90,24 +87,42 @@ public class TCPParsingTest extends AbstractParserIntegrationTest {
       JBBPUtils.closeQuietly(tcpFrameStream);
     }
   }
-  
+
   @Test
   public void testParseSomePacketGettedOverTCP_ExampleFromStackOverflow() throws Exception {
-    final class Parsed { 
-      @Bin byte begin; 
-      @Bin(type = BinType.BIT) int version; 
+    final class Parsed {
+      @Bin byte begin;
+      @Bin(type = BinType.BIT) int version;
       @Bin(type = BinType.BIT) int returnType;
-      @Bin byte [] productCode;
+      @Bin byte[] productCode;
       @Bin(type = BinType.USHORT) int dataLength;
     }
     final Parsed parsed = JBBPParser.prepare("byte begin; bit:4 version; bit:4 returnType; byte [5] productCode; ushort dataLength;")
-            .parse(new byte[]{0x23,0x21,(byte)0x90,0x23,0x21,0x22,0x12,0x00,(byte)0xAA})
+            .parse(new byte[]{0x23, 0x21, (byte) 0x90, 0x23, 0x21, 0x22, 0x12, 0x00, (byte) 0xAA})
             .mapTo(Parsed.class);
-    
+
     assertEquals(0x23, parsed.begin);
     assertEquals(0x01, parsed.version);
     assertEquals(0x02, parsed.returnType);
-    assertArrayEquals(new byte[]{(byte)0x90,0x23,0x21,0x22,0x12}, parsed.productCode);
-    assertEquals(0x00AA,parsed.dataLength);
+    assertArrayEquals(new byte[]{(byte) 0x90, 0x23, 0x21, 0x22, 0x12}, parsed.productCode);
+    assertEquals(0x00AA, parsed.dataLength);
   }
+
+  @Test
+  public void testParseUDP() throws Exception {
+    final class Parsed {
+      @Bin char source;
+      @Bin char destination;
+      @Bin char checksum;
+      @Bin byte[] data;
+    }
+
+    final Parsed parsed = JBBPParser.prepare("ushort source; ushort destination; ushort length; ushort checksum; byte [length-8] data;").parse(new byte[]{0x04, (byte) 0x89, 0x00, 0x35, 0x00, 0x2C, (byte) 0xAB, (byte) 0xB4, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x70, 0x6F, 0x70, 0x64, 0x02, 0x69, 0x78, 0x06, 0x6E, 0x65, 0x74, 0x63, 0x6F, 0x6D, 0x03, 0x63, 0x6F, 0x6D, 0x00, 0x00, 0x01, 0x00, 0x01}).mapTo(Parsed.class);
+    
+    assertEquals(0x0489, parsed.source);
+    assertEquals(0x0035, parsed.destination);
+    assertEquals(0xABB4, parsed.checksum);
+    assertEquals(0x002C-8, parsed.data.length);
+  }
+
 }

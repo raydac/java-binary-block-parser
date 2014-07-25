@@ -18,9 +18,11 @@ package com.igormaznitsa.jbbp.compiler;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
- * The Class describes a named field info item. Such objects are presented inside of compiled blocks only for fields which have names.
+ * The Class describes a named field info item. Such objects are presented
+ * inside of compiled blocks only for fields which have names.
  */
 public final class JBBPNamedFieldInfo {
+
   /**
    * The Field path.
    */
@@ -33,9 +35,10 @@ public final class JBBPNamedFieldInfo {
    * The Field byte-code offset in the compiled block.
    */
   private final int offsetInCompiledBlock;
-  
+
   /**
    * The Constructor
+   *
    * @param fieldPath the field path
    * @param fieldName the field name
    * @param offsetInCompiledBlock the offset in the compiled block for the field
@@ -48,6 +51,7 @@ public final class JBBPNamedFieldInfo {
 
   /**
    * Get the field path.
+   *
    * @return the field path as string
    */
   public String getFieldPath() {
@@ -56,14 +60,16 @@ public final class JBBPNamedFieldInfo {
 
   /**
    * Get the field name.
+   *
    * @return the field name as string
    */
-  public String getFieldName(){
+  public String getFieldName() {
     return this.fieldName;
   }
-  
+
   /**
    * Get the field offset in the compiled byte-code block.
+   *
    * @return the field offset in the byte-code block
    */
   public int getFieldOffsetInCompiledBlock() {
@@ -85,10 +91,10 @@ public final class JBBPNamedFieldInfo {
   public int hashCode() {
     return this.offsetInCompiledBlock;
   }
-  
+
   @Override
-  public String toString(){
-    return this.getClass().getSimpleName()+"[fieldPath="+this.fieldPath+", fieldName="+this.fieldName+", offetInCompiledBlock="+this.offsetInCompiledBlock+']';
+  public String toString() {
+    return this.getClass().getSimpleName() + "[fieldPath=" + this.fieldPath + ", fieldName=" + this.fieldName + ", offetInCompiledBlock=" + this.offsetInCompiledBlock + ']';
   }
 
 }

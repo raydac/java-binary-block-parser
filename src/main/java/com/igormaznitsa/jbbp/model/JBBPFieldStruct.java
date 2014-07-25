@@ -27,6 +27,7 @@ import java.util.List;
  * Describes a structure.
  */
 public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFieldFinder {
+
   private static final long serialVersionUID = -5862961302858335702L;
 
   /**
@@ -96,12 +97,16 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
 
   public JBBPAbstractField findFieldForName(final String name) {
     final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(name);
+
+    JBBPAbstractField result = null;
+
     for (final JBBPAbstractField f : this.fields) {
       if (normalizedName.equals(f.getFieldName())) {
-        return f;
+        result = f;
+        break;
       }
     }
-    return null;
+    return result;
   }
 
   public <T extends JBBPAbstractField> T findFieldForType(final Class<T> fieldType) {
@@ -124,91 +129,120 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
   }
 
   public <T extends JBBPAbstractField> T findFirstFieldForType(final Class<T> fieldType) {
+    T result = null;
+    
     for (final JBBPAbstractField f : this.fields) {
       if (fieldType.isAssignableFrom(f.getClass())) {
-        return fieldType.cast(f);
+        result = fieldType.cast(f);
+        break;
       }
     }
-    return null;
+    return result;
   }
 
- public <T extends JBBPAbstractField> T findLastFieldForType(final Class<T> fieldType) {
+  public <T extends JBBPAbstractField> T findLastFieldForType(final Class<T> fieldType) {
+    T result = null;
+
     for (int i = this.fields.length - 1; i >= 0; i--) {
       final JBBPAbstractField f = this.fields[i];
       if (fieldType.isAssignableFrom(f.getClass())) {
-        return fieldType.cast(f);
+        result = fieldType.cast(f);
+        break;
       }
     }
-    return null;
+    return result;
   }
 
   public <T extends JBBPAbstractField> T findFieldForNameAndType(final String fieldName, final Class<T> fieldType) {
     final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(fieldName);
+
+    T result = null;
+
     for (final JBBPAbstractField f : this.fields) {
       if (fieldType.isAssignableFrom(f.getClass()) && normalizedName.equals(f.getFieldName())) {
-        return fieldType.cast(f);
+        result = fieldType.cast(f);
+        break;
       }
     }
-    return null;
+    return result;
   }
 
   public boolean nameExists(final String fieldName) {
     final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(fieldName);
+
+    boolean result = false;
+
     for (final JBBPAbstractField f : this.fields) {
       if (normalizedName.equals(f.getFieldName())) {
-        return true;
+        result = true;
+        break;
       }
     }
-    return false;
+    return result;
   }
 
   public boolean pathExists(final String fieldPath) {
     final String normalizedPath = JBBPUtils.normalizeFieldNameOrPath(fieldPath);
+
+    boolean result = false;
+
     for (final JBBPAbstractField f : this.fields) {
       if (normalizedPath.equals(f.getFieldPath())) {
-        return true;
+        result = true;
+        break;
       }
     }
-    return false;
+    return result;
   }
 
   @SuppressWarnings("unchecked")
   public <T extends JBBPAbstractField> T findFieldForPathAndType(final String fieldPath, final Class<T> fieldType) {
     final JBBPAbstractField field = this.findFieldForPath(fieldPath);
+
+    T result = null;
+
     if (field != null && fieldType.isAssignableFrom(field.getClass())) {
-      return (T) field;
+      result = fieldType.cast(field);
     }
-    return null;
+    return result;
   }
 
   /**
    * Map the structure fields to a class fields.
+   *
    * @param <T> a class type
-   * @param mappingClass a mapping class to be mapped by the structure fields, must not be null and must have the default constructor
+   * @param mappingClass a mapping class to be mapped by the structure fields,
+   * must not be null and must have the default constructor
    * @return a mapped instance of the class, must not be null
    */
-  public <T> T mapTo(final Class<T> mappingClass){
+  public <T> T mapTo(final Class<T> mappingClass) {
     return JBBPMapper.map(this, mappingClass);
   }
-  
+
   /**
-   * Find a structure by its path and map the structure fields to a class fields.
+   * Find a structure by its path and map the structure fields to a class
+   * fields.
+   *
    * @param <T> a class type
    * @param path the path to the structure to be mapped, must not be null
-   * @param mappingClass a mapping class to be mapped by the structure fields, must not be null and must have the default constructor
+   * @param mappingClass a mapping class to be mapped by the structure fields,
+   * must not be null and must have the default constructor
    * @return a mapped instance of the class, must not be null
    */
-  public <T> T mapTo(final String path, final Class<T> mappingClass){
+  public <T> T mapTo(final String path, final Class<T> mappingClass) {
     return JBBPMapper.map(this, path, mappingClass);
   }
-  
+
   /**
    * Map the structure fields to object fields.
-   * @param objectToMap an object to map fields of the structure, must not be null
-   * @return the same object from the arguments but with filled fields by values of the structure
+   *
+   * @param objectToMap an object to map fields of the structure, must not be
+   * null
+   * @return the same object from the arguments but with filled fields by values
+   * of the structure
    */
-  public Object mapTo(final Object objectToMap){
+  public Object mapTo(final Object objectToMap) {
     return JBBPMapper.map(this, objectToMap);
   }
-  
+
 }
