@@ -18,6 +18,8 @@ package com.igormaznitsa.jbbp.mapper;
 
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.exceptions.JBBPMapperException;
+import com.igormaznitsa.jbbp.model.JBBPFieldInt;
+import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import java.lang.reflect.Field;
 import java.security.*;
 import static org.junit.Assert.*;
@@ -282,4 +284,56 @@ public class JBBPMapperTest {
     });
     
   }
+
+  @Test
+  public void testMap_customMappingFields_Class() throws Exception {
+    final class Mapped { @Bin int a; @Bin(custom = true, extra = "TEST_TEXT") String b; @Bin int c;}
+    final Mapped mapped = JBBPParser.prepare("int a; int b; int c;").parse(new byte []{1,2,3,4, 0x4A, 0x46, 0x49, 0x46, 5,6,7,8}).mapTo(Mapped.class, new JBBPMapperCustomFieldProcessor() {
+
+      public Object prepareObjectForMapping(final JBBPFieldStruct parsedBlock, final Bin annotation, final Field field) {
+        if ("b".equals(field.getName()) && "TEST_TEXT".equals(annotation.extra())){
+          final int bvalue = parsedBlock.findFieldForNameAndType("b", JBBPFieldInt.class).getAsInt();
+          final StringBuilder result = new StringBuilder();
+          result.append((char)((bvalue>>>24)&0xFF)).append((char) ((bvalue >>> 16) & 0xFF)).append((char) ((bvalue >>> 8) & 0xFF)).append((char) (bvalue & 0xFF));
+          return result.toString();
+        }else{
+          fail("Unexpected state"+field);
+          return null;
+        }
+      }
+    });
+    
+    assertEquals(0x01020304, mapped.a);
+    assertEquals("JFIF", mapped.b);
+    assertEquals(0x05060708, mapped.c);
+  }
+
+  @Test
+  public void testMap_customMappingFields_ClassInstance() throws Exception {
+    final class Mapped { @Bin int a; @Bin(custom = true, extra = "TEST_TEXT") String b; @Bin int c;}
+
+    final Mapped mapped = new Mapped(); 
+    
+    final Mapped result = (Mapped)JBBPParser.prepare("int a; int b; int c;").parse(new byte []{1,2,3,4, 0x4A, 0x46, 0x49, 0x46, 5,6,7,8}).mapTo(mapped, new JBBPMapperCustomFieldProcessor() {
+
+      public Object prepareObjectForMapping(final JBBPFieldStruct parsedBlock, final Bin annotation, final Field field) {
+        if ("b".equals(field.getName()) && "TEST_TEXT".equals(annotation.extra())){
+          final int bvalue = parsedBlock.findFieldForNameAndType("b", JBBPFieldInt.class).getAsInt();
+          final StringBuilder result = new StringBuilder();
+          result.append((char)((bvalue>>>24)&0xFF)).append((char) ((bvalue >>> 16) & 0xFF)).append((char) ((bvalue >>> 8) & 0xFF)).append((char) (bvalue & 0xFF));
+          return result.toString();
+        }else{
+          fail("Unexpected state"+field);
+          return null;
+        }
+      }
+    });
+    
+    assertSame(mapped, result);
+    
+    assertEquals(0x01020304, mapped.a);
+    assertEquals("JFIF", mapped.b);
+    assertEquals(0x05060708, mapped.c);
+  }
+
 }

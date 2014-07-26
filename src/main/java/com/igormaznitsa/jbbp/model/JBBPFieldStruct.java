@@ -19,6 +19,7 @@ import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.exceptions.JBBPFinderException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTooManyFieldsFoundException;
 import com.igormaznitsa.jbbp.mapper.JBBPMapper;
+import com.igormaznitsa.jbbp.mapper.JBBPMapperCustomFieldProcessor;
 import com.igormaznitsa.jbbp.model.finder.JBBPFieldFinder;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.util.List;
@@ -216,7 +217,21 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * @return a mapped instance of the class, must not be null
    */
   public <T> T mapTo(final Class<T> mappingClass) {
-    return JBBPMapper.map(this, mappingClass);
+    return mapTo(mappingClass, null);
+  }
+
+  /**
+   * Map the structure fields to a class fields.
+   *
+   * @param <T> a class type
+   * @param mappingClass a mapping class to be mapped by the structure fields,
+   * must not be null and must have the default constructor
+   * @param customFieldProcessor a custom field processor to provide values for
+   * custom mapping fields, it can be null if there is not any custom field
+   * @return a mapped instance of the class, must not be null
+   */
+  public <T> T mapTo(final Class<T> mappingClass, final JBBPMapperCustomFieldProcessor customFieldProcessor) {
+    return JBBPMapper.map(this, mappingClass, customFieldProcessor);
   }
 
   /**
@@ -234,6 +249,21 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
   }
 
   /**
+   * Find a structure by its path and map the structure fields to a class
+   * fields.
+   *
+   * @param <T> a class type
+   * @param path the path to the structure to be mapped, must not be null
+   * @param mappingClass a mapping class to be mapped by the structure fields,
+   * must not be null and must have the default constructor
+   * @param customFieldProcessor a custom field processor to provide values for custom mapping fields, it can be null if there is not any custom field
+   * @return a mapped instance of the class, must not be null
+   */
+  public <T> T mapTo(final String path, final Class<T> mappingClass, final JBBPMapperCustomFieldProcessor customFieldProcessor) {
+    return JBBPMapper.map(this, path, mappingClass, customFieldProcessor);
+  }
+
+  /**
    * Map the structure fields to object fields.
    *
    * @param objectToMap an object to map fields of the structure, must not be
@@ -242,7 +272,21 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * of the structure
    */
   public Object mapTo(final Object objectToMap) {
-    return JBBPMapper.map(this, objectToMap);
+    return this.mapTo(objectToMap, null);
+  }
+
+  /**
+   * Map the structure fields to object fields.
+   *
+   * @param objectToMap an object to map fields of the structure, must not be
+   * null
+   * @param customFieldProcessor a custom field processor to provide values for
+   * custom mapping fields, it can be null if there is not any custom field
+   * @return the same object from the arguments but with filled fields by values
+   * of the structure
+   */
+  public Object mapTo(final Object objectToMap, final JBBPMapperCustomFieldProcessor customFieldProcessor) {
+    return JBBPMapper.map(this, objectToMap, customFieldProcessor);
   }
 
 }

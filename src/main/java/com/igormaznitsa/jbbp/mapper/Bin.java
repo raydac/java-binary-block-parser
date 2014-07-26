@@ -52,4 +52,17 @@ public @interface Bin {
    * @see JBBPBitOrder
    */
   JBBPBitOrder bitOrder() default JBBPBitOrder.LSB0;
+  
+  /**
+   * The Flag shows that the field must be processed by a defined externally custom field processor.
+   * @return true if the mapping field must be processed externally, false otherwise
+   * @see JBBPMapperCustomFieldProcessor
+   */
+  boolean custom() default false;
+  
+  /**
+   * The Filed contains some extra text info which can be used by a custom field processor.
+   * @see JBBPMapperCustomFieldProcessor
+   */
+  String extra() default "";
 }
