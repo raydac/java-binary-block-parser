@@ -91,6 +91,26 @@ public class JBBPOutTest {
   }
 
   @Test
+  public void testByteArrayAsString() throws Exception {
+    assertArrayEquals(new byte[]{(byte)'a',(byte)'b',(byte)'c'}, BeginBin().Byte("abc").End().toByteArray());
+  }
+
+  @Test
+  public void testByteArrayAsString_RussianChars() throws Exception {
+    assertArrayEquals(new byte[]{(byte) 0x20, (byte) 0x43, (byte) 0x41}, BeginBin().Byte("Рус").End().toByteArray());
+  }
+
+  @Test
+  public void testUtf8_OnlyLatinChars() throws Exception {
+    assertArrayEquals(new byte[]{(byte)'a',(byte)'b',(byte)'c'}, BeginBin().Utf8("abc").End().toByteArray());
+  }
+
+  @Test
+  public void testUtf8_RussianChars() throws Exception {
+    assertArrayEquals(new byte[]{(byte)0xD0,(byte) 0xA0, (byte)0xD1,(byte) 0x83, (byte)0xD1,(byte) 0x81}, BeginBin().Utf8("Рус").End().toByteArray());
+  }
+
+  @Test
   public void testBit() throws Exception {
     assertArrayEquals(new byte[]{1}, BeginBin().Bit(1).End().toByteArray());
   }
@@ -313,6 +333,18 @@ public class JBBPOutTest {
 
     try{
       out.Byte(1);
+      fail("Must throw ISE");
+    }catch(IllegalStateException ex){
+    }
+
+    try{
+      out.Byte((String)null);
+      fail("Must throw ISE");
+    }catch(IllegalStateException ex){
+    }
+
+    try{
+      out.Utf8((String)null);
       fail("Must throw ISE");
     }catch(IllegalStateException ex){
     }

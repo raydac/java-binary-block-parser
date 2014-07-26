@@ -645,7 +645,7 @@ public final class JBBPOut {
    */
   private void assertNotEnded() {
     if (this.ended) {
-      throw new IllegalStateException(JBBPOut.class.getSimpleName() + " has been eneded");
+      throw new IllegalStateException(JBBPOut.class.getSimpleName() + " has been ended");
     }
   }
 }
