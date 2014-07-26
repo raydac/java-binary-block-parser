@@ -29,7 +29,7 @@ public final class JBBPOut {
    */
   private final JBBPBitOrder bitOrder;
   /**
-   * The Byte order for operations.
+   * The Utf8 order for operations.
    */
   private JBBPByteOrder byteOrder;
   /**
@@ -411,6 +411,37 @@ public final class JBBPOut {
     return this;
   }
 
+  /**
+   * Write String chars trimmed to bytes, only the lower 8 bit will be saved per char code.
+   *
+   * @param str a String which chars should be trimmed to bytes and saved
+   * @return the DSL session
+   * @throws IOException it will be thrown for transport errors
+   */
+  public JBBPOut Byte(final String str) throws IOException {
+    assertNotEnded();
+    JBBPUtils.assertNotNull(str, "String must not be null");
+    final byte [] array = new byte[str.length()];
+    for(int i=0;i<array.length;i++) {
+      array[i] = (byte)str.charAt(i);
+    }
+    this.outStream.write(array);
+    return this;
+  }
+
+  /**
+   * Write chars of a String as encoded Utf8 byte array.
+   * @param str a String which bytes should be written as Utf8
+   * @return the DSL session
+   * @throws IOException it will be thrown for transport errors
+   */
+  public JBBPOut Utf8(final String str) throws IOException {
+    assertNotEnded();
+    JBBPUtils.assertNotNull(str, "String must not be null");
+    this.outStream.write(str.getBytes("UTF-8"));
+    return this;
+  }
+  
   /**
    * Write a boolean value into the session stream as a byte.
    *
