@@ -16,7 +16,6 @@
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
-import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

@@ -20,8 +20,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class JBBPFieldArrayIntTest {
-
-  private final JBBPFieldArrayInt test = new JBBPFieldArrayInt(new JBBPNamedFieldInfo("test.field", "field", 999), new int[]{-278349, 12223423, 0, -2, 3});
+  private final int [] array = new int[]{-278349, 12223423, 0, -2, 3};
+  private final JBBPFieldArrayInt test = new JBBPFieldArrayInt(new JBBPNamedFieldInfo("test.field", "field", 999), array);
 
   @Test
   public void testNameAndOffset() {
@@ -71,6 +71,17 @@ public class JBBPFieldArrayIntTest {
     int index = 0;
     for (final JBBPFieldInt f : test) {
       assertEquals(etalon[index++], f.getAsInt());
+    }
+  }
+
+  @Test
+  public void testGetValueArrayAsObject() {
+    assertArrayEquals(array, (int[]) test.getValueArrayAsObject(false));
+
+    final int[] inverted = (int[]) test.getValueArrayAsObject(true);
+    assertEquals(array.length, inverted.length);
+    for (int i = 0; i < array.length; i++) {
+      assertEquals(JBBPFieldInt.reverseBits(array[i]), inverted[i]);
     }
   }
 

@@ -21,7 +21,8 @@ import static org.junit.Assert.*;
 
 public class JBBPFieldArrayBooleanTest {
 
-  private final JBBPFieldArrayBoolean test = new JBBPFieldArrayBoolean(new JBBPNamedFieldInfo("test.field", "field", 999), new boolean[]{true, false, true, true, false});
+  private final boolean [] array = new boolean[]{true, false, true, true, false};
+  private final JBBPFieldArrayBoolean test = new JBBPFieldArrayBoolean(new JBBPNamedFieldInfo("test.field", "field", 999), array);
 
   @Test
   public void testNameAndOffset() {
@@ -76,6 +77,21 @@ public class JBBPFieldArrayBooleanTest {
     int index = 0;
     for (final JBBPFieldBoolean f : test) {
       assertTrue(etalon[index++] == f.getAsBool());
+    }
+  }
+
+  @Test
+  public void testGetValueArrayAsObject() {
+    final boolean [] noninverted = (boolean[]) test.getValueArrayAsObject(false);
+    assertEquals(array.length, noninverted.length);
+    for(int i=0;i<array.length;i++){
+      assertTrue(array[i] == noninverted[i]);
+    }
+    
+    final boolean[] inverted = (boolean[]) test.getValueArrayAsObject(true);
+    assertEquals(array.length, inverted.length);
+    for (int i = 0; i < array.length; i++) {
+      assertEquals(JBBPFieldBoolean.reverseBits(array[i]) != 0L, inverted[i]);
     }
   }
 

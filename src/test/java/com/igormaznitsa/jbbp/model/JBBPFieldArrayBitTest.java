@@ -17,12 +17,13 @@ package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
+import java.util.Random;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class JBBPFieldArrayBitTest {
-  
-  private final JBBPFieldArrayBit test = new JBBPFieldArrayBit(new JBBPNamedFieldInfo("test.field", "field", 999),new byte [] {(byte)-1,0,1,2,3}, JBBPBitNumber.BITS_1);
+  private final byte [] array = new byte[]{(byte) -1, 0, 1, 2, 3};
+  private final JBBPFieldArrayBit test = new JBBPFieldArrayBit(new JBBPNamedFieldInfo("test.field", "field", 999),array, JBBPBitNumber.BITS_1);
 
   @Test(expected=NullPointerException.class)
   public void testConstructor_NPEForNullBitNumber(){
@@ -81,5 +82,19 @@ public class JBBPFieldArrayBitTest {
     }
   }
   
+  @Test
+  public void testGetValueArrayAsObject() {
+    final byte [] array = new byte[]{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+    
+    final JBBPFieldArrayBit test = new JBBPFieldArrayBit(new JBBPNamedFieldInfo("test.field", "field", 999), array, JBBPBitNumber.BITS_4);
+
+    assertArrayEquals(array, (byte[]) test.getValueArrayAsObject(false));
+
+    final byte[] inverted = (byte[]) test.getValueArrayAsObject(true);
+    assertEquals(array.length, inverted.length);
+    for (int i = 0; i < array.length; i++) {
+      assertEquals(JBBPFieldBit.reverseBits(array[i], JBBPBitNumber.BITS_4), inverted[i]);
+    }
+  }
   
 }

@@ -58,4 +58,19 @@ public class JBBPFieldUShortTest {
     assertEquals(0x0L, new JBBPFieldUShort(new JBBPNamedFieldInfo("test.field", "field", 123), (short) 0x0).getAsInvertedBitOrder());
     assertEquals(0x0000000000004080L, new JBBPFieldUShort(new JBBPNamedFieldInfo("test.field", "field", 123), (short) 0x0102).getAsInvertedBitOrder());
   }
+
+  @Test
+  public void testGetValueArrayAsObject() {
+    final short[] array = new short[]{(short) -27834, 23423, 0, -2, 3};
+    final JBBPFieldArrayUShort test = new JBBPFieldArrayUShort(new JBBPNamedFieldInfo("test.field", "field", 999), array);
+    
+    assertArrayEquals(array, (short[]) test.getValueArrayAsObject(false));
+
+    final short[] inverted = (short[]) test.getValueArrayAsObject(true);
+    assertEquals(array.length, inverted.length);
+    for (int i = 0; i < array.length; i++) {
+      assertEquals(JBBPFieldShort.reverseBits(array[i]), inverted[i]);
+    }
+  }
+
 }
