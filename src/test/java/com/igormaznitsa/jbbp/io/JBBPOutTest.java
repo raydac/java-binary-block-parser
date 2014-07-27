@@ -565,4 +565,33 @@ public class JBBPOutTest {
     assertArrayEquals(new byte[]{(byte) 0xCC, (byte) 0xDD}, array);
   }
 
+  @Test
+  public void testVar_VariableContent() throws Exception {
+    final JBBPOutVarProcessor var = new JBBPOutVarProcessor() {
+      public boolean processVarOut(JBBPOut context, JBBPBitOutputStream outStream, Object... args) throws IOException {
+        final int type = (Integer)args[0];
+        switch(type){
+          case 0 : {
+            context.Int(0x01020304);
+          }break;
+          case 1 : {
+            context.Int(0x05060708);
+          }break;
+          default: {
+            fail("Unexpected parameter ["+type+']');
+          }break;
+        }
+        return true;
+      }
+    };
+    
+    final byte [] array = JBBPOut.BeginBin().
+            Var(var, 0).
+            Var(var, 1).
+            End().toByteArray();
+    
+    assertArrayEquals(new byte[]{1,2,3,4,5,6,7,8}, array);
+    
+  }
+  
 }
