@@ -20,7 +20,7 @@ import com.igormaznitsa.jbbp.model.*;
 /**
  * The Enum contains all supported bin types for mapper.
  *
- * @see BinMapper
+ * @see JBBPMapper
  */
 public enum BinType {
 

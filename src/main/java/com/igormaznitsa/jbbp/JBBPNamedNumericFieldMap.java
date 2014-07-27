@@ -93,7 +93,7 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
    * Remove a field for its field name info descriptor.
    *
    * @param nameInfo the field name info, it must not be null
-   * @return
+   * @return removed numeric field or null if there was not any field for the info
    */
   public JBBPNumericField remove(final JBBPNamedFieldInfo nameInfo) {
     JBBPUtils.assertNotNull(nameInfo, "Name info must not be null");
