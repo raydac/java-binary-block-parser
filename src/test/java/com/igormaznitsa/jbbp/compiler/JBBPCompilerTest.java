@@ -15,6 +15,7 @@
  */
 package com.igormaznitsa.jbbp.compiler;
 
+import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPTokenType;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTokenizerException;
@@ -512,4 +513,20 @@ public class JBBPCompilerTest {
     assertEquals(5, data.length);
   }
 
+  @Test
+  public void testCompile_FixedStructArray() throws Exception {
+    final JBBPCompiledBlock compiled = JBBPCompiler.compile("int val; inner [2] { byte a; byte b;}");
+
+    assertArrayEquals(new byte[]{
+      JBBPCompiler.CODE_INT | JBBPCompiler.FLAG_NAMED, 
+      JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_ARRAY,
+      2,
+      JBBPCompiler.CODE_BYTE | JBBPCompiler.FLAG_NAMED,
+      JBBPCompiler.CODE_BYTE | JBBPCompiler.FLAG_NAMED,
+      JBBPCompiler.CODE_STRUCT_END,
+      1
+    }, compiled.getCompiledData());
+    
+  }
+  
 }

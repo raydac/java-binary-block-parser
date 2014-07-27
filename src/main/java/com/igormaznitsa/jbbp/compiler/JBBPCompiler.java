@@ -40,7 +40,7 @@ public final class JBBPCompiler {
     /**
      * The Structure start offset.
      */
-    private final int startOffset;
+    private final int startStructureOffset;
     /**
      * The Start byte-code of the structure.
      */
@@ -58,13 +58,13 @@ public final class JBBPCompiler {
     /**
      * The Constructor.
      * @param namedFieldCounter the named field counter value for the structure start
-     * @param startOffset the structure start offset
+     * @param startStructureOffset the offset of the start structure byte-code instruction
      * @param code the start byte code
      * @param token the token
      */
-    private StructStackItem(final int namedFieldCounter, final int startOffset, final int code, final JBBPToken token) {
+    private StructStackItem(final int namedFieldCounter, final int startStructureOffset, final int code, final JBBPToken token) {
       this.namedFieldCounter = namedFieldCounter;
-      this.startOffset = startOffset;
+      this.startStructureOffset = startStructureOffset;
       this.code = code;
       this.token = token;
     }
@@ -192,8 +192,8 @@ public final class JBBPCompiler {
       int extraField = -1;
 
       if ((code & 0xF) != CODE_STRUCT_END && fieldUnrestrictedArrayOffset >= 0) {
-        // check that the field is not int the current structure which is a whole stream one
-        if (structureStack.isEmpty() || structureStack.get(structureStack.size() - 1).startOffset != fieldUnrestrictedArrayOffset) {
+        // check that the field is not in the current structure which is a whole stream one
+        if (structureStack.isEmpty() || structureStack.get(structureStack.size() - 1).startStructureOffset != fieldUnrestrictedArrayOffset) {
           throw new JBBPCompilationException("Attempt to read field or structure after a full stream field", token);
         }
       }
@@ -306,7 +306,7 @@ public final class JBBPCompiler {
           }
           else {
             currentClosedStructure = structureStack.remove(structureStack.size() - 1);
-            offset += writePackedInt(out, currentClosedStructure.startOffset);
+            offset += writePackedInt(out, currentClosedStructure.startStructureOffset);
           }
         }
         break;
@@ -352,7 +352,7 @@ public final class JBBPCompiler {
           final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(currentClosedStructure.token.getFieldName());
           for (int i = namedFields.size() - 1; i >= 0; i--) {
             final JBBPNamedFieldInfo f = namedFields.get(i);
-            if (f.getFieldOffsetInCompiledBlock() <= currentClosedStructure.startOffset) {
+            if (f.getFieldOffsetInCompiledBlock() <= currentClosedStructure.startStructureOffset) {
               break;
             }
             final String newFullName = normalizedName + '.' + f.getFieldPath();

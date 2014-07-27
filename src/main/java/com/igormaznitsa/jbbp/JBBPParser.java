@@ -109,26 +109,32 @@ public final class JBBPParser {
 
       final boolean wholeStreamArray;
       final int arrayLength;
+      final int packedArraySizeOffset;
       switch (code & (JBBPCompiler.FLAG_ARRAY | JBBPCompiler.FLAG_EXPRESSION_OR_WHOLESTREAM)) {
         case JBBPCompiler.FLAG_ARRAY: {
+          final int pos = positionAtCompiledBlock.get();
           arrayLength = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
+          packedArraySizeOffset = positionAtCompiledBlock.get()-pos;
           wholeStreamArray = false;
         }
         break;
         case JBBPCompiler.FLAG_EXPRESSION_OR_WHOLESTREAM: {
           wholeStreamArray = resultNotIgnored;
+          packedArraySizeOffset = 0;
           arrayLength = 0;
         }
         break;
         case JBBPCompiler.FLAG_ARRAY | JBBPCompiler.FLAG_EXPRESSION_OR_WHOLESTREAM: {
           final JBBPIntegerValueEvaluator evaluator = this.compiledBlock.getArraySizeEvaluators()[positionAtVarLengthProcessors.getAndIncrement()];
           arrayLength = resultNotIgnored ? evaluator.eval(inStream, positionAtCompiledBlock.get(), this.compiledBlock, namedNumericFieldMap) : 0;
+          packedArraySizeOffset = 0;
           assertArrayLength(arrayLength, name);
           wholeStreamArray = false;
         }
         break;
         default: {
           // it is not an array, just a single field
+          packedArraySizeOffset = 0;
           wholeStreamArray = false;
           arrayLength = -1;
         }
@@ -326,7 +332,7 @@ public final class JBBPParser {
                   for (int i = 0; i < arrayLength; i++) {
 
                     final List<JBBPAbstractField> fieldsForStruct = parseStruct(inStream, positionAtCompiledBlock, varFieldProcessor, namedNumericFieldMap, positionAtNamedFieldList, positionAtVarLengthProcessors, skipStructureFields);
-                    final int structStart = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
+                    final int structBodyStart = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
 
                     result[i] = new JBBPFieldStruct(name, fieldsForStruct);
 
@@ -334,7 +340,7 @@ public final class JBBPParser {
                       // not the last
                       positionAtNamedFieldList.set(nameFieldCurrent);
                       positionAtVarLengthProcessors.set(varLenProcCurrent);
-                      positionAtCompiledBlock.set(structStart + 1);
+                      positionAtCompiledBlock.set(structBodyStart+packedArraySizeOffset+1);
                     }
                   }
                 }

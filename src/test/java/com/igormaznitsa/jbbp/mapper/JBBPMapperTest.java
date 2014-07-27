@@ -336,4 +336,119 @@ public class JBBPMapperTest {
     assertEquals(0x05060708, mapped.c);
   }
 
+  @Test
+  public void testMap_InstanceOfInnerClass() throws Exception {
+    final class Outer {
+      final class Inner {
+        @Bin byte a;
+        @Bin byte b;
+      }
+      
+      @Bin int val;
+      @Bin Inner inner;
+      
+      public Outer(){
+        inner = new Outer.Inner();
+      }
+    }
+    
+    final Outer oldouter = new Outer();
+    final Outer.Inner inner = oldouter.inner;
+    
+    final Outer newouter = (Outer)JBBPParser.prepare("int val; inner{ byte a; byte b;}").parse(new byte []{1,2,3,4,5,6}).mapTo(oldouter);
+    
+    assertSame(oldouter, newouter);
+    assertSame(inner, newouter.inner);
+    assertEquals(0x01020304, oldouter.val);
+    assertEquals(5, inner.a);
+    assertEquals(6, inner.b);
+  }
+  
+  @Test
+  public void testMap_InstanceOfInnerClassPreparedArray() throws Exception {
+    final class Outer {
+      final class Inner {
+        @Bin byte a;
+        @Bin byte b;
+      }
+      
+      @Bin int val;
+      @Bin Inner [] inner;
+      
+      public Outer(){
+        inner = new Outer.Inner [2];
+        inner[0] = new Outer.Inner();
+        inner[1] = new Outer.Inner();
+      }
+    }
+    
+    final Outer oldouter = new Outer();
+    final Outer.Inner [] inner = oldouter.inner;
+    final Outer.Inner inner0 = oldouter.inner[0];
+    final Outer.Inner inner1 = oldouter.inner[1];
+    
+    final Outer newouter = (Outer)JBBPParser.prepare("int val; inner [2] { byte a; byte b;}").parse(new byte []{1,2,3,4,5,6,7,8}).mapTo(oldouter);
+    
+    assertSame(oldouter, newouter);
+    assertSame(inner, newouter.inner);
+    assertSame(inner0, newouter.inner[0]);
+    assertSame(inner1, newouter.inner[1]);
+    assertEquals(0x01020304, oldouter.val);
+    assertEquals(5, inner[0].a);
+    assertEquals(6, inner[0].b);
+    assertEquals(7, inner[1].a);
+    assertEquals(8, inner[1].b);
+  }
+  
+  @Test
+  public void testMap_InstanceOfInnerClassNonPreparedArray() throws Exception {
+    final class Outer {
+      final class Inner {
+        @Bin byte a;
+        @Bin byte b;
+      }
+      
+      @Bin int val;
+      @Bin Inner [] inner;
+      
+      public Outer(){
+        inner = new Outer.Inner [2];
+      }
+    }
+    
+    final Outer oldouter = new Outer();
+    final Outer.Inner [] inner = oldouter.inner;
+    assertNull(inner[0]);
+    assertNull(inner[1]);
+    
+    final Outer newouter = (Outer)JBBPParser.prepare("int val; inner [2] { byte a; byte b;}").parse(new byte []{1,2,3,4,5,6,7,8}).mapTo(oldouter);
+    
+    assertSame(oldouter, newouter);
+    assertSame(inner, newouter.inner);
+    assertEquals(0x01020304, oldouter.val);
+    assertEquals(5, inner[0].a);
+    assertEquals(6, inner[0].b);
+    assertEquals(7, inner[1].a);
+    assertEquals(8, inner[1].b);
+  }
+  
+  @Test(expected = JBBPMapperException.class)
+  public void testMap_InstanceOfInnerClassNonPreparedArray_ErrorForDifferentSize() throws Exception {
+    final class Outer {
+      final class Inner {
+        @Bin byte a;
+        @Bin byte b;
+      }
+      
+      @Bin int val;
+      @Bin Inner [] inner;
+      
+      public Outer(){
+        inner = new Outer.Inner [3];
+      }
+    }
+    
+    JBBPParser.prepare("int val; inner [2] { byte a; byte b;}").parse(new byte []{1,2,3,4,5,6,7,8}).mapTo(new Outer());
+  }
+  
 }

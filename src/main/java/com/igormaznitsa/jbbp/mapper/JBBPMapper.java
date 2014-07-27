@@ -161,7 +161,7 @@ public class JBBPMapper {
       if (mappedAnno.custom()) {
         JBBPUtils.assertNotNull(customFieldProcessor, "There is a custom mapping field, in the case you must provide a custom mapping field processor");
         final Object value = customFieldProcessor.prepareObjectForMapping(rootStructure, mappedAnno, mappingField);
-        setNonStaticFieldValue(mappingClassInstance, mappingField, null, value);
+        setFieldValue(mappingClassInstance, mappingField, null, value);
       }
       else {
         final BinType fieldType;
@@ -195,14 +195,27 @@ public class JBBPMapper {
           if (binField instanceof JBBPAbstractArrayField) {
             if (binField instanceof JBBPFieldArrayStruct) {
               // structure
-
               final JBBPFieldArrayStruct structArray = (JBBPFieldArrayStruct) binField;
               final Class<?> componentType = mappingField.getType().getComponentType();
-              final Object valueArray = Array.newInstance(componentType, structArray.size());
-              for (int i = 0; i < structArray.size(); i++) {
-                Array.set(valueArray, i, map(structArray.getElementAt(i), componentType));
+
+              Object valueArray = getFieldValue(mappingClassInstance, mappingField);
+
+              valueArray = valueArray == null ? Array.newInstance(componentType, structArray.size()) : valueArray;
+
+              if (Array.getLength(valueArray) != structArray.size()) {
+                throw new JBBPMapperException("Can't map an array field for different expected size [" + Array.getLength(valueArray) + "!=" + structArray.size() + ']', binField, mappingClass, mappingField, null);
               }
-              setNonStaticFieldValue(mappingClassInstance, mappingField, binField, valueArray);
+
+              for (int i = 0; i < structArray.size(); i++) {
+                final Object curInstance = Array.get(valueArray, i);
+                if (curInstance == null) {
+                  Array.set(valueArray, i, map(structArray.getElementAt(i), componentType, customFieldProcessor));
+                }
+                else {
+                  Array.set(valueArray, i, map(structArray.getElementAt(i), curInstance, customFieldProcessor));
+                }
+              }
+              setFieldValue(mappingClassInstance, mappingField, binField, valueArray);
             }
             else {
               // primitive
@@ -222,7 +235,13 @@ public class JBBPMapper {
               throw new JBBPMapperException("Can't map a structure to a primitive mapping field", binField, mappingClass, mappingField, null);
             }
             else {
-              setNonStaticFieldValue(mappingClassInstance, mappingField, binField, map((JBBPFieldStruct) binField, mappingField.getType()));
+              final Object curValue = getFieldValue(mappingClassInstance, mappingField);
+              if (curValue == null) {
+                setFieldValue(mappingClassInstance, mappingField, binField, map((JBBPFieldStruct) binField, mappingField.getType(), customFieldProcessor));
+              }
+              else {
+                setFieldValue(mappingClassInstance, mappingField, binField, map((JBBPFieldStruct) binField, curValue, customFieldProcessor));
+              }
             }
           }
           else {
@@ -230,7 +249,7 @@ public class JBBPMapper {
             if (mappingField.getType() == String.class && binField instanceof JBBPAbstractArrayField) {
               final String convertedValue = convertFieldValueToString((JBBPAbstractArrayField<?>) binField);
               if (convertedValue != null) {
-                setNonStaticFieldValue(mappingClassInstance, mappingField, binField, convertedValue);
+                setFieldValue(mappingClassInstance, mappingField, binField, convertedValue);
                 processed = true;
               }
             }
@@ -292,13 +311,13 @@ public class JBBPMapper {
    * Set a value to a field of a class instance. Can't be used for static
    * fields!
    *
-   * @param classInstance a class instance, must not be null
+   * @param classInstance a class instance
    * @param classField a mapping class field which should be set by the value,
    * must not be null
    * @param binField a parsed bin field which value will be set, can be null
    * @param value a value to be set to the class field
    */
-  private static void setNonStaticFieldValue(final Object classInstance, final Field classField, final JBBPAbstractField binField, final Object value) {
+  private static void setFieldValue(final Object classInstance, final Field classField, final JBBPAbstractField binField, final Object value) {
     try {
       classField.set(classInstance, value);
     }
@@ -307,6 +326,26 @@ public class JBBPMapper {
     }
     catch (IllegalAccessException ex) {
       throw new JBBPMapperException("Can't get access to a mapping field", binField, classInstance.getClass(), classField, ex);
+    }
+  }
+
+  /**
+   * Get a value of a field from a class instance.
+   *
+   * @param classInstance a class instance object
+   * @param classField a class field which value must be returned, must not be
+   * null
+   * @return the field value for the class instance
+   */
+  private static Object getFieldValue(final Object classInstance, final Field classField) {
+    try {
+      return classField.get(classInstance);
+    }
+    catch (IllegalArgumentException ex) {
+      throw new JBBPMapperException("Can't set get value from a mapping field", null, classInstance.getClass(), classField, ex);
+    }
+    catch (IllegalAccessException ex) {
+      throw new JBBPMapperException("Can't get access to a mapping field", null, classInstance.getClass(), classField, ex);
     }
   }
 

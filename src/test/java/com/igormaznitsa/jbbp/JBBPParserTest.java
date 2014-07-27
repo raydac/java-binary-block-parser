@@ -15,6 +15,7 @@
  */
 package com.igormaznitsa.jbbp;
 
+import com.igormaznitsa.jbbp.compiler.JBBPCompiler;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPParsingException;
@@ -1454,5 +1455,17 @@ public class JBBPParserTest {
     assertEquals(2, parsed.findFieldForPathAndType("b.a", JBBPFieldByte.class).getAsInt());
     assertArrayEquals(new byte[]{3, 4}, parsed.findFieldForPathAndType("b.d", JBBPFieldArrayByte.class).getArray());
     assertArrayEquals(new byte[]{5}, parsed.findFieldForPathAndType("aa", JBBPFieldArrayByte.class).getArray());
+  }
+
+  @Test
+  public void testParseFixedSizeStructureArray() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("int val; inner [2] { byte a; byte b;}");
+    
+    final JBBPFieldStruct parsed = parser.parse(new byte[]{1, 2, 3, 4, 5, 6, 7, 8});
+    assertEquals(0x01020304, parsed.findFieldForPathAndType("val", JBBPFieldInt.class).getAsInt());
+    
+    final JBBPFieldArrayStruct structArray = parsed.findFieldForNameAndType("inner", JBBPFieldArrayStruct.class);
+    
+    assertEquals(2, structArray.size());
   }
 }
