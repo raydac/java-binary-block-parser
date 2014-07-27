@@ -21,13 +21,14 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 public class JBBPOutTest {
-
+  
   @Test
   public void testBeginBin() throws Exception {
     assertArrayEquals(new byte[]{1}, BeginBin().Byte(1).End().toByteArray());
     assertArrayEquals(new byte[]{0x02, 0x01}, BeginBin(JBBPByteOrder.LITTLE_ENDIAN).Short(0x0102).End().toByteArray());
     assertArrayEquals(new byte[]{0x40, (byte) 0x80}, BeginBin(JBBPByteOrder.LITTLE_ENDIAN, JBBPBitOrder.MSB0).Short(0x0102).End().toByteArray());
     assertArrayEquals(new byte[]{(byte) 0x80}, BeginBin(JBBPBitOrder.MSB0).Byte(1).End().toByteArray());
+    assertArrayEquals(new byte[]{(byte) 0x80}, BeginBin(1).Byte(0x80).End().toByteArray());
 
     final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
     assertSame(buffer, BeginBin(buffer).End());

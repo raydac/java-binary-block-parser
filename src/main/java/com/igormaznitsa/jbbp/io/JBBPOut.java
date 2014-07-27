@@ -34,7 +34,7 @@ public final class JBBPOut {
    */
   private final JBBPBitOrder bitOrder;
   /**
-   * The Utf8 order for operations.
+   * The Byte order for operations of multi-byte value output.
    */
   private JBBPByteOrder byteOrder;
   /**
@@ -93,6 +93,16 @@ public final class JBBPOut {
    */
   public static JBBPOut BeginBin() {
     return new JBBPOut(new ByteArrayOutputStream(), DEFAULT_BYTE_ORDER, DEFAULT_BIT_ORDER);
+  }
+
+  /**
+   * Start a DSL session for default parameters and inside byte array stream with defined start size.
+   * @param initialSize the start size of inside buffer of the byte array output stream, must be positive
+   * @return the new DSL session generated with the default parameters and
+   * inside byte array stream.
+   */
+  public static JBBPOut BeginBin(final int initialSize) {
+    return new JBBPOut(new ByteArrayOutputStream(initialSize), DEFAULT_BYTE_ORDER, DEFAULT_BIT_ORDER);
   }
 
   /**
@@ -268,7 +278,7 @@ public final class JBBPOut {
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    */
-  public JBBPOut Bit(final byte... value) throws IOException {
+  public JBBPOut Bit(final byte [] value) throws IOException {
     assertNotEnded();
     JBBPUtils.assertNotNull(value, "Array must not be null");
     if (this.processCommands) {
@@ -375,7 +385,7 @@ public final class JBBPOut {
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    */
-  public JBBPOut Bits(final JBBPBitNumber numberOfBits, final byte... value) throws IOException {
+  public JBBPOut Bits(final JBBPBitNumber numberOfBits, final byte [] value) throws IOException {
     assertNotEnded();
     JBBPUtils.assertNotNull(value, "Array must not be null");
     if (this.processCommands) {
@@ -437,7 +447,7 @@ public final class JBBPOut {
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    */
-  public JBBPOut Byte(final byte... value) throws IOException {
+  public JBBPOut Byte(final byte [] value) throws IOException {
     assertNotEnded();
     JBBPUtils.assertNotNull(value, "Array must not be null");
     if (this.processCommands) {
@@ -550,7 +560,7 @@ public final class JBBPOut {
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    */
-  public JBBPOut Short(final short... value) throws IOException {
+  public JBBPOut Short(final short [] value) throws IOException {
     assertNotEnded();
     JBBPUtils.assertNotNull(value, "Array must not be null");
     if (this.processCommands) {
