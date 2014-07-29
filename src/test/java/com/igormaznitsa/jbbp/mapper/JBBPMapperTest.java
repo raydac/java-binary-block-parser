@@ -467,13 +467,14 @@ public class JBBPMapperTest {
   }
   
   @Test
-  public void testMap_MapToClassHierarchy() throws Exception {
+  public void testMap_MapToClassHierarchyWithAnnotationInheritance() throws Exception {
+    @Bin
     class Ancestor {
-      @Bin int a;
+      int a;
     }
 
     class Successor extends Ancestor {
-      @Bin int b;
+      int b;
     }
     
     final Successor successor = JBBPParser.prepare("int a; int b;").parse(new byte []{1,2,3,4,5,6,7,8}).mapTo(Successor.class);
