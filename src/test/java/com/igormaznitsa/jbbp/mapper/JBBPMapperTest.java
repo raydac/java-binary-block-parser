@@ -337,6 +337,21 @@ public class JBBPMapperTest {
   }
 
   @Test
+  public void testMap_AnnotationForWholeClass() throws Exception {
+    @Bin
+    final class Parsed{
+      int a;
+      int b;
+      @Bin(type = BinType.BYTE_ARRAY) String c;
+    }
+  
+    final Parsed parsed = JBBPParser.prepare("int a; int b; byte [_] c;").parse(new byte[]{1,2,3,4,5,6,7,8,(byte)'a',(byte)'b',(byte)'c',(byte)'d'}).mapTo(Parsed.class);
+    assertEquals(0x01020304, parsed.a);
+    assertEquals(0x05060708, parsed.b);
+    assertEquals("abcd", parsed.c);
+  }
+  
+  @Test
   public void testMap_InstanceOfInnerClass() throws Exception {
     final class Outer {
       final class Inner {
@@ -449,6 +464,22 @@ public class JBBPMapperTest {
     }
     
     JBBPParser.prepare("int val; inner [2] { byte a; byte b;}").parse(new byte []{1,2,3,4,5,6,7,8}).mapTo(new Outer());
+  }
+  
+  @Test
+  public void testMap_MapToClassHierarchy() throws Exception {
+    class Ancestor {
+      @Bin int a;
+    }
+
+    class Successor extends Ancestor {
+      @Bin int b;
+    }
+    
+    final Successor successor = JBBPParser.prepare("int a; int b;").parse(new byte []{1,2,3,4,5,6,7,8}).mapTo(Successor.class);
+    
+    assertEquals(0x01020304, successor.a);
+    assertEquals(0x05060708, successor.b);
   }
   
 }

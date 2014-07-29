@@ -20,6 +20,8 @@ import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.model.*;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.lang.reflect.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The Class processes mapping of a parsed binary data to class fields. The
@@ -150,117 +152,130 @@ public class JBBPMapper {
 
     final Class<?> mappingClass = mappingClassInstance.getClass();
 
-    for (final Field mappingField : mappingClassInstance.getClass().getDeclaredFields()) {
-      mappingField.setAccessible(true);
+    final Bin defaultAnno = mappingClass.getAnnotation(Bin.class);
 
-      final Bin mappedAnno = mappingField.getAnnotation(Bin.class);
-      if (mappedAnno == null) {
-        continue;
-      }
+    // make chain of ancestors till java.lang.Object
+    final List<Class<?>> listOfClassHierarchy = new ArrayList<Class<?>>();
+    Class<?> current = mappingClassInstance.getClass();
+    while (current != java.lang.Object.class) {
+      listOfClassHierarchy.add(current);
+      current = current.getSuperclass();
+    }
 
-      if (mappedAnno.custom()) {
-        JBBPUtils.assertNotNull(customFieldProcessor, "There is a custom mapping field, in the case you must provide a custom mapping field processor");
-        final Object value = customFieldProcessor.prepareObjectForMapping(rootStructure, mappedAnno, mappingField);
-        setFieldValue(mappingClassInstance, mappingField, null, value);
-      }
-      else {
-        final BinType fieldType;
-        if (mappedAnno.type() == BinType.UNDEFINED) {
-          fieldType = BinType.findCompatible(mappingField.getType());
-          if (fieldType == null) {
-            throw new JBBPMapperException("Can't find compatible type for a mapping field", rootStructure, mappingClass, mappingField, null);
-          }
+    for (final Class<?> processingClazz : listOfClassHierarchy) {
+      for (final Field mappingField : processingClazz.getDeclaredFields()) {
+        mappingField.setAccessible(true);
+
+        final Bin fieldAnno = mappingField.getAnnotation(Bin.class);
+        final Bin mappedAnno;
+        if ((fieldAnno == null && defaultAnno == null) || mappingField.getName().indexOf('$') >= 0) {
+          continue;
+        }
+        mappedAnno = fieldAnno == null ? defaultAnno : fieldAnno;
+
+        if (mappedAnno.custom()) {
+          JBBPUtils.assertNotNull(customFieldProcessor, "There is a custom mapping field, in the case you must provide a custom mapping field processor");
+          final Object value = customFieldProcessor.prepareObjectForMapping(rootStructure, mappedAnno, mappingField);
+          setFieldValue(mappingClassInstance, mappingField, null, value);
         }
         else {
-          fieldType = mappedAnno.type();
-        }
-
-        final String fieldName = mappedAnno.name().length() == 0 ? mappingField.getName() : mappedAnno.name();
-        final String fieldPath = mappedAnno.path();
-
-        final JBBPAbstractField binField;
-
-        if (fieldPath.length() == 0) {
-          binField = fieldName.length() == 0 ? rootStructure.findFieldForType(fieldType.getFieldClass()) : rootStructure.findFieldForNameAndType(fieldName, fieldType.getFieldClass());
-        }
-        else {
-          binField = rootStructure.findFieldForNameAndType(fieldPath, fieldType.getFieldClass());
-        }
-
-        if (binField == null) {
-          throw new JBBPMapperException("Can't find value to be mapped to a mapping field", null, mappingClass, mappingField, null);
-        }
-
-        if (mappingField.getType().isArray()) {
-          if (binField instanceof JBBPAbstractArrayField) {
-            if (binField instanceof JBBPFieldArrayStruct) {
-              // structure
-              final JBBPFieldArrayStruct structArray = (JBBPFieldArrayStruct) binField;
-              final Class<?> componentType = mappingField.getType().getComponentType();
-
-              Object valueArray = getFieldValue(mappingClassInstance, mappingField);
-
-              valueArray = valueArray == null ? Array.newInstance(componentType, structArray.size()) : valueArray;
-
-              if (Array.getLength(valueArray) != structArray.size()) {
-                throw new JBBPMapperException("Can't map an array field for different expected size [" + Array.getLength(valueArray) + "!=" + structArray.size() + ']', binField, mappingClass, mappingField, null);
-              }
-
-              for (int i = 0; i < structArray.size(); i++) {
-                final Object curInstance = Array.get(valueArray, i);
-                if (curInstance == null) {
-                  Array.set(valueArray, i, map(structArray.getElementAt(i), componentType, customFieldProcessor));
-                }
-                else {
-                  Array.set(valueArray, i, map(structArray.getElementAt(i), curInstance, customFieldProcessor));
-                }
-              }
-              setFieldValue(mappingClassInstance, mappingField, binField, valueArray);
-            }
-            else {
-              // primitive
-              mapArrayField(mappingClassInstance, mappingField, (JBBPAbstractArrayField<?>) binField, mappedAnno.bitOrder() == JBBPBitOrder.MSB0);
+          final BinType fieldType;
+          if (mappedAnno.type() == BinType.UNDEFINED) {
+            fieldType = BinType.findCompatible(mappingField.getType());
+            if (fieldType == null) {
+              throw new JBBPMapperException("Can't find compatible type for a mapping field", rootStructure, mappingClass, mappingField, null);
             }
           }
           else {
-            throw new JBBPMapperException("Can't map a non-array value to an array mapping field", binField, mappingClass, mappingField, null);
+            fieldType = mappedAnno.type();
           }
-        }
-        else {
-          if (binField instanceof JBBPNumericField) {
-            mapNumericField(mappingClassInstance, mappingField, (JBBPNumericField) binField, mappedAnno.bitOrder() == JBBPBitOrder.MSB0);
+
+          final String fieldName = mappedAnno.name().length() == 0 ? mappingField.getName() : mappedAnno.name();
+          final String fieldPath = mappedAnno.path();
+
+          final JBBPAbstractField binField;
+
+          if (fieldPath.length() == 0) {
+            binField = fieldName.length() == 0 ? rootStructure.findFieldForType(fieldType.getFieldClass()) : rootStructure.findFieldForNameAndType(fieldName, fieldType.getFieldClass());
           }
-          else if (binField instanceof JBBPFieldStruct) {
-            if (mappingField.getType().isPrimitive()) {
-              throw new JBBPMapperException("Can't map a structure to a primitive mapping field", binField, mappingClass, mappingField, null);
-            }
-            else {
-              final Object curValue = getFieldValue(mappingClassInstance, mappingField);
-              if (curValue == null) {
-                setFieldValue(mappingClassInstance, mappingField, binField, map((JBBPFieldStruct) binField, mappingField.getType(), customFieldProcessor));
+          else {
+            binField = rootStructure.findFieldForNameAndType(fieldPath, fieldType.getFieldClass());
+          }
+
+          if (binField == null) {
+            throw new JBBPMapperException("Can't find value to be mapped to a mapping field", null, mappingClass, mappingField, null);
+          }
+
+          if (mappingField.getType().isArray()) {
+            if (binField instanceof JBBPAbstractArrayField) {
+              if (binField instanceof JBBPFieldArrayStruct) {
+                // structure
+                final JBBPFieldArrayStruct structArray = (JBBPFieldArrayStruct) binField;
+                final Class<?> componentType = mappingField.getType().getComponentType();
+
+                Object valueArray = getFieldValue(mappingClassInstance, mappingField);
+
+                valueArray = valueArray == null ? Array.newInstance(componentType, structArray.size()) : valueArray;
+
+                if (Array.getLength(valueArray) != structArray.size()) {
+                  throw new JBBPMapperException("Can't map an array field for different expected size [" + Array.getLength(valueArray) + "!=" + structArray.size() + ']', binField, mappingClass, mappingField, null);
+                }
+
+                for (int i = 0; i < structArray.size(); i++) {
+                  final Object curInstance = Array.get(valueArray, i);
+                  if (curInstance == null) {
+                    Array.set(valueArray, i, map(structArray.getElementAt(i), componentType, customFieldProcessor));
+                  }
+                  else {
+                    Array.set(valueArray, i, map(structArray.getElementAt(i), curInstance, customFieldProcessor));
+                  }
+                }
+                setFieldValue(mappingClassInstance, mappingField, binField, valueArray);
               }
               else {
-                setFieldValue(mappingClassInstance, mappingField, binField, map((JBBPFieldStruct) binField, curValue, customFieldProcessor));
+                // primitive
+                mapArrayField(mappingClassInstance, mappingField, (JBBPAbstractArrayField<?>) binField, mappedAnno.bitOrder() == JBBPBitOrder.MSB0);
               }
+            }
+            else {
+              throw new JBBPMapperException("Can't map a non-array value to an array mapping field", binField, mappingClass, mappingField, null);
             }
           }
           else {
-            boolean processed = false;
-            if (mappingField.getType() == String.class && binField instanceof JBBPAbstractArrayField) {
-              final String convertedValue = convertFieldValueToString((JBBPAbstractArrayField<?>) binField);
-              if (convertedValue != null) {
-                setFieldValue(mappingClassInstance, mappingField, binField, convertedValue);
-                processed = true;
+            if (binField instanceof JBBPNumericField) {
+              mapNumericField(mappingClassInstance, mappingField, (JBBPNumericField) binField, mappedAnno.bitOrder() == JBBPBitOrder.MSB0);
+            }
+            else if (binField instanceof JBBPFieldStruct) {
+              if (mappingField.getType().isPrimitive()) {
+                throw new JBBPMapperException("Can't map a structure to a primitive mapping field", binField, mappingClass, mappingField, null);
+              }
+              else {
+                final Object curValue = getFieldValue(mappingClassInstance, mappingField);
+                if (curValue == null) {
+                  setFieldValue(mappingClassInstance, mappingField, binField, map((JBBPFieldStruct) binField, mappingField.getType(), customFieldProcessor));
+                }
+                else {
+                  setFieldValue(mappingClassInstance, mappingField, binField, map((JBBPFieldStruct) binField, curValue, customFieldProcessor));
+                }
               }
             }
-            if (!processed) {
-              throw new JBBPMapperException("Can't map a field for its value incompatibility", binField, mappingClass, mappingField, null);
+            else {
+              boolean processed = false;
+              if (mappingField.getType() == String.class && binField instanceof JBBPAbstractArrayField) {
+                final String convertedValue = convertFieldValueToString((JBBPAbstractArrayField<?>) binField);
+                if (convertedValue != null) {
+                  setFieldValue(mappingClassInstance, mappingField, binField, convertedValue);
+                  processed = true;
+                }
+              }
+              if (!processed) {
+                throw new JBBPMapperException("Can't map a field for its value incompatibility", binField, mappingClass, mappingField, null);
+              }
             }
           }
         }
       }
     }
-
     return mappingClassInstance;
   }
 
