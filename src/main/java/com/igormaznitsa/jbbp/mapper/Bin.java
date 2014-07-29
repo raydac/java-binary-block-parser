@@ -75,8 +75,9 @@ public @interface Bin {
 
   /**
    * The Filed contains some extra text info which can be used by a custom field
-   * processor.
+   * processor, the engine doesn't use the field.
    *
+   * @return the extra field as String
    * @see JBBPMapperCustomFieldProcessor
    */
   String extra() default "";
