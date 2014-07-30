@@ -199,7 +199,7 @@ public class JBBPMapper {
             binField = fieldName.length() == 0 ? rootStructure.findFieldForType(fieldType.getFieldClass()) : rootStructure.findFieldForNameAndType(fieldName, fieldType.getFieldClass());
           }
           else {
-            binField = rootStructure.findFieldForNameAndType(fieldPath, fieldType.getFieldClass());
+            binField = rootStructure.findFieldForPathAndType(fieldPath, fieldType.getFieldClass());
           }
 
           if (binField == null) {

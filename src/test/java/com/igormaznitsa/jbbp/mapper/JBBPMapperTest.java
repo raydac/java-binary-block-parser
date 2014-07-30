@@ -483,4 +483,56 @@ public class JBBPMapperTest {
     assertEquals(0x05060708, successor.b);
   }
   
+  @Test
+  public void testMap_MapElementsByTheirPaths() throws Exception {
+    class Parsed {
+      @Bin(path = "struct.a") byte num;
+      @Bin(path = "struct.b",type = BinType.BYTE_ARRAY) String str;
+    }
+    
+    final Parsed parsed = JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[]{1,2,3,4, 5, (byte)'a', (byte)'b', (byte)'c', 6,7,8,9}).mapTo(Parsed.class);
+    assertEquals(0x05, parsed.num);
+    assertEquals("abc", parsed.str);
+  }
+  
+  @Test(expected = JBBPMapperException.class)
+  public void testMap_MapElementsByTheirPaths_ErrorForUnknownField() throws Exception {
+    class Parsed {
+      @Bin(path = "struct.a") byte num;
+      @Bin(path = "struct.c",type = BinType.BYTE_ARRAY) String str;
+    }
+    
+    JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[]{1,2,3,4, 5, (byte)'a', (byte)'b', (byte)'c', 6,7,8,9}).mapTo(Parsed.class);
+  }
+  
+  @Test(expected = JBBPMapperException.class)
+  public void testMap_MapElementsByTheirPaths_ErrorForFieldIncompatibleType() throws Exception {
+    class Parsed {
+      @Bin(path = "struct.a") byte num;
+      @Bin(path = "struct.b",type = BinType.UBYTE_ARRAY) String str;
+    }
+    
+    JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[]{1,2,3,4, 5, (byte)'a', (byte)'b', (byte)'c', 6,7,8,9}).mapTo(Parsed.class);
+  }
+  
+  @Test(expected = JBBPMapperException.class)
+  public void testMap_MapElementsByTheirPaths_ErrorForFieldIncompatibleType_ArrayMappingField() throws Exception {
+    class Parsed {
+      @Bin(path = "struct.a", type = BinType.BYTE) byte [] num;
+      @Bin(path = "struct.b", type = BinType.BYTE_ARRAY) String str;
+    }
+    
+    JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[]{1,2,3,4, 5, (byte)'a', (byte)'b', (byte)'c', 6,7,8,9}).mapTo(Parsed.class);
+  }
+  
+  @Test(expected = JBBPMapperException.class)
+  public void testMap_MapElementsByTheirPaths_ErrorForFieldIncompatibleType_ArrayBinField() throws Exception {
+    class Parsed {
+      @Bin(path = "struct.a") byte num;
+      @Bin(path = "struct.b", type = BinType.BYTE_ARRAY) byte str;
+    }
+    
+    JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[]{1,2,3,4, 5, (byte)'a', (byte)'b', (byte)'c', 6,7,8,9}).mapTo(Parsed.class);
+  }
+  
 }
