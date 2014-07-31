@@ -535,4 +535,45 @@ public class JBBPMapperTest {
     JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[]{1,2,3,4, 5, (byte)'a', (byte)'b', (byte)'c', 6,7,8,9}).mapTo(Parsed.class);
   }
   
+  @Test
+  public void testMap_IgnoreMarkedFieldByDefaultIfTransient() throws Exception {
+    @Bin
+    class Parsed {
+      @Bin(path = "struct.a") byte num;
+      @Bin(path = "struct.b", type = BinType.BYTE_ARRAY) String str;
+      transient String ignored;
+    }
+
+    final Parsed parsed = JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[]{1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(Parsed.class);
+    assertEquals(0x05, parsed.num);
+    assertEquals("abc", parsed.str);
+  }
+  
+  @Test
+  public void testMap_IgnoreMarkedFieldForTransient() throws Exception {
+    @Bin
+    class Parsed {
+      @Bin(path = "struct.a") byte num;
+      @Bin(path = "struct.b", type = BinType.BYTE_ARRAY) String str;
+      @Bin(path = "struct.c", type = BinType.BYTE_ARRAY) transient String ignored;
+    }
+
+    final Parsed parsed = JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[]{1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(Parsed.class);
+    assertEquals(0x05, parsed.num);
+    assertEquals("abc", parsed.str);
+  }
+  
+  @Test
+  public void testMap_IgnoreNonMarkedField() throws Exception {
+    class Parsed {
+      @Bin(path = "struct.a") byte num;
+      @Bin(path = "struct.b", type = BinType.BYTE_ARRAY) String str;
+      String ignored;
+    }
+
+    final Parsed parsed = JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[]{1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(Parsed.class);
+    assertEquals(0x05, parsed.num);
+    assertEquals("abc", parsed.str);
+  }
+  
 }

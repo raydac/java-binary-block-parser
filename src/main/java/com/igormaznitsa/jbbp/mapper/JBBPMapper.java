@@ -164,6 +164,10 @@ public class JBBPMapper {
 
     for (final Class<?> processingClazz : listOfClassHierarchy) {
       for (final Field mappingField : processingClazz.getDeclaredFields()) {
+        if (Modifier.isTransient(mappingField.getModifiers())) {
+          continue;
+        }
+
         mappingField.setAccessible(true);
 
         final Bin fieldAnno = mappingField.getAnnotation(Bin.class);
@@ -447,12 +451,15 @@ public class JBBPMapper {
   }
 
   /**
-   * Makes an instance of a class without call of its constructor, just allocate memory
+   * Makes an instance of a class without call of its constructor, just allocate
+   * memory
+   *
    * @param <T> a class which instance is needed
    * @param root the structure to be mapped, it is needed as info for exception
    * @param klazz the class which instance is needed
    * @return an instance of the class without called constructor
-   * @throws JBBPMapperException it will be thrown if it is impossible to make an instance
+   * @throws JBBPMapperException it will be thrown if it is impossible to make
+   * an instance
    */
   private static <T> T allocateMemoryForClass(final JBBPFieldStruct root, final Class<T> klazz) {
     try {
