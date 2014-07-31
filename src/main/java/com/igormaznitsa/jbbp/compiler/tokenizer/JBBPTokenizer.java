@@ -86,11 +86,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
    * inside storage.
    */
   private void readNextItem() {
-    if (this.detectedException != null) {
-      throw this.detectedException;
-    }
-
-    if (matcher.find()) {
+     if (matcher.find()) {
       final String groupWholeFound = this.matcher.group(0);
       final String groupWholeFoundTrimmed = groupWholeFound.trim();
 

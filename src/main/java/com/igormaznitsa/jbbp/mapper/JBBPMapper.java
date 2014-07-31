@@ -110,7 +110,7 @@ public class JBBPMapper {
    * @throws JBBPMapperException for any error
    */
   public static <T> T map(final JBBPFieldStruct root, final Class<T> mappingClass) {
-    return mappingClass.cast(map(root, makeInstanceOfClass(root, mappingClass), null));
+    return mappingClass.cast(map(root, allocateMemoryForClass(root, mappingClass), null));
   }
 
   /**
@@ -130,7 +130,7 @@ public class JBBPMapper {
    * @throws JBBPMapperException for any error
    */
   public static <T> T map(final JBBPFieldStruct root, final Class<T> mappingClass, final JBBPMapperCustomFieldProcessor customFieldProcessor) {
-    return mappingClass.cast(map(root, makeInstanceOfClass(root, mappingClass), customFieldProcessor));
+    return mappingClass.cast(map(root, allocateMemoryForClass(root, mappingClass), customFieldProcessor));
   }
 
   /**
@@ -446,7 +446,15 @@ public class JBBPMapper {
     }
   }
 
-  private static <T> T makeInstanceOfClass(final JBBPFieldStruct root, final Class<T> klazz) {
+  /**
+   * Makes an instance of a class without call of its constructor, just allocate memory
+   * @param <T> a class which instance is needed
+   * @param root the structure to be mapped, it is needed as info for exception
+   * @param klazz the class which instance is needed
+   * @return an instance of the class without called constructor
+   * @throws JBBPMapperException it will be thrown if it is impossible to make an instance
+   */
+  private static <T> T allocateMemoryForClass(final JBBPFieldStruct root, final Class<T> klazz) {
     try {
       return klazz.cast(SUN_MISC_UNSAFE.allocateInstance(klazz));
     }

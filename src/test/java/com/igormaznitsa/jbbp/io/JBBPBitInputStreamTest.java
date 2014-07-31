@@ -136,6 +136,14 @@ public class JBBPBitInputStreamTest {
   }
 
   @Test
+  public void testGetBitBuffer() throws Exception {
+    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{(byte)0xAA}));
+    assertEquals(0,in.getBitBuffer());
+    assertEquals(0xA,in.readBits(JBBPBitNumber.BITS_4));
+    assertEquals(0xA,in.getBitBuffer());
+  }
+  
+  @Test
   public void testGetOrder() throws Exception {
     assertEquals(JBBPBitOrder.MSB0, new JBBPBitInputStream(null, JBBPBitOrder.MSB0).getBitOrder());
     assertEquals(JBBPBitOrder.LSB0, new JBBPBitInputStream(null, JBBPBitOrder.LSB0).getBitOrder());
@@ -476,8 +484,34 @@ public class JBBPBitInputStreamTest {
 
   @Test
   public void testReadArray_Bits_WholeStream() throws Exception {
-    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(JBBPUtils.str2bin("00101001_11001011_10111110", JBBPBitOrder.LSB0)));
+    JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(JBBPUtils.str2bin("00101001_11001011_10111110", JBBPBitOrder.LSB0)));
     assertArrayEquals(new byte[]{1, 2, 2, 0, 3, 2, 0, 3, 2, 3, 3, 2}, in.readBitsArray(-1, JBBPBitNumber.BITS_2));
+
+    final Random rnd = new Random(1234);
+
+    final byte[] buff = new byte[JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE];
+    rnd.nextBytes(buff);
+
+    in = new JBBPBitInputStream(new ByteArrayInputStream(buff));
+
+    final byte[] read = in.readBitsArray(-1, JBBPBitNumber.BITS_8);
+
+    assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE, read.length);
+    for (int i = 0; i < read.length; i++) {
+      assertEquals(buff[i], read[i]);
+    }
+
+    final byte[] big = new byte[JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE * 128];
+    rnd.nextBytes(big);
+
+    in = new JBBPBitInputStream(new ByteArrayInputStream(big));
+
+    final byte[] readbig = in.readBitsArray(-1, JBBPBitNumber.BITS_8);
+
+    assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE * 128, readbig.length);
+    for (int i = 0; i < readbig.length; i++) {
+      assertEquals(big[i], readbig[i]);
+    }
   }
 
   @Test
@@ -488,8 +522,34 @@ public class JBBPBitInputStreamTest {
 
   @Test
   public void testReadArray_Bytes_WholeStream() throws Exception {
-    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5, 6, 7, 0}));
+    JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5, 6, 7, 0}));
     assertArrayEquals(new byte[]{1, 2, 3, 4, 5, 6, 7, 0}, in.readByteArray(-1));
+
+    final Random rnd = new Random(1234);
+
+    final byte[] buff = new byte[JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE];
+    rnd.nextBytes(buff);
+
+    in = new JBBPBitInputStream(new ByteArrayInputStream(buff));
+
+    final byte[] read = in.readByteArray(-1);
+
+    assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE, read.length);
+    for (int i = 0; i < read.length; i++) {
+      assertEquals(buff[i], read[i]);
+    }
+
+    final byte[] big = new byte[JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE * 128];
+    rnd.nextBytes(big);
+
+    in = new JBBPBitInputStream(new ByteArrayInputStream(big));
+
+    final byte[] readbig = in.readByteArray(-1);
+
+    assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE * 128, readbig.length);
+    for (int i = 0; i < readbig.length; i++) {
+      assertEquals(big[i], readbig[i]);
+    }
   }
 
   @Test
@@ -500,8 +560,38 @@ public class JBBPBitInputStreamTest {
 
   @Test
   public void testReadArray_Short_WholeStream() throws Exception {
-    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5, 6, 7, 0}));
+    JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5, 6, 7, 0}));
     assertArrayEquals(new short[]{0x0102, 0x0304, 0x0506, 0x0700}, in.readShortArray(-1, JBBPByteOrder.BIG_ENDIAN));
+
+    final Random rnd = new Random(1234);
+
+    final byte[] buff = new byte[JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE * 2];
+    rnd.nextBytes(buff);
+
+    in = new JBBPBitInputStream(new ByteArrayInputStream(buff));
+
+    final short[] read = in.readShortArray(-1, JBBPByteOrder.BIG_ENDIAN);
+
+    assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE, read.length);
+    for (int i = 0; i < read.length; i++) {
+      final int val = read[i];
+      final int j = i * 2;
+      assertEquals(val, ((buff[j] << 8) | ((buff[j + 1] & 0xFF))));
+    }
+
+    final byte[] big = new byte[JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE * 128];
+    rnd.nextBytes(big);
+
+    in = new JBBPBitInputStream(new ByteArrayInputStream(big));
+
+    final short[] readbig = in.readShortArray(-1, JBBPByteOrder.BIG_ENDIAN);
+
+    assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE * 64, readbig.length);
+    for (int i = 0; i < readbig.length; i++) {
+      final int val = readbig[i];
+      final int j = i * 2;
+      assertEquals(val, ((big[j] << 8) | ((big[j + 1] & 0xFF))));
+    }
   }
 
   @Test
@@ -632,6 +722,30 @@ public class JBBPBitInputStreamTest {
     for(int i=0;i<read.length;i++){
       assertTrue(read[i] == (testarray[i]!=0));
     }
+  }
+  
+  @Test
+  public void testReadNotFullByteArrayAfterBitReading() throws Exception {
+    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{(byte)0x12,(byte)0x34,(byte) 0x56, (byte) 0xDD}));
+    assertEquals(0x2,in.readBits(JBBPBitNumber.BITS_4));
+    
+    final byte [] readarray = new byte[6];
+    final int read = in.read(readarray, 0, readarray.length);
+    
+    assertEquals(4,read);
+    assertArrayEquals(new byte[]{(byte)0x41, (byte)0x63, (byte)0xD5, (byte)0x0D, 0,0},readarray);
+  }
+  
+  @Test
+  public void testReadNotFullByteArrayAfterBitReading_MSB0() throws Exception {
+    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{(byte)0x12,(byte)0x34,(byte) 0x56, (byte) 0xDD}),JBBPBitOrder.MSB0);
+    assertEquals(0x8,in.readBits(JBBPBitNumber.BITS_4));
+    
+    final byte [] readarray = new byte[6];
+    final int read = in.read(readarray, 0, readarray.length);
+    
+    assertEquals(4,read);
+    assertArrayEquals(new byte[]{(byte)0xC4, (byte)0xA2, (byte)0xB6, (byte)0x0B, 0,0},readarray);
   }
   
 }

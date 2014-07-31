@@ -16,9 +16,10 @@
 package com.igormaznitsa.jbbp.utils;
 
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
+import java.io.*;
 import java.util.Random;
-import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Test;
 
 public class JBBPUtilsTest {
 
@@ -56,6 +57,26 @@ public class JBBPUtilsTest {
       }
     }
 
+  }
+
+  @Test
+  public void testCloseQuetly() throws Exception{
+    JBBPUtils.closeQuietly(null);
+    JBBPUtils.closeQuietly(new ByteArrayInputStream(new byte[10]));
+    
+    final InputStream closed = new ByteArrayInputStream(new byte[10]);
+    closed.close();
+    JBBPUtils.closeQuietly(closed);
+  }
+  
+  @Test
+  public void testIsNumber() {
+    assertFalse(JBBPUtils.isNumber(null));
+    assertFalse(JBBPUtils.isNumber(""));
+    assertFalse(JBBPUtils.isNumber("12837921739821739203928103802198383742984732a"));
+    assertFalse(JBBPUtils.isNumber("a12837921739821739203928103802198383742984732"));
+    assertTrue(JBBPUtils.isNumber("12837921739821739203928103802198383742984732"));
+    assertTrue(JBBPUtils.isNumber("-12837921739821739203928103802198383742984732"));
   }
   
   @Test(expected = NullPointerException.class)

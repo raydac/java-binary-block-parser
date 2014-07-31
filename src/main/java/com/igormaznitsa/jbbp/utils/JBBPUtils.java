@@ -23,11 +23,7 @@ import java.util.*;
 /**
  * Misc auxiliary methods to be used in the framework.
  */
-public final class JBBPUtils {
-
-  private JBBPUtils() {
-
-  }
+public enum JBBPUtils {;
 
   /**
    * Check that a string is a number.

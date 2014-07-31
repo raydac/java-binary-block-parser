@@ -456,17 +456,18 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   }
 
   /**
-   * Read number of bits from the input stream.
+   * Read number of bits from the input stream. It reads bits from input stream
+   * since 0 bit and make reversion to return bits in the right order when 0 bit
+   * is 0 bit. if the stream is completed early than the data read then reading
+   * is just stopped and read value returned. The First read bit is placed as 0th bit.
    *
    * @param numOfBitsToRead the number of bits to be read, must be 1..8
    * @return the read bits as integer, -1 if the end of stream has been reached
    * @throws IOException it will be thrown for transport errors
-   * @throws IllegalArgumentException it will be thrown for wrong number of bits
    * to be read
+   * @throws NullPointerException if number of bits to be read is null
    */
   public int readBits(final JBBPBitNumber numOfBitsToRead) throws IOException {
-    JBBPUtils.assertNotNull(numOfBitsToRead, "Number of bits must not be null");
-
     int result;
 
     final int numOfBitsAsNumber = numOfBitsToRead.getBitNumber();
@@ -477,38 +478,38 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     }
     else {
       result = 0;
-      int i = numOfBitsToRead.getBitNumber();
-      int mask = 0x80;
+      int i = numOfBitsAsNumber;
+
+      int theBitBuffer = this.bitBuffer;
+      int theBitBufferCounter = this.bitsInBuffer;
 
       while (i > 0) {
-        if (this.bitsInBuffer == 0) {
+        if (theBitBufferCounter == 0) {
           final int nextByte = this.readByteFromStream();
           if (nextByte < 0) {
             if (i == numOfBitsAsNumber) {
               return nextByte;
             }
             else {
-              i = 0;
-              continue;
+              break;
             }
           }
           else {
-            this.bitsInBuffer = 8;
-            this.bitBuffer = nextByte;
+            theBitBuffer = nextByte;
+            theBitBufferCounter = 8;
           }
         }
 
-        final int bit = this.bitBuffer & 1;
-        this.bitBuffer >>>= 1;
-        this.bitsInBuffer--;
-
-        result |= bit == 0 ? 0 : mask;
-        mask >>>= 1;
-
+        result = (result << 1) | (theBitBuffer & 1);
+        theBitBuffer >>= 1;
+        theBitBufferCounter--;
         i--;
       }
 
-      return JBBPUtils.reverseByte((byte) result) & 0xFF;
+      this.bitBuffer = theBitBuffer;
+      this.bitsInBuffer = theBitBufferCounter;
+
+      return (JBBPUtils.reverseByte((byte) result) & 0xFF) >> (8 - (numOfBitsAsNumber - i));
     }
   }
 
