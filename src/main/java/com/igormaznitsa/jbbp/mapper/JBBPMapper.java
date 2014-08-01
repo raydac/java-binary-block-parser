@@ -17,6 +17,8 @@ package com.igormaznitsa.jbbp.mapper;
 
 import com.igormaznitsa.jbbp.exceptions.JBBPMapperException;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
+import com.igormaznitsa.jbbp.mapper.instantiators.ClassInstantiator;
+import com.igormaznitsa.jbbp.mapper.instantiators.ClassInstantiatorFactory;
 import com.igormaznitsa.jbbp.model.*;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.lang.reflect.*;
@@ -30,30 +32,13 @@ import java.util.List;
  *
  * @see sun.misc.Unsafe
  */
-public class JBBPMapper {
+public final class JBBPMapper {
 
-  private static final sun.misc.Unsafe SUN_MISC_UNSAFE;
-
-  static {
-    try {
-      final Field singleoneInstanceField = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
-      singleoneInstanceField.setAccessible(true);
-      SUN_MISC_UNSAFE = (sun.misc.Unsafe) singleoneInstanceField.get(null);
-    }
-    catch (IllegalAccessException e) {
-      throw new Error("Can't get sun.misc.Unsafe for illegal access", e);
-    }
-    catch (IllegalArgumentException e) {
-      throw new Error("Can't get sun.misc.Unsafe for wrong argument", e);
-    }
-    catch (NoSuchFieldException e) {
-      throw new Error("Can't get sun.misc.Unsafe because it doesn't exist", e);
-    }
-    catch (SecurityException e) {
-      throw new Error("Can't get sun.misc.Unsafe for security exception", e);
-    }
-  }
-
+  /**
+   * The Special auxiliary object to generate class instances.
+   */
+  private static final ClassInstantiator klazzInstantiator = ClassInstantiatorFactory.getInstance().make();
+  
   /**
    * Create a class instance, map binary data of a structure for its path to its
    * fields and return the instance.
@@ -463,7 +448,7 @@ public class JBBPMapper {
    */
   private static <T> T allocateMemoryForClass(final JBBPFieldStruct root, final Class<T> klazz) {
     try {
-      return klazz.cast(SUN_MISC_UNSAFE.allocateInstance(klazz));
+      return klazzInstantiator.makeClassInstance(klazz);
     }
     catch (InstantiationException ex) {
       throw new JBBPMapperException("Can't make an instance of a class", root, klazz, null, ex);
