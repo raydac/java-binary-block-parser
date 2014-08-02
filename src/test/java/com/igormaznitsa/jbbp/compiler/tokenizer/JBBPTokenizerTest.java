@@ -69,7 +69,6 @@ public class JBBPTokenizerTest {
     int commentCount = 0;
     int otherCount = 0;
     for (final JBBPToken item : parser) {
-      System.out.println(item);
       if (item.getType() == JBBPTokenType.COMMENT) {
         assertEquals(3, item.getPosition());
         assertEquals("only comment line", item.getFieldName());
@@ -93,7 +92,6 @@ public class JBBPTokenizerTest {
     int commentCount = 0;
     int otherCount = 0;
     for (final JBBPToken item : parser) {
-      System.out.println(item);
       if (item.getType() == JBBPTokenType.COMMENT) {
         assertEquals(3, item.getPosition());
         assertEquals("only comment line", item.getFieldName());

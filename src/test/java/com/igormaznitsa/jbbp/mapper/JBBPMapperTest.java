@@ -611,16 +611,25 @@ public class JBBPMapperTest {
   }
   
   @Test
-  public void testMap_Structure_WholeStream() throws Exception {
+  public void testMap_Structure_WholeStream_LocalClassesNonDefaultConstructorsAndFinalFields() throws Exception {
     @Bin
     class Struct {
-      byte a;
-      byte b;
+      final byte a;
+      final byte b;
+      
+      Struct(byte a, byte b){
+        this.a = a;
+        this.b = b;
+      }
     }
     
     @Bin
     class Parsed {
-      Struct [] struct;
+      final Struct [] struct;
+      
+      Parsed(Struct [] s){
+        this.struct = s;
+      }
     }
 
     final Random rnd = new Random(1234);
