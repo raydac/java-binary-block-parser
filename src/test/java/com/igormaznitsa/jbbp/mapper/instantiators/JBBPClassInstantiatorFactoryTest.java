@@ -19,14 +19,14 @@ package com.igormaznitsa.jbbp.mapper.instantiators;
 import org.junit.*;
 import static org.junit.Assert.*;
 
-public class ClassInstantiatorFactoryTest {
+public class JBBPClassInstantiatorFactoryTest {
   
   @After
   public void afterTest(){
-    System.clearProperty(ClassInstantiatorFactory.SYSTEM_PROPERTY_INSTANTIATOR_CLASS);
+    System.clearProperty(JBBPClassInstantiatorFactory.SYSTEM_PROPERTY_INSTANTIATOR_CLASS);
   }
   
-  public static class FakeInstantiator implements ClassInstantiator {
+  public static class FakeInstantiator implements JBBPClassInstantiator {
     public <T> T makeClassInstance(Class<T> klazz) throws InstantiationException {
       return null;
     }
@@ -34,27 +34,27 @@ public class ClassInstantiatorFactoryTest {
   
   @Test
   public void testMake_Default() {
-    assertEquals(UnsafeInstantiator.class, ClassInstantiatorFactory.getInstance().make().getClass());
+    assertEquals(JBBPUnsafeInstantiator.class, JBBPClassInstantiatorFactory.getInstance().make().getClass());
   }
 
   @Test(expected = NullPointerException.class)
   public void testMake_WithArgument_NPEForNuill() {
-    ClassInstantiatorFactory.getInstance().make(null);
+    JBBPClassInstantiatorFactory.getInstance().make(null);
   }
 
   
   @Test
   public void testMake_WithArgument() {
-    assertEquals(SafeInstantiator.class, ClassInstantiatorFactory.getInstance().make(ClassInstantiatorType.SAFE).getClass());
-    assertEquals(UnsafeInstantiator.class, ClassInstantiatorFactory.getInstance().make(ClassInstantiatorType.UNSAFE).getClass());
-    assertEquals(UnsafeInstantiator.class, ClassInstantiatorFactory.getInstance().make(ClassInstantiatorType.AUTO).getClass());
+    assertEquals(JBBPSafeInstantiator.class, JBBPClassInstantiatorFactory.getInstance().make(JBBPClassInstantiatorType.SAFE).getClass());
+    assertEquals(JBBPUnsafeInstantiator.class, JBBPClassInstantiatorFactory.getInstance().make(JBBPClassInstantiatorType.UNSAFE).getClass());
+    assertEquals(JBBPUnsafeInstantiator.class, JBBPClassInstantiatorFactory.getInstance().make(JBBPClassInstantiatorType.AUTO).getClass());
     
   }
   
   @Test
   public void testMake_CustomClass(){
-    System.setProperty(ClassInstantiatorFactory.SYSTEM_PROPERTY_INSTANTIATOR_CLASS, FakeInstantiator.class.getName());
-    assertEquals(FakeInstantiator.class, ClassInstantiatorFactory.getInstance().make(ClassInstantiatorType.AUTO).getClass());
+    System.setProperty(JBBPClassInstantiatorFactory.SYSTEM_PROPERTY_INSTANTIATOR_CLASS, FakeInstantiator.class.getName());
+    assertEquals(FakeInstantiator.class, JBBPClassInstantiatorFactory.getInstance().make(JBBPClassInstantiatorType.AUTO).getClass());
   }
   
 }

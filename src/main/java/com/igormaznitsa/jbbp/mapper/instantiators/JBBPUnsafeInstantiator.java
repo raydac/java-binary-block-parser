@@ -24,7 +24,7 @@ import java.lang.reflect.*;
  * work with sun,misc,unsafe organized through reflection to not have static
  * links the the classe.
  */
-public final class UnsafeInstantiator implements ClassInstantiator {
+public final class JBBPUnsafeInstantiator implements JBBPClassInstantiator {
 
   /**
    * The sun,misc.Unsafe object.

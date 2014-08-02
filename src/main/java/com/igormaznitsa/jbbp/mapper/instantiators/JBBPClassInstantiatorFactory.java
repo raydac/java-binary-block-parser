@@ -21,7 +21,7 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
  * The Factory produces a class instantiator which is compatible with the
  * current platform.
  */
-public final class ClassInstantiatorFactory {
+public final class JBBPClassInstantiatorFactory {
 
   /**
    * The System property to be used to get custom class instantiator name.
@@ -31,12 +31,12 @@ public final class ClassInstantiatorFactory {
   /**
    * The Factory instance.
    */
-  private static final ClassInstantiatorFactory instance = new ClassInstantiatorFactory();
+  private static final JBBPClassInstantiatorFactory instance = new JBBPClassInstantiatorFactory();
 
   /**
    * The Hidden constructor.
    */
-  private ClassInstantiatorFactory() {
+  private JBBPClassInstantiatorFactory() {
 
   }
 
@@ -45,7 +45,7 @@ public final class ClassInstantiatorFactory {
    *
    * @return the factory instance, must not be null
    */
-  public static ClassInstantiatorFactory getInstance() {
+  public static JBBPClassInstantiatorFactory getInstance() {
     return instance;
   }
 
@@ -54,10 +54,10 @@ public final class ClassInstantiatorFactory {
    *
    * @return the class instantiator instance which is compatible with the
    * current platform
-   * @see ClassInstantiator
+   * @see JBBPClassInstantiator
    */
-  public ClassInstantiator make() {
-    return this.make(ClassInstantiatorType.AUTO);
+  public JBBPClassInstantiator make() {
+    return this.make(JBBPClassInstantiatorType.AUTO);
   }
 
   /**
@@ -67,10 +67,10 @@ public final class ClassInstantiatorFactory {
    * @return the class instantiator instance which is compatible with the
    * current platform
    */
-  public ClassInstantiator make(final ClassInstantiatorType type) {
+  public JBBPClassInstantiator make(final JBBPClassInstantiatorType type) {
     JBBPUtils.assertNotNull(type, "Type must not be null");
 
-    String className = "com.igormaznitsa.jbbp.mapper.instantiators.SafeInstantiator";
+    String className = "com.igormaznitsa.jbbp.mapper.instantiators.JBBPSafeInstantiator";
 
     switch (type) {
       case AUTO: {
@@ -79,7 +79,7 @@ public final class ClassInstantiatorFactory {
           try {
             final Class<?> unsafeclazz = Class.forName("sun.misc.Unsafe");
             unsafeclazz.getDeclaredField("theUnsafe");
-            className = "com.igormaznitsa.jbbp.mapper.instantiators.UnsafeInstantiator";
+            className = "com.igormaznitsa.jbbp.mapper.instantiators.JBBPUnsafeInstantiator";
           }
           catch (ClassNotFoundException ex) {
             // do nothing
@@ -97,11 +97,11 @@ public final class ClassInstantiatorFactory {
       }
       break;
       case SAFE: {
-        className = "com.igormaznitsa.jbbp.mapper.instantiators.SafeInstantiator";
+        className = "com.igormaznitsa.jbbp.mapper.instantiators.JBBPSafeInstantiator";
       }
       break;
       case UNSAFE: {
-        className = "com.igormaznitsa.jbbp.mapper.instantiators.UnsafeInstantiator";
+        className = "com.igormaznitsa.jbbp.mapper.instantiators.JBBPUnsafeInstantiator";
       }
       break;
       default:
@@ -110,7 +110,7 @@ public final class ClassInstantiatorFactory {
 
     try {
       final Class<?> klazz = Class.forName(className);
-      return ClassInstantiator.class.cast(klazz.newInstance());
+      return JBBPClassInstantiator.class.cast(klazz.newInstance());
     }
     catch (ClassNotFoundException ex) {
       throw new Error("Can't make instantiator because can't find class '" + className + "', may be the class is obfuscated or wrong defined", ex);

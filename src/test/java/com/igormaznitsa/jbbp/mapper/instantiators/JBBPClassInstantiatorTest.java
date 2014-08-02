@@ -16,10 +16,26 @@
 
 package com.igormaznitsa.jbbp.mapper.instantiators;
 
-import org.junit.Test;
+import java.util.Arrays;
+import java.util.Collection;
 import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
-public class ClassInstantiatorTest {
+@RunWith(Parameterized.class)
+public class JBBPClassInstantiatorTest {
+  
+  @Parameterized.Parameters
+  public static Collection<JBBPClassInstantiator[]> getParameters(){
+    return Arrays.asList(new JBBPClassInstantiator[]{new JBBPUnsafeInstantiator()}, new JBBPClassInstantiator[]{new JBBPSafeInstantiator()});
+  }
+  
+  private final JBBPClassInstantiator instantiator;
+  
+  public JBBPClassInstantiatorTest(final JBBPClassInstantiator val){
+    this.instantiator = val;
+  }
   
   static class StaticInnerOne {
     PrivateStaticInnerTwo two;
@@ -47,25 +63,21 @@ public class ClassInstantiatorTest {
 
   
   @Test
-  public void testSafeInstantiator_StaticClass() throws Exception{
-    final ClassInstantiator instantiator = new SafeInstantiator();
-    
+  public void testStaticClass() throws Exception{
     assertNotNull(instantiator.makeClassInstance(Static.class));
     assertNotNull(instantiator.makeClassInstance(StaticInnerOne.class));
     assertNotNull(instantiator.makeClassInstance(PrivateStaticInnerTwo.class));
   }
   
   @Test
-  public void testSafeInstantiator_NonStaticClass() throws Exception{
-    final ClassInstantiator instantiator = new SafeInstantiator();
-
+  public void testNonStaticClass() throws Exception{
     assertNotNull(instantiator.makeClassInstance(NonStatic.class));
     assertNotNull(instantiator.makeClassInstance(NonStaticInnerOne.class));
     assertNotNull(instantiator.makeClassInstance(PrivateNonStaticInnerTwo.class));
   }
   
   @Test
-  public void testSafeInstantiator_InnerClass() throws Exception{
+  public void testInnerClass() throws Exception{
     class InnerTwo {
       int a;
     }
@@ -76,15 +88,13 @@ public class ClassInstantiatorTest {
       InnerOne one;
     }
     
-    final ClassInstantiator instantiator = new SafeInstantiator();
-
     assertNotNull(instantiator.makeClassInstance(Inner.class));
     assertNotNull(instantiator.makeClassInstance(InnerOne.class));
     assertNotNull(instantiator.makeClassInstance(InnerTwo.class));
   }
   
   @Test
-  public void testSafeInstantiator_InnerClassHierarchy() throws Exception{
+  public void testInnerClassHierarchy() throws Exception{
     class InnerOne {
       int a;
     }
@@ -95,73 +105,59 @@ public class ClassInstantiatorTest {
       int c;
     }
     
-    final ClassInstantiator instantiator = new SafeInstantiator();
-
-    assertNotNull(instantiator.makeClassInstance(InnerOne.class));
-    assertNotNull(instantiator.makeClassInstance(InnerTwo.class));
-    assertNotNull(instantiator.makeClassInstance(InnerThree.class));
-  }
-  
-  @Test
-  public void testUnsafeInstantiator_StaticClass() throws Exception{
-    final ClassInstantiator instantiator = new UnsafeInstantiator();
-
-    assertNotNull(instantiator.makeClassInstance(Static.class));
-    assertNotNull(instantiator.makeClassInstance(StaticInnerOne.class));
-    assertNotNull(instantiator.makeClassInstance(PrivateStaticInnerTwo.class));
-  }
-  
-  @Test
-  public void testUnsafeInstantiator_NonStaticClass() throws Exception {
-    final ClassInstantiator instantiator = new UnsafeInstantiator();
-
-    assertNotNull(instantiator.makeClassInstance(NonStatic.class));
-    assertNotNull(instantiator.makeClassInstance(NonStaticInnerOne.class));
-    assertNotNull(instantiator.makeClassInstance(PrivateNonStaticInnerTwo.class));
-  }
-
-  @Test
-  public void testUnsafeInstantiator_InnerClass() throws Exception {
-    class InnerTwo {
-
-      int a;
-    }
-    class InnerOne {
-
-      InnerTwo two;
-    }
-    class Inner {
-
-      InnerOne one;
-    }
-
-    final ClassInstantiator instantiator = new UnsafeInstantiator();
-
-    assertNotNull(instantiator.makeClassInstance(Inner.class));
-    assertNotNull(instantiator.makeClassInstance(InnerOne.class));
-    assertNotNull(instantiator.makeClassInstance(InnerTwo.class));
-  }
-
-  @Test
-  public void testUnsafeInstantiator_InnerClassHierarchy() throws Exception {
-    class InnerOne {
-
-      int a;
-    }
-    class InnerTwo extends InnerOne {
-
-      int b;
-    }
-    class InnerThree extends InnerTwo {
-
-      int c;
-    }
-
-    final ClassInstantiator instantiator = new UnsafeInstantiator();
-
     assertNotNull(instantiator.makeClassInstance(InnerOne.class));
     assertNotNull(instantiator.makeClassInstance(InnerTwo.class));
     assertNotNull(instantiator.makeClassInstance(InnerThree.class));
   }
 
+  @Test
+  public void testCreateLocalClassWithOnlyNonDefaultConstructor() throws Exception {
+    class NoDefaultConstructor {
+      int i;
+      NoDefaultConstructor(byte a, short m, char b, boolean c, int d, long e, float f, double g, String h, byte[] array) {
+        i = d;
+      }
+    }
+
+    assertNotNull(instantiator.makeClassInstance(NoDefaultConstructor.class));
+  }
+
+  @Test
+  public void testCreateLocalClassWithThreeNonDefaultConstructor() throws Exception {
+    class NoDefaultConstructor {
+      int i;
+      NoDefaultConstructor(byte a, short m, char b, boolean c, int d, long e, float f, double g, String h, byte[] array) {
+        i = d;
+      }
+
+      NoDefaultConstructor(int d) {
+        i = d;
+      }
+      
+      NoDefaultConstructor(){
+        i = 0;
+      }
+    }
+
+    assertNotNull(instantiator.makeClassInstance(NoDefaultConstructor.class));
+  }
+
+  
+  private static final class StaticNoDefaultConstructor {
+    int i;
+    private StaticNoDefaultConstructor(byte a, short m, char b, boolean c, int d, long e, float f, double g, String h, byte[] array) {
+      i = d;
+    }
+    private StaticNoDefaultConstructor(int d) {
+      i = d;
+    }
+    private StaticNoDefaultConstructor() {
+      i = 0;
+    }
+  }
+  
+  @Test
+  public void testCreateStaticClassWithThreeNonDefaultConstructor() throws Exception {
+    assertNotNull(instantiator.makeClassInstance(StaticNoDefaultConstructor.class));
+  }
 }

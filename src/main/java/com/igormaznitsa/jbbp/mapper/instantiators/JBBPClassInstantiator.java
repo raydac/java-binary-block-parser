@@ -19,7 +19,7 @@ package com.igormaznitsa.jbbp.mapper.instantiators;
 /**
  * Interface describes a memory allocator for Java classes.
  */
-public interface ClassInstantiator {
+public interface JBBPClassInstantiator {
   /**
    * Allocate memory area for a class.
    * @param <T> the class type

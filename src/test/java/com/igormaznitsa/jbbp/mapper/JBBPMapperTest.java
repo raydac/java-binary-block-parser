@@ -18,15 +18,48 @@ package com.igormaznitsa.jbbp.mapper;
 
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.exceptions.JBBPMapperException;
+import com.igormaznitsa.jbbp.mapper.instantiators.*;
 import com.igormaznitsa.jbbp.model.*;
 import java.io.ByteArrayInputStream;
-import java.lang.reflect.Field;
+import java.lang.reflect.*;
 import java.security.*;
-import java.util.Random;
+import java.util.*;
+import org.junit.*;
 import static org.junit.Assert.*;
-import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class JBBPMapperTest {
+  
+  @Parameterized.Parameters
+  public static Collection<String[]>data(){
+    return Arrays.asList(new String[]{JBBPUnsafeInstantiator.class.getName()},
+    new String[]{JBBPSafeInstantiator.class.getName()});
+  }
+  
+  private String className;
+  
+  public JBBPMapperTest(final String instantiatorClassName){
+    this.className = instantiatorClassName;
+  }
+  
+  @Before
+  public void injectInstantiator() throws Exception {
+    System.setProperty(JBBPClassInstantiatorFactory.SYSTEM_PROPERTY_INSTANTIATOR_CLASS, this.className);
+    final JBBPClassInstantiator instance = JBBPClassInstantiatorFactory.getInstance().make(JBBPClassInstantiatorType.AUTO);
+    System.clearProperty(JBBPClassInstantiatorFactory.SYSTEM_PROPERTY_INSTANTIATOR_CLASS);
+ 
+    final Field field = JBBPMapper.class.getDeclaredField("klazzInstantiator");
+    field.setAccessible(true);
+
+    Field modifiersField = Field.class.getDeclaredField("modifiers");
+    modifiersField.setAccessible(true);
+    modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+    
+    field.set(null, instance);
+  }
+  
   @Test
   public void testMap_Byte() throws Exception {
     class Mapped {
@@ -603,5 +636,4 @@ public class JBBPMapperTest {
       assertEquals(array[i+1],s.b);
     }
   }
-  
 }

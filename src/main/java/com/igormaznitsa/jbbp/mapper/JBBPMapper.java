@@ -17,8 +17,8 @@ package com.igormaznitsa.jbbp.mapper;
 
 import com.igormaznitsa.jbbp.exceptions.JBBPMapperException;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
-import com.igormaznitsa.jbbp.mapper.instantiators.ClassInstantiator;
-import com.igormaznitsa.jbbp.mapper.instantiators.ClassInstantiatorFactory;
+import com.igormaznitsa.jbbp.mapper.instantiators.JBBPClassInstantiator;
+import com.igormaznitsa.jbbp.mapper.instantiators.JBBPClassInstantiatorFactory;
 import com.igormaznitsa.jbbp.model.*;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.lang.reflect.*;
@@ -37,7 +37,7 @@ public final class JBBPMapper {
   /**
    * The Special auxiliary object to generate class instances.
    */
-  private static final ClassInstantiator klazzInstantiator = ClassInstantiatorFactory.getInstance().make();
+  private static final JBBPClassInstantiator klazzInstantiator = JBBPClassInstantiatorFactory.getInstance().make();
   
   /**
    * Create a class instance, map binary data of a structure for its path to its

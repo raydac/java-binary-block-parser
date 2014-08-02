@@ -20,7 +20,7 @@ package com.igormaznitsa.jbbp.mapper.instantiators;
  *
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  */
-public enum ClassInstantiatorType {
+public enum JBBPClassInstantiatorType {
   /**
    * Auto recognition of the platform features and choice of appropriate one.
    */
