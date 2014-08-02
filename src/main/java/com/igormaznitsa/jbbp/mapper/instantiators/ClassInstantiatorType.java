@@ -32,6 +32,5 @@ public enum ClassInstantiatorType {
   /**
    * A Version using sun.misc.Unsafe to allocate memory for objects without constructor calls.
    */
-  UNSAFE,
-  PREDEFINED;
+  UNSAFE;
 }

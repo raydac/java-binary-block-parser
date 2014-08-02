@@ -18,7 +18,8 @@ package com.igormaznitsa.jbbp.mapper.instantiators;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
- * The Factory produces a class instantiator which is compatible with the current platform.
+ * The Factory produces a class instantiator which is compatible with the
+ * current platform.
  */
 public final class ClassInstantiatorFactory {
 
@@ -26,7 +27,7 @@ public final class ClassInstantiatorFactory {
    * The System property to be used to get custom class instantiator name.
    */
   public static final String SYSTEM_PROPERTY_INSTANTIATOR_CLASS = "jbbp.mapper.instantiator";
-  
+
   /**
    * The Factory instance.
    */
@@ -41,6 +42,7 @@ public final class ClassInstantiatorFactory {
 
   /**
    * Get the factory instance.
+   *
    * @return the factory instance, must not be null
    */
   public static ClassInstantiatorFactory getInstance() {
@@ -49,7 +51,9 @@ public final class ClassInstantiatorFactory {
 
   /**
    * Make an instantiator automatically for the current platform.
-   * @return the class instantiator instance which is compatible with the current platform
+   *
+   * @return the class instantiator instance which is compatible with the
+   * current platform
    * @see ClassInstantiator
    */
   public ClassInstantiator make() {
@@ -58,6 +62,7 @@ public final class ClassInstantiatorFactory {
 
   /**
    * Make an instantiator for defined type.
+   *
    * @param type the type of needed instantiator, must not be null
    * @return the class instantiator instance which is compatible with the
    * current platform
@@ -69,19 +74,25 @@ public final class ClassInstantiatorFactory {
 
     switch (type) {
       case AUTO: {
-        try {
-          final Class<?> unsafeclazz = Class.forName("sun.misc.Unsafe");
-          unsafeclazz.getDeclaredField("theUnsafe");
-          className = "com.igormaznitsa.jbbp.mapper.instantiators.UnsafeInstantiator";
+        final String customClassName = System.getProperty(SYSTEM_PROPERTY_INSTANTIATOR_CLASS);
+        if (customClassName == null) {
+          try {
+            final Class<?> unsafeclazz = Class.forName("sun.misc.Unsafe");
+            unsafeclazz.getDeclaredField("theUnsafe");
+            className = "com.igormaznitsa.jbbp.mapper.instantiators.UnsafeInstantiator";
+          }
+          catch (ClassNotFoundException ex) {
+            // do nothing
+          }
+          catch (NoSuchFieldException ex) {
+            // do nothing
+          }
+          catch (SecurityException ex) {
+            // do nothing
+          }
         }
-        catch (ClassNotFoundException ex) {
-          // do nothing
-        }
-        catch (NoSuchFieldException ex) {
-          // do nothing
-        }
-        catch (SecurityException ex) {
-          // do nothing
+        else {
+          className = customClassName;
         }
       }
       break;
@@ -93,26 +104,22 @@ public final class ClassInstantiatorFactory {
         className = "com.igormaznitsa.jbbp.mapper.instantiators.UnsafeInstantiator";
       }
       break;
-      case PREDEFINED: {
-        className = System.getProperty(SYSTEM_PROPERTY_INSTANTIATOR_CLASS);
-        JBBPUtils.assertNotNull(className, "For '"+type+"', the system property '"+SYSTEM_PROPERTY_INSTANTIATOR_CLASS+"' must have name of a defined JBBP class instantiator");
-      }break;
       default:
         throw new Error("Unexpected type, contact developer! [" + type + ']');
     }
 
     try {
-      final Class<?> klazz =  Class.forName(className);
+      final Class<?> klazz = Class.forName(className);
       return ClassInstantiator.class.cast(klazz.newInstance());
     }
     catch (ClassNotFoundException ex) {
-      throw new Error("Can't make instantiator because can't find class '"+className+"', may be the class is obfuscated or wrong defined",ex);
+      throw new Error("Can't make instantiator because can't find class '" + className + "', may be the class is obfuscated or wrong defined", ex);
     }
     catch (IllegalAccessException ex) {
-      throw new Error("Can't make instantiator from '"+className+"'for access exception ",ex);
+      throw new Error("Can't make instantiator from '" + className + "'for access exception ", ex);
     }
     catch (InstantiationException ex) {
-      throw new Error("Can't make instantiator from '"+className+"'for inside exception",ex);
+      throw new Error("Can't make instantiator from '" + className + "'for inside exception", ex);
     }
 
   }

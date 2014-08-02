@@ -16,10 +16,15 @@
 
 package com.igormaznitsa.jbbp.mapper.instantiators;
 
-import org.junit.Test;
+import org.junit.*;
 import static org.junit.Assert.*;
 
 public class ClassInstantiatorFactoryTest {
+  
+  @After
+  public void afterTest(){
+    System.clearProperty(ClassInstantiatorFactory.SYSTEM_PROPERTY_INSTANTIATOR_CLASS);
+  }
   
   public static class FakeInstantiator implements ClassInstantiator {
     public <T> T makeClassInstance(Class<T> klazz) throws InstantiationException {
@@ -44,8 +49,12 @@ public class ClassInstantiatorFactoryTest {
     assertEquals(UnsafeInstantiator.class, ClassInstantiatorFactory.getInstance().make(ClassInstantiatorType.UNSAFE).getClass());
     assertEquals(UnsafeInstantiator.class, ClassInstantiatorFactory.getInstance().make(ClassInstantiatorType.AUTO).getClass());
     
+  }
+  
+  @Test
+  public void testMake_CustomClass(){
     System.setProperty(ClassInstantiatorFactory.SYSTEM_PROPERTY_INSTANTIATOR_CLASS, FakeInstantiator.class.getName());
-    assertEquals(FakeInstantiator.class, ClassInstantiatorFactory.getInstance().make(ClassInstantiatorType.PREDEFINED).getClass());
+    assertEquals(FakeInstantiator.class, ClassInstantiatorFactory.getInstance().make(ClassInstantiatorType.AUTO).getClass());
   }
   
 }
