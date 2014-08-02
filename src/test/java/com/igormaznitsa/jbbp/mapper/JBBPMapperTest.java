@@ -18,10 +18,11 @@ package com.igormaznitsa.jbbp.mapper;
 
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.exceptions.JBBPMapperException;
-import com.igormaznitsa.jbbp.model.JBBPFieldInt;
-import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
+import com.igormaznitsa.jbbp.model.*;
+import java.io.ByteArrayInputStream;
 import java.lang.reflect.Field;
 import java.security.*;
+import java.util.Random;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -574,6 +575,33 @@ public class JBBPMapperTest {
     final Parsed parsed = JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[]{1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(Parsed.class);
     assertEquals(0x05, parsed.num);
     assertEquals("abc", parsed.str);
+  }
+  
+  @Test
+  public void testMap_Structure_WholeStream() throws Exception {
+    @Bin
+    class Struct {
+      byte a;
+      byte b;
+    }
+    
+    @Bin
+    class Parsed {
+      Struct [] struct;
+    }
+
+    final Random rnd = new Random(1234);
+    final byte [] array = new byte [1024];
+    rnd.nextBytes(array);
+    
+    final Parsed parsed = JBBPParser.prepare("struct [_] { byte a; byte b; }").parse(new ByteArrayInputStream(array)).mapTo(Parsed.class);
+    assertEquals(array.length/2, parsed.struct.length);
+  
+    for(int i=0; i < array.length; i+=2){
+      final Struct s = parsed.struct[i/2];
+      assertEquals(array[i],s.a);
+      assertEquals(array[i+1],s.b);
+    }
   }
   
 }
