@@ -635,6 +635,24 @@ public final class JBBPOut {
   }
 
   /**
+   * Write a float value array as integer bits into the stream.
+   * @param value a float array which values will be written into
+   * @return the DSL session
+   * @throws IOException it will be thrown for transport errors
+   * @see Float#floatToIntBits(float) 
+   */
+  public JBBPOut Float(final float... value) throws IOException {
+    assertNotEnded();
+    JBBPUtils.assertNotNull(value, "Array must not be null");
+    if (this.processCommands) {
+      for(final float f : value){
+        _writeInt(Float.floatToIntBits(f));
+      }
+    }
+    return this;
+  }
+  
+  /**
    * Inside auxiliary method to write a long value into the session stream
    * without checking.
    *
@@ -656,6 +674,25 @@ public final class JBBPOut {
     assertNotEnded();
     if (this.processCommands) {
       _writeLong(value);
+    }
+    return this;
+  }
+
+  /**
+   * Write a double value array as long bits into the stream.
+   *
+   * @param value a double array which values will be written into
+   * @return the DSL session
+   * @throws IOException it will be thrown for transport errors
+   * @see Double#doubleToLongBits(double) 
+   */
+  public JBBPOut Double(final double... value) throws IOException {
+    assertNotEnded();
+    JBBPUtils.assertNotNull(value, "Array must not be null");
+    if (this.processCommands) {
+      for (final double d : value) {
+        _writeLong(Double.doubleToLongBits(d));
+      }
     }
     return this;
   }

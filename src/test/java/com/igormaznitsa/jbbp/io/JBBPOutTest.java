@@ -219,6 +219,20 @@ public class JBBPOutTest {
   }
 
   @Test
+  public void testFloat_BigEndian() throws Exception {
+    final int flt = Float.floatToIntBits(Float.MAX_VALUE);
+    assertArrayEquals(new byte[]{(byte)(flt>>>24),(byte) (flt >>> 16),(byte) (flt >>> 8),(byte) flt}, BeginBin().ByteOrder(JBBPByteOrder.BIG_ENDIAN).Float(Float.MAX_VALUE).End().toByteArray());
+  }
+
+  @Test
+  public void testFloat_LittleEndian() throws Exception {
+    final int flt = Float.floatToIntBits(Float.MAX_VALUE);
+    assertArrayEquals(new byte[]{(byte)flt,(byte) (flt >>> 8),(byte) (flt >>> 16),(byte) (flt>>>24)}, BeginBin().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).Float(Float.MAX_VALUE).End().toByteArray());
+  }
+
+  
+  
+  @Test
   public void testLong() throws Exception {
     assertArrayEquals(new byte[]{0x01, 02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}, BeginBin().Long(0x0102030405060708L).End().toByteArray());
   }
@@ -238,6 +252,19 @@ public class JBBPOutTest {
     assertArrayEquals(new byte[]{0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01}, BeginBin().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).Long(0x0102030405060708L).End().toByteArray());
   }
 
+  @Test
+  public void testDouble_BigEndian() throws Exception {
+    final long dbl = Double.doubleToLongBits(Double.MAX_VALUE);
+    final byte [] array = BeginBin().ByteOrder(JBBPByteOrder.BIG_ENDIAN).Double(Double.MAX_VALUE).End().toByteArray();
+    assertArrayEquals(new byte[]{(byte) (dbl >>> 56), (byte) (dbl >>> 48), (byte) (dbl >>> 40), (byte) (dbl >>> 32), (byte) (dbl >>> 24), (byte) (dbl >>> 16), (byte) (dbl >>> 8), (byte) dbl}, array);
+  }
+  
+  @Test
+  public void testDouble_LittleEndian() throws Exception {
+    final long dbl = Double.doubleToLongBits(Double.MAX_VALUE);
+    assertArrayEquals(new byte[]{(byte)dbl, (byte) (dbl >>> 8),(byte) (dbl >>> 16),(byte) (dbl >>> 24), (byte) (dbl >>> 32),(byte) (dbl >>> 40),(byte) (dbl >>> 48),(byte) (dbl >>> 56)}, BeginBin().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).Double(Double.MAX_VALUE).End().toByteArray());
+  }
+  
   @Test
   public void testFlush() throws Exception {
     final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
