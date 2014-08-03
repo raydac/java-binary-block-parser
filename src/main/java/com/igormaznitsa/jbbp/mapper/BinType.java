@@ -150,10 +150,10 @@ public enum BinType {
         else if (type == short.class) {
           result = SHORT_ARRAY;
         }
-        else if (type == int.class) {
+        else if (type == int.class || type == float.class) {
           result = INT_ARRAY;
         }
-        else if (type == long.class) {
+        else if (type == long.class || type == double.class) {
           result = LONG_ARRAY;
         }
         else {
@@ -177,10 +177,10 @@ public enum BinType {
       else if (fieldClazz == short.class) {
         result = SHORT;
       }
-      else if (fieldClazz == int.class) {
+      else if (fieldClazz == int.class || fieldClazz == float.class) {
         result = INT;
       }
-      else if (fieldClazz == long.class) {
+      else if (fieldClazz == long.class || fieldClazz == double.class) {
         result = LONG;
       }
       else {

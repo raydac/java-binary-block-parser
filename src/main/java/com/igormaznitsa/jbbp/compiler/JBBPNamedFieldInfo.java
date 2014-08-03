@@ -80,11 +80,14 @@ public final class JBBPNamedFieldInfo {
   public boolean equals(final Object obj) {
     if (obj == null) return false;
     if (this == obj) return true;
+    
+    boolean result = false;
+    
     if (obj instanceof JBBPNamedFieldInfo){
       final JBBPNamedFieldInfo that = (JBBPNamedFieldInfo)obj;
-      return this.fieldPath.equals(that.fieldPath) && this.offsetInCompiledBlock == that.offsetInCompiledBlock;
+      result = this.fieldPath.equals(that.fieldPath) && this.offsetInCompiledBlock == that.offsetInCompiledBlock;
     }
-    return false;
+    return result;
   }
 
   @Override

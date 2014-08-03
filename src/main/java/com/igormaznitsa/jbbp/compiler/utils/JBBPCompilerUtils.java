@@ -34,13 +34,15 @@ public enum JBBPCompilerUtils {;
    */
   public static int findIndexForFieldPath(final String fieldPath, final List<JBBPNamedFieldInfo> namedFields) {
     final String normalized = JBBPUtils.normalizeFieldNameOrPath(fieldPath);
+    int result = -1;
     for (int i = namedFields.size() - 1; i >= 0; i--) {
       final JBBPNamedFieldInfo f = namedFields.get(i);
       if (normalized.equals(f.getFieldPath())) {
-        return i;
+        result = i;
+        break;
       }
     }
-    return -1;
+    return result;
   }
   
   /**
@@ -51,13 +53,15 @@ public enum JBBPCompilerUtils {;
    */
   public static JBBPNamedFieldInfo findForFieldPath(final String fieldPath, final List<JBBPNamedFieldInfo> namedFields) {
     final String normalized = JBBPUtils.normalizeFieldNameOrPath(fieldPath);
+    JBBPNamedFieldInfo result = null;
     for (int i = namedFields.size() - 1; i >= 0; i--) {
       final JBBPNamedFieldInfo f = namedFields.get(i);
       if (normalized.equals(f.getFieldPath())) {
-        return f;
+        result = f;
+        break;
       }
     }
-    return null;
+    return result;
   }
 
   /**

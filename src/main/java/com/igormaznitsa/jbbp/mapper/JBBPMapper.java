@@ -383,13 +383,13 @@ public final class JBBPMapper {
         mappingField.setInt(mappingClassInstance, (int) (invertBitOrder ? numericField.getAsInvertedBitOrder() : numericField.getAsInt()));
       }
       else if (fieldClass == float.class) {
-        mappingField.setFloat(mappingClassInstance, (float) (invertBitOrder ? numericField.getAsInvertedBitOrder() : numericField.getAsInt()));
+        mappingField.setFloat(mappingClassInstance, Float.intBitsToFloat(invertBitOrder ? (int)numericField.getAsInvertedBitOrder() : numericField.getAsInt()));
       }
       else if (fieldClass == long.class) {
         mappingField.setLong(mappingClassInstance, (invertBitOrder ? numericField.getAsInvertedBitOrder() : numericField.getAsLong()));
       }
       else if (fieldClass == double.class) {
-        mappingField.setDouble(mappingClassInstance, (double) (invertBitOrder ? numericField.getAsInvertedBitOrder() : numericField.getAsLong()));
+        mappingField.setDouble(mappingClassInstance, Double.longBitsToDouble(invertBitOrder ? numericField.getAsInvertedBitOrder() : numericField.getAsLong()));
       }
       else {
         throw new JBBPMapperException("Unsupported mapping class field type to be mapped for binary parsed data", (JBBPAbstractField) numericField, mappingClassInstance.getClass(), mappingField, null);
