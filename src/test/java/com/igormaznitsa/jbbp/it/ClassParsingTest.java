@@ -76,75 +76,49 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
     "BootstrapMethods"
   };
 
+  @Bin
   private class ConstantPoolItem {
-
-    @Bin
     byte[] cp_item;
   }
 
+  @Bin
   private class Interface {
-
-    @Bin
     char index;
   }
 
+  @Bin
   private class FieldMethodInfo {
-
-    @Bin
     char access_flags;
-    @Bin
     char name_index;
-    @Bin
     char descriptor_index;
-    @Bin
     char attributes_count;
-    @Bin
     AttributeInfo[] attribute_info;
   }
 
+  @Bin
   private class AttributeInfo {
-
-    @Bin
     char name_index;
-    @Bin
     int length;
-    @Bin
     byte[] info;
   }
 
+  @Bin
   private class ClassFile {
-
-    @Bin
     int magic;
-    @Bin
     char minor_version;
-    @Bin
     char major_version;
-    @Bin
     char constant_pool_count;
-    @Bin
     ConstantPoolItem[] constant_pool_item;
-    @Bin
     char access_flags;
-    @Bin
     char this_class;
-    @Bin
     char super_class;
-    @Bin
     char interfaces_count;
-    @Bin
     Interface[] interfaces;
-    @Bin
     char fields_count;
-    @Bin
     FieldMethodInfo[] fields;
-    @Bin
     char methods_count;
-    @Bin
     FieldMethodInfo[] methods;
-    @Bin
     char attributes_count;
-    @Bin
     AttributeInfo[] attribute_info;
   }
 

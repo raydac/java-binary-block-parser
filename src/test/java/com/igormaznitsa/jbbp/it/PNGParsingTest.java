@@ -43,15 +43,17 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
               + "}"
       );
 
+      @Bin
       class Chunk {
-        @Bin int length;
-        @Bin int type;
-        @Bin byte [] data;
-        @Bin int crc;
+        int length;
+        int type;
+        byte [] data;
+        int crc;
       }
+      @Bin
       class Png {
-        @Bin long hEAder;
-        @Bin Chunk [] chuNK;
+        long hEAder;
+        Chunk [] chuNK;
       }
       
       final Png png = pngParser.parse(pngStream).mapTo(Png.class);
