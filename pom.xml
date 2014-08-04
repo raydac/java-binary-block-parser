@@ -8,7 +8,7 @@
   <packaging>jar</packaging>
 
   <name>jbbp</name>
-  <description>A Java Binary Block Parser, allows to parse streams and arrays with defined structure, also it has helper to form binary blocks</description>
+  <description>A Java Binary Block Parser, a small but powerful framework to parse binary streams and blocks and form binary block through something like DSL</description>
   <url>http://java-binary-block-parser.googlecode.com/</url>
 
   <properties>
@@ -30,6 +30,7 @@
       <url>http://www.igormaznitsa.com</url>
       <timezone>+3</timezone>
       <roles>
+        <role>Architect</role>
         <role>Developer</role>
       </roles>
     </developer>
@@ -150,7 +151,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
-        <version>3.0</version>
+        <version>3.4</version>
         <configuration>
           <reportPlugins>
             <plugin>
