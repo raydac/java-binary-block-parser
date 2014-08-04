@@ -17,10 +17,12 @@
 package com.igormaznitsa.jbbp.mapper;
 
 import com.igormaznitsa.jbbp.JBBPParser;
+import com.igormaznitsa.jbbp.TestUtils;
 import com.igormaznitsa.jbbp.exceptions.JBBPMapperException;
 import com.igormaznitsa.jbbp.io.JBBPOut;
 import com.igormaznitsa.jbbp.mapper.instantiators.*;
 import com.igormaznitsa.jbbp.model.*;
+import com.igormaznitsa.jbbp.utils.JBBPSystemProperty;
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.*;
 import java.security.*;
@@ -47,18 +49,10 @@ public class JBBPMapperTest {
   
   @Before
   public void injectInstantiator() throws Exception {
-    System.setProperty(JBBPClassInstantiatorFactory.SYSTEM_PROPERTY_INSTANTIATOR_CLASS, this.className);
+    JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.set(this.className);
     final JBBPClassInstantiator instance = JBBPClassInstantiatorFactory.getInstance().make(JBBPClassInstantiatorType.AUTO);
-    System.clearProperty(JBBPClassInstantiatorFactory.SYSTEM_PROPERTY_INSTANTIATOR_CLASS);
- 
-    final Field field = JBBPMapper.class.getDeclaredField("klazzInstantiator");
-    field.setAccessible(true);
-
-    Field modifiersField = Field.class.getDeclaredField("modifiers");
-    modifiersField.setAccessible(true);
-    modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-    
-    field.set(null, instance);
+    JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.remove();
+    TestUtils.injectDeclaredFinalFieldValue(JBBPMapper.class, null, "klazzInstantiator", instance);
   }
   
   @Test
@@ -200,6 +194,14 @@ public class JBBPMapperTest {
       @Bin(type = BinType.BIT_ARRAY) String a;
     }
     assertEquals(new String(new char[]{0xA, 0x4, 0x6, 0x4, 0x9, 0x4, 0x6, 0x4}),JBBPParser.prepare("bit:4 [_] a;").parse(new byte[]{(byte)0x4A, (byte)0x46, (byte)0x49, (byte)0x46}).mapTo(Mapped.class).a);
+  }
+
+  @Test
+  public void testMap_BitArrayToStringWhenWholeByte() throws Exception {
+    class Mapped {
+      @Bin(type = BinType.BIT_ARRAY) String a;
+    }
+    assertEquals(new String(new char[]{0xFF, 0xED, 0x01, 0x36}),JBBPParser.prepare("bit:8 [_] a;").parse(new byte[]{(byte)0xFF, (byte)0xED, (byte)0x01, (byte)0x36}).mapTo(Mapped.class).a);
   }
 
   @Test

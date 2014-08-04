@@ -271,6 +271,22 @@ public final class JBBPOut {
   }
 
   /**
+   * Inside wrapper of not null assertion with text for arrays.
+   * @param array an object to be checked for null.
+   */
+  private static void assertArrayNotNull(final Object array){
+    JBBPUtils.assertNotNull(array, "Array must not be null");
+  }
+  
+  /**
+   * Inside wrapper of not null assertion with text for strings.
+   * @param str an object to be checked for null.
+   */
+  private static void assertStringNotNull(final String str){
+    JBBPUtils.assertNotNull(str, "String must not be null");
+  }
+  
+  /**
    * Write lowest bits of bytes from an array.
    *
    * @param value a byte array, lowest bit of each byte will be saved as a bit
@@ -280,7 +296,7 @@ public final class JBBPOut {
    */
   public JBBPOut Bit(final byte [] value) throws IOException {
     assertNotEnded();
-    JBBPUtils.assertNotNull(value, "Array must not be null");
+    assertArrayNotNull(value);
     if (this.processCommands) {
       for (final byte b : value) {
         this._writeBits(JBBPBitNumber.BITS_1, b);
@@ -299,7 +315,7 @@ public final class JBBPOut {
    */
   public JBBPOut Bit(final int... value) throws IOException {
     assertNotEnded();
-    JBBPUtils.assertNotNull(value, "Array must not be null");
+    assertArrayNotNull(value);
     if (this.processCommands) {
       for (final int b : value) {
         this._writeBits(JBBPBitNumber.BITS_1, b);
@@ -318,7 +334,7 @@ public final class JBBPOut {
    */
   public JBBPOut Bit(final boolean... value) throws IOException {
     assertNotEnded();
-    JBBPUtils.assertNotNull(value, "Array must not be null");
+    assertArrayNotNull(value);
     if (this.processCommands) {
       for (final boolean b : value) {
         this._writeBits(JBBPBitNumber.BITS_1, b ? 1 : 0);
@@ -431,7 +447,7 @@ public final class JBBPOut {
    */
   public JBBPOut Byte(final int... value) throws IOException {
     assertNotEnded();
-    JBBPUtils.assertNotNull(value, "Array must not be null");
+    assertArrayNotNull(value);
     if (this.processCommands) {
       for (final int v : value) {
         _writeByte(v);
@@ -449,7 +465,7 @@ public final class JBBPOut {
    */
   public JBBPOut Byte(final byte [] value) throws IOException {
     assertNotEnded();
-    JBBPUtils.assertNotNull(value, "Array must not be null");
+    assertArrayNotNull(value);
     if (this.processCommands) {
       this.outStream.write(value);
     }
@@ -466,7 +482,7 @@ public final class JBBPOut {
    */
   public JBBPOut Byte(final String str) throws IOException {
     assertNotEnded();
-    JBBPUtils.assertNotNull(str, "String must not be null");
+    assertStringNotNull(str);
     if (this.processCommands) {
       for (int i = 0; i < str.length(); i++) {
         this.outStream.write(str.charAt(i));
@@ -484,7 +500,7 @@ public final class JBBPOut {
    */
   public JBBPOut Utf8(final String str) throws IOException {
     assertNotEnded();
-    JBBPUtils.assertNotNull(str, "String must not be null");
+    assertStringNotNull(str);
     if (this.processCommands) {
       this.outStream.write(str.getBytes("UTF-8"));
     }
@@ -516,7 +532,7 @@ public final class JBBPOut {
    */
   public JBBPOut Bool(final boolean... value) throws IOException {
     assertNotEnded();
-    JBBPUtils.assertNotNull(value, "Array must not be null");
+    assertArrayNotNull(value);
     if (this.processCommands) {
       for (final boolean b : value) {
         this.outStream.write(b ? 1 : 0);
@@ -562,7 +578,7 @@ public final class JBBPOut {
    */
   public JBBPOut Short(final short [] value) throws IOException {
     assertNotEnded();
-    JBBPUtils.assertNotNull(value, "Array must not be null");
+    assertArrayNotNull(value);
     if (this.processCommands) {
       for (final short v : value) {
         this._writeShort(v);
@@ -581,7 +597,7 @@ public final class JBBPOut {
    */
   public JBBPOut Short(final int... value) throws IOException {
     assertNotEnded();
-    JBBPUtils.assertNotNull(value, "Array must not be null");
+    assertArrayNotNull(value);
     if (this.processCommands) {
       for (final int v : value) {
         this._writeShort(v);
@@ -625,7 +641,7 @@ public final class JBBPOut {
    */
   public JBBPOut Int(final int... value) throws IOException {
     assertNotEnded();
-    JBBPUtils.assertNotNull(value, "Array must not be null");
+    assertArrayNotNull(value);
     if (this.processCommands) {
       for (final int v : value) {
         _writeInt(v);
@@ -643,7 +659,7 @@ public final class JBBPOut {
    */
   public JBBPOut Float(final float... value) throws IOException {
     assertNotEnded();
-    JBBPUtils.assertNotNull(value, "Array must not be null");
+    assertArrayNotNull(value);
     if (this.processCommands) {
       for(final float f : value){
         _writeInt(Float.floatToIntBits(f));
@@ -688,7 +704,7 @@ public final class JBBPOut {
    */
   public JBBPOut Double(final double... value) throws IOException {
     assertNotEnded();
-    JBBPUtils.assertNotNull(value, "Array must not be null");
+    assertArrayNotNull(value);
     if (this.processCommands) {
       for (final double d : value) {
         _writeLong(Double.doubleToLongBits(d));
@@ -706,7 +722,7 @@ public final class JBBPOut {
    */
   public JBBPOut Long(final long... value) throws IOException {
     assertNotEnded();
-    JBBPUtils.assertNotNull(value, "Array must not be null");
+    assertArrayNotNull(value);
     if (this.processCommands) {
       for (final long l : value) {
         _writeLong(l);

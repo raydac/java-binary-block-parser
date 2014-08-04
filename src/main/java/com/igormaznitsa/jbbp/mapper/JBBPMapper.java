@@ -268,13 +268,18 @@ public final class JBBPMapper {
     return mappingClassInstance;
   }
 
+  /**
+   * Convert an array field into its string representation.
+   * @param field an array field to be converted, must not be null
+   * @return the string representation of the array or null if the field can't be converted
+   */
   private static String convertFieldValueToString(final JBBPAbstractArrayField<?> field) {
     final StringBuilder result;
     if (field instanceof JBBPFieldArrayBit) {
       final JBBPFieldArrayBit array = (JBBPFieldArrayBit) field;
       result = new StringBuilder(array.size());
       for (final byte b : array.getArray()) {
-        result.append((char) b);
+        result.append((char) (b & 0xFF));
       }
     }
     else if (field instanceof JBBPFieldArrayByte) {

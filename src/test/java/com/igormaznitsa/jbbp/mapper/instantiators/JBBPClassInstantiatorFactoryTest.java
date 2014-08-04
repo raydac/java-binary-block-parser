@@ -16,6 +16,7 @@
 
 package com.igormaznitsa.jbbp.mapper.instantiators;
 
+import com.igormaznitsa.jbbp.utils.JBBPSystemProperty;
 import org.junit.*;
 import static org.junit.Assert.*;
 
@@ -23,7 +24,7 @@ public class JBBPClassInstantiatorFactoryTest {
   
   @After
   public void afterTest(){
-    System.clearProperty(JBBPClassInstantiatorFactory.SYSTEM_PROPERTY_INSTANTIATOR_CLASS);
+    System.clearProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName());
   }
   
   public static class FakeInstantiator implements JBBPClassInstantiator {
@@ -53,7 +54,7 @@ public class JBBPClassInstantiatorFactoryTest {
   
   @Test
   public void testMake_CustomClass(){
-    System.setProperty(JBBPClassInstantiatorFactory.SYSTEM_PROPERTY_INSTANTIATOR_CLASS, FakeInstantiator.class.getName());
+    System.setProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName(), FakeInstantiator.class.getName());
     assertEquals(FakeInstantiator.class, JBBPClassInstantiatorFactory.getInstance().make(JBBPClassInstantiatorType.AUTO).getClass());
   }
   

@@ -78,13 +78,17 @@ public final class JBBPNamedFieldInfo {
 
   @Override
   public boolean equals(final Object obj) {
-    if (obj == null) return false;
-    if (this == obj) return true;
-    
+    if (obj == null) {
+      return false;
+    }
+    if (this == obj) {
+      return true;
+    }
+
     boolean result = false;
-    
-    if (obj instanceof JBBPNamedFieldInfo){
-      final JBBPNamedFieldInfo that = (JBBPNamedFieldInfo)obj;
+
+    if (obj instanceof JBBPNamedFieldInfo) {
+      final JBBPNamedFieldInfo that = (JBBPNamedFieldInfo) obj;
       result = this.fieldPath.equals(that.fieldPath) && this.offsetInCompiledBlock == that.offsetInCompiledBlock;
     }
     return result;

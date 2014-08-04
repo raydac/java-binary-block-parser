@@ -15,6 +15,7 @@
  */
 package com.igormaznitsa.jbbp.mapper.instantiators;
 
+import com.igormaznitsa.jbbp.utils.JBBPSystemProperty;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
@@ -22,11 +23,6 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
  * current platform.
  */
 public final class JBBPClassInstantiatorFactory {
-
-  /**
-   * The System property to be used to get custom class instantiator name.
-   */
-  public static final String SYSTEM_PROPERTY_INSTANTIATOR_CLASS = "jbbp.mapper.instantiator";
 
   /**
    * The Factory instance.
@@ -74,7 +70,7 @@ public final class JBBPClassInstantiatorFactory {
 
     switch (type) {
       case AUTO: {
-        final String customClassName = System.getProperty(SYSTEM_PROPERTY_INSTANTIATOR_CLASS);
+        final String customClassName = JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getAsString(null);
         if (customClassName == null) {
           try {
             final Class<?> unsafeclazz = Class.forName("sun.misc.Unsafe");

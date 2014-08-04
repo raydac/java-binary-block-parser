@@ -22,6 +22,7 @@ import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPEvalException;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.utils.JBBPIntCounter;
+import com.igormaznitsa.jbbp.utils.JBBPSystemProperty;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.*;
 import java.util.*;
@@ -37,7 +38,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
   /**
    * The Maximum stack depth for the expression.
    */
-  private static final int MAX_STACK_DEPTH = 16;
+  public static final int MAX_STACK_DEPTH = JBBPSystemProperty.PROPERTY_EXPRESSION_STACK_DEPTH.getAsInteger(16);
 
   /**
    * Code for a left bracket.
@@ -144,6 +145,11 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
    * The Pattern to parse an expression.
    */
   private static final Pattern pattern = Pattern.compile("([0-9]+)|([\\(\\)])|(<<|>>>|>>|[\\%\\*\\+\\-\\/\\&\\|\\^\\~])|([\\S][^\\<\\>\\s\\+\\%\\*\\-\\/\\(\\)\\&\\|\\^\\~]+)");
+
+  /**
+   * Inside stack for the expression.
+   */
+  private final int[] stack = new int[MAX_STACK_DEPTH];
 
   /**
    * Check that a string represents a unary operator.
@@ -321,7 +327,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
           code = CODE_RSIGNSHIFT;
         }
         else {
-          throw new Error("Detected unsupported operator, connect developer for the error [" + operator + ']');
+          throw new Error("Detected unsupported operator, cotact developer [" + operator + ']');
         }
 
         if (theFirstInTheSubExpression) {
@@ -485,7 +491,6 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
    * @throws JBBPEvalException if there is any problem during processing
    */
   public int eval(final JBBPBitInputStream inStream, final int currentCompiledBlockOffset, final JBBPCompiledBlock compiledBlockData, final JBBPNamedNumericFieldMap fieldMap) {
-    final int[] stack = new int[MAX_STACK_DEPTH];
     int stackDepth = 0;
 
     final JBBPIntCounter counter = new JBBPIntCounter();

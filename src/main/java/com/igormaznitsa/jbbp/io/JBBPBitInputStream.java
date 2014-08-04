@@ -15,6 +15,7 @@
  */
 package com.igormaznitsa.jbbp.io;
 
+import com.igormaznitsa.jbbp.utils.JBBPSystemProperty;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.*;
 
@@ -25,7 +26,10 @@ import java.io.*;
  */
 public class JBBPBitInputStream extends FilterInputStream implements JBBPCountableBitStream {
 
-  protected static final int INITIAL_ARRAY_BUFFER_SIZE = 32;
+  /**
+   * The Initial an Array buffer size for whole stream read.
+   */
+  protected static final int INITIAL_ARRAY_BUFFER_SIZE = JBBPSystemProperty.PROPERTY_INPUT_INITIAL_ARRAY_BUFFER_SIZE.getAsInteger(32);
 
   /**
    * The Inside bit buffer,

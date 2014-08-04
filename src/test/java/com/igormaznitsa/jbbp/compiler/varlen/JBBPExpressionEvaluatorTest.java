@@ -17,6 +17,7 @@ package com.igormaznitsa.jbbp.compiler.varlen;
 
 import com.igormaznitsa.jbbp.JBBPExternalValueProvider;
 import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
+import com.igormaznitsa.jbbp.TestUtils;
 import com.igormaznitsa.jbbp.compiler.*;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPEvalException;
@@ -168,6 +169,12 @@ public class JBBPExpressionEvaluatorTest {
     final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap();
     map.putField(new JBBPFieldInt(info, 8));
     assertEquals(2 * 8 * 6 / 4 + 3 * 2 - 11 % 3 & 8 - ~8, expr.eval(null, 0, JBBPCompiledBlock.prepare().setCompiledData(compiled).setNamedFieldData(list).setSource("no source").build(), map));
+  }
+
+  @Test(expected = JBBPCompilationException.class)
+  public void testExpression_StackOverfow_ForDefaultDepth() throws Exception {
+    JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("1+(2+(3+(4+(5+(6+(7+(8+(9+(10+(11+(12+(13+(14+(15+(16+(17+(18+(19+(20*2)))))))))))))))))))", null, null);
+    assertEquals(1+(2+(3+(4+(5+(6+(7+(8+(9+(10+(11+(12+(13+(14+(15+(16+(17+(18+(19+(20*2))))))))))))))))))), expr.eval(null, 0, null, null));
   }
 
   @Test
