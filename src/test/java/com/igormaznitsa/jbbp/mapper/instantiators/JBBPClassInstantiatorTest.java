@@ -111,7 +111,7 @@ public class JBBPClassInstantiatorTest {
   }
 
   @Test
-  public void testCreateLocalClassWithOnlyNonDefaultConstructor() throws Exception {
+  public void testCreateLocalClass_OnlyNonDefaultConstructor() throws Exception {
     class NoDefaultConstructor {
       int i;
       NoDefaultConstructor(byte a, short m, char b, boolean c, int d, long e, float f, double g, String h, byte[] array) {
@@ -123,7 +123,27 @@ public class JBBPClassInstantiatorTest {
   }
 
   @Test
-  public void testCreateLocalClassWithThreeNonDefaultConstructor() throws Exception {
+  public void testCreateLocalClass_TwoCounsturctorsPlusDefaultConstructor() throws Exception {
+    class WithDefaultConstructor {
+      int i;
+      WithDefaultConstructor(byte a, short m, char b, boolean c, int d, long e, float f, double g, String h, byte[] array) {
+        i = d;
+      }
+
+      WithDefaultConstructor(int d) {
+        i = d;
+      }
+      
+      WithDefaultConstructor(){
+        i = 0;
+      }
+    }
+
+    assertNotNull(instantiator.makeClassInstance(WithDefaultConstructor.class));
+  }
+
+  @Test
+  public void testCreateLocalClass_TwoCounsturctors() throws Exception {
     class NoDefaultConstructor {
       int i;
       NoDefaultConstructor(byte a, short m, char b, boolean c, int d, long e, float f, double g, String h, byte[] array) {
@@ -133,31 +153,42 @@ public class JBBPClassInstantiatorTest {
       NoDefaultConstructor(int d) {
         i = d;
       }
-      
-      NoDefaultConstructor(){
-        i = 0;
-      }
     }
 
     assertNotNull(instantiator.makeClassInstance(NoDefaultConstructor.class));
   }
 
   
-  private static final class StaticNoDefaultConstructor {
+  private static final class StaticTwoConstructorsPlusDefaultConstructor {
     int i;
-    private StaticNoDefaultConstructor(byte a, short m, char b, boolean c, int d, long e, float f, double g, String h, byte[] array) {
+    private StaticTwoConstructorsPlusDefaultConstructor(byte a, short m, char b, boolean c, int d, long e, float f, double g, String h, byte[] array) {
       i = d;
     }
-    private StaticNoDefaultConstructor(int d) {
+    private StaticTwoConstructorsPlusDefaultConstructor(int d) {
       i = d;
     }
-    private StaticNoDefaultConstructor() {
+    private StaticTwoConstructorsPlusDefaultConstructor() {
       i = 0;
     }
   }
   
+  private static final class StaticTwoConstructors {
+    int i;
+    private StaticTwoConstructors(byte a, short m, char b, boolean c, int d, long e, float f, double g, String h, byte[] array) {
+      i = d;
+    }
+    private StaticTwoConstructors(int d) {
+      i = d;
+    }
+  }
+  
   @Test
-  public void testCreateStaticClassWithThreeNonDefaultConstructor() throws Exception {
-    assertNotNull(instantiator.makeClassInstance(StaticNoDefaultConstructor.class));
+  public void testCreateStaticClass_TwoConstructorsPlusDefaultConstructor() throws Exception {
+    assertNotNull(instantiator.makeClassInstance(StaticTwoConstructorsPlusDefaultConstructor.class));
+  }
+
+  @Test
+  public void testCreateStaticClass_TwoConstructors() throws Exception {
+    assertNotNull(instantiator.makeClassInstance(StaticTwoConstructors.class));
   }
 }

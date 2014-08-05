@@ -16,12 +16,14 @@
 package com.igormaznitsa.jbbp.compiler;
 
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
+import java.io.Serializable;
 
 /**
  * The Class describes a named field info item. Such objects are presented
  * inside of compiled blocks only for fields which have names.
  */
-public final class JBBPNamedFieldInfo {
+public final class JBBPNamedFieldInfo implements Serializable {
+  private static final long serialVersionUID = -3830704680293509892L;
 
   /**
    * The Field path.

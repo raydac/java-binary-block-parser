@@ -107,7 +107,7 @@ public final class JBBPSafeInstantiator implements JBBPClassInstantiator {
     }
     for (final Constructor c : constructors) {
       final Class[] params = c.getParameterTypes();
-      if (params.length == 1 & params[0] == declaringClass) {
+      if (params.length == 1 && params[0] == declaringClass) {
         return c;
       }
     }
