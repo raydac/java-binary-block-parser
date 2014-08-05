@@ -277,4 +277,13 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
     }
   }
 
+  /**
+   * Reset the byte counter for the stream. The Inside bit buffer will be reset also.
+   */
+  public void resetCounter() {
+    this.bitBuffer = 0;
+    this.bitBufferCount = 0;
+    this.byteCounter = 0L;
+  }
+
 }

@@ -31,6 +31,26 @@ import org.junit.Test;
 
 public class JBBPParserTest {
 
+  @Test
+  public void testErrorDuringReadingOfNamedField() throws Exception {
+    try{
+      JBBPParser.prepare("short helloworld;").parse(new byte[]{1});
+      fail("Must throw JBBPParsingException");
+    }catch(JBBPParsingException ex){
+      assertTrue(ex.getMessage().indexOf("helloworld")>=0);
+    }
+  }
+  
+  @Test
+  public void testErrorDuringReadingOfNonNamedField() throws Exception {
+    try{
+      JBBPParser.prepare("short;").parse(new byte[]{1});
+      fail("Must throw EOFException");
+    }catch(EOFException ex){
+      assertNull(ex.getMessage());
+    }
+  }
+  
   @Test(expected = JBBPCompilationException.class)
   public void testFieldNameCaseInsensetive_ExceptionForDuplicationOfFieldNames() throws Exception {
     JBBPParser.prepare("bool Field1; byte field1;");

@@ -747,20 +747,20 @@ public class JBBPBitInputStreamTest {
   }
 
   @Test
-  public void testResetInsideCounters_ForStartOfStream() throws Exception {
+  public void testResetCounter_ForStartOfStream() throws Exception {
     final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5, 6, 7, 0, (byte) 0xFE, (byte) 0xCA, (byte) 0xBE, (byte) 0x01, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4}));
-    in.resetInsideCounters();
+    in.resetCounter();
     assertEquals(1, in.readByte());
     assertEquals(1, in.getCounter());
   }
 
   @Test
-  public void testResetInsideCounters_ForCachedBits() throws Exception {
+  public void testResetCounter_ForCachedBits() throws Exception {
     final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5, 6, 7, 0, (byte) 0xFE, (byte) 0xCA, (byte) 0xBE, (byte) 0x01, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4}));
     assertEquals(1, in.readBits(JBBPBitNumber.BITS_3));
     assertEquals(1, in.getCounter());
     assertTrue(in.getBufferedBitsNumber() != 0);
-    in.resetInsideCounters();
+    in.resetCounter();
     assertEquals(0, in.getCounter());
     assertEquals(0, in.getBufferedBitsNumber());
     assertEquals(2, in.readByte());

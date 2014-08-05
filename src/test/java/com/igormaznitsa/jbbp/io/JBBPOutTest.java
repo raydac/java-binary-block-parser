@@ -52,6 +52,11 @@ public class JBBPOutTest {
   }
 
   @Test
+  public void testResetCounter() throws Exception {
+    assertArrayEquals(new byte[]{1,2,0,0,(byte)0xFF}, JBBPOut.BeginBin().Byte(1).ResetCounter().Byte(2).Align(3).Byte(0xFF).End().toByteArray());
+  }
+
+  @Test
   public void testAlignWithArgument() throws Exception {
     assertEquals(0, JBBPOut.BeginBin().Align(2).End().toByteArray().length);
     assertArrayEquals(new byte[]{(byte) 0x01, (byte) 0xFF}, JBBPOut.BeginBin().Bit(1).Align(1).Byte(0xFF).End().toByteArray());

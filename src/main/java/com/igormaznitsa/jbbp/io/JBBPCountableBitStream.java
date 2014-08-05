@@ -35,6 +35,11 @@ public interface JBBPCountableBitStream {
   JBBPBitOrder getBitOrder();
 
   /**
+   * Reset the inside byte counter of the stream, inside bit buffer will be reset.
+   */
+  void resetCounter();
+  
+  /**
    * Get the inside stream bit buffer.
    * @return the value from inside the stream bit buffer
    */

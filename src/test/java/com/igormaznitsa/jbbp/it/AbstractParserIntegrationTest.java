@@ -15,7 +15,10 @@
  */
 package com.igormaznitsa.jbbp.it;
 
+import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
+import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.InputStream;
+import static org.junit.Assert.assertArrayEquals;
 
 public abstract class AbstractParserIntegrationTest {
 
@@ -25,5 +28,16 @@ public abstract class AbstractParserIntegrationTest {
       throw new NullPointerException("Can't find resource '" + resourceName + '\'');
     }
     return result;
+  }
+  
+  public void assertResource(final String resourceName, final byte[] content) throws Exception {
+    final InputStream in = getResourceAsInputStream(resourceName);
+    try {
+      final byte[] fileContent = new JBBPBitInputStream(in).readByteArray(-1);
+      assertArrayEquals("Content of '" + resourceName + "'", fileContent, content);
+    }
+    finally {
+      JBBPUtils.closeQuietly(in);
+    }
   }
 }

@@ -192,7 +192,7 @@ public final class JBBPMapper {
           }
 
           if (binField == null) {
-            throw new JBBPMapperException("Can't find value to be mapped to a mapping field", null, mappingClass, mappingField, null);
+            throw new JBBPMapperException("Can't find value to be mapped to a mapping field ["+mappingField+']', null, mappingClass, mappingField, null);
           }
 
           if (mappingField.getType().isArray()) {

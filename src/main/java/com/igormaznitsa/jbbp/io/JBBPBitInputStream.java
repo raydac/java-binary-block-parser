@@ -597,16 +597,6 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
 
   }
 
-  /**
-   * The Method allows to reset inside counters of the stream, it will reset the
-   * bit cache and byte counter so that next operations will be working like
-   * from the stream start.
-   */
-  public void resetInsideCounters() {
-    this.alignByte();
-    this.byteCounter = 0;
-  }
-
   @Override
   public long skip(final long numOfBytes) throws IOException {
     if (this.bitsInBuffer == 0) {
@@ -733,6 +723,15 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     }
   }
 
+  /**
+   * Reset the byte counter for the stream. The Inside bit buffer will be reset also.
+   */
+  public void resetCounter() {
+    this.bitsInBuffer = 0;
+    this.bitBuffer = 0;
+    this.byteCounter = 0L;
+  }
+  
   @Override
   public int read(final byte[] array) throws IOException {
     return this.read(array, 0, array.length);

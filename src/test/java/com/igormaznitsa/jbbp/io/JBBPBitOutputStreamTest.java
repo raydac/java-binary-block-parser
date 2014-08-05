@@ -25,6 +25,38 @@ import static org.junit.Assert.*;
 public class JBBPBitOutputStreamTest {
 
   @Test
+  public void testResetCounter_BitBufferEmpty() throws Exception {
+    final ByteArrayOutputStream buff = new ByteArrayOutputStream();
+    final JBBPBitOutputStream out = new JBBPBitOutputStream(buff);
+
+    assertEquals(0L,out.getCounter());
+    out.write(1);
+    assertTrue(out.getBufferedBitsNumber()==0);
+    assertEquals(1L,out.getCounter());
+    out.resetCounter();
+    assertTrue(out.getBufferedBitsNumber()==0);
+    assertEquals(0L,out.getCounter());
+  }
+  
+  @Test
+  public void testResetCounter_BitBufferNotEmpty() throws Exception {
+    final ByteArrayOutputStream buff = new ByteArrayOutputStream();
+    final JBBPBitOutputStream out = new JBBPBitOutputStream(buff);
+
+    assertEquals(0L,out.getCounter());
+    out.write(1);
+    out.writeBits(3, JBBPBitNumber.BITS_7);
+    assertTrue(out.getBufferedBitsNumber() > 0);
+    assertEquals(1L,out.getCounter());
+    out.resetCounter();
+    assertTrue(out.getBufferedBitsNumber() == 0);
+    assertEquals(0L,out.getCounter());
+    out.write(2);
+    out.close();
+    assertArrayEquals(new byte[]{1,2}, buff.toByteArray());
+  }
+  
+  @Test
   public void testWrite9bit_MSB() throws Exception {
     final ByteArrayOutputStream buff = new ByteArrayOutputStream();
     final JBBPBitOutputStream out = new JBBPBitOutputStream(buff);

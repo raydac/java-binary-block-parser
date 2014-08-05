@@ -170,10 +170,11 @@ public final class JBBPOut {
   /**
    * Align the current stream for 1 byte. If there are any bites inside bit
    * cache then they will be saved and the stream will be positioning to the
-   * next byte.
+   * next byte. It works relative to the byte output counter.
    *
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
+   * @see JBBPOut#ResetCounter() 
    */
   public JBBPOut Align() throws IOException {
     assertNotEnded();
@@ -184,11 +185,13 @@ public final class JBBPOut {
   }
 
   /**
-   * Align number of bytes in the stream to the value.
+   * Align number of bytes in the stream to the value. It works relative to the
+   * byte output counter.
    *
    * @param value the byte border to align the stream.
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
+   * @see JBBPOut#ResetCounter()
    */
   public JBBPOut Align(final int value) throws IOException {
     assertNotEnded();
@@ -709,6 +712,20 @@ public final class JBBPOut {
       for (final double d : value) {
         _writeLong(Double.doubleToLongBits(d));
       }
+    }
+    return this;
+  }
+
+  /**
+   * Reset the byte counter and the inside bit buffer of the output stream. it is usefule for the Align command because the command makes alignment for the counter.
+   * @return the DSL context
+   * @see JBBPOut#Align() 
+   * @see JBBPOut#Align(int) 
+   */
+  public JBBPOut ResetCounter() {
+    assertNotEnded();
+    if (this.processCommands) {
+      this.outStream.resetCounter();
     }
     return this;
   }

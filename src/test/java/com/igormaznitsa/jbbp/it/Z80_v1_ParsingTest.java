@@ -163,17 +163,6 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
     }
   }
 
-  public void assertResource(final String resourceName, final byte[] content) throws Exception {
-    final InputStream in = getResourceAsInputStream(resourceName);
-    try {
-      final byte[] fileContent = new JBBPBitInputStream(in).readByteArray(-1);
-      assertArrayEquals("Content of '" + resourceName + "'", fileContent, content);
-    }
-    finally {
-      JBBPUtils.closeQuietly(in);
-    }
-  }
-
   @Test
   public void testRLEEncoding() throws Exception {
     assertArrayEquals(new byte[]{(byte) 0xED, (byte) 0xED, 1, 2, 3}, JBBPOut.BeginBin().Var(new RLEDataEncoder(), 0, new byte[]{(byte) 0xED, (byte) 0xED, 1, 2, 3}).End().toByteArray());
