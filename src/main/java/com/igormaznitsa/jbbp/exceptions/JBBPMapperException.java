@@ -28,7 +28,7 @@ public class JBBPMapperException extends JBBPException {
   /**
    * The JBBP field which mapping generates the exception.
    */
-  private final JBBPAbstractField binField;
+  private final JBBPAbstractField field;
   /**
    * The Class field which processing generates the exception.
    */
@@ -42,24 +42,24 @@ public class JBBPMapperException extends JBBPException {
   /**
    * The Constructor.
    * @param message the text message describes the exception
-   * @param binField the JBBP field which processing generates the exception
+   * @param field the JBBP field which processing generates the exception
    * @param mappingClass the class which mapping generates the exception
    * @param mappingClassField the class field which mapping is wrong
    * @param cause the root cause for the exception, it can be null
    */
-  public JBBPMapperException(final String message, final JBBPAbstractField binField, final Class<?> mappingClass, final Field mappingClassField, final Throwable cause){
+  public JBBPMapperException(final String message, final JBBPAbstractField field, final Class<?> mappingClass, final Field mappingClassField, final Throwable cause){
     super(message, cause);
-    this.binField = binField;
+    this.field = field;
     this.mappingClassField = mappingClassField;
     this.mappingClass = mappingClass;
   }
   
   /**
    * Get the JBBP field related to the exception.
-   * @return a JBBP field
+   * @return the JBBP filed which mapping generates the exception, it can be null
    */
-  public JBBPAbstractField getBinField(){
-    return this.binField;
+  public JBBPAbstractField getField(){
+    return this.field;
   }
   
   /**
@@ -80,7 +80,7 @@ public class JBBPMapperException extends JBBPException {
  
   @Override
   public String toString(){
-    return this.getMessage()+" [ "+this.getMappingClassField()+" -> "+this.getBinField()+']';
+    return this.getMessage()+" [ "+this.getMappingClassField()+" -> "+this.getField()+']';
   }
   
 }

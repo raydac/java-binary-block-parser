@@ -23,12 +23,6 @@ public class JBBPException extends RuntimeException {
 
   /**
    * A Constructor.
-   */
-  public JBBPException() {
-  }
-
-  /**
-   * A Constructor.
    * @param message the message for the exception 
    */
   public JBBPException(final String message) {
@@ -43,13 +37,4 @@ public class JBBPException extends RuntimeException {
   public JBBPException(final String message, final Throwable cause) {
     super(message, cause);
   }
-
-  /**
-   * A Constructor.
-   * @param cause the root cause for the exception
-   */
-  public JBBPException(final Throwable cause) {
-    super(cause);
-  }
-  
 }

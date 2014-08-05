@@ -23,13 +23,6 @@ public class JBBPParsingException extends JBBPCompilationException {
 
   /**
    * A Constructor.
-   */
-  public JBBPParsingException() {
-    this("Parsing exception");
-  }
-
-  /**
-   * A Constructor.
    * @param message the exception error message 
    */
   public JBBPParsingException(final String message) {
@@ -45,12 +38,4 @@ public class JBBPParsingException extends JBBPCompilationException {
     super(message,null, cause);
   }
 
-  /**
-   * A Constructor.
-   * @param cause the root cause for the exception
-   */
-  public JBBPParsingException(final Throwable cause) {
-    this("Parsing exception",cause);
-  }
-  
 }
