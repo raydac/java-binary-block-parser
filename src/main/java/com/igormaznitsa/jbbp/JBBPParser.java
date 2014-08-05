@@ -143,6 +143,12 @@ public final class JBBPParser {
       JBBPAbstractField singleAtomicField = null;
       try {
         switch (code & 0xF) {
+          case JBBPCompiler.CODE_RESET_COUNTER: {
+            if (resultNotIgnored) {
+              inStream.resetCounter();
+            }
+          }
+          break;
           case JBBPCompiler.CODE_ALIGN: {
             final int alignValue = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
             if (resultNotIgnored) {

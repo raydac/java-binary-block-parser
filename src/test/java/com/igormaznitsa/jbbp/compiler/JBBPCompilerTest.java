@@ -15,7 +15,6 @@
  */
 package com.igormaznitsa.jbbp.compiler;
 
-import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPTokenType;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTokenizerException;
@@ -527,6 +526,26 @@ public class JBBPCompilerTest {
       1
     }, compiled.getCompiledData());
     
+  }
+
+  @Test(expected = JBBPCompilationException.class)
+  public void testCompile_ErrorForNamedReset() throws Exception {
+    JBBPCompiler.compile("reset$$ hello;");
+  }
+
+  @Test(expected = JBBPCompilationException.class)
+  public void testCompile_ErrorForArrayReset() throws Exception {
+    JBBPCompiler.compile("reset$$ [445] hello;");
+  }
+
+  @Test(expected = JBBPCompilationException.class)
+  public void testCompile_ErrorForResetWithExtraValue() throws Exception {
+    JBBPCompiler.compile("reset$$:1;");
+  }
+
+  @Test
+  public void testCompile_Reset() throws Exception {
+    assertArrayEquals(new byte[]{JBBPCompiler.CODE_RESET_COUNTER}, JBBPCompiler.compile("reset$$;").getCompiledData());
   }
   
 }

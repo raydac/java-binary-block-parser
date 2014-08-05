@@ -463,12 +463,12 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * Read number of bits from the input stream. It reads bits from input stream
    * since 0 bit and make reversion to return bits in the right order when 0 bit
    * is 0 bit. if the stream is completed early than the data read then reading
-   * is just stopped and read value returned. The First read bit is placed as 0th bit.
+   * is just stopped and read value returned. The First read bit is placed as
+   * 0th bit.
    *
    * @param numOfBitsToRead the number of bits to be read, must be 1..8
    * @return the read bits as integer, -1 if the end of stream has been reached
-   * @throws IOException it will be thrown for transport errors
-   * to be read
+   * @throws IOException it will be thrown for transport errors to be read
    * @throws NullPointerException if number of bits to be read is null
    */
   public int readBits(final JBBPBitNumber numOfBitsToRead) throws IOException {
@@ -476,14 +476,21 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
 
     final int numOfBitsAsNumber = numOfBitsToRead.getBitNumber();
 
-    if (bitsInBuffer == 0 && numOfBitsAsNumber == 8) {
+    if (this.bitsInBuffer == 0 && numOfBitsAsNumber == 8) {
       result = this.readByteFromStream();
       return result;
     }
     else {
       result = 0;
+      
+      if (numOfBitsAsNumber == this.bitsInBuffer){
+        result = this.bitBuffer;
+        this.bitBuffer = 0;
+        this.bitsInBuffer = 0;
+        return result;
+      }
+      
       int i = numOfBitsAsNumber;
-
       int theBitBuffer = this.bitBuffer;
       int theBitBufferCounter = this.bitsInBuffer;
 
@@ -666,7 +673,8 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   }
 
   /**
-   * Check that there is available data to read from stream.
+   * Check that there is available data to read from stream. NB: It will read
+   * one byte from the stream and will save it into inside bit buffer.
    *
    * @return true if there is data to be read
    * @throws IOException it will be thrown for transport errors
@@ -724,14 +732,23 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   }
 
   /**
-   * Reset the byte counter for the stream. The Inside bit buffer will be reset also.
+   * Reset the byte counter for the stream. The Inside bit buffer will be reset
+   * also if it is not full.
+   *
+   * @see #align(long)
+   * @see #alignByte()
+   * @see #getBitBuffer()
+   * @see #getBufferedBitsNumber()
+   * @see #hasAvailableData() .
    */
   public void resetCounter() {
-    this.bitsInBuffer = 0;
-    this.bitBuffer = 0;
+    if (this.bitsInBuffer < 8) {
+      this.bitsInBuffer = 0;
+      this.bitBuffer = 0;
+    }
     this.byteCounter = 0L;
   }
-  
+
   @Override
   public int read(final byte[] array) throws IOException {
     return this.read(array, 0, array.length);

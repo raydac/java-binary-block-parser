@@ -27,6 +27,7 @@ import com.igormaznitsa.jbbp.utils.JBBPIntCounter;
 import java.io.EOFException;
 import java.io.IOException;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class JBBPParserTest {
@@ -1492,5 +1493,25 @@ public class JBBPParserTest {
     final JBBPFieldArrayStruct structArray = parsed.findFieldForNameAndType("inner", JBBPFieldArrayStruct.class);
     
     assertEquals(2, structArray.size());
+  }
+  
+  @Ignore
+  @Test
+  public void testParseWithResetCounter() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("struct[_]{reset$$; byte a; align:3; byte b;}");
+    final JBBPFieldStruct parsed = parser.parse(new byte[]{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16});
+
+    final JBBPFieldArrayStruct structArray = parsed.findFieldForNameAndType("struct", JBBPFieldArrayStruct.class);
+    final byte [] etalon = new byte[]{1,4,5,8,9,12,13,16};
+    assertEquals(4, structArray.size());
+    
+    int i = 0;
+    for(final JBBPFieldStruct s : structArray){
+      final JBBPFieldByte a = s.findFieldForNameAndType("a", JBBPFieldByte.class);
+      final JBBPFieldByte b = s.findFieldForNameAndType("b", JBBPFieldByte.class);
+      
+      assertEquals(etalon[i++], a);
+      assertEquals(etalon[i++], b);
+    }
   }
 }

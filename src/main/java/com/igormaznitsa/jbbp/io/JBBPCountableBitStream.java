@@ -21,7 +21,7 @@ package com.igormaznitsa.jbbp.io;
 public interface JBBPCountableBitStream {
 
   /**
-   * Get the number of bytes which have passed through the stream.
+   * Get the number of bytes passed from the stream.
    * @return the number of passed bytes
    */
   long getCounter();

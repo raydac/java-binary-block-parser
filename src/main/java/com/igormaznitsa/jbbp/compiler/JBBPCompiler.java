@@ -129,6 +129,11 @@ public final class JBBPCompiler {
   public static final int CODE_VAR = 0x0D;
 
   /**
+   * The Byte code of the RESET COUNTER command. It resets the inside counter of the input stream.
+   */
+  public static final int CODE_RESET_COUNTER = 0x0E;
+
+  /**
    * The Byte-Code Flag shows that the field is a named one.
    */
   public static final int FLAG_NAMED = 0x10;
@@ -296,6 +301,17 @@ public final class JBBPCompiler {
           }
         }
         break;
+        case CODE_RESET_COUNTER: {
+          if (token.getArraySizeAsString() != null) {
+            throw new JBBPCompilationException("A Reset counter field can't be array", token);
+          }
+          if (token.getFieldName() != null) {
+            throw new JBBPCompilationException("A Reset counter field can't be named [" + token.getFieldName() + ']', token);
+          }
+          if (token.getFieldTypeParameters().getExtraData()!=null){
+            throw new JBBPCompilationException("A Reset counter field doesn't use extra value [" + token.getFieldName() + ']', token);
+          }
+        }break;
         case CODE_STRUCT_START: {
           structureStack.add(new StructStackItem(namedFields.size() + ((code & JBBPCompiler.FLAG_NAMED)==0 ? 0 : 1), offset - 1, code, token));
         }
@@ -488,6 +504,9 @@ public final class JBBPCompiler {
         }
         else if ("long".equals(name)) {
           result |= CODE_LONG;
+        }
+        else if ("reset$$".equals(name)) {
+          result |= CODE_RESET_COUNTER;
         }
         else {
           throw new JBBPCompilationException("Unsupported type [" + descriptor.getTypeName() + ']', token);

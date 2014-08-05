@@ -45,7 +45,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
   /**
    * The Pattern to break field type to parameters.
    */
-  private static final Pattern FIELD_TYPE_BREAK_PATTERN = Pattern.compile("^([<>])?(\\w+)(?::([-]?\\d+))?$");
+  private static final Pattern FIELD_TYPE_BREAK_PATTERN = Pattern.compile("^([<>])?([\\w][\\w\\$]*)(?::([-]?\\d+))?$");
 
   /**
    * Inside table to keep disabled names for fields.
