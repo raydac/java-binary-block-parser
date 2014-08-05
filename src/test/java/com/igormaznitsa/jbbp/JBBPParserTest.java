@@ -527,7 +527,7 @@ public class JBBPParserTest {
   }
 
   @Test
-  public void testParse_BitFieldArrayWholeStream() throws Exception {
+  public void testParse_BitFieldArrayWholeStream_Empty() throws Exception {
     assertEquals(0, JBBPParser.prepare("bit:4 [_];").parse(new byte[0]).findFieldForType(JBBPFieldArrayBit.class).size());
   }
 
@@ -1261,6 +1261,11 @@ public class JBBPParserTest {
     assertEquals(2, array.getAsInt(1));
     assertEquals(3, array.getAsInt(2));
     assertEquals(4, array.getAsInt(3));
+  }
+
+  @Test
+  public void testParse_WholeByteStream_Empty() throws Exception {
+    assertEquals(0,JBBPParser.prepare("byte[_];").parse(new byte[0]).findFieldForType(JBBPFieldArrayByte.class).size());
   }
 
   @Test
