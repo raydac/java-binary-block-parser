@@ -1513,4 +1513,16 @@ public class JBBPParserTest {
       assertEquals(etalon[i++] & 0xFF, b.getAsInt());
     }
   }
+  
+  @Test
+  public void testParseArrayWithZeroLengthForResetCounter() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("byte; byte [$$] a; reset$$; byte[$$] b; byte [2] c;");
+    final JBBPFieldStruct parsed = parser.parse(new byte[]{1,2,3,4});
+    final JBBPFieldArrayByte a = parsed.findFieldForNameAndType("a", JBBPFieldArrayByte.class);
+    final JBBPFieldArrayByte b = parsed.findFieldForNameAndType("b", JBBPFieldArrayByte.class);
+    final JBBPFieldArrayByte c = parsed.findFieldForNameAndType("c", JBBPFieldArrayByte.class);
+    assertArrayEquals(new byte[]{2}, a.getArray());
+    assertArrayEquals(new byte[0], b.getArray());
+    assertArrayEquals(new byte[]{3,4}, c.getArray());
+  }
 }
