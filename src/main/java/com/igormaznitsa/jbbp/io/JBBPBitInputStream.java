@@ -478,7 +478,9 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
 
     if (this.bitsInBuffer == 0 && numOfBitsAsNumber == 8) {
       result = this.readByteFromStream();
-      this.byteCounter++;
+      if (result >= 0) {
+        this.byteCounter++;
+      }
       return result;
     }
     else {
