@@ -69,6 +69,8 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
         assertChunk(chunkNames[i], chunkSizes[i], png.chuNK[i].type, png.chuNK[i].length, png.chuNK[i].crc, png.chuNK[i].data);
       }
       
+      assertEquals(3847, pngParser.getFinalStreamByteCounter());
+      
     }finally{
       JBBPUtils.closeQuietly(pngStream);
     }
@@ -105,6 +107,8 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
       for(int i=0;i<chunks.size();i++){
         assertChunk(chunkNames[i], chunkSizes[i], chunks.getElementAt(i));
       }
+    
+      assertEquals(3847, pngParser.getFinalStreamByteCounter());
     }
     finally {
       JBBPUtils.closeQuietly(pngStream);
@@ -196,6 +200,8 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
       for (int i = 0; i < chunks.size(); i++) {
         assertChunk(chunkNames[i], chunkSizes[i], chunks.getElementAt(i));
       }
+      
+      assertEquals(3847, pngParser.getFinalStreamByteCounter());      
     }
     finally {
       JBBPUtils.closeQuietly(pngStream);

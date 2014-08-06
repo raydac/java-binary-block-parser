@@ -797,6 +797,14 @@ public final class JBBPOut {
   }
 
   /**
+   * get the current byte counter value for the underlying stream. it has appropriate value only if it was not reset.
+   * @return the current byte counter for the underlying stream.
+   */
+  public long getByteCounter(){
+    return this.outStream.getCounter();
+  }
+  
+  /**
    * Assert that the session has not ended.
    *
    * @throws IllegalStateException if the session has been ended

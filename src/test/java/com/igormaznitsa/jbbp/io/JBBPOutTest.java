@@ -57,6 +57,31 @@ public class JBBPOutTest {
   }
 
   @Test
+  public void testGetByteCounter() throws Exception {
+    final JBBPOut out = JBBPOut.BeginBin();
+    assertEquals(0, out.getByteCounter());
+    out.Bit(true);
+    out.Bit(true);
+    out.Bit(true);
+    out.Bit(true);
+    out.Bit(true);
+    out.Bit(true);
+    out.Bit(true);
+    assertEquals(0, out.getByteCounter());
+    out.Bit(true);
+    assertEquals(1, out.getByteCounter());
+    out.Bit(true);
+    out.Byte(new byte[1234]);
+    assertEquals(1235, out.getByteCounter());
+    out.ResetCounter();
+    assertEquals(0, out.getByteCounter());
+    out.Bit(true);
+    assertEquals(0, out.getByteCounter());
+    out.End();
+    assertEquals(1, out.getByteCounter());
+  }
+
+  @Test
   public void testAlignWithArgument() throws Exception {
     assertEquals(0, JBBPOut.BeginBin().Align(2).End().toByteArray().length);
     assertArrayEquals(new byte[]{(byte) 0x01, (byte) 0xFF}, JBBPOut.BeginBin().Bit(1).Align(1).Byte(0xFF).End().toByteArray());
@@ -623,7 +648,5 @@ public class JBBPOutTest {
             End().toByteArray();
     
     assertArrayEquals(new byte[]{1,2,3,4,5,6,7,8}, array);
-    
   }
-  
 }

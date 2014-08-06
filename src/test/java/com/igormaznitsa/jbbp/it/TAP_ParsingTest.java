@@ -105,6 +105,7 @@ public class TAP_ParsingTest extends AbstractParserIntegrationTest {
     final InputStream in = getResourceAsInputStream("test.tap");
     try{
       final TapContainer tap = TAP_FILE_PARSER.parse(in).mapTo(TapContainer.class);
+      assertEquals(89410, TAP_FILE_PARSER.getFinalStreamByteCounter());
       
       assertEquals(6, tap.tapblocks.length);
       for(Tap t : tap.tapblocks){

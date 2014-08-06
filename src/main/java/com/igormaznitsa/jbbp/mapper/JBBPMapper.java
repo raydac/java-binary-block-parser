@@ -375,11 +375,11 @@ public final class JBBPMapper {
       if (fieldClass == byte.class) {
         mappingField.setByte(mappingClassInstance, (byte) (invertBitOrder ? numericField.getAsInvertedBitOrder() : numericField.getAsInt()));
       }
-      else if (fieldClass == char.class) {
-        mappingField.setChar(mappingClassInstance, (char) (invertBitOrder ? numericField.getAsInvertedBitOrder() : numericField.getAsInt()));
-      }
       else if (fieldClass == boolean.class) {
         mappingField.setBoolean(mappingClassInstance, numericField.getAsBool());
+      }
+      else if (fieldClass == char.class) {
+        mappingField.setChar(mappingClassInstance, (char) (invertBitOrder ? numericField.getAsInvertedBitOrder() : numericField.getAsInt()));
       }
       else if (fieldClass == short.class) {
         mappingField.setShort(mappingClassInstance, (short) (invertBitOrder ? numericField.getAsInvertedBitOrder() : numericField.getAsInt()));
@@ -387,11 +387,11 @@ public final class JBBPMapper {
       else if (fieldClass == int.class) {
         mappingField.setInt(mappingClassInstance, (int) (invertBitOrder ? numericField.getAsInvertedBitOrder() : numericField.getAsInt()));
       }
-      else if (fieldClass == float.class) {
-        mappingField.setFloat(mappingClassInstance, Float.intBitsToFloat(invertBitOrder ? (int)numericField.getAsInvertedBitOrder() : numericField.getAsInt()));
-      }
       else if (fieldClass == long.class) {
         mappingField.setLong(mappingClassInstance, (invertBitOrder ? numericField.getAsInvertedBitOrder() : numericField.getAsLong()));
+      }
+      else if (fieldClass == float.class) {
+        mappingField.setFloat(mappingClassInstance, Float.intBitsToFloat(invertBitOrder ? (int)numericField.getAsInvertedBitOrder() : numericField.getAsInt()));
       }
       else if (fieldClass == double.class) {
         mappingField.setDouble(mappingClassInstance, Double.longBitsToDouble(invertBitOrder ? numericField.getAsInvertedBitOrder() : numericField.getAsLong()));

@@ -306,6 +306,7 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
     try {
       final ClassFile klazz = classParser.parse(in, getVarFieldProcessor(), null).mapTo(ClassFile.class);
       assertClass(klazz, FORMAT_J2SE7, "Test", "java/lang/Object", 0, 2, 4);
+      assertEquals(831,classParser.getFinalStreamByteCounter());
     }
     finally {
       JBBPUtils.closeQuietly(in);
@@ -318,6 +319,7 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
     try {
       final ClassFile klazz = classParser.parse(in, getVarFieldProcessor(), null).mapTo(ClassFile.class);
       assertClass(klazz, FORMAT_J2SE5, "com/igormaznitsa/jhexed/engine/HexEngine", "java/lang/Object", 0, 22, 44);
+      assertEquals(21364, classParser.getFinalStreamByteCounter());
     }
     finally {
       JBBPUtils.closeQuietly(in);

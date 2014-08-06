@@ -31,6 +31,11 @@ import java.util.*;
 public final class JBBPParser {
 
   /**
+   * The Variable contains the last parsing counter value.
+   */
+  private long finalStreamByteCounter;
+
+  /**
    * the Compiled block contains compiled script and extra information.
    */
   private final JBBPCompiledBlock compiledBlock;
@@ -59,7 +64,7 @@ public final class JBBPParser {
       this.compiledBlock = JBBPCompiler.compile(source);
     }
     catch (IOException ex) {
-      throw new RuntimeException("Can't compile script for unexpected IO Exception", ex);
+      throw new RuntimeException("Can't compile script for unexpected IOException", ex);
     }
   }
 
@@ -417,7 +422,8 @@ public final class JBBPParser {
    */
   public JBBPFieldStruct parse(final InputStream in, final JBBPVarFieldProcessor varFieldProcessor, final JBBPExternalValueProvider externalValueProvider) throws IOException {
     final JBBPBitInputStream bitInStream = in instanceof JBBPBitInputStream ? (JBBPBitInputStream) in : new JBBPBitInputStream(in, bitOrder);
-
+    this.finalStreamByteCounter = bitInStream.getCounter();
+    
     final JBBPNamedNumericFieldMap fieldMap;
     if (this.compiledBlock.hasEvaluatedSizeArrays() || this.compiledBlock.hasVarFields()) {
       fieldMap = new JBBPNamedNumericFieldMap(externalValueProvider);
@@ -429,8 +435,12 @@ public final class JBBPParser {
     if (this.compiledBlock.hasVarFields()) {
       JBBPUtils.assertNotNull(varFieldProcessor, "The Script contains VAR fields, a var field processor must be provided");
     }
-
-    return new JBBPFieldStruct(new JBBPNamedFieldInfo("", "", -1), parseStruct(bitInStream, new JBBPIntCounter(), varFieldProcessor, fieldMap, new JBBPIntCounter(), new JBBPIntCounter(), false));
+    try {
+      return new JBBPFieldStruct(new JBBPNamedFieldInfo("", "", -1), parseStruct(bitInStream, new JBBPIntCounter(), varFieldProcessor, fieldMap, new JBBPIntCounter(), new JBBPIntCounter(), false));
+    }
+    finally {
+      this.finalStreamByteCounter = bitInStream.getCounter();
+    }
   }
 
   /**
@@ -487,5 +497,14 @@ public final class JBBPParser {
    */
   public static JBBPParser prepare(final String script) {
     return JBBPParser.prepare(script, JBBPBitOrder.LSB0);
+  }
+
+  /**
+   * Get the final input stream byte counter value for the last parsing operation. It is loaded just after exception or parsing completion. NB: It is appropriate one only if the parsing didn't make any counter reset operation.
+   *
+   * @return the last parsing byte counter value
+   */
+  public long getFinalStreamByteCounter() {
+    return this.finalStreamByteCounter;
   }
 }

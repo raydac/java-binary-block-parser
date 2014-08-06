@@ -225,19 +225,22 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
     }
   }
 
-  private Z80Snapshot assertParseAndPackBack(final String name) throws Exception {
+  private Z80Snapshot assertParseAndPackBack(final String name, final long etalonLen) throws Exception {
     final Z80Snapshot z80sn;
 
     final InputStream resource = getResourceAsInputStream(name);
     try {
       z80sn = z80Parser.parse(resource).mapTo(Z80Snapshot.class, new DataProcessor());
+      assertEquals(etalonLen, z80Parser.getFinalStreamByteCounter());
     }
     finally {
       JBBPUtils.closeQuietly(resource);
     }
 
     // form the same from parsed
-    final byte[] packed = JBBPOut.BeginBin(JBBPByteOrder.LITTLE_ENDIAN, JBBPBitOrder.LSB0).
+    final JBBPOut out =  JBBPOut.BeginBin(JBBPByteOrder.LITTLE_ENDIAN, JBBPBitOrder.LSB0);
+    assertEquals(0,out.getByteCounter());
+    final byte[] packed = out.
             Byte(z80sn.reg_a, z80sn.reg_f).
             Short(z80sn.reg_bc, z80sn.reg_hl, z80sn.reg_pc, z80sn.reg_sp).
             Byte(z80sn.reg_ir, z80sn.reg_r).
@@ -255,21 +258,23 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
             Var(new RLEDataEncoder(), z80sn.flags.compressed, z80sn.data).
             End().toByteArray();
 
+    assertEquals(etalonLen, out.getByteCounter());
+    
     assertResource(name, packed);
     return z80sn;
   }
 
   @Test
   public void testParseAndWriteTestZ80WithoutCheckOfFields() throws Exception {
-    assertParseAndPackBack("test1.z80");
-    assertParseAndPackBack("test2.z80");
-    assertParseAndPackBack("test3.z80");
-    assertParseAndPackBack("test4.z80");
+    assertParseAndPackBack("test1.z80",16059);
+    assertParseAndPackBack("test2.z80",29330);
+    assertParseAndPackBack("test3.z80",5711);
+    assertParseAndPackBack("test4.z80",9946);
   }  
   
   @Test
   public void testParseAndWriteTestZ80WithCheckOfFields() throws Exception {
-    final Z80Snapshot z80sn = assertParseAndPackBack("test.z80");
+    final Z80Snapshot z80sn = assertParseAndPackBack("test.z80",12429);
 
     assertEquals(0x7E, z80sn.reg_a & 0xFF);
     assertEquals(0x86, z80sn.reg_f & 0xFF);

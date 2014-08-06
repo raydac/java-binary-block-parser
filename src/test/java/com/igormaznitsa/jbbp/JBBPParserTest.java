@@ -24,6 +24,7 @@ import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.model.*;
 import com.igormaznitsa.jbbp.utils.JBBPIntCounter;
+import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import static org.junit.Assert.*;
@@ -34,24 +35,26 @@ public class JBBPParserTest {
 
   @Test
   public void testErrorDuringReadingOfNamedField() throws Exception {
-    try{
+    try {
       JBBPParser.prepare("short helloworld;").parse(new byte[]{1});
       fail("Must throw JBBPParsingException");
-    }catch(JBBPParsingException ex){
-      assertTrue(ex.getMessage().indexOf("helloworld")>=0);
+    }
+    catch (JBBPParsingException ex) {
+      assertTrue(ex.getMessage().indexOf("helloworld") >= 0);
     }
   }
-  
+
   @Test
   public void testErrorDuringReadingOfNonNamedField() throws Exception {
-    try{
+    try {
       JBBPParser.prepare("short;").parse(new byte[]{1});
       fail("Must throw EOFException");
-    }catch(EOFException ex){
+    }
+    catch (EOFException ex) {
       assertNull(ex.getMessage());
     }
   }
-  
+
   @Test(expected = JBBPCompilationException.class)
   public void testFieldNameCaseInsensetive_ExceptionForDuplicationOfFieldNames() throws Exception {
     JBBPParser.prepare("bool Field1; byte field1;");
@@ -1286,7 +1289,7 @@ public class JBBPParserTest {
 
   @Test
   public void testParse_WholeByteStream_Empty() throws Exception {
-    assertEquals(0,JBBPParser.prepare("byte[_];").parse(new byte[0]).findFieldForType(JBBPFieldArrayByte.class).size());
+    assertEquals(0, JBBPParser.prepare("byte[_];").parse(new byte[0]).findFieldForType(JBBPFieldArrayByte.class).size());
   }
 
   @Test
@@ -1486,43 +1489,82 @@ public class JBBPParserTest {
   @Test
   public void testParseFixedSizeStructureArray() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("int val; inner [2] { byte a; byte b;}");
-    
+
     final JBBPFieldStruct parsed = parser.parse(new byte[]{1, 2, 3, 4, 5, 6, 7, 8});
     assertEquals(0x01020304, parsed.findFieldForPathAndType("val", JBBPFieldInt.class).getAsInt());
-    
+
     final JBBPFieldArrayStruct structArray = parsed.findFieldForNameAndType("inner", JBBPFieldArrayStruct.class);
-    
+
     assertEquals(2, structArray.size());
   }
-  
+
   @Test
   public void testParseWithResetCounter() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("struct[_]{reset$$; byte a; align:3; byte b;}");
-    final JBBPFieldStruct parsed = parser.parse(new byte[]{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16});
+    final JBBPFieldStruct parsed = parser.parse(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16});
 
     final JBBPFieldArrayStruct structArray = parsed.findFieldForNameAndType("struct", JBBPFieldArrayStruct.class);
-    final byte [] etalon = new byte[]{1,4,5,8,9,12,13,16};
+    final byte[] etalon = new byte[]{1, 4, 5, 8, 9, 12, 13, 16};
     assertEquals(4, structArray.size());
-    
+
     int i = 0;
-    for(final JBBPFieldStruct s : structArray){
+    for (final JBBPFieldStruct s : structArray) {
       final JBBPFieldByte a = s.findFieldForNameAndType("a", JBBPFieldByte.class);
       final JBBPFieldByte b = s.findFieldForNameAndType("b", JBBPFieldByte.class);
-      
+
       assertEquals(etalon[i++] & 0xFF, a.getAsInt());
       assertEquals(etalon[i++] & 0xFF, b.getAsInt());
     }
   }
-  
+
+  @Test
+  public void testParseResetCounterWithCachedBits() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("bit:4 a; reset$$; byte b;");
+    final JBBPFieldStruct parsed = parser.parse(new byte[]{0x3, 0x1F});
+    assertEquals(3, parsed.findFieldForNameAndType("a", JBBPFieldBit.class).getAsInt());
+    assertEquals(0x1F, parsed.findFieldForNameAndType("b", JBBPFieldByte.class).getAsInt());
+    assertEquals(1, parser.getFinalStreamByteCounter());
+  }
+
   @Test
   public void testParseArrayWithZeroLengthForResetCounter() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("byte; byte [$$] a; reset$$; byte[$$] b; byte [2] c;");
-    final JBBPFieldStruct parsed = parser.parse(new byte[]{1,2,3,4});
+    final JBBPFieldStruct parsed = parser.parse(new byte[]{1, 2, 3, 4});
     final JBBPFieldArrayByte a = parsed.findFieldForNameAndType("a", JBBPFieldArrayByte.class);
     final JBBPFieldArrayByte b = parsed.findFieldForNameAndType("b", JBBPFieldArrayByte.class);
     final JBBPFieldArrayByte c = parsed.findFieldForNameAndType("c", JBBPFieldArrayByte.class);
     assertArrayEquals(new byte[]{2}, a.getArray());
     assertArrayEquals(new byte[0], b.getArray());
-    assertArrayEquals(new byte[]{3,4}, c.getArray());
+    assertArrayEquals(new byte[]{3, 4}, c.getArray());
   }
+
+  @Test
+  public void testGetFinalStreamByteCounter_Single_NoError() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("byte [_];");
+    assertEquals(0L, parser.getFinalStreamByteCounter());
+    parser.parse(new byte[2345]);
+    assertEquals(2345L, parser.getFinalStreamByteCounter());
+  }
+
+  @Test
+  public void testGetFinalStreamByteCounter_SequentlyFromTheSameStream_WithEOFAtTheEnd() throws Exception {
+    final JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}));
+    final JBBPParser parser = JBBPParser.prepare("byte [5];");
+    assertEquals(0L, parser.getFinalStreamByteCounter());
+    parser.parse(stream);
+    assertEquals(5, parser.getFinalStreamByteCounter());
+    parser.parse(stream);
+    assertEquals(10, parser.getFinalStreamByteCounter());
+    parser.parse(stream);
+    assertEquals(15, parser.getFinalStreamByteCounter());
+    try {
+      parser.parse(stream);
+      fail("Must throw EOF");
+    }
+    catch (EOFException ex) {
+      assertEquals(16, parser.getFinalStreamByteCounter());
+    }
+
+  }
+
 }

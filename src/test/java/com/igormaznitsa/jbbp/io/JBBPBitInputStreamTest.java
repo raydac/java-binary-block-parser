@@ -861,16 +861,23 @@ public class JBBPBitInputStreamTest {
 
   @Test
   public void testCheckThatCounterResetDoesntResetFullBitBuffer() throws Exception {
-    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1}));
+    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1,0x7F}));
     assertEquals(0,in.getBufferedBitsNumber());
     assertTrue(in.hasAvailableData());
+    assertEquals(0,in.getCounter());
     assertEquals(8,in.getBufferedBitsNumber());
     in.resetCounter();
+    assertEquals(0, in.getCounter());
     assertEquals(8,in.getBufferedBitsNumber());
     assertEquals(1,in.readBits(JBBPBitNumber.BITS_1));
     assertEquals(7,in.getBufferedBitsNumber());
+    assertEquals(0, in.getCounter());
     in.resetCounter();
     assertEquals(0, in.getBufferedBitsNumber());
+    assertEquals(0x7F, in.read());
+    assertEquals(1, in.getCounter());
+    assertEquals(-1, in.read());
+    assertEquals(1, in.getCounter());
   }
   
 }
