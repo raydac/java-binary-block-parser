@@ -249,7 +249,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
   }
   
   /**
-   * Inside method tp process byte writing operation/
+   * Inside method to write a byte into wrapped stream.
    * @param value a byte value to be written
    * @throws IOException it will be thrown for transport problems
    */

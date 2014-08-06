@@ -1495,7 +1495,6 @@ public class JBBPParserTest {
     assertEquals(2, structArray.size());
   }
   
-  @Ignore
   @Test
   public void testParseWithResetCounter() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("struct[_]{reset$$; byte a; align:3; byte b;}");
@@ -1510,8 +1509,8 @@ public class JBBPParserTest {
       final JBBPFieldByte a = s.findFieldForNameAndType("a", JBBPFieldByte.class);
       final JBBPFieldByte b = s.findFieldForNameAndType("b", JBBPFieldByte.class);
       
-      assertEquals(etalon[i++], a);
-      assertEquals(etalon[i++], b);
+      assertEquals(etalon[i++] & 0xFF, a.getAsInt());
+      assertEquals(etalon[i++] & 0xFF, b.getAsInt());
     }
   }
 }

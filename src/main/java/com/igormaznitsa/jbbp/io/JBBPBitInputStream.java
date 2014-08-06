@@ -478,18 +478,22 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
 
     if (this.bitsInBuffer == 0 && numOfBitsAsNumber == 8) {
       result = this.readByteFromStream();
+      this.byteCounter++;
       return result;
     }
     else {
       result = 0;
-      
-      if (numOfBitsAsNumber == this.bitsInBuffer){
+
+      if (numOfBitsAsNumber == this.bitsInBuffer) {
         result = this.bitBuffer;
         this.bitBuffer = 0;
         this.bitsInBuffer = 0;
+        if (numOfBitsAsNumber == 8) {
+          this.byteCounter++;
+        }
         return result;
       }
-      
+
       int i = numOfBitsAsNumber;
       int theBitBuffer = this.bitBuffer;
       int theBitBufferCounter = this.bitsInBuffer;
@@ -508,6 +512,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
           else {
             theBitBuffer = nextByte;
             theBitBufferCounter = 8;
+            this.byteCounter++;
           }
         }
 
@@ -638,7 +643,6 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       if (this.msb0) {
         result = JBBPUtils.reverseByte((byte) result) & 0xFF;
       }
-      this.byteCounter++;
     }
     return result;
   }
@@ -759,8 +763,8 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     final int result;
     if (this.bitsInBuffer == 0) {
       result = this.readByteFromStream();
-      if (result < 0) {
-        return result;
+      if (result >= 0) {
+        this.byteCounter++;
       }
       return result;
     }
