@@ -8,7 +8,7 @@
   <packaging>jar</packaging>
 
   <name>jbbp</name>
-  <description>A Java Binary Block Parser, a small but powerful framework to parse binary streams and blocks and form binary block through something like DSL</description>
+  <description>JBBP (Java Binary Block Parser) is a small lightweight framework to parse binary blocks and streamss to their binary parts, also it has DSL to form binary blocks.</description>
   <url>http://java-binary-block-parser.googlecode.com/</url>
 
   <properties>
@@ -26,12 +26,12 @@
     <developer>
       <id>raydac</id>
       <name>Igor Maznitsa</name>
-      <email>igor.maznitsa@igormaznitsa.com</email>
+      <email>rrg4400@gmail.com</email>
       <url>http://www.igormaznitsa.com</url>
       <timezone>+3</timezone>
       <roles>
-        <role>Architect</role>
-        <role>Developer</role>
+        <role>architect</role>
+        <role>developer</role>
       </roles>
     </developer>
   </developers>

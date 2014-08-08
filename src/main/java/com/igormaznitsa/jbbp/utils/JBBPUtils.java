@@ -466,7 +466,7 @@ public enum JBBPUtils {;
       }
     }
     catch (IOException ex) {
-
+      // Keep silence
     }
   }
 }
