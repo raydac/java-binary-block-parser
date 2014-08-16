@@ -16,6 +16,7 @@
 package com.igormaznitsa.jbbp.io;
 
 import static com.igormaznitsa.jbbp.io.JBBPOut.*;
+import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.*;
 import static org.junit.Assert.*;
 import org.junit.Test;
@@ -196,6 +197,21 @@ public class JBBPOutTest {
   @Test
   public void testShort_BigEndian() throws Exception {
     assertArrayEquals(new byte[]{0x01, 02}, BeginBin().ByteOrder(JBBPByteOrder.BIG_ENDIAN).Short(0x0102).End().toByteArray());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testShort_String_NPEForNullString() throws Exception {
+    BeginBin().Short((String)null).End();
+  }
+
+  @Test
+  public void testShort_String_BigEndian() throws Exception {
+    assertArrayEquals(JBBPUtils.str2utfByteArray(JBBPByteOrder.BIG_ENDIAN, "Hello"), BeginBin().ByteOrder(JBBPByteOrder.BIG_ENDIAN).Short("Hello").End().toByteArray());
+  }
+
+  @Test
+  public void testShort_String_LittleEndian() throws Exception {
+    assertArrayEquals(JBBPUtils.str2utfByteArray(JBBPByteOrder.LITTLE_ENDIAN, "Hello"), BeginBin().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).Short("Hello").End().toByteArray());
   }
 
   @Test

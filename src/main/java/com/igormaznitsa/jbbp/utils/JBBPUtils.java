@@ -16,6 +16,7 @@
 package com.igormaznitsa.jbbp.utils;
 
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
+import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import java.io.*;
 import java.util.*;
@@ -468,5 +469,31 @@ public enum JBBPUtils {;
     catch (IOException ex) {
       // Keep silence
     }
+  }
+
+  /**
+   * Convert chars of a string into a byte array contains the UTF char codes.
+   * @param byteOrder the byte order for the operation, must not be null
+   * @param str the string which chars should be written, must not be null
+   * @return the byte array contains utf codes written as byte pairs
+   */
+  public static byte [] str2utfByteArray(final JBBPByteOrder byteOrder, final String str) {
+    final byte [] result = new byte[str.length()<<1];
+    int index = 0;
+    for(int i=0;i<str.length();i++){
+      final int val = str.charAt(i);
+      switch(byteOrder){
+        case BIG_ENDIAN : {
+          result[index++] = (byte)(val >> 8);
+          result[index++] = (byte)val;
+        }break;
+        case LITTLE_ENDIAN : {
+          result[index++] = (byte) val;
+          result[index++] = (byte) (val >> 8);
+        }break;
+        default : throw new Error("Unexpected byte order ["+byteOrder+']');
+      }
+    }
+    return result;
   }
 }

@@ -572,6 +572,22 @@ public final class JBBPOut {
   }
 
   /**
+   * Write UTF codes of chars as 16 bit values into the stream.
+   * @param str the string which chars will be written, must not be null
+   * @return the DSL session
+   * @throws IOException it will be thrown for transport errors
+   */
+  public JBBPOut Short(final String str) throws IOException {
+    assertNotEnded();
+    if (this.processCommands) {
+      for(int i=0;i<str.length();i++){
+        _writeShort(str.charAt(i));
+      }
+    }
+    return this;
+  }
+
+  /**
    * Write short values from an array
    *
    * @param value a short value array which values should be written into, it
