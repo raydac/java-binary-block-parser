@@ -690,4 +690,40 @@ public class JBBPMapperTest {
       assertEquals(array[i+1],s.b);
     }
   }
+
+  @Test
+  public void testMap_FieldWithDefinedBitNumberToBitField_FieldPresented() throws Exception {
+    class Parsed {
+      @Bin(bitNumber = 5) byte field;
+    }
+    final Parsed parsed = JBBPParser.prepare("int fieldint; bit:5 field;").parse(new byte[]{1,2,3,4,0x35}).mapTo(Parsed.class);
+    assertEquals(5, parsed.field);
+  }
+
+  @Test(expected = JBBPMapperException.class)
+  public void testMap_FieldWithDefinedBitNumberToBitField_FieldPresentedWithDifferentBitNumber() throws Exception {
+    class Parsed {
+      @Bin(bitNumber = 5) byte field;
+    }
+    JBBPParser.prepare("int fieldint; bit:6 field;").parse(new byte[]{1,2,3,4,0x35}).mapTo(Parsed.class);
+  }
+
+  @Test
+  public void testMap_ArrayFieldWithDefinedBitNumberToArrayBitField_FieldPresented() throws Exception {
+    class Parsed {
+      @Bin(bitNumber = 4) byte [] field;
+    }
+    final Parsed parsed = JBBPParser.prepare("int fieldint; bit:4 [2] field;").parse(new byte[]{1, 2, 3, 4, 0x35}).mapTo(Parsed.class);
+    assertArrayEquals(new byte []{5,3}, parsed.field);
+  }
+
+  @Test(expected = JBBPMapperException.class)
+  public void testMap_ArrayFieldWithDefinedBitNumberToArrayBitField_FieldPresentedWithDifferentBitNumber() throws Exception {
+    class Parsed {
+      @Bin(bitNumber = 4) byte field;
+    }
+    JBBPParser.prepare("int fieldint; bit:3 [2] field;").parse(new byte[]{1, 2, 3, 4, 0x35}).mapTo(Parsed.class);
+  }
+
+
 }

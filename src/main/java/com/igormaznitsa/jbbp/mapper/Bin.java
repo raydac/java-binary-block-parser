@@ -81,4 +81,16 @@ public @interface Bin {
    * @see JBBPMapperCustomFieldProcessor
    */
   String extra() default "";
+  
+  /**
+   * The Value defines how many bytes are actual ones in the field, works for numeric field and arrays and allows make mapping to bit fields. NB: Only three lowest bits are used by the mapper!
+   * @return the value is actual in the 0..7, 0 shows that the field is not a bit field
+   */
+  int bitNumber() default 0;
+  
+  /**
+   * The Value shows order of the field during output of fields.
+   * @return the order of the field as number (the mapping will make ascending sorting)
+   */
+  int order() default 0;
 }
