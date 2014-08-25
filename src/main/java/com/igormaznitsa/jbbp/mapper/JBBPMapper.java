@@ -38,7 +38,7 @@ public final class JBBPMapper {
    * The Special auxiliary object to generate class instances.
    */
   private static final JBBPClassInstantiator klazzInstantiator = JBBPClassInstantiatorFactory.getInstance().make();
-  
+
   /**
    * Create a class instance, map binary data of a structure for its path to its
    * fields and return the instance.
@@ -169,11 +169,18 @@ public final class JBBPMapper {
         }
         else {
           final BinType fieldType;
+
+          final int mappedBitNumber = mappedAnno.bitNumber();
+
           if (mappedAnno.type() == BinType.UNDEFINED) {
-            fieldType = BinType.findCompatible(mappingField.getType());
-            if (fieldType == null) {
+            BinType thetype = BinType.findCompatible(mappingField.getType());
+            if (thetype == null) {
               throw new JBBPMapperException("Can't find compatible type for a mapping field", rootStructure, mappingClass, mappingField, null);
             }
+            else if (mappedBitNumber > 0 && !(thetype == BinType.STRUCT || thetype == BinType.STRUCT_ARRAY)) {
+              thetype = thetype.isArray() ? BinType.BIT_ARRAY : BinType.BIT;
+            }
+            fieldType = thetype;
           }
           else {
             fieldType = mappedAnno.type();
@@ -192,7 +199,11 @@ public final class JBBPMapper {
           }
 
           if (binField == null) {
-            throw new JBBPMapperException("Can't find value to be mapped to a mapping field ["+mappingField+']', null, mappingClass, mappingField, null);
+            throw new JBBPMapperException("Can't find value to be mapped to a mapping field [" + mappingField + ']', null, mappingClass, mappingField, null);
+          }
+
+          if (mappedBitNumber > 0 && ((Bitable) binField).getBitNumber().getBitNumber() != mappedBitNumber) {
+            throw new JBBPMapperException("Can't map value to a mapping field for different field bit width [" + mappedBitNumber + "!=" + ((Bitable) binField).getBitNumber().getBitNumber() + ']', null, mappingClass, mappingField, null);
           }
 
           if (mappingField.getType().isArray()) {
@@ -270,8 +281,10 @@ public final class JBBPMapper {
 
   /**
    * Convert an array field into its string representation.
+   *
    * @param field an array field to be converted, must not be null
-   * @return the string representation of the array or null if the field can't be converted
+   * @return the string representation of the array or null if the field can't
+   * be converted
    */
   private static String convertFieldValueToString(final JBBPAbstractArrayField<?> field) {
     final StringBuilder result;
@@ -391,7 +404,7 @@ public final class JBBPMapper {
         mappingField.setLong(mappingClassInstance, (invertBitOrder ? numericField.getAsInvertedBitOrder() : numericField.getAsLong()));
       }
       else if (fieldClass == float.class) {
-        mappingField.setFloat(mappingClassInstance, Float.intBitsToFloat(invertBitOrder ? (int)numericField.getAsInvertedBitOrder() : numericField.getAsInt()));
+        mappingField.setFloat(mappingClassInstance, Float.intBitsToFloat(invertBitOrder ? (int) numericField.getAsInvertedBitOrder() : numericField.getAsInt()));
       }
       else if (fieldClass == double.class) {
         mappingField.setDouble(mappingClassInstance, Double.longBitsToDouble(invertBitOrder ? numericField.getAsInvertedBitOrder() : numericField.getAsLong()));

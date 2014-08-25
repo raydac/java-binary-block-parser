@@ -22,7 +22,7 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 /**
  * Describes a bit field.
  */
-public final class JBBPFieldBit extends JBBPAbstractField implements JBBPNumericField {
+public final class JBBPFieldBit extends JBBPAbstractField implements JBBPNumericField, Bitable {
   private static final long serialVersionUID = 3113427734366331529L;
   /**
    * Inside value storage.

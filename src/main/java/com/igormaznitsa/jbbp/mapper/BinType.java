@@ -28,79 +28,79 @@ public enum BinType {
    * Undefined type, the mapper will be looking for compatible parsed field with
    * the mapping field.
    */
-  UNDEFINED(null),
+  UNDEFINED(null, false),
   /**
    * A Mapping field will be mapped to a parsed bit field.
    */
-  BIT(JBBPFieldBit.class),
+  BIT(JBBPFieldBit.class, false),
   /**
    * A Mapping field will be mapped to a parsed boolean field.
    */
-  BOOL(JBBPFieldBoolean.class),
+  BOOL(JBBPFieldBoolean.class, false),
   /**
    * A Mapping field will be mapped to a parsed byte field.
    */
-  BYTE(JBBPFieldByte.class),
+  BYTE(JBBPFieldByte.class, false),
   /**
    * A Mapping field will be mapped to a parsed unsigned byte field.
    */
-  UBYTE(JBBPFieldUByte.class),
+  UBYTE(JBBPFieldUByte.class, false),
   /**
    * A Mapping field will be mapped to a parsed short field.
    */
-  SHORT(JBBPFieldShort.class),
+  SHORT(JBBPFieldShort.class, false),
   /**
    * A Mapping field will be mapped to a parsed unsigned short field.
    */
-  USHORT(JBBPFieldUShort.class),
+  USHORT(JBBPFieldUShort.class, false),
   /**
    * A Mapping field will be mapped to a parsed integer field.
    */
-  INT(JBBPFieldInt.class),
+  INT(JBBPFieldInt.class, false),
   /**
    * A Mapping field will be mapped to a parsed long field.
    */
-  LONG(JBBPFieldLong.class),
+  LONG(JBBPFieldLong.class, false),
   /**
    * A Mapping field will be mapped to a parsed bit array field.
    */
-  BIT_ARRAY(JBBPFieldArrayBit.class),
+  BIT_ARRAY(JBBPFieldArrayBit.class, true),
   /**
    * A Mapping field will be mapped to a parsed boolean array field.
    */
-  BOOL_ARRAY(JBBPFieldArrayBoolean.class),
+  BOOL_ARRAY(JBBPFieldArrayBoolean.class, true),
   /**
    * A Mapping field will be mapped to a parsed byte array field.
    */
-  BYTE_ARRAY(JBBPFieldArrayByte.class),
+  BYTE_ARRAY(JBBPFieldArrayByte.class, true),
   /**
    * A Mapping field will be mapped to a parsed unsigned byte array field.
    */
-  UBYTE_ARRAY(JBBPFieldArrayUByte.class),
+  UBYTE_ARRAY(JBBPFieldArrayUByte.class, true),
   /**
    * A Mapping field will be mapped to a parsed short array field.
    */
-  SHORT_ARRAY(JBBPFieldArrayShort.class),
+  SHORT_ARRAY(JBBPFieldArrayShort.class, true),
   /**
    * A Mapping field will be mapped to a parsed unsigned short array field.
    */
-  USHORT_ARRAY(JBBPFieldArrayUShort.class),
+  USHORT_ARRAY(JBBPFieldArrayUShort.class, true),
   /**
    * A Mapping field will be mapped to a parsed integer array field.
    */
-  INT_ARRAY(JBBPFieldArrayInt.class),
+  INT_ARRAY(JBBPFieldArrayInt.class, true),
   /**
    * A Mapping field will be mapped to a parsed long array field.
    */
-  LONG_ARRAY(JBBPFieldArrayLong.class),
+  LONG_ARRAY(JBBPFieldArrayLong.class, true),
   /**
    * A Mapping field will be mapped to a parsed structure field.
    */
-  STRUCT(JBBPFieldStruct.class),
+  STRUCT(JBBPFieldStruct.class, false),
   /**
    * A Mapping field will be mapped to a parsed structure array field.
    */
-  STRUCT_ARRAY(JBBPFieldArrayStruct.class);
+  STRUCT_ARRAY(JBBPFieldArrayStruct.class, true);
 
   /**
    * The field class for the value.
@@ -108,12 +108,27 @@ public enum BinType {
   private final Class<? extends JBBPAbstractField> fieldClass;
 
   /**
+   * The Flag shows that the type describes an array.
+   */
+  private final boolean isarray;
+
+  /**
    * The Field class for the value.
    *
    * @param fieldClass
    */
-  private BinType(final Class<? extends JBBPAbstractField> fieldClass) {
+  private BinType(final Class<? extends JBBPAbstractField> fieldClass, final boolean array) {
     this.fieldClass = fieldClass;
+    this.isarray = array;
+  }
+
+  /**
+   * Check that the type describes an array
+   *
+   * @return true if the type is an array, false otherwise
+   */
+  public boolean isArray() {
+    return this.isarray;
   }
 
   /**

@@ -84,7 +84,7 @@ public @interface Bin {
   
   /**
    * The Value defines how many bytes are actual ones in the field, works for numeric field and arrays and allows make mapping to bit fields. NB: Only three lowest bits are used by the mapper!
-   * @return the value is actual in the 0..7, 0 shows that the field is not a bit field
+   * @return the value is active if the value greater than zero
    */
   int bitNumber() default 0;
   

@@ -697,7 +697,7 @@ public class JBBPMapperTest {
       @Bin(bitNumber = 5) byte field;
     }
     final Parsed parsed = JBBPParser.prepare("int fieldint; bit:5 field;").parse(new byte[]{1,2,3,4,0x35}).mapTo(Parsed.class);
-    assertEquals(5, parsed.field);
+    assertEquals(0x15, parsed.field);
   }
 
   @Test(expected = JBBPMapperException.class)
