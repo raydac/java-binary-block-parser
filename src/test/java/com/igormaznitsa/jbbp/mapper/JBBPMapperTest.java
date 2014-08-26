@@ -717,6 +717,16 @@ public class JBBPMapperTest {
     assertArrayEquals(new byte []{5,3}, parsed.field);
   }
 
+  @Test
+  public void testMap_ArrayFieldIgnoredBitNumberFieldForDefinedType() throws Exception {
+    class Parsed {
+      @Bin(type = BinType.INT_ARRAY, bitNumber = 4)
+      int[] field;
+    }
+    final Parsed parsed = JBBPParser.prepare("int fieldint; int [2] field;").parse(new byte[]{1, 2, 3, 4, 0x5, 0x6, 0x7, 0x8, 0x9, 0x0A, 0x0B, 0x0C}).mapTo(Parsed.class);
+    assertArrayEquals(new int []{0x05060708, 0x090A0B0C}, parsed.field);
+  }
+
   @Test(expected = JBBPMapperException.class)
   public void testMap_ArrayFieldWithDefinedBitNumberToArrayBitField_FieldPresentedWithDifferentBitNumber() throws Exception {
     class Parsed {

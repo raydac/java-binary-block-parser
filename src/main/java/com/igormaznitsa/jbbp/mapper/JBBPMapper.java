@@ -185,6 +185,7 @@ public final class JBBPMapper {
           else {
             fieldType = mappedAnno.type();
           }
+          final boolean bitWideField = fieldType == BinType.BIT || fieldType == BinType.BIT_ARRAY;
 
           final String fieldName = mappedAnno.name().length() == 0 ? mappingField.getName() : mappedAnno.name();
           final String fieldPath = mappedAnno.path();
@@ -202,7 +203,7 @@ public final class JBBPMapper {
             throw new JBBPMapperException("Can't find value to be mapped to a mapping field [" + mappingField + ']', null, mappingClass, mappingField, null);
           }
 
-          if (mappedBitNumber > 0 && ((Bitable) binField).getBitNumber().getBitNumber() != mappedBitNumber) {
+          if (bitWideField && mappedBitNumber > 0 && ((Bitable) binField).getBitNumber().getBitNumber() != mappedBitNumber) {
             throw new JBBPMapperException("Can't map value to a mapping field for different field bit width [" + mappedBitNumber + "!=" + ((Bitable) binField).getBitNumber().getBitNumber() + ']', null, mappingClass, mappingField, null);
           }
 
