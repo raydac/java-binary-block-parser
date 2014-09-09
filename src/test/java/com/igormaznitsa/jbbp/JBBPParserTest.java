@@ -15,7 +15,6 @@
  */
 package com.igormaznitsa.jbbp;
 
-import com.igormaznitsa.jbbp.compiler.JBBPCompiler;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPParsingException;
@@ -28,7 +27,6 @@ import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import static org.junit.Assert.*;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class JBBPParserTest {
@@ -789,10 +787,10 @@ public class JBBPParserTest {
   public void testParse_FixedByteArray_LittleEndian() throws Exception {
     final JBBPFieldArrayByte bytes = JBBPParser.prepare("<byte[4];").parse(new byte[]{0x21, 0x43, 0x65, (byte) 0x87}).findFieldForType(JBBPFieldArrayByte.class);
     assertEquals(4, bytes.size());
-    assertEquals(0x21, bytes.getAsInt(0) & 0xFF);
-    assertEquals(0x43, bytes.getAsInt(1) & 0xFF);
-    assertEquals(0x65, bytes.getAsInt(2) & 0xFF);
-    assertEquals(0x87, bytes.getAsInt(3) & 0xFF);
+    assertEquals(0x87, bytes.getAsInt(0) & 0xFF);
+    assertEquals(0x65, bytes.getAsInt(1) & 0xFF);
+    assertEquals(0x43, bytes.getAsInt(2) & 0xFF);
+    assertEquals(0x21, bytes.getAsInt(3) & 0xFF);
   }
 
   @Test
@@ -819,10 +817,10 @@ public class JBBPParserTest {
   public void testParse_NonFixedByteArray_LittleEndian() throws Exception {
     final JBBPFieldArrayByte bytes = JBBPParser.prepare("<byte[_];").parse(new byte[]{0x21, 0x43, 0x65, (byte) 0x87}).findFieldForType(JBBPFieldArrayByte.class);
     assertEquals(4, bytes.size());
-    assertEquals(0x21, bytes.getAsInt(0) & 0xFF);
-    assertEquals(0x43, bytes.getAsInt(1) & 0xFF);
-    assertEquals(0x65, bytes.getAsInt(2) & 0xFF);
-    assertEquals(0x87, bytes.getAsInt(3) & 0xFF);
+    assertEquals(0x87, bytes.getAsInt(0) & 0xFF);
+    assertEquals(0x65, bytes.getAsInt(1) & 0xFF);
+    assertEquals(0x43, bytes.getAsInt(2) & 0xFF);
+    assertEquals(0x21, bytes.getAsInt(3) & 0xFF);
   }
 
   @Test(expected = EOFException.class)

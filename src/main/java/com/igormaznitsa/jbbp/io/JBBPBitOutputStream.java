@@ -255,7 +255,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
    */
   private void writeByte(int value) throws IOException {
     if (this.msb0){
-      value = JBBPUtils.reverseByte((byte)value) & 0xFF;
+      value = JBBPUtils.reverseBitsInByte((byte)value) & 0xFF;
     }
     this.out.write(value);
     this.byteCounter++;

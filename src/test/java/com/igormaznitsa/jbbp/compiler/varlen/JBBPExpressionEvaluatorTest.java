@@ -399,7 +399,7 @@ public class JBBPExpressionEvaluatorTest {
   @Test
   public void testExpression_ReverseByte() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("((($v*2050&139536)|($v*32800&558144))*65793>>16)&255", null, null);
-    assertEquals(JBBPUtils.reverseByte((byte) 123) & 0xFF, expr.eval(null, 0, null, new JBBPNamedNumericFieldMap(new JBBPExternalValueProvider() {
+    assertEquals(JBBPUtils.reverseBitsInByte((byte) 123) & 0xFF, expr.eval(null, 0, null, new JBBPNamedNumericFieldMap(new JBBPExternalValueProvider() {
 
       public int provideArraySize(final String fieldName, final JBBPNamedNumericFieldMap numericFieldMap, final JBBPCompiledBlock compiledBlock) {
         if ("v".equals(fieldName)) {

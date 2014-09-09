@@ -206,12 +206,12 @@ public class JBBPOutTest {
 
   @Test
   public void testShort_String_BigEndian() throws Exception {
-    assertArrayEquals(JBBPUtils.str2utfByteArray(JBBPByteOrder.BIG_ENDIAN, "Hello"), BeginBin().ByteOrder(JBBPByteOrder.BIG_ENDIAN).Short("Hello").End().toByteArray());
+    assertArrayEquals(JBBPUtils.str2UnicodeByteArray(JBBPByteOrder.BIG_ENDIAN, "Hello"), BeginBin().ByteOrder(JBBPByteOrder.BIG_ENDIAN).Short("Hello").End().toByteArray());
   }
 
   @Test
   public void testShort_String_LittleEndian() throws Exception {
-    assertArrayEquals(JBBPUtils.str2utfByteArray(JBBPByteOrder.LITTLE_ENDIAN, "Hello"), BeginBin().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).Short("Hello").End().toByteArray());
+    assertArrayEquals(JBBPUtils.str2UnicodeByteArray(JBBPByteOrder.LITTLE_ENDIAN, "Hello"), BeginBin().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).Short("Hello").End().toByteArray());
   }
 
   @Test

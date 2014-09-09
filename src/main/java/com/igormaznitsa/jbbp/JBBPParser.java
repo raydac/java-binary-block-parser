@@ -231,7 +231,8 @@ public final class JBBPParser {
                 singleAtomicField = new JBBPFieldByte(name, (byte) inStream.readByte());
               }
               else {
-                structureFields.add(new JBBPFieldArrayByte(name, inStream.readByteArray(wholeStreamArray ? -1 : arrayLength)));
+                final byte[] array = inStream.readByteArray(wholeStreamArray ? -1 : arrayLength);
+                structureFields.add(new JBBPFieldArrayByte(name, byteOrder == JBBPByteOrder.LITTLE_ENDIAN ? JBBPUtils.inverseArray(array) : array));
               }
             }
           }
@@ -423,7 +424,7 @@ public final class JBBPParser {
   public JBBPFieldStruct parse(final InputStream in, final JBBPVarFieldProcessor varFieldProcessor, final JBBPExternalValueProvider externalValueProvider) throws IOException {
     final JBBPBitInputStream bitInStream = in instanceof JBBPBitInputStream ? (JBBPBitInputStream) in : new JBBPBitInputStream(in, bitOrder);
     this.finalStreamByteCounter = bitInStream.getCounter();
-    
+
     final JBBPNamedNumericFieldMap fieldMap;
     if (this.compiledBlock.hasEvaluatedSizeArrays() || this.compiledBlock.hasVarFields()) {
       fieldMap = new JBBPNamedNumericFieldMap(externalValueProvider);
@@ -500,7 +501,10 @@ public final class JBBPParser {
   }
 
   /**
-   * Get the final input stream byte counter value for the last parsing operation. It is loaded just after exception or parsing completion. NB: It is appropriate one only if the parsing didn't make any counter reset operation.
+   * Get the final input stream byte counter value for the last parsing
+   * operation. It is loaded just after exception or parsing completion. NB: It
+   * is appropriate one only if the parsing didn't make any counter reset
+   * operation.
    *
    * @return the last parsing byte counter value
    */

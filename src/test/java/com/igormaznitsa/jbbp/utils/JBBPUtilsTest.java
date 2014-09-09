@@ -149,7 +149,7 @@ public class JBBPUtilsTest {
   }
 
   @Test
-  public void testReverseByte() {
+  public void testReverseBitsInByte() {
     for (int i = 0; i < 256; i++) {
       int etalon = 0;
       int a = i;
@@ -158,7 +158,7 @@ public class JBBPUtilsTest {
         a >>= 1;
       }
 
-      assertEquals("Value is " + i, (byte) etalon, JBBPUtils.reverseByte((byte) i));
+      assertEquals("Value is " + i, (byte) etalon, JBBPUtils.reverseBitsInByte((byte) i));
     }
   }
 
@@ -270,5 +270,17 @@ public class JBBPUtilsTest {
     }catch(NullPointerException ex){
       assertNotNull(message, ex.getMessage());
     }
+  }
+  
+  @Test
+  public void testInverseArray(){
+    assertNull(JBBPUtils.inverseArray(null));
+    final byte [] empty = new byte[0];
+    assertSame(empty, JBBPUtils.inverseArray(empty));
+    
+    assertArrayEquals(new byte[]{1},JBBPUtils.inverseArray(new byte[]{1}));
+    assertArrayEquals(new byte[]{2,1},JBBPUtils.inverseArray(new byte[]{1,2}));
+    assertArrayEquals(new byte[]{5,4,3,2,1},JBBPUtils.inverseArray(new byte[]{1,2,3,4,5}));
+    assertArrayEquals(new byte[]{6,5,4,3,2,1},JBBPUtils.inverseArray(new byte[]{1,2,3,4,5,6}));
   }
 }

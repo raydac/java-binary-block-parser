@@ -363,7 +363,7 @@ public class JBBPBitInputStreamTest {
     }
 
     for (int i = 9; i < 14; i++) {
-      assertEquals(JBBPUtils.reverseByte(testarray[i - 9]), buff[i]);
+      assertEquals(JBBPUtils.reverseBitsInByte(testarray[i - 9]), buff[i]);
     }
 
     for (int i = 14; i < 27; i++) {

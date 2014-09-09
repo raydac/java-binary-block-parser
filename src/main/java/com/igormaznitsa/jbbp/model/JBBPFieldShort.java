@@ -57,8 +57,8 @@ public final class JBBPFieldShort extends JBBPAbstractField implements JBBPNumer
    * @return the reversed value
    */
   public static long reverseBits(final short value) {
-    final int b0 = JBBPUtils.reverseByte((byte) value) & 0xFF;
-    final int b1 = JBBPUtils.reverseByte((byte) (value >> 8)) & 0xFF;
+    final int b0 = JBBPUtils.reverseBitsInByte((byte) value) & 0xFF;
+    final int b1 = JBBPUtils.reverseBitsInByte((byte) (value >> 8)) & 0xFF;
 
     return (long) ((short) (b0 << 8) | (short) b1);
   }

@@ -24,7 +24,9 @@ import java.util.*;
 /**
  * Misc auxiliary methods to be used in the framework.
  */
-public enum JBBPUtils {;
+public enum JBBPUtils {
+
+  ;
 
   /**
    * Check that a string is a number.
@@ -216,12 +218,12 @@ public enum JBBPUtils {;
   }
 
   /**
-   * Reverse a byte.
+   * Reverse bits in a byte.
    *
-   * @param value a byte value to be reversed.
+   * @param value a byte value which bits must be reversed.
    * @return the reversed version of the byte
    */
-  public static byte reverseByte(final byte value) {
+  public static byte reverseBitsInByte(final byte value) {
     final int v = value & 0xFF;
     return (byte) (((v * 0x0802 & 0x22110) | (v * 0x8020 & 0x88440)) * 0x10101 >> 16);
   }
@@ -472,28 +474,55 @@ public enum JBBPUtils {;
   }
 
   /**
-   * Convert chars of a string into a byte array contains the UTF char codes.
+   * Convert chars of a string into a byte array contains the unicode codes.
+   *
    * @param byteOrder the byte order for the operation, must not be null
    * @param str the string which chars should be written, must not be null
-   * @return the byte array contains utf codes written as byte pairs
+   * @return the byte array contains uncodes of the string written as byte pairs
    */
-  public static byte [] str2utfByteArray(final JBBPByteOrder byteOrder, final String str) {
-    final byte [] result = new byte[str.length()<<1];
+  public static byte[] str2UnicodeByteArray(final JBBPByteOrder byteOrder, final String str) {
+    final byte[] result = new byte[str.length() << 1];
     int index = 0;
-    for(int i=0;i<str.length();i++){
+    for (int i = 0; i < str.length(); i++) {
       final int val = str.charAt(i);
-      switch(byteOrder){
-        case BIG_ENDIAN : {
-          result[index++] = (byte)(val >> 8);
-          result[index++] = (byte)val;
-        }break;
-        case LITTLE_ENDIAN : {
+      switch (byteOrder) {
+        case BIG_ENDIAN: {
+          result[index++] = (byte) (val >> 8);
+          result[index++] = (byte) val;
+        }
+        break;
+        case LITTLE_ENDIAN: {
           result[index++] = (byte) val;
           result[index++] = (byte) (val >> 8);
-        }break;
-        default : throw new Error("Unexpected byte order ["+byteOrder+']');
+        }
+        break;
+        default:
+          throw new Error("Unexpected byte order [" + byteOrder + ']');
       }
     }
     return result;
+  }
+
+  /**
+   * Invert order of bytes in a byte array.
+   *
+   * @param nullableArrayToBeInverted a byte array which order must be inverted,
+   * it can be null
+   * @return the same array instance but with inverted byte order, null if the
+   * source array is null
+   */
+  public static byte[] inverseArray(final byte[] nullableArrayToBeInverted) {
+    if (nullableArrayToBeInverted != null && nullableArrayToBeInverted.length > 0) {
+      int indexStart = 0;
+      int indexEnd = nullableArrayToBeInverted.length - 1;
+      while (indexStart < indexEnd) {
+        final byte a = nullableArrayToBeInverted[indexStart];
+        nullableArrayToBeInverted[indexStart] = nullableArrayToBeInverted[indexEnd];
+        nullableArrayToBeInverted[indexEnd] = a;
+        indexStart++;
+        indexEnd--;
+      }
+    }
+    return nullableArrayToBeInverted;
   }
 }

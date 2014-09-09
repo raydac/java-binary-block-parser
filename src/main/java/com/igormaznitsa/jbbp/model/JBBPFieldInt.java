@@ -57,10 +57,10 @@ public final class JBBPFieldInt extends JBBPAbstractField implements JBBPNumeric
    * @return the reversed value
    */
   public static long reverseBits(final int value) {
-    final int b0 = JBBPUtils.reverseByte((byte) value) & 0xFF;
-    final int b1 = JBBPUtils.reverseByte((byte) (value >> 8)) & 0xFF;
-    final int b2 = JBBPUtils.reverseByte((byte) (value >> 16)) & 0xFF;
-    final int b3 = JBBPUtils.reverseByte((byte) (value >> 24)) & 0xFF;
+    final int b0 = JBBPUtils.reverseBitsInByte((byte) value) & 0xFF;
+    final int b1 = JBBPUtils.reverseBitsInByte((byte) (value >> 8)) & 0xFF;
+    final int b2 = JBBPUtils.reverseBitsInByte((byte) (value >> 16)) & 0xFF;
+    final int b3 = JBBPUtils.reverseBitsInByte((byte) (value >> 24)) & 0xFF;
 
     return (long) ((b0 << 24) | (b1 << 16) | (b2 << 8) | b3);
   }

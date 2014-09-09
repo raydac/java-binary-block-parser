@@ -527,7 +527,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       this.bitBuffer = theBitBuffer;
       this.bitsInBuffer = theBitBufferCounter;
 
-      return (JBBPUtils.reverseByte((byte) result) & 0xFF) >> (8 - (numOfBitsAsNumber - i));
+      return (JBBPUtils.reverseBitsInByte((byte) result) & 0xFF) >> (8 - (numOfBitsAsNumber - i));
     }
   }
 
@@ -643,7 +643,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     int result = this.in.read();
     if (result >= 0) {
       if (this.msb0) {
-        result = JBBPUtils.reverseByte((byte) result) & 0xFF;
+        result = JBBPUtils.reverseBitsInByte((byte) result) & 0xFF;
       }
     }
     return result;
@@ -714,7 +714,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
         int index = offset;
         int number = readBytes;
         while (number > 0) {
-          array[index] = JBBPUtils.reverseByte(array[index]);
+          array[index] = JBBPUtils.reverseBitsInByte(array[index]);
           index++;
           number--;
         }
