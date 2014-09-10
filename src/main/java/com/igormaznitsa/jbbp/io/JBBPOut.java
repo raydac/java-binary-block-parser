@@ -572,7 +572,7 @@ public final class JBBPOut {
   }
 
   /**
-   * Write UTF codes of chars as 16 bit values into the stream.
+   * Write codes of chars as 16 bit values into the stream.
    * @param str the string which chars will be written, must not be null
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors

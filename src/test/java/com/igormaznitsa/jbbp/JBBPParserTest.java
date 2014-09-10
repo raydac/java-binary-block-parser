@@ -858,10 +858,10 @@ public class JBBPParserTest {
   public void testParse_FixedUByteArray_LittleEndian() throws Exception {
     final JBBPFieldArrayUByte bytes = JBBPParser.prepare("<ubyte[4];").parse(new byte[]{0x21, 0x43, 0x65, (byte) 0x87}).findFieldForType(JBBPFieldArrayUByte.class);
     assertEquals(4, bytes.size());
-    assertEquals(0x21, bytes.getAsInt(0));
-    assertEquals(0x43, bytes.getAsInt(1));
-    assertEquals(0x65, bytes.getAsInt(2));
-    assertEquals(0x87, bytes.getAsInt(3));
+    assertEquals(0x87, bytes.getAsInt(0));
+    assertEquals(0x65, bytes.getAsInt(1));
+    assertEquals(0x43, bytes.getAsInt(2));
+    assertEquals(0x21, bytes.getAsInt(3));
   }
 
   @Test
@@ -888,10 +888,10 @@ public class JBBPParserTest {
   public void testParse_NonFixedUByteArray_LittleEndian() throws Exception {
     final JBBPFieldArrayUByte bytes = JBBPParser.prepare("<ubyte[_];").parse(new byte[]{0x21, 0x43, 0x65, (byte) 0x87}).findFieldForType(JBBPFieldArrayUByte.class);
     assertEquals(4, bytes.size());
-    assertEquals(0x21, bytes.getAsInt(0));
-    assertEquals(0x43, bytes.getAsInt(1));
-    assertEquals(0x65, bytes.getAsInt(2));
-    assertEquals(0x87, bytes.getAsInt(3));
+    assertEquals(0x87, bytes.getAsInt(0));
+    assertEquals(0x65, bytes.getAsInt(1));
+    assertEquals(0x43, bytes.getAsInt(2));
+    assertEquals(0x21, bytes.getAsInt(3));
   }
 
   @Test(expected = EOFException.class)

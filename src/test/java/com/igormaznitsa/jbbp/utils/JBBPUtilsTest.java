@@ -37,7 +37,7 @@ public class JBBPUtilsTest {
       final int generated = rnd.nextInt(0x7FFFFFFF);
       final byte[] array = JBBPUtils.packInt(generated);
 
-      if ((generated & 0xFFFFFF80)==0) {
+      if ((generated & 0xFFFFFF80) == 0) {
         assertEquals(1, array.length);
         assertEquals(i, array[0] & 0xFF);
       }
@@ -60,15 +60,15 @@ public class JBBPUtilsTest {
   }
 
   @Test
-  public void testCloseQuetly() throws Exception{
+  public void testCloseQuetly() throws Exception {
     JBBPUtils.closeQuietly(null);
     JBBPUtils.closeQuietly(new ByteArrayInputStream(new byte[10]));
-    
+
     final InputStream closed = new ByteArrayInputStream(new byte[10]);
     closed.close();
     JBBPUtils.closeQuietly(closed);
   }
-  
+
   @Test
   public void testIsNumber() {
     assertFalse(JBBPUtils.isNumber(null));
@@ -78,29 +78,29 @@ public class JBBPUtilsTest {
     assertTrue(JBBPUtils.isNumber("12837921739821739203928103802198383742984732"));
     assertTrue(JBBPUtils.isNumber("-12837921739821739203928103802198383742984732"));
   }
-  
+
   @Test(expected = NullPointerException.class)
-  public void testUnpackInt_NPEForArrayIsNull(){
+  public void testUnpackInt_NPEForArrayIsNull() {
     JBBPUtils.unpackInt(null, new JBBPIntCounter());
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testUnpackInt_IAEForWrongPrefix() {
-    JBBPUtils.unpackInt(new byte [] {(byte)0xAA,0,0,0,0,0}, new JBBPIntCounter());
+    JBBPUtils.unpackInt(new byte[]{(byte) 0xAA, 0, 0, 0, 0, 0}, new JBBPIntCounter());
   }
 
   @Test
   public void testPackUnpackIntFromByteArray() {
-    final byte [] array = new byte[5];
-    
+    final byte[] array = new byte[5];
+
     final JBBPIntCounter pos = new JBBPIntCounter();
-    
+
     int counter1 = 0;
     int counter2 = 0;
     int counter3 = 0;
-    
-    final int [] etalons = new int []{0,-1,-89,234,123124,1223112,34323,Integer.MIN_VALUE,Integer.MAX_VALUE};
-    
+
+    final int[] etalons = new int[]{0, -1, -89, 234, 123124, 1223112, 34323, Integer.MIN_VALUE, Integer.MAX_VALUE};
+
     for (final int generated : etalons) {
       pos.set(0);
       final int len = JBBPUtils.packInt(array, pos, generated);
@@ -117,17 +117,17 @@ public class JBBPUtilsTest {
         assertEquals(5, len);
         counter3++;
       }
-      
+
       assertEquals(pos.get(), len);
-      
+
       pos.set(0);
       assertEquals(generated, JBBPUtils.unpackInt(array, pos));
       assertEquals(pos.get(), len);
     }
 
-    assertTrue(counter1>0);
-    assertTrue(counter2>0);
-    assertTrue(counter3>0);
+    assertTrue(counter1 > 0);
+    assertTrue(counter2 > 0);
+    assertTrue(counter3 > 0);
   }
 
   @Test
@@ -176,7 +176,7 @@ public class JBBPUtilsTest {
 
   @Test
   public void testStr2Bin_Default() {
-    assertEquals(0,JBBPUtils.str2bin(null).length);
+    assertEquals(0, JBBPUtils.str2bin(null).length);
 
     assertArrayEquals(new byte[]{(byte) 0x80}, JBBPUtils.str2bin("10000000"));
     assertArrayEquals(new byte[]{(byte) 0x01}, JBBPUtils.str2bin("1"));
@@ -223,7 +223,7 @@ public class JBBPUtilsTest {
 
   @Test
   public void testStr2Bin_MSB() {
-    assertEquals(0,JBBPUtils.str2bin(null, JBBPBitOrder.MSB0).length);
+    assertEquals(0, JBBPUtils.str2bin(null, JBBPBitOrder.MSB0).length);
 
     assertArrayEquals(new byte[]{(byte) 0x01}, JBBPUtils.str2bin("1", JBBPBitOrder.MSB0));
     assertArrayEquals(new byte[]{(byte) 0x80}, JBBPUtils.str2bin("00000001", JBBPBitOrder.MSB0));
@@ -242,45 +242,103 @@ public class JBBPUtilsTest {
 
     }
   }
-  
+
   @Test
-  public void testSplitString(){
+  public void testSplitString() {
     assertArrayEquals(new String[]{""}, JBBPUtils.splitString("", '.'));
     assertArrayEquals(new String[]{"aaa"}, JBBPUtils.splitString("aaa", '.'));
-    assertArrayEquals(new String[]{"aaa","bbb"}, JBBPUtils.splitString("aaa.bbb", '.'));
-    assertArrayEquals(new String[]{"aaa","bbb",""}, JBBPUtils.splitString("aaa.bbb.", '.'));
-    assertArrayEquals(new String[]{"",""}, JBBPUtils.splitString(".", '.'));
+    assertArrayEquals(new String[]{"aaa", "bbb"}, JBBPUtils.splitString("aaa.bbb", '.'));
+    assertArrayEquals(new String[]{"aaa", "bbb", ""}, JBBPUtils.splitString("aaa.bbb.", '.'));
+    assertArrayEquals(new String[]{"", ""}, JBBPUtils.splitString(".", '.'));
   }
 
   @Test
-  public void testAssertNotNull(){
+  public void testAssertNotNull() {
     JBBPUtils.assertNotNull(new Object(), "test");
-    
+
     final String message = "Test message";
-    try{
+    try {
       JBBPUtils.assertNotNull(null, message);
       fail("Must throw NPE");
-    }catch(NullPointerException ex){
+    }
+    catch (NullPointerException ex) {
       assertSame(message, ex.getMessage());
     }
 
-    try{
+    try {
       JBBPUtils.assertNotNull(null, null);
       fail("Must throw NPE");
-    }catch(NullPointerException ex){
+    }
+    catch (NullPointerException ex) {
       assertNotNull(message, ex.getMessage());
     }
   }
-  
+
   @Test
-  public void testInverseArray(){
+  public void testInverseArray() {
     assertNull(JBBPUtils.inverseArray(null));
-    final byte [] empty = new byte[0];
+    final byte[] empty = new byte[0];
     assertSame(empty, JBBPUtils.inverseArray(empty));
-    
-    assertArrayEquals(new byte[]{1},JBBPUtils.inverseArray(new byte[]{1}));
-    assertArrayEquals(new byte[]{2,1},JBBPUtils.inverseArray(new byte[]{1,2}));
-    assertArrayEquals(new byte[]{5,4,3,2,1},JBBPUtils.inverseArray(new byte[]{1,2,3,4,5}));
-    assertArrayEquals(new byte[]{6,5,4,3,2,1},JBBPUtils.inverseArray(new byte[]{1,2,3,4,5,6}));
+
+    assertArrayEquals(new byte[]{1}, JBBPUtils.inverseArray(new byte[]{1}));
+    assertArrayEquals(new byte[]{2, 1}, JBBPUtils.inverseArray(new byte[]{1, 2}));
+    assertArrayEquals(new byte[]{5, 4, 3, 2, 1}, JBBPUtils.inverseArray(new byte[]{1, 2, 3, 4, 5}));
+    assertArrayEquals(new byte[]{6, 5, 4, 3, 2, 1}, JBBPUtils.inverseArray(new byte[]{1, 2, 3, 4, 5, 6}));
+  }
+
+  @Test
+  public void testSplitInteger() {
+    byte[] buff = null;
+    assertArrayEquals(new byte[]{1, 2, 3, 4}, JBBPUtils.splitInteger(0x01020304, false, buff));
+
+    buff = new byte[2];
+    assertArrayEquals(new byte[]{1, 2, 3, 4}, JBBPUtils.splitInteger(0x01020304, false, buff));
+
+    buff = new byte[4];
+    assertArrayEquals(new byte[]{1, 2, 3, 4}, JBBPUtils.splitInteger(0x01020304, false, buff));
+
+    buff = new byte[8];
+    assertArrayEquals(new byte[]{1, 2, 3, 4, 0, 0, 0, 0}, JBBPUtils.splitInteger(0x01020304, false, buff));
+
+    buff = null;
+    assertArrayEquals(new byte[]{4, 3, 2, 1}, JBBPUtils.splitInteger(0x01020304, true, buff));
+
+    buff = new byte[2];
+    assertArrayEquals(new byte[]{4, 3, 2, 1}, JBBPUtils.splitInteger(0x01020304, true, buff));
+
+    buff = new byte[4];
+    assertArrayEquals(new byte[]{4, 3, 2, 1}, JBBPUtils.splitInteger(0x01020304, true, buff));
+
+    buff = new byte[8];
+    assertArrayEquals(new byte[]{4, 3, 2, 1, 0, 0, 0, 0}, JBBPUtils.splitInteger(0x01020304, true, buff));
+
+  }
+
+  @Test
+  public void testSplitLong() {
+    byte[] buff = null;
+    assertArrayEquals(new byte[]{1, 2, 3, 4, 5, 6, 7, 8}, JBBPUtils.splitLong(0x0102030405060708L, false, buff));
+
+    buff = new byte[2];
+    assertArrayEquals(new byte[]{1, 2, 3, 4, 5, 6 ,7 ,8}, JBBPUtils.splitLong(0x0102030405060708L, false, buff));
+
+    buff = new byte[8];
+    assertArrayEquals(new byte[]{1, 2, 3, 4, 5, 6, 7, 8}, JBBPUtils.splitLong(0x0102030405060708L, false, buff));
+
+    buff = new byte[10];
+    assertArrayEquals(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 0, 0}, JBBPUtils.splitLong(0x0102030405060708L, false, buff));
+
+    buff = null;
+    assertArrayEquals(new byte[]{8, 7, 6, 5, 4, 3, 2, 1}, JBBPUtils.splitLong(0x0102030405060708L, true, buff));
+
+    buff = new byte[2];
+    assertArrayEquals(new byte[]{8, 7, 6, 5, 4, 3, 2, 1}, JBBPUtils.splitLong(0x0102030405060708L, true, buff));
+
+    buff = new byte[8];
+    assertArrayEquals(new byte[]{8, 7, 6, 5, 4, 3, 2, 1}, JBBPUtils.splitLong(0x0102030405060708L, true, buff));
+
+    buff = new byte[10];
+    assertArrayEquals(new byte[]{8, 7, 6, 5, 4, 3, 2, 1, 0, 0}, JBBPUtils.splitLong(0x0102030405060708L, true, buff));
+
   }
 }

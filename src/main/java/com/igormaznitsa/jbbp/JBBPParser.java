@@ -243,7 +243,8 @@ public final class JBBPParser {
                 singleAtomicField = new JBBPFieldUByte(name, (byte) inStream.readByte());
               }
               else {
-                structureFields.add(new JBBPFieldArrayUByte(name, inStream.readByteArray(wholeStreamArray ? -1 : arrayLength)));
+                final byte[] array = inStream.readByteArray(wholeStreamArray ? -1 : arrayLength);
+                structureFields.add(new JBBPFieldArrayUByte(name, byteOrder == JBBPByteOrder.LITTLE_ENDIAN ? JBBPUtils.inverseArray(array) : array));
               }
             }
           }

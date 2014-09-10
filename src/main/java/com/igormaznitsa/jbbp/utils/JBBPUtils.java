@@ -525,4 +525,73 @@ public enum JBBPUtils {
     }
     return nullableArrayToBeInverted;
   }
+
+  /**
+   * Split an integer value to bytes and returns as a byte array.
+   *
+   * @param value a value to be split
+   * @param valueInLittleEndian the flag shows that the integer is presented in
+   * the little endian form
+   * @param buffer a buffer array to be used as a storage, if the array is null
+   * or its length is less than 4 then new array will be created
+   * @return the same array filled by parts of the integer value or new array if
+   * the provided buffer is null or has not enough size
+   */
+  public static byte[] splitInteger(final int value, final boolean valueInLittleEndian, final byte[] buffer) {
+    final byte[] result;
+    if (buffer == null || buffer.length < 4) {
+      result = new byte[4];
+    }
+    else {
+      result = buffer;
+    }
+    int tmpvalue = value;
+    if (valueInLittleEndian) {
+      for (int i = 0; i < 4; i++) {
+        result[i] = (byte) tmpvalue;
+        tmpvalue >>>= 8;
+      }
+    }
+    else {
+      for (int i = 3; i >= 0; i--) {
+        result[i] = (byte) tmpvalue;
+        tmpvalue >>>= 8;
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Split a long value to its bytes and returns the parts as an array.
+   * 
+   * @param value the value to be split
+   * @param valueInLittleEndian the flag shows that the long is presented in the little endian for
+   * @param buffer a buffer array to be used as a storage, if the array is null
+   * or its length is less than 8 then new array will be created
+   * @return the same array filled by parts of the integer value or new array if
+   * the provided buffer is null or has not enough size
+   */
+  public static byte[] splitLong(final long value, final boolean valueInLittleEndian, final byte[] buffer) {
+    final byte[] result;
+    if (buffer == null || buffer.length < 8) {
+      result = new byte[8];
+    }
+    else {
+      result = buffer;
+    }
+    long tmpvalue = value;
+    if (valueInLittleEndian) {
+      for (int i = 0; i < 8; i++) {
+        result[i] = (byte) tmpvalue;
+        tmpvalue >>>= 8;
+      }
+    }
+    else {
+      for (int i = 7; i >= 0; i--) {
+        result[i] = (byte) tmpvalue;
+        tmpvalue >>>= 8;
+      }
+    }
+    return result;
+  }
 }
