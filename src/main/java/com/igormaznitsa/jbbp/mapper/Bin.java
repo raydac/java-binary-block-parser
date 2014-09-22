@@ -15,6 +15,7 @@
  */
 package com.igormaznitsa.jbbp.mapper;
 
+import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -83,10 +84,10 @@ public @interface Bin {
   String extra() default "";
   
   /**
-   * The Value defines how many bytes are actual ones in the field, works for numeric field and arrays and allows make mapping to bit fields. NB: Only three lowest bits are used by the mapper!
-   * @return the value is active if the value greater than zero
+   * The Value defines how many bytes are actual ones in the field, works for numeric field and arrays and allows make mapping to bit fields.
+   * @return the number of lower bits in the value, by default the field shows 8 bit value
    */
-  int bitNumber() default 0;
+  JBBPBitNumber bitNumber() default JBBPBitNumber.BITS_8;
   
   /**
    * The Value shows order of the field during output of fields.

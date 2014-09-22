@@ -17,6 +17,7 @@ package com.igormaznitsa.jbbp.mapper;
 
 import com.igormaznitsa.jbbp.exceptions.JBBPMapperException;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
+import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.mapper.instantiators.JBBPClassInstantiator;
 import com.igormaznitsa.jbbp.mapper.instantiators.JBBPClassInstantiatorFactory;
 import com.igormaznitsa.jbbp.model.*;
@@ -170,14 +171,14 @@ public final class JBBPMapper {
         else {
           final BinType fieldType;
 
-          final int mappedBitNumber = mappedAnno.bitNumber();
+          final JBBPBitNumber mappedBitNumber = mappedAnno.bitNumber();
 
           if (mappedAnno.type() == BinType.UNDEFINED) {
             BinType thetype = BinType.findCompatible(mappingField.getType());
             if (thetype == null) {
               throw new JBBPMapperException("Can't find compatible type for a mapping field", rootStructure, mappingClass, mappingField, null);
             }
-            else if (mappedBitNumber > 0 && !(thetype == BinType.STRUCT || thetype == BinType.STRUCT_ARRAY)) {
+            else if (mappedBitNumber.getBitNumber()<8 && !(thetype == BinType.STRUCT || thetype == BinType.STRUCT_ARRAY)) {
               thetype = thetype.isArray() ? BinType.BIT_ARRAY : BinType.BIT;
             }
             fieldType = thetype;
@@ -203,7 +204,7 @@ public final class JBBPMapper {
             throw new JBBPMapperException("Can't find value to be mapped to a mapping field [" + mappingField + ']', null, mappingClass, mappingField, null);
           }
 
-          if (bitWideField && mappedBitNumber > 0 && ((Bitable) binField).getBitNumber().getBitNumber() != mappedBitNumber) {
+          if (bitWideField && mappedBitNumber!=JBBPBitNumber.BITS_8 && ((Bitable) binField).getBitNumber() != mappedBitNumber) {
             throw new JBBPMapperException("Can't map value to a mapping field for different field bit width [" + mappedBitNumber + "!=" + ((Bitable) binField).getBitNumber().getBitNumber() + ']', null, mappingClass, mappingField, null);
           }
 

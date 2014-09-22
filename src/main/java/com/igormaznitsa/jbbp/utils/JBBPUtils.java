@@ -504,14 +504,14 @@ public enum JBBPUtils {
   }
 
   /**
-   * Invert order of bytes in a byte array.
+   * Reverse order of bytes in a byte array.
    *
-   * @param nullableArrayToBeInverted a byte array which order must be inverted,
+   * @param nullableArrayToBeInverted a byte array which order must be reversed,
    * it can be null
-   * @return the same array instance but with inverted byte order, null if the
+   * @return the same array instance but with reversed byte order, null if the
    * source array is null
    */
-  public static byte[] inverseArray(final byte[] nullableArrayToBeInverted) {
+  public static byte[] reverseArray(final byte[] nullableArrayToBeInverted) {
     if (nullableArrayToBeInverted != null && nullableArrayToBeInverted.length > 0) {
       int indexStart = 0;
       int indexEnd = nullableArrayToBeInverted.length - 1;

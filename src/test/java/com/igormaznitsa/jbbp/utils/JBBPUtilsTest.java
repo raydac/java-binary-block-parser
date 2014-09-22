@@ -275,15 +275,15 @@ public class JBBPUtilsTest {
   }
 
   @Test
-  public void testInverseArray() {
-    assertNull(JBBPUtils.inverseArray(null));
+  public void testReverseArray() {
+    assertNull(JBBPUtils.reverseArray(null));
     final byte[] empty = new byte[0];
-    assertSame(empty, JBBPUtils.inverseArray(empty));
+    assertSame(empty, JBBPUtils.reverseArray(empty));
 
-    assertArrayEquals(new byte[]{1}, JBBPUtils.inverseArray(new byte[]{1}));
-    assertArrayEquals(new byte[]{2, 1}, JBBPUtils.inverseArray(new byte[]{1, 2}));
-    assertArrayEquals(new byte[]{5, 4, 3, 2, 1}, JBBPUtils.inverseArray(new byte[]{1, 2, 3, 4, 5}));
-    assertArrayEquals(new byte[]{6, 5, 4, 3, 2, 1}, JBBPUtils.inverseArray(new byte[]{1, 2, 3, 4, 5, 6}));
+    assertArrayEquals(new byte[]{1}, JBBPUtils.reverseArray(new byte[]{1}));
+    assertArrayEquals(new byte[]{2, 1}, JBBPUtils.reverseArray(new byte[]{1, 2}));
+    assertArrayEquals(new byte[]{5, 4, 3, 2, 1}, JBBPUtils.reverseArray(new byte[]{1, 2, 3, 4, 5}));
+    assertArrayEquals(new byte[]{6, 5, 4, 3, 2, 1}, JBBPUtils.reverseArray(new byte[]{1, 2, 3, 4, 5, 6}));
   }
 
   @Test

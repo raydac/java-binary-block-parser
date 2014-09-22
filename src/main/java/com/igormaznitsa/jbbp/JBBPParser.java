@@ -232,7 +232,7 @@ public final class JBBPParser {
               }
               else {
                 final byte[] array = inStream.readByteArray(wholeStreamArray ? -1 : arrayLength);
-                structureFields.add(new JBBPFieldArrayByte(name, byteOrder == JBBPByteOrder.LITTLE_ENDIAN ? JBBPUtils.inverseArray(array) : array));
+                structureFields.add(new JBBPFieldArrayByte(name, byteOrder == JBBPByteOrder.LITTLE_ENDIAN ? JBBPUtils.reverseArray(array) : array));
               }
             }
           }
@@ -244,7 +244,7 @@ public final class JBBPParser {
               }
               else {
                 final byte[] array = inStream.readByteArray(wholeStreamArray ? -1 : arrayLength);
-                structureFields.add(new JBBPFieldArrayUByte(name, byteOrder == JBBPByteOrder.LITTLE_ENDIAN ? JBBPUtils.inverseArray(array) : array));
+                structureFields.add(new JBBPFieldArrayUByte(name, byteOrder == JBBPByteOrder.LITTLE_ENDIAN ? JBBPUtils.reverseArray(array) : array));
               }
             }
           }

@@ -19,6 +19,7 @@ package com.igormaznitsa.jbbp.mapper;
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.TestUtils;
 import com.igormaznitsa.jbbp.exceptions.JBBPMapperException;
+import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPOut;
 import com.igormaznitsa.jbbp.mapper.instantiators.*;
 import com.igormaznitsa.jbbp.model.*;
@@ -694,7 +695,7 @@ public class JBBPMapperTest {
   @Test
   public void testMap_FieldWithDefinedBitNumberToBitField_FieldPresented() throws Exception {
     class Parsed {
-      @Bin(bitNumber = 5) byte field;
+      @Bin(bitNumber = JBBPBitNumber.BITS_5) byte field;
     }
     final Parsed parsed = JBBPParser.prepare("int fieldint; bit:5 field;").parse(new byte[]{1,2,3,4,0x35}).mapTo(Parsed.class);
     assertEquals(0x15, parsed.field);
@@ -703,7 +704,7 @@ public class JBBPMapperTest {
   @Test(expected = JBBPMapperException.class)
   public void testMap_FieldWithDefinedBitNumberToBitField_FieldPresentedWithDifferentBitNumber() throws Exception {
     class Parsed {
-      @Bin(bitNumber = 5) byte field;
+      @Bin(bitNumber = JBBPBitNumber.BITS_5) byte field;
     }
     JBBPParser.prepare("int fieldint; bit:6 field;").parse(new byte[]{1,2,3,4,0x35}).mapTo(Parsed.class);
   }
@@ -711,7 +712,7 @@ public class JBBPMapperTest {
   @Test
   public void testMap_ArrayFieldWithDefinedBitNumberToArrayBitField_FieldPresented() throws Exception {
     class Parsed {
-      @Bin(bitNumber = 4) byte [] field;
+      @Bin(bitNumber = JBBPBitNumber.BITS_4) byte [] field;
     }
     final Parsed parsed = JBBPParser.prepare("int fieldint; bit:4 [2] field;").parse(new byte[]{1, 2, 3, 4, 0x35}).mapTo(Parsed.class);
     assertArrayEquals(new byte []{5,3}, parsed.field);
@@ -720,7 +721,7 @@ public class JBBPMapperTest {
   @Test
   public void testMap_ArrayFieldIgnoredBitNumberFieldForDefinedType() throws Exception {
     class Parsed {
-      @Bin(type = BinType.INT_ARRAY, bitNumber = 4)
+      @Bin(type = BinType.INT_ARRAY, bitNumber = JBBPBitNumber.BITS_4)
       int[] field;
     }
     final Parsed parsed = JBBPParser.prepare("int fieldint; int [2] field;").parse(new byte[]{1, 2, 3, 4, 0x5, 0x6, 0x7, 0x8, 0x9, 0x0A, 0x0B, 0x0C}).mapTo(Parsed.class);
@@ -730,7 +731,7 @@ public class JBBPMapperTest {
   @Test(expected = JBBPMapperException.class)
   public void testMap_ArrayFieldWithDefinedBitNumberToArrayBitField_FieldPresentedWithDifferentBitNumber() throws Exception {
     class Parsed {
-      @Bin(bitNumber = 4) byte field;
+      @Bin(bitNumber = JBBPBitNumber.BITS_4) byte field;
     }
     JBBPParser.prepare("int fieldint; bit:3 [2] field;").parse(new byte[]{1, 2, 3, 4, 0x35}).mapTo(Parsed.class);
   }
