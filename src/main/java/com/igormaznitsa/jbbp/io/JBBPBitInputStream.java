@@ -527,7 +527,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       this.bitBuffer = theBitBuffer;
       this.bitsInBuffer = theBitBufferCounter;
 
-      return (JBBPUtils.reverseBitsInByte((byte) result) & 0xFF) >> (8 - (numOfBitsAsNumber - i));
+      return JBBPUtils.reverseBitsInByte(JBBPBitNumber.decode(numOfBitsAsNumber-i),(byte)result) & 0xFF;
     }
   }
 

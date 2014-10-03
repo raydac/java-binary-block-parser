@@ -15,14 +15,28 @@
  */
 package com.igormaznitsa.jbbp.io;
 
+import com.igormaznitsa.jbbp.exceptions.JBBPException;
+import com.igormaznitsa.jbbp.mapper.Bin;
+import com.igormaznitsa.jbbp.mapper.BinType;
+import com.igormaznitsa.jbbp.model.*;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.*;
+import java.lang.reflect.*;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The Class implements some kind of DSL to form binary blocks. The Class is not
  * a thread-safe one.
  */
 public final class JBBPOut {
+
+  /**
+   * Inside cache to keep order of fields for classes for data output. It is
+   * lazy initializing field.
+   */
+  private static volatile Map<Class<?>, Field[]> cachedFields;
 
   /**
    * Flag shows that all commands must be skipped till the End.
@@ -96,8 +110,11 @@ public final class JBBPOut {
   }
 
   /**
-   * Start a DSL session for default parameters and inside byte array stream with defined start size.
-   * @param initialSize the start size of inside buffer of the byte array output stream, must be positive
+   * Start a DSL session for default parameters and inside byte array stream
+   * with defined start size.
+   *
+   * @param initialSize the start size of inside buffer of the byte array output
+   * stream, must be positive
    * @return the new DSL session generated with the default parameters and
    * inside byte array stream.
    */
@@ -174,7 +191,7 @@ public final class JBBPOut {
    *
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
-   * @see JBBPOut#ResetCounter() 
+   * @see JBBPOut#ResetCounter()
    */
   public JBBPOut Align() throws IOException {
     assertNotEnded();
@@ -275,20 +292,22 @@ public final class JBBPOut {
 
   /**
    * Inside wrapper of not null assertion with text for arrays.
+   *
    * @param array an object to be checked for null.
    */
-  private static void assertArrayNotNull(final Object array){
+  private static void assertArrayNotNull(final Object array) {
     JBBPUtils.assertNotNull(array, "Array must not be null");
   }
-  
+
   /**
    * Inside wrapper of not null assertion with text for strings.
+   *
    * @param str an object to be checked for null.
    */
-  private static void assertStringNotNull(final String str){
+  private static void assertStringNotNull(final String str) {
     JBBPUtils.assertNotNull(str, "String must not be null");
   }
-  
+
   /**
    * Write lowest bits of bytes from an array.
    *
@@ -297,7 +316,7 @@ public final class JBBPOut {
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    */
-  public JBBPOut Bit(final byte [] value) throws IOException {
+  public JBBPOut Bit(final byte[] value) throws IOException {
     assertNotEnded();
     assertArrayNotNull(value);
     if (this.processCommands) {
@@ -404,7 +423,7 @@ public final class JBBPOut {
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    */
-  public JBBPOut Bits(final JBBPBitNumber numberOfBits, final byte [] value) throws IOException {
+  public JBBPOut Bits(final JBBPBitNumber numberOfBits, final byte[] value) throws IOException {
     assertNotEnded();
     JBBPUtils.assertNotNull(value, "Array must not be null");
     if (this.processCommands) {
@@ -466,7 +485,7 @@ public final class JBBPOut {
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    */
-  public JBBPOut Byte(final byte [] value) throws IOException {
+  public JBBPOut Byte(final byte[] value) throws IOException {
     assertNotEnded();
     assertArrayNotNull(value);
     if (this.processCommands) {
@@ -489,6 +508,30 @@ public final class JBBPOut {
     if (this.processCommands) {
       for (int i = 0; i < str.length(); i++) {
         this.outStream.write(str.charAt(i));
+      }
+    }
+    return this;
+  }
+
+  /**
+   * Write String chars trimmed to bytes, only the lower 8 bit will be saved per
+   * char code.
+   *
+   * @param str a String which chars should be trimmed to bytes and saved
+   * @param bitOrder the bit order to save bytes
+   * @return the DSL session
+   * @throws IOException it will be thrown for transport errors
+   */
+  public JBBPOut Byte(final String str, final JBBPBitOrder bitOrder) throws IOException {
+    assertNotEnded();
+    assertStringNotNull(str);
+    if (this.processCommands) {
+      for (int i = 0; i < str.length(); i++) {
+        byte value = (byte) str.charAt(i);
+        if (bitOrder == JBBPBitOrder.MSB0) {
+          value = JBBPUtils.reverseBitsInByte(value);
+        }
+        this.outStream.write(value);
       }
     }
     return this;
@@ -521,6 +564,22 @@ public final class JBBPOut {
     assertNotEnded();
     if (this.processCommands) {
       this.outStream.write(value ? 1 : 0);
+    }
+    return this;
+  }
+
+  /**
+   * Write a boolean value into the session stream as a byte.
+   *
+   * @param value a boolean value to be written, true is 1, false is 0
+   * @param bitOrder bit order for saving data
+   * @return the DSL session
+   * @throws IOException it will be thrown for transport errors
+   */
+  public JBBPOut Bool(final boolean value, final JBBPBitOrder bitOrder) throws IOException {
+    assertNotEnded();
+    if (this.processCommands) {
+      this.outStream.write(value ? bitOrder == JBBPBitOrder.MSB0 ? 0x80 : 1 : 0);
     }
     return this;
   }
@@ -573,6 +632,7 @@ public final class JBBPOut {
 
   /**
    * Write codes of chars as 16 bit values into the stream.
+   *
    * @param str the string which chars will be written, must not be null
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
@@ -580,8 +640,31 @@ public final class JBBPOut {
   public JBBPOut Short(final String str) throws IOException {
     assertNotEnded();
     if (this.processCommands) {
-      for(int i=0;i<str.length();i++){
+      for (int i = 0; i < str.length(); i++) {
         _writeShort(str.charAt(i));
+      }
+    }
+    return this;
+  }
+
+  /**
+   * Write codes of chars as 16 bit values into the stream.
+   *
+   * @param str the string which chars will be written, must not be null
+   * @param bitOrder the bit order
+   * @return the DSL session
+   * @throws IOException it will be thrown for transport errors
+   */
+  public JBBPOut Short(final String str, final JBBPBitOrder bitOrder) throws IOException {
+    assertNotEnded();
+    if (this.processCommands) {
+      final boolean msb0 = bitOrder == JBBPBitOrder.MSB0;
+      for (int i = 0; i < str.length(); i++) {
+        short value = (short) str.charAt(i);
+        if (msb0) {
+          value = (short) JBBPFieldShort.reverseBits(value);
+        }
+        _writeShort(value);
       }
     }
     return this;
@@ -595,7 +678,7 @@ public final class JBBPOut {
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    */
-  public JBBPOut Short(final short [] value) throws IOException {
+  public JBBPOut Short(final short[] value) throws IOException {
     assertNotEnded();
     assertArrayNotNull(value);
     if (this.processCommands) {
@@ -671,22 +754,23 @@ public final class JBBPOut {
 
   /**
    * Write a float value array as integer bits into the stream.
+   *
    * @param value a float array which values will be written into
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
-   * @see Float#floatToIntBits(float) 
+   * @see Float#floatToIntBits(float)
    */
   public JBBPOut Float(final float... value) throws IOException {
     assertNotEnded();
     assertArrayNotNull(value);
     if (this.processCommands) {
-      for(final float f : value){
+      for (final float f : value) {
         _writeInt(Float.floatToIntBits(f));
       }
     }
     return this;
   }
-  
+
   /**
    * Inside auxiliary method to write a long value into the session stream
    * without checking.
@@ -719,7 +803,7 @@ public final class JBBPOut {
    * @param value a double array which values will be written into
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
-   * @see Double#doubleToLongBits(double) 
+   * @see Double#doubleToLongBits(double)
    */
   public JBBPOut Double(final double... value) throws IOException {
     assertNotEnded();
@@ -733,10 +817,13 @@ public final class JBBPOut {
   }
 
   /**
-   * Reset the byte counter and the inside bit buffer of the output stream. it is usefule for the Align command because the command makes alignment for the counter.
+   * Reset the byte counter and the inside bit buffer of the output stream. it
+   * is usefule for the Align command because the command makes alignment for
+   * the counter.
+   *
    * @return the DSL context
-   * @see JBBPOut#Align() 
-   * @see JBBPOut#Align(int) 
+   * @see JBBPOut#Align()
+   * @see JBBPOut#Align(int)
    */
   public JBBPOut ResetCounter() {
     assertNotEnded();
@@ -813,13 +900,15 @@ public final class JBBPOut {
   }
 
   /**
-   * get the current byte counter value for the underlying stream. it has appropriate value only if it was not reset.
+   * get the current byte counter value for the underlying stream. it has
+   * appropriate value only if it was not reset.
+   *
    * @return the current byte counter for the underlying stream.
    */
-  public long getByteCounter(){
+  public long getByteCounter() {
     return this.outStream.getCounter();
   }
-  
+
   /**
    * Assert that the session has not ended.
    *
@@ -828,6 +917,370 @@ public final class JBBPOut {
   protected void assertNotEnded() {
     if (this.ended) {
       throw new IllegalStateException(JBBPOut.class.getSimpleName() + " has been ended");
+    }
+  }
+
+  public void resetInsideClassCache() {
+    final Map<Class<?>, Field[]> fieldz = cachedFields;
+    if (fieldz != null) {
+      synchronized (fieldz) {
+        fieldz.clear();
+      }
+    }
+  }
+
+  public JBBPOut Bin(final Object object) throws IOException {
+    if (this.processCommands) {
+
+      Field[] orderedFields = null;
+
+      final Map<Class<?>, Field[]> fieldz;
+      if (cachedFields == null) {
+        fieldz = new HashMap<Class<?>, Field[]>();
+        cachedFields = fieldz;
+      }
+      else {
+        fieldz = cachedFields;
+        synchronized (fieldz) {
+          orderedFields = fieldz.get(object.getClass());
+        }
+      }
+
+      if (orderedFields == null) {
+        // find out the order of fields and fields which should be serialized
+        final List<Class<?>> listOfClassHierarchy = new ArrayList<Class<?>>();
+
+        final class OrderedField implements Comparable<OrderedField> {
+
+          final int order;
+          final Field field;
+
+          OrderedField(final int order, final Field field) {
+            this.order = order;
+            this.field = field;
+          }
+
+          public int compareTo(final OrderedField o) {
+            return this.order < o.order ? -1 : 1;
+          }
+        }
+
+        final List<OrderedField> fields = new ArrayList<OrderedField>();
+
+        Class<?> current = object.getClass();
+        while (current != java.lang.Object.class) {
+          listOfClassHierarchy.add(current);
+          current = current.getSuperclass();
+        }
+        for (int i = listOfClassHierarchy.size() - 1; i >= 0; i--) {
+          final Class<?> clazzToProcess = listOfClassHierarchy.get(i);
+          final Bin clazzAnno = clazzToProcess.getAnnotation(Bin.class);
+          for (final Field f : clazzToProcess.getDeclaredFields()) {
+            f.setAccessible(true);
+            if (Modifier.isTransient(f.getModifiers())) {
+              continue;
+            }
+            Bin fieldAnno = f.getAnnotation(Bin.class);
+            fieldAnno = fieldAnno == null ? clazzAnno : fieldAnno;
+            if (fieldAnno == null) {
+              continue;
+            }
+
+            fields.add(new OrderedField(fieldAnno.order(), f));
+          }
+        }
+
+        Collections.sort(fields);
+
+        orderedFields = new Field[fields.size()];
+        for (int i = 0; i < fields.size(); i++) {
+          orderedFields[i] = fields.get(i).field;
+        }
+
+        synchronized (fieldz) {
+          fieldz.put(object.getClass(), orderedFields);
+        }
+      }
+
+      for (final Field f : orderedFields) {
+        Bin binAnno = f.getAnnotation(Bin.class);
+        if (binAnno == null) {
+          binAnno = f.getDeclaringClass().getAnnotation(Bin.class);
+          if (binAnno == null) {
+            throw new JBBPException("Can't find any Bin annotation to use for " + f + " field");
+          }
+        }
+
+        writeObjectField(object, f, binAnno);
+      }
+    }
+
+    return this;
+  }
+
+  private static Object readFieldValue(final Object obj, final Field field) {
+    try {
+      return field.get(obj);
+    }
+    catch (Exception ex) {
+      throw new JBBPException("Can't read falue of a field [" + field + ']', ex);
+    }
+  }
+
+  private static void assertFieldArray(final Field field, final Class<?> fieldType) {
+    if (!fieldType.isArray()) {
+      throw new IllegalArgumentException("Detected non-array field marked to be written as an array [" + field + ']');
+    }
+  }
+
+  private void writeObjectField(final Object obj, final Field field, final Bin annotation) throws IOException {
+    final Class<?> fieldType = field.getType();
+
+    final BinType type;
+    if (annotation.type() == BinType.UNDEFINED) {
+      type = BinType.findCompatible(fieldType);
+    }
+    else {
+      type = annotation.type();
+    }
+
+    switch (type) {
+      case BIT: {
+        final JBBPBitNumber bitNumber = annotation.bitNumber();
+        if (fieldType == boolean.class) {
+          this.Bits(bitNumber, ((Boolean) readFieldValue(obj, field)) ? 0xFF : 0x00);
+        }
+        else {
+          byte value = ((Number) readFieldValue(obj, field)).byteValue();
+          if (annotation.bitOrder() == JBBPBitOrder.MSB0) {
+            value = JBBPUtils.reverseBitsInByte(bitNumber, value);
+          }
+          this.Bits(bitNumber, value);
+        }
+      }
+      break;
+      case BOOL: {
+        if (fieldType == boolean.class) {
+          this.Bool(((Boolean) readFieldValue(obj, field)), annotation.bitOrder());
+        }
+        else {
+          this.Bool(((Number) readFieldValue(obj, field)).longValue() != 0, annotation.bitOrder());
+        }
+      }
+      break;
+      case BYTE:
+      case UBYTE: {
+        byte value = ((Number) readFieldValue(obj, field)).byteValue();
+        if (annotation.bitOrder() == JBBPBitOrder.MSB0) {
+          value = JBBPUtils.reverseBitsInByte(value);
+        }
+        this.Byte(value);
+      }
+      break;
+      case SHORT:
+      case USHORT: {
+        short value;
+        if (fieldType == char.class) {
+          value = (short) ((Character) readFieldValue(obj, field)).charValue();
+        }
+        else {
+          value = ((Number) readFieldValue(obj, field)).shortValue();
+        }
+        if (annotation.bitOrder() == JBBPBitOrder.MSB0) {
+          value = (short) JBBPFieldShort.reverseBits(value);
+        }
+        this.Short(value);
+      }
+      break;
+      case INT: {
+        int value;
+        if (float.class == fieldType) {
+          value = Float.floatToIntBits((Float) readFieldValue(obj, field));
+        }
+        else {
+          value = ((Number) readFieldValue(obj, field)).intValue();
+        }
+        if (annotation.bitOrder() == JBBPBitOrder.MSB0) {
+          value = (int) JBBPFieldInt.reverseBits(value);
+        }
+        this.Int(value);
+      }
+      break;
+      case LONG: {
+        long value;
+        if (float.class == fieldType) {
+          value = Float.floatToIntBits((Float) readFieldValue(obj, field));
+        }
+        else if (double.class == fieldType) {
+          value = Double.doubleToLongBits((Double) readFieldValue(obj, field));
+        }
+        else {
+          value = ((Number) readFieldValue(obj, field)).longValue();
+        }
+
+        if (annotation.bitOrder() == JBBPBitOrder.MSB0) {
+          value = JBBPFieldLong.reverseBits(value);
+        }
+        this.Long(value);
+      }
+      break;
+      case STRUCT: {
+        Bin(readFieldValue(obj, field));
+      }
+      break;
+      default: {
+        final Object array = readFieldValue(obj, field);
+        switch (type) {
+          case BIT_ARRAY: {
+            assertFieldArray(field, fieldType);
+            final JBBPBitNumber bitNumber = annotation.bitNumber();
+            final int len = Array.getLength(array);
+
+            if (fieldType.getComponentType() == boolean.class) {
+              for (int i = 0; i < len; i++) {
+                this.Bits(bitNumber, (Boolean) Array.get(array, i) ? 0xFF : 0x00);
+              }
+            }
+            else {
+              final boolean msb0 = annotation.bitOrder() == JBBPBitOrder.MSB0;
+              for (int i = 0; i < len; i++) {
+                byte value = ((Number) Array.get(array, i)).byteValue();
+                if (msb0) {
+                  value = JBBPUtils.reverseBitsInByte(bitNumber, value);
+                }
+                this.Bits(bitNumber, value);
+              }
+            }
+          }
+          break;
+          case BOOL_ARRAY: {
+            assertFieldArray(field, fieldType);
+            final int len = Array.getLength(array);
+            for (int i = 0; i < len; i++) {
+              this.Bool((Boolean) Array.get(array, i), annotation.bitOrder());
+            }
+          }
+          break;
+          case UBYTE_ARRAY:
+          case BYTE_ARRAY: {
+            if (fieldType == String.class) {
+              this.Byte((String) readFieldValue(obj, field), annotation.bitOrder());
+            }
+            else {
+              assertFieldArray(field, fieldType);
+              final int len = Array.getLength(array);
+              final boolean msb0 = annotation.bitOrder() == JBBPBitOrder.MSB0;
+              for (int i = 0; i < len; i++) {
+                byte value = ((Number) Array.get(array, i)).byteValue();
+                if (msb0) {
+                  value = JBBPUtils.reverseBitsInByte(value);
+                }
+                this.Byte(value);
+              }
+            }
+          }
+          break;
+          case SHORT_ARRAY:
+          case USHORT_ARRAY: {
+            if (fieldType == String.class) {
+              this.Short((String) readFieldValue(obj, field), annotation.bitOrder());
+            }
+            else {
+              assertFieldArray(field, fieldType);
+              final int len = Array.getLength(array);
+              final boolean msb0 = annotation.bitOrder() == JBBPBitOrder.MSB0;
+              if (fieldType.getComponentType() == char.class) {
+                for (int i = 0; i < len; i++) {
+                  short value = (short) ((Character) Array.get(array, i)).charValue();
+                  if (msb0) {
+                    value = (short) JBBPFieldShort.reverseBits(value);
+                  }
+                  this.Short(value);
+                }
+              }
+              else {
+                for (int i = 0; i < len; i++) {
+                  short value = ((Number) Array.get(array, i)).shortValue();
+                  if (msb0) {
+                    value = (short) JBBPFieldShort.reverseBits(value);
+                  }
+                  this.Short(value);
+                }
+              }
+            }
+          }
+          break;
+          case INT_ARRAY: {
+            assertFieldArray(field, fieldType);
+            final int len = Array.getLength(array);
+            final boolean msb0 = annotation.bitOrder() == JBBPBitOrder.MSB0;
+            if (fieldType.getComponentType() == float.class) {
+              for (int i = 0; i < len; i++) {
+                int value = Float.floatToIntBits(Array.getFloat(array, i));
+                if (msb0) {
+                  value = (int) JBBPFieldInt.reverseBits(value);
+                }
+                this.Int(value);
+              }
+            }
+            else {
+              for (int i = 0; i < len; i++) {
+                int value = ((Number) Array.get(array, i)).intValue();
+                if (msb0) {
+                  value = (int) JBBPFieldInt.reverseBits(value);
+                }
+                this.Int(value);
+              }
+            }
+          }
+          break;
+          case LONG_ARRAY: {
+            assertFieldArray(field, fieldType);
+            final int len = Array.getLength(array);
+            final boolean msb0 = annotation.bitOrder() == JBBPBitOrder.MSB0;
+            if (fieldType.getComponentType() == float.class) {
+              for (int i = 0; i < len; i++) {
+                long value = Float.floatToIntBits(Array.getFloat(array, i));
+                if (msb0) {
+                  value = JBBPFieldLong.reverseBits(value);
+                }
+                this.Long(value);
+              }
+            }
+            else if (fieldType.getComponentType() == double.class) {
+              for (int i = 0; i < len; i++) {
+                long value = Double.doubleToLongBits(Array.getDouble(array, i));
+                if (msb0) {
+                  value = JBBPFieldLong.reverseBits(value);
+                }
+                this.Long(value);
+              }
+            }
+            else {
+              for (int i = 0; i < len; i++) {
+                long value = ((Number) Array.get(array, i)).longValue();
+                if (msb0) {
+                  value = JBBPFieldLong.reverseBits(value);
+                }
+                this.Long(value);
+              }
+            }
+          }
+          break;
+          case STRUCT_ARRAY: {
+            assertFieldArray(field, fieldType);
+            final int len = Array.getLength(array);
+            for (int i = 0; i < len; i++) {
+              Bin(Array.get(array, i));
+            }
+          }
+          break;
+          default: {
+            throw new Error("Unsupported field type [" + type + ']');
+          }
+        }
+      }
+      break;
     }
   }
 }

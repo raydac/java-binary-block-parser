@@ -15,6 +15,7 @@
  */
 package com.igormaznitsa.jbbp.utils;
 
+import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import java.io.*;
 import java.util.Random;
@@ -160,6 +161,14 @@ public class JBBPUtilsTest {
 
       assertEquals("Value is " + i, (byte) etalon, JBBPUtils.reverseBitsInByte((byte) i));
     }
+  }
+
+  @Test
+  public void testReverseBitsInByte_DefinedNumber() {
+    assertEquals((byte)1, JBBPUtils.reverseBitsInByte(JBBPBitNumber.BITS_1, (byte)0xFF));
+    assertEquals((byte)0, JBBPUtils.reverseBitsInByte(JBBPBitNumber.BITS_1, (byte)0x00));
+    assertEquals((byte)6, JBBPUtils.reverseBitsInByte(JBBPBitNumber.BITS_3, (byte)0x63));
+    assertEquals((byte)0x31, JBBPUtils.reverseBitsInByte(JBBPBitNumber.BITS_6, (byte)0x63));
   }
 
   @Test
@@ -339,6 +348,10 @@ public class JBBPUtilsTest {
 
     buff = new byte[10];
     assertArrayEquals(new byte[]{8, 7, 6, 5, 4, 3, 2, 1, 0, 0}, JBBPUtils.splitLong(0x0102030405060708L, true, buff));
+  }
 
+  @Test
+  public void testConcat(){
+    assertArrayEquals(new byte[]{1,2,3,4,5,6,7,8,9,10}, JBBPUtils.concat(new byte[]{1,2,3,4},new byte[]{5}, new byte[]{6,7,8,9},new byte[0],new byte[]{10}));
   }
 }

@@ -47,7 +47,7 @@ public class BinTypeTest {
     assertEquals(BinType.BOOL, BinType.findCompatible(boolean.class));
     assertEquals(BinType.INT, BinType.findCompatible(int.class));
     assertEquals(BinType.LONG, BinType.findCompatible(long.class));
-    assertEquals(BinType.STRUCT, BinType.findCompatible(String.class));
+    assertEquals(BinType.BYTE_ARRAY, BinType.findCompatible(String.class));
     assertEquals(BinType.INT,BinType.findCompatible(float.class));
     assertEquals(BinType.LONG,BinType.findCompatible(double.class));
   }

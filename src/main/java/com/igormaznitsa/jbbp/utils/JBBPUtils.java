@@ -15,8 +15,7 @@
  */
 package com.igormaznitsa.jbbp.utils;
 
-import com.igormaznitsa.jbbp.io.JBBPBitOrder;
-import com.igormaznitsa.jbbp.io.JBBPByteOrder;
+import com.igormaznitsa.jbbp.io.*;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import java.io.*;
 import java.util.*;
@@ -228,6 +227,17 @@ public enum JBBPUtils {
     return (byte) (((v * 0x0802 & 0x22110) | (v * 0x8020 & 0x88440)) * 0x10101 >> 16);
   }
 
+  /**
+   * Reverse lower part of a byte defined by bits number constant.
+   * @param bitNumber number of lowest bits to be reversed, must not be null
+   * @param value a byte to be processed
+   * @return value contains reversed number of lowest bits of the byte
+   */
+  public static byte reverseBitsInByte(final JBBPBitNumber bitNumber, final byte value){
+    final byte reversed = reverseBitsInByte(value);
+    return (byte)((reversed>>>(8-bitNumber.getBitNumber())) & bitNumber.getMask());
+  }
+  
   /**
    * Convert a byte array into string binary representation with LSB0 order.
    *
@@ -478,7 +488,7 @@ public enum JBBPUtils {
    *
    * @param byteOrder the byte order for the operation, must not be null
    * @param str the string which chars should be written, must not be null
-   * @return the byte array contains uncodes of the string written as byte pairs
+   * @return the byte array contains unicodes of the string written as byte pairs
    */
   public static byte[] str2UnicodeByteArray(final JBBPByteOrder byteOrder, final String str) {
     final byte[] result = new byte[str.length() << 1];
@@ -591,6 +601,26 @@ public enum JBBPUtils {
         result[i] = (byte) tmpvalue;
         tmpvalue >>>= 8;
       }
+    }
+    return result;
+  }
+  
+  /**
+   * Concatenate byte arrays into one byte array sequentially.
+   * @param arrays arrays to be concatenated
+   * @return the result byte array contains concatenated source arrays
+   */
+  public static byte [] concat(final byte [] ... arrays){
+    int len = 0;
+    for(final byte [] arr : arrays){
+      len+=arr.length;
+    }
+ 
+    final byte [] result = new byte[len];
+    int pos = 0;
+    for(final byte [] arr : arrays){
+      System.arraycopy(arr, 0, result, pos, arr.length);
+      pos += arr.length;
     }
     return result;
   }

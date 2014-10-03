@@ -203,7 +203,7 @@ public enum BinType {
       }
     }
     else {
-      result = STRUCT;
+      result = fieldClazz == String.class ? BYTE_ARRAY : STRUCT;
     }
     return result;
   }
