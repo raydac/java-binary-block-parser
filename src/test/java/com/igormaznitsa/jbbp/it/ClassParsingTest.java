@@ -275,8 +275,7 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
     assertEquals(methods, klazz.methods.length);
 
     if (fields > 0){
-      for (int i = 0; i < klazz.fields.length; i++) {
-        final FieldMethodInfo info = klazz.fields[i];
+      for (final FieldMethodInfo info : klazz.fields) {
         assertTrue(klazz.attribute_info.length > 0);
         for(final AttributeInfo ainfo : info.attribute_info){
           assertAttribute(klazz, ainfo);
@@ -285,8 +284,7 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
     }
     
     if (methods > 0){
-      for (int i = 0; i < klazz.methods.length; i++) {
-        final FieldMethodInfo info = klazz.methods[i];
+      for (final FieldMethodInfo info : klazz.methods) {
         assertTrue(klazz.attribute_info.length > 0);
         for(final AttributeInfo ainfo : info.attribute_info){
           assertAttribute(klazz, ainfo);

@@ -23,14 +23,43 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * The Class implements some kind of DSL to form binary blocks. The Class is not
  * a thread-safe one.
  */
 public final class JBBPOut {
+  /**
+   * An Auxiliary class to be used for class field ordering in save operations.
+   */
+  private static final class OrderedField implements Comparable<OrderedField> {
+    final int order;
+    final Field field;
+
+    OrderedField(final int order, final Field field) {
+      this.order = order;
+      this.field = field;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+      if (obj == null) return false;
+      if (obj == this) return true;
+      if (obj instanceof OrderedField){
+        return this.field == ((OrderedField)obj).field;
+      }
+      return false;
+    }
+
+    @Override
+    public int hashCode() {
+      return this.order;
+    }
+
+    public int compareTo(final OrderedField o) {
+      return this.order < o.order ? -1 : 1;
+    }
+  }
 
   /**
    * Inside cache to keep order of fields for classes for data output. It is
@@ -920,6 +949,9 @@ public final class JBBPOut {
     }
   }
 
+  /**
+   * Inside JBBPOut.Bin command creates cached list of fields of a saved class, the method allows to reset the inside cache.
+   */
   public void resetInsideClassCache() {
     final Map<Class<?>, Field[]> fieldz = cachedFields;
     if (fieldz != null) {
@@ -929,9 +961,19 @@ public final class JBBPOut {
     }
   }
 
+  /**
+   * Save fields of an object marked by Bin annotation. Fields will be ordered through {@link Bin#order()} field, NB! By default Java doesn't keep field order.
+   * Ordered fields of class will be saved into internal cache for speed but the cache can be reset through {@link #resetInsideClassCache()}
+   * @param object an object to be saved into stream, must not be null
+   * @return the context
+   * @throws IOException it will be thrown for any transport error
+   * @see #resetInsideClassCache() 
+   * @see Bin
+   */
   public JBBPOut Bin(final Object object) throws IOException {
     if (this.processCommands) {
-
+      JBBPUtils.assertNotNull(object, "Object must not be null");
+      
       Field[] orderedFields = null;
 
       final Map<Class<?>, Field[]> fieldz;
@@ -949,22 +991,6 @@ public final class JBBPOut {
       if (orderedFields == null) {
         // find out the order of fields and fields which should be serialized
         final List<Class<?>> listOfClassHierarchy = new ArrayList<Class<?>>();
-
-        final class OrderedField implements Comparable<OrderedField> {
-
-          final int order;
-          final Field field;
-
-          OrderedField(final int order, final Field field) {
-            this.order = order;
-            this.field = field;
-          }
-
-          public int compareTo(final OrderedField o) {
-            return this.order < o.order ? -1 : 1;
-          }
-        }
-
         final List<OrderedField> fields = new ArrayList<OrderedField>();
 
         Class<?> current = object.getClass();
@@ -1018,6 +1044,13 @@ public final class JBBPOut {
     return this;
   }
 
+  /**
+   * INside auxiliary method to read object field value.
+   * @param obj an object which field is read
+   * @param field a field to be read
+   * @return a value from the field of the object
+   * @throws JBBPException if the field can't be read
+   */
   private static Object readFieldValue(final Object obj, final Field field) {
     try {
       return field.get(obj);
@@ -1027,12 +1060,24 @@ public final class JBBPOut {
     }
   }
 
-  private static void assertFieldArray(final Field field, final Class<?> fieldType) {
-    if (!fieldType.isArray()) {
+  /**
+   * Check that a field defined as an array.
+   * @param field a field which is checked
+   * @throws IllegalArgumentException if the field is not an array
+   */
+  private static void assertFieldArray(final Field field) {
+    if (!field.getType().isArray()) {
       throw new IllegalArgumentException("Detected non-array field marked to be written as an array [" + field + ']');
     }
   }
 
+  /**
+   * Inside auxiliary method to write a field of an object.
+   * @param obj the object which field under processing, must not be null
+   * @param field the field to be written, must not be null
+   * @param annotation the annotation to be used as data source about the field, must not be null
+   * @throws IOException  the exception will be thrown if there is any error
+   */
   private void writeObjectField(final Object obj, final Field field, final Bin annotation) throws IOException {
     final Class<?> fieldType = field.getType();
 
@@ -1132,7 +1177,7 @@ public final class JBBPOut {
         final Object array = readFieldValue(obj, field);
         switch (type) {
           case BIT_ARRAY: {
-            assertFieldArray(field, fieldType);
+            assertFieldArray(field);
             final JBBPBitNumber bitNumber = annotation.bitNumber();
             final int len = Array.getLength(array);
 
@@ -1154,7 +1199,7 @@ public final class JBBPOut {
           }
           break;
           case BOOL_ARRAY: {
-            assertFieldArray(field, fieldType);
+            assertFieldArray(field);
             final int len = Array.getLength(array);
             for (int i = 0; i < len; i++) {
               this.Bool((Boolean) Array.get(array, i), annotation.bitOrder());
@@ -1167,7 +1212,7 @@ public final class JBBPOut {
               this.Byte((String) readFieldValue(obj, field), annotation.bitOrder());
             }
             else {
-              assertFieldArray(field, fieldType);
+              assertFieldArray(field);
               final int len = Array.getLength(array);
               final boolean msb0 = annotation.bitOrder() == JBBPBitOrder.MSB0;
               for (int i = 0; i < len; i++) {
@@ -1186,7 +1231,7 @@ public final class JBBPOut {
               this.Short((String) readFieldValue(obj, field), annotation.bitOrder());
             }
             else {
-              assertFieldArray(field, fieldType);
+              assertFieldArray(field);
               final int len = Array.getLength(array);
               final boolean msb0 = annotation.bitOrder() == JBBPBitOrder.MSB0;
               if (fieldType.getComponentType() == char.class) {
@@ -1211,7 +1256,7 @@ public final class JBBPOut {
           }
           break;
           case INT_ARRAY: {
-            assertFieldArray(field, fieldType);
+            assertFieldArray(field);
             final int len = Array.getLength(array);
             final boolean msb0 = annotation.bitOrder() == JBBPBitOrder.MSB0;
             if (fieldType.getComponentType() == float.class) {
@@ -1235,7 +1280,7 @@ public final class JBBPOut {
           }
           break;
           case LONG_ARRAY: {
-            assertFieldArray(field, fieldType);
+            assertFieldArray(field);
             final int len = Array.getLength(array);
             final boolean msb0 = annotation.bitOrder() == JBBPBitOrder.MSB0;
             if (fieldType.getComponentType() == float.class) {
@@ -1268,7 +1313,7 @@ public final class JBBPOut {
           }
           break;
           case STRUCT_ARRAY: {
-            assertFieldArray(field, fieldType);
+            assertFieldArray(field);
             final int len = Array.getLength(array);
             for (int i = 0; i < len; i++) {
               Bin(Array.get(array, i));
@@ -1276,7 +1321,7 @@ public final class JBBPOut {
           }
           break;
           default: {
-            throw new Error("Unsupported field type [" + type + ']');
+            throw new Error("Unexpected situation for field type, contact developer [" + type + ']');
           }
         }
       }

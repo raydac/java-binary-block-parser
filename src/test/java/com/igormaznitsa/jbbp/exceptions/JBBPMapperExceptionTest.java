@@ -47,7 +47,7 @@ public class JBBPMapperExceptionTest {
     final Field clazzField = Integer.class.getDeclaredFields()[0];
     assertNotNull(clazzField);
     final JBBPMapperException ex = new JBBPMapperException(this.message, this.field, clazz, clazzField, this.cause);
-    assertTrue(ex.toString().indexOf(clazzField.toString())>=0);
+    assertTrue(ex.toString().contains(clazzField.toString()));
   }
   
 }

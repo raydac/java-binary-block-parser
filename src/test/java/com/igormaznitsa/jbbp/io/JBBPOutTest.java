@@ -569,6 +569,7 @@ public class JBBPOutTest {
   @Test
   public void testVar_ProcessRest() throws Exception {
     class Test {
+
       @Bin(order = 1)
       byte a;
       @Bin(order = 2)
@@ -579,7 +580,7 @@ public class JBBPOutTest {
         this.b = (byte) b;
       }
     }
-    
+
     final byte[] array = BeginBin().
             Byte(0xCC).
             Var(new JBBPOutVarProcessor() {
@@ -593,23 +594,27 @@ public class JBBPOutTest {
               }
             }).
             Byte(0xAA).
-            Bin(new Test(0x12,0x13)).
+            Bin(new Test(0x12, 0x13)).
             End().toByteArray();
 
-    assertArrayEquals(new byte[]{(byte) 0xCC, (byte) 0xDD, (byte) 0xAA, (byte)0x12, (byte)0x13}, array);
+    assertArrayEquals(new byte[]{(byte) 0xCC, (byte) 0xDD, (byte) 0xAA, (byte) 0x12, (byte) 0x13}, array);
   }
 
   @Test
   public void testVar_SkipRest() throws Exception {
     class Test {
-      @Bin(order=1) byte a;
-      @Bin(order=2) byte b;
-      Test(int a, int b){
-        this.a = (byte)a;
-        this.b = (byte)b;
+
+      @Bin(order = 1)
+      byte a;
+      @Bin(order = 2)
+      byte b;
+
+      Test(int a, int b) {
+        this.a = (byte) a;
+        this.b = (byte) b;
       }
     }
-    
+
     final byte[] array = BeginBin().
             Byte(0xCC).
             Var(new JBBPOutVarProcessor() {
@@ -649,7 +654,7 @@ public class JBBPOutTest {
             Short(234, 233).
             Short(new short[]{(short) 234, (short) 233}).
             Skip(332).
-            Bin(new Test(12,34)).
+            Bin(new Test(12, 34)).
             Utf8("werwerew").
             Var(new JBBPOutVarProcessor() {
 
@@ -1131,5 +1136,25 @@ public class JBBPOutTest {
             JBBPOut.BeginBin().Bin(new Test((byte) 0x01, new Inner[]{new Inner((byte) 0x02, (byte) 0x03), new Inner((byte) 0x04, (byte) 0x05), new Inner((byte) 0x06, (byte) 0x07)})).End().toByteArray());
 
   }
+  
+  @Test
+  public void testBin_TwoFieldWithTheSameorder() throws Exception {
+    class Test {
+
+      @Bin(order = 1)
+      byte a;
+      @Bin(order = 1)
+      byte b;
+
+      Test(byte a, byte b) {
+        this.a = a;
+        this.b = b;
+      }
+    }
+
+    assertEquals(2, JBBPOut.BeginBin().Bin(new Test((byte)12,(byte)24)).End().toByteArray().length);
+  }
+  
+  
 
 }

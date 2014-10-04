@@ -38,7 +38,7 @@ public class JBBPParserTest {
       fail("Must throw JBBPParsingException");
     }
     catch (JBBPParsingException ex) {
-      assertTrue(ex.getMessage().indexOf("helloworld") >= 0);
+      assertTrue(ex.getMessage().contains("helloworld"));
     }
   }
 
