@@ -25,20 +25,24 @@ import static org.junit.Assert.*;
 public class WAVParsingTest extends AbstractParserIntegrationTest {
 
   private static final JBBPParser wavParser = JBBPParser.prepare(
-          "int ChunkID;"
+          "<int ChunkID;"
           + "<int ChunkSize;"
-          + "int Format;"
+          + "<int Format;"
           + "SubChunks [_]{"
-          + "  int SubChunkID;"
+          + "  <int SubChunkID;"
           + "  <int SubChunkSize;"
           + "  byte [SubChunkSize] data;"
           + "  align:2;"
           + "}"
   );
 
+  private static String wavInt2Str(final int value){
+    return new String(new char[]{(char) (value & 0xFF), (char) ((value >>> 8) & 0xFF), (char) ((value >>> 16) & 0xFF), (char)(value >>> 24)});
+  } 
+  
   private static void assertWavChunks(final JBBPFieldStruct parsedWav, final String... chunks) {
-    assertEquals(0x52494646, parsedWav.findFieldForNameAndType("ChunkID", JBBPFieldInt.class).getAsInt());
-    assertEquals(0x57415645, parsedWav.findFieldForNameAndType("Format", JBBPFieldInt.class).getAsInt());
+    assertEquals(0x46464952, parsedWav.findFieldForNameAndType("ChunkID", JBBPFieldInt.class).getAsInt());
+    assertEquals(0x45564157, parsedWav.findFieldForNameAndType("Format", JBBPFieldInt.class).getAsInt());
 
     int calculatedSize = 4;
 
@@ -49,8 +53,7 @@ public class WAVParsingTest extends AbstractParserIntegrationTest {
     for (final JBBPFieldStruct subchunk : parsedWav.findFieldForNameAndType("SubChunks", JBBPFieldArrayStruct.class)) {
       final String strChunkId = chunks[index++];
       assertEquals("WAV subchunk must have 4 char length [" + strChunkId + ']', 4, strChunkId.length());
-      final int subChunkId = (strChunkId.charAt(0) << 24) | (strChunkId.charAt(1) << 16) | (strChunkId.charAt(2) << 8) | strChunkId.charAt(3);
-      assertEquals(subChunkId, subchunk.findFieldForNameAndType("SubChunkID", JBBPFieldInt.class).getAsInt());
+      assertEquals(strChunkId, wavInt2Str(subchunk.findFieldForNameAndType("SubChunkID", JBBPFieldInt.class).getAsInt()));
       final int subChunkSize = subchunk.findFieldForNameAndType("SubChunkSize", JBBPFieldInt.class).getAsInt();
       assertEquals(subChunkSize, subchunk.findFieldForNameAndType("data", JBBPFieldArrayByte.class).size());
       calculatedSize += subChunkSize + 8 + (subChunkSize & 1);
