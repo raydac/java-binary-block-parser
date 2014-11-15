@@ -16,6 +16,8 @@
 package com.igormaznitsa.jbbp.it;
 
 import com.igormaznitsa.jbbp.*;
+import com.igormaznitsa.jbbp.io.JBBPBitNumber;
+import com.igormaznitsa.jbbp.io.JBBPOut;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.mapper.BinType;
 import com.igormaznitsa.jbbp.model.*;
@@ -91,14 +93,17 @@ public class NetPacketParsingTest extends AbstractParserIntegrationTest {
   @Test
   public void testParseSomePacketGettedOverTCP_ExampleFromStackOverflow() throws Exception {
     final class Parsed {
-      @Bin byte begin;
-      @Bin(type = BinType.BIT) int version;
-      @Bin(type = BinType.BIT) int returnType;
-      @Bin byte[] productCode;
-      @Bin(type = BinType.USHORT) int dataLength;
+      @Bin(order = 1) byte begin;
+      @Bin(order = 2, type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_4) int version;
+      @Bin(order = 3, type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_4) int returnType;
+      @Bin(order = 4) byte[] productCode;
+      @Bin(order = 5, type = BinType.USHORT) int dataLength;
     }
+    
+    final byte [] testArray =  new byte[]{0x23, 0x21, (byte) 0x90, 0x23, 0x21, 0x22, 0x12, 0x00, (byte) 0xAA};
+    
     final Parsed parsed = JBBPParser.prepare("byte begin; bit:4 version; bit:4 returnType; byte [5] productCode; ushort dataLength;")
-            .parse(new byte[]{0x23, 0x21, (byte) 0x90, 0x23, 0x21, 0x22, 0x12, 0x00, (byte) 0xAA})
+            .parse(testArray)
             .mapTo(Parsed.class);
 
     assertEquals(0x23, parsed.begin);
@@ -106,23 +111,30 @@ public class NetPacketParsingTest extends AbstractParserIntegrationTest {
     assertEquals(0x02, parsed.returnType);
     assertArrayEquals(new byte[]{(byte) 0x90, 0x23, 0x21, 0x22, 0x12}, parsed.productCode);
     assertEquals(0x00AA, parsed.dataLength);
+    
+    assertArrayEquals(testArray, JBBPOut.BeginBin().Bin(parsed).End().toByteArray());
   }
 
   @Test
   public void testParseUDP() throws Exception {
     final class Parsed {
-      @Bin char source;
-      @Bin char destination;
-      @Bin char checksum;
-      @Bin byte[] data;
+      @Bin(order = 1) char source;
+      @Bin(order = 2) char destination;
+      @Bin(order = 3) char length;
+      @Bin(order = 4) char checksum;
+      @Bin(order = 5) byte[] data;
     }
 
-    final Parsed parsed = JBBPParser.prepare("ushort source; ushort destination; ushort length; ushort checksum; byte [length-8] data;").parse(new byte[]{0x04, (byte) 0x89, 0x00, 0x35, 0x00, 0x2C, (byte) 0xAB, (byte) 0xB4, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x70, 0x6F, 0x70, 0x64, 0x02, 0x69, 0x78, 0x06, 0x6E, 0x65, 0x74, 0x63, 0x6F, 0x6D, 0x03, 0x63, 0x6F, 0x6D, 0x00, 0x00, 0x01, 0x00, 0x01}).mapTo(Parsed.class);
+    final byte [] testArray = new byte[]{0x04, (byte) 0x89, 0x00, 0x35, 0x00, 0x2C, (byte) 0xAB, (byte) 0xB4, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x70, 0x6F, 0x70, 0x64, 0x02, 0x69, 0x78, 0x06, 0x6E, 0x65, 0x74, 0x63, 0x6F, 0x6D, 0x03, 0x63, 0x6F, 0x6D, 0x00, 0x00, 0x01, 0x00, 0x01};
+    
+    final Parsed parsed = JBBPParser.prepare("ushort source; ushort destination; ushort length; ushort checksum; byte [length-8] data;").parse(testArray).mapTo(Parsed.class);
     
     assertEquals(0x0489, parsed.source);
     assertEquals(0x0035, parsed.destination);
     assertEquals(0xABB4, parsed.checksum);
     assertEquals(0x002C-8, parsed.data.length);
+    
+    assertArrayEquals(testArray, JBBPOut.BeginBin().Bin(parsed).End().toByteArray());
   }
 
 }

@@ -31,6 +31,8 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import com.igormaznitsa.jbbp.io.*;
 import java.io.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Test to parse RLE encoded snapshots in well-known Z80 format (v.1) for
@@ -38,55 +40,48 @@ import java.io.*;
  */
 public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
 
-  @Bin(type = BinType.BIT)
   class EmulFlags {
-
-    byte interruptmode;
-    byte issue2emulation;
-    byte doubleintfreq;
-    byte videosync;
-    byte inputdevice;
+    @Bin(order = 1, type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_2) byte interruptmode;
+    @Bin(order = 2, type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_1) byte issue2emulation;
+    @Bin(order = 3, type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_1) byte doubleintfreq;
+    @Bin(order = 4, type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_2) byte videosync;
+    @Bin(order = 5, type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_2) byte inputdevice;
   }
 
-  @Bin(type = BinType.BIT)
   class Flags {
-
-    byte reg_r_bit7;
-    byte bordercolor;
-    byte basic_samrom;
-    byte compressed;
-    byte nomeaning;
+    @Bin(order = 1, type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_1) byte reg_r_bit7;
+    @Bin(order = 2, type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_3) byte bordercolor;
+    @Bin(order = 3, type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_1) byte basic_samrom;
+    @Bin(order = 4, type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_1) byte compressed;
+    @Bin(order = 5, type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_2) byte nomeaning;
   }
 
-  @Bin
   class Z80Snapshot {
+    @Bin(order = 1) byte reg_a;
+    @Bin(order = 2) byte reg_f;
+    @Bin(order = 3) short reg_bc;
+    @Bin(order = 4) short reg_hl;
+    @Bin(order = 5) short reg_pc;
+    @Bin(order = 6) short reg_sp;
+    @Bin(order = 7) byte reg_ir;
+    @Bin(order = 8) byte reg_r;
 
-    byte reg_a;
-    byte reg_f;
-    short reg_bc;
-    short reg_hl;
-    short reg_pc;
-    short reg_sp;
-    byte reg_ir;
-    byte reg_r;
+    @Bin(order = 9) Flags flags;
 
-    Flags flags;
+    @Bin(order = 10) short reg_de;
+    @Bin(order = 11) short reg_bc_alt;
+    @Bin(order = 12) short reg_de_alt;
+    @Bin(order = 13) short reg_hl_alt;
+    @Bin(order = 14) byte reg_a_alt;
+    @Bin(order = 15) byte reg_f_alt;
+    @Bin(order = 16) short reg_iy;
+    @Bin(order = 17) short reg_ix;
+    @Bin(order = 18) byte iff;
+    @Bin(order = 19) byte iff2;
 
-    short reg_de;
-    short reg_bc_alt;
-    short reg_de_alt;
-    short reg_hl_alt;
-    byte reg_a_alt;
-    byte reg_f_alt;
-    short reg_iy;
-    short reg_ix;
-    byte iff;
-    byte iff2;
+    @Bin(order = 20) EmulFlags emulFlags;
 
-    EmulFlags emulFlags;
-
-    @Bin(custom = true)
-    byte[] data;
+    @Bin(order = 21, custom = true) byte[] data;
   }
 
   private static final JBBPParser z80Parser = JBBPParser.prepare(
@@ -171,7 +166,7 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
     assertArrayEquals(new byte[]{(byte) 0xED, (byte) 0xED, 8, 5, 1, 2, 3, 0x00, (byte) 0xED, (byte) 0xED, 0x00}, JBBPOut.BeginBin().Var(new RLEDataEncoder(), 1, new byte[]{5, 5, 5, 5, 5, 5, 5, 5, 1, 2, 3}).End().toByteArray());
   }
 
-  private static class DataProcessor implements JBBPMapperCustomFieldProcessor {
+  private static class DataProcessor implements JBBPMapperCustomFieldProcessor, JBBPCustomFieldWriter {
 
     public Object prepareObjectForMapping(JBBPFieldStruct parsedBlock, Bin annotation, Field field) {
       if (field.getName().equals("data")) {
@@ -221,6 +216,17 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
       else {
         fail("Unexpected field");
         return null;
+      }
+    }
+
+    public void writeCustomField(final JBBPOut context, final JBBPBitOutputStream out, final Object instanceForSaving, final Field instanceCustomField, final Bin fieldAnnotation) throws IOException {
+      try {
+        final byte [] array = (byte[])instanceCustomField.get(instanceForSaving);
+        new RLEDataEncoder().processVarOut(context, out, 1, array);
+      }
+      catch (Exception ex) {
+        ex.printStackTrace();
+        fail("Can't get field data");
       }
     }
   }
@@ -316,6 +322,21 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
       summ += b & 0xFF;
     }
     assertTrue(summ > 0);
+  }
+
+  @Test
+  public void testParseAndPackThrowMapping() throws Exception {
+    final InputStream in = getResourceAsInputStream("test.z80");
+    Z80Snapshot parsed = null;
+    try{
+      parsed = z80Parser.parse(in).mapTo(Z80Snapshot.class, new DataProcessor());
+    }finally{
+      JBBPUtils.closeQuietly(in);
+    }
+    
+    final byte [] saved = JBBPOut.BeginBin(JBBPByteOrder.LITTLE_ENDIAN).Bin(parsed, new DataProcessor()).End().toByteArray();
+   
+    assertResource("test.z80", saved);
   }
 
 }
