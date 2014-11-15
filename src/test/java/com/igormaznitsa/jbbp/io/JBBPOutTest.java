@@ -22,6 +22,7 @@ import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.*;
+import java.lang.reflect.Field;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -1153,6 +1154,53 @@ public class JBBPOutTest {
     }
 
     assertEquals(2, JBBPOut.BeginBin().Bin(new Test((byte)12,(byte)24)).End().toByteArray().length);
+  }
+  
+  @Test(expected = IllegalArgumentException.class)
+  public void testBin_CustomField_ErrorBecauseNoCustomWriter() throws Exception {
+    class Test {
+
+      @Bin(order = 1)
+      byte a;
+      @Bin(order = 2,custom = true)
+      byte b;
+
+      Test(byte a, byte b) {
+        this.a = a;
+        this.b = b;
+      }
+    }
+
+    JBBPOut.BeginBin().Bin(new Test((byte)12,(byte)24));
+  }
+  
+  @Test
+  public void testBin_CustomField_NoError() throws Exception {
+    class Test {
+      @Bin(order = 1)
+      byte a;
+      @Bin(order = 2,custom = true)
+      byte b;
+
+      Test(byte a, byte b) {
+        this.a = a;
+        this.b = b;
+      }
+    }
+
+    assertArrayEquals(new byte[]{1,2,3}, JBBPOut.BeginBin().Bin(new Test((byte)1,(byte)0),new JBBPCustomFieldWriter() {
+      public void writeCustomField(JBBPOut context, JBBPBitOutputStream outStream, Object instanceToSave, Field instanceCustomField, Bin fieldAnnotation) throws IOException {
+        assertNotNull(context);
+        assertNotNull(outStream);
+        assertNotNull(instanceToSave);
+        assertNotNull(instanceCustomField);
+        assertNotNull(fieldAnnotation);
+        assertEquals("b",instanceCustomField.getName());
+        assertTrue(instanceToSave.getClass() == instanceCustomField.getDeclaringClass());
+        
+        context.Byte(2,3);
+      }
+    }).End().toByteArray());
   }
   
   
