@@ -68,7 +68,7 @@ public final class JBBPOut {
   }
 
   /**
-   * Inside cache to keep order of fields for classes for data output. It is
+   * Inside cache to keep saveOrder of fields for classes for data output. It is
    * lazy initializing field.
    */
   private static volatile Map<Class<?>, Field[]> cachedFields;
@@ -79,11 +79,11 @@ public final class JBBPOut {
   private boolean processCommands = true;
 
   /**
-   * The Bit order for operations.
+   * The Bit saveOrder for operations.
    */
   private final JBBPBitOrder bitOrder;
   /**
-   * The Byte order for operations of multi-byte value output.
+   * The Byte saveOrder for operations of multi-byte value output.
    */
   private JBBPByteOrder byteOrder;
   /**
@@ -101,20 +101,20 @@ public final class JBBPOut {
   private final ByteArrayOutputStream originalByteArrayOutStream;
 
   /**
-   * The Default byte order.
+   * The Default byte saveOrder.
    */
   public static final JBBPByteOrder DEFAULT_BYTE_ORDER = JBBPByteOrder.BIG_ENDIAN;
 
   /**
-   * The Default bit order.
+   * The Default bit saveOrder.
    */
   public static final JBBPBitOrder DEFAULT_BIT_ORDER = JBBPBitOrder.LSB0;
 
   /**
-   * Start a DSL session for defined both byte order and bit order parameters.
+   * Start a DSL session for defined both byte saveOrder and bit saveOrder parameters.
    *
-   * @param byteOrder the byte order to be used for the session
-   * @param bitOrder the bit order to be used for the session
+   * @param byteOrder the byte saveOrder to be used for the session
+   * @param bitOrder the bit saveOrder to be used for the session
    * @return the new DSL session generated with the parameters and inside byte
    * array stream.
    */
@@ -126,8 +126,8 @@ public final class JBBPOut {
    * Start a DSL session for a defined stream with defined parameters.
    *
    * @param out the defined stream
-   * @param byteOrder the byte order for the session
-   * @param bitOrder the bit order for the session
+   * @param byteOrder the byte saveOrder for the session
+   * @param bitOrder the bit saveOrder for the session
    * @return the new DSL session generated for the stream with parameters
    */
   public static JBBPOut BeginBin(final OutputStream out, final JBBPByteOrder byteOrder, final JBBPBitOrder bitOrder) {
@@ -169,10 +169,10 @@ public final class JBBPOut {
   }
 
   /**
-   * Start a DSL session for default bit order and defined byte order. It will
+   * Start a DSL session for default bit saveOrder and defined byte saveOrder. It will
    * be using inside byte array stream.
    *
-   * @param byteOrder the byte order for the session, it must not be null.
+   * @param byteOrder the byte saveOrder for the session, it must not be null.
    * @return the new DSL session
    */
   public static JBBPOut BeginBin(final JBBPByteOrder byteOrder) {
@@ -180,10 +180,10 @@ public final class JBBPOut {
   }
 
   /**
-   * Start a DSL session for default byte order and defined bite order. It will
+   * Start a DSL session for default byte saveOrder and defined bite saveOrder. It will
    * be using inside byte array stream.
    *
-   * @param bitOrder the bite order for the session, it must not be null.
+   * @param bitOrder the bite saveOrder for the session, it must not be null.
    * @return the new DSL session
    */
   public static JBBPOut BeginBin(final JBBPBitOrder bitOrder) {
@@ -194,8 +194,8 @@ public final class JBBPOut {
    * The Constructor.
    *
    * @param outStream the output stream for the session, it must not be null.
-   * @param byteOrder the byte order for the session, it must not be null.
-   * @param bitOrder the bit order for the session, it must not be null
+   * @param byteOrder the byte saveOrder for the session, it must not be null.
+   * @param bitOrder the bit saveOrder for the session, it must not be null
    * @throws IllegalArgumentException if defined a bit stream which parameters
    * incompatible with defined ones
    */
@@ -279,9 +279,9 @@ public final class JBBPOut {
   }
 
   /**
-   * Define the byte order for next session operations.
+   * Define the byte saveOrder for next session operations.
    *
-   * @param value the byte order to be used in next operations, must not be null
+   * @param value the byte saveOrder to be used in next operations, must not be null
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    */
@@ -553,7 +553,7 @@ public final class JBBPOut {
    * char code.
    *
    * @param str a String which chars should be trimmed to bytes and saved
-   * @param bitOrder the bit order to save bytes
+   * @param bitOrder the bit saveOrder to save bytes
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    */
@@ -607,7 +607,7 @@ public final class JBBPOut {
    * Write a boolean value into the session stream as a byte.
    *
    * @param value a boolean value to be written, true is 1, false is 0
-   * @param bitOrder bit order for saving data
+   * @param bitOrder bit saveOrder for saving data
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    */
@@ -686,7 +686,7 @@ public final class JBBPOut {
    * Write codes of chars as 16 bit values into the stream.
    *
    * @param str the string which chars will be written, must not be null
-   * @param bitOrder the bit order
+   * @param bitOrder the bit saveOrder
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    */
@@ -970,9 +970,9 @@ public final class JBBPOut {
 
   /**
    * Save fields of an object marked by Bin annotation. Fields will be ordered
-   * through {@link Bin#order()} field, NB! By default Java doesn't keep field
-   * order. Ordered fields of class will be saved into internal cache for speed
-   * but the cache can be reset through {@link #resetInsideClassCache()}
+   * through {@link Bin#saveOrder()} field, NB! By default Java doesn't keep field
+ saveOrder. Ordered fields of class will be saved into internal cache for speed
+ but the cache can be reset through {@link #resetInsideClassCache()}
    *
    * @param object an object to be saved into stream, must not be null
    * @return the context
@@ -986,9 +986,9 @@ public final class JBBPOut {
 
   /**
    * Save fields of an object marked by Bin annotation. Fields will be ordered
-   * through {@link Bin#order()} field, NB! By default Java doesn't keep field
-   * order. Ordered fields of class will be saved into internal cache for speed
-   * but the cache can be reset through {@link #resetInsideClassCache()}
+   * through {@link Bin#saveOrder()} field, NB! By default Java doesn't keep field
+ saveOrder. Ordered fields of class will be saved into internal cache for speed
+ but the cache can be reset through {@link #resetInsideClassCache()}
    *
    * @param object an object to be saved into stream, must not be null
    * @param customFieldWriter a custom field writer to be used for saving of
@@ -1017,7 +1017,7 @@ public final class JBBPOut {
       }
 
       if (orderedFields == null) {
-        // find out the order of fields and fields which should be serialized
+        // find out the saveOrder of fields and fields which should be serialized
         final List<Class<?>> listOfClassHierarchy = new ArrayList<Class<?>>();
         final List<OrderedField> fields = new ArrayList<OrderedField>();
 
@@ -1040,7 +1040,7 @@ public final class JBBPOut {
               continue;
             }
 
-            fields.add(new OrderedField(fieldAnno.order(), f));
+            fields.add(new OrderedField(fieldAnno.saveOrder(), f));
           }
         }
 
@@ -1133,7 +1133,7 @@ public final class JBBPOut {
 
       switch (type) {
         case BIT: {
-          final JBBPBitNumber bitNumber = annotation.bitNumber();
+          final JBBPBitNumber bitNumber = annotation.saveBitNumber();
           if (fieldType == boolean.class) {
             this.Bits(bitNumber, ((Boolean) readFieldValue(obj, field)) ? 0xFF : 0x00);
           }
@@ -1220,7 +1220,7 @@ public final class JBBPOut {
           switch (type) {
             case BIT_ARRAY: {
               assertFieldArray(field);
-              final JBBPBitNumber bitNumber = annotation.bitNumber();
+              final JBBPBitNumber bitNumber = annotation.saveBitNumber();
               final int len = Array.getLength(array);
 
               if (fieldType.getComponentType() == boolean.class) {

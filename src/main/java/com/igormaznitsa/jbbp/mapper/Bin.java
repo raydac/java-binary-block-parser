@@ -15,8 +15,7 @@
  */
 package com.igormaznitsa.jbbp.mapper;
 
-import com.igormaznitsa.jbbp.io.JBBPBitNumber;
-import com.igormaznitsa.jbbp.io.JBBPBitOrder;
+import com.igormaznitsa.jbbp.io.*;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -59,18 +58,19 @@ public @interface Bin {
   /**
    * Order of bits for the field.
    *
-   * @return LSB0 or MSB0 order, LSB0 by default
+   * @return LSB0 or MSB0 saveOrder, LSB0 by default
    * @see JBBPBitOrder
    */
   JBBPBitOrder bitOrder() default JBBPBitOrder.LSB0;
 
   /**
    * The Flag shows that the field must be processed by a defined externally
-   * custom field processor.
+   * custom field processors during loading and saving.
    *
    * @return true if the mapping field must be processed externally, false
    * otherwise
    * @see JBBPMapperCustomFieldProcessor
+   * @see JBBPCustomFieldWriter
    */
   boolean custom() default false;
 
@@ -84,14 +84,15 @@ public @interface Bin {
   String extra() default "";
   
   /**
-   * The Value defines how many bytes are actual ones in the field, works for numeric field and arrays and allows make mapping to bit fields.
+   * The Value defines how many bytes are actual ones in the field, works for numeric field and arrays and allows make mapping to bit fields.The Property
+   * works only during saving time.
    * @return the number of lower bits in the value, by default the field shows 8 bit value
    */
-  JBBPBitNumber bitNumber() default JBBPBitNumber.BITS_8;
+  JBBPBitNumber saveBitNumber() default JBBPBitNumber.BITS_8;
   
   /**
-   * The Value shows order of the field during output of fields.
-   * @return the order of the field as number (the mapping will make ascending sorting)
+   * The Value shows saveOrder of the field during output of fields. The Property works only during saving time.
+   * @return the saveOrder of the field as number (the mapping will make ascending sorting)
    */
-  int order() default 0;
+  int saveOrder() default 0;
 }

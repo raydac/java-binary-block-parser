@@ -171,7 +171,7 @@ public final class JBBPMapper {
         else {
           final BinType fieldType;
 
-          final JBBPBitNumber mappedBitNumber = mappedAnno.bitNumber();
+          final JBBPBitNumber mappedBitNumber = mappedAnno.saveBitNumber();
 
           if (mappedAnno.type() == BinType.UNDEFINED) {
             BinType thetype = BinType.findCompatible(mappingField.getType());
