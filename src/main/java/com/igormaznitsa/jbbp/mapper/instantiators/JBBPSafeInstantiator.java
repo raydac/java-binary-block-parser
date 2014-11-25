@@ -100,13 +100,13 @@ public final class JBBPSafeInstantiator implements JBBPClassInstantiator {
    * @param declaringClass the declaring class for the class, must not be null
    * @return found constructor to be used to make an instance
    */
-  private static Constructor findConstructorForInnerClass(final Class<?> klazz, final Class<?> declaringClass) {
-    final Constructor[] constructors = klazz.getDeclaredConstructors();
+  private static Constructor<?> findConstructorForInnerClass(final Class<?> klazz, final Class<?> declaringClass) {
+    final Constructor<?>[] constructors = klazz.getDeclaredConstructors();
     if (constructors.length == 1) {
       return constructors[0];
     }
-    for (final Constructor c : constructors) {
-      final Class[] params = c.getParameterTypes();
+    for (final Constructor<?> c : constructors) {
+      final Class<?>[] params = c.getParameterTypes();
       if (params.length == 1 && params[0] == declaringClass) {
         return c;
       }
@@ -119,13 +119,13 @@ public final class JBBPSafeInstantiator implements JBBPClassInstantiator {
    * @param klazz a class to find a constructor, must not be null
    * @return found constructor to be used to make an instance
    */
-  private static Constructor findConstructorForStaticClass(final Class<?> klazz) {
-    final Constructor[] constructors = klazz.getDeclaredConstructors();
+  private static Constructor<?> findConstructorForStaticClass(final Class<?> klazz) {
+    final Constructor<?>[] constructors = klazz.getDeclaredConstructors();
     if (constructors.length == 1) {
       return constructors[0];
     }
-    for (final Constructor c : constructors) {
-      final Class[] params = c.getParameterTypes();
+    for (final Constructor<?> c : constructors) {
+      final Class<?>[] params = c.getParameterTypes();
       if (params.length == 0) {
         return c;
       }
@@ -137,12 +137,12 @@ public final class JBBPSafeInstantiator implements JBBPClassInstantiator {
     try {
       if (isInnerClass(klazz) || klazz.isLocalClass()) {
         final Class<?> declaringClass = klazz.getEnclosingClass();
-        final Constructor constructor = findConstructorForInnerClass(klazz, declaringClass);
+        final Constructor<?> constructor = findConstructorForInnerClass(klazz, declaringClass);
         constructor.setAccessible(true);
         return klazz.cast(constructor.newInstance(makeStubForConstructor(constructor.getParameterTypes())));
       }
       else {
-        final Constructor constructor = findConstructorForStaticClass(klazz);
+        final Constructor<?> constructor = findConstructorForStaticClass(klazz);
         constructor.setAccessible(true);
         return klazz.cast(constructor.newInstance(makeStubForConstructor(constructor.getParameterTypes())));
       }

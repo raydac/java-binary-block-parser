@@ -36,7 +36,7 @@ public class JBBPFieldArrayBitTest {
     assertEquals("field",test.getFieldName());
     assertNotNull(test.getNameInfo());
     assertEquals(999,test.getNameInfo().getFieldOffsetInCompiledBlock());
-    assertEquals(JBBPBitNumber.BITS_1,test.getBitNumber());
+    assertEquals(JBBPBitNumber.BITS_1,test.getBitWidth());
   }
   
   @Test

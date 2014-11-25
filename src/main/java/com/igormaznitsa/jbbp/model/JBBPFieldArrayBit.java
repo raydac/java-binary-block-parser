@@ -22,7 +22,7 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 /**
  * Describes an array contains bit fields.
  */
-public final class JBBPFieldArrayBit extends JBBPAbstractArrayField<JBBPFieldBit> implements Bitable {
+public final class JBBPFieldArrayBit extends JBBPAbstractArrayField<JBBPFieldBit> implements BitEntity {
   private static final long serialVersionUID = -4589044511663149591L;
 
   /**
@@ -64,7 +64,7 @@ public final class JBBPFieldArrayBit extends JBBPAbstractArrayField<JBBPFieldBit
    * Get the valuable bit number of values in the array.
    * @return the valuable bit number, must not be null
    */
-  public JBBPBitNumber getBitNumber() {
+  public JBBPBitNumber getBitWidth() {
     return this.bitNumber;
   }
   

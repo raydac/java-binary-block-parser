@@ -127,7 +127,7 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
           + "ushort minor_version;"
           + "ushort major_version;"
           + "ushort constant_pool_count;"
-          + "constant_pool_item [constant_pool_count - 1] { var [111] cp_item; //we can make any array size because it depends on data\n }"
+          + "constant_pool_item [constant_pool_count - 1] { var [1] cp_item; //we can make any array size because the field will be processed by a custom processor\n }"
           + "ushort access_flags;"
           + "ushort this_class;"
           + "ushort super_class;"

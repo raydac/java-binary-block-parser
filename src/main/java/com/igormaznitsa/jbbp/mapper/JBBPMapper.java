@@ -204,8 +204,8 @@ public final class JBBPMapper {
             throw new JBBPMapperException("Can't find value to be mapped to a mapping field [" + mappingField + ']', null, mappingClass, mappingField, null);
           }
 
-          if (bitWideField && mappedBitNumber!=JBBPBitNumber.BITS_8 && ((Bitable) binField).getBitNumber() != mappedBitNumber) {
-            throw new JBBPMapperException("Can't map value to a mapping field for different field bit width [" + mappedBitNumber + "!=" + ((Bitable) binField).getBitNumber().getBitNumber() + ']', null, mappingClass, mappingField, null);
+          if (bitWideField && mappedBitNumber!=JBBPBitNumber.BITS_8 && ((BitEntity) binField).getBitWidth() != mappedBitNumber) {
+            throw new JBBPMapperException("Can't map value to a mapping field for different field bit width [" + mappedBitNumber + "!=" + ((BitEntity) binField).getBitWidth().getBitNumber() + ']', null, mappingClass, mappingField, null);
           }
 
           if (mappingField.getType().isArray()) {

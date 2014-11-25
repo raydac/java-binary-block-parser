@@ -21,10 +21,10 @@ import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 /**
  * The Interface describes a field which contains data which width is lesser or equals byte.
  */
-public interface Bitable {
+public interface BitEntity {
   /**
    * Get the width of the field.
    * @return the width of the field, must not be null
    */
-  JBBPBitNumber getBitNumber();
+  JBBPBitNumber getBitWidth();
 }

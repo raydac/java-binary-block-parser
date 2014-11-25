@@ -31,8 +31,6 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import com.igormaznitsa.jbbp.io.*;
 import java.io.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Test to parse RLE encoded snapshots in well-known Z80 format (v.1) for

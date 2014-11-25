@@ -22,7 +22,7 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 /**
  * Describes a bit field.
  */
-public final class JBBPFieldBit extends JBBPAbstractField implements JBBPNumericField, Bitable {
+public final class JBBPFieldBit extends JBBPAbstractField implements JBBPNumericField, BitEntity {
   private static final long serialVersionUID = 3113427734366331529L;
   /**
    * Inside value storage.
@@ -51,7 +51,7 @@ public final class JBBPFieldBit extends JBBPAbstractField implements JBBPNumeric
    * Get number of valuable bits in the value. It plays informative role and doesn't play role during numeric value getting.
    * @return the number of valuable bits in the value.
    */
-  public JBBPBitNumber getBitNumber(){
+  public JBBPBitNumber getBitWidth(){
     return this.bitNumber;
   }
   

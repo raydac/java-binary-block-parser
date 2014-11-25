@@ -25,7 +25,7 @@ public enum JBBPSystemProperty {
    */
   PROPERTY_EXPRESSION_STACK_DEPTH("jbbp.expr.stack.depth"),
   /**
-   * The Property allows to define which will be work as a class instantiator for the JBBP mapper.
+   * The Property allows to define which class will work as a class instantiator for the JBBP mapper.
    */
   PROPERTY_INSTANTIATOR_CLASS("jbbp.mapper.instantiator"),
   

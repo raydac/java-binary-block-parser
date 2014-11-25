@@ -868,7 +868,7 @@ public class JBBPOutTest {
 
     assertArrayEquals(JBBPUtils.concat(
             JBBPUtils.splitLong(0xFFAABBCCDD001122L, false, null),
-            JBBPUtils.splitLong((long) JBBPFieldLong.reverseBits(0x0102030405060708L), false, null),
+            JBBPUtils.splitLong(JBBPFieldLong.reverseBits(0x0102030405060708L), false, null),
             JBBPUtils.splitLong(0x11223344556677AAL, false, null)
     ), JBBPOut.BeginBin().Bin(new Test(0xFFAABBCCDD001122L, 0x0102030405060708L, 0x11223344556677AAL)).End().toByteArray());
   }
@@ -893,7 +893,7 @@ public class JBBPOutTest {
 
     assertArrayEquals(JBBPUtils.concat(
             JBBPUtils.splitLong(Double.doubleToLongBits(34350.456d), false, null),
-            JBBPUtils.splitLong((long) JBBPFieldLong.reverseBits(Double.doubleToLongBits(8829374.1123d)), false, null),
+            JBBPUtils.splitLong(JBBPFieldLong.reverseBits(Double.doubleToLongBits(8829374.1123d)), false, null),
             JBBPUtils.splitLong(Double.doubleToLongBits(3256.123d), false, null)
     ), JBBPOut.BeginBin().Bin(new Test(34350.456d, 8829374.1123d, 3256.123d)).End().toByteArray());
   }
@@ -1078,8 +1078,8 @@ public class JBBPOutTest {
     }
     assertArrayEquals(JBBPUtils.concat(
             JBBPUtils.splitInteger(Float.floatToIntBits(23.4546f), false, null), JBBPUtils.splitInteger(Float.floatToIntBits(123.32f), false, null),
-            JBBPUtils.splitInteger((int) JBBPFieldInt.reverseBits((int) Float.floatToIntBits(11.98872f)), false, null),
-            JBBPUtils.splitInteger((int) JBBPFieldInt.reverseBits((int) Float.floatToIntBits(-234.322f)), false, null)
+            JBBPUtils.splitInteger((int) JBBPFieldInt.reverseBits(Float.floatToIntBits(11.98872f)), false, null),
+            JBBPUtils.splitInteger((int) JBBPFieldInt.reverseBits(Float.floatToIntBits(-234.322f)), false, null)
     ),
             JBBPOut.BeginBin().Bin(new Test(new float[]{23.4546f, 123.32f}, new float[]{11.98872f, -234.322f})).End().toByteArray());
   }
