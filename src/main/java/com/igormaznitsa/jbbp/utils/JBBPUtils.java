@@ -18,6 +18,7 @@ package com.igormaznitsa.jbbp.utils;
 import com.igormaznitsa.jbbp.io.*;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -229,15 +230,16 @@ public enum JBBPUtils {
 
   /**
    * Reverse lower part of a byte defined by bits number constant.
+   *
    * @param bitNumber number of lowest bits to be reversed, must not be null
    * @param value a byte to be processed
    * @return value contains reversed number of lowest bits of the byte
    */
-  public static byte reverseBitsInByte(final JBBPBitNumber bitNumber, final byte value){
+  public static byte reverseBitsInByte(final JBBPBitNumber bitNumber, final byte value) {
     final byte reversed = reverseBitsInByte(value);
-    return (byte)((reversed>>>(8-bitNumber.getBitNumber())) & bitNumber.getMask());
+    return (byte) ((reversed >>> (8 - bitNumber.getBitNumber())) & bitNumber.getMask());
   }
-  
+
   /**
    * Convert a byte array into string binary representation with LSB0 order.
    *
@@ -488,7 +490,8 @@ public enum JBBPUtils {
    *
    * @param byteOrder the byte order for the operation, must not be null
    * @param str the string which chars should be written, must not be null
-   * @return the byte array contains unicodes of the string written as byte pairs
+   * @return the byte array contains unicodes of the string written as byte
+   * pairs
    */
   public static byte[] str2UnicodeByteArray(final JBBPByteOrder byteOrder, final String str) {
     final byte[] result = new byte[str.length() << 1];
@@ -573,9 +576,10 @@ public enum JBBPUtils {
 
   /**
    * Split a long value to its bytes and returns the parts as an array.
-   * 
+   *
    * @param value the value to be split
-   * @param valueInLittleEndian the flag shows that the long is presented in the little endian for
+   * @param valueInLittleEndian the flag shows that the long is presented in the
+   * little endian for
    * @param buffer a buffer array to be used as a storage, if the array is null
    * or its length is less than 8 then new array will be created
    * @return the same array filled by parts of the integer value or new array if
@@ -604,24 +608,94 @@ public enum JBBPUtils {
     }
     return result;
   }
-  
+
   /**
    * Concatenate byte arrays into one byte array sequentially.
+   *
    * @param arrays arrays to be concatenated
    * @return the result byte array contains concatenated source arrays
    */
-  public static byte [] concat(final byte [] ... arrays){
+  public static byte[] concat(final byte[]... arrays) {
     int len = 0;
-    for(final byte [] arr : arrays){
-      len+=arr.length;
+    for (final byte[] arr : arrays) {
+      len += arr.length;
     }
- 
-    final byte [] result = new byte[len];
+
+    final byte[] result = new byte[len];
     int pos = 0;
-    for(final byte [] arr : arrays){
+    for (final byte[] arr : arrays) {
       System.arraycopy(arr, 0, result, pos, arr.length);
       pos += arr.length;
     }
     return result;
+  }
+
+  /**
+   * Revert order for defined number of bytes in a value.
+   *
+   * @param value the value which bytes should be reordered
+   * @param numOfLowerBytesToInvert number of lower bytes to be reverted in
+   * their order, must be 1..8
+   * @return new value which has reverted order for defined number of lower
+   * bytes
+   * @since 1.1
+   */
+  public static long reverseByteOrder(long value, int numOfLowerBytesToInvert) {
+    if (numOfLowerBytesToInvert < 1 || numOfLowerBytesToInvert > 8) {
+      throw new IllegalArgumentException("Wrong number of bytes [" + numOfLowerBytesToInvert + ']');
+    }
+
+    long result = 0;
+
+    int offsetInResult = (numOfLowerBytesToInvert - 1) * 8;
+
+    while (numOfLowerBytesToInvert-- > 0) {
+      final long thebyte = value & 0xFF;
+      value >>>= 8;
+      result |= (thebyte << offsetInResult);
+      offsetInResult -= 8;
+    }
+
+    return result;
+  }
+
+  /**
+   * Convert unsigned long value into string representation with defined radix base.
+   * @param ulongValue value to be converted in string
+   * @param radix radix base to be used for conversion, must be 2..36
+   * @param charBuffer char buffer to be used for conversion operations, should be not less than 64 char length, if length is less than 64 or null then new one will be created
+   * @return converted value as upper case string
+   * @throws IllegalArgumentException for wrong radix base
+   */
+  public static String ulong2str(final long ulongValue, final int radix, final char[] charBuffer) {
+    if (radix < 2 || radix > 36) {
+      throw new IllegalArgumentException("Illegal radix [" + radix + ']');
+    }
+
+    if (ulongValue == 0) {
+      return "0";
+    }
+    else {
+      long cur = ulongValue;
+      final String result;
+      if (cur > 0) {
+        result = Long.toString(cur, radix).toUpperCase(Locale.ENGLISH);
+      }
+      else {
+        final char[] buffer = charBuffer == null || charBuffer.length<64 ? new char[64] : charBuffer;
+        int pos = buffer.length;
+        long topPart = cur >>> 32;
+        long bottomPart = (cur & 0xFFFFFFFFL) + ((topPart % radix) << 32);
+        topPart /= radix;
+        while ((bottomPart | topPart) > 0) {
+          final int val = (int) (bottomPart % radix);
+          buffer[--pos] = (char) (val < 10 ? '0' + val : 'A' + val - 10);
+          bottomPart = (bottomPart / radix) + ((topPart % radix) << 32);
+          topPart /= radix;
+        }
+        result = new String(buffer, pos, buffer.length - pos);
+      }
+      return result;
+    }
   }
 }

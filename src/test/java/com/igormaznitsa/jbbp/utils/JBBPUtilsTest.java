@@ -25,6 +25,28 @@ import org.junit.Test;
 public class JBBPUtilsTest {
 
   @Test
+  public void testULong2Str_UnsignedHex() throws Exception {
+    assertEquals("12345678ABCD", JBBPUtils.ulong2str(0x12345678ABCDL,16,null));
+    assertEquals("7FFFFFFFFFFFFFFF", JBBPUtils.ulong2str(0x7FFFFFFFFFFFFFFFL, 16, null));
+    assertEquals("8000000000000000", JBBPUtils.ulong2str(0x8000000000000000L,16, null));
+    assertEquals("8FFFFFFFFFFFFFFF", JBBPUtils.ulong2str(0x8FFFFFFFFFFFFFFFL, 16, null));
+    assertEquals("8100000000000000", JBBPUtils.ulong2str(0x8100000000000000L, 16, null));
+    assertEquals("F23418824AB12342", JBBPUtils.ulong2str(0xF23418824AB12342L, 16, null));
+  }
+
+  @Test
+  public void testULong2Str_UnsignedDec() throws Exception {
+    assertEquals("20015998348237", JBBPUtils.ulong2str(0x12345678ABCDL, 10, null));
+    assertEquals("9223372036854775807", JBBPUtils.ulong2str(9223372036854775807L, 10, null));
+    assertEquals("9223372036853827875", JBBPUtils.ulong2str(0x7FFFFFFFFFF18923L, 10, null));
+    assertEquals("9223372036854775808", JBBPUtils.ulong2str(0x8000000000000000L,10, null));
+    assertEquals("10376293541461622783", JBBPUtils.ulong2str(0x8FFFFFFFFFFFFFFFL, 10, null));
+    assertEquals("9295429630892703744", JBBPUtils.ulong2str(0x8100000000000000L, 10, null));
+    assertEquals("17452601403845452610", JBBPUtils.ulong2str(0xF23418824AB12342L, 10, null));
+  }
+
+  
+  @Test
   public void testPackIntToByteArray() {
     for (int i = 0; i < 0x80; i++) {
       final byte[] array = JBBPUtils.packInt(i);
@@ -353,5 +375,27 @@ public class JBBPUtilsTest {
   @Test
   public void testConcat(){
     assertArrayEquals(new byte[]{1,2,3,4,5,6,7,8,9,10}, JBBPUtils.concat(new byte[]{1,2,3,4},new byte[]{5}, new byte[]{6,7,8,9},new byte[0],new byte[]{10}));
+  }
+  
+  @Test(expected = IllegalArgumentException.class)
+  public void testReverdeByteOrder_ErrorForZeroByteNumber(){
+    JBBPUtils.reverseByteOrder(1234, 0);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testReverdeByteOrder_ErrorForTooBigByteNumber(){
+    JBBPUtils.reverseByteOrder(1234, 9);
+  }
+
+  @Test
+  public void testReverdeByteOrder(){
+    assertEquals(0x0000000000000012L, JBBPUtils.reverseByteOrder(0x0000000000000012L, 1));
+    assertEquals(0x0000000000003412L, JBBPUtils.reverseByteOrder(0x0000000000001234L, 2));
+    assertEquals(0x0000000000563412L, JBBPUtils.reverseByteOrder(0x0000000000123456L, 3));
+    assertEquals(0x0000000078563412L, JBBPUtils.reverseByteOrder(0x0000000012345678L, 4));
+    assertEquals(0x0000009A78563412L, JBBPUtils.reverseByteOrder(0x000000123456789AL, 5));
+    assertEquals(0x0000BC9A78563412L, JBBPUtils.reverseByteOrder(0x0000123456789ABCL, 6));
+    assertEquals(0x00DEBC9A78563412L, JBBPUtils.reverseByteOrder(0x00123456789ABCDEL, 7));
+    assertEquals(0xF1DEBC9A78563412L, JBBPUtils.reverseByteOrder(0x123456789ABCDEF1L, 8));
   }
 }
