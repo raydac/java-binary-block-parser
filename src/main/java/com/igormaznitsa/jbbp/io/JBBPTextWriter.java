@@ -18,7 +18,7 @@ package com.igormaznitsa.jbbp.io;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.*;
 
-public class JBBPHexWriter extends FilterWriter {
+public class JBBPTextWriter extends FilterWriter {
 
   private static final String DEFAULT_COMMENT_PREFIX = ";";
   private static final String DEFAULT_VALUE_LINE_PREFIX = "";
@@ -58,19 +58,19 @@ public class JBBPHexWriter extends FilterWriter {
 
   private final static String DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-  public JBBPHexWriter() {
+  public JBBPTextWriter() {
     this(new StringWriter(1024), JBBPByteOrder.BIG_ENDIAN, System.getProperty("line.separator"), DEFAULT_RADIX, DEFAULT_VALUE_PREFIX, DEFAULT_VALUE_LINE_PREFIX, DEFAULT_COMMENT_PREFIX, DEFAULT_VALUE_DELIMITER);
   }
 
-  public JBBPHexWriter(final Writer out) {
+  public JBBPTextWriter(final Writer out) {
     this(out, JBBPByteOrder.BIG_ENDIAN, System.getProperty("line.separator"), DEFAULT_RADIX, DEFAULT_VALUE_PREFIX, DEFAULT_VALUE_LINE_PREFIX, DEFAULT_COMMENT_PREFIX, DEFAULT_VALUE_DELIMITER);
   }
 
-  public JBBPHexWriter(final Writer out, final JBBPByteOrder byteOrder) {
+  public JBBPTextWriter(final Writer out, final JBBPByteOrder byteOrder) {
     this(out, byteOrder, System.getProperty("line.separator"), DEFAULT_RADIX, DEFAULT_VALUE_PREFIX, DEFAULT_VALUE_LINE_PREFIX, DEFAULT_COMMENT_PREFIX, DEFAULT_VALUE_DELIMITER);
   }
 
-  public JBBPHexWriter(
+  public JBBPTextWriter(
           final Writer out,
           final JBBPByteOrder byteOrder,
           final String lineSeparator,
@@ -200,20 +200,20 @@ public class JBBPHexWriter extends FilterWriter {
     return result.append(valueText).toString();
   }
 
-  public JBBPHexWriter Byte(final int value) throws IOException {
+  public JBBPTextWriter Byte(final int value) throws IOException {
     ensureValueMode();
     printPrefixedValue(alignValueByZeroes(JBBPUtils.ulong2str(value & 0xFF, this.radix, CHAR_BUFFER), this.maxCharsRadixForByte));
     return this;
   }
 
-  public JBBPHexWriter Byte(final byte[] values) throws IOException {
+  public JBBPTextWriter Byte(final byte[] values) throws IOException {
     for (final byte b : values) {
       Byte(b);
     }
     return this;
   }
 
-  public JBBPHexWriter Byte(final byte[] values, int off, int len) throws IOException {
+  public JBBPTextWriter Byte(final byte[] values, int off, int len) throws IOException {
     ensureValueMode();
     while (len-- > 0) {
       Byte(values[off++]);
@@ -222,7 +222,7 @@ public class JBBPHexWriter extends FilterWriter {
     return this;
   }
 
-  public JBBPHexWriter Short(final short value) throws IOException {
+  public JBBPTextWriter Short(final short value) throws IOException {
     ensureValueMode();
 
     final short valueToWrite;
@@ -237,18 +237,18 @@ public class JBBPHexWriter extends FilterWriter {
     return this;
   }
 
-  public JBBPHexWriter Short(final short[] values) throws IOException {
+  public JBBPTextWriter Short(final short[] values) throws IOException {
     return this.Short(values, 0, values.length);
   }
 
-  public JBBPHexWriter Short(final short[] values, int off, int len) throws IOException {
+  public JBBPTextWriter Short(final short[] values, int off, int len) throws IOException {
     while (len-- > 0) {
       this.Short(values[off++]);
     }
     return this;
   }
 
-  public JBBPHexWriter Int(final int value) throws IOException {
+  public JBBPTextWriter Int(final int value) throws IOException {
     ensureValueMode();
 
     final int valueToWrite;
@@ -263,42 +263,42 @@ public class JBBPHexWriter extends FilterWriter {
     return this;
   }
 
-  public JBBPHexWriter Int(final int[] values) throws IOException {
+  public JBBPTextWriter Int(final int[] values) throws IOException {
     return this.Int(values, 0, values.length);
   }
 
-  public JBBPHexWriter Int(final int[] values, int off, int len) throws IOException {
+  public JBBPTextWriter Int(final int[] values, int off, int len) throws IOException {
     while (len-- > 0) {
       this.Int(values[off++]);
     }
     return this;
   }
 
-  public JBBPHexWriter IndentInc() throws IOException {
+  public JBBPTextWriter IndentInc() throws IOException {
     this.indent += this.spacesInTab;
     return this;
   }
   
-  public JBBPHexWriter IndentInc(final int count) throws IOException {
+  public JBBPTextWriter IndentInc(final int count) throws IOException {
     for(int i=0;i<count;i++) IndentInc();
     return this;
   }
   
-  public JBBPHexWriter IndentDec(final int count) throws IOException {
+  public JBBPTextWriter IndentDec(final int count) throws IOException {
     for (int i = 0; i < count; i++) {
       IndentDec();
     }
     return this;
   }
   
-  public JBBPHexWriter IndentDec() throws IOException {
+  public JBBPTextWriter IndentDec() throws IOException {
     if (this.indent>0){
       this.indent = Math.max(0, this.indent - this.spacesInTab);
     }
     return this;
   }
   
-  public JBBPHexWriter Long(final long value) throws IOException {
+  public JBBPTextWriter Long(final long value) throws IOException {
     ensureValueMode();
 
     final long valueToWrite;
@@ -313,24 +313,24 @@ public class JBBPHexWriter extends FilterWriter {
     return this;
   }
 
-  public JBBPHexWriter Long(final long[] values) throws IOException {
+  public JBBPTextWriter Long(final long[] values) throws IOException {
     return this.Long(values, 0, values.length);
   }
 
-  public JBBPHexWriter Long(final long[] values, int off, int len) throws IOException {
+  public JBBPTextWriter Long(final long[] values, int off, int len) throws IOException {
     while (len-- > 0) {
       this.Long(values[off++]);
     }
     return this;
   }
 
-  public JBBPHexWriter newLine() throws IOException {
+  public JBBPTextWriter newLine() throws IOException {
     this.write(this.lineSeparator);
     ensureNewLineMode();
     return this;
   }
 
-  public JBBPHexWriter Separator() throws IOException {
+  public JBBPTextWriter Separator() throws IOException {
     ensureNewLineMode();
     this.writeString(this.commentPrefix);
     for (int i = 0; i < 80; i++) {
@@ -340,7 +340,7 @@ public class JBBPHexWriter extends FilterWriter {
     return this;
   }
 
-  public JBBPHexWriter Comment(final String... comment) throws IOException {
+  public JBBPTextWriter Comment(final String... comment) throws IOException {
     if (comment != null) {
       for (int i = 0; i < comment.length; i++) {
         ensureCommentMode();
@@ -358,27 +358,27 @@ public class JBBPHexWriter extends FilterWriter {
       result = ((StringWriter) this.out).toString();
     }
     else {
-      result = JBBPHexWriter.class.getName() + '(' + this.out.getClass().getName() + ")@" + System.identityHashCode(this);
+      result = JBBPTextWriter.class.getName() + '(' + this.out.getClass().getName() + ")@" + System.identityHashCode(this);
     }
     return result;
   }
 
-  public JBBPHexWriter Close() throws IOException {
+  public JBBPTextWriter Close() throws IOException {
     super.close();
     return this;
   }
 
-  public JBBPHexWriter Flush() throws IOException {
+  public JBBPTextWriter Flush() throws IOException {
     super.flush();
     return this;
   }
 
-  public JBBPHexWriter Tab() throws IOException {
+  public JBBPTextWriter Tab() throws IOException {
     this.Space(this.linePosition % this.spacesInTab);
     return this;
   }
 
-  public JBBPHexWriter setTabSpaces(final int value) {
+  public JBBPTextWriter setTabSpaces(final int value) {
     if (value < 1) {
       throw new IllegalArgumentException("Space number must be positive number [" + value + ']');
     }
@@ -386,7 +386,7 @@ public class JBBPHexWriter extends FilterWriter {
     return this;
   }
 
-  public JBBPHexWriter Space(final int numberOfSpaces) throws IOException {
+  public JBBPTextWriter Space(final int numberOfSpaces) throws IOException {
     for (int i = 0; i < numberOfSpaces; i++) {
       writeChar(' ');
     }

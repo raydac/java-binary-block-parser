@@ -20,9 +20,9 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
 
-public class JBBPHexWriterTest {
+public class JBBPTextWriterTest {
 
-  private JBBPHexWriter writer;
+  private JBBPTextWriter writer;
 
   private void assertFile(final String fileName, final String text) throws Exception {
     final InputStream in = this.getClass().getResourceAsStream(fileName);
@@ -52,7 +52,7 @@ public class JBBPHexWriterTest {
 
   @Before
   public void before() {
-    writer = new JBBPHexWriter(new StringWriter(), JBBPByteOrder.BIG_ENDIAN, "\n", 16, "0x", ".", ";", ",");
+    writer = new JBBPTextWriter(new StringWriter(), JBBPByteOrder.BIG_ENDIAN, "\n", 16, "0x", ".", ";", ",");
   }
 
   @Test

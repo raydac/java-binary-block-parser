@@ -1,0 +1,9 @@
+Change log
+--------------------------
+
+1.1
+- Added mapped class save support into mapper
+- Added JBBPTextWriter to make log and text description for binary data
+
+1.0
+- The Initial version
