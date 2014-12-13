@@ -26,6 +26,7 @@ import java.util.List;
 
 /**
  * Describes a structure.
+ * @since 1.0
  */
 public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFieldFinder {
 

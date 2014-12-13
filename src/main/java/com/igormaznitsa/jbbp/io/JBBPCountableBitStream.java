@@ -17,6 +17,7 @@ package com.igormaznitsa.jbbp.io;
 
 /**
  * The Interface describes a stream which can manipulate bits and count number of bytes.
+ * @since 1.0
  */
 public interface JBBPCountableBitStream {
 

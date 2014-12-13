@@ -18,11 +18,11 @@ package com.igormaznitsa.jbbp.utils;
 import com.igormaznitsa.jbbp.io.*;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import java.io.*;
-import java.math.BigDecimal;
 import java.util.*;
 
 /**
  * Misc auxiliary methods to be used in the framework.
+ * @since 1.0
  */
 public enum JBBPUtils {
 
@@ -222,6 +222,7 @@ public enum JBBPUtils {
    *
    * @param value a byte value which bits must be reversed.
    * @return the reversed version of the byte
+   * @since 1.1
    */
   public static byte reverseBitsInByte(final byte value) {
     final int v = value & 0xFF;
@@ -492,6 +493,7 @@ public enum JBBPUtils {
    * @param str the string which chars should be written, must not be null
    * @return the byte array contains unicodes of the string written as byte
    * pairs
+   * @since 1.1
    */
   public static byte[] str2UnicodeByteArray(final JBBPByteOrder byteOrder, final String str) {
     final byte[] result = new byte[str.length() << 1];
@@ -523,6 +525,7 @@ public enum JBBPUtils {
    * it can be null
    * @return the same array instance but with reversed byte order, null if the
    * source array is null
+   * @since 1.1
    */
   public static byte[] reverseArray(final byte[] nullableArrayToBeInverted) {
     if (nullableArrayToBeInverted != null && nullableArrayToBeInverted.length > 0) {
@@ -549,6 +552,7 @@ public enum JBBPUtils {
    * or its length is less than 4 then new array will be created
    * @return the same array filled by parts of the integer value or new array if
    * the provided buffer is null or has not enough size
+   * @since 1.1
    */
   public static byte[] splitInteger(final int value, final boolean valueInLittleEndian, final byte[] buffer) {
     final byte[] result;
@@ -584,6 +588,7 @@ public enum JBBPUtils {
    * or its length is less than 8 then new array will be created
    * @return the same array filled by parts of the integer value or new array if
    * the provided buffer is null or has not enough size
+   * @since 1.1
    */
   public static byte[] splitLong(final long value, final boolean valueInLittleEndian, final byte[] buffer) {
     final byte[] result;
@@ -614,6 +619,7 @@ public enum JBBPUtils {
    *
    * @param arrays arrays to be concatenated
    * @return the result byte array contains concatenated source arrays
+   * @since 1.1
    */
   public static byte[] concat(final byte[]... arrays) {
     int len = 0;
@@ -666,6 +672,7 @@ public enum JBBPUtils {
    * @param charBuffer char buffer to be used for conversion operations, should be not less than 64 char length, if length is less than 64 or null then new one will be created
    * @return converted value as upper case string
    * @throws IllegalArgumentException for wrong radix base
+   * @since 1.1
    */
   public static String ulong2str(final long ulongValue, final int radix, final char[] charBuffer) {
     if (radix < 2 || radix > 36) {

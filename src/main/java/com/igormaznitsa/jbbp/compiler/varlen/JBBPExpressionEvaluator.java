@@ -30,6 +30,7 @@ import java.util.regex.*;
 
 /**
  * The Class implements an evaluator which can calculate an expression.
+ * @since 1.0
  */
 public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator {
 

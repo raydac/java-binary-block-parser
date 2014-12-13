@@ -19,6 +19,7 @@ import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 
 /**
  * Describes a boolean field.
+ * @since 1.0
  */
 public final class JBBPFieldBoolean extends JBBPAbstractField implements JBBPNumericField {
   private static final long serialVersionUID = 4165558936928450699L;

@@ -20,6 +20,7 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
  * Describes a unsigned byte value field.
+ * @since 1.0
  */
 public final class JBBPFieldUByte extends JBBPAbstractField implements JBBPNumericField{
   private static final long serialVersionUID = -1280322774219967406L;

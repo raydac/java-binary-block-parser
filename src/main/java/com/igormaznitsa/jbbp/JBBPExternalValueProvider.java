@@ -19,6 +19,7 @@ import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 
 /**
  * The Interface describes a provider which can provide numeric size for decoded arrays by their names.
+ * @since 1.0
  */
 public interface JBBPExternalValueProvider {
   /**

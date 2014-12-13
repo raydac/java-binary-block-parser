@@ -19,6 +19,7 @@ import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 
 /**
  * The Interface describes a class which can provide search for its inside field storage.
+ * @since 1.0
  */
 public interface JBBPFieldFinder {
   /**

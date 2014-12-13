@@ -20,6 +20,7 @@ import java.io.Serializable;
 
 /**
  * The Class is a container to keep parsed field type parameters.
+ * @since 1.0
  */
 public final class JBBPFieldTypeParameterContainer implements Serializable {
 

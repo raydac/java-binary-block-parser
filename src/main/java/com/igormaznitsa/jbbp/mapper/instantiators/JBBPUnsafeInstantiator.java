@@ -22,7 +22,8 @@ import java.lang.reflect.*;
  * The Class instantiate a class through sun.misc.unsafe without any call of
  * class constructors. To be more safe during porting to another platforms, all
  * work with sun,misc,unsafe organized through reflection to not have static
- * links the the classe.
+ * links the the class.
+ * @since 1.0
  */
 public final class JBBPUnsafeInstantiator implements JBBPClassInstantiator {
 

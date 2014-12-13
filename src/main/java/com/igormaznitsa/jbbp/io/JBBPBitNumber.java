@@ -17,6 +17,7 @@ package com.igormaznitsa.jbbp.io;
 
 /**
  * Constants allowed bit numbers for bit operations.
+ * @since 1.0
  */
 public enum JBBPBitNumber {
 

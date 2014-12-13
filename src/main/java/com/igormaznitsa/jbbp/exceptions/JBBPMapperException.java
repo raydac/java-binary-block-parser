@@ -21,6 +21,7 @@ import java.lang.reflect.Field;
 
 /**
  * The Exception describes an error during processing of mapping of bin fields to class fields.
+ * @since 1.0
  */
 public class JBBPMapperException extends JBBPException {
   private static final long serialVersionUID = -5643926527601318948L;

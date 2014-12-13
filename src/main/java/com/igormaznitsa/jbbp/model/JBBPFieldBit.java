@@ -21,6 +21,7 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
  * Describes a bit field.
+ * @since 1.0
  */
 public final class JBBPFieldBit extends JBBPAbstractField implements JBBPNumericField, BitEntity {
   private static final long serialVersionUID = 3113427734366331529L;

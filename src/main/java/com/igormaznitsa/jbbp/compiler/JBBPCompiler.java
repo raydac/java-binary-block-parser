@@ -29,6 +29,7 @@ import java.util.*;
 /**
  * The Class implements the compiler of a bin source script represented as a
  * text value into byte codes.
+ * @since 1.0
  */
 public final class JBBPCompiler {
 

@@ -20,6 +20,7 @@ import java.io.Serializable;
 
 /**
  * The Class is the ancestor for all fields and arrays of fields.
+ * @since 1.0
  */
 public class JBBPAbstractField implements Serializable {
   private static final long serialVersionUID = 8142829902016660630L;

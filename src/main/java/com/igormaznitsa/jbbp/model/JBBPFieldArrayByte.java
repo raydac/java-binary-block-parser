@@ -20,6 +20,7 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
  * Describes a byte array.
+ * @since 1.0
  */
 public final class JBBPFieldArrayByte extends JBBPAbstractArrayField<JBBPFieldByte>{
   private static final long serialVersionUID = -8100947416351943918L;

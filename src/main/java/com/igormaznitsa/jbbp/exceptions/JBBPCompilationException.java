@@ -19,6 +19,7 @@ import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPToken;
 
 /**
  * The Exception can be thrown during compilation phase and may provide the problematic token.
+ * @since 1.0
  */
 public class JBBPCompilationException extends JBBPException {
   private static final long serialVersionUID = -7567503709641292590L;

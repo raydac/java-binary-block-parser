@@ -24,6 +24,7 @@ import java.util.regex.*;
 /**
  * The Class implements a token parser which parses a String to binary block
  * parser tokens and check their format.
+ * @since 1.0
  */
 public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPToken> {
 

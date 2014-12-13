@@ -20,6 +20,7 @@ import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 
 /**
  * The Interface describes a field which contains data which width is lesser or equals byte.
+ * @since 1.0
  */
 public interface BitEntity {
   /**

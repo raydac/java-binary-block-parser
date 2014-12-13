@@ -19,6 +19,7 @@ import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 
 /**
  * The Exception will be thrown during search operation for only field, if there are too many variants.
+ * @since 1.0
  */
 public class JBBPTooManyFieldsFoundException extends JBBPFinderException {
   private static final long serialVersionUID = -7805676497685397609L;

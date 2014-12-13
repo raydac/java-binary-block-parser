@@ -20,6 +20,7 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
  * Describes an integer field.
+ * @since 1.0
  */
 public final class JBBPFieldInt extends JBBPAbstractField implements JBBPNumericField{
   private static final long serialVersionUID = 5493764792042809716L;

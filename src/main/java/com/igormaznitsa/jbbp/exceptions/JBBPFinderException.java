@@ -19,6 +19,7 @@ import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 
 /**
  * The Exception can be thrown during search field operations,
+ * @since 1.0
  */
 public class JBBPFinderException extends JBBPException {
   private static final long serialVersionUID = 4499929218503483986L;

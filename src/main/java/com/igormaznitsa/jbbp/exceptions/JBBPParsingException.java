@@ -17,6 +17,7 @@ package com.igormaznitsa.jbbp.exceptions;
 
 /**
  * The Exception can be thrown during parsing process.
+ * @since 1.0
  */
 public class JBBPParsingException extends JBBPCompilationException {
   private static final long serialVersionUID = 3397335881291955769L;

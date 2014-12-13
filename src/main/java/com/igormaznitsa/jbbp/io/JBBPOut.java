@@ -27,6 +27,7 @@ import java.util.*;
 /**
  * The Class implements some kind of DSL to form binary blocks. The Class is not
  * a thread-safe one.
+ * @since 1.0
  */
 public final class JBBPOut {
 
@@ -556,6 +557,7 @@ public final class JBBPOut {
    * @param bitOrder the bit saveOrder to save bytes
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
+   * @since 1.1
    */
   public JBBPOut Byte(final String str, final JBBPBitOrder bitOrder) throws IOException {
     assertNotEnded();
@@ -610,6 +612,7 @@ public final class JBBPOut {
    * @param bitOrder bit saveOrder for saving data
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
+   * @since 1.1
    */
   public JBBPOut Bool(final boolean value, final JBBPBitOrder bitOrder) throws IOException {
     assertNotEnded();
@@ -671,6 +674,7 @@ public final class JBBPOut {
    * @param str the string which chars will be written, must not be null
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
+   * @sine 1.1
    */
   public JBBPOut Short(final String str) throws IOException {
     assertNotEnded();
@@ -689,6 +693,7 @@ public final class JBBPOut {
    * @param bitOrder the bit saveOrder
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
+   * @since 1.1
    */
   public JBBPOut Short(final String str, final JBBPBitOrder bitOrder) throws IOException {
     assertNotEnded();
@@ -958,6 +963,7 @@ public final class JBBPOut {
   /**
    * Inside JBBPOut.Bin command creates cached list of fields of a saved class,
    * the method allows to reset the inside cache.
+   * @since 1.1
    */
   public void resetInsideClassCache() {
     final Map<Class<?>, Field[]> fieldz = cachedFields;
@@ -979,6 +985,7 @@ public final class JBBPOut {
    * @throws IOException it will be thrown for any transport error
    * @see #resetInsideClassCache()
    * @see Bin
+   * @since 1.1
    */
   public JBBPOut Bin(final Object object) throws IOException {
     return this.Bin(object, null);
@@ -997,6 +1004,7 @@ public final class JBBPOut {
    * @throws IOException it will be thrown for any transport error
    * @see #resetInsideClassCache()
    * @see Bin
+   * @since 1.1
    */
   public JBBPOut Bin(final Object object, final JBBPCustomFieldWriter customFieldWriter) throws IOException {
     if (this.processCommands) {
@@ -1083,6 +1091,7 @@ public final class JBBPOut {
    * @param field a field to be read
    * @return a value from the field of the object
    * @throws JBBPException if the field can't be read
+   * @since 1.1
    */
   private static Object readFieldValue(final Object obj, final Field field) {
     try {
@@ -1098,6 +1107,7 @@ public final class JBBPOut {
    *
    * @param field a field which is checked
    * @throws IllegalArgumentException if the field is not an array
+   * @since 1.1
    */
   private static void assertFieldArray(final Field field) {
     if (!field.getType().isArray()) {
@@ -1115,6 +1125,7 @@ public final class JBBPOut {
    * @param customFieldWriter a custom field writer to be used for custom
    * fields, it can be null if the field is not a custom one
    * @throws IOException the exception will be thrown if there is any error
+   * @since 1.1
    */
   private void writeObjectField(final Object obj, final Field field, final Bin annotation, final JBBPCustomFieldWriter customFieldWriter) throws IOException {
     if (annotation.custom()) {

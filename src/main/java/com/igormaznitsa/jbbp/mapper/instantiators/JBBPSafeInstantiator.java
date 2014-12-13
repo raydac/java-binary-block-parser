@@ -23,6 +23,7 @@ import java.lang.reflect.Modifier;
  * Class creates instances of classes through call of their default
  * constructors, it works without any magic but through reflection thus inner
  * class instances will be with null instead of instance of enclosing class.
+ * @since 1.0
  */
 public final class JBBPSafeInstantiator implements JBBPClassInstantiator {
 

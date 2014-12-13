@@ -27,6 +27,7 @@ import java.util.*;
 /**
  * the Main class allows a user to parse a binary stream or block for predefined
  * and precompiled script.
+ * @since 1.0
  */
 public final class JBBPParser {
 

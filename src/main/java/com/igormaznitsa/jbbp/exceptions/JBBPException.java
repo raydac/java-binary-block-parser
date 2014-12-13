@@ -17,6 +17,7 @@ package com.igormaznitsa.jbbp.exceptions;
 
 /**
  * The Root Exception for all JBBP exceptions.
+ * @since 1.0
  */
 public class JBBPException extends RuntimeException {
   private static final long serialVersionUID = -3311082983804835019L;

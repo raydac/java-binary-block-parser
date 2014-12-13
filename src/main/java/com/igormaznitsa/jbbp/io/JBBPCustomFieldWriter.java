@@ -23,6 +23,7 @@ import java.lang.reflect.Field;
  * The Interface describes an object which can save data for custom fields in mapped classes.
  * @see Bin
  * @see JBBPOut
+ * @since 1.0
  */
 public interface JBBPCustomFieldWriter {
   /**

@@ -20,6 +20,7 @@ import com.igormaznitsa.jbbp.compiler.varlen.JBBPIntegerValueEvaluator;
 
 /**
  * The Exception is thrown if any errors during execution of an array length evaluator.
+ * @since 1.0
  */
 public class JBBPEvalException extends JBBPException {
   private static final long serialVersionUID = -8580688001091915787L;

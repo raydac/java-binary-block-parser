@@ -19,6 +19,7 @@ import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 
 /**
  * The Interface describes a field which content can be represented as a numeric value.
+ * @since 1.0
  */
 public interface JBBPNumericField {
   /**

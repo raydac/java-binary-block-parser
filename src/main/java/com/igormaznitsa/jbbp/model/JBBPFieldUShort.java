@@ -20,6 +20,7 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
  * Describes a unsigned short value field.
+ * @since 1.0
  */
 public final class JBBPFieldUShort extends JBBPAbstractField implements JBBPNumericField{
   private static final long serialVersionUID = 8028734964961601006L;

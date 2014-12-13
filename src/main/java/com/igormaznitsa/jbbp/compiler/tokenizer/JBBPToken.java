@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 /**
  * The Class describes a token from parsed script.
- * 
+ * @since 1.0 
  */
 public final class JBBPToken implements Serializable {
   private static final long serialVersionUID = 7864654729087070154L;

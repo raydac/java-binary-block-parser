@@ -25,7 +25,8 @@ import java.lang.annotation.Target;
 /**
  * The annotation describes a field in a class which can be mapped and loaded
  * from parsed a JBBP structure. Also it can be used for whole class but in the
- * case be careful and use default name and path values.
+ * case be careful and use default name and path values. The Class is not thread safe.
+ * @since 1.0
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.TYPE})
@@ -87,12 +88,14 @@ public @interface Bin {
    * The Value defines how many bytes are actual ones in the field, works for numeric field and arrays and allows make mapping to bit fields.The Property
    * works only during saving time.
    * @return the number of lower bits in the value, by default the field shows 8 bit value
+   * @since 1.1
    */
   JBBPBitNumber saveBitNumber() default JBBPBitNumber.BITS_8;
   
   /**
    * The Value shows saveOrder of the field during output of fields. The Property works only during saving time.
    * @return the saveOrder of the field as number (the mapping will make ascending sorting)
+   * @since 1.1
    */
   int saveOrder() default 0;
 }

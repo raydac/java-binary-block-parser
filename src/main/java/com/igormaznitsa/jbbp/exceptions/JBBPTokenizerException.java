@@ -17,6 +17,7 @@ package com.igormaznitsa.jbbp.exceptions;
 
 /**
  * The Exception can be thrown during parsing sources for tokens and allows to figure out the position of the problematic token.
+ * @since 1.0
  */
 public class JBBPTokenizerException extends JBBPCompilationException {
   private static final long serialVersionUID = -1132154077305894146L;

@@ -21,6 +21,7 @@ import java.lang.reflect.Field;
 
 /**
  * The Interface describes a processor which will be called during mapping of fields of a parsed binary structure to a mapping class instance, if they marked for custom processing.
+ * @since 1.0
  */
 public interface JBBPMapperCustomFieldProcessor {
   /**

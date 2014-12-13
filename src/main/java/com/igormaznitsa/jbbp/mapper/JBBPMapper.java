@@ -32,6 +32,7 @@ import java.util.List;
  * constructor call.
  *
  * @see sun.misc.Unsafe
+ * @since 1.0
  */
 public final class JBBPMapper {
 

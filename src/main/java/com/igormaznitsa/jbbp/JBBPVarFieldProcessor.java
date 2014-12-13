@@ -24,6 +24,7 @@ import java.io.IOException;
 
 /**
  * The Interface describes a class which can process VAR fields from a stream.
+ * @since 1.0
  */
 public interface JBBPVarFieldProcessor {
   /**

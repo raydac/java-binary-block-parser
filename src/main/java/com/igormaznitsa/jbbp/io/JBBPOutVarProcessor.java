@@ -20,6 +20,7 @@ import java.io.IOException;
 
 /**
  * The Interface describes a class which can write some custom values into the context output stream (DSL command Var()).
+ * @since 1.0
  */
 public interface JBBPOutVarProcessor {
   /**

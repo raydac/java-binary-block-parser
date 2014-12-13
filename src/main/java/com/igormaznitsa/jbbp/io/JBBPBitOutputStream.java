@@ -20,6 +20,7 @@ import java.io.*;
 
 /**
  * The Filter allows to write bit by bit into an output stream and count the written byte number. The Class is not a thread-safe one.
+ * @since 1.0
  */
 public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCountableBitStream {
   /**

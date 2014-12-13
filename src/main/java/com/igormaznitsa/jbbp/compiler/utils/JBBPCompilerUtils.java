@@ -23,6 +23,7 @@ import java.util.List;
 
 /**
  * Class contains specific common auxiliary methods for parser and compiler classes.
+ * @since 1.0
  */
 public enum JBBPCompilerUtils {;
         

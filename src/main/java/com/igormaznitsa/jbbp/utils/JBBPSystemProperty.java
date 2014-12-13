@@ -18,6 +18,7 @@ package com.igormaznitsa.jbbp.utils;
 
 /**
  * The Enum contains all system properties which are used by the JBBP framework.
+ * @since 1.0
  */
 public enum JBBPSystemProperty {
   /**

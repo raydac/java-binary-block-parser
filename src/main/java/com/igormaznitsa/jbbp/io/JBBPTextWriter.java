@@ -17,8 +17,36 @@ package com.igormaznitsa.jbbp.io;
 
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * the Writer allows to make text describes some bin data, it supports output of
+ * commentaries and values, also it is possible to register own extras to
+ * process complex data and cases. The Class is not thread safe.
+ *
+ * @since 1.1
+ */
 public class JBBPTextWriter extends FilterWriter {
+
+  public interface Extras {
+
+    void onNewLine(JBBPTextWriter context, int lineNumber);
+
+    void onBeforeFirstVar(JBBPTextWriter context);
+
+    void onClose(JBBPTextWriter context);
+
+    String doByteToStr(JBBPTextWriter context, int value);
+
+    String doShortToStr(JBBPTextWriter context, int value);
+
+    String doIntToStr(JBBPTextWriter context, int value);
+
+    String doLongToStr(JBBPTextWriter context, long value);
+
+    String doObjToStr(JBBPTextWriter context, String id, Object obj);
+  }
 
   private static final String DEFAULT_COMMENT_PREFIX = ";";
   private static final String DEFAULT_VALUE_LINE_PREFIX = "";
@@ -27,12 +55,6 @@ public class JBBPTextWriter extends FilterWriter {
   private static final int DEFAULT_RADIX = 16;
 
   private final String lineSeparator;
-  private final JBBPByteOrder byteOrder;
-  private final int radix;
-  private final String valuePrefix;
-  private final String valueDelimiter;
-  private final String commentPrefix;
-  private final String valueLinePrefix;
 
   private static final int MODE_START_LINE = 0;
   private static final int MODE_VALUES = 1;
@@ -41,22 +63,28 @@ public class JBBPTextWriter extends FilterWriter {
   private int prevMode = MODE_START_LINE;
   private int mode = MODE_START_LINE;
 
-  private final int maxCharsRadixForByte;
-  private final int maxCharsRadixForShort;
-  private final int maxCharsRadixForInt;
-  private final int maxCharsRadixForLong;
+  private int radix;
+  private int maxCharsRadixForByte;
+  private int maxCharsRadixForShort;
+  private int maxCharsRadixForInt;
+  private int maxCharsRadixForLong;
+
+  private JBBPByteOrder byteOrder;
+  private String valueLinePrefix;
+  private String valuePrefix;
+  private String valueDelimiter;
+  private String commentPrefix;
 
   private int linePosition = 0;
   private int lineNumber = 0;
   private boolean valuesPresentedOnLine;
   private int spacesInTab = 4;
   private int indent = 0;
-  
-  private final char[] CHAR_BUFFER = new char[64];
 
+  private final char[] CHAR_BUFFER = new char[64];
   private int lastCommentLinePositionStart = 0;
 
-  private final static String DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  private final List<Extras> extrases = new ArrayList<Extras>();
 
   public JBBPTextWriter() {
     this(new StringWriter(1024), JBBPByteOrder.BIG_ENDIAN, System.getProperty("line.separator"), DEFAULT_RADIX, DEFAULT_VALUE_PREFIX, DEFAULT_VALUE_LINE_PREFIX, DEFAULT_COMMENT_PREFIX, DEFAULT_VALUE_DELIMITER);
@@ -80,30 +108,16 @@ public class JBBPTextWriter extends FilterWriter {
           final String commentPrefix,
           final String valueDelimiter) {
     super(out);
-
-    if (radix < 2 || radix > 36) {
-      throw new IllegalArgumentException("Unsupported radix value [" + radix + ']');
-    }
+    JBBPUtils.assertNotNull(lineSeparator, "Line separator must not be null");
+    this.lineSeparator = lineSeparator;
 
     JBBPUtils.assertNotNull(out, "Writer must not be null");
-    JBBPUtils.assertNotNull(byteOrder, "Byte order must not be null");
-    JBBPUtils.assertNotNull(valueDelimiter, "Delimiter must not be null");
-    JBBPUtils.assertNotNull(lineSeparator, "Line separator must not be null");
-    JBBPUtils.assertNotNull(valuePrefix, "Value prefix must not be null");
-    JBBPUtils.assertNotNull(commentPrefix, "Comment prefix must not be null");
-    JBBPUtils.assertNotNull(valueLinePrefix, "Value line prefix must not be null");
-    this.lineSeparator = lineSeparator;
-    this.byteOrder = byteOrder;
-    this.radix = radix;
-    this.valuePrefix = valuePrefix;
-    this.valueDelimiter = valueDelimiter;
-    this.commentPrefix = commentPrefix;
-    this.valueLinePrefix = valueLinePrefix;
-
-    this.maxCharsRadixForByte = JBBPUtils.ulong2str(0xFFL, this.radix, CHAR_BUFFER).length();
-    this.maxCharsRadixForShort = JBBPUtils.ulong2str(0xFFFFL, this.radix, CHAR_BUFFER).length();
-    this.maxCharsRadixForInt = JBBPUtils.ulong2str(0xFFFFFFFFL, this.radix, CHAR_BUFFER).length();
-    this.maxCharsRadixForLong = JBBPUtils.ulong2str(0xFFFFFFFFFFFFFFFFL, this.radix, CHAR_BUFFER).length();
+    ByteOrder(byteOrder);
+    ValDlmtr(valueDelimiter);
+    PrfxValLine(valueLinePrefix);
+    PrfxComment(commentPrefix);
+    PrfxVal(valuePrefix);
+    Radix(radix);
   }
 
   private void changeMode(final int mode) {
@@ -115,6 +129,9 @@ public class JBBPTextWriter extends FilterWriter {
     switch (this.mode) {
       case MODE_START_LINE: {
         changeMode(MODE_VALUES);
+        for (final Extras e : extrases) {
+          e.onBeforeFirstVar(this);
+        }
         writeIndent();
         this.writeString(this.valueLinePrefix);
       }
@@ -123,6 +140,9 @@ public class JBBPTextWriter extends FilterWriter {
         this.newLine();
         writeIndent();
         changeMode(MODE_VALUES);
+        for (final Extras e : extrases) {
+          e.onBeforeFirstVar(this);
+        }
         this.writeString(this.valueLinePrefix);
       }
       break;
@@ -130,15 +150,15 @@ public class JBBPTextWriter extends FilterWriter {
   }
 
   private void writeIndent() throws IOException {
-    if (this.indent>0){
+    if (this.indent > 0) {
       int i = this.indent;
-      while(i>0){
+      while (i > 0) {
         this.write(' ');
         i--;
       }
     }
   }
-  
+
   private void ensureCommentMode() throws IOException {
     switch (this.mode) {
       case MODE_START_LINE:
@@ -202,7 +222,22 @@ public class JBBPTextWriter extends FilterWriter {
 
   public JBBPTextWriter Byte(final int value) throws IOException {
     ensureValueMode();
-    printPrefixedValue(alignValueByZeroes(JBBPUtils.ulong2str(value & 0xFF, this.radix, CHAR_BUFFER), this.maxCharsRadixForByte));
+
+    String convertedByExtras = null;
+    for (final Extras e : this.extrases) {
+      convertedByExtras = e.doByteToStr(this, value);
+      if (convertedByExtras != null) {
+        break;
+      }
+    }
+
+    if (convertedByExtras == null) {
+      printPrefixedValue(alignValueByZeroes(JBBPUtils.ulong2str(value & 0xFF, this.radix, CHAR_BUFFER), this.maxCharsRadixForByte));
+    }
+    else {
+      printPrefixedValue(convertedByExtras);
+    }
+
     return this;
   }
 
@@ -222,18 +257,85 @@ public class JBBPTextWriter extends FilterWriter {
     return this;
   }
 
+  public JBBPTextWriter PrfxValLine(final String text) {
+    this.valueLinePrefix = text == null ? "" : text;
+    return this;
+  }
+
+  public JBBPTextWriter PrfxVal(final String text) {
+    this.valuePrefix = text == null ? "" : text;
+    return this;
+  }
+
+  public JBBPTextWriter PrfxComment(final String text) {
+    this.commentPrefix = text == null ? "" : text;
+    return this;
+  }
+
+  public JBBPTextWriter ValDlmtr(final String text) {
+    this.valueDelimiter = text == null ? "" : text;
+    return this;
+  }
+
+  public JBBPTextWriter regExtras(final Extras extras) {
+    JBBPUtils.assertNotNull(extras, "Extras must not be null");
+    this.extrases.add(extras);
+    return this;
+  }
+
+  public JBBPTextWriter TabSpaces(final int numberOfSpacesPerTab) {
+    if (numberOfSpacesPerTab <= 0) {
+      throw new IllegalArgumentException("Tab must contains positive number of space chars [" + numberOfSpacesPerTab + ']');
+    }
+    final int currentIdentSteps = this.indent / this.spacesInTab;
+    this.spacesInTab = numberOfSpacesPerTab;
+    this.indent = currentIdentSteps * this.spacesInTab;
+    return this;
+  }
+
+  public JBBPTextWriter ByteOrder(final JBBPByteOrder order) {
+    JBBPUtils.assertNotNull(order, "Byte order must not be null");
+    this.byteOrder = order;
+    return this;
+  }
+
+  public JBBPTextWriter Radix(final int radix) {
+    if (radix < 2 || radix > 36) {
+      throw new IllegalArgumentException("Unsupported radix value [" + radix + ']');
+    }
+    this.radix = radix;
+    this.maxCharsRadixForByte = JBBPUtils.ulong2str(0xFFL, this.radix, CHAR_BUFFER).length();
+    this.maxCharsRadixForShort = JBBPUtils.ulong2str(0xFFFFL, this.radix, CHAR_BUFFER).length();
+    this.maxCharsRadixForInt = JBBPUtils.ulong2str(0xFFFFFFFFL, this.radix, CHAR_BUFFER).length();
+    this.maxCharsRadixForLong = JBBPUtils.ulong2str(0xFFFFFFFFFFFFFFFFL, this.radix, CHAR_BUFFER).length();
+
+    return this;
+  }
+
   public JBBPTextWriter Short(final short value) throws IOException {
     ensureValueMode();
 
-    final short valueToWrite;
+    String convertedByExtras = null;
+    for (final Extras e : this.extrases) {
+      convertedByExtras = e.doShortToStr(this, value);
+      if (convertedByExtras != null) {
+        break;
+      }
+    }
 
-    if (this.byteOrder == JBBPByteOrder.LITTLE_ENDIAN) {
-      valueToWrite = (short) JBBPUtils.reverseByteOrder(value, 2);
+    if (convertedByExtras == null) {
+      final short valueToWrite;
+      if (this.byteOrder == JBBPByteOrder.LITTLE_ENDIAN) {
+        valueToWrite = (short) JBBPUtils.reverseByteOrder(value, 2);
+      }
+      else {
+        valueToWrite = value;
+      }
+      printPrefixedValue(alignValueByZeroes(JBBPUtils.ulong2str(valueToWrite & 0xFFFF, this.radix, CHAR_BUFFER), this.maxCharsRadixForShort));
     }
     else {
-      valueToWrite = value;
+      printPrefixedValue(convertedByExtras);
     }
-    printPrefixedValue(alignValueByZeroes(JBBPUtils.ulong2str(valueToWrite & 0xFFFF, this.radix, CHAR_BUFFER), this.maxCharsRadixForShort));
     return this;
   }
 
@@ -251,15 +353,27 @@ public class JBBPTextWriter extends FilterWriter {
   public JBBPTextWriter Int(final int value) throws IOException {
     ensureValueMode();
 
-    final int valueToWrite;
+    String convertedByExtras = null;
+    for (final Extras e : this.extrases) {
+      convertedByExtras = e.doIntToStr(this, value);
+      if (convertedByExtras != null) {
+        break;
+      }
+    }
 
-    if (this.byteOrder == JBBPByteOrder.LITTLE_ENDIAN) {
-      valueToWrite = (int) JBBPUtils.reverseByteOrder(value, 4);
+    if (convertedByExtras == null) {
+      final int valueToWrite;
+      if (this.byteOrder == JBBPByteOrder.LITTLE_ENDIAN) {
+        valueToWrite = (int) JBBPUtils.reverseByteOrder(value, 4);
+      }
+      else {
+        valueToWrite = value;
+      }
+      printPrefixedValue(alignValueByZeroes(JBBPUtils.ulong2str(valueToWrite & 0xFFFFFFFFL, this.radix, CHAR_BUFFER), this.maxCharsRadixForInt));
     }
     else {
-      valueToWrite = value;
+      printPrefixedValue(convertedByExtras);
     }
-    printPrefixedValue(alignValueByZeroes(JBBPUtils.ulong2str(valueToWrite & 0xFFFFFFFFL, this.radix, CHAR_BUFFER), this.maxCharsRadixForInt));
     return this;
   }
 
@@ -278,38 +392,52 @@ public class JBBPTextWriter extends FilterWriter {
     this.indent += this.spacesInTab;
     return this;
   }
-  
+
   public JBBPTextWriter IndentInc(final int count) throws IOException {
-    for(int i=0;i<count;i++) IndentInc();
+    for (int i = 0; i < count; i++) {
+      IndentInc();
+    }
     return this;
   }
-  
+
   public JBBPTextWriter IndentDec(final int count) throws IOException {
     for (int i = 0; i < count; i++) {
       IndentDec();
     }
     return this;
   }
-  
+
   public JBBPTextWriter IndentDec() throws IOException {
-    if (this.indent>0){
+    if (this.indent > 0) {
       this.indent = Math.max(0, this.indent - this.spacesInTab);
     }
     return this;
   }
-  
+
   public JBBPTextWriter Long(final long value) throws IOException {
     ensureValueMode();
 
-    final long valueToWrite;
+    String convertedByExtras = null;
+    for (final Extras e : this.extrases) {
+      convertedByExtras = e.doLongToStr(this, value);
+      if (convertedByExtras != null) {
+        break;
+      }
+    }
 
-    if (this.byteOrder == JBBPByteOrder.LITTLE_ENDIAN) {
-      valueToWrite = JBBPUtils.reverseByteOrder(value, 8);
+    if (convertedByExtras == null) {
+      final long valueToWrite;
+      if (this.byteOrder == JBBPByteOrder.LITTLE_ENDIAN) {
+        valueToWrite = JBBPUtils.reverseByteOrder(value, 8);
+      }
+      else {
+        valueToWrite = value;
+      }
+      printPrefixedValue(alignValueByZeroes(JBBPUtils.ulong2str(valueToWrite, this.radix, CHAR_BUFFER), this.maxCharsRadixForLong));
     }
     else {
-      valueToWrite = value;
+      printPrefixedValue(convertedByExtras);
     }
-    printPrefixedValue(alignValueByZeroes(JBBPUtils.ulong2str(valueToWrite, this.radix, CHAR_BUFFER), this.maxCharsRadixForLong));
     return this;
   }
 
@@ -342,9 +470,9 @@ public class JBBPTextWriter extends FilterWriter {
 
   public JBBPTextWriter Comment(final String... comment) throws IOException {
     if (comment != null) {
-      for (int i = 0; i < comment.length; i++) {
+      for (final String c : comment) {
         ensureCommentMode();
-        writeString(comment[i]);
+        writeString(c);
       }
       newLine();
     }
@@ -363,7 +491,31 @@ public class JBBPTextWriter extends FilterWriter {
     return result;
   }
 
+  public JBBPTextWriter Obj(final String objId, final Object... obj) throws IOException {
+    if (this.extrases.isEmpty()) {
+      throw new IllegalStateException("There is not any registered extras");
+    }
+    ensureValueMode();
+
+    for (final Object c : obj) {
+      String str = null;
+      for (final Extras e : this.extrases) {
+        str = e.doObjToStr(this, objId, c);
+        if (str != null) {
+          break;
+        }
+      }
+
+      JBBPUtils.assertNotNull(str, "Object has not been converted to string [" + objId + ',' + c + ']');
+      printPrefixedValue(str);
+    }
+    return this;
+  }
+
   public JBBPTextWriter Close() throws IOException {
+    for (final Extras e : extrases) {
+      e.onClose(this);
+    }
     super.close();
     return this;
   }
@@ -404,6 +556,9 @@ public class JBBPTextWriter extends FilterWriter {
         this.prevMode = this.mode;
         this.mode = MODE_START_LINE;
         this.linePosition = 0;
+        for (final Extras e : extrases) {
+          e.onNewLine(this, this.lineNumber);
+        }
       }
       break;
       case '\r':
@@ -443,6 +598,16 @@ public class JBBPTextWriter extends FilterWriter {
     while (len-- > 0) {
       this.writeChar(buff[off++]);
     }
+  }
+
+  @Override
+  public void write(final String str) throws IOException {
+    this.write(str, 0, str.length());
+  }
+
+  @Override
+  public void write(final char[] cbuf) throws IOException {
+    this.write(cbuf, 0, cbuf.length);
   }
 
   @Override

@@ -23,6 +23,7 @@ import java.io.*;
  * A Filter stream implementing a countable bit stream interface. It allows read
  * not only bytes but also bits from an input stream. The Class is not a
  * thread-safe one.
+ * @since 1.0
  */
 public class JBBPBitInputStream extends FilterInputStream implements JBBPCountableBitStream {
 

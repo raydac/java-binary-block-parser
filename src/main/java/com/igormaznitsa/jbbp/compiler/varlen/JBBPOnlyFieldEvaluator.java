@@ -21,6 +21,7 @@ import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 
 /**
  * Class implements an evaluator which works with only field.
+ * @since 1.0
  */
 public final class JBBPOnlyFieldEvaluator implements JBBPIntegerValueEvaluator {
   private static final long serialVersionUID = -1031131501937541693L;

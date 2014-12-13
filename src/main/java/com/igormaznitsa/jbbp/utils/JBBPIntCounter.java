@@ -18,6 +18,7 @@ package com.igormaznitsa.jbbp.utils;
 
 /**
  * The Class implements a simple thread unsafe integer counter.
+ * @since 1.0
  */
 public final class JBBPIntCounter extends Number {
   private static final long serialVersionUID = -4457089530231871404L;

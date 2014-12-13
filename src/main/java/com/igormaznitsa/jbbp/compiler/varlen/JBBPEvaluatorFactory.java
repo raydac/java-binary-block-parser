@@ -22,6 +22,7 @@ import java.util.List;
 /**
  * The Factory generates a special evaluator which is appropriate for variable array size text.
  * It is a singleton and can't be created directly, only through the special getInstance method.
+ * @since 1.0
  */
 public final class JBBPEvaluatorFactory {
   private static final JBBPEvaluatorFactory instance = new JBBPEvaluatorFactory();

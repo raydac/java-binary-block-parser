@@ -26,6 +26,7 @@ import java.util.*;
 
 /**
  * Implements a storage to keep named fields. it is not a thread-safe one
+ * @since 1.0
  */
 public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
 

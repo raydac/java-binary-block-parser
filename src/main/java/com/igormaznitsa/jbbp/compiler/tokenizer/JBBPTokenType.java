@@ -17,6 +17,7 @@ package com.igormaznitsa.jbbp.compiler.tokenizer;
 
 /**
  * The Enumeration represents allowed token types to be met in binary block parser script.
+ * @since 1.0
  */
 public enum JBBPTokenType {
   /**

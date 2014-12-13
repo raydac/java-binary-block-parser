@@ -21,6 +21,7 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 /**
  * The Factory produces a class instantiator which is compatible with the
  * current platform.
+ * @since 1.0
  */
 public final class JBBPClassInstantiatorFactory {
 

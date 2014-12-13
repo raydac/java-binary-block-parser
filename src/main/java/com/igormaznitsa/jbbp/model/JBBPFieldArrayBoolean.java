@@ -20,6 +20,7 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
  * Describes an array of boolean values.
+ * @since 1.0
  */
 public final class JBBPFieldArrayBoolean extends JBBPAbstractArrayField<JBBPFieldBoolean>{
   private static final long serialVersionUID = -7896549257985728694L;

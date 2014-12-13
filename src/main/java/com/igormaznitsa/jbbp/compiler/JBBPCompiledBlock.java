@@ -23,6 +23,7 @@ import java.util.*;
 /**
  * The Class describes a data block contains compiled information for a bin
  * parser script.
+ * @since 1.0
  */
 public final class JBBPCompiledBlock {
 

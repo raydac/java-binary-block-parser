@@ -21,6 +21,7 @@ import java.io.Serializable;
 /**
  * The Class describes a named field info item. Such objects are presented
  * inside of compiled blocks only for fields which have names.
+ * @since 1.0
  */
 public final class JBBPNamedFieldInfo implements Serializable {
   private static final long serialVersionUID = -3830704680293509892L;

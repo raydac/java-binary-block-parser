@@ -21,6 +21,7 @@ import com.igormaznitsa.jbbp.model.*;
  * The Enum contains all supported bin types for mapper.
  *
  * @see JBBPMapper
+ * @since 1.0
  */
 public enum BinType {
 

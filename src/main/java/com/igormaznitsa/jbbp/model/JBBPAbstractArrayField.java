@@ -22,6 +22,7 @@ import java.util.NoSuchElementException;
 /**
  * The Class is the ancestor for all field which represent arrays.
  * @param <T> type of field which can be contained in the array
+ * @since 1.0
  */
 public abstract class JBBPAbstractArrayField<T extends JBBPAbstractField> extends JBBPAbstractField implements Iterable<T> {
   private static final long serialVersionUID = -9007994400543951290L;

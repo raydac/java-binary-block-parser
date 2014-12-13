@@ -21,7 +21,8 @@ import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import java.io.Serializable;
 
 /**
- * The Interface describes a class which can evaluate and provide an integer value. .
+ * The Interface describes a class which can evaluate and provide an integer value.
+ * @since 1.0
  */
 public interface JBBPIntegerValueEvaluator extends Serializable {
   /**

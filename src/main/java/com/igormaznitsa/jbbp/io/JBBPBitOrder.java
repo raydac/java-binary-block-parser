@@ -17,6 +17,7 @@ package com.igormaznitsa.jbbp.io;
 
 /**
  * Constants for bit order of reading operations.
+ * @since 1.0
  */
 public enum JBBPBitOrder {
   /**

@@ -17,8 +17,8 @@
 package com.igormaznitsa.jbbp.mapper.instantiators;
 
 /**
- *
- * @author Igor Maznitsa (http://www.igormaznitsa.com)
+ * Type of class instantiator to provide new class instances for mapping.
+ * @since 1.0
  */
 public enum JBBPClassInstantiatorType {
   /**

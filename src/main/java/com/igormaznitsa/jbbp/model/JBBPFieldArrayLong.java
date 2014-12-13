@@ -20,6 +20,7 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
  * Describes a long array.
+ * @since 1.0
  */
 public final class JBBPFieldArrayLong extends JBBPAbstractArrayField<JBBPFieldLong>{
   private static final long serialVersionUID = -2146959300724853264L;
