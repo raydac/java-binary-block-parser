@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.igormaznitsa.jbbp.io;
+package com.igormaznitsa.jbbp.utils;
 
-import com.igormaznitsa.jbbp.utils.JBBPUtils;
+import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,21 +31,21 @@ public class JBBPTextWriter extends FilterWriter {
 
   public interface Extras {
 
-    void onNewLine(JBBPTextWriter context, int lineNumber);
+    void onNewLine(JBBPTextWriter context, int lineNumber) throws IOException;
 
-    void onBeforeFirstVar(JBBPTextWriter context);
+    void onBeforeFirstVar(JBBPTextWriter context) throws IOException;
 
-    void onClose(JBBPTextWriter context);
+    void onClose(JBBPTextWriter context) throws IOException;
 
-    String doByteToStr(JBBPTextWriter context, int value);
+    String doByteToStr(JBBPTextWriter context, int value) throws IOException;
 
-    String doShortToStr(JBBPTextWriter context, int value);
+    String doShortToStr(JBBPTextWriter context, int value) throws IOException;
 
-    String doIntToStr(JBBPTextWriter context, int value);
+    String doIntToStr(JBBPTextWriter context, int value) throws IOException;
 
-    String doLongToStr(JBBPTextWriter context, long value);
+    String doLongToStr(JBBPTextWriter context, long value) throws IOException;
 
-    String doObjToStr(JBBPTextWriter context, String id, Object obj);
+    String doObjToStr(JBBPTextWriter context, String id, Object obj) throws IOException;
   }
 
   private static final String DEFAULT_COMMENT_PREFIX = ";";
@@ -119,7 +119,7 @@ public class JBBPTextWriter extends FilterWriter {
     PrfxVal(valuePrefix);
     Radix(radix);
   }
-
+  
   private void changeMode(final int mode) {
     this.prevMode = this.mode;
     this.mode = mode;
@@ -207,7 +207,7 @@ public class JBBPTextWriter extends FilterWriter {
     this.write(value);
   }
 
-  private String alignValueByZeroes(final String valueText, final int maxLen) throws IOException {
+  public static String alignValueByZeroes(final String valueText, final int maxLen) throws IOException {
     final int numberOfPrefixingZero = maxLen - valueText.length();
     if (numberOfPrefixingZero <= 0) {
       return valueText;
@@ -277,7 +277,7 @@ public class JBBPTextWriter extends FilterWriter {
     return this;
   }
 
-  public JBBPTextWriter regExtras(final Extras extras) {
+  public JBBPTextWriter RegExtras(final Extras extras) {
     JBBPUtils.assertNotNull(extras, "Extras must not be null");
     this.extrases.add(extras);
     return this;

@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.igormaznitsa.jbbp.io;
+package com.igormaznitsa.jbbp.utils;
 
+import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import java.io.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
@@ -44,7 +46,9 @@ public class JBBPTextWriterTest {
       fileText = wr.toString();
     }
     finally {
-      reader.close();
+      if (reader != null) {
+        reader.close();
+      }
     }
 
     assertEquals("File content must be equals", fileText, text);
@@ -92,4 +96,48 @@ public class JBBPTextWriterTest {
     assertFile("testwriter.txt", text);
   }
 
+  @Test
+  public void testStringNumerationWithExtras() throws Exception {
+    final AtomicInteger newLineCounter = new AtomicInteger(0);
+    final AtomicInteger bytePrintCounter = new AtomicInteger(0);
+    final AtomicInteger closeCounter = new AtomicInteger(0);
+
+    writer.PrfxComment(" // ").RegExtras(new JBBPTextWriterExtrasAdapter() {
+      @Override
+      public void onClose(JBBPTextWriter context) throws IOException {
+        context.Comment("The Last Line");
+        closeCounter.incrementAndGet();
+      }
+
+      @Override
+      public void onNewLine(final JBBPTextWriter context, final int lineNumber) throws IOException {
+        newLineCounter.incrementAndGet();
+      }
+
+      @Override
+      public void onBeforeFirstVar(final JBBPTextWriter context) throws IOException {
+        context.write(JBBPTextWriter.alignValueByZeroes(Integer.toString(context.getLine()), 8) + ' ');
+      }
+
+      @Override
+      public String doByteToStr(final JBBPTextWriter context, final int value) throws IOException {
+        bytePrintCounter.incrementAndGet();
+        return null;
+      }
+    });
+
+    int line = 0;
+    for (int i = 0; i < 130; i++) {
+      if (line == 32) {
+        writer.Comment("End of line");
+        line = 0;
+      }
+      writer.Byte(i);
+      line++;
+    }
+    assertFile("testwriter2.txt", writer.Close().toString());
+    assertEquals(5, newLineCounter.get());
+    assertEquals(130, bytePrintCounter.get());
+    assertEquals(1, closeCounter.get());
+  }
 }
