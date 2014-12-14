@@ -705,4 +705,27 @@ public enum JBBPUtils {
       return result;
     }
   }
+
+  /**
+   * Extend text by chars to needed length.
+   * @param text text to be extended, must not be null. 
+   * @param neededLen needed length for text
+   * @param ch char to be used for extending
+   * @return text extended by chars up to needed length, or non-changed if the text has equals or greater length.
+   * @since 1.1
+   */
+  public static String extendText(final String text, final int neededLen, final char ch) {
+    final int number = neededLen - text.length();
+    if (number <= 0) {
+      return text;
+    }
+    final StringBuilder result = new StringBuilder(neededLen);
+    final int zeros = neededLen - text.length();
+    for (int i = 0; i < zeros; i++) {
+      result.append(ch);
+    }
+    return result.append(text).toString();
+  }
+
+
 }

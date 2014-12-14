@@ -27,30 +27,33 @@ public abstract class JBBPTextWriterExtrasAdapter implements JBBPTextWriter.Extr
   public void onNewLine(final JBBPTextWriter context, final int lineNumber) throws IOException {
   }
 
-  public void onBeforeFirstVar(final JBBPTextWriter context) throws IOException {
+  public void onBeforeFirstValue(final JBBPTextWriter context) throws IOException {
   }
 
   public void onClose(final JBBPTextWriter context) throws IOException {
   }
 
-  public String doByteToStr(final JBBPTextWriter context, final int value) throws IOException {
+  public String doConvertByteToStr(final JBBPTextWriter context, final int value) throws IOException {
     return null;
   }
 
-  public String doShortToStr(final JBBPTextWriter context, final int value) throws IOException {
+  public String doConvertShortToStr(final JBBPTextWriter context, final int value) throws IOException {
     return null;
   }
 
-  public String doIntToStr(final JBBPTextWriter context, final int value) throws IOException {
+  public String doConvertIntToStr(final JBBPTextWriter context, final int value) throws IOException {
     return null;
   }
 
-  public String doLongToStr(final JBBPTextWriter context, final long value) throws IOException {
+  public String doConvertLongToStr(final JBBPTextWriter context, final long value) throws IOException {
     return null;
   }
 
-  public String doObjToStr(final JBBPTextWriter context, final String id, final Object obj) throws IOException {
+  public String doConvertObjToStr(final JBBPTextWriter context, final int id, final Object obj) throws IOException {
     return null;
   }
-  
+
+  public void onReachedMaxValueNumberForLine(final JBBPTextWriter context) throws IOException {
+    
+  }
 }

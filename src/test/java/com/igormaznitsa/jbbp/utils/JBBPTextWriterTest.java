@@ -82,7 +82,7 @@ public class JBBPTextWriterTest {
             .IndentInc()
             .Byte(new byte[]{1, 2, 3, 4})
             .Comment("Body", "Next comment", "One more comment")
-            .newLine()
+            .NewLine()
             .Byte(new byte[]{0x0A, 0x0B})
             .Comment("Part", "Part line2", "Part line3")
             .Separator()
@@ -96,15 +96,35 @@ public class JBBPTextWriterTest {
     assertFile("testwriter.txt", text);
   }
 
+  @Test(expected = NullPointerException.class)
+  public void testExtras_ErrorForNull() throws Exception {
+    writer.AddExtras(null);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void testExtras_ErrorForEmptyExtras() throws Exception {
+    writer.Obj(0, new Object());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testExtras_ErrorForNullResult() throws Exception {
+    writer.AddExtras(new JBBPTextWriterExtrasAdapter() {
+      @Override
+      public String doConvertObjToStr(JBBPTextWriter context, int id, Object obj) throws IOException {
+        return null;
+      }
+    }).Obj(1, new Object());
+  }
+
   @Test
   public void testStringNumerationWithExtras() throws Exception {
     final AtomicInteger newLineCounter = new AtomicInteger(0);
     final AtomicInteger bytePrintCounter = new AtomicInteger(0);
     final AtomicInteger closeCounter = new AtomicInteger(0);
 
-    writer.PrfxComment(" // ").RegExtras(new JBBPTextWriterExtrasAdapter() {
+    writer.MaxValuesPerLine(32).SetCommentPrefix(" // ").AddExtras(new JBBPTextWriterExtrasAdapter() {
       @Override
-      public void onClose(JBBPTextWriter context) throws IOException {
+      public void onClose(final JBBPTextWriter context) throws IOException {
         context.Comment("The Last Line");
         closeCounter.incrementAndGet();
       }
@@ -115,25 +135,24 @@ public class JBBPTextWriterTest {
       }
 
       @Override
-      public void onBeforeFirstVar(final JBBPTextWriter context) throws IOException {
-        context.write(JBBPTextWriter.alignValueByZeroes(Integer.toString(context.getLine()), 8) + ' ');
+      public void onBeforeFirstValue(final JBBPTextWriter context) throws IOException {
+        context.write(JBBPUtils.extendText(Integer.toString(context.getLine()), 8, '0') + ' ');
       }
 
       @Override
-      public String doByteToStr(final JBBPTextWriter context, final int value) throws IOException {
+      public String doConvertByteToStr(final JBBPTextWriter context, final int value) throws IOException {
         bytePrintCounter.incrementAndGet();
         return null;
       }
+
+      @Override
+      public void onReachedMaxValueNumberForLine(final JBBPTextWriter context) throws IOException {
+        context.Comment("End of line");
+      }
     });
 
-    int line = 0;
     for (int i = 0; i < 130; i++) {
-      if (line == 32) {
-        writer.Comment("End of line");
-        line = 0;
-      }
       writer.Byte(i);
-      line++;
     }
     assertFile("testwriter2.txt", writer.Close().toString());
     assertEquals(5, newLineCounter.get());
