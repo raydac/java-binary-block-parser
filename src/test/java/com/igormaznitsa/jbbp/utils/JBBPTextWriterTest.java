@@ -76,16 +76,16 @@ public class JBBPTextWriterTest {
             .IndentInc()
             .Int(1)
             .Comment("It's header")
-            .Separator()
+            .HR()
             .IndentDec()
             .Comment("It's body")
             .IndentInc()
             .Byte(new byte[]{1, 2, 3, 4})
             .Comment("Body", "Next comment", "One more comment")
-            .NewLine()
+            .BR()
             .Byte(new byte[]{0x0A, 0x0B})
             .Comment("Part", "Part line2", "Part line3")
-            .Separator()
+            .HR()
             .IndentInc()
             .Comment("End")
             .IndentDec(1)
@@ -106,14 +106,60 @@ public class JBBPTextWriterTest {
     writer.Obj(0, new Object());
   }
 
-  @Test(expected = NullPointerException.class)
-  public void testExtras_ErrorForNullResult() throws Exception {
+  @Test
+  public void testExtras_NotPrintedForNull() throws Exception {
     writer.AddExtras(new JBBPTextWriterExtrasAdapter() {
       @Override
       public String doConvertObjToStr(JBBPTextWriter context, int id, Object obj) throws IOException {
         return null;
       }
     }).Obj(1, new Object());
+
+    assertEquals("", writer.Close().toString());
+  }
+
+  @Test
+  public void testMultilineComments() throws Exception {
+    writer.Byte(1).Comment("Hello", "World");
+    assertEquals(".0x01;Hello\n     ;World\n", writer.Close().toString());
+  }
+
+  @Test
+  public void testHorizontalRule() throws Exception {
+    writer.SetHR(10, '>').HR().Byte(1);
+    assertEquals(";>>>>>>>>>>\n.0x01", writer.Close().toString());
+  }
+
+  @Test
+  public void testLineBreak() throws Exception {
+    writer.Byte(1).BR().Byte(2);
+    assertEquals(".0x01\n.0x02", writer.Close().toString());
+  }
+
+  @Test
+  public void testExtras_PrintInfoAboutComplexObjectIntoWriter() throws Exception {
+    writer.SetMaxValuesPerLine(16).AddExtras(new JBBPTextWriterExtrasAdapter() {
+      @Override
+      public String doConvertObjToStr(final JBBPTextWriter context, final int id, final Object obj) throws IOException {
+        context
+                .BR()
+                .Comment("Complex object")
+                .HR()
+                .Byte(1).Comment("Header")
+                .Int(0x1234).Comment("Another header")
+                .IndentInc()
+                .Comment("Body")
+                .HR()
+                .Byte(new byte[128])
+                .HR()
+                .IndentDec()
+                .Long(0x1234567890L).Comment("End of data")
+                .HR();
+        return null;
+      }
+    });
+
+    assertFile("testwriter3.txt", writer.Byte(0xFF).Obj(111, "Hello").Int(0xCAFEBABE).Close().toString());
   }
 
   @Test
@@ -122,7 +168,7 @@ public class JBBPTextWriterTest {
     final AtomicInteger bytePrintCounter = new AtomicInteger(0);
     final AtomicInteger closeCounter = new AtomicInteger(0);
 
-    writer.MaxValuesPerLine(32).SetCommentPrefix(" // ").AddExtras(new JBBPTextWriterExtrasAdapter() {
+    writer.SetMaxValuesPerLine(32).SetCommentPrefix(" // ").AddExtras(new JBBPTextWriterExtrasAdapter() {
       @Override
       public void onClose(final JBBPTextWriter context) throws IOException {
         context.Comment("The Last Line");
@@ -136,7 +182,7 @@ public class JBBPTextWriterTest {
 
       @Override
       public void onBeforeFirstValue(final JBBPTextWriter context) throws IOException {
-        context.write(JBBPUtils.extendText(Integer.toString(context.getLine()), 8, '0') + ' ');
+        context.write(JBBPUtils.ensureMinTextLength(Integer.toString(context.getLine()), 8, '0', 0) + ' ');
       }
 
       @Override

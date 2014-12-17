@@ -398,4 +398,11 @@ public class JBBPUtilsTest {
     assertEquals(0x00DEBC9A78563412L, JBBPUtils.reverseByteOrder(0x00123456789ABCDEL, 7));
     assertEquals(0xF1DEBC9A78563412L, JBBPUtils.reverseByteOrder(0x123456789ABCDEF1L, 8));
   }
+
+  @Test
+  public void testEnsureMinTextLength(){
+    assertEquals("..........text1",JBBPUtils.ensureMinTextLength("text1", 15, '.', 0));
+    assertEquals("text1..........",JBBPUtils.ensureMinTextLength("text1", 15, '.', 1));
+    assertEquals("..text1...",JBBPUtils.ensureMinTextLength("text1", 10, '.', -1));
+  }
 }

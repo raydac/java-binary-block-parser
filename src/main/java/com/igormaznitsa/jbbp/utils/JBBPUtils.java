@@ -22,6 +22,7 @@ import java.util.*;
 
 /**
  * Misc auxiliary methods to be used in the framework.
+ *
  * @since 1.0
  */
 public enum JBBPUtils {
@@ -666,10 +667,14 @@ public enum JBBPUtils {
   }
 
   /**
-   * Convert unsigned long value into string representation with defined radix base.
+   * Convert unsigned long value into string representation with defined radix
+   * base.
+   *
    * @param ulongValue value to be converted in string
    * @param radix radix base to be used for conversion, must be 2..36
-   * @param charBuffer char buffer to be used for conversion operations, should be not less than 64 char length, if length is less than 64 or null then new one will be created
+   * @param charBuffer char buffer to be used for conversion operations, should
+   * be not less than 64 char length, if length is less than 64 or null then new
+   * one will be created
    * @return converted value as upper case string
    * @throws IllegalArgumentException for wrong radix base
    * @since 1.1
@@ -689,7 +694,7 @@ public enum JBBPUtils {
         result = Long.toString(cur, radix).toUpperCase(Locale.ENGLISH);
       }
       else {
-        final char[] buffer = charBuffer == null || charBuffer.length<64 ? new char[64] : charBuffer;
+        final char[] buffer = charBuffer == null || charBuffer.length < 64 ? new char[64] : charBuffer;
         int pos = buffer.length;
         long topPart = cur >>> 32;
         long bottomPart = (cur & 0xFFFFFFFFL) + ((topPart % radix) << 32);
@@ -708,24 +713,51 @@ public enum JBBPUtils {
 
   /**
    * Extend text by chars to needed length.
-   * @param text text to be extended, must not be null. 
+   *
+   * @param text text to be extended, must not be null.
    * @param neededLen needed length for text
    * @param ch char to be used for extending
-   * @return text extended by chars up to needed length, or non-changed if the text has equals or greater length.
+   * @param mode 0 to extend left, 1 to extend right, otherwise extends both
+   * sides
+   * @return text extended by chars up to needed length, or non-changed if the
+   * text has equals or greater length.
    * @since 1.1
    */
-  public static String extendText(final String text, final int neededLen, final char ch) {
+  public static String ensureMinTextLength(final String text, final int neededLen, final char ch, final int mode) {
     final int number = neededLen - text.length();
     if (number <= 0) {
       return text;
     }
-    final StringBuilder result = new StringBuilder(neededLen);
-    final int zeros = neededLen - text.length();
-    for (int i = 0; i < zeros; i++) {
-      result.append(ch);
-    }
-    return result.append(text).toString();
-  }
 
+    final StringBuilder result = new StringBuilder(neededLen);
+    switch (mode) {
+      case 0: {
+        for (int i = 0; i < number; i++) {
+          result.append(ch);
+        }
+        result.append(text);
+      }
+      break;
+      case 1: {
+        result.append(text);
+        for (int i = 0; i < number; i++) {
+          result.append(ch);
+        }
+      }
+      break;
+      default: {
+        int leftField = number / 2;
+        int rightField = number - leftField;
+        while (leftField-- > 0) {
+          result.append(ch);
+        }
+        result.append(text);
+        while (rightField-- > 0) {
+          result.append(ch);
+        }
+      }
+    }
+    return result.toString();
+  }
 
 }

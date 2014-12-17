@@ -147,6 +147,16 @@ public class JBBPTextWriter extends FilterWriter {
   private static final int DEFAULT_RADIX = 16;
 
   /**
+   * The Default length of horizontal rule in chars.
+   */
+  private static final int DEFAULT_HR_LENGTH = 80;
+
+  /**
+   * The Default char to draw horizontal rule.
+   */
+  private static final char DEFAUTL_HR_CHAR = '-';
+
+  /**
    * The Line separator, must not be null.
    */
   private final String lineSeparator;
@@ -173,6 +183,16 @@ public class JBBPTextWriter extends FilterWriter {
    * The Variable contains the current activity mode.
    */
   private int mode = MODE_START_LINE;
+
+  /**
+   * The Current horizontal rule length.
+   */
+  private int hrLength = DEFAULT_HR_LENGTH;
+
+  /**
+   * The Current horizontal rule char.
+   */
+  private char hrChar = DEFAUTL_HR_CHAR;
 
   /**
    * The Current radix.
@@ -376,7 +396,7 @@ public class JBBPTextWriter extends FilterWriter {
       }
       break;
       case MODE_COMMENTS: {
-        this.NewLine();
+        this.BR();
         writeIndent();
         changeMode(MODE_VALUES);
         for (final Extras e : extrases) {
@@ -423,7 +443,7 @@ public class JBBPTextWriter extends FilterWriter {
       }
       break;
       case MODE_COMMENTS: {
-        NewLine();
+        BR();
         while (this.linePosition < this.prevLineCommentsStartPosition) {
           this.write(' ');
         }
@@ -493,7 +513,7 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     if (convertedByExtras == null) {
-      printValueString(JBBPUtils.extendText(JBBPUtils.ulong2str(value & 0xFF, this.radix, CHAR_BUFFER), this.maxCharsRadixForByte, '0'));
+      printValueString(JBBPUtils.ensureMinTextLength(JBBPUtils.ulong2str(value & 0xFF, this.radix, CHAR_BUFFER), this.maxCharsRadixForByte, '0', 0));
     }
     else {
       printValueString(convertedByExtras);
@@ -621,7 +641,7 @@ public class JBBPTextWriter extends FilterWriter {
    * turn off checking
    * @return the context
    */
-  public JBBPTextWriter MaxValuesPerLine(final int value) {
+  public JBBPTextWriter SetMaxValuesPerLine(final int value) {
     this.maxValuesPerLine = value;
     return this;
   }
@@ -698,7 +718,7 @@ public class JBBPTextWriter extends FilterWriter {
       else {
         valueToWrite = value;
       }
-      printValueString(JBBPUtils.extendText(JBBPUtils.ulong2str(valueToWrite & 0xFFFF, this.radix, CHAR_BUFFER), this.maxCharsRadixForShort, '0'));
+      printValueString(JBBPUtils.ensureMinTextLength(JBBPUtils.ulong2str(valueToWrite & 0xFFFF, this.radix, CHAR_BUFFER), this.maxCharsRadixForShort, '0', 0));
     }
     else {
       printValueString(convertedByExtras);
@@ -759,7 +779,7 @@ public class JBBPTextWriter extends FilterWriter {
       else {
         valueToWrite = value;
       }
-      printValueString(JBBPUtils.extendText(JBBPUtils.ulong2str(valueToWrite & 0xFFFFFFFFL, this.radix, CHAR_BUFFER), this.maxCharsRadixForInt, '0'));
+      printValueString(JBBPUtils.ensureMinTextLength(JBBPUtils.ulong2str(valueToWrite & 0xFFFFFFFFL, this.radix, CHAR_BUFFER), this.maxCharsRadixForInt, '0', 0));
     }
     else {
       printValueString(convertedByExtras);
@@ -872,7 +892,7 @@ public class JBBPTextWriter extends FilterWriter {
       else {
         valueToWrite = value;
       }
-      printValueString(JBBPUtils.extendText(JBBPUtils.ulong2str(valueToWrite, this.radix, CHAR_BUFFER), this.maxCharsRadixForLong, '0'));
+      printValueString(JBBPUtils.ensureMinTextLength(JBBPUtils.ulong2str(valueToWrite, this.radix, CHAR_BUFFER), this.maxCharsRadixForLong, '0', 0));
     }
     else {
       printValueString(convertedByExtras);
@@ -882,9 +902,10 @@ public class JBBPTextWriter extends FilterWriter {
 
   /**
    * Print values from long array.
+   *
    * @param values array to be printed, must not be null
    * @return the context
-   * @throws IOException will be thrown for transport errors 
+   * @throws IOException will be thrown for transport errors
    */
   public JBBPTextWriter Long(final long[] values) throws IOException {
     return this.Long(values, 0, values.length);
@@ -892,11 +913,12 @@ public class JBBPTextWriter extends FilterWriter {
 
   /**
    * print values from long array.
+   *
    * @param values array to be printed, must not be null
    * @param off offset to the first element to print
    * @param len number of elements to be printed
    * @return the context
-   * @throws IOException will be thrown for transport errors 
+   * @throws IOException will be thrown for transport errors
    */
   public JBBPTextWriter Long(final long[] values, int off, int len) throws IOException {
     while (len-- > 0) {
@@ -907,32 +929,48 @@ public class JBBPTextWriter extends FilterWriter {
 
   /**
    * Make new line.
+   *
    * @return the context
-   * @throws IOException will be thrown for transport errors 
+   * @throws IOException will be thrown for transport errors
    */
-  public JBBPTextWriter NewLine() throws IOException {
+  public JBBPTextWriter BR() throws IOException {
     this.write(this.lineSeparator);
     ensureNewLineMode();
     return this;
   }
 
   /**
-   * Print separator.
+   * Change parameters for horizontal rule.
+   *
+   * @param length the length in symbols.
+   * @param ch symbol to draw
+   * @return the context
+   */
+  public JBBPTextWriter SetHR(final int length, final char ch) {
+    this.hrChar = ch;
+    this.hrLength = length;
+    return this;
+  }
+
+  /**
+   * Print horizontal rule.
+   *
    * @return the context
    * @throws IOException will be thrown for transport errors
    */
-  public JBBPTextWriter Separator() throws IOException {
+  public JBBPTextWriter HR() throws IOException {
     ensureNewLineMode();
     this.write(this.prefixComment);
-    for (int i = 0; i < 80; i++) {
-      this.write('-');
+    for (int i = 0; i < this.hrLength; i++) {
+      this.write(this.hrChar);
     }
-    NewLine();
+    BR();
     return this;
   }
 
   /**
    * Print comments.
+   *
    * @param comment array of string to be printed as comment lines.
    * @return the context
    * @throws IOException will be thrown for transport errors
@@ -943,7 +981,7 @@ public class JBBPTextWriter extends FilterWriter {
         ensureCommentMode();
         write(c);
       }
-      NewLine();
+      BR();
     }
     return this;
   }
@@ -962,6 +1000,7 @@ public class JBBPTextWriter extends FilterWriter {
 
   /**
    * Print objects.
+   *
    * @param objId object id which will be provided to a converter as extra info
    * @param obj objects to be converted and printed, must not be null
    * @return the context
@@ -971,7 +1010,6 @@ public class JBBPTextWriter extends FilterWriter {
     if (this.extrases.isEmpty()) {
       throw new IllegalStateException("There is not any registered extras");
     }
-    ensureValueMode();
 
     for (final Object c : obj) {
       String str = null;
@@ -982,32 +1020,36 @@ public class JBBPTextWriter extends FilterWriter {
         }
       }
 
-      JBBPUtils.assertNotNull(str, "Object has not been converted to string [" + objId + ',' + c + ']');
-      printValueString(str);
+      if (str != null) {
+        ensureValueMode();
+        printValueString(str);
+      }
     }
     return this;
   }
 
   /**
    * Print objects from array.
+   *
    * @param objId object id which will be provided to a converter as extra info
    * @param array array of objects, must not be null
    * @param off offset to the first element to be printed
    * @param len number of elements to be printed
    * @return the context
-   * @throws IOException will be thrown for transport errors 
+   * @throws IOException will be thrown for transport errors
    */
-  public JBBPTextWriter Obj(final int objId, final Object [] array, int off, int len) throws IOException {
-    while (len -- >0) {      
+  public JBBPTextWriter Obj(final int objId, final Object[] array, int off, int len) throws IOException {
+    while (len-- > 0) {
       this.Obj(objId, array[off++]);
     }
     return this;
   }
-  
+
   /**
    * Close the wrapped writer.
+   *
    * @return the context
-   * @throws IOException will be thrown for transport errors 
+   * @throws IOException will be thrown for transport errors
    */
   public JBBPTextWriter Close() throws IOException {
     for (final Extras e : extrases) {
@@ -1019,6 +1061,7 @@ public class JBBPTextWriter extends FilterWriter {
 
   /**
    * Flush buffers in wrapped writer.
+   *
    * @return the context
    * @throws IOException will be thrown for transport errors
    */
@@ -1029,8 +1072,9 @@ public class JBBPTextWriter extends FilterWriter {
 
   /**
    * Print tab as space chars.
+   *
    * @return the context
-   * @throws IOException  it will be thrown for transport errors
+   * @throws IOException it will be thrown for transport errors
    */
   public JBBPTextWriter Tab() throws IOException {
     this.Space(this.linePosition % this.spacesInTab);
@@ -1039,6 +1083,7 @@ public class JBBPTextWriter extends FilterWriter {
 
   /**
    * Set number of spaces for tab simulation and indents.
+   *
    * @param value number of spaces, must be equal or greater than one
    * @return the context
    */
@@ -1052,9 +1097,10 @@ public class JBBPTextWriter extends FilterWriter {
 
   /**
    * Print number of spaces.
+   *
    * @param numberOfSpaces number of spaces to print
    * @return the context
-   * @throws IOException it will be thrown for transport errors 
+   * @throws IOException it will be thrown for transport errors
    */
   public JBBPTextWriter Space(final int numberOfSpaces) throws IOException {
     for (int i = 0; i < numberOfSpaces; i++) {
@@ -1102,6 +1148,7 @@ public class JBBPTextWriter extends FilterWriter {
 
   /**
    * Get the current line number.
+   *
    * @return the current line number, the first one is zero
    */
   public int getLine() {
@@ -1110,6 +1157,7 @@ public class JBBPTextWriter extends FilterWriter {
 
   /**
    * Get the current line position.
+   *
    * @return the current line position, the first one is zero
    */
   public int getLinePosition() {
