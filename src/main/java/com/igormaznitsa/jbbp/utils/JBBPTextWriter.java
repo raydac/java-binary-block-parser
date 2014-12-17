@@ -33,7 +33,7 @@ public class JBBPTextWriter extends FilterWriter {
    * The INterface describes some extras for the writer which can make
    * extra-work.
    */
-  public interface Extras {
+  public interface Extra {
 
     /**
      * Notification about the start new line.
@@ -288,7 +288,7 @@ public class JBBPTextWriter extends FilterWriter {
   /**
    * The List contains all registered extras.
    */
-  private final List<Extras> extrases = new ArrayList<Extras>();
+  private final List<Extra> extras = new ArrayList<Extra>();
 
   /**
    * The Default constructor. A StringWriter will be used inside.
@@ -388,7 +388,7 @@ public class JBBPTextWriter extends FilterWriter {
     switch (this.mode) {
       case MODE_START_LINE: {
         changeMode(MODE_VALUES);
-        for (final Extras e : extrases) {
+        for (final Extra e : extras) {
           e.onBeforeFirstValue(this);
         }
         writeIndent();
@@ -399,7 +399,7 @@ public class JBBPTextWriter extends FilterWriter {
         this.BR();
         writeIndent();
         changeMode(MODE_VALUES);
-        for (final Extras e : extrases) {
+        for (final Extra e : extras) {
           e.onBeforeFirstValue(this);
         }
         this.write(this.prefixFirtValueAtLine);
@@ -487,7 +487,7 @@ public class JBBPTextWriter extends FilterWriter {
     this.valuesLineCounter++;
 
     if (this.maxValuesPerLine > 0 && this.valuesLineCounter >= this.maxValuesPerLine) {
-      for (final Extras e : this.extrases) {
+      for (final Extra e : this.extras) {
         e.onReachedMaxValueNumberForLine(this);
       }
       ensureNewLineMode();
@@ -505,7 +505,7 @@ public class JBBPTextWriter extends FilterWriter {
     ensureValueMode();
 
     String convertedByExtras = null;
-    for (final Extras e : this.extrases) {
+    for (final Extra e : this.extras) {
       convertedByExtras = e.doConvertByteToStr(this, value & 0xFF);
       if (convertedByExtras != null) {
         break;
@@ -623,17 +623,34 @@ public class JBBPTextWriter extends FilterWriter {
   }
 
   /**
-   * Add extras to the context.
+   * Add extras to context.
    *
-   * @param extras an extras to be added to context, must not be null
+   * @param extras extras to be added to context, must not be null
    * @return the context
    */
-  public JBBPTextWriter AddExtras(final Extras extras) {
+  public JBBPTextWriter AddExtras(final Extra ... extras) {
     JBBPUtils.assertNotNull(extras, "Extras must not be null");
-    this.extrases.add(extras);
+    for(final Extra e : extras){
+      JBBPUtils.assertNotNull(e, "Extras must not be null");
+      this.extras.add(e);
+    }
     return this;
   }
 
+  /**
+   * Remove extras from context
+   * @param extras extras to be removed, must not be null
+   * @return the context
+   */
+  public JBBPTextWriter DelExtras(final Extra ... extras) {    
+    JBBPUtils.assertNotNull(extras, "Extras must not be null");
+    for (final Extra e : extras) {
+      JBBPUtils.assertNotNull(e, "Extras must not be null");
+      this.extras.remove(e);
+    }
+    return this;
+  }
+  
   /**
    * Set max number of values to be printed in one line.
    *
@@ -703,7 +720,7 @@ public class JBBPTextWriter extends FilterWriter {
   public JBBPTextWriter Short(final short value) throws IOException {
     ensureValueMode();
     String convertedByExtras = null;
-    for (final Extras e : this.extrases) {
+    for (final Extra e : this.extras) {
       convertedByExtras = e.doConvertShortToStr(this, value & 0xFFFF);
       if (convertedByExtras != null) {
         break;
@@ -764,7 +781,7 @@ public class JBBPTextWriter extends FilterWriter {
     ensureValueMode();
 
     String convertedByExtras = null;
-    for (final Extras e : this.extrases) {
+    for (final Extra e : this.extras) {
       convertedByExtras = e.doConvertIntToStr(this, value);
       if (convertedByExtras != null) {
         break;
@@ -877,7 +894,7 @@ public class JBBPTextWriter extends FilterWriter {
     ensureValueMode();
 
     String convertedByExtras = null;
-    for (final Extras e : this.extrases) {
+    for (final Extra e : this.extras) {
       convertedByExtras = e.doConvertLongToStr(this, value);
       if (convertedByExtras != null) {
         break;
@@ -1007,13 +1024,13 @@ public class JBBPTextWriter extends FilterWriter {
    * @throws IOException will be thrown for transport errors
    */
   public JBBPTextWriter Obj(final int objId, final Object... obj) throws IOException {
-    if (this.extrases.isEmpty()) {
+    if (this.extras.isEmpty()) {
       throw new IllegalStateException("There is not any registered extras");
     }
 
     for (final Object c : obj) {
       String str = null;
-      for (final Extras e : this.extrases) {
+      for (final Extra e : this.extras) {
         str = e.doConvertObjToStr(this, objId, c);
         if (str != null) {
           break;
@@ -1052,7 +1069,7 @@ public class JBBPTextWriter extends FilterWriter {
    * @throws IOException will be thrown for transport errors
    */
   public JBBPTextWriter Close() throws IOException {
-    for (final Extras e : extrases) {
+    for (final Extra e : extras) {
       e.onClose(this);
     }
     super.close();
@@ -1126,7 +1143,7 @@ public class JBBPTextWriter extends FilterWriter {
         this.prevMode = this.mode;
         this.mode = MODE_START_LINE;
         this.linePosition = 0;
-        for (final Extras e : extrases) {
+        for (final Extra e : extras) {
           e.onNewLine(this, this.lineNumber);
         }
       }

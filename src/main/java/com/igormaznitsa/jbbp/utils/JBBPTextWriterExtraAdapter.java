@@ -18,11 +18,11 @@ package com.igormaznitsa.jbbp.utils;
 import java.io.IOException;
 
 /**
- * Adapter for interface JBBPTextWriter.Extras.
- * @see com.igormaznitsa.jbbp.utils.JBBPTextWriter.Extras
+ * Adapter for interface JBBPTextWriter.Extra.
+ * @see com.igormaznitsa.jbbp.utils.JBBPTextWriter.Extra
  * @since 1.1
  */
-public abstract class JBBPTextWriterExtrasAdapter implements JBBPTextWriter.Extras {
+public abstract class JBBPTextWriterExtraAdapter implements JBBPTextWriter.Extra {
 
   public void onNewLine(final JBBPTextWriter context, final int lineNumber) throws IOException {
   }

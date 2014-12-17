@@ -108,7 +108,7 @@ public class JBBPTextWriterTest {
 
   @Test
   public void testExtras_NotPrintedForNull() throws Exception {
-    writer.AddExtras(new JBBPTextWriterExtrasAdapter() {
+    writer.AddExtras(new JBBPTextWriterExtraAdapter() {
       @Override
       public String doConvertObjToStr(JBBPTextWriter context, int id, Object obj) throws IOException {
         return null;
@@ -138,7 +138,7 @@ public class JBBPTextWriterTest {
 
   @Test
   public void testExtras_PrintInfoAboutComplexObjectIntoWriter() throws Exception {
-    writer.SetMaxValuesPerLine(16).AddExtras(new JBBPTextWriterExtrasAdapter() {
+    writer.SetMaxValuesPerLine(16).AddExtras(new JBBPTextWriterExtraAdapter() {
       @Override
       public String doConvertObjToStr(final JBBPTextWriter context, final int id, final Object obj) throws IOException {
         context
@@ -168,7 +168,7 @@ public class JBBPTextWriterTest {
     final AtomicInteger bytePrintCounter = new AtomicInteger(0);
     final AtomicInteger closeCounter = new AtomicInteger(0);
 
-    writer.SetMaxValuesPerLine(32).SetCommentPrefix(" // ").AddExtras(new JBBPTextWriterExtrasAdapter() {
+    writer.SetMaxValuesPerLine(32).SetCommentPrefix(" // ").AddExtras(new JBBPTextWriterExtraAdapter() {
       @Override
       public void onClose(final JBBPTextWriter context) throws IOException {
         context.Comment("The Last Line");
