@@ -16,6 +16,7 @@
 package com.igormaznitsa.jbbp.utils;
 
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
+import com.igormaznitsa.jbbp.utils.JBBPTextWriter.Extra;
 import java.io.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
@@ -98,7 +99,7 @@ public class JBBPTextWriterTest {
 
   @Test(expected = NullPointerException.class)
   public void testExtras_ErrorForNull() throws Exception {
-    writer.AddExtras(null);
+    writer.AddExtras((Extra[])null);
   }
 
   @Test(expected = IllegalStateException.class)
@@ -204,5 +205,132 @@ public class JBBPTextWriterTest {
     assertEquals(5, newLineCounter.get());
     assertEquals(130, bytePrintCounter.get());
     assertEquals(1, closeCounter.get());
+  }
+  
+  @Test
+  public void testByte_OneValue() throws Exception {
+    writer.Byte(10);
+    writer.Byte(-1);
+    assertEquals(".0x0A,0xFF", writer.Close().toString());
+  }
+
+  @Test
+  public void testByte_Array() throws Exception {
+    writer.Byte(new byte[]{(byte)10,(byte)-1});
+    assertEquals(".0x0A,0xFF", writer.Close().toString());
+  }
+
+  @Test
+  public void testByte_PartOfArray() throws Exception {
+    writer.Byte(new byte[]{0,(byte)10,(byte)-1,0},1,2);
+    assertEquals(".0x0A,0xFF", writer.Close().toString());
+  }
+
+  @Test
+  public void testByte_String() throws Exception {
+    writer.Byte("012345");
+    assertEquals(".0x30,0x31,0x32,0x33,0x34,0x35", writer.Close().toString());
+  }
+
+  @Test
+  public void testShort_OneValue() throws Exception {
+    writer.Short(10);
+    writer.Short(-1);
+    assertEquals(".0x000A,0xFFFF", writer.Close().toString());
+  }
+
+  @Test
+  public void testShort_Array() throws Exception {
+    writer.Short(new short[]{(short)0x1234,(short)-1});
+    assertEquals(".0x1234,0xFFFF", writer.Close().toString());
+  }
+
+  @Test
+  public void testShort_Array_InversedByteOrder() throws Exception {
+    writer.ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).Short(new short[]{(short)0x1234,(short)-1});
+    assertEquals(".0x3412,0xFFFF", writer.Close().toString());
+  }
+
+  @Test
+  public void testShort_PartOfArray() throws Exception {
+    writer.Short(new short[]{0,(short)0x1234,(short)-1,0},1,2);
+    assertEquals(".0x1234,0xFFFF", writer.Close().toString());
+  }
+
+  @Test
+  public void testShort_String() throws Exception {
+    writer.Short("012345");
+    assertEquals(".0x0030,0x0031,0x0032,0x0033,0x0034,0x0035", writer.Close().toString());
+  }
+
+  @Test
+  public void testInt_OneValue() throws Exception {
+    writer.Int(0x12345678);
+    writer.Int(-1);
+    assertEquals(".0x12345678,0xFFFFFFFF", writer.Close().toString());
+  }
+
+  @Test
+  public void testInt_Array() throws Exception {
+    writer.Int(new int[]{0x12345678,-1});
+    assertEquals(".0x12345678,0xFFFFFFFF", writer.Close().toString());
+  }
+
+  @Test
+  public void testInt_Array_InversedByteOrder() throws Exception {
+    writer.ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).Int(new int[]{0x12345678,-1});
+    assertEquals(".0x78563412,0xFFFFFFFF", writer.Close().toString());
+  }
+
+  @Test
+  public void testInt_PartOfArray() throws Exception {
+    writer.Int(new int[]{0,0x12345678,-1,0},1,2);
+    assertEquals(".0x12345678,0xFFFFFFFF", writer.Close().toString());
+  }
+
+  @Test
+  public void testLong_OneValue() throws Exception {
+    writer.Long(0x123456789ABCDEFFL);
+    writer.Long(-1L);
+    assertEquals(".0x123456789ABCDEFF,0xFFFFFFFFFFFFFFFF", writer.Close().toString());
+  }
+
+  @Test
+  public void testLong_Array() throws Exception {
+    writer.Long(new long[]{0x123456789ABCDEFFL,-1L});
+    assertEquals(".0x123456789ABCDEFF,0xFFFFFFFFFFFFFFFF", writer.Close().toString());
+  }
+
+  @Test
+  public void testLong_Array_InversedByteOrder() throws Exception {
+    writer.ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).Long(new long[]{0x123456789ABCDEFFL,-1L});
+    assertEquals(".0xFFDEBC9A78563412,0xFFFFFFFFFFFFFFFF", writer.Close().toString());
+  }
+
+  @Test
+  public void testLong_PartOfArray() throws Exception {
+    writer.Long(new long[]{0L,0x123456789ABCDEFFL,-1L,0L},1,2);
+    assertEquals(".0x123456789ABCDEFF,0xFFFFFFFFFFFFFFFF", writer.Close().toString());
+  }
+
+  @Test
+  public void testRadix() throws Exception {
+    writer.SetValuePrefix("").Radix(16).Int(0x12345).Radix(2).Int(0x12345).Radix(10).Int(0x12345);
+    assertEquals(".00012345,00000000000000010010001101000101,0000074565",writer.Close().toString());
+  }
+  
+  @Test
+  public void testTab() throws Exception {
+    writer.setTabSpaces(8).Tab().Byte(1).Tab().Byte(1).Tab().Long(-1).Tab().write('A');
+    assertEquals("        .0x01   ,0x01   ,0xFFFFFFFFFFFFFFFF     A",writer.Close().toString());
+  }
+  
+  @Test
+  public void testPrintSpecialChars() throws Exception {
+    writer.setTabSpaces(4).write('\t');
+    writer.write('\r');
+    writer.Byte(1);
+    writer.write('\n');
+    assertEquals("    .0x01\n",writer.Close().toString());
   }
 }
