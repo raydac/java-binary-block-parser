@@ -16,6 +16,7 @@
 package com.igormaznitsa.jbbp.mapper;
 
 import com.igormaznitsa.jbbp.io.*;
+import com.igormaznitsa.jbbp.utils.JBBPTextWriter;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -98,4 +99,12 @@ public @interface Bin {
    * @since 1.1
    */
   int saveOrder() default 0;
+  
+  /**
+   * Just either description of the field or some remark.
+   * @return 
+   * @since 1.1
+   * @see JBBPTextWriter
+   */
+  String comment() default "";
 }
