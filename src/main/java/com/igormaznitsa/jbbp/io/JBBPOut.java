@@ -17,62 +17,17 @@ package com.igormaznitsa.jbbp.io;
 
 import com.igormaznitsa.jbbp.exceptions.JBBPException;
 import com.igormaznitsa.jbbp.mapper.Bin;
-import com.igormaznitsa.jbbp.mapper.BinType;
 import com.igormaznitsa.jbbp.model.*;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.*;
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.Field;
 
 /**
  * The Class implements some kind of DSL to form binary blocks. The Class is not
  * a thread-safe one.
  * @since 1.0
  */
-public final class JBBPOut {
-
-  /**
-   * An Auxiliary class to be used for class field ordering in save operations.
-   */
-  private static final class OrderedField implements Comparable<OrderedField> {
-
-    final int order;
-    final Field field;
-
-    OrderedField(final int order, final Field field) {
-      this.order = order;
-      this.field = field;
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-      if (obj == null) {
-        return false;
-      }
-      if (obj == this) {
-        return true;
-      }
-      if (obj instanceof OrderedField) {
-        return this.field == ((OrderedField) obj).field;
-      }
-      return false;
-    }
-
-    @Override
-    public int hashCode() {
-      return this.order;
-    }
-
-    public int compareTo(final OrderedField o) {
-      return this.order < o.order ? -1 : 1;
-    }
-  }
-
-  /**
-   * Inside cache to keep saveOrder of fields for classes for data output. It is
-   * lazy initializing field.
-   */
-  private static volatile Map<Class<?>, Field[]> cachedFields;
+public final class JBBPOut extends AbstractMappedClassFieldObserver {
 
   /**
    * Flag shows that all commands must be skipped till the End.
@@ -961,20 +916,6 @@ public final class JBBPOut {
   }
 
   /**
-   * Inside JBBPOut.Bin command creates cached list of fields of a saved class,
-   * the method allows to reset the inside cache.
-   * @since 1.1
-   */
-  public void resetInsideClassCache() {
-    final Map<Class<?>, Field[]> fieldz = cachedFields;
-    if (fieldz != null) {
-      synchronized (fieldz) {
-        fieldz.clear();
-      }
-    }
-  }
-
-  /**
    * Save fields of an object marked by Bin annotation. Fields will be ordered
    * through {@link Bin#saveOrder()} field, NB! By default Java doesn't keep field
  saveOrder. Ordered fields of class will be saved into internal cache for speed
@@ -1008,378 +949,81 @@ public final class JBBPOut {
    */
   public JBBPOut Bin(final Object object, final JBBPCustomFieldWriter customFieldWriter) throws IOException {
     if (this.processCommands) {
-      JBBPUtils.assertNotNull(object, "Object must not be null");
-
-      Field[] orderedFields = null;
-
-      final Map<Class<?>, Field[]> fieldz;
-      if (cachedFields == null) {
-        fieldz = new HashMap<Class<?>, Field[]>();
-        cachedFields = fieldz;
-      }
-      else {
-        fieldz = cachedFields;
-        synchronized (fieldz) {
-          orderedFields = fieldz.get(object.getClass());
-        }
-      }
-
-      if (orderedFields == null) {
-        // find out the saveOrder of fields and fields which should be serialized
-        final List<Class<?>> listOfClassHierarchy = new ArrayList<Class<?>>();
-        final List<OrderedField> fields = new ArrayList<OrderedField>();
-
-        Class<?> current = object.getClass();
-        while (current != java.lang.Object.class) {
-          listOfClassHierarchy.add(current);
-          current = current.getSuperclass();
-        }
-        for (int i = listOfClassHierarchy.size() - 1; i >= 0; i--) {
-          final Class<?> clazzToProcess = listOfClassHierarchy.get(i);
-          final Bin clazzAnno = clazzToProcess.getAnnotation(Bin.class);
-          for (final Field f : clazzToProcess.getDeclaredFields()) {
-            f.setAccessible(true);
-            if (Modifier.isTransient(f.getModifiers())) {
-              continue;
-            }
-            Bin fieldAnno = f.getAnnotation(Bin.class);
-            fieldAnno = fieldAnno == null ? clazzAnno : fieldAnno;
-            if (fieldAnno == null) {
-              continue;
-            }
-
-            fields.add(new OrderedField(fieldAnno.saveOrder(), f));
-          }
-        }
-
-        Collections.sort(fields);
-
-        orderedFields = new Field[fields.size()];
-        for (int i = 0; i < fields.size(); i++) {
-          orderedFields[i] = fields.get(i).field;
-        }
-
-        synchronized (fieldz) {
-          fieldz.put(object.getClass(), orderedFields);
-        }
-      }
-
-      for (final Field f : orderedFields) {
-        Bin binAnno = f.getAnnotation(Bin.class);
-        if (binAnno == null) {
-          binAnno = f.getDeclaringClass().getAnnotation(Bin.class);
-          if (binAnno == null) {
-            throw new JBBPException("Can't find any Bin annotation to use for " + f + " field");
-          }
-        }
-
-        if (binAnno.custom() && customFieldWriter == null) {
-          throw new IllegalArgumentException("The Class '" + object.getClass().getName() + "' contains the field '" + f.getName() + "\' which is a custom one, you must provide a JBBPCustomFieldWriter instance to save the field.");
-        }
-
-        writeObjectField(object, f, binAnno, customFieldWriter);
-      }
+      this.processObject(object, customFieldWriter);
     }
 
     return this;
   }
 
-  /**
-   * INside auxiliary method to read object field value.
-   *
-   * @param obj an object which field is read
-   * @param field a field to be read
-   * @return a value from the field of the object
-   * @throws JBBPException if the field can't be read
-   * @since 1.1
-   */
-  private static Object readFieldValue(final Object obj, final Field field) {
+  @Override
+  protected void onFieldLong(final Object obj, final Field field, final Bin annotation, final long value) {
+    try{
+      this.Long(value);
+    }catch(IOException ex){
+      throw new JBBPException("Can't write long value", ex);
+    }
+  }
+
+  @Override
+  protected void onFieldInt(final Object obj, final Field field, final Bin annotation, final int value) {
     try {
-      return field.get(obj);
+      this.Int(value);
     }
-    catch (Exception ex) {
-      throw new JBBPException("Can't read falue of a field [" + field + ']', ex);
-    }
-  }
-
-  /**
-   * Check that a field defined as an array.
-   *
-   * @param field a field which is checked
-   * @throws IllegalArgumentException if the field is not an array
-   * @since 1.1
-   */
-  private static void assertFieldArray(final Field field) {
-    if (!field.getType().isArray()) {
-      throw new IllegalArgumentException("Detected non-array field marked to be written as an array [" + field + ']');
+    catch (IOException ex) {
+      throw new JBBPException("Can't write int value", ex);
     }
   }
 
-  /**
-   * Inside auxiliary method to write a field of an object.
-   *
-   * @param obj the object which field under processing, must not be null
-   * @param field the field to be written, must not be null
-   * @param annotation the annotation to be used as data source about the field,
-   * must not be null
-   * @param customFieldWriter a custom field writer to be used for custom
-   * fields, it can be null if the field is not a custom one
-   * @throws IOException the exception will be thrown if there is any error
-   * @since 1.1
-   */
-  private void writeObjectField(final Object obj, final Field field, final Bin annotation, final JBBPCustomFieldWriter customFieldWriter) throws IOException {
-    if (annotation.custom()) {
-      customFieldWriter.writeCustomField(this, this.outStream, obj, field, annotation);
+  @Override
+  protected void onFieldShort(final Object obj, final Field field, final Bin annotation, final boolean signed, final int value) {
+    try {
+      this.Short(value);
     }
-    else {
-      final Class<?> fieldType = field.getType();
-
-      final BinType type;
-      if (annotation.type() == BinType.UNDEFINED) {
-        type = BinType.findCompatible(fieldType);
-      }
-      else {
-        type = annotation.type();
-      }
-
-      switch (type) {
-        case BIT: {
-          final JBBPBitNumber bitNumber = annotation.saveBitNumber();
-          if (fieldType == boolean.class) {
-            this.Bits(bitNumber, ((Boolean) readFieldValue(obj, field)) ? 0xFF : 0x00);
-          }
-          else {
-            byte value = ((Number) readFieldValue(obj, field)).byteValue();
-            if (annotation.bitOrder() == JBBPBitOrder.MSB0) {
-              value = JBBPUtils.reverseBitsInByte(bitNumber, value);
-            }
-            this.Bits(bitNumber, value);
-          }
-        }
-        break;
-        case BOOL: {
-          if (fieldType == boolean.class) {
-            this.Bool(((Boolean) readFieldValue(obj, field)), annotation.bitOrder());
-          }
-          else {
-            this.Bool(((Number) readFieldValue(obj, field)).longValue() != 0, annotation.bitOrder());
-          }
-        }
-        break;
-        case BYTE:
-        case UBYTE: {
-          byte value = ((Number) readFieldValue(obj, field)).byteValue();
-          if (annotation.bitOrder() == JBBPBitOrder.MSB0) {
-            value = JBBPUtils.reverseBitsInByte(value);
-          }
-          this.Byte(value);
-        }
-        break;
-        case SHORT:
-        case USHORT: {
-          short value;
-          if (fieldType == char.class) {
-            value = (short) ((Character) readFieldValue(obj, field)).charValue();
-          }
-          else {
-            value = ((Number) readFieldValue(obj, field)).shortValue();
-          }
-          if (annotation.bitOrder() == JBBPBitOrder.MSB0) {
-            value = (short) JBBPFieldShort.reverseBits(value);
-          }
-          this.Short(value);
-        }
-        break;
-        case INT: {
-          int value;
-          if (float.class == fieldType) {
-            value = Float.floatToIntBits((Float) readFieldValue(obj, field));
-          }
-          else {
-            value = ((Number) readFieldValue(obj, field)).intValue();
-          }
-          if (annotation.bitOrder() == JBBPBitOrder.MSB0) {
-            value = (int) JBBPFieldInt.reverseBits(value);
-          }
-          this.Int(value);
-        }
-        break;
-        case LONG: {
-          long value;
-          if (float.class == fieldType) {
-            value = Float.floatToIntBits((Float) readFieldValue(obj, field));
-          }
-          else if (double.class == fieldType) {
-            value = Double.doubleToLongBits((Double) readFieldValue(obj, field));
-          }
-          else {
-            value = ((Number) readFieldValue(obj, field)).longValue();
-          }
-
-          if (annotation.bitOrder() == JBBPBitOrder.MSB0) {
-            value = JBBPFieldLong.reverseBits(value);
-          }
-          this.Long(value);
-        }
-        break;
-        case STRUCT: {
-          Bin(readFieldValue(obj, field));
-        }
-        break;
-        default: {
-          final Object array = readFieldValue(obj, field);
-          switch (type) {
-            case BIT_ARRAY: {
-              assertFieldArray(field);
-              final JBBPBitNumber bitNumber = annotation.saveBitNumber();
-              final int len = Array.getLength(array);
-
-              if (fieldType.getComponentType() == boolean.class) {
-                for (int i = 0; i < len; i++) {
-                  this.Bits(bitNumber, (Boolean) Array.get(array, i) ? 0xFF : 0x00);
-                }
-              }
-              else {
-                final boolean msb0 = annotation.bitOrder() == JBBPBitOrder.MSB0;
-                for (int i = 0; i < len; i++) {
-                  byte value = ((Number) Array.get(array, i)).byteValue();
-                  if (msb0) {
-                    value = JBBPUtils.reverseBitsInByte(bitNumber, value);
-                  }
-                  this.Bits(bitNumber, value);
-                }
-              }
-            }
-            break;
-            case BOOL_ARRAY: {
-              assertFieldArray(field);
-              final int len = Array.getLength(array);
-              for (int i = 0; i < len; i++) {
-                this.Bool((Boolean) Array.get(array, i), annotation.bitOrder());
-              }
-            }
-            break;
-            case UBYTE_ARRAY:
-            case BYTE_ARRAY: {
-              if (fieldType == String.class) {
-                this.Byte((String) readFieldValue(obj, field), annotation.bitOrder());
-              }
-              else {
-                assertFieldArray(field);
-                final int len = Array.getLength(array);
-                final boolean msb0 = annotation.bitOrder() == JBBPBitOrder.MSB0;
-                for (int i = 0; i < len; i++) {
-                  byte value = ((Number) Array.get(array, i)).byteValue();
-                  if (msb0) {
-                    value = JBBPUtils.reverseBitsInByte(value);
-                  }
-                  this.Byte(value);
-                }
-              }
-            }
-            break;
-            case SHORT_ARRAY:
-            case USHORT_ARRAY: {
-              if (fieldType == String.class) {
-                this.Short((String) readFieldValue(obj, field), annotation.bitOrder());
-              }
-              else {
-                assertFieldArray(field);
-                final int len = Array.getLength(array);
-                final boolean msb0 = annotation.bitOrder() == JBBPBitOrder.MSB0;
-                if (fieldType.getComponentType() == char.class) {
-                  for (int i = 0; i < len; i++) {
-                    short value = (short) ((Character) Array.get(array, i)).charValue();
-                    if (msb0) {
-                      value = (short) JBBPFieldShort.reverseBits(value);
-                    }
-                    this.Short(value);
-                  }
-                }
-                else {
-                  for (int i = 0; i < len; i++) {
-                    short value = ((Number) Array.get(array, i)).shortValue();
-                    if (msb0) {
-                      value = (short) JBBPFieldShort.reverseBits(value);
-                    }
-                    this.Short(value);
-                  }
-                }
-              }
-            }
-            break;
-            case INT_ARRAY: {
-              assertFieldArray(field);
-              final int len = Array.getLength(array);
-              final boolean msb0 = annotation.bitOrder() == JBBPBitOrder.MSB0;
-              if (fieldType.getComponentType() == float.class) {
-                for (int i = 0; i < len; i++) {
-                  int value = Float.floatToIntBits(Array.getFloat(array, i));
-                  if (msb0) {
-                    value = (int) JBBPFieldInt.reverseBits(value);
-                  }
-                  this.Int(value);
-                }
-              }
-              else {
-                for (int i = 0; i < len; i++) {
-                  int value = ((Number) Array.get(array, i)).intValue();
-                  if (msb0) {
-                    value = (int) JBBPFieldInt.reverseBits(value);
-                  }
-                  this.Int(value);
-                }
-              }
-            }
-            break;
-            case LONG_ARRAY: {
-              assertFieldArray(field);
-              final int len = Array.getLength(array);
-              final boolean msb0 = annotation.bitOrder() == JBBPBitOrder.MSB0;
-              if (fieldType.getComponentType() == float.class) {
-                for (int i = 0; i < len; i++) {
-                  long value = Float.floatToIntBits(Array.getFloat(array, i));
-                  if (msb0) {
-                    value = JBBPFieldLong.reverseBits(value);
-                  }
-                  this.Long(value);
-                }
-              }
-              else if (fieldType.getComponentType() == double.class) {
-                for (int i = 0; i < len; i++) {
-                  long value = Double.doubleToLongBits(Array.getDouble(array, i));
-                  if (msb0) {
-                    value = JBBPFieldLong.reverseBits(value);
-                  }
-                  this.Long(value);
-                }
-              }
-              else {
-                for (int i = 0; i < len; i++) {
-                  long value = ((Number) Array.get(array, i)).longValue();
-                  if (msb0) {
-                    value = JBBPFieldLong.reverseBits(value);
-                  }
-                  this.Long(value);
-                }
-              }
-            }
-            break;
-            case STRUCT_ARRAY: {
-              assertFieldArray(field);
-              final int len = Array.getLength(array);
-              for (int i = 0; i < len; i++) {
-                Bin(Array.get(array, i));
-              }
-            }
-            break;
-            default: {
-              throw new Error("Unexpected situation for field type, contact developer [" + type + ']');
-            }
-          }
-        }
-        break;
-      }
+    catch (IOException ex) {
+      throw new JBBPException("Can't write short value", ex);
     }
   }
+
+  @Override
+  protected void onFieldByte(final Object obj, final Field field, final Bin annotation, final boolean signed, final int value) {
+    try {
+      this.Byte(value);
+    }
+    catch (IOException ex) {
+      throw new JBBPException("Can't write byte value", ex);
+    }
+  }
+
+  @Override
+  protected void onFieldBool(final Object obj, final Field field, final Bin annotation, final boolean value) {
+    try {
+      this.Bool(value, annotation.bitOrder());
+    }
+    catch (IOException ex) {
+      throw new JBBPException("Can't write bool value", ex);
+    }
+  }
+
+  @Override
+  protected void onFieldBits(final Object obj, final Field field, final Bin annotation, final JBBPBitNumber bitNumber, final int value) {
+    try {
+      this.Bits(bitNumber, value);
+    }
+    catch (IOException ex) {
+      throw new JBBPException("Can't write bit value", ex);
+    }
+  }
+
+  @Override
+  protected void onFieldCustom(final Object obj, final Field field, final Bin annotation, final Object customFieldProcessor) {
+    try {
+      final JBBPCustomFieldWriter writer = (JBBPCustomFieldWriter) customFieldProcessor;
+      writer.writeCustomField(this, this.outStream, obj, field, annotation);
+    }
+    catch (IOException ex) {
+      throw new JBBPException("Can't write custom field", ex);
+    }
+  }
+  
+  
 }
