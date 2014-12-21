@@ -15,10 +15,11 @@
  */
 package com.igormaznitsa.jbbp.utils;
 
-import com.igormaznitsa.jbbp.io.JBBPByteOrder;
+import com.igormaznitsa.jbbp.exceptions.JBBPException;
+import com.igormaznitsa.jbbp.io.*;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.reflect.Field;
+import java.util.*;
 
 /**
  * the Writer allows to make text describes some bin data, it supports output of
@@ -28,6 +29,230 @@ import java.util.List;
  * @since 1.1
  */
 public class JBBPTextWriter extends FilterWriter {
+
+  private final class MappedObjectLogger extends AbstractMappedClassFieldObserver {
+
+    private int arrayCounter;
+
+    private final Stack<Integer> counterStack = new Stack<Integer>();
+    
+    protected void init() {
+      arrayCounter = 0;
+      counterStack.clear();
+    }
+
+    private String makeFieldDescription(final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation) {
+      final StringBuilder result = new StringBuilder();
+      if (annotation.name().length() == 0) {
+        result.append(field.getName());
+      }
+      else {
+        result.append(annotation.name());
+      }
+      if (annotation.comment().length() != 0) {
+        result.append(", ").append(annotation.comment());
+      }
+      return result.toString();
+    }
+
+    private String makeStructDescription(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation) {
+      final StringBuilder result = new StringBuilder();
+ 
+      final String typeName;
+      if (field == null){
+        typeName = obj.getClass().getSimpleName();
+      }else{
+        final Class<?> fieldType = field.getType();
+        typeName = fieldType.isArray() ? fieldType.getComponentType().getSimpleName() : fieldType.getSimpleName();
+      }
+      
+      final String name = annotation == null || annotation.name().length() == 0? typeName : annotation.name();
+      result.append(name);
+      
+      return result.toString();
+    }
+
+    private String makeArrayDescription(final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation) {
+      final StringBuilder result = new StringBuilder();
+      if (annotation.name().length() == 0) {
+        result.append(field.getName());
+      }
+      else {
+        result.append(annotation.name());
+      }
+      if (annotation.comment().length() != 0) {
+        result.append(", ").append(annotation.comment());
+      }
+      return result.toString();
+    }
+
+    @Override
+    protected void onArrayEnd(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation) {
+      try {
+        IndentDec();
+        HR();
+        Comment("END ARRAY : " + makeArrayDescription(field, annotation));
+        HR();
+      }
+      catch (IOException ex) {
+        throw new JBBPException("Can't log array field", ex);
+      }
+      finally {
+        arrayCounter--;
+      }
+    }
+
+    @Override
+    protected void onArrayStart(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation, final int length) {
+      try {
+        HR();
+        Comment("START ARRAY : "+makeArrayDescription(field, annotation)+" OF "+field.getType().getComponentType().getSimpleName() + " [" + length +']');
+        HR();
+        IndentInc();
+      }
+      catch (IOException ex) {
+        throw new JBBPException("Can't log array field", ex);
+      }
+      finally {
+        arrayCounter++;
+      }
+    }
+    
+    @Override
+    protected void onStructEnd(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation) {
+      try {
+        IndentDec();
+        HR();
+        Comment("END : "+makeStructDescription(obj, field, annotation));
+        HR();
+        this.arrayCounter = this.counterStack.pop();
+      }
+      catch (IOException ex) {
+        throw new JBBPException("Can't log struct field", ex);
+      }
+    }
+
+    @Override
+    protected void onStructStart(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation) {
+      try {
+        this.counterStack.add(this.arrayCounter);
+        this.arrayCounter = 0;
+        HR();
+        Comment("START : "+makeStructDescription(obj, field, annotation));
+        HR();
+        IndentInc();
+      }
+      catch (IOException ex) {
+        throw new JBBPException("Can't log short field", ex);
+      }
+    }
+
+    @Override
+    protected void onFieldLong(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation, final long value) {
+      try {
+        Long(value);
+        if (this.arrayCounter == 0) {
+          Comment(makeFieldDescription(field, annotation));
+        }
+      }
+      catch (IOException ex) {
+        throw new JBBPException("Can't log short field", ex);
+      }
+    }
+
+    @Override
+    protected void onFieldInt(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation, final int value) {
+      try {
+        Int(value);
+        if (this.arrayCounter == 0) {
+          Comment(makeFieldDescription(field, annotation));
+        }
+      }
+      catch (IOException ex) {
+        throw new JBBPException("Can't log int field", ex);
+      }
+    }
+
+    @Override
+    protected void onFieldShort(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation, final boolean signed, final int value) {
+      try {
+        Short(value);
+        if (this.arrayCounter == 0) {
+          Comment(makeFieldDescription(field, annotation));
+        }
+      }
+      catch (IOException ex) {
+        throw new JBBPException("Can't log short field", ex);
+      }
+    }
+
+    @Override
+    protected void onFieldByte(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation, final boolean signed, final int value) {
+      try {
+        Byte(value);
+        if (this.arrayCounter == 0) {
+          Comment(makeFieldDescription(field, annotation));
+        }
+      }
+      catch (IOException ex) {
+        throw new JBBPException("Can't log byte field", ex);
+      }
+    }
+
+    @Override
+    protected void onFieldBool(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation, final boolean value) {
+      try {
+        Byte(value ? 0x01 : 0x00);
+        if (this.arrayCounter == 0) {
+          Comment(makeFieldDescription(field, annotation));
+        }
+      }
+      catch (IOException ex) {
+        throw new JBBPException("Can't log boolean field", ex);
+      }
+    }
+
+    @Override
+    protected void onFieldBits(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation, final JBBPBitNumber bitNumber, final int value) {
+      try {
+        Byte(value & bitNumber.getMask());
+        if (this.arrayCounter == 0) {
+          Comment(makeFieldDescription(field, annotation));
+        }
+      }
+      catch (IOException ex) {
+        throw new JBBPException("Can't log bit field", ex);
+      }
+    }
+
+    @Override
+    protected void onFieldCustom(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation, final Object customFieldProcessor, final Object value) {
+      try {
+        if (this.arrayCounter == 0) {
+          ensureNewLineMode();
+          Comment(makeFieldDescription(field, annotation));
+          HR();
+        }
+        Obj(0, value);
+        if (this.arrayCounter == 0) {
+          Comment(makeFieldDescription(field, annotation));
+        }
+        HR();
+      }
+      catch (IOException ex) {
+        throw new JBBPException("Can't log custom field", ex);
+      }
+    }
+
+    public void processObject(final Object obj) {
+      super.processObject(obj, null, this);
+    }
+  }
+
+  /**
+   * Lazy initialized field to keep field observer for Bin marked classes.
+   */
+  private MappedObjectLogger mappedClassObserver;
 
   /**
    * The INterface describes some extras for the writer which can make
@@ -353,20 +578,22 @@ public class JBBPTextWriter extends FilterWriter {
 
   /**
    * Get the wrapped writer.
+   *
    * @return the wrapped writer
    */
-  public Writer getWrappedWriter(){
+  public Writer getWrappedWriter() {
     return this.out;
   }
-  
+
   /**
    * Get the current byte order.
+   *
    * @return the current byte order.
    */
-  public JBBPByteOrder getByteOrder(){
+  public JBBPByteOrder getByteOrder() {
     return this.byteOrder;
   }
-  
+
   /**
    * get the current radix.
    *
@@ -1023,6 +1250,7 @@ public class JBBPTextWriter extends FilterWriter {
    */
   public JBBPTextWriter HR() throws IOException {
     this.ensureNewLineMode();
+    this.writeIndent();
     this.write(this.prefixComment);
     for (int i = 0; i < this.hrLength; i++) {
       this.write(this.hrChar);
@@ -1109,6 +1337,33 @@ public class JBBPTextWriter extends FilterWriter {
   }
 
   /**
+   * Print object which marked by Bin annotation to be saved.
+   *
+   * @param objs array of object marked by Bin annotation
+   * @return the context
+   * @throws IOException
+   */
+  public JBBPTextWriter Bin(final Object... objs) throws IOException {
+    if (this.mappedClassObserver == null) {
+      this.mappedClassObserver = new MappedObjectLogger();
+    }
+
+    ensureNewLineMode();
+    
+    for (final Object obj : objs) {
+      if (obj == null) {
+        write("<NULL>");
+      }
+      else {
+        this.mappedClassObserver.init();
+        this.mappedClassObserver.processObject(obj);
+      }
+    }
+
+    return this;
+  }
+
+  /**
    * Close the wrapped writer.
    *
    * @return the context
@@ -1150,7 +1405,7 @@ public class JBBPTextWriter extends FilterWriter {
    * @throws IOException it will be thrown for transport errors
    */
   public JBBPTextWriter Tab() throws IOException {
-    this.Space(this.spacesInTab-(this.linePosition % this.spacesInTab));
+    this.Space(this.spacesInTab - (this.linePosition % this.spacesInTab));
     return this;
   }
 

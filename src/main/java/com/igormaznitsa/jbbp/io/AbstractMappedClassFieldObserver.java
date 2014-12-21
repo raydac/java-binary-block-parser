@@ -66,20 +66,20 @@ public abstract class AbstractMappedClassFieldObserver {
    * Inside cache to keep saveOrder of fields for classes for data output. It is
    * lazy initialized field.
    */
-  private static volatile Map<Class<?>, Field[]> cachedFields;
+  private static volatile Map<Class<?>, Field[]> cachedClasses;
 
-  protected void processObject(final Object obj, final Object customFieldProcessor) {
+  protected void processObject(final Object obj, final Field field, final Object customFieldProcessor) {
     JBBPUtils.assertNotNull(obj, "Object must not be null");
 
     Field[] orderedFields = null;
 
     final Map<Class<?>, Field[]> fieldz;
-    if (cachedFields == null) {
+    if (cachedClasses == null) {
       fieldz = new HashMap<Class<?>, Field[]>();
-      cachedFields = fieldz;
+      cachedClasses = fieldz;
     }
     else {
-      fieldz = cachedFields;
+      fieldz = cachedClasses;
       synchronized (fieldz) {
         orderedFields = fieldz.get(obj.getClass());
       }
@@ -100,7 +100,7 @@ public abstract class AbstractMappedClassFieldObserver {
         final Bin clazzAnno = clazzToProcess.getAnnotation(Bin.class);
         for (final Field f : clazzToProcess.getDeclaredFields()) {
           f.setAccessible(true);
-          if (Modifier.isTransient(f.getModifiers())) {
+          if (Modifier.isTransient(f.getModifiers()) || f.getName().indexOf('$') >= 0) {
             continue;
           }
           Bin fieldAnno = f.getAnnotation(Bin.class);
@@ -125,6 +125,11 @@ public abstract class AbstractMappedClassFieldObserver {
       }
     }
 
+    final Bin clazzAnno = obj.getClass().getAnnotation(Bin.class);
+    final Bin fieldAnno = field == null ? null : field.getAnnotation(Bin.class);
+
+    this.onStructStart(obj, field, clazzAnno == null ? fieldAnno : clazzAnno);
+
     for (final Field f : orderedFields) {
       Bin binAnno = f.getAnnotation(Bin.class);
       if (binAnno == null) {
@@ -141,6 +146,7 @@ public abstract class AbstractMappedClassFieldObserver {
       processObjectField(obj, f, binAnno, customFieldProcessor);
     }
 
+    this.onStructEnd(obj, field, clazzAnno == null ? fieldAnno : clazzAnno);
   }
 
   /**
@@ -150,11 +156,12 @@ public abstract class AbstractMappedClassFieldObserver {
    * @param field the field to be written, must not be null
    * @param annotation the annotation to be used as data source about the field,
    * must not be null
-   * @param customFieldProcessor an object which will be provided for processing of custom fields, must not be null if object contains custom fields 
+   * @param customFieldProcessor an object which will be provided for processing
+   * of custom fields, must not be null if object contains custom fields
    */
   protected void processObjectField(final Object obj, final Field field, final Bin annotation, final Object customFieldProcessor) {
     if (annotation.custom()) {
-      this.onFieldCustom(obj, field, annotation, customFieldProcessor);
+      this.onFieldCustom(obj, field, annotation, customFieldProcessor, readFieldValue(obj, field));
     }
     else {
       final Class<?> fieldType = field.getType();
@@ -168,7 +175,7 @@ public abstract class AbstractMappedClassFieldObserver {
       }
 
       final boolean reverseBits = annotation.bitOrder() == JBBPBitOrder.MSB0;
-      
+
       switch (type) {
         case BIT: {
           final JBBPBitNumber bitNumber = annotation.saveBitNumber();
@@ -250,7 +257,7 @@ public abstract class AbstractMappedClassFieldObserver {
         }
         break;
         case STRUCT: {
-          processObject(readFieldValue(obj, field), customFieldProcessor);
+          processObject(readFieldValue(obj, field), field, customFieldProcessor);
         }
         break;
         default: {
@@ -259,10 +266,10 @@ public abstract class AbstractMappedClassFieldObserver {
             case BIT_ARRAY: {
               assertFieldArray(field);
 
-              this.onArrayStart(obj, field, annotation);
+              final int len = Array.getLength(array);
+              this.onArrayStart(obj, field, annotation, len);
 
               final JBBPBitNumber bitNumber = annotation.saveBitNumber();
-              final int len = Array.getLength(array);
 
               if (fieldType.getComponentType() == boolean.class) {
                 for (int i = 0; i < len; i++) {
@@ -285,9 +292,9 @@ public abstract class AbstractMappedClassFieldObserver {
             case BOOL_ARRAY: {
               assertFieldArray(field);
 
-              this.onArrayStart(obj, field, annotation);
-
               final int len = Array.getLength(array);
+              this.onArrayStart(obj, field, annotation, len);
+
               for (int i = 0; i < len; i++) {
                 this.onFieldBool(obj, field, annotation, (Boolean) Array.get(array, i));
               }
@@ -300,12 +307,12 @@ public abstract class AbstractMappedClassFieldObserver {
               final boolean signed = type == BinType.BYTE_ARRAY;
 
               if (fieldType == String.class) {
-                this.onArrayStart(obj, field, annotation);
-
                 final String strValue = (String) readFieldValue(obj, field);
+                this.onArrayStart(obj, field, annotation, strValue.length());
+
                 for (int i = 0; i < strValue.length(); i++) {
-                  byte value = (byte)strValue.charAt(i);
-                  if (reverseBits){
+                  byte value = (byte) strValue.charAt(i);
+                  if (reverseBits) {
                     value = JBBPUtils.reverseBitsInByte(value);
                   }
                   this.onFieldByte(obj, field, annotation, signed, value);
@@ -313,8 +320,8 @@ public abstract class AbstractMappedClassFieldObserver {
               }
               else {
                 assertFieldArray(field);
-                this.onArrayEnd(obj, field, annotation);
                 final int len = Array.getLength(array);
+                this.onArrayStart(obj, field, annotation, len);
                 for (int i = 0; i < len; i++) {
                   byte value = ((Number) Array.get(array, i)).byteValue();
                   if (reverseBits) {
@@ -332,9 +339,9 @@ public abstract class AbstractMappedClassFieldObserver {
               final boolean signed = type == BinType.SHORT_ARRAY;
 
               if (fieldType == String.class) {
-                this.onArrayStart(obj, field, annotation);
-
                 final String str = (String) readFieldValue(obj, field);
+                this.onArrayStart(obj, field, annotation, str.length());
+
                 for (int i = 0; i < str.length(); i++) {
                   short value = (short) str.charAt(i);
                   if (reverseBits) {
@@ -346,9 +353,9 @@ public abstract class AbstractMappedClassFieldObserver {
               else {
                 assertFieldArray(field);
 
-                this.onArrayStart(obj, field, annotation);
-
                 final int len = Array.getLength(array);
+                this.onArrayStart(obj, field, annotation, len);
+
                 if (fieldType.getComponentType() == char.class) {
                   for (int i = 0; i < len; i++) {
                     short value = (short) ((Character) Array.get(array, i)).charValue();
@@ -374,8 +381,8 @@ public abstract class AbstractMappedClassFieldObserver {
             break;
             case INT_ARRAY: {
               assertFieldArray(field);
-              this.onArrayStart(obj, field, annotation);
               final int len = Array.getLength(array);
+              this.onArrayStart(obj, field, annotation, len);
               if (fieldType.getComponentType() == float.class) {
                 for (int i = 0; i < len; i++) {
                   int value = Float.floatToIntBits(Array.getFloat(array, i));
@@ -400,8 +407,8 @@ public abstract class AbstractMappedClassFieldObserver {
             break;
             case LONG_ARRAY: {
               assertFieldArray(field);
-              this.onArrayStart(obj, field, annotation);
               final int len = Array.getLength(array);
+              this.onArrayStart(obj, field, annotation, len);
               if (fieldType.getComponentType() == float.class) {
                 for (int i = 0; i < len; i++) {
                   long value = Float.floatToIntBits(Array.getFloat(array, i));
@@ -434,10 +441,10 @@ public abstract class AbstractMappedClassFieldObserver {
             break;
             case STRUCT_ARRAY: {
               assertFieldArray(field);
-              this.onArrayStart(obj, field, annotation);
               final int len = Array.getLength(array);
+              this.onArrayStart(obj, field, annotation, len);
               for (int i = 0; i < len; i++) {
-                this.processObject(Array.get(array, i), customFieldProcessor);
+                this.processObject(Array.get(array, i), field, customFieldProcessor);
               }
               this.onArrayEnd(obj, field, annotation);
             }
@@ -482,7 +489,7 @@ public abstract class AbstractMappedClassFieldObserver {
     }
   }
 
-  protected void onFieldCustom(final Object obj, final Field field, final Bin annotation, final Object customFieldProcessor) {
+  protected void onFieldCustom(final Object obj, final Field field, final Bin annotation, final Object customFieldProcessor, final Object value) {
 
   }
 
@@ -518,7 +525,7 @@ public abstract class AbstractMappedClassFieldObserver {
 
   }
 
-  protected void onArrayStart(final Object obj, final Field field, final Bin annotation) {
+  protected void onArrayStart(final Object obj, final Field field, final Bin annotation, final int length) {
 
   }
 
@@ -531,7 +538,7 @@ public abstract class AbstractMappedClassFieldObserver {
    * the method allows to reset the inside cache.
    */
   public void resetInsideClassCache() {
-    final Map<Class<?>, Field[]> fieldz = cachedFields;
+    final Map<Class<?>, Field[]> fieldz = cachedClasses;
     if (fieldz != null) {
       synchronized (fieldz) {
         fieldz.clear();

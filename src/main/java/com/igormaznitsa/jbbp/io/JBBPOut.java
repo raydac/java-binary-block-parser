@@ -949,7 +949,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    */
   public JBBPOut Bin(final Object object, final JBBPCustomFieldWriter customFieldWriter) throws IOException {
     if (this.processCommands) {
-      this.processObject(object, customFieldWriter);
+      this.processObject(object, null, customFieldWriter);
     }
 
     return this;
@@ -1015,10 +1015,10 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   }
 
   @Override
-  protected void onFieldCustom(final Object obj, final Field field, final Bin annotation, final Object customFieldProcessor) {
+  protected void onFieldCustom(final Object obj, final Field field, final Bin annotation, final Object customFieldProcessor, final Object value) {
     try {
       final JBBPCustomFieldWriter writer = (JBBPCustomFieldWriter) customFieldProcessor;
-      writer.writeCustomField(this, this.outStream, obj, field, annotation);
+      writer.writeCustomField(this, this.outStream, obj, field, annotation, value);
     }
     catch (IOException ex) {
       throw new JBBPException("Can't write custom field", ex);

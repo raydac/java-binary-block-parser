@@ -217,7 +217,7 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
       }
     }
 
-    public void writeCustomField(final JBBPOut context, final JBBPBitOutputStream out, final Object instanceForSaving, final Field instanceCustomField, final Bin fieldAnnotation) throws IOException {
+    public void writeCustomField(final JBBPOut context, final JBBPBitOutputStream out, final Object instanceForSaving, final Field instanceCustomField, final Bin fieldAnnotation, final Object value) throws IOException {
       try {
         final byte [] array = (byte[])instanceCustomField.get(instanceForSaving);
         new RLEDataEncoder().processVarOut(context, out, 1, array);

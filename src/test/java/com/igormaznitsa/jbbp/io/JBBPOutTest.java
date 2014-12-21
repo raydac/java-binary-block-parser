@@ -1189,7 +1189,7 @@ public class JBBPOutTest {
     }
 
     assertArrayEquals(new byte[]{1,2,3}, JBBPOut.BeginBin().Bin(new Test((byte)1,(byte)0),new JBBPCustomFieldWriter() {
-      public void writeCustomField(JBBPOut context, JBBPBitOutputStream outStream, Object instanceToSave, Field instanceCustomField, Bin fieldAnnotation) throws IOException {
+      public void writeCustomField(JBBPOut context, JBBPBitOutputStream outStream, Object instanceToSave, Field instanceCustomField, Bin fieldAnnotation, Object value) throws IOException {
         assertNotNull(context);
         assertNotNull(outStream);
         assertNotNull(instanceToSave);

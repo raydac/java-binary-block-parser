@@ -15,7 +15,10 @@
  */
 package com.igormaznitsa.jbbp.utils;
 
+import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
+import com.igormaznitsa.jbbp.it.AbstractParserIntegrationTest;
+import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.utils.JBBPTextWriter.Extra;
 import java.io.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,7 +26,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
 
-public class JBBPTextWriterTest {
+public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
 
   private JBBPTextWriter writer;
 
@@ -553,5 +556,81 @@ public class JBBPTextWriterTest {
     writer.SetValuePrefix("").Byte(1).Short(2).Int(3).Long(4).Obj(234, "Str");
     
     assertEquals(".byte1,short2,int3,long4,objStr",writer.Close().toString());
+  }
+
+  @Test
+  public void testBin_EasyCase() throws Exception{
+    @Bin(name = "some class")
+    class SomeClass {
+      @Bin(saveOrder = 1)
+      byte a;
+      @Bin(saveOrder = 2,comment = "Short field")
+      short b;
+      @Bin(saveOrder = 3)
+      int c;
+      @Bin(saveOrder = 4, comment = "Long field")
+      long d;
+      @Bin(saveOrder = 5, comment = "some array")
+      byte [] arr = new byte[128];
+    }
+    
+    final SomeClass cl = new SomeClass();
+    cl.a = 1;
+    cl.b = 2;
+    cl.c = 3;
+    cl.d = 4;
+  
+    writer.SetMaxValuesPerLine(16);
+    
+    final String text = writer.SetCommentPrefix("; ").Bin(cl).Close().toString();
+    System.out.println(text);
+    assertFile("testwriterbin1.txt", text);;
+  }
+
+  @Test
+  public void testBin_ParsedPng() throws Exception{
+    final InputStream pngStream = getResourceAsInputStream("picture.png");
+    try {
+
+      final JBBPParser pngParser = JBBPParser.prepare(
+              "long header;"
+              + "// chunks\n"
+              + "chunks [_]{"
+              + "   int length; "
+              + "   int type; "
+              + "   byte[length] data; "
+              + "   int crc;"
+              + "}"
+      );
+
+      class Chunk {
+        @Bin(saveOrder = 1)
+        int Length;
+        @Bin(saveOrder = 2)
+        int Type;
+        @Bin(saveOrder = 3)
+        byte[] Data;
+        @Bin(saveOrder = 4)
+        int CRC;
+      }
+
+      class Png {
+        @Bin(saveOrder = 1)
+        long Header;
+        @Bin(saveOrder = 2)
+        Chunk[] Chunks;
+      }
+
+      final Png png = pngParser.parse(pngStream).mapTo(Png.class);
+
+      final String text = writer.SetMaxValuesPerLine(16).Bin(png).Close().toString();
+      
+      System.out.println(text);
+
+      assertFile("testwriterbin2.txt", text);;
+    }
+    finally {
+      JBBPUtils.closeQuietly(pngStream);
+    }
   }
 }
