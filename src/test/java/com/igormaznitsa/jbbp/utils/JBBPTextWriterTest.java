@@ -61,8 +61,31 @@ public class JBBPTextWriterTest {
   }
 
   @Test
+  public void testConstructor_Default() {
+    final JBBPTextWriter writer = new JBBPTextWriter();
+    assertTrue(writer.getWrappedWriter() instanceof StringWriter);
+    assertEquals(JBBPByteOrder.BIG_ENDIAN, writer.getByteOrder());
+  }
+  
+  @Test
+  public void testConstructor_OnlyWriter() {
+    final Writer someWriter = new StringWriter();
+    final JBBPTextWriter writer = new JBBPTextWriter(someWriter);
+    assertSame(someWriter,writer.getWrappedWriter());
+    assertEquals(JBBPByteOrder.BIG_ENDIAN, writer.getByteOrder());
+  }
+  
+  @Test
+  public void testConstructor_WriterAndByteOrder() {
+    final Writer someWriter = new StringWriter();
+    final JBBPTextWriter writer = new JBBPTextWriter(someWriter,JBBPByteOrder.LITTLE_ENDIAN);
+    assertSame(someWriter,writer.getWrappedWriter());
+    assertEquals(JBBPByteOrder.LITTLE_ENDIAN, writer.getByteOrder());
+  }
+  
+  @Test
   public void testCommentHelloWorld() throws Exception {
-    assertEquals(";Hello World\n", writer.Comment("Hello World").Close().toString());
+    assertEquals(";Hello World", writer.Comment("Hello World").Close().toString());
   }
 
   @Test
@@ -83,7 +106,7 @@ public class JBBPTextWriterTest {
             .IndentInc()
             .Byte(new byte[]{1, 2, 3, 4})
             .Comment("Body", "Next comment", "One more comment")
-            .BR()
+            .BR().BR()
             .Byte(new byte[]{0x0A, 0x0B})
             .Comment("Part", "Part line2", "Part line3")
             .HR()
@@ -94,6 +117,9 @@ public class JBBPTextWriterTest {
             .IndentDec()
             .Long(-1L)
             .Close().toString();
+
+    System.out.println(text);
+    
     assertFile("testwriter.txt", text);
   }
 
@@ -122,7 +148,7 @@ public class JBBPTextWriterTest {
   @Test
   public void testMultilineComments() throws Exception {
     writer.Byte(1).Comment("Hello", "World");
-    assertEquals(".0x01;Hello\n     ;World\n", writer.Close().toString());
+    assertEquals(".0x01;Hello\n     ;World", writer.Close().toString());
   }
 
   @Test
@@ -160,7 +186,9 @@ public class JBBPTextWriterTest {
       }
     });
 
-    assertFile("testwriter3.txt", writer.Byte(0xFF).Obj(111, "Hello").Int(0xCAFEBABE).Close().toString());
+    final String text = writer.Byte(0xFF).Obj(111, "Hello").Int(0xCAFEBABE).Close().toString();
+    System.out.println(text);
+    assertFile("testwriter3.txt", text);
   }
 
   @Test
@@ -202,9 +230,44 @@ public class JBBPTextWriterTest {
       writer.Byte(i);
     }
     assertFile("testwriter2.txt", writer.Close().toString());
-    assertEquals(5, newLineCounter.get());
+    assertEquals(4, newLineCounter.get());
     assertEquals(130, bytePrintCounter.get());
     assertEquals(1, closeCounter.get());
+  }
+  
+  @Test
+  public void testByteOrder() throws Exception {
+    writer.ByteOrder(JBBPByteOrder.LITTLE_ENDIAN);
+    assertEquals(JBBPByteOrder.LITTLE_ENDIAN, writer.getByteOrder());
+    writer.ByteOrder(JBBPByteOrder.BIG_ENDIAN);
+    assertEquals(JBBPByteOrder.BIG_ENDIAN, writer.getByteOrder());
+  }
+  
+  @Test(expected = IllegalStateException.class)
+  public void testObj_NoExtras() throws Exception {
+    writer.Obj(123, "Str1", "Str2", "Str3");
+  }
+  
+  @Test
+  public void testObj_ExtrasReturnNull() throws Exception {
+    writer.SetValuePrefix("").AddExtras(new JBBPTextWriterExtraAdapter() {
+    });
+    writer.Obj(123, "Str1","Str2","Str3");
+    assertEquals("",writer.Close().toString());
+  }
+  
+  @Test
+  public void testObj_ExtrasReturnValue() throws Exception {
+    writer.SetValuePrefix("").AddExtras(new JBBPTextWriterExtraAdapter() {
+
+      @Override
+      public String doConvertObjToStr(JBBPTextWriter context, int id, Object obj) throws IOException {
+        return obj.toString();
+      }
+      
+    });
+    writer.Obj(123, "Str1","Str2","Str3");
+    assertEquals(".Str1,Str2,Str3",writer.Close().toString());
   }
   
   @Test
@@ -212,6 +275,13 @@ public class JBBPTextWriterTest {
     writer.Byte(10);
     writer.Byte(-1);
     assertEquals(".0x0A,0xFF", writer.Close().toString());
+  }
+
+  @Test
+  public void testByte_OneValueAfterComment() throws Exception {
+    writer.Comment("Hello");
+    writer.Byte(-1);
+    assertEquals(";Hello\n.0xFF", writer.Close().toString());
   }
 
   @Test
@@ -313,24 +383,175 @@ public class JBBPTextWriterTest {
     assertEquals(".0x123456789ABCDEFF,0xFFFFFFFFFFFFFFFF", writer.Close().toString());
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testRadix_ErrorForLessThan2(){
+    writer.Radix(1);
+  }
+  
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testRadix_ErrorForGreaterThan36(){
+    writer.Radix(37);
+  }
+  
   @Test
   public void testRadix() throws Exception {
+    writer.Radix(2);
+    assertEquals(2, writer.getRadix());
+    writer.Radix(12);
+    assertEquals(12, writer.getRadix());
     writer.SetValuePrefix("").Radix(16).Int(0x12345).Radix(2).Int(0x12345).Radix(10).Int(0x12345);
     assertEquals(".00012345,00000000000000010010001101000101,0000074565",writer.Close().toString());
   }
   
   @Test
-  public void testTab() throws Exception {
-    writer.setTabSpaces(8).Tab().Byte(1).Tab().Byte(1).Tab().Long(-1).Tab().write('A');
-    assertEquals("        .0x01   ,0x01   ,0xFFFFFFFFFFFFFFFF     A",writer.Close().toString());
+  public void testGetLineSeparator() throws Exception {
+    assertEquals("hello",new JBBPTextWriter(writer, JBBPByteOrder.BIG_ENDIAN, "hello", 11, "", "", "", "").getLineSeparator());
+  }
+  
+  @Test
+  public void testAddDellExtras() throws Exception {
+    final JBBPTextWriterExtraAdapter extras1 = new JBBPTextWriterExtraAdapter() {
+
+      @Override
+      public String doConvertByteToStr(JBBPTextWriter context, int value) throws IOException {
+        return "bbb"+value;
+      }
+    
+    };
+
+    final JBBPTextWriterExtraAdapter extras2 = new JBBPTextWriterExtraAdapter() {
+      @Override
+      public String doConvertByteToStr(JBBPTextWriter context, int value) throws IOException {
+        return "aaa"+value;
+      }
+    };
+    
+    writer.AddExtras(extras1,extras2).SetValuePrefix("");
+    
+    writer.Byte(1);
+    writer.DelExtras(extras2);
+    writer.Byte(2);
+    
+    assertEquals(".aaa1,bbb2",writer.Close().toString());
   }
   
   @Test
   public void testPrintSpecialChars() throws Exception {
-    writer.setTabSpaces(4).write('\t');
+    writer.SetTabSpaces(4).write('\t');
     writer.write('\r');
     writer.Byte(1);
     writer.write('\n');
     assertEquals("    .0x01\n",writer.Close().toString());
+  }
+
+  @Test
+  public void testStates() throws Exception {
+    assertTrue(writer.isLineStart());
+    assertFalse(writer.isComments());
+    assertFalse(writer.isValues());
+    
+    writer.Byte(-1);
+
+    assertFalse(writer.isLineStart());
+    assertFalse(writer.isComments());
+    assertTrue(writer.isValues());
+  
+    writer.Comment("Hello","World");
+    
+    assertFalse(writer.isLineStart());
+    assertTrue(writer.isComments());
+    assertFalse(writer.isValues());
+
+    writer.write(" state not changed");
+
+    assertFalse(writer.isLineStart());
+    assertTrue(writer.isComments());
+    assertFalse(writer.isValues());
+    
+    writer.BR();
+
+    assertTrue(writer.isLineStart());
+    assertFalse(writer.isComments());
+    assertFalse(writer.isValues());
+  }
+  
+  @Test
+  public void testFlushAndClose() throws Exception {
+    writer.write(new char[]{'a','b'});
+    writer.flush();
+    writer.close();
+    assertEquals("ab",writer.toString());
+  }
+
+  @Test
+  public void testGetLinePosition() throws Exception {
+    assertEquals(0,writer.getLinePosition());
+    writer.write("123");
+    assertEquals(3, writer.getLinePosition());
+    writer.write("111\n");
+    assertEquals(0, writer.getLinePosition());
+  }
+  
+  @Test
+  public void testAppend() throws Exception {
+    writer.append("123");
+    writer.append('4');
+    writer.append("a56b", 1, 3);
+    writer.append(null);
+    assertEquals("123456null",writer.Close().toString());
+  }
+  
+  @Test
+  public void testSetTabSpaces() throws Exception {
+    writer.SetTabSpaces(3).Tab().BR().IndentInc(3).Byte(1).IndentDec(2).BR().Comment("Hello");
+    assertEquals("   \n         .0x01\n   ;Hello", writer.Close().toString());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSetTabSpaces_ErrorForNegative() throws Exception {
+    writer.SetTabSpaces(-1);
+  }
+  
+  @Test(expected = IllegalArgumentException.class)
+  public void testSetTabSpaces_ErrorForZero() throws Exception {
+    writer.SetTabSpaces(0);
+  }
+  
+  @Test
+  public void testPrintNumericValueByExtras() throws Exception {
+    writer.AddExtras(new JBBPTextWriterExtraAdapter() {
+
+      @Override
+      public String doConvertObjToStr(JBBPTextWriter context, int id, Object obj) throws IOException {
+        assertEquals(234, id);
+        return "obj"+obj;
+      }
+
+      @Override
+      public String doConvertLongToStr(JBBPTextWriter context, long value) throws IOException {
+        return "long"+value;
+      }
+
+      @Override
+      public String doConvertIntToStr(JBBPTextWriter context, int value) throws IOException {
+        return "int"+value;
+      }
+
+      @Override
+      public String doConvertShortToStr(JBBPTextWriter context, int value) throws IOException {
+        return "short"+value;
+      }
+
+      @Override
+      public String doConvertByteToStr(JBBPTextWriter context, int value) throws IOException {
+        return "byte"+value;
+      }
+      
+    });
+  
+    writer.SetValuePrefix("").Byte(1).Short(2).Int(3).Long(4).Obj(234, "Str");
+    
+    assertEquals(".byte1,short2,int3,long4,objStr",writer.Close().toString());
   }
 }

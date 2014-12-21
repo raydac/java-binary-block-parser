@@ -352,6 +352,22 @@ public class JBBPTextWriter extends FilterWriter {
   }
 
   /**
+   * Get the wrapped writer.
+   * @return the wrapped writer
+   */
+  public Writer getWrappedWriter(){
+    return this.out;
+  }
+  
+  /**
+   * Get the current byte order.
+   * @return the current byte order.
+   */
+  public JBBPByteOrder getByteOrder(){
+    return this.byteOrder;
+  }
+  
+  /**
    * get the current radix.
    *
    * @return the current radix
@@ -444,6 +460,7 @@ public class JBBPTextWriter extends FilterWriter {
       break;
       case MODE_COMMENTS: {
         BR();
+        writeIndent();
         while (this.linePosition < this.prevLineCommentsStartPosition) {
           this.write(' ');
         }
@@ -646,7 +663,7 @@ public class JBBPTextWriter extends FilterWriter {
     JBBPUtils.assertNotNull(extras, "Extras must not be null");
     for (final Extra e : extras) {
       JBBPUtils.assertNotNull(e, "Extras must not be null");
-      this.extras.add(e);
+      this.extras.add(0, e);
     }
     return this;
   }
@@ -684,7 +701,7 @@ public class JBBPTextWriter extends FilterWriter {
    * @param numberOfSpacesPerTab number of spaces, must be greater than zero
    * @return the context
    */
-  public JBBPTextWriter TabSpaces(final int numberOfSpacesPerTab) {
+  public JBBPTextWriter SetTabSpaces(final int numberOfSpacesPerTab) {
     if (numberOfSpacesPerTab <= 0) {
       throw new IllegalArgumentException("Tab must contains positive number of space chars [" + numberOfSpacesPerTab + ']');
     }
@@ -1005,17 +1022,17 @@ public class JBBPTextWriter extends FilterWriter {
    * @throws IOException it will be thrown for transport errors
    */
   public JBBPTextWriter HR() throws IOException {
-    ensureNewLineMode();
+    this.ensureNewLineMode();
     this.write(this.prefixComment);
     for (int i = 0; i < this.hrLength; i++) {
       this.write(this.hrChar);
     }
-    BR();
+    this.BR();
     return this;
   }
 
   /**
-   * Print comments.
+   * Print comments. Wilt aligning of line start for multi-line comment.
    *
    * @param comment array of string to be printed as comment lines.
    * @return the context
@@ -1024,10 +1041,10 @@ public class JBBPTextWriter extends FilterWriter {
   public JBBPTextWriter Comment(final String... comment) throws IOException {
     if (comment != null) {
       for (final String c : comment) {
-        ensureCommentMode();
-        write(c);
+        this.ensureCommentMode();
+        this.write(c);
       }
-      BR();
+      this.prevLineCommentsStartPosition = 0;
     }
     return this;
   }
@@ -1134,20 +1151,6 @@ public class JBBPTextWriter extends FilterWriter {
    */
   public JBBPTextWriter Tab() throws IOException {
     this.Space(this.spacesInTab-(this.linePosition % this.spacesInTab));
-    return this;
-  }
-
-  /**
-   * Set number of spaces for tab simulation and indents.
-   *
-   * @param value number of spaces, must be equal or greater than one
-   * @return the context
-   */
-  public JBBPTextWriter setTabSpaces(final int value) {
-    if (value < 1) {
-      throw new IllegalArgumentException("Space number must be positive number [" + value + ']');
-    }
-    this.spacesInTab = value;
     return this;
   }
 
