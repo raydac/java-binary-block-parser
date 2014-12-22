@@ -23,6 +23,10 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.lang.reflect.*;
 import java.util.*;
 
+/**
+ * Abstract class to collect, order and process all fields in a mapped class.
+ * since 1.1
+ */
 public abstract class AbstractMappedClassFieldObserver {
 
   /**
@@ -68,6 +72,12 @@ public abstract class AbstractMappedClassFieldObserver {
    */
   private static volatile Map<Class<?>, Field[]> cachedClasses;
 
+  /**
+   * Process an object.
+   * @param obj an object which is an instance of a mapped class, must not be null
+   * @param field a field where the object has been found, it can be null for first call
+   * @param customFieldProcessor a processor for custom fields, it can be null
+   */
   protected void processObject(final Object obj, final Field field, final Object customFieldProcessor) {
     JBBPUtils.assertNotNull(obj, "Object must not be null");
 
@@ -150,7 +160,7 @@ public abstract class AbstractMappedClassFieldObserver {
   }
 
   /**
-   * Inside auxiliary method to write a field of an object.
+   * Inside auxiliary method to process a field of an object.
    *
    * @param obj the object which field under processing, must not be null
    * @param field the field to be written, must not be null
@@ -489,46 +499,129 @@ public abstract class AbstractMappedClassFieldObserver {
     }
   }
 
+  /**
+   * Notification about custom field.
+   * @param obj the object instance, must not be null
+   * @param field the custom field, must not be null
+   * @param annotation the annotation for the field, must not be null
+   * @param customFieldProcessor processor for custom fields, must not be null
+   * @param value the value of the custom field
+   */
   protected void onFieldCustom(final Object obj, final Field field, final Bin annotation, final Object customFieldProcessor, final Object value) {
 
   }
 
+  /**
+   * Notification about bit field.
+   * @param obj the object instance, must not be null
+   * @param field the field, must not be null
+   * @param annotation the annotation for field, must not be null
+   * @param bitNumber number of bits for the field, must not be null
+   * @param value the value of the field
+   */
   protected void onFieldBits(final Object obj, final Field field, final Bin annotation, final JBBPBitNumber bitNumber, final int value) {
 
   }
 
+  /**
+   * Notification about boolean field.
+   * @param obj the object instance, must not be null
+   * @param field the field, must not be null
+   * @param annotation the annotation for field, must not be null
+   * @param value the value of the field
+   */
   protected void onFieldBool(final Object obj, final Field field, final Bin annotation, final boolean value) {
 
   }
 
+  /**
+   * Notification about byte field.
+   *
+   * @param obj the object instance, must not be null
+   * @param field the field, must not be null
+   * @param annotation the annotation for field, must not be null
+   * @param signed flag shows that the field id signed
+   * @param value the value of the field
+   */
   protected void onFieldByte(final Object obj, final Field field, final Bin annotation, final boolean signed, final int value) {
 
   }
 
+  /**
+   * Notification about short field.
+   *
+   * @param obj the object instance, must not be null
+   * @param field the field, must not be null
+   * @param annotation the annotation for field, must not be null
+   * @param signed flag shows that the field id signed
+   * @param value the value of the field
+   */
   protected void onFieldShort(final Object obj, final Field field, final Bin annotation, final boolean signed, final int value) {
 
   }
 
+  /**
+   * Notification about integer field.
+   *
+   * @param obj the object instance, must not be null
+   * @param field the field, must not be null
+   * @param annotation the annotation for field, must not be null
+   * @param value the value of the field
+   */
   protected void onFieldInt(final Object obj, final Field field, final Bin annotation, final int value) {
 
   }
 
+  /**
+   * Notification about long field.
+   *
+   * @param obj the object instance, must not be null
+   * @param field the field, must not be null
+   * @param annotation the annotation for field, must not be null
+   * @param value the value of the field
+   */
   protected void onFieldLong(final Object obj, final Field field, final Bin annotation, final long value) {
 
   }
 
+  /**
+   * Notification of start of "structure" field.
+   * @param obj the object instance, must not be null
+   * @param field the field, must not be null
+   * @param annotation the annotation for field, must not be null
+   */
   protected void onStructStart(final Object obj, final Field field, final Bin annotation) {
 
   }
 
+  /**
+   * Notification of end of "structure" field.
+   *
+   * @param obj the object instance, must not be null
+   * @param field the field, must not be null
+   * @param annotation the annotation for field, must not be null
+   */
   protected void onStructEnd(final Object obj, final Field field, final Bin annotation) {
 
   }
 
+  /**
+   * Notification of start of "array" field.
+   * @param obj the object instance, must not be null
+   * @param field the field, must not be null
+   * @param annotation the annotation for field, must not be null
+   * @param length the length of the array
+   */
   protected void onArrayStart(final Object obj, final Field field, final Bin annotation, final int length) {
 
   }
 
+  /**
+   * Notification of end of "array" field.
+   * @param obj the object instance, must not be null
+   * @param field the field, must not be null
+   * @param annotation the annotation for the field, must not be null
+   */
   protected void onArrayEnd(final Object obj, final Field field, final Bin annotation) {
 
   }
