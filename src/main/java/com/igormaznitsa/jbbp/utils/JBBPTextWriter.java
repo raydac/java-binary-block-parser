@@ -17,6 +17,7 @@ package com.igormaznitsa.jbbp.utils;
 
 import com.igormaznitsa.jbbp.exceptions.JBBPException;
 import com.igormaznitsa.jbbp.io.*;
+import com.igormaznitsa.jbbp.mapper.Bin;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -35,7 +36,7 @@ public class JBBPTextWriter extends FilterWriter {
     private int arrayCounter;
 
     private final Stack<Integer> counterStack = new Stack<Integer>();
-    
+
     protected void init() {
       arrayCounter = 0;
       counterStack.clear();
@@ -57,18 +58,19 @@ public class JBBPTextWriter extends FilterWriter {
 
     private String makeStructDescription(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation) {
       final StringBuilder result = new StringBuilder();
- 
+
       final String typeName;
-      if (field == null){
+      if (field == null) {
         typeName = obj.getClass().getSimpleName();
-      }else{
+      }
+      else {
         final Class<?> fieldType = field.getType();
         typeName = fieldType.isArray() ? fieldType.getComponentType().getSimpleName() : fieldType.getSimpleName();
       }
-      
-      final String name = annotation == null || annotation.name().length() == 0? typeName : annotation.name();
+
+      final String name = annotation == null || annotation.name().length() == 0 ? typeName : annotation.name();
       result.append(name);
-      
+
       return result.toString();
     }
 
@@ -106,7 +108,7 @@ public class JBBPTextWriter extends FilterWriter {
     protected void onArrayStart(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation, final int length) {
       try {
         HR();
-        Comment("START ARRAY : "+makeArrayDescription(field, annotation)+" OF "+field.getType().getComponentType().getSimpleName() + " [" + length +']');
+        Comment("START ARRAY : " + makeArrayDescription(field, annotation) + " OF " + field.getType().getComponentType().getSimpleName() + " [" + length + ']');
         HR();
         IndentInc();
       }
@@ -117,13 +119,13 @@ public class JBBPTextWriter extends FilterWriter {
         arrayCounter++;
       }
     }
-    
+
     @Override
     protected void onStructEnd(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation) {
       try {
         IndentDec();
         HR();
-        Comment("END : "+makeStructDescription(obj, field, annotation));
+        Comment("END : " + makeStructDescription(obj, field, annotation));
         HR();
         this.arrayCounter = this.counterStack.pop();
       }
@@ -138,7 +140,7 @@ public class JBBPTextWriter extends FilterWriter {
         this.counterStack.add(this.arrayCounter);
         this.arrayCounter = 0;
         HR();
-        Comment("START : "+makeStructDescription(obj, field, annotation));
+        Comment("START : " + makeStructDescription(obj, field, annotation));
         HR();
         IndentInc();
       }
@@ -228,16 +230,23 @@ public class JBBPTextWriter extends FilterWriter {
     @Override
     protected void onFieldCustom(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation, final Object customFieldProcessor, final Object value) {
       try {
-        if (this.arrayCounter == 0) {
-          ensureNewLineMode();
-          Comment(makeFieldDescription(field, annotation));
-          HR();
+        if (extras.isEmpty()) {
+          throw new IllegalStateException("There is not any registered extras");
         }
-        Obj(0, value);
-        if (this.arrayCounter == 0) {
+
+        String str = null;
+        for (final Extra e : extras) {
+          str = e.doConvertCustomField(JBBPTextWriter.this, obj, field, annotation);
+          if (str != null) {
+            break;
+          }
+        }
+
+        if (str != null) {
+          ensureValueMode();
+          printValueString(str);
           Comment(makeFieldDescription(field, annotation));
         }
-        HR();
       }
       catch (IOException ex) {
         throw new JBBPException("Can't log custom field", ex);
@@ -344,6 +353,21 @@ public class JBBPTextWriter extends FilterWriter {
      * @throws IOException
      */
     String doConvertObjToStr(JBBPTextWriter context, int id, Object obj) throws IOException;
+
+    /**
+     * Convert a custom field into string.
+     *
+     * @param context the context, must not be null
+     * @param obj an object instance which field must be converted into string,
+     * must not be null
+     * @param field the field of the object which must be converted, must not be
+     * null
+     * @param annotation the bin annotation for the field, must not be null
+     * @return the text representation of the field or null if to not print
+     * anything
+     * @throws IOException it will be thrown for transport error
+     */
+    String doConvertCustomField(JBBPTextWriter context, final Object obj, final Field field, final Bin annotation) throws IOException;
   }
 
   /**
@@ -738,6 +762,26 @@ public class JBBPTextWriter extends FilterWriter {
     }
   }
 
+  /**
+   * Print string values.
+   * @param str array of string values, must not be null but may contain nulls
+   * @return the context
+   * @throws IOException it will be thrown for error 
+   */
+  public JBBPTextWriter Str(final String ... str) throws IOException {
+    JBBPUtils.assertNotNull(str, "String must not be null");
+    
+    ensureValueMode();
+    final String oldPrefix = this.prefixValue;
+    this.prefixValue = "";
+    
+    for(final String s : str){
+      printValueString(s == null ? "<NULL>" : s);
+    }
+    this.prefixValue = oldPrefix;
+    return this;
+  }
+  
   /**
    * Print byte value.
    *
@@ -1349,7 +1393,7 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     ensureNewLineMode();
-    
+
     for (final Object obj : objs) {
       if (obj == null) {
         write("<NULL>");

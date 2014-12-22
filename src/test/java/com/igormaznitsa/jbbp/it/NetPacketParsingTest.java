@@ -93,11 +93,11 @@ public class NetPacketParsingTest extends AbstractParserIntegrationTest {
   @Test
   public void testParseSomePacketGettedOverTCP_ExampleFromStackOverflow() throws Exception {
     final class Parsed {
-      @Bin(saveOrder = 1) byte begin;
-      @Bin(saveOrder = 2, type = BinType.BIT, saveBitNumber = JBBPBitNumber.BITS_4) int version;
-      @Bin(saveOrder = 3, type = BinType.BIT, saveBitNumber = JBBPBitNumber.BITS_4) int returnType;
-      @Bin(saveOrder = 4) byte[] productCode;
-      @Bin(saveOrder = 5, type = BinType.USHORT) int dataLength;
+      @Bin(outOrder = 1) byte begin;
+      @Bin(outOrder = 2, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_4) int version;
+      @Bin(outOrder = 3, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_4) int returnType;
+      @Bin(outOrder = 4) byte[] productCode;
+      @Bin(outOrder = 5, type = BinType.USHORT) int dataLength;
     }
     
     final byte [] testArray =  new byte[]{0x23, 0x21, (byte) 0x90, 0x23, 0x21, 0x22, 0x12, 0x00, (byte) 0xAA};
@@ -118,11 +118,11 @@ public class NetPacketParsingTest extends AbstractParserIntegrationTest {
   @Test
   public void testParseUDP() throws Exception {
     final class Parsed {
-      @Bin(saveOrder = 1) char source;
-      @Bin(saveOrder = 2) char destination;
-      @Bin(saveOrder = 3) char length;
-      @Bin(saveOrder = 4) char checksum;
-      @Bin(saveOrder = 5) byte[] data;
+      @Bin(outOrder = 1) char source;
+      @Bin(outOrder = 2) char destination;
+      @Bin(outOrder = 3) char length;
+      @Bin(outOrder = 4) char checksum;
+      @Bin(outOrder = 5) byte[] data;
     }
 
     final byte [] testArray = new byte[]{0x04, (byte) 0x89, 0x00, 0x35, 0x00, 0x2C, (byte) 0xAB, (byte) 0xB4, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x70, 0x6F, 0x70, 0x64, 0x02, 0x69, 0x78, 0x06, 0x6E, 0x65, 0x74, 0x63, 0x6F, 0x6D, 0x03, 0x63, 0x6F, 0x6D, 0x00, 0x00, 0x01, 0x00, 0x01};

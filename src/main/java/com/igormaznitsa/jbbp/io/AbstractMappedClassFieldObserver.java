@@ -67,7 +67,7 @@ public abstract class AbstractMappedClassFieldObserver {
   }
 
   /**
-   * Inside cache to keep saveOrder of fields for classes for data output. It is
+   * Inside cache to keep outOrder of fields for classes for data output. It is
    * lazy initialized field.
    */
   private static volatile Map<Class<?>, Field[]> cachedClasses;
@@ -96,7 +96,7 @@ public abstract class AbstractMappedClassFieldObserver {
     }
 
     if (orderedFields == null) {
-      // find out the saveOrder of fields and fields which should be serialized
+      // find out the outOrder of fields and fields which should be serialized
       final List<Class<?>> listOfClassHierarchy = new ArrayList<Class<?>>();
       final List<OrderedField> fields = new ArrayList<OrderedField>();
 
@@ -119,7 +119,7 @@ public abstract class AbstractMappedClassFieldObserver {
             continue;
           }
 
-          fields.add(new OrderedField(fieldAnno.saveOrder(), f));
+          fields.add(new OrderedField(fieldAnno.outOrder(), f));
         }
       }
 
@@ -188,7 +188,7 @@ public abstract class AbstractMappedClassFieldObserver {
 
       switch (type) {
         case BIT: {
-          final JBBPBitNumber bitNumber = annotation.saveBitNumber();
+          final JBBPBitNumber bitNumber = annotation.outBitNumber();
           if (fieldType == boolean.class) {
             this.onFieldBits(obj, field, annotation, bitNumber, ((Boolean) readFieldValue(obj, field)) ? 0xFF : 0x00);
           }
@@ -279,7 +279,7 @@ public abstract class AbstractMappedClassFieldObserver {
               final int len = Array.getLength(array);
               this.onArrayStart(obj, field, annotation, len);
 
-              final JBBPBitNumber bitNumber = annotation.saveBitNumber();
+              final JBBPBitNumber bitNumber = annotation.outBitNumber();
 
               if (fieldType.getComponentType() == boolean.class) {
                 for (int i = 0; i < len; i++) {

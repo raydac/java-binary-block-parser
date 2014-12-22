@@ -21,6 +21,7 @@ import com.igormaznitsa.jbbp.it.AbstractParserIntegrationTest;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.utils.JBBPTextWriter.Extra;
 import java.io.*;
+import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -439,6 +440,16 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
     assertEquals(".aaa1,bbb2",writer.Close().toString());
   }
   
+  @Test(expected = NullPointerException.class)
+  public void testStr_ErrorForNull() throws Exception {
+    writer.Str(null);
+  }
+  
+  @Test
+  public void testStr() throws Exception {
+   assertEquals(".0x01,Hello,World,<NULL>,0x02",writer.Byte(1).Str("Hello","World",null).Byte(2).Close().toString());
+  }
+  
   @Test
   public void testPrintSpecialChars() throws Exception {
     writer.SetTabSpaces(4).write('\t');
@@ -562,15 +573,15 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
   public void testBin_EasyCase() throws Exception{
     @Bin(name = "some class")
     class SomeClass {
-      @Bin(saveOrder = 1)
+      @Bin(outOrder = 1)
       byte a;
-      @Bin(saveOrder = 2,comment = "Short field")
+      @Bin(outOrder = 2,comment = "Short field")
       short b;
-      @Bin(saveOrder = 3)
+      @Bin(outOrder = 3)
       int c;
-      @Bin(saveOrder = 4, comment = "Long field")
+      @Bin(outOrder = 4, comment = "Long field")
       long d;
-      @Bin(saveOrder = 5, comment = "some array")
+      @Bin(outOrder = 5, comment = "some array")
       byte [] arr = new byte[128];
     }
     
@@ -604,20 +615,20 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
       );
 
       class Chunk {
-        @Bin(saveOrder = 1)
+        @Bin(outOrder = 1)
         int Length;
-        @Bin(saveOrder = 2)
+        @Bin(outOrder = 2)
         int Type;
-        @Bin(saveOrder = 3)
+        @Bin(outOrder = 3)
         byte[] Data;
-        @Bin(saveOrder = 4)
+        @Bin(outOrder = 4)
         int CRC;
       }
 
       class Png {
-        @Bin(saveOrder = 1)
+        @Bin(outOrder = 1)
         long Header;
-        @Bin(saveOrder = 2)
+        @Bin(outOrder = 2)
         Chunk[] Chunks;
       }
 
@@ -632,5 +643,64 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
     finally {
       JBBPUtils.closeQuietly(pngStream);
     }
+  }
+
+  @Test
+  public void testCustomFieldInMappedClass() throws Exception {
+    class TestClass {
+      @Bin(outOrder = 1)
+      int a;
+      @Bin(outOrder = 2,custom = true)
+      int b;
+    }
+    
+    writer.AddExtras(new JBBPTextWriterExtraAdapter() {
+
+      @Override
+      public String doConvertObjToStr(JBBPTextWriter context, int id, Object obj) throws IOException {
+        fail("Must not be called");
+        return null;
+      }
+
+      @Override
+      public String doConvertCustomField(final JBBPTextWriter context, final Object obj, final Field field, final Bin annotation) throws IOException {
+        return "test"+field.getName();
+      }
+
+    });
+    
+    final String text = writer.SetHR(3, '-').SetValuePrefix("").Bin(new TestClass()).Close().toString();
+    System.out.println(text);
+    assertFile("testwriterbin3.txt",text);
+  }
+
+  @Test
+  public void testCustomArrayFieldInMappedClass() throws Exception {
+    class TestClass {
+      @Bin(outOrder = 1)
+      int a;
+      @Bin(outOrder = 2,custom = true)
+      int [] b = new int [3];
+    }
+    
+    writer.AddExtras(new JBBPTextWriterExtraAdapter() {
+
+      @Override
+      public String doConvertObjToStr(JBBPTextWriter context, int id, Object obj) throws IOException {
+        fail("Must not be called");
+        return null;
+      }
+
+      @Override
+      public String doConvertCustomField(JBBPTextWriter context, Object obj, Field field, Bin annotation) throws IOException {
+        context.HR().Str(field.getType().isArray() ? "See on array" : "Error").Comment("Line one","Line two").HR();
+        return null;
+      }
+      
+    });
+    
+    final String text = writer.SetHR(3, '-').SetValuePrefix("").Bin(new TestClass()).Close().toString();
+    System.out.println(text);
+    assertFile("testwriterbin4.txt",text);
   }
 }

@@ -1,0 +1,8 @@
+;---
+;START : TestClass
+;---
+    .00000000;a
+    .testb;b
+;---
+;END : TestClass
+;---

@@ -15,7 +15,9 @@
  */
 package com.igormaznitsa.jbbp.utils;
 
+import com.igormaznitsa.jbbp.mapper.Bin;
 import java.io.IOException;
+import java.lang.reflect.Field;
 
 /**
  * Adapter for interface JBBPTextWriter.Extra.
@@ -50,6 +52,10 @@ public abstract class JBBPTextWriterExtraAdapter implements JBBPTextWriter.Extra
   }
 
   public String doConvertObjToStr(final JBBPTextWriter context, final int id, final Object obj) throws IOException {
+    return null;
+  }
+
+  public String doConvertCustomField(final JBBPTextWriter context, final Object obj, final Field field, final Bin annotation) throws IOException {
     return null;
   }
 

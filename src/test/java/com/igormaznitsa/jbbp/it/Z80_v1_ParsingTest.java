@@ -39,47 +39,47 @@ import java.io.*;
 public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
 
   class EmulFlags {
-    @Bin(saveOrder = 1, type = BinType.BIT, saveBitNumber = JBBPBitNumber.BITS_2) byte interruptmode;
-    @Bin(saveOrder = 2, type = BinType.BIT, saveBitNumber = JBBPBitNumber.BITS_1) byte issue2emulation;
-    @Bin(saveOrder = 3, type = BinType.BIT, saveBitNumber = JBBPBitNumber.BITS_1) byte doubleintfreq;
-    @Bin(saveOrder = 4, type = BinType.BIT, saveBitNumber = JBBPBitNumber.BITS_2) byte videosync;
-    @Bin(saveOrder = 5, type = BinType.BIT, saveBitNumber = JBBPBitNumber.BITS_2) byte inputdevice;
+    @Bin(outOrder = 1, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_2) byte interruptmode;
+    @Bin(outOrder = 2, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_1) byte issue2emulation;
+    @Bin(outOrder = 3, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_1) byte doubleintfreq;
+    @Bin(outOrder = 4, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_2) byte videosync;
+    @Bin(outOrder = 5, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_2) byte inputdevice;
   }
 
   class Flags {
-    @Bin(saveOrder = 1, type = BinType.BIT, saveBitNumber = JBBPBitNumber.BITS_1) byte reg_r_bit7;
-    @Bin(saveOrder = 2, type = BinType.BIT, saveBitNumber = JBBPBitNumber.BITS_3) byte bordercolor;
-    @Bin(saveOrder = 3, type = BinType.BIT, saveBitNumber = JBBPBitNumber.BITS_1) byte basic_samrom;
-    @Bin(saveOrder = 4, type = BinType.BIT, saveBitNumber = JBBPBitNumber.BITS_1) byte compressed;
-    @Bin(saveOrder = 5, type = BinType.BIT, saveBitNumber = JBBPBitNumber.BITS_2) byte nomeaning;
+    @Bin(outOrder = 1, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_1) byte reg_r_bit7;
+    @Bin(outOrder = 2, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_3) byte bordercolor;
+    @Bin(outOrder = 3, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_1) byte basic_samrom;
+    @Bin(outOrder = 4, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_1) byte compressed;
+    @Bin(outOrder = 5, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_2) byte nomeaning;
   }
 
   class Z80Snapshot {
-    @Bin(saveOrder = 1) byte reg_a;
-    @Bin(saveOrder = 2) byte reg_f;
-    @Bin(saveOrder = 3) short reg_bc;
-    @Bin(saveOrder = 4) short reg_hl;
-    @Bin(saveOrder = 5) short reg_pc;
-    @Bin(saveOrder = 6) short reg_sp;
-    @Bin(saveOrder = 7) byte reg_ir;
-    @Bin(saveOrder = 8) byte reg_r;
+    @Bin(outOrder = 1) byte reg_a;
+    @Bin(outOrder = 2) byte reg_f;
+    @Bin(outOrder = 3) short reg_bc;
+    @Bin(outOrder = 4) short reg_hl;
+    @Bin(outOrder = 5) short reg_pc;
+    @Bin(outOrder = 6) short reg_sp;
+    @Bin(outOrder = 7) byte reg_ir;
+    @Bin(outOrder = 8) byte reg_r;
 
-    @Bin(saveOrder = 9) Flags flags;
+    @Bin(outOrder = 9) Flags flags;
 
-    @Bin(saveOrder = 10) short reg_de;
-    @Bin(saveOrder = 11) short reg_bc_alt;
-    @Bin(saveOrder = 12) short reg_de_alt;
-    @Bin(saveOrder = 13) short reg_hl_alt;
-    @Bin(saveOrder = 14) byte reg_a_alt;
-    @Bin(saveOrder = 15) byte reg_f_alt;
-    @Bin(saveOrder = 16) short reg_iy;
-    @Bin(saveOrder = 17) short reg_ix;
-    @Bin(saveOrder = 18) byte iff;
-    @Bin(saveOrder = 19) byte iff2;
+    @Bin(outOrder = 10) short reg_de;
+    @Bin(outOrder = 11) short reg_bc_alt;
+    @Bin(outOrder = 12) short reg_de_alt;
+    @Bin(outOrder = 13) short reg_hl_alt;
+    @Bin(outOrder = 14) byte reg_a_alt;
+    @Bin(outOrder = 15) byte reg_f_alt;
+    @Bin(outOrder = 16) short reg_iy;
+    @Bin(outOrder = 17) short reg_ix;
+    @Bin(outOrder = 18) byte iff;
+    @Bin(outOrder = 19) byte iff2;
 
-    @Bin(saveOrder = 20) EmulFlags emulFlags;
+    @Bin(outOrder = 20) EmulFlags emulFlags;
 
-    @Bin(saveOrder = 21, custom = true) byte[] data;
+    @Bin(outOrder = 21, custom = true) byte[] data;
   }
 
   private static final JBBPParser z80Parser = JBBPParser.prepare(

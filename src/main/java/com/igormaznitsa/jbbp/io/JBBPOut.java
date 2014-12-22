@@ -35,11 +35,11 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   private boolean processCommands = true;
 
   /**
-   * The Bit saveOrder for operations.
+   * The Bit outOrder for operations.
    */
   private final JBBPBitOrder bitOrder;
   /**
-   * The Byte saveOrder for operations of multi-byte value output.
+   * The Byte outOrder for operations of multi-byte value output.
    */
   private JBBPByteOrder byteOrder;
   /**
@@ -57,20 +57,20 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   private final ByteArrayOutputStream originalByteArrayOutStream;
 
   /**
-   * The Default byte saveOrder.
+   * The Default byte outOrder.
    */
   public static final JBBPByteOrder DEFAULT_BYTE_ORDER = JBBPByteOrder.BIG_ENDIAN;
 
   /**
-   * The Default bit saveOrder.
+   * The Default bit outOrder.
    */
   public static final JBBPBitOrder DEFAULT_BIT_ORDER = JBBPBitOrder.LSB0;
 
   /**
-   * Start a DSL session for defined both byte saveOrder and bit saveOrder parameters.
+   * Start a DSL session for defined both byte outOrder and bit outOrder parameters.
    *
-   * @param byteOrder the byte saveOrder to be used for the session
-   * @param bitOrder the bit saveOrder to be used for the session
+   * @param byteOrder the byte outOrder to be used for the session
+   * @param bitOrder the bit outOrder to be used for the session
    * @return the new DSL session generated with the parameters and inside byte
    * array stream.
    */
@@ -82,8 +82,8 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    * Start a DSL session for a defined stream with defined parameters.
    *
    * @param out the defined stream
-   * @param byteOrder the byte saveOrder for the session
-   * @param bitOrder the bit saveOrder for the session
+   * @param byteOrder the byte outOrder for the session
+   * @param bitOrder the bit outOrder for the session
    * @return the new DSL session generated for the stream with parameters
    */
   public static JBBPOut BeginBin(final OutputStream out, final JBBPByteOrder byteOrder, final JBBPBitOrder bitOrder) {
@@ -125,10 +125,10 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   }
 
   /**
-   * Start a DSL session for default bit saveOrder and defined byte saveOrder. It will
+   * Start a DSL session for default bit outOrder and defined byte outOrder. It will
    * be using inside byte array stream.
    *
-   * @param byteOrder the byte saveOrder for the session, it must not be null.
+   * @param byteOrder the byte outOrder for the session, it must not be null.
    * @return the new DSL session
    */
   public static JBBPOut BeginBin(final JBBPByteOrder byteOrder) {
@@ -136,10 +136,10 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   }
 
   /**
-   * Start a DSL session for default byte saveOrder and defined bite saveOrder. It will
+   * Start a DSL session for default byte outOrder and defined bite outOrder. It will
    * be using inside byte array stream.
    *
-   * @param bitOrder the bite saveOrder for the session, it must not be null.
+   * @param bitOrder the bite outOrder for the session, it must not be null.
    * @return the new DSL session
    */
   public static JBBPOut BeginBin(final JBBPBitOrder bitOrder) {
@@ -150,8 +150,8 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    * The Constructor.
    *
    * @param outStream the output stream for the session, it must not be null.
-   * @param byteOrder the byte saveOrder for the session, it must not be null.
-   * @param bitOrder the bit saveOrder for the session, it must not be null
+   * @param byteOrder the byte outOrder for the session, it must not be null.
+   * @param bitOrder the bit outOrder for the session, it must not be null
    * @throws IllegalArgumentException if defined a bit stream which parameters
    * incompatible with defined ones
    */
@@ -235,9 +235,9 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   }
 
   /**
-   * Define the byte saveOrder for next session operations.
+   * Define the byte outOrder for next session operations.
    *
-   * @param value the byte saveOrder to be used in next operations, must not be null
+   * @param value the byte outOrder to be used in next operations, must not be null
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    */
@@ -509,7 +509,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    * char code.
    *
    * @param str a String which chars should be trimmed to bytes and saved
-   * @param bitOrder the bit saveOrder to save bytes
+   * @param bitOrder the bit outOrder to save bytes
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    * @since 1.1
@@ -564,7 +564,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    * Write a boolean value into the session stream as a byte.
    *
    * @param value a boolean value to be written, true is 1, false is 0
-   * @param bitOrder bit saveOrder for saving data
+   * @param bitOrder bit outOrder for saving data
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    * @since 1.1
@@ -645,7 +645,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    * Write codes of chars as 16 bit values into the stream.
    *
    * @param str the string which chars will be written, must not be null
-   * @param bitOrder the bit saveOrder
+   * @param bitOrder the bit outOrder
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    * @since 1.1
@@ -917,8 +917,8 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
 
   /**
    * Save fields of an object marked by Bin annotation. Fields will be ordered
-   * through {@link Bin#saveOrder()} field, NB! By default Java doesn't keep field
- saveOrder. Ordered fields of class will be saved into internal cache for speed
+   * through {@link Bin#outOrder()} field, NB! By default Java doesn't keep field
+ outOrder. Ordered fields of class will be saved into internal cache for speed
  but the cache can be reset through {@link #resetInsideClassCache()}
    *
    * @param object an object to be saved into stream, must not be null
@@ -934,8 +934,8 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
 
   /**
    * Save fields of an object marked by Bin annotation. Fields will be ordered
-   * through {@link Bin#saveOrder()} field, NB! By default Java doesn't keep field
- saveOrder. Ordered fields of class will be saved into internal cache for speed
+   * through {@link Bin#outOrder()} field, NB! By default Java doesn't keep field
+ outOrder. Ordered fields of class will be saved into internal cache for speed
  but the cache can be reset through {@link #resetInsideClassCache()}
    *
    * @param object an object to be saved into stream, must not be null

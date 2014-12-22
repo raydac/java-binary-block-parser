@@ -60,7 +60,7 @@ public @interface Bin {
   /**
    * Order of bits for the field.
    *
-   * @return LSB0 or MSB0 saveOrder, LSB0 by default
+   * @return LSB0 or MSB0 outOrder, LSB0 by default
    * @see JBBPBitOrder
    */
   JBBPBitOrder bitOrder() default JBBPBitOrder.LSB0;
@@ -87,24 +87,30 @@ public @interface Bin {
   
   /**
    * The Value defines how many bytes are actual ones in the field, works for numeric field and arrays and allows make mapping to bit fields.The Property
-   * works only during saving time.
-   * @return the number of lower bits in the value, by default the field shows 8 bit value
+   * works only for save and logging.
+   * @return the number of lower bits, by default 8 bits
+   * @see JBBPTextWriter#Bin(java.lang.Object...)
+   * @see JBBPOut#Bin(java.lang.Object)
+   * @see JBBPOut#Bin(java.lang.Object, com.igormaznitsa.jbbp.io.JBBPCustomFieldWriter) 
    * @since 1.1
    */
-  JBBPBitNumber saveBitNumber() default JBBPBitNumber.BITS_8;
+  JBBPBitNumber outBitNumber() default JBBPBitNumber.BITS_8;
   
   /**
-   * The Value shows saveOrder of the field during output of fields. The Property works only during saving time.
-   * @return the saveOrder of the field as number (the mapping will make ascending sorting)
+   * The Value defines the field order to sort fields of the class for save or logging.
+   * @return the outOrder of the field as number (the mapping will make ascending sorting)
+   * @see JBBPTextWriter#Bin(java.lang.Object...) 
+   * @see JBBPOut#Bin(java.lang.Object)
+   * @see JBBPOut#Bin(java.lang.Object,com.igormaznitsa.jbbp.io.JBBPCustomFieldWriter)
    * @since 1.1
    */
-  int saveOrder() default 0;
+  int outOrder() default 0;
   
   /**
    * Just either description of the field or some remark.
    * @return 
+   * @see JBBPTextWriter#Bin(java.lang.Object...) 
    * @since 1.1
-   * @see JBBPTextWriter
    */
   String comment() default "";
 }

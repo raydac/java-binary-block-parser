@@ -228,20 +228,20 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
 
       class Chunk {
 
-        @Bin(saveOrder = 1)
+        @Bin(outOrder = 1)
         int length;
-        @Bin(saveOrder = 2)
+        @Bin(outOrder = 2)
         int type;
-        @Bin(saveOrder = 3)
+        @Bin(outOrder = 3)
         byte[] data;
-        @Bin(saveOrder = 4)
+        @Bin(outOrder = 4)
         int crc;
       }
       class Png {
 
-        @Bin(saveOrder = 1)
+        @Bin(outOrder = 1)
         long hEAder;
-        @Bin(saveOrder = 2)
+        @Bin(outOrder = 2)
         Chunk[] chuNK;
       }
 
