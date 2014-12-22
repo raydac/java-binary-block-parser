@@ -25,6 +25,35 @@ import org.junit.Test;
 public class JBBPUtilsTest {
 
   @Test
+  public void testRemoveTrailingZeros() throws Exception {
+    assertNull(JBBPUtils.removeTrailingZeros(null));
+    assertEquals("",JBBPUtils.removeTrailingZeros(""));
+    assertEquals("abcdf",JBBPUtils.removeTrailingZeros("abcdf"));
+    assertEquals("000000abcdf",JBBPUtils.removeTrailingZeros("000000abcdf"));
+    assertEquals("000000a00000bcdf",JBBPUtils.removeTrailingZeros("000000a00000bcdf0000000"));
+    assertEquals("0",JBBPUtils.removeTrailingZeros("0000000"));
+    assertEquals("0",JBBPUtils.removeTrailingZeros("0"));
+    assertEquals("0     ",JBBPUtils.removeTrailingZeros("0     "));
+    assertEquals(" 000000     ",JBBPUtils.removeTrailingZeros(" 000000     "));
+    assertEquals("10.2",JBBPUtils.removeTrailingZeros("10.20000"));
+    assertEquals("1",JBBPUtils.removeTrailingZeros("100"));
+  }
+  
+
+  @Test
+  public void testRemoveLeadingZeros() throws Exception {
+    assertNull(JBBPUtils.removeLeadingZeros(null));
+    assertEquals("",JBBPUtils.removeLeadingZeros(""));
+    assertEquals("abcdf",JBBPUtils.removeLeadingZeros("abcdf"));
+    assertEquals("abcdf",JBBPUtils.removeLeadingZeros("000000abcdf"));
+    assertEquals("a00000bcdf0000000",JBBPUtils.removeLeadingZeros("000000a00000bcdf0000000"));
+    assertEquals("0",JBBPUtils.removeLeadingZeros("0000000"));
+    assertEquals("0",JBBPUtils.removeLeadingZeros("0"));
+    assertEquals("     ",JBBPUtils.removeLeadingZeros("0     "));
+    assertEquals(" 000000     ",JBBPUtils.removeLeadingZeros(" 000000     "));
+  }
+  
+  @Test
   public void testULong2Str_UnsignedHex() throws Exception {
     assertEquals("12345678ABCD", JBBPUtils.ulong2str(0x12345678ABCDL,16,null));
     assertEquals("7FFFFFFFFFFFFFFF", JBBPUtils.ulong2str(0x7FFFFFFFFFFFFFFFL, 16, null));

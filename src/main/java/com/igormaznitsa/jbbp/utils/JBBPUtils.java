@@ -760,4 +760,55 @@ public enum JBBPUtils {
     return result.toString();
   }
 
+  /**
+   * Remove leading zeros from string.
+   *
+   * @param str the string to be trimmed
+   * @return the result string without left extra zeros, or null if argument is
+   * null
+   * @since 1.1
+   */
+  public static String removeLeadingZeros(final String str) {
+    String result = str;
+    if (str != null && str.length() != 0) {
+      int startIndex = 0;
+      while (startIndex < str.length() - 1) {
+        final char ch = str.charAt(startIndex);
+        if (ch != '0') {
+          break;
+        }
+        startIndex++;
+      }
+      if (startIndex > 0) {
+        result = str.substring(startIndex);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Remove trailing zeros from string.
+   *
+   * @param str the string to be trimmed
+   * @return the result string without left extra zeros, or null if argument is null
+   * @since 1.1
+   */
+  public static String removeTrailingZeros(final String str) {
+    String result = str;
+    if (str != null && str.length() != 0) {
+      int endIndex = str.length();
+      while (endIndex > 1) {
+        final char ch = str.charAt(endIndex-1);
+        if (ch != '0') {
+          break;
+        }
+        endIndex--;
+      }
+      if (endIndex < str.length()) {
+        result = str.substring(0,endIndex);
+      }
+    }
+    return result;
+  }
+
 }
