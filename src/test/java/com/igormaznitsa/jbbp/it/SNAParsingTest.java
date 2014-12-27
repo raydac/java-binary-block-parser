@@ -32,7 +32,7 @@ public class SNAParsingTest extends AbstractParserIntegrationTest {
 
   private static final JBBPParser PARSER_SNA_48 = JBBPParser.prepare(
           "ubyte regI;"
-          + "<ushort altRegHL; <ushort altRegDE; <ushort altRegBC; <ushort altRegAF;"
+          + "<ushort altHL; <ushort altDE; <ushort altBC; <ushort altAF;"
           + "<ushort regHL; <ushort regDE; <ushort regBC; <ushort regIY; <ushort regIX;"
           + "ubyte iff; ubyte regR;"
           + "<ushort regAF; <ushort regSP;"
@@ -42,15 +42,15 @@ public class SNAParsingTest extends AbstractParserIntegrationTest {
 
   private class SNA {
 
-    @Bin(type = BinType.UBYTE, outOrder = 1)
+    @Bin(type = BinType.UBYTE,  outOrder = 1)
     int regI;
-    @Bin(type = BinType.USHORT, outOrder = 2)
+    @Bin(type = BinType.USHORT, outOrder = 2, name = "altHL")
     int altRegHL;
-    @Bin(type = BinType.USHORT, outOrder = 3)
+    @Bin(type = BinType.USHORT, outOrder = 3, name = "altDE")
     int altRegDE;
-    @Bin(type = BinType.USHORT, outOrder = 4)
+    @Bin(type = BinType.USHORT, outOrder = 4, name = "altBC")
     int altRegBC;
-    @Bin(type = BinType.USHORT, outOrder = 5)
+    @Bin(type = BinType.USHORT, outOrder = 5, name = "altAF")
     int altRegAF;
     @Bin(type = BinType.USHORT, outOrder = 6)
     int regHL;
