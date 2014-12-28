@@ -395,7 +395,7 @@ public class JBBPTextWriter extends FilterWriter {
   /**
    * The Default comment prefix.
    */
-  private static final String DEFAULT_COMMENT_PREFIX = " ; ";
+  private static final String DEFAULT_COMMENT_PREFIX = ";";
   /**
    * The Default first value line.
    */

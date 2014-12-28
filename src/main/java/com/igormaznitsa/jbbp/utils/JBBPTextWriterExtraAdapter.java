@@ -15,12 +15,14 @@
  */
 package com.igormaznitsa.jbbp.utils;
 
+import com.igormaznitsa.jbbp.exceptions.JBBPException;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
 /**
- * Adapter for interface JBBPTextWriter.Extra.
+ * Auxiliary adapter for interface JBBPTextWriter.Extra.
+ *
  * @see com.igormaznitsa.jbbp.utils.JBBPTextWriter.Extra
  * @since 1.1
  */
@@ -60,6 +62,23 @@ public abstract class JBBPTextWriterExtraAdapter implements JBBPTextWriter.Extra
   }
 
   public void onReachedMaxValueNumberForLine(final JBBPTextWriter context) throws IOException {
-    
+
+  }
+
+  /**
+   * Auxiliary method to extract field value.
+   * @param instance object instance, can be null
+   * @param field the filed which value should be extracted, must not be null
+   * @return the field value
+   */
+  public Object extractFieldValue(final Object instance, final Field field) {
+    JBBPUtils.assertNotNull(field, "Field must not be null");
+    try {
+      JBBPUtils.makeAccessible(field);
+      return field.get(instance);
+    }
+    catch (Exception ex) {
+      throw new JBBPException("Can't extract value from field for exception", ex);
+    }
   }
 }

@@ -30,6 +30,7 @@ import java.lang.reflect.Field;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import com.igormaznitsa.jbbp.io.*;
+import com.igormaznitsa.jbbp.utils.*;
 import java.io.*;
 
 /**
@@ -280,6 +281,19 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
   public void testParseAndWriteTestZ80WithCheckOfFields() throws Exception {
     final Z80Snapshot z80sn = assertParseAndPackBack("test.z80",12429);
 
+    final String text = new JBBPTextWriter().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).SetMaxValuesPerLine(32).AddExtras(new JBBPTextWriterExtraAdapter() {
+
+      @Override
+      public String doConvertCustomField(JBBPTextWriter context, Object obj, Field field, Bin annotation) throws IOException {
+        final byte [] data = (byte[])extractFieldValue(obj, field);
+        return "byte array length ["+data.length+']';
+      }
+
+    }).Bin(z80sn).Close().toString();
+    
+    assertTrue(text.contains("byte array length [49152]"));
+    System.out.println(text);
+    
     assertEquals(0x7E, z80sn.reg_a & 0xFF);
     assertEquals(0x86, z80sn.reg_f & 0xFF);
     assertEquals(0x7A74, z80sn.reg_bc & 0xFFFF);
