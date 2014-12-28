@@ -109,7 +109,7 @@ public abstract class AbstractMappedClassFieldObserver {
         final Class<?> clazzToProcess = listOfClassHierarchy.get(i);
         final Bin clazzAnno = clazzToProcess.getAnnotation(Bin.class);
         for (final Field f : clazzToProcess.getDeclaredFields()) {
-          f.setAccessible(true);
+          JBBPUtils.makeAccessible(f);
           if (Modifier.isTransient(f.getModifiers()) || f.getName().indexOf('$') >= 0) {
             continue;
           }

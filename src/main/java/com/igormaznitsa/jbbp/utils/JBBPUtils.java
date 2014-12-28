@@ -18,6 +18,9 @@ package com.igormaznitsa.jbbp.utils;
 import com.igormaznitsa.jbbp.io.*;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import java.io.*;
+import java.lang.reflect.AccessibleObject;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.*;
 
 /**
@@ -28,6 +31,56 @@ import java.util.*;
 public enum JBBPUtils {
 
   ;
+
+  /**
+   * Inside auxiliary class to make makeAccessible as a privileged action.
+   * @since 1.1
+   */
+  private static final class PrivilegedProcessor implements PrivilegedAction<AccessibleObject> {
+
+    private AccessibleObject theObject;
+
+    public void setAccessibleObject(final AccessibleObject obj) {
+      this.theObject = obj;
+    }
+
+    public AccessibleObject run() {
+      final AccessibleObject objectToProcess = this.theObject;
+      this.theObject = null;
+      if (objectToProcess != null) {
+        objectToProcess.setAccessible(true);
+      }
+      return objectToProcess;
+    }
+  }
+
+  /**
+   * Thread local storage for privileged processors.
+   *
+   * @since 1.1
+   */
+  private static final ThreadLocal<PrivilegedProcessor> privelegedProcessors = new ThreadLocal<PrivilegedProcessor>() {
+    @Override
+    protected PrivilegedProcessor initialValue() {
+      return new PrivilegedProcessor();
+    }
+  };
+
+  /**
+   * Make accessible an accessible object, AccessController.doPrivileged will be
+   * called.
+   *
+   * @param obj an object to make accessible, it can be null.
+   * @since 1.1
+   * @see AccessController#doPrivileged(java.security.PrivilegedAction) 
+   */
+  public static void makeAccessible(final AccessibleObject obj) {
+    if (obj != null) {
+      final PrivilegedProcessor processor = privelegedProcessors.get();
+      processor.setAccessibleObject(obj);
+      AccessController.doPrivileged(processor);
+    }
+  }
 
   /**
    * Check that a string is a number.
@@ -790,7 +843,8 @@ public enum JBBPUtils {
    * Remove trailing zeros from string.
    *
    * @param str the string to be trimmed
-   * @return the result string without left extra zeros, or null if argument is null
+   * @return the result string without left extra zeros, or null if argument is
+   * null
    * @since 1.1
    */
   public static String removeTrailingZeros(final String str) {
@@ -798,14 +852,14 @@ public enum JBBPUtils {
     if (str != null && str.length() != 0) {
       int endIndex = str.length();
       while (endIndex > 1) {
-        final char ch = str.charAt(endIndex-1);
+        final char ch = str.charAt(endIndex - 1);
         if (ch != '0') {
           break;
         }
         endIndex--;
       }
       if (endIndex < str.length()) {
-        result = str.substring(0,endIndex);
+        result = str.substring(0, endIndex);
       }
     }
     return result;

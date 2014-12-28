@@ -23,6 +23,7 @@ import com.igormaznitsa.jbbp.mapper.BinType;
 import com.igormaznitsa.jbbp.utils.JBBPTextWriter;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.InputStream;
+import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
@@ -116,7 +117,9 @@ public class SNAParsingTest extends AbstractParserIntegrationTest {
     final byte [] packed = JBBPOut.BeginBin(JBBPByteOrder.LITTLE_ENDIAN).Bin(sna).End().toByteArray();
     assertResource("zexall.sna", packed);
   
-    System.out.println(new JBBPTextWriter().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).SetMaxValuesPerLine(32).Bin(sna).Close().toString());
+    final String text = new JBBPTextWriter().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).SetMaxValuesPerLine(32).Bin(sna).Close().toString();
+    assertTrue(text.length()>10000);
+    System.out.println(text);
   }
   
 }

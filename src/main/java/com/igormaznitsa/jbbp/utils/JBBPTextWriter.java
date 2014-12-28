@@ -702,6 +702,10 @@ public class JBBPTextWriter extends FilterWriter {
         this.write(this.prefixFirtValueAtLine);
       }
       break;
+      case MODE_VALUES:
+        break;
+      default:
+        throw new Error("Unexpected state");
     }
   }
 
@@ -1338,7 +1342,8 @@ public class JBBPTextWriter extends FilterWriter {
   }
 
   /**
-   * Print horizontal rule. If comments are disabled then only next line will be added.
+   * Print horizontal rule. If comments are disabled then only next line will be
+   * added.
    *
    * @return the context
    * @throws IOException it will be thrown for transport errors
@@ -1359,7 +1364,8 @@ public class JBBPTextWriter extends FilterWriter {
   }
 
   /**
-   * Print comments. Wilt aligning of line start for multi-line comment. Comments will be printed only if they are allowed.
+   * Print comments. Wilt aligning of line start for multi-line comment.
+   * Comments will be printed only if they are allowed.
    *
    * @param comment array of string to be printed as comment lines.
    * @return the context
@@ -1389,7 +1395,8 @@ public class JBBPTextWriter extends FilterWriter {
         }
         this.prevLineCommentsStartPosition = 0;
       }
-    }else{
+    }
+    else {
       ensureNewLineMode();
     }
     return this;
