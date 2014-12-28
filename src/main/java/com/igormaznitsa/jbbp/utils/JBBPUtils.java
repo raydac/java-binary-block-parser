@@ -22,6 +22,7 @@ import java.lang.reflect.AccessibleObject;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * Misc auxiliary methods to be used in the framework.
@@ -55,17 +56,11 @@ public enum JBBPUtils {
   }
 
   /**
-   * Thread local storage for privileged processors.
-   *
+   * Inside auxiliary queue for privileged processors to avoid mass creation of processors.
    * @since 1.1
    */
-  private static final ThreadLocal<PrivilegedProcessor> privelegedProcessors = new ThreadLocal<PrivilegedProcessor>() {
-    @Override
-    protected PrivilegedProcessor initialValue() {
-      return new PrivilegedProcessor();
-    }
-  };
-
+  private static final Queue<PrivilegedProcessor> processorsQueue = new ArrayBlockingQueue<PrivilegedProcessor>(32);
+  
   /**
    * Make accessible an accessible object, AccessController.doPrivileged will be
    * called.
@@ -76,9 +71,13 @@ public enum JBBPUtils {
    */
   public static void makeAccessible(final AccessibleObject obj) {
     if (obj != null) {
-      final PrivilegedProcessor processor = privelegedProcessors.get();
+      PrivilegedProcessor processor = processorsQueue.poll();
+      if (processor==null){
+        processor = new PrivilegedProcessor();
+      }
       processor.setAccessibleObject(obj);
       AccessController.doPrivileged(processor);
+      processorsQueue.offer(processor);
     }
   }
 
