@@ -135,6 +135,10 @@ public abstract class AbstractMappedClassFieldObserver {
       }
     }
 
+    if (field!=null){
+      field.setAccessible(true);
+    }
+    
     final Bin clazzAnno = obj.getClass().getAnnotation(Bin.class);
     final Bin fieldAnno = field == null ? null : field.getAnnotation(Bin.class);
 

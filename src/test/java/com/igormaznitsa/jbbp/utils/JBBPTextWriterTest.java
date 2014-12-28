@@ -93,10 +93,25 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
   }
 
   @Test
+  public void testMultilineCommentHelloWorld() throws Exception {
+    assertEquals(";Hello\n;World", writer.Comment("Hello\nWorld").Close().toString());
+  }
+
+  @Test
+  public void testMultilineCommentAfterValue() throws Exception {
+    assertEquals(".0x12345678;Hello\n           ;World", writer.Int(0x12345678).Comment("Hello\nWorld").Close().toString());
+  }
+
+  @Test
   public void testCommentAndValue() throws Exception {
     assertEquals(";Hello World\n.0x01,0x00000001,0x0000000000000001", writer.Comment("Hello World").Byte(1).Int(1).Long(1).Close().toString());
   }
 
+  @Test
+  public void testComment_DisableEnable() throws Exception {
+    assertEquals(";Hrum\n.0x01,0x00000001,0x0000000000000001", writer.DisableComments().Comment("Hello World").EnableComments().Comment("Hrum").Byte(1).Int(1).Long(1).Close().toString());
+  }
+  
   @Test
   public void testValueAndMultilineComment() throws Exception {
     final String text = writer
@@ -159,6 +174,12 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
   public void testHorizontalRule() throws Exception {
     writer.SetHR(10, '>').HR().Byte(1);
     assertEquals(";>>>>>>>>>>\n.0x01", writer.Close().toString());
+  }
+
+  @Test
+  public void testHorizontalRule_DisableEnable() throws Exception {
+    writer.SetHR(10, '>').DisableComments().HR().Byte(1).EnableComments().HR();
+    assertEquals("\n.0x01\n;>>>>>>>>>>\n", writer.Close().toString());
   }
 
   @Test
@@ -457,7 +478,7 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
 
   @Test(expected = NullPointerException.class)
   public void testStr_ErrorForNull() throws Exception {
-    writer.Str(null);
+    writer.Str((String[])null);
   }
 
   @Test

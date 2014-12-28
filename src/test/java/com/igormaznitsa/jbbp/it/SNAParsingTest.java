@@ -20,6 +20,7 @@ import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.io.JBBPOut;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.mapper.BinType;
+import com.igormaznitsa.jbbp.utils.JBBPTextWriter;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.InputStream;
 import static org.junit.Assert.assertEquals;
@@ -40,41 +41,42 @@ public class SNAParsingTest extends AbstractParserIntegrationTest {
           + "ubyte borderColor;"
           + "byte [49152] ramDump;");
 
+  @Bin(comment = "Parsed SNA snapshot")
   private class SNA {
 
-    @Bin(type = BinType.UBYTE,  outOrder = 1)
+    @Bin(type = BinType.UBYTE,  outOrder = 1, comment = "Register I")
     int regI;
-    @Bin(type = BinType.USHORT, outOrder = 2, name = "altHL")
+    @Bin(type = BinType.USHORT, outOrder = 2, name = "altHL", comment = "Register pair HL'")
     int altRegHL;
-    @Bin(type = BinType.USHORT, outOrder = 3, name = "altDE")
+    @Bin(type = BinType.USHORT, outOrder = 3, name = "altDE", comment = "Register pair DE'")
     int altRegDE;
-    @Bin(type = BinType.USHORT, outOrder = 4, name = "altBC")
+    @Bin(type = BinType.USHORT, outOrder = 4, name = "altBC", comment = "Registe pair BC'")
     int altRegBC;
-    @Bin(type = BinType.USHORT, outOrder = 5, name = "altAF")
+    @Bin(type = BinType.USHORT, outOrder = 5, name = "altAF", comment = "Register pair AF'")
     int altRegAF;
-    @Bin(type = BinType.USHORT, outOrder = 6)
+    @Bin(type = BinType.USHORT, outOrder = 6, comment = "Register pair HL")
     int regHL;
-    @Bin(type = BinType.USHORT, outOrder = 7)
+    @Bin(type = BinType.USHORT, outOrder = 7, comment = "Register pair DE")
     int regDE;
-    @Bin(type = BinType.USHORT, outOrder = 8)
+    @Bin(type = BinType.USHORT, outOrder = 8, comment = "Register pair BC")
     int regBC;
-    @Bin(type = BinType.USHORT, outOrder = 9)
+    @Bin(type = BinType.USHORT, outOrder = 9, comment = "Register IY")
     int regIY;
-    @Bin(type = BinType.USHORT, outOrder = 10)
+    @Bin(type = BinType.USHORT, outOrder = 10, comment = "Register IX")
     int regIX;
-    @Bin(type = BinType.UBYTE, outOrder = 11)
+    @Bin(type = BinType.UBYTE, outOrder = 11, comment = "IFF1 and IFF2 values")
     int iff;
-    @Bin(type = BinType.UBYTE, outOrder = 12)
+    @Bin(type = BinType.UBYTE, outOrder = 12, comment = "Register R")
     int regR;
-    @Bin(type = BinType.USHORT, outOrder = 13)
+    @Bin(type = BinType.USHORT, outOrder = 13, comment = "Register pair AF")
     int regAF;
-    @Bin(type = BinType.USHORT, outOrder = 14)
+    @Bin(type = BinType.USHORT, outOrder = 14, comment = "Register SP")
     int regSP;
-    @Bin(type = BinType.UBYTE, outOrder = 15)
+    @Bin(type = BinType.UBYTE, outOrder = 15, comment = "Interruption mode (0-IM0, 1-IM1, 2-IM2")
     int im;
-    @Bin(type = BinType.UBYTE, outOrder = 16)
+    @Bin(type = BinType.UBYTE, outOrder = 16, comment = "Border color")
     int borderColor;
-    @Bin(outOrder = 17)
+    @Bin(outOrder = 17, comment = "Dump of memory since 16384 address")
     byte[] ramDump;
   }
 
@@ -113,6 +115,8 @@ public class SNAParsingTest extends AbstractParserIntegrationTest {
     
     final byte [] packed = JBBPOut.BeginBin(JBBPByteOrder.LITTLE_ENDIAN).Bin(sna).End().toByteArray();
     assertResource("zexall.sna", packed);
+  
+    System.out.println(new JBBPTextWriter().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).SetMaxValuesPerLine(32).Bin(sna).Close().toString());
   }
   
 }

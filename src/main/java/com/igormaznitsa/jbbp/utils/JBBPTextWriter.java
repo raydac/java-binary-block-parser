@@ -59,6 +59,13 @@ public class JBBPTextWriter extends FilterWriter {
     private String makeStructDescription(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation) {
       final StringBuilder result = new StringBuilder();
 
+      final Class<?> objClass = obj.getClass();
+      Bin classAnno = objClass.getAnnotation(Bin.class);
+
+      if (classAnno != null && classAnno.equals(annotation)) {
+        classAnno = null;
+      }
+
       final String typeName;
       if (field == null) {
         typeName = obj.getClass().getSimpleName();
@@ -69,7 +76,22 @@ public class JBBPTextWriter extends FilterWriter {
       }
 
       final String name = annotation == null || annotation.name().length() == 0 ? typeName : annotation.name();
+      final String fieldComment = annotation == null || annotation.comment().length() == 0 ? null : annotation.comment();
+      final String objectComment = classAnno == null || classAnno.comment().length() == 0 ? null : classAnno.comment();
+
       result.append(name);
+      if (fieldComment != null) {
+        result.append(", ").append(fieldComment);
+      }
+      if (objectComment != null) {
+        if (fieldComment != null) {
+          result.append('\n');
+        }
+        else {
+          result.append(", ");
+        }
+        result.append(objectComment);
+      }
 
       return result.toString();
     }
@@ -373,7 +395,7 @@ public class JBBPTextWriter extends FilterWriter {
   /**
    * The Default comment prefix.
    */
-  private static final String DEFAULT_COMMENT_PREFIX = ";";
+  private static final String DEFAULT_COMMENT_PREFIX = " ; ";
   /**
    * The Default first value line.
    */
@@ -468,6 +490,11 @@ public class JBBPTextWriter extends FilterWriter {
    * The Variable contains number of max chars to show long for current radix.
    */
   private int maxCharsRadixForLong;
+
+  /**
+   * The flag allows print of comments.
+   */
+  private boolean flagCommentsAllowed;
 
   /**
    * The Current byte order.
@@ -589,6 +616,9 @@ public class JBBPTextWriter extends FilterWriter {
           final String valueDelimiter) {
     super(out);
     JBBPUtils.assertNotNull(lineSeparator, "Line separator must not be null");
+
+    this.flagCommentsAllowed = true;
+
     this.lineSeparator = lineSeparator;
 
     JBBPUtils.assertNotNull(out, "Writer must not be null");
@@ -763,25 +793,46 @@ public class JBBPTextWriter extends FilterWriter {
   }
 
   /**
+   * Enable print comments.
+   *
+   * @return the context
+   */
+  public JBBPTextWriter EnableComments() {
+    this.flagCommentsAllowed = true;
+    return this;
+  }
+
+  /**
+   * Disable print comments.
+   *
+   * @return the context
+   */
+  public JBBPTextWriter DisableComments() {
+    this.flagCommentsAllowed = false;
+    return this;
+  }
+
+  /**
    * Print string values.
+   *
    * @param str array of string values, must not be null but may contain nulls
    * @return the context
-   * @throws IOException it will be thrown for error 
+   * @throws IOException it will be thrown for error
    */
-  public JBBPTextWriter Str(final String ... str) throws IOException {
+  public JBBPTextWriter Str(final String... str) throws IOException {
     JBBPUtils.assertNotNull(str, "String must not be null");
-    
+
     ensureValueMode();
     final String oldPrefix = this.prefixValue;
     this.prefixValue = "";
-    
-    for(final String s : str){
+
+    for (final String s : str) {
       printValueString(s == null ? "<NULL>" : s);
     }
     this.prefixValue = oldPrefix;
     return this;
   }
-  
+
   /**
    * Print byte value.
    *
@@ -1287,36 +1338,59 @@ public class JBBPTextWriter extends FilterWriter {
   }
 
   /**
-   * Print horizontal rule.
+   * Print horizontal rule. If comments are disabled then only next line will be added.
    *
    * @return the context
    * @throws IOException it will be thrown for transport errors
+   * @see #EnableComments()
+   * @see #DisableComments()
    */
   public JBBPTextWriter HR() throws IOException {
-    this.ensureNewLineMode();
-    this.writeIndent();
-    this.write(this.prefixComment);
-    for (int i = 0; i < this.hrLength; i++) {
-      this.write(this.hrChar);
+    if (this.flagCommentsAllowed) {
+      this.ensureNewLineMode();
+      this.writeIndent();
+      this.write(this.prefixComment);
+      for (int i = 0; i < this.hrLength; i++) {
+        this.write(this.hrChar);
+      }
     }
     this.BR();
     return this;
   }
 
   /**
-   * Print comments. Wilt aligning of line start for multi-line comment.
+   * Print comments. Wilt aligning of line start for multi-line comment. Comments will be printed only if they are allowed.
    *
    * @param comment array of string to be printed as comment lines.
    * @return the context
    * @throws IOException it will be thrown for transport errors
+   * @see #EnableComments()
+   * @see #DisableComments()
    */
   public JBBPTextWriter Comment(final String... comment) throws IOException {
-    if (comment != null) {
-      for (final String c : comment) {
-        this.ensureCommentMode();
-        this.write(c);
+    if (this.flagCommentsAllowed) {
+      if (comment != null) {
+        for (final String c : comment) {
+          if (c == null) {
+            continue;
+          }
+
+          if (c.indexOf('\n') >= 0) {
+            final String[] splitted = c.split("\\n");
+            for (final String s : splitted) {
+              this.ensureCommentMode();
+              this.write(s);
+            }
+          }
+          else {
+            this.ensureCommentMode();
+            this.write(c);
+          }
+        }
+        this.prevLineCommentsStartPosition = 0;
       }
-      this.prevLineCommentsStartPosition = 0;
+    }else{
+      ensureNewLineMode();
     }
     return this;
   }
