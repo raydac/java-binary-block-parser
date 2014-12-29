@@ -61,7 +61,7 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
 
   @Before
   public void before() {
-    writer = new JBBPTextWriter(new StringWriter(), JBBPByteOrder.BIG_ENDIAN, "\n", 16, "0x", ".", ";", ",");
+    writer = new JBBPTextWriter(new StringWriter(), JBBPByteOrder.BIG_ENDIAN, "\n", 16, "0x", ".", ";","~", ",");
   }
 
   @Test
@@ -172,14 +172,14 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
 
   @Test
   public void testHorizontalRule() throws Exception {
-    writer.SetHR(10, '>').HR().Byte(1);
-    assertEquals(";>>>>>>>>>>\n.0x01", writer.Close().toString());
+    writer.SetHR("~",10, '>').HR().Byte(1);
+    assertEquals("~>>>>>>>>>>\n.0x01", writer.Close().toString());
   }
 
   @Test
   public void testHorizontalRule_DisableEnable() throws Exception {
-    writer.SetHR(10, '>').DisableComments().HR().Byte(1).EnableComments().HR();
-    assertEquals("\n.0x01\n;>>>>>>>>>>\n", writer.Close().toString());
+    writer.SetHR("~",10, '>').DisableComments().HR().Byte(1).EnableComments().HR();
+    assertEquals("\n.0x01\n~>>>>>>>>>>\n", writer.Close().toString());
   }
 
   @Test
@@ -446,7 +446,7 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
 
   @Test
   public void testGetLineSeparator() throws Exception {
-    assertEquals("hello", new JBBPTextWriter(writer, JBBPByteOrder.BIG_ENDIAN, "hello", 11, "", "", "", "").getLineSeparator());
+    assertEquals("hello", new JBBPTextWriter(writer, JBBPByteOrder.BIG_ENDIAN, "hello", 11, "", "", "","", "").getLineSeparator());
   }
 
   @Test
@@ -552,6 +552,11 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
     assertEquals("123456null", writer.Close().toString());
   }
 
+  @Test
+  public void testSetValuePrefixPostfix() throws Exception {
+    assertEquals(".0x01,$02^",writer.Byte(1).SetValuePrefix("$").SetValuePostfix("^").Byte(2).Close().toString());
+  }
+  
   @Test
   public void testSetTabSpaces() throws Exception {
     writer.SetTabSpaces(3).Tab().BR().IndentInc(3).Byte(1).IndentDec(2).BR().Comment("Hello");
@@ -709,7 +714,7 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
 
     });
 
-    final String text = writer.SetHR(3, '-').SetValuePrefix("").Bin(new TestClass()).Close().toString();
+    final String text = writer.SetHR("~",3, '-').SetValuePrefix("").Bin(new TestClass()).Close().toString();
     System.out.println(text);
     assertFile("testwriterbin3.txt", text);
   }
@@ -740,7 +745,7 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
 
     });
 
-    final String text = writer.SetHR(3, '-').SetValuePrefix("").Bin(new TestClass()).Close().toString();
+    final String text = writer.SetHR("~",3, '-').SetValuePrefix("").Bin(new TestClass()).Close().toString();
     System.out.println(text);
     assertFile("testwriterbin4.txt", text);
   }

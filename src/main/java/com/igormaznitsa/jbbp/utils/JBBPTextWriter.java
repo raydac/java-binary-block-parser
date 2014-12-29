@@ -395,7 +395,18 @@ public class JBBPTextWriter extends FilterWriter {
   /**
    * The Default comment prefix.
    */
-  private static final String DEFAULT_COMMENT_PREFIX = ";";
+  private static final String DEFAULT_COMMENT_PREFIX = "; ";
+
+  /**
+   * The Default value postfix.
+   */
+  private static final String DEFAULT_VALUE_POSTFIX = "";
+  
+  /**
+   * The Default horizontal rule prefix.
+   */
+  private static final String DEFAULT_HR_PREFIX = ";";
+
   /**
    * The Default first value line.
    */
@@ -512,6 +523,11 @@ public class JBBPTextWriter extends FilterWriter {
   private String prefixValue;
 
   /**
+   * The Current value postfix.
+   */
+  private String postfixValue = DEFAULT_VALUE_POSTFIX;
+
+  /**
    * The Current value delimiter.
    */
   private String valueSeparator;
@@ -521,6 +537,11 @@ public class JBBPTextWriter extends FilterWriter {
    */
   private String prefixComment;
 
+  /**
+   * The Current HR prefix.
+   */
+  private String prefixHR;
+  
   /**
    * The Current line position, 0 is first one.
    */
@@ -570,7 +591,7 @@ public class JBBPTextWriter extends FilterWriter {
    * The Default constructor. A StringWriter will be used inside.
    */
   public JBBPTextWriter() {
-    this(new StringWriter(1024), JBBPByteOrder.BIG_ENDIAN, System.getProperty("line.separator"), DEFAULT_RADIX, DEFAULT_VALUE_PREFIX, DEFAULT_FIRST_VALUE_LINE_PREFIX, DEFAULT_COMMENT_PREFIX, DEFAULT_VALUE_DELIMITER);
+    this(new StringWriter(1024), JBBPByteOrder.BIG_ENDIAN, System.getProperty("line.separator"), DEFAULT_RADIX, DEFAULT_VALUE_PREFIX, DEFAULT_FIRST_VALUE_LINE_PREFIX, DEFAULT_COMMENT_PREFIX, DEFAULT_HR_PREFIX, DEFAULT_VALUE_DELIMITER);
   }
 
   /**
@@ -579,7 +600,7 @@ public class JBBPTextWriter extends FilterWriter {
    * @param out a writer to be wrapped, must not be null.
    */
   public JBBPTextWriter(final Writer out) {
-    this(out, JBBPByteOrder.BIG_ENDIAN, System.getProperty("line.separator"), DEFAULT_RADIX, DEFAULT_VALUE_PREFIX, DEFAULT_FIRST_VALUE_LINE_PREFIX, DEFAULT_COMMENT_PREFIX, DEFAULT_VALUE_DELIMITER);
+    this(out, JBBPByteOrder.BIG_ENDIAN, System.getProperty("line.separator"), DEFAULT_RADIX, DEFAULT_VALUE_PREFIX, DEFAULT_FIRST_VALUE_LINE_PREFIX, DEFAULT_COMMENT_PREFIX, DEFAULT_HR_PREFIX, DEFAULT_VALUE_DELIMITER);
   }
 
   /**
@@ -589,7 +610,7 @@ public class JBBPTextWriter extends FilterWriter {
    * @param byteOrder a byte order to be used, it must not be null.
    */
   public JBBPTextWriter(final Writer out, final JBBPByteOrder byteOrder) {
-    this(out, byteOrder, System.getProperty("line.separator"), DEFAULT_RADIX, DEFAULT_VALUE_PREFIX, DEFAULT_FIRST_VALUE_LINE_PREFIX, DEFAULT_COMMENT_PREFIX, DEFAULT_VALUE_DELIMITER);
+    this(out, byteOrder, System.getProperty("line.separator"), DEFAULT_RADIX, DEFAULT_VALUE_PREFIX, DEFAULT_FIRST_VALUE_LINE_PREFIX, DEFAULT_COMMENT_PREFIX, DEFAULT_HR_PREFIX, DEFAULT_VALUE_DELIMITER);
   }
 
   /**
@@ -613,12 +634,13 @@ public class JBBPTextWriter extends FilterWriter {
           final String valuePrefix,
           final String startValueLinePrefix,
           final String commentPrefix,
+          final String hrPrefix,
           final String valueDelimiter) {
     super(out);
     JBBPUtils.assertNotNull(lineSeparator, "Line separator must not be null");
 
     this.flagCommentsAllowed = true;
-
+    this.prefixHR = hrPrefix == null ? "" : hrPrefix;
     this.lineSeparator = lineSeparator;
 
     JBBPUtils.assertNotNull(out, "Writer must not be null");
@@ -785,7 +807,12 @@ public class JBBPTextWriter extends FilterWriter {
     if (this.prefixValue.length() > 0) {
       this.write(this.prefixValue);
     }
+    
     this.write(value);
+    
+    if (this.postfixValue.length() > 0) {
+      this.write(this.postfixValue);
+    }
     this.valuesLineCounter++;
 
     if (this.maxValuesPerLine > 0 && this.valuesLineCounter >= this.maxValuesPerLine) {
@@ -828,12 +855,16 @@ public class JBBPTextWriter extends FilterWriter {
 
     ensureValueMode();
     final String oldPrefix = this.prefixValue;
+    final String oldPostfix = this.postfixValue;
     this.prefixValue = "";
-
+    this.postfixValue = "";
+    
     for (final String s : str) {
       printValueString(s == null ? "<NULL>" : s);
     }
+    
     this.prefixValue = oldPrefix;
+    this.postfixValue = oldPostfix;
     return this;
   }
 
@@ -954,6 +985,17 @@ public class JBBPTextWriter extends FilterWriter {
    */
   public final JBBPTextWriter SetValuePrefix(final String text) {
     this.prefixValue = text == null ? "" : text;
+    return this;
+  }
+
+  /**
+   * Set postfix to be printed after every value.
+   *
+   * @param text string to be used as value postfix, can be null
+   * @return the context
+   */
+  public final JBBPTextWriter SetValuePostfix(final String text) {
+    this.postfixValue = text == null ? "" : text;
     return this;
   }
 
@@ -1330,12 +1372,13 @@ public class JBBPTextWriter extends FilterWriter {
 
   /**
    * Change parameters for horizontal rule.
-   *
+   * @param prefix the prefix to be printed before rule, it can be null
    * @param length the length in symbols.
    * @param ch symbol to draw
    * @return the context
    */
-  public JBBPTextWriter SetHR(final int length, final char ch) {
+  public JBBPTextWriter SetHR(final String prefix, final int length, final char ch) {
+    this.prefixHR = prefix == null ? "" : prefix;
     this.hrChar = ch;
     this.hrLength = length;
     return this;
@@ -1347,14 +1390,14 @@ public class JBBPTextWriter extends FilterWriter {
    *
    * @return the context
    * @throws IOException it will be thrown for transport errors
-   * @see #EnableComments()
+   * @see #EnableComments()t
    * @see #DisableComments()
    */
   public JBBPTextWriter HR() throws IOException {
     if (this.flagCommentsAllowed) {
       this.ensureNewLineMode();
       this.writeIndent();
-      this.write(this.prefixComment);
+      this.write(this.prefixHR);
       for (int i = 0; i < this.hrLength; i++) {
         this.write(this.hrChar);
       }

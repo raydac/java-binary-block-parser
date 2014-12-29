@@ -1,11 +1,11 @@
-;---
+~---
 ;START : TestClass
-;---
+~---
     .00000000;a
-    ;---
+    ~---
     .See on array;Line one
                  ;Line two
-    ;---
-;---
+    ~---
+~---
 ;END : TestClass
-;---
+~---
