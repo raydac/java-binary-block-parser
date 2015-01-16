@@ -23,6 +23,7 @@ import java.io.*;
  * A Filter stream implementing a countable bit stream interface. It allows read
  * not only bytes but also bits from an input stream. The Class is not a
  * thread-safe one.
+ *
  * @since 1.0
  */
 public class JBBPBitInputStream extends FilterInputStream implements JBBPCountableBitStream {
@@ -423,9 +424,9 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   }
 
   /**
-   * Get the current byte counter state.
+   * Get the current full read byte counter.
    *
-   * @return the number of bytes read from the stream currently
+   * @return the number of bytes read fully from the stream
    */
   public long getCounter() {
     return this.byteCounter;
@@ -491,9 +492,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
         result = this.bitBuffer;
         this.bitBuffer = 0;
         this.bitsInBuffer = 0;
-        if (numOfBitsAsNumber == 8) {
-          this.byteCounter++;
-        }
+        this.byteCounter++;
         return result;
       }
 
@@ -501,8 +500,11 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       int theBitBuffer = this.bitBuffer;
       int theBitBufferCounter = this.bitsInBuffer;
 
+      final boolean doIncCounter = theBitBufferCounter!=0;
+      
       while (i > 0) {
         if (theBitBufferCounter == 0) {
+          if (doIncCounter) this.byteCounter++;
           final int nextByte = this.readByteFromStream();
           if (nextByte < 0) {
             if (i == numOfBitsAsNumber) {
@@ -515,7 +517,6 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
           else {
             theBitBuffer = nextByte;
             theBitBufferCounter = 8;
-            this.byteCounter++;
           }
         }
 
@@ -527,8 +528,8 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
 
       this.bitBuffer = theBitBuffer;
       this.bitsInBuffer = theBitBufferCounter;
-
-      return JBBPUtils.reverseBitsInByte(JBBPBitNumber.decode(numOfBitsAsNumber-i),(byte)result) & 0xFF;
+      
+      return JBBPUtils.reverseBitsInByte(JBBPBitNumber.decode(numOfBitsAsNumber - i), (byte) result) & 0xFF;
     }
   }
 
@@ -675,6 +676,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    */
   public void alignByte() {
     if (this.bitsInBuffer > 0 && this.bitsInBuffer < 8) {
+      this.byteCounter++;
       this.bitsInBuffer = 0;
     }
   }

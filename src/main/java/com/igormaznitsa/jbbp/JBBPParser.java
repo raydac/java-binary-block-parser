@@ -32,6 +32,11 @@ import java.util.*;
 public final class JBBPParser {
 
   /**
+   * Flag shows that remaining fields must be just ignored if EOF.
+   */
+  public static final int FLAG_IGNORE_REMAINING_FIELDS_IF_EOF = 1; 
+  
+  /**
    * The Variable contains the last parsing counter value.
    */
   private long finalStreamByteCounter;
@@ -51,16 +56,24 @@ public final class JBBPParser {
   private static final JBBPFieldStruct[] EMPTY_STRUCT_ARRAY = new JBBPFieldStruct[0];
 
   /**
+   * Special flags for parsing process.
+   */
+  private final int flags;
+  
+  /**
    * The Constructor.
    *
    * @param source the source script to parse binary blocks and streams, must
    * not be null
    * @param bitOrder the bit order for bit reading operations, must not be null
+   * @param flags special flags for parsing process
+   * @see #FLAG_IGNORE_REMAINING_FIELDS_IF_EOF
    */
-  private JBBPParser(final String source, final JBBPBitOrder bitOrder) {
+  private JBBPParser(final String source, final JBBPBitOrder bitOrder, final int flags) {
     JBBPUtils.assertNotNull(source, "Script is null");
     JBBPUtils.assertNotNull(bitOrder, "Bit order is null");
     this.bitOrder = bitOrder;
+    this.flags = flags;
     try {
       this.compiledBlock = JBBPCompiler.compile(source);
     }
@@ -106,6 +119,11 @@ public final class JBBPParser {
     boolean endStructureNotMet = true;
 
     while (endStructureNotMet && positionAtCompiledBlock.get() < compiled.length) {
+      if (!inStream.hasAvailableData() && (flags & FLAG_IGNORE_REMAINING_FIELDS_IF_EOF)!=0){
+        // Break reading because the ignore flag for EOF has been set
+        break;
+      }
+      
       final int code = compiled[positionAtCompiledBlock.getAndIncrement()] & 0xFF;
 
       final JBBPNamedFieldInfo name = (code & JBBPCompiler.FLAG_NAMED) == 0 ? null : compiledBlock.getNamedFields()[positionAtNamedFieldList.getAndIncrement()];
@@ -447,6 +465,15 @@ public final class JBBPParser {
   }
 
   /**
+   * Get the parse flags.
+   * @return the parser flags
+   * @see #FLAG_IGNORE_REMAINING_FIELDS_IF_EOF
+   */
+  public int getFlags(){
+    return this.flags;
+  }
+  
+  /**
    * Parse a byte array content.
    *
    * @param array a byte array which content should be parsed, it must not be
@@ -479,27 +506,60 @@ public final class JBBPParser {
   /**
    * Prepare a parser for a script and a bit order.
    *
-   * @param script a text script contains field order and types reference, it
-   * must not be null
+   * @param script a text script contains field order and types reference, it must not be null
    * @param bitOrder the bit order for reading operations, it must not be null
    * @return the prepared parser for the script
    * @see JBBPBitOrder#LSB0
    * @see JBBPBitOrder#MSB0
    */
   public static JBBPParser prepare(final String script, final JBBPBitOrder bitOrder) {
-    return new JBBPParser(script, bitOrder);
+    return new JBBPParser(script, bitOrder, 0);
   }
 
   /**
-   * Prepare a parser for a script with usage of the default bit order LSB0.
-   *
+   * Prepare a parser for a script with defined bit order and special flags.
+   * 
    * @param script a text script contains field order and types reference, it
    * must not be null
+   * @param bitOrder the bit order for reading operations, it must not be null
+   * @param flags special flags for parsing
+   * @return the prepared parser for the script
+   * @see JBBPBitOrder#LSB0
+   * @see JBBPBitOrder#MSB0
+   * @see #FLAG_IGNORE_REMAINING_FIELDS_IF_EOF
+   * 
+   * @since 1.1
+   */
+  public static JBBPParser prepare(final String script, final JBBPBitOrder bitOrder, final int flags) {
+    return new JBBPParser(script, bitOrder, flags);
+  }
+
+  
+  /**
+   * Prepare a parser for a script with default bit order (LSB0) use.
+   *
+   * @param script a text script contains field order and types reference, it must not be null
    * @return the prepared parser for the script
    * @see JBBPBitOrder#LSB0
    */
   public static JBBPParser prepare(final String script) {
     return JBBPParser.prepare(script, JBBPBitOrder.LSB0);
+  }
+
+  /**
+   * Prepare a parser for a script with default bit order (LSB0) use and special flags
+   * 
+   * @param script a text script contains field order and types reference, it
+   * must not be null
+   * @param flags special flags for parsing
+   * @return the prepared parser for the script
+   * @see JBBPBitOrder#LSB0
+   * @see #FLAG_IGNORE_REMAINING_FIELDS_IF_EOF
+   * 
+   * @since 1.1
+   */
+  public static JBBPParser prepare(final String script, final int flags) {
+    return JBBPParser.prepare(script, JBBPBitOrder.LSB0, flags);
   }
 
   /**

@@ -1562,7 +1562,24 @@ public class JBBPParserTest {
     catch (EOFException ex) {
       assertEquals(16, parser.getFinalStreamByteCounter());
     }
-
   }
 
+  @Test(expected = JBBPParsingException.class)
+  public void testParse_ErrorForNotAllReadFields() throws Exception {
+    final JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4}));
+    final JBBPParser parser = JBBPParser.prepare("int a; int b;");
+    parser.parse(stream);
+  }
+  
+
+  @Test
+  public void testParse_NoErrorForIgnoreRemainingFieldsFlag() throws Exception {
+    final JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4}));
+    final JBBPParser parser = JBBPParser.prepare("int a; int b;",JBBPParser.FLAG_IGNORE_REMAINING_FIELDS_IF_EOF);
+    final JBBPFieldStruct result = parser.parse(stream);
+    assertEquals(1, result.getArray().length);
+    assertEquals("a", result.getArray()[0].getFieldName());
+    assertEquals(0x01020304, ((JBBPFieldInt)result.findFieldForName("a")).getAsInt());
+  }
+  
 }

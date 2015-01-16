@@ -188,11 +188,11 @@ public class JBBPBitInputStreamTest {
     in.alignByte();
     assertEquals(0, in.getCounter());
     assertEquals(0x19, in.readBits(JBBPBitNumber.BITS_5));
-    assertEquals(1, in.getCounter());
+    assertEquals(0, in.getCounter());
     in.alignByte();
     assertEquals(1, in.getCounter());
     assertEquals(0x8, in.readBits(JBBPBitNumber.BITS_4));
-    assertEquals(2, in.getCounter());
+    assertEquals(1, in.getCounter());
     assertEquals(0xB, in.readBits(JBBPBitNumber.BITS_4));
     assertEquals(2, in.getCounter());
     assertEquals(-1, in.read());
@@ -205,7 +205,7 @@ public class JBBPBitInputStreamTest {
 
     final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(testarray));
     assertEquals(0x19, in.readBits(JBBPBitNumber.BITS_5));
-    assertEquals(1, in.getCounter());
+    assertEquals(0, in.getCounter());
     assertEquals(0x03, in.readBits(JBBPBitNumber.BITS_3));
     assertEquals(1, in.getCounter());
     assertTrue(in.hasAvailableData());
@@ -223,47 +223,47 @@ public class JBBPBitInputStreamTest {
 
     final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(testarray));
 
-    assertEquals(0, in.readBits(JBBPBitNumber.BITS_1));
+    assertEquals(0, in.readBits(JBBPBitNumber.BITS_1));//0
     assertEquals(1, in.readBits(JBBPBitNumber.BITS_1));
-    assertEquals(1, in.getCounter());
+    assertEquals(0, in.getCounter());
     assertEquals(6, in.getBufferedBitsNumber());
 
-    assertEquals(0, in.readBits(JBBPBitNumber.BITS_2));
+    assertEquals(0, in.readBits(JBBPBitNumber.BITS_2));//2
     assertEquals(3, in.readBits(JBBPBitNumber.BITS_2));
-    assertEquals(1, in.getCounter());
+    assertEquals(0, in.getCounter());
     assertEquals(2, in.getBufferedBitsNumber());
 
-    assertEquals(0, in.readBits(JBBPBitNumber.BITS_3));
+    assertEquals(0, in.readBits(JBBPBitNumber.BITS_3));//6
     assertEquals(7, in.readBits(JBBPBitNumber.BITS_3));
-    assertEquals(2, in.getCounter());
+    assertEquals(1, in.getCounter());
     assertEquals(4, in.getBufferedBitsNumber());
 
-    assertEquals(0, in.readBits(JBBPBitNumber.BITS_4));
+    assertEquals(0, in.readBits(JBBPBitNumber.BITS_4));//12
     assertEquals(2, in.getCounter());
     assertEquals(15, in.readBits(JBBPBitNumber.BITS_4));
-    assertEquals(3, in.getCounter());
+    assertEquals(2, in.getCounter());
     assertEquals(4, in.getBufferedBitsNumber());
 
-    assertEquals(0, in.readBits(JBBPBitNumber.BITS_5));
+    assertEquals(0, in.readBits(JBBPBitNumber.BITS_5));//20
     assertEquals(31, in.readBits(JBBPBitNumber.BITS_5));
-    assertEquals(4, in.getCounter());
+    assertEquals(3, in.getCounter());
     assertEquals(2, in.getBufferedBitsNumber());
 
-    assertEquals(0, in.readBits(JBBPBitNumber.BITS_6));
+    assertEquals(0, in.readBits(JBBPBitNumber.BITS_6));//30
     assertEquals(63, in.readBits(JBBPBitNumber.BITS_6));
-    assertEquals(6, in.getCounter());
+    assertEquals(5, in.getCounter());
     assertEquals(6, in.getBufferedBitsNumber());
 
-    assertEquals(0, in.readBits(JBBPBitNumber.BITS_7));
+    assertEquals(0, in.readBits(JBBPBitNumber.BITS_7));//42
     assertEquals(0x73, in.readBits(JBBPBitNumber.BITS_7));
     assertEquals(7, in.getCounter());
     assertEquals(0, in.getBufferedBitsNumber());
 
-    assertEquals(0, in.readBits(JBBPBitNumber.BITS_8));
+    assertEquals(0, in.readBits(JBBPBitNumber.BITS_8));//56
     assertEquals(8, in.getCounter());
     assertEquals(0, in.getBufferedBitsNumber());
 
-    assertEquals(0xF9, in.readBits(JBBPBitNumber.BITS_8));
+    assertEquals(0xF9, in.readBits(JBBPBitNumber.BITS_8));//64
     assertEquals(9, in.getCounter());
     assertEquals(0, in.getBufferedBitsNumber());
 
@@ -276,7 +276,7 @@ public class JBBPBitInputStreamTest {
   public void testReadStream_BitByBit() throws IOException {
     final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{0x01}));
     assertEquals(1, in.readBits(JBBPBitNumber.BITS_1));
-    assertEquals(1, in.getCounter());
+    assertEquals(0, in.getCounter());
     assertEquals(0, in.readBits(JBBPBitNumber.BITS_1));
     assertEquals(0, in.readBits(JBBPBitNumber.BITS_1));
     assertEquals(0, in.readBits(JBBPBitNumber.BITS_1));
@@ -292,7 +292,7 @@ public class JBBPBitInputStreamTest {
   public void testReadStream_7bits_Default() throws IOException {
     final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(JBBPUtils.str2bin("11011100", JBBPBitOrder.MSB0)));
     assertEquals(0x3B, in.readBits(JBBPBitNumber.BITS_7));
-    assertEquals(1, in.getCounter());
+    assertEquals(0, in.getCounter());
   }
 
   @Test
@@ -382,7 +382,7 @@ public class JBBPBitInputStreamTest {
 
     final byte[] read = new byte[27];
     assertEquals(5, in.read(read, 9, 5));
-    assertEquals(6, in.getCounter());
+    assertEquals(5, in.getCounter());
     assertEquals(3, in.read());
 
     for (int i = 0; i < 9; i++) {
@@ -520,22 +520,22 @@ public class JBBPBitInputStreamTest {
 
     assertEquals(0, in.readBits(JBBPBitNumber.BITS_1));
 
-    assertEquals(1, in.getCounter());
+    assertEquals(0, in.getCounter());
     
     assertEquals(3, in.skip(3));
-    assertEquals(4, in.getCounter());
+    assertEquals(3, in.getCounter());
     
     assertEquals(0x18, in.read());
-    assertEquals(5, in.getCounter());
+    assertEquals(4, in.getCounter());
     
     assertEquals(1, in.skip(1));
-    assertEquals(6, in.getCounter());
+    assertEquals(5, in.getCounter());
 
     assertEquals(0xDA, in.read());
-    assertEquals(7, in.getCounter());
+    assertEquals(6, in.getCounter());
 
     assertEquals(0x80, in.read());
-    assertEquals(8, in.getCounter());
+    assertEquals(7, in.getCounter());
 
     assertEquals(0, in.read());
     assertEquals(8, in.getCounter());
@@ -798,7 +798,7 @@ public class JBBPBitInputStreamTest {
   public void testResetCounter_ForCachedBits() throws Exception {
     final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5, 6, 7, 0, (byte) 0xFE, (byte) 0xCA, (byte) 0xBE, (byte) 0x01, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4}));
     assertEquals(1, in.readBits(JBBPBitNumber.BITS_3));
-    assertEquals(1, in.getCounter());
+    assertEquals(0, in.getCounter());
     assertTrue(in.getBufferedBitsNumber() != 0);
     in.resetCounter();
     assertEquals(0, in.getCounter());
@@ -836,7 +836,7 @@ public class JBBPBitInputStreamTest {
   public void testReadNotFullByteArrayAfterBitReading() throws Exception {
     final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{(byte)0x12,(byte)0x34,(byte) 0x56, (byte) 0xDD}));
     assertEquals(0x2,in.readBits(JBBPBitNumber.BITS_4));
-    assertEquals(1, in.getCounter());
+    assertEquals(0, in.getCounter());
     
     final byte [] readarray = new byte[6];
     final int read = in.read(readarray, 0, readarray.length);
@@ -878,6 +878,77 @@ public class JBBPBitInputStreamTest {
     assertEquals(1, in.getCounter());
     assertEquals(-1, in.read());
     assertEquals(1, in.getCounter());
+  }
+  
+  @Test
+  public void testByteCounterWithHasAvailableData() throws Exception {
+    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16}));
+    assertTrue(in.hasAvailableData());
+    assertEquals(0,in.getCounter());
+    
+    assertTrue(in.readBits(JBBPBitNumber.BITS_1)>=0);
+    assertTrue(in.hasAvailableData());
+    assertEquals(0, in.getCounter());
+
+    assertTrue(in.readBits(JBBPBitNumber.BITS_1)>=0);
+    assertTrue(in.hasAvailableData());
+    assertEquals(0, in.getCounter());
+
+    assertTrue(in.readBits(JBBPBitNumber.BITS_1)>=0);
+    assertTrue(in.hasAvailableData());
+    assertEquals(0, in.getCounter());
+
+    assertTrue(in.readBits(JBBPBitNumber.BITS_1)>=0);
+    assertTrue(in.hasAvailableData());
+    assertEquals(0, in.getCounter());
+
+    assertTrue(in.readBits(JBBPBitNumber.BITS_1)>=0);
+    assertTrue(in.hasAvailableData());
+    assertEquals(0, in.getCounter());
+
+    assertTrue(in.readBits(JBBPBitNumber.BITS_1)>=0);
+    assertTrue(in.hasAvailableData());
+    assertEquals(0, in.getCounter());
+
+    assertTrue(in.readBits(JBBPBitNumber.BITS_1)>=0);
+    assertTrue(in.hasAvailableData());
+    assertEquals(0, in.getCounter());
+
+    assertTrue(in.readBits(JBBPBitNumber.BITS_1)>=0);
+    assertTrue(in.hasAvailableData());
+    assertEquals(1, in.getCounter());
+
+    assertTrue(in.readBits(JBBPBitNumber.BITS_1)>=0);
+    assertTrue(in.hasAvailableData());
+    assertEquals(1, in.getCounter());
+
+    assertTrue(in.readBits(JBBPBitNumber.BITS_1)>=0);
+    assertTrue(in.hasAvailableData());
+    assertEquals(1, in.getCounter());
+
+    assertTrue(in.readBits(JBBPBitNumber.BITS_1)>=0);
+    assertTrue(in.hasAvailableData());
+    assertEquals(1, in.getCounter());
+
+    assertTrue(in.readBits(JBBPBitNumber.BITS_1)>=0);
+    assertTrue(in.hasAvailableData());
+    assertEquals(1, in.getCounter());
+
+    assertTrue(in.readBits(JBBPBitNumber.BITS_1)>=0);
+    assertTrue(in.hasAvailableData());
+    assertEquals(1, in.getCounter());
+
+    assertTrue(in.readBits(JBBPBitNumber.BITS_1)>=0);
+    assertTrue(in.hasAvailableData());
+    assertEquals(1, in.getCounter());
+
+    assertTrue(in.readBits(JBBPBitNumber.BITS_1)>=0);
+    assertTrue(in.hasAvailableData());
+    assertEquals(1, in.getCounter());
+
+    assertTrue(in.readBits(JBBPBitNumber.BITS_1)>=0);
+    assertTrue(in.hasAvailableData());
+    assertEquals(2, in.getCounter());
   }
   
 }
