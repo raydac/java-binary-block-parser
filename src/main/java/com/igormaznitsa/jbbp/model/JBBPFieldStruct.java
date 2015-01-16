@@ -227,12 +227,40 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * @param <T> a class type
    * @param mappingClass a mapping class to be mapped by the structure fields,
    * must not be null and must have the default constructor
+   * @param flags special flags to tune mapping
+   * @return a mapped instance of the class, must not be null
+   */
+  public <T> T mapTo(final Class<T> mappingClass, final int flags) {
+    return mapTo(mappingClass, null, flags);
+  }
+
+  /**
+   * Map the structure fields to a class fields.
+   *
+   * @param <T> a class type
+   * @param mappingClass a mapping class to be mapped by the structure fields,
+   * must not be null and must have the default constructor
    * @param customFieldProcessor a custom field processor to provide values for
    * custom mapping fields, it can be null if there is not any custom field
    * @return a mapped instance of the class, must not be null
    */
   public <T> T mapTo(final Class<T> mappingClass, final JBBPMapperCustomFieldProcessor customFieldProcessor) {
     return JBBPMapper.map(this, mappingClass, customFieldProcessor);
+  }
+
+  /**
+   * Map the structure fields to a class fields.
+   *
+   * @param <T> a class type
+   * @param mappingClass a mapping class to be mapped by the structure fields,
+   * must not be null and must have the default constructor
+   * @param customFieldProcessor a custom field processor to provide values for
+   * custom mapping fields, it can be null if there is not any custom field
+   * @param flags special flags to tune mapping process
+   * @return a mapped instance of the class, must not be null
+   */
+  public <T> T mapTo(final Class<T> mappingClass, final JBBPMapperCustomFieldProcessor customFieldProcessor, final int flags) {
+    return JBBPMapper.map(this, mappingClass, customFieldProcessor, flags);
   }
 
   /**
@@ -257,11 +285,46 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * @param path the path to the structure to be mapped, must not be null
    * @param mappingClass a mapping class to be mapped by the structure fields,
    * must not be null and must have the default constructor
+   * @param flags special flags to tune mapping process
+   * @return a mapped instance of the class, must not be null
+   * @see #FLAG_IGNORE_MISSING_VALUES
+   * @since 1.1
+   */
+  public <T> T mapTo(final String path, final Class<T> mappingClass, final int flags) {
+    return JBBPMapper.map(this, path, mappingClass, flags);
+  }
+
+  /**
+   * Find a structure by its path and map the structure fields to a class
+   * fields.
+   *
+   * @param <T> a class type
+   * @param path the path to the structure to be mapped, must not be null
+   * @param mappingClass a mapping class to be mapped by the structure fields,
+   * must not be null and must have the default constructor
    * @param customFieldProcessor a custom field processor to provide values for custom mapping fields, it can be null if there is not any custom field
    * @return a mapped instance of the class, must not be null
    */
   public <T> T mapTo(final String path, final Class<T> mappingClass, final JBBPMapperCustomFieldProcessor customFieldProcessor) {
     return JBBPMapper.map(this, path, mappingClass, customFieldProcessor);
+  }
+
+  /**
+   * Find a structure by its path and map the structure fields to a class
+   * fields.
+   *
+   * @param <T> a class type
+   * @param path the path to the structure to be mapped, must not be null
+   * @param mappingClass a mapping class to be mapped by the structure fields,
+   * must not be null and must have the default constructor
+   * @param customFieldProcessor a custom field processor to provide values for custom mapping fields, it can be null if there is not any custom field
+   * @param flags special flags to tune mapping process
+   * @return a mapped instance of the class, must not be null
+   * @see #FLAG_IGNORE_MISSING_VALUES
+   * @since 1.1
+   */
+  public <T> T mapTo(final String path, final Class<T> mappingClass, final JBBPMapperCustomFieldProcessor customFieldProcessor, final int flags) {
+    return JBBPMapper.map(this, path, mappingClass, customFieldProcessor, flags);
   }
 
   /**
@@ -281,6 +344,21 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    *
    * @param objectToMap an object to map fields of the structure, must not be
    * null
+   * @param flags special flags to tune mapping process
+   * @return the same object from the arguments but with filled fields by values
+   * of the structure
+   * @see #FLAG_IGNORE_MISSING_VALUES
+   * @since 1.1
+   */
+  public Object mapTo(final Object objectToMap, final int flags) {
+    return this.mapTo(objectToMap, null, flags);
+  }
+
+  /**
+   * Map the structure fields to object fields.
+   *
+   * @param objectToMap an object to map fields of the structure, must not be
+   * null
    * @param customFieldProcessor a custom field processor to provide values for
    * custom mapping fields, it can be null if there is not any custom field
    * @return the same object from the arguments but with filled fields by values
@@ -288,6 +366,23 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    */
   public Object mapTo(final Object objectToMap, final JBBPMapperCustomFieldProcessor customFieldProcessor) {
     return JBBPMapper.map(this, objectToMap, customFieldProcessor);
+  }
+
+  /**
+   * Map the structure fields to object fields.
+   *
+   * @param objectToMap an object to map fields of the structure, must not be
+   * null
+   * @param customFieldProcessor a custom field processor to provide values for
+   * custom mapping fields, it can be null if there is not any custom field
+   * @param flags special flags to tune mapping process
+   * @return the same object from the arguments but with filled fields by values
+   * of the structure
+   * @see #FLAG_IGNORE_MISSING_VALUES
+   * @since 1.1
+   */
+  public Object mapTo(final Object objectToMap, final JBBPMapperCustomFieldProcessor customFieldProcessor, final int flags) {
+    return JBBPMapper.map(this, objectToMap, customFieldProcessor, flags);
   }
 
 }

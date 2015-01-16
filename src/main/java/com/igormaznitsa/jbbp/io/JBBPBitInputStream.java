@@ -424,7 +424,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   }
 
   /**
-   * Get the current full read byte counter.
+   * Get the current fully read byte counter.
    *
    * @return the number of bytes read fully from the stream
    */

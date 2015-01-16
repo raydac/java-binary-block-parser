@@ -37,6 +37,13 @@ import java.util.List;
 public final class JBBPMapper {
 
   /**
+   * Flag to not throw exception if structure doesn't have value for a field.
+   *
+   * @since 1.1
+   */
+  public static final int FLAG_IGNORE_MISSING_VALUES = 1;
+
+  /**
    * The Special auxiliary object to generate class instances.
    */
   private static final JBBPClassInstantiator klazzInstantiator = JBBPClassInstantiatorFactory.getInstance().make();
@@ -68,6 +75,26 @@ public final class JBBPMapper {
    * to the class, must not be null
    * @param mappingClass the mapping class, must not be null and must have the
    * default constructor
+   * @param flags special flags to tune mapping process
+   * @return the created and mapped instance of the mapping class
+   * @throws JBBPMapperException for any error
+   * @see #FLAG_IGNORE_MISSING_VALUES
+   * @since 1.1
+   */
+  public static <T> T map(final JBBPFieldStruct root, final String structPath, final Class<T> mappingClass, final int flags) {
+    return map(root, structPath, mappingClass, null, flags);
+  }
+
+  /**
+   * Create a class instance, map binary data of a structure for its path to its
+   * fields and return the instance.
+   *
+   * @param <T> the mapping class type
+   * @param root a parsed structure to be used as the root, must not be null
+   * @param structPath the path of a structure inside of the root to be mapped
+   * to the class, must not be null
+   * @param mappingClass the mapping class, must not be null and must have the
+   * default constructor
    * @param customFieldProcessor a custom field processor to provide custom
    * values, it can be null if there is not any mapping field desires the
    * processor
@@ -75,6 +102,29 @@ public final class JBBPMapper {
    * @throws JBBPMapperException for any error
    */
   public static <T> T map(final JBBPFieldStruct root, final String structPath, final Class<T> mappingClass, final JBBPMapperCustomFieldProcessor customFieldProcessor) {
+    return map(root, structPath, mappingClass, customFieldProcessor, 0);
+  }
+
+  /**
+   * Create a class instance, map binary data of a structure for its path to its
+   * fields and return the instance.
+   *
+   * @param <T> the mapping class type
+   * @param root a parsed structure to be used as the root, must not be null
+   * @param structPath the path of a structure inside of the root to be mapped
+   * to the class, must not be null
+   * @param mappingClass the mapping class, must not be null and must have the
+   * default constructor
+   * @param customFieldProcessor a custom field processor to provide custom
+   * values, it can be null if there is not any mapping field desires the
+   * processor
+   * @param flags special flags to tune mapping
+   * @return the created and mapped instance of the mapping class
+   * @throws JBBPMapperException for any error
+   * @see #FLAG_IGNORE_MISSING_VALUES
+   * @since 1.1
+   */
+  public static <T> T map(final JBBPFieldStruct root, final String structPath, final Class<T> mappingClass, final JBBPMapperCustomFieldProcessor customFieldProcessor, final int flags) {
     JBBPUtils.assertNotNull(structPath, "Path must not be null");
     final JBBPFieldStruct struct = root.findFieldForPathAndType(structPath, JBBPFieldStruct.class);
     if (struct == null) {
@@ -110,6 +160,26 @@ public final class JBBPMapper {
    * be null
    * @param mappingClass the class to be instantiated and mapped, must not be
    * null
+   * @param flags special flags to tune mapping process
+   * @return the created and mapped instance of the class
+   * @throws JBBPMapperException for any error
+   * @see #FLAG_IGNORE_MISSING_VALUES
+   * @since 1.1
+   */
+  public static <T> T map(final JBBPFieldStruct root, final Class<T> mappingClass, final int flags) {
+    return mappingClass.cast(map(root, allocateMemoryForClass(root, mappingClass), null, flags));
+  }
+
+  /**
+   * Create a class instance, map binary data of a structure to the instance and
+   * return it. It will create a class instance through a hack method and its
+   * constructor will not be called, thus use the method carefully.
+   *
+   * @param <T> the mapping class type
+   * @param root a parsed structure to be mapped to the class instance, must not
+   * be null
+   * @param mappingClass the class to be instantiated and mapped, must not be
+   * null
    * @param customFieldProcessor a custom field processor to provide custom
    * values, it can be null if there is not any mapping field desires the
    * processor
@@ -118,6 +188,29 @@ public final class JBBPMapper {
    */
   public static <T> T map(final JBBPFieldStruct root, final Class<T> mappingClass, final JBBPMapperCustomFieldProcessor customFieldProcessor) {
     return mappingClass.cast(map(root, allocateMemoryForClass(root, mappingClass), customFieldProcessor));
+  }
+
+  /**
+   * Create a class instance, map binary data of a structure to the instance and
+   * return it. It will create a class instance through a hack method and its
+   * constructor will not be called, thus use the method carefully.
+   *
+   * @param <T> the mapping class type
+   * @param root a parsed structure to be mapped to the class instance, must not
+   * be null
+   * @param mappingClass the class to be instantiated and mapped, must not be
+   * null
+   * @param customFieldProcessor a custom field processor to provide custom
+   * values, it can be null if there is not any mapping field desires the
+   * processor
+   * @param flags special flags to tune mapping process
+   * @return the created and mapped instance of the class
+   * @throws JBBPMapperException for any error
+   * @see #FLAG_IGNORE_MISSING_VALUES
+   * @since 1.1
+   */
+  public static <T> T map(final JBBPFieldStruct root, final Class<T> mappingClass, final JBBPMapperCustomFieldProcessor customFieldProcessor, final int flags) {
+    return mappingClass.cast(map(root, allocateMemoryForClass(root, mappingClass), customFieldProcessor, flags));
   }
 
   /**
@@ -134,6 +227,26 @@ public final class JBBPMapper {
    * @throws JBBPMapperException for any error
    */
   public static Object map(final JBBPFieldStruct rootStructure, final Object mappingClassInstance, final JBBPMapperCustomFieldProcessor customFieldProcessor) {
+    return map(rootStructure, mappingClassInstance, customFieldProcessor, 0);
+  }
+
+  /**
+   * Map a structure to a class instance.
+   *
+   * @param rootStructure a structure to be mapped, must not be null
+   * @param mappingClassInstance a class instance to be destination for map
+   * operations, must not be null
+   * @param customFieldProcessor a custom field processor to provide custom
+   * values, it can be null if there is not any mapping field desires the
+   * processor
+   * @param flags special flags for mapping process
+   * @return the processed class instance, the same which was the argument for
+   * the method.
+   * @throws JBBPMapperException for any error
+   * @see #FLAG_IGNORE_MISSING_VALUES
+   * @since 1.1
+   */
+  public static Object map(final JBBPFieldStruct rootStructure, final Object mappingClassInstance, final JBBPMapperCustomFieldProcessor customFieldProcessor, final int flags) {
     JBBPUtils.assertNotNull(rootStructure, "The Root structure must not be null");
     JBBPUtils.assertNotNull(mappingClassInstance, "The Mapping class instance must not be null");
 
@@ -179,7 +292,7 @@ public final class JBBPMapper {
             if (thetype == null) {
               throw new JBBPMapperException("Can't find compatible type for a mapping field", rootStructure, mappingClass, mappingField, null);
             }
-            else if (mappedBitNumber.getBitNumber()<8 && !(thetype == BinType.STRUCT || thetype == BinType.STRUCT_ARRAY)) {
+            else if (mappedBitNumber.getBitNumber() < 8 && !(thetype == BinType.STRUCT || thetype == BinType.STRUCT_ARRAY)) {
               thetype = thetype.isArray() ? BinType.BIT_ARRAY : BinType.BIT;
             }
             fieldType = thetype;
@@ -202,10 +315,13 @@ public final class JBBPMapper {
           }
 
           if (binField == null) {
+            if ((flags & FLAG_IGNORE_MISSING_VALUES) != 0) {
+              continue;
+            }
             throw new JBBPMapperException("Can't find value to be mapped to a mapping field [" + mappingField + ']', null, mappingClass, mappingField, null);
           }
 
-          if (bitWideField && mappedBitNumber!=JBBPBitNumber.BITS_8 && ((BitEntity) binField).getBitWidth() != mappedBitNumber) {
+          if (bitWideField && mappedBitNumber != JBBPBitNumber.BITS_8 && ((BitEntity) binField).getBitWidth() != mappedBitNumber) {
             throw new JBBPMapperException("Can't map value to a mapping field for different field bit width [" + mappedBitNumber + "!=" + ((BitEntity) binField).getBitWidth().getBitNumber() + ']', null, mappingClass, mappingField, null);
           }
 

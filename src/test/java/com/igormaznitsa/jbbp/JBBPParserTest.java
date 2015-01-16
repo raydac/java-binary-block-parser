@@ -1575,7 +1575,7 @@ public class JBBPParserTest {
   @Test
   public void testParse_NoErrorForIgnoreRemainingFieldsFlag() throws Exception {
     final JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4}));
-    final JBBPParser parser = JBBPParser.prepare("int a; int b;",JBBPParser.FLAG_IGNORE_REMAINING_FIELDS_IF_EOF);
+    final JBBPParser parser = JBBPParser.prepare("int a; int b;",JBBPParser.FLAG_IGNORE_REMAINING_FIELDS_FOR_EOF);
     final JBBPFieldStruct result = parser.parse(stream);
     assertEquals(1, result.getArray().length);
     assertEquals("a", result.getArray()[0].getFieldName());

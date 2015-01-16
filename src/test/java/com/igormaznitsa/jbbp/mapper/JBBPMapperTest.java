@@ -736,5 +736,15 @@ public class JBBPMapperTest {
     JBBPParser.prepare("int fieldint; bit:3 [2] field;").parse(new byte[]{1, 2, 3, 4, 0x35}).mapTo(Parsed.class);
   }
 
-
+  @Test
+  public void testMap_IgnoreNotFoundFields() throws Exception {
+    class Parsed {
+      @Bin int a;
+      @Bin int b;
+    }
+    
+    final Parsed parsed = JBBPParser.prepare("int a; int b;",JBBPParser.FLAG_IGNORE_REMAINING_FIELDS_FOR_EOF).parse(new byte []{1,2,3,4}).mapTo(Parsed.class,JBBPMapper.FLAG_IGNORE_MISSING_VALUES);
+    assertEquals(0x01020304, parsed.a);
+    assertEquals(0, parsed.b);
+  }
 }
