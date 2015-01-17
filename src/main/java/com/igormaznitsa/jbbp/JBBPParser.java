@@ -32,9 +32,9 @@ import java.util.*;
 public final class JBBPParser {
 
   /**
-   * Flag shows that remaining fields must be just ignored if EOF.
+   * Flag shows that if EOF and not whole packet has been read then remaining fields will be just ignored without exception.
    */
-  public static final int FLAG_IGNORE_REMAINING_FIELDS_FOR_EOF = 1; 
+  public static final int FLAG_SKIP_REMAINING_FIELDS_IF_EOF = 1; 
   
   /**
    * The Variable contains the last parsing counter value.
@@ -67,7 +67,7 @@ public final class JBBPParser {
    * not be null
    * @param bitOrder the bit order for bit reading operations, must not be null
    * @param flags special flags for parsing process
-   * @see #FLAG_IGNORE_REMAINING_FIELDS_FOR_EOF
+   * @see #FLAG_SKIP_REMAINING_FIELDS_IF_EOF
    */
   private JBBPParser(final String source, final JBBPBitOrder bitOrder, final int flags) {
     JBBPUtils.assertNotNull(source, "Script is null");
@@ -119,7 +119,7 @@ public final class JBBPParser {
     boolean endStructureNotMet = true;
 
     while (endStructureNotMet && positionAtCompiledBlock.get() < compiled.length) {
-      if (!inStream.hasAvailableData() && (flags & FLAG_IGNORE_REMAINING_FIELDS_FOR_EOF)!=0){
+      if (!inStream.hasAvailableData() && (flags & FLAG_SKIP_REMAINING_FIELDS_IF_EOF)!=0){
         // Break reading because the ignore flag for EOF has been set
         break;
       }
@@ -467,7 +467,7 @@ public final class JBBPParser {
   /**
    * Get the parse flags.
    * @return the parser flags
-   * @see #FLAG_IGNORE_REMAINING_FIELDS_FOR_EOF
+   * @see #FLAG_SKIP_REMAINING_FIELDS_IF_EOF
    */
   public int getFlags(){
     return this.flags;
@@ -526,7 +526,7 @@ public final class JBBPParser {
    * @return the prepared parser for the script
    * @see JBBPBitOrder#LSB0
    * @see JBBPBitOrder#MSB0
-   * @see #FLAG_IGNORE_REMAINING_FIELDS_FOR_EOF
+   * @see #FLAG_SKIP_REMAINING_FIELDS_IF_EOF
    * 
    * @since 1.1
    */
@@ -554,7 +554,7 @@ public final class JBBPParser {
    * @param flags special flags for parsing
    * @return the prepared parser for the script
    * @see JBBPBitOrder#LSB0
-   * @see #FLAG_IGNORE_REMAINING_FIELDS_FOR_EOF
+   * @see #FLAG_SKIP_REMAINING_FIELDS_IF_EOF
    * 
    * @since 1.1
    */

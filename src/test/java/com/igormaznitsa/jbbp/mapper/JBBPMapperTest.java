@@ -743,7 +743,7 @@ public class JBBPMapperTest {
       @Bin int b;
     }
     
-    final Parsed parsed = JBBPParser.prepare("int a; int b;",JBBPParser.FLAG_IGNORE_REMAINING_FIELDS_FOR_EOF).parse(new byte []{1,2,3,4}).mapTo(Parsed.class,JBBPMapper.FLAG_IGNORE_MISSING_VALUES);
+    final Parsed parsed = JBBPParser.prepare("int a; int b;",JBBPParser.FLAG_SKIP_REMAINING_FIELDS_IF_EOF).parse(new byte []{1,2,3,4}).mapTo(Parsed.class,JBBPMapper.FLAG_IGNORE_MISSING_VALUES);
     assertEquals(0x01020304, parsed.a);
     assertEquals(0, parsed.b);
   }

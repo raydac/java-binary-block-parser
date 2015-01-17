@@ -2,11 +2,11 @@ Change log
 --------------------------
 
 1.1.0
-- Added support of saving for mapped classes into JBBPOut
-- Added JBBPTextWriter to log binary data as text with commentaries and separators
-- Fixed read byte counter, now it counts only fully processed bytes, before every not fully processed were counted.
-- Added flag JBBPParser#FLAG_IGNORE_REMAINING_FIELDS_FOR_EOF to ignore remaining fields during parsing if EOF
-- Added flag JBBPMapper#FLAG_IGNORE_MISSING_VALUES to ignore mapping for values which are not found in source 
+- Added support of writing of mapped classes into JBBPOut
+- Added JBBPTextWriter to log binary data as text with commentaries,tabs and separators
+- Fixed read byte counter, now it counts only fully processed bytes, if only several bits have been read from byte then the byte will not be counted until whole read
+- Added flag JBBPParser#FLAG_SKIP_REMAINING_FIELDS_IF_EOF to ignore remaining fields during parsing if EOF without exception
+- Added flag JBBPMapper#FLAG_IGNORE_MISSING_VALUES to ignore mapping for values which are not found in parsed source 
 
 1.0
 - The Initial version
