@@ -434,4 +434,100 @@ public class JBBPUtilsTest {
     assertEquals("text1..........",JBBPUtils.ensureMinTextLength("text1", 15, '.', 1));
     assertEquals("..text1...",JBBPUtils.ensureMinTextLength("text1", 10, '.', -1));
   }
+
+  @Test
+  public void testArrayStartsWith_NPE(){
+    try{
+      JBBPUtils.arrayStartsWith(null, new byte[11]);
+      fail("Must be NPE");
+    }catch(NullPointerException ex){
+      
+    }
+    try{
+      JBBPUtils.arrayStartsWith(new byte[11],null);
+      fail("Must be NPE");
+    }catch(NullPointerException ex){
+      
+    }
+    try{
+      JBBPUtils.arrayStartsWith(null,null);
+      fail("Must be NPE");
+    }catch(NullPointerException ex){
+      
+    }
+  }
+
+  @Test
+  public void testArrayStartsWith_EmptyStart(){
+    assertTrue(JBBPUtils.arrayStartsWith(new byte[0], new byte[0]));
+    assertTrue(JBBPUtils.arrayStartsWith(new byte[111], new byte[0]));
+  }
+
+  @Test
+  public void testArrayStartsWith_TooLongSubstring(){
+    assertFalse(JBBPUtils.arrayStartsWith(new byte[]{1,2}, new byte[]{1,2,3}));
+  }
+
+  @Test
+  public void testArrayStartsWith_TheSameLength(){
+    assertTrue(JBBPUtils.arrayStartsWith(new byte[]{1,2}, new byte[]{1,2}));
+  }
+
+  @Test
+  public void testArrayStartsWith_Found(){
+    assertTrue(JBBPUtils.arrayStartsWith(new byte[]{1,2,3,4}, new byte[]{1,2}));
+  }
+
+  @Test
+  public void testArrayStartsWith_NotFound(){
+    assertFalse(JBBPUtils.arrayStartsWith(new byte[]{1,2,3,4}, new byte[]{1,2,4}));
+  }
+
+  @Test
+  public void testArrayEndsWith_NPE(){
+    try{
+      JBBPUtils.arrayEndsWith(null, new byte[11]);
+      fail("Must be NPE");
+    }catch(NullPointerException ex){
+      
+    }
+    try{
+      JBBPUtils.arrayEndsWith(new byte[11],null);
+      fail("Must be NPE");
+    }catch(NullPointerException ex){
+      
+    }
+    try{
+      JBBPUtils.arrayEndsWith(null,null);
+      fail("Must be NPE");
+    }catch(NullPointerException ex){
+      
+    }
+  }
+
+  @Test
+  public void testArrayEndsWith_EmptyEnd(){
+    assertTrue(JBBPUtils.arrayEndsWith(new byte[0], new byte[0]));
+    assertTrue(JBBPUtils.arrayEndsWith(new byte[111], new byte[0]));
+  }
+
+  @Test
+  public void testArrayEndsWith_TooLongSubstring(){
+    assertFalse(JBBPUtils.arrayEndsWith(new byte[]{1,2}, new byte[]{1,2,3}));
+  }
+
+  @Test
+  public void testArrayEndsWith_TheSameLength(){
+    assertTrue(JBBPUtils.arrayEndsWith(new byte[]{1,2}, new byte[]{1,2}));
+  }
+
+  @Test
+  public void testArrayEndsWith_Found(){
+    assertTrue(JBBPUtils.arrayEndsWith(new byte[]{1,2,3,4}, new byte[]{2,3,4}));
+  }
+
+  @Test
+  public void testArrayEndsWith_NotFound(){
+    assertFalse(JBBPUtils.arrayEndsWith(new byte[]{1,2,3,4}, new byte[]{2,4}));
+  }
 }

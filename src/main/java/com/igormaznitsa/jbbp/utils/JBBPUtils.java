@@ -864,4 +864,54 @@ public enum JBBPUtils {
     return result;
   }
 
+  /**
+   * Check that a byte array starts with some byte values.
+   * @param array array to be checked, must not be null
+   * @param str a byte string which will be checked as the start sequence of the array, must not be null
+   * @return true if the string is the start sequence of the array, false otherwise
+   * @throws NullPointerException if any argument is null
+   * @since 1.1
+   */
+  public static boolean arrayStartsWith(final byte [] array, final byte [] str) {
+    boolean result = false;
+    if (array.length>=str.length){
+      result = true;
+      int index = str.length;
+      while(--index>=0){
+        if (array[index]!=str[index]){
+          result = false;
+          break;
+        }
+      }
+    }
+    return result;
+  }
+  
+  /**
+   * Check that a byte array ends with some byte values.
+   *
+   * @param array array to be checked, must not be null
+   * @param str a byte string which will be checked as the end sequence of the
+   * array, must not be null
+   * @return true if the string is the end sequence of the array, false
+   * otherwise
+   * @throws NullPointerException if any argument is null
+   * @since 1.1
+   */
+  public static boolean arrayEndsWith(final byte [] array, final byte [] str) {
+    boolean result = false;
+    if (array.length >= str.length) {
+      result = true;
+      int index = str.length;
+      int arrindex = array.length;
+      while (--index >= 0) {
+        if (array[--arrindex] != str[index]) {
+          result = false;
+          break;
+        }
+      }
+    }
+    return result;
+  }
+  
 }
