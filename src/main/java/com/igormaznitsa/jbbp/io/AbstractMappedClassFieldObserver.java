@@ -110,7 +110,8 @@ public abstract class AbstractMappedClassFieldObserver {
         final Bin clazzAnno = clazzToProcess.getAnnotation(Bin.class);
         for (final Field f : clazzToProcess.getDeclaredFields()) {
           JBBPUtils.makeAccessible(f);
-          if (Modifier.isTransient(f.getModifiers()) || f.getName().indexOf('$') >= 0) {
+          final int modifiers = f.getModifiers();
+          if (Modifier.isTransient(modifiers) || Modifier.isStatic(modifiers) || f.getName().indexOf('$') >= 0) {
             continue;
           }
           Bin fieldAnno = f.getAnnotation(Bin.class);

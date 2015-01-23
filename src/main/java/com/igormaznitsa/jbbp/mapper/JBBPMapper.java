@@ -264,7 +264,8 @@ public final class JBBPMapper {
 
     for (final Class<?> processingClazz : listOfClassHierarchy) {
       for (final Field mappingField : processingClazz.getDeclaredFields()) {
-        if (Modifier.isTransient(mappingField.getModifiers())) {
+        final int modifiers = mappingField.getModifiers();
+        if (Modifier.isTransient(modifiers) || Modifier.isStatic(modifiers)) {
           continue;
         }
 

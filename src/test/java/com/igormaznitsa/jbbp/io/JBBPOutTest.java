@@ -720,6 +720,30 @@ public class JBBPOutTest {
     assertArrayEquals(new byte[]{1, (byte) 0x40, 3}, JBBPOut.BeginBin().Bin(new Test((byte) 1, (byte) 2, (byte) 3)).End().toByteArray());
   }
 
+  
+  @Bin
+  private static class TestWithStaticField {
+    static int some = 111;
+    
+    @Bin(outOrder = 3)
+    byte c;
+    @Bin(outOrder = 2, bitOrder = JBBPBitOrder.MSB0)
+    byte b;
+    @Bin(outOrder = 1)
+    byte a;
+
+    TestWithStaticField(byte a, byte b, byte c) {
+      this.a = a;
+      this.b = b;
+      this.c = c;
+    }
+  }
+
+  @Test
+  public void testBin_StaticField() throws Exception {    
+    assertArrayEquals(new byte[]{1, (byte) 0x40, 3}, JBBPOut.BeginBin().Bin(new TestWithStaticField((byte) 1, (byte) 2, (byte) 3)).End().toByteArray());
+  }
+
   @Test
   public void testBin_UndefinedType_Boolean() throws Exception {
     class Test {
