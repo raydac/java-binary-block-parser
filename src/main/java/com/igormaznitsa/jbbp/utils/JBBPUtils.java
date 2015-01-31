@@ -56,23 +56,25 @@ public enum JBBPUtils {
   }
 
   /**
-   * Inside auxiliary queue for privileged processors to avoid mass creation of processors.
+   * Inside auxiliary queue for privileged processors to avoid mass creation of
+   * processors.
+   *
    * @since 1.1
    */
   private static final Queue<PrivilegedProcessor> processorsQueue = new ArrayBlockingQueue<PrivilegedProcessor>(32);
-  
+
   /**
    * Make accessible an accessible object, AccessController.doPrivileged will be
    * called.
    *
    * @param obj an object to make accessible, it can be null.
    * @since 1.1
-   * @see AccessController#doPrivileged(java.security.PrivilegedAction) 
+   * @see AccessController#doPrivileged(java.security.PrivilegedAction)
    */
   public static void makeAccessible(final AccessibleObject obj) {
     if (obj != null) {
       PrivilegedProcessor processor = processorsQueue.poll();
-      if (processor==null){
+      if (processor == null) {
         processor = new PrivilegedProcessor();
       }
       processor.setAccessibleObject(obj);
@@ -866,19 +868,22 @@ public enum JBBPUtils {
 
   /**
    * Check that a byte array starts with some byte values.
+   *
    * @param array array to be checked, must not be null
-   * @param str a byte string which will be checked as the start sequence of the array, must not be null
-   * @return true if the string is the start sequence of the array, false otherwise
+   * @param str a byte string which will be checked as the start sequence of the
+   * array, must not be null
+   * @return true if the string is the start sequence of the array, false
+   * otherwise
    * @throws NullPointerException if any argument is null
    * @since 1.1
    */
-  public static boolean arrayStartsWith(final byte [] array, final byte [] str) {
+  public static boolean arrayStartsWith(final byte[] array, final byte[] str) {
     boolean result = false;
-    if (array.length>=str.length){
+    if (array.length >= str.length) {
       result = true;
       int index = str.length;
-      while(--index>=0){
-        if (array[index]!=str[index]){
+      while (--index >= 0) {
+        if (array[index] != str[index]) {
           result = false;
           break;
         }
@@ -886,7 +891,7 @@ public enum JBBPUtils {
     }
     return result;
   }
-  
+
   /**
    * Check that a byte array ends with some byte values.
    *
@@ -898,7 +903,7 @@ public enum JBBPUtils {
    * @throws NullPointerException if any argument is null
    * @since 1.1
    */
-  public static boolean arrayEndsWith(final byte [] array, final byte [] str) {
+  public static boolean arrayEndsWith(final byte[] array, final byte[] str) {
     boolean result = false;
     if (array.length >= str.length) {
       result = true;
@@ -913,5 +918,26 @@ public enum JBBPUtils {
     }
     return result;
   }
-  
+
+  /**
+   * Make mask for value.
+   *
+   * @param value a value for which we need to make mask.
+   * @return generated mask to represent the value
+   * @since 1.1
+   */
+  public static int makeMask(final int value) {
+    if (value == 0) {
+      return 0;
+    }
+    if ((value & 0x80000000) != 0) {
+      return 0xFFFFFFFF;
+    }
+    int msk = 1;
+    do{
+      msk <<= 1;
+    }while(msk <= value);
+    return msk - 1;
+  }
+
 }

@@ -530,4 +530,13 @@ public class JBBPUtilsTest {
   public void testArrayEndsWith_NotFound(){
     assertFalse(JBBPUtils.arrayEndsWith(new byte[]{1,2,3,4}, new byte[]{2,4}));
   }
+
+  @Test
+  public void testGenerateMask(){
+    assertEquals(0, JBBPUtils.makeMask(0));
+    assertEquals(1, JBBPUtils.makeMask(1));
+    assertEquals(3, JBBPUtils.makeMask(2));
+    assertEquals(0x7F, JBBPUtils.makeMask(100));
+    assertEquals(0xFFFF, JBBPUtils.makeMask(65535));
+  }
 }
