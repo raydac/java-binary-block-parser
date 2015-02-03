@@ -52,7 +52,7 @@ public interface JBBPVarFieldProcessor {
    * be null, it can be used for access to already read values of another
    * numeric fields.
    * @return a read field object, it must not return null
-   * @throws IOException 
+   * @throws IOException it should be thrown for transport errors
    */
   JBBPAbstractField readVarField(JBBPBitInputStream inStream, JBBPNamedFieldInfo fieldName, int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap) throws IOException;
 }

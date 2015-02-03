@@ -108,7 +108,7 @@ public @interface Bin {
   
   /**
    * Just either description of the field or some remark.
-   * @return 
+   * @return the comment as String
    * @see JBBPTextWriter#Bin(java.lang.Object...) 
    * @since 1.1
    */

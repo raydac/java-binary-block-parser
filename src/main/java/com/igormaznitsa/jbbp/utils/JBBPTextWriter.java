@@ -371,8 +371,8 @@ public class JBBPTextWriter extends FilterWriter {
      * @param context the context, must not be null
      * @param id an optional object id
      * @param obj an object to be converted into string, must not be null
-     * @return
-     * @throws IOException
+     * @return string representation of the object
+     * @throws IOException it can be thrown for transport error
      */
     String doConvertObjToStr(JBBPTextWriter context, int id, Object obj) throws IOException;
 
@@ -624,6 +624,7 @@ public class JBBPTextWriter extends FilterWriter {
    * @param startValueLinePrefix prefix before the first value on line, can be
    * null.
    * @param commentPrefix prefix before comments, can be null.
+   * @param hrPrefix prefix for horizontal rule
    * @param valueDelimiter delimiter between values, can be null
    */
   public JBBPTextWriter(
@@ -1390,7 +1391,7 @@ public class JBBPTextWriter extends FilterWriter {
    *
    * @return the context
    * @throws IOException it will be thrown for transport errors
-   * @see #EnableComments()t
+   * @see #EnableComments()
    * @see #DisableComments()
    */
   public JBBPTextWriter HR() throws IOException {
@@ -1509,7 +1510,7 @@ public class JBBPTextWriter extends FilterWriter {
    *
    * @param objs array of object marked by Bin annotation
    * @return the context
-   * @throws IOException
+   * @throws IOException it will be thrown if transport errors
    */
   public JBBPTextWriter Bin(final Object... objs) throws IOException {
     if (this.mappedClassObserver == null) {

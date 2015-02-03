@@ -629,7 +629,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    * @param str the string which chars will be written, must not be null
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
-   * @sine 1.1
+   * @since 1.1
    */
   public JBBPOut Short(final String str) throws IOException {
     assertNotEnded();

@@ -125,7 +125,7 @@ public final class JBBPCompiledBlock {
     /**
      * Set the variable size array evaluators
      *
-     * @param evaluators
+     * @param evaluators list of evaluators, it can be null
      * @return this object
      */
     public Builder setArraySizeEvaluators(final List<JBBPIntegerValueEvaluator> evaluators) {

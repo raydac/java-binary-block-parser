@@ -15,9 +15,11 @@
  */
 package com.igormaznitsa.jbbp.model;
 
+import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.exceptions.JBBPFinderException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTooManyFieldsFoundException;
+import com.igormaznitsa.jbbp.io.JBBPOut;
 import com.igormaznitsa.jbbp.mapper.JBBPMapper;
 import com.igormaznitsa.jbbp.mapper.JBBPMapperCustomFieldProcessor;
 import com.igormaznitsa.jbbp.model.finder.JBBPFieldFinder;
@@ -287,7 +289,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * must not be null and must have the default constructor
    * @param flags special flags to tune mapping process
    * @return a mapped instance of the class, must not be null
-   * @see #FLAG_IGNORE_MISSING_VALUES
+   * @see JBBPMapper#FLAG_IGNORE_MISSING_VALUES
    * @since 1.1
    */
   public <T> T mapTo(final String path, final Class<T> mappingClass, final int flags) {
@@ -320,7 +322,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * @param customFieldProcessor a custom field processor to provide values for custom mapping fields, it can be null if there is not any custom field
    * @param flags special flags to tune mapping process
    * @return a mapped instance of the class, must not be null
-   * @see #FLAG_IGNORE_MISSING_VALUES
+   * @see JBBPMapper#FLAG_IGNORE_MISSING_VALUES
    * @since 1.1
    */
   public <T> T mapTo(final String path, final Class<T> mappingClass, final JBBPMapperCustomFieldProcessor customFieldProcessor, final int flags) {
@@ -347,7 +349,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * @param flags special flags to tune mapping process
    * @return the same object from the arguments but with filled fields by values
    * of the structure
-   * @see #FLAG_IGNORE_MISSING_VALUES
+   * @see JBBPMapper#FLAG_IGNORE_MISSING_VALUES
    * @since 1.1
    */
   public Object mapTo(final Object objectToMap, final int flags) {
@@ -378,7 +380,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * @param flags special flags to tune mapping process
    * @return the same object from the arguments but with filled fields by values
    * of the structure
-   * @see #FLAG_IGNORE_MISSING_VALUES
+   * @see JBBPMapper#FLAG_IGNORE_MISSING_VALUES
    * @since 1.1
    */
   public Object mapTo(final Object objectToMap, final JBBPMapperCustomFieldProcessor customFieldProcessor, final int flags) {
