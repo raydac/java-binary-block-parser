@@ -11,7 +11,7 @@ The Framework is under [Apache License 2.0](http://www.apache.org/licenses/LICEN
 
 Change log
 ===========
-- 1.1.0
+- **1.1.0**
   - Added support for mapped classes output into JBBPOut
   - Added JBBPTextWriter to log binary data as text with commentaries,tabs and separators
   - Fixed read byte counter, now it counts only fully processed bytes, if only several bits have been read from byte then the byte will not be counted until whole read
@@ -19,7 +19,7 @@ Change log
   - Added flag JBBPParser#FLAG_SKIP_REMAINING_FIELDS_IF_EOF to ignore remaining fields during parsing if EOF without exception
   - Added flag JBBPMapper#FLAG_IGNORE_MISSING_VALUES to ignore mapping for values which are not found in parsed source
   - Added new auxiliary methods in JBBPUtils 
-- 1.0
+- **1.0**
   - The Initial version 
   
 Java support
