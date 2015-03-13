@@ -4,6 +4,11 @@ Sometime it is very important to parse in Java some binary block data, may be no
 p.s.<br>
 For instance I have been very actively using the framework in [the ZX-Poly emulator](https://github.com/raydac/zxpoly) to parse snapshot files and save results.
 
+License
+========
+The Framework is under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+
+
 Change log
 ===========
 - 1.1.0
