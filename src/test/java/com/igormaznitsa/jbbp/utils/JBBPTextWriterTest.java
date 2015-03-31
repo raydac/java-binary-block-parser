@@ -19,6 +19,7 @@ import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.it.AbstractParserIntegrationTest;
 import com.igormaznitsa.jbbp.mapper.Bin;
+import com.igormaznitsa.jbbp.mapper.BinType;
 import com.igormaznitsa.jbbp.utils.JBBPTextWriter.Extra;
 import java.io.*;
 import java.lang.reflect.Field;
@@ -637,7 +638,7 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
 
     final String text = writer.SetCommentPrefix("; ").Bin(cl).Close().toString();
     System.out.println(text);
-    assertFile("testwriterbin1.txt", text);;
+    assertFile("testwriterbin1.txt", text);
   }
 
   @Test
@@ -682,13 +683,28 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
 
       System.out.println(text);
 
-      assertFile("testwriterbin2.txt", text);;
+      assertFile("testwriterbin2.txt", text);
     }
     finally {
       JBBPUtils.closeQuietly(pngStream);
     }
   }
 
+  @Test
+  public void testBin_ByteArrayMappedToString() throws Exception {
+    class Parsed {
+      @Bin (type = BinType.BYTE_ARRAY) String str1;
+      @Bin (type = BinType.UBYTE_ARRAY) String str2;
+    }
+
+    final Parsed parsed = JBBPParser.prepare("byte [5] str1; ubyte [4] str2;").parse(new byte[]{49,50,51,52,53,54,55,56,57}).mapTo(Parsed.class);
+    final String text = writer.Bin(parsed).Close().toString();
+
+    System.out.println(text);
+    
+    assertFile("testwriterbin5.txt", text);
+  }
+  
   @Test
   public void testCustomFieldInMappedClass() throws Exception {
     class TestClass {

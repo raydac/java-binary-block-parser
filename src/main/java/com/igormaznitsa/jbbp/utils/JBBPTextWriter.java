@@ -115,7 +115,11 @@ public class JBBPTextWriter extends FilterWriter {
       try {
         IndentDec();
         HR();
-        Comment("END ARRAY : " + makeArrayDescription(field, annotation));
+        if (field.getType() == String.class){
+          Comment("END STRING : " + makeArrayDescription(field, annotation));
+        }else{
+          Comment("END ARRAY : " + makeArrayDescription(field, annotation));
+        }
         HR();
       }
       catch (IOException ex) {
@@ -130,7 +134,11 @@ public class JBBPTextWriter extends FilterWriter {
     protected void onArrayStart(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation, final int length) {
       try {
         HR();
-        Comment("START ARRAY : " + makeArrayDescription(field, annotation) + " OF " + field.getType().getComponentType().getSimpleName() + " [" + length + ']');
+        if (field.getType() == String.class){
+          Comment("STRING: " + makeFieldDescription(field, annotation));
+        }else{
+          Comment("START ARRAY : " + makeArrayDescription(field, annotation) + " OF " + field.getType().getComponentType().getSimpleName() + " [" + length + ']');
+        }
         HR();
         IndentInc();
       }
