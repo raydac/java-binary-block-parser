@@ -9,15 +9,15 @@
 
   <name>jbbp</name>
   <description>JBBP (Java Binary Block Parser) is a small lightweight framework to parse binary blocks and streamss to their binary parts, also it has DSL to form binary blocks.</description>
-  <url>http://java-binary-block-parser.googlecode.com/</url>
+  <url>https://github.com/raydac/java-binary-block-parser</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <issueManagement>
-    <system>code.google.com</system>
-    <url>https://code.google.com/p/java-binary-block-parser/issues/list</url>
+    <system>GitHub Issues</system>
+    <url>https://github.com/raydac/java-binary-block-parser/issues</url>
   </issueManagement>
 
   <inceptionYear>2014</inceptionYear>
@@ -41,10 +41,9 @@
   </prerequisites>
 
   <scm>
-    <connection>https://java-binary-block-parser.googlecode.com/hg/</connection>
-    <developerConnection>https://java-binary-block-parser.googlecode.com/hg/</developerConnection>
-    <tag>HEAD</tag>
-    <url>http://java-binary-block-parser.googlecode.com/</url>
+    <url>https://github.com/raydac/java-binary-block-parser</url>
+    <connection>scm:git:git://github.com/raydac/java-binary-block-parser.git</connection>
+    <developerConnection>scm:git:git@github.com:raydac/java-binary-block-parser.git</developerConnection>
   </scm>
 
   <organization>
