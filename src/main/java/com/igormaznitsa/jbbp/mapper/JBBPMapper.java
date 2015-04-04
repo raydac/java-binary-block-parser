@@ -269,7 +269,9 @@ public final class JBBPMapper {
           continue;
         }
 
-        JBBPUtils.makeAccessible(mappingField);
+        if (!mappingField.isAccessible()){
+          JBBPUtils.makeAccessible(mappingField);
+        }
 
         final Bin fieldAnno = mappingField.getAnnotation(Bin.class);
         final Bin mappedAnno;
