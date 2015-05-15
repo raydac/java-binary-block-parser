@@ -16,29 +16,21 @@
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
-import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
  * Describes a unsigned byte array.
  * @since 1.0
  */
-public final class JBBPFieldArrayUByte extends JBBPAbstractArrayField<JBBPFieldUByte>{
+public final class JBBPFieldArrayUByte extends AbstractFieldByteArray<JBBPFieldUByte>{
   private static final long serialVersionUID = -2568935326782182401L;
   
-  /**
-   * The Inside value storage.
-   */
-  private final byte [] array;
-
   /**
    * The Constructor.
    * @param name a field name info, it can be null.
    * @param array a value array, it must not be null
    */
   public JBBPFieldArrayUByte(final JBBPNamedFieldInfo name, final byte[] array) {
-    super(name);
-    JBBPUtils.assertNotNull(array, "Array must not be null");
-    this.array = array;
+    super(name,array);
   }
 
   /**
@@ -64,16 +56,6 @@ public final class JBBPFieldArrayUByte extends JBBPAbstractArrayField<JBBPFieldU
     return this.array[index] & 0xFF;
   }
 
-  @Override
-  public long getAsLong(final int index) {
-    return this.getAsInt(index);
-  }
-
-  @Override
-  public boolean getAsBool(final int index) {
-    return this.array[index] != 0;
-  }
-  
   @Override
   public Object getValueArrayAsObject(final boolean reverseBits) {
     final byte[] result;

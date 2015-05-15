@@ -111,7 +111,7 @@ public class JBBPMapperTest {
   public void testMap_IgnoreStaticField() throws Exception {
     final MappedWithStaticField mapped = JBBPParser.prepare("int a;").parse(new byte[]{1,2,3,4}).mapTo(MappedWithStaticField.class);
     assertEquals(0x01020304,mapped.a);
-    assertEquals(111,mapped.ignored);
+    assertEquals(111,MappedWithStaticField.ignored);
   }
 
   @Test

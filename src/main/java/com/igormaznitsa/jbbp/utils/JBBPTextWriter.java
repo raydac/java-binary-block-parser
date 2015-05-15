@@ -97,17 +97,7 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     private String makeArrayDescription(final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation) {
-      final StringBuilder result = new StringBuilder();
-      if (annotation.name().length() == 0) {
-        result.append(field.getName());
-      }
-      else {
-        result.append(annotation.name());
-      }
-      if (annotation.comment().length() != 0) {
-        result.append(", ").append(annotation.comment());
-      }
-      return result.toString();
+      return makeFieldDescription(field, annotation);
     }
 
     @Override
@@ -115,9 +105,10 @@ public class JBBPTextWriter extends FilterWriter {
       try {
         IndentDec();
         HR();
-        if (field.getType() == String.class){
+        if (field.getType() == String.class) {
           Comment("END STRING : " + makeArrayDescription(field, annotation));
-        }else{
+        }
+        else {
           Comment("END ARRAY : " + makeArrayDescription(field, annotation));
         }
         HR();
@@ -134,9 +125,10 @@ public class JBBPTextWriter extends FilterWriter {
     protected void onArrayStart(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation, final int length) {
       try {
         HR();
-        if (field.getType() == String.class){
+        if (field.getType() == String.class) {
           Comment("STRING: " + makeFieldDescription(field, annotation));
-        }else{
+        }
+        else {
           Comment("START ARRAY : " + makeArrayDescription(field, annotation) + " OF " + field.getType().getComponentType().getSimpleName() + " [" + length + ']');
         }
         HR();
@@ -409,7 +401,7 @@ public class JBBPTextWriter extends FilterWriter {
    * The Default value postfix.
    */
   private static final String DEFAULT_VALUE_POSTFIX = "";
-  
+
   /**
    * The Default horizontal rule prefix.
    */
@@ -549,7 +541,7 @@ public class JBBPTextWriter extends FilterWriter {
    * The Current HR prefix.
    */
   private String prefixHR;
-  
+
   /**
    * The Current line position, 0 is first one.
    */
@@ -807,18 +799,16 @@ public class JBBPTextWriter extends FilterWriter {
    * @throws IOException it will be thrown for transport errors
    */
   private void printValueString(final String value) throws IOException {
-    if (this.valuesLineCounter > 0) {
-      if (this.valueSeparator.length() > 0) {
-        this.write(this.valueSeparator);
-      }
+    if (this.valuesLineCounter > 0 && this.valueSeparator.length() > 0) {
+      this.write(this.valueSeparator);
     }
 
     if (this.prefixValue.length() > 0) {
       this.write(this.prefixValue);
     }
-    
+
     this.write(value);
-    
+
     if (this.postfixValue.length() > 0) {
       this.write(this.postfixValue);
     }
@@ -867,11 +857,11 @@ public class JBBPTextWriter extends FilterWriter {
     final String oldPostfix = this.postfixValue;
     this.prefixValue = "";
     this.postfixValue = "";
-    
+
     for (final String s : str) {
       printValueString(s == null ? "<NULL>" : s);
     }
-    
+
     this.prefixValue = oldPrefix;
     this.postfixValue = oldPostfix;
     return this;
@@ -1381,6 +1371,7 @@ public class JBBPTextWriter extends FilterWriter {
 
   /**
    * Change parameters for horizontal rule.
+   *
    * @param prefix the prefix to be printed before rule, it can be null
    * @param length the length in symbols.
    * @param ch symbol to draw

@@ -137,23 +137,15 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     return result;
   }
 
-  /**
-   * Read array of bit sequence.
-   *
-   * @param bitNumber bit number for each bit sequence item, must be 1..8
-   * @param items number of items to be read, if less than zero then read whole
-   * stream till the end
-   * @return array of read bit items as a byte array
-   * @throws IOException it will be thrown for any transport problem during the
-   * operation
-   */
-  public byte[] readBitsArray(final int items, final JBBPBitNumber bitNumber) throws IOException {
+  private byte [] _readArray(final int items, final JBBPBitNumber bitNumber) throws IOException {
+    final boolean readByteArray = bitNumber == null;
+    
     int pos = 0;
     if (items < 0) {
       byte[] buffer = new byte[INITIAL_ARRAY_BUFFER_SIZE];
       // till end
       while (true) {
-        final int next = readBits(bitNumber);
+        final int next = readByteArray ? read() : readBits(bitNumber);
         if (next < 0) {
           break;
         }
@@ -174,6 +166,12 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     else {
       // number
       final byte[] buffer = new byte[items];
+      if (readByteArray){
+        final int read = this.read(buffer, 0, items);
+        if (read != items) {
+          throw new EOFException("Have read only " + read + " byte(s) instead of " + items + " byte(s)");
+        }
+      }else{
       for (int i = 0; i < items; i++) {
         final int next = readBits(bitNumber);
         if (next < 0) {
@@ -181,8 +179,23 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
         }
         buffer[i] = (byte) next;
       }
+      }
       return buffer;
     }
+  }
+  
+  /**
+   * Read array of bit sequence.
+   *
+   * @param bitNumber bit number for each bit sequence item, must be 1..8
+   * @param items number of items to be read, if less than zero then read whole
+   * stream till the end
+   * @return array of read bit items as a byte array
+   * @throws IOException it will be thrown for any transport problem during the
+   * operation
+   */
+  public byte[] readBitsArray(final int items, final JBBPBitNumber bitNumber) throws IOException {
+    return _readArray(items, bitNumber);
   }
 
   /**
@@ -195,38 +208,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * operation
    */
   public byte[] readByteArray(final int items) throws IOException {
-    int pos = 0;
-    if (items < 0) {
-      byte[] buffer = new byte[INITIAL_ARRAY_BUFFER_SIZE];
-      // till end
-      while (true) {
-        final int next = read();
-        if (next < 0) {
-          break;
-        }
-        if (buffer.length == pos) {
-          final byte[] newbuffer = new byte[buffer.length << 1];
-          System.arraycopy(buffer, 0, newbuffer, 0, buffer.length);
-          buffer = newbuffer;
-        }
-        buffer[pos++] = (byte) next;
-      }
-      if (buffer.length == pos) {
-        return buffer;
-      }
-      final byte[] result = new byte[pos];
-      System.arraycopy(buffer, 0, result, 0, pos);
-      return result;
-    }
-    else {
-      // number
-      final byte[] buffer = new byte[items];
-      final int read = this.read(buffer, 0, items);
-      if (read != items) {
-        throw new EOFException("Have read only " + read + " byte(s) instead of " + items + " byte(s)");
-      }
-      return buffer;
-    }
+    return _readArray(items, null);
   }
 
   /**

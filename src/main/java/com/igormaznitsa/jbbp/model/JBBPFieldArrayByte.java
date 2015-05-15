@@ -22,12 +22,8 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
  * Describes a byte array.
  * @since 1.0
  */
-public final class JBBPFieldArrayByte extends JBBPAbstractArrayField<JBBPFieldByte>{
+public final class JBBPFieldArrayByte extends AbstractFieldByteArray<JBBPFieldByte>{
   private static final long serialVersionUID = -8100947416351943918L;
-  /**
-   * Inside storage of values.
-   */
-  private final byte [] array;
   
   /**
    * The Constructor.
@@ -35,9 +31,7 @@ public final class JBBPFieldArrayByte extends JBBPAbstractArrayField<JBBPFieldBy
    * @param array the values array, it must not be null
    */
   public JBBPFieldArrayByte(final JBBPNamedFieldInfo name, final byte [] array) {
-    super(name);
-    JBBPUtils.assertNotNull(array, "Array must not be null");
-    this.array = array;
+    super(name, array);
   }
   
   /**
@@ -68,11 +62,6 @@ public final class JBBPFieldArrayByte extends JBBPAbstractArrayField<JBBPFieldBy
     return this.getAsInt(index);
   }
 
-  @Override
-  public boolean getAsBool(final int index) {
-    return this.array[index] != 0;
-  }
-  
   @Override
   public Object getValueArrayAsObject(final boolean reverseBits) {
     final byte[] result;
