@@ -42,7 +42,7 @@ public class JBBPTextWriter extends FilterWriter {
       counterStack.clear();
     }
 
-    private String makeFieldDescription(final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation) {
+    private String makeFieldDescription(final Field field, final Bin annotation) {
       final StringBuilder result = new StringBuilder();
       if (annotation.name().length() == 0) {
         result.append(field.getName());
@@ -56,7 +56,7 @@ public class JBBPTextWriter extends FilterWriter {
       return result.toString();
     }
 
-    private String makeStructDescription(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation) {
+    private String makeStructDescription(final Object obj, final Field field, final Bin annotation) {
       final StringBuilder result = new StringBuilder();
 
       final Class<?> objClass = obj.getClass();
@@ -96,12 +96,12 @@ public class JBBPTextWriter extends FilterWriter {
       return result.toString();
     }
 
-    private String makeArrayDescription(final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation) {
+    private String makeArrayDescription(final Field field, final Bin annotation) {
       return makeFieldDescription(field, annotation);
     }
 
     @Override
-    protected void onArrayEnd(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation) {
+    protected void onArrayEnd(final Object obj, final Field field, final Bin annotation) {
       try {
         IndentDec();
         HR();
@@ -122,7 +122,7 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     @Override
-    protected void onArrayStart(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation, final int length) {
+    protected void onArrayStart(final Object obj, final Field field, final Bin annotation, final int length) {
       try {
         HR();
         if (field.getType() == String.class) {
@@ -143,7 +143,7 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     @Override
-    protected void onStructEnd(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation) {
+    protected void onStructEnd(final Object obj, final Field field, final Bin annotation) {
       try {
         IndentDec();
         HR();
@@ -157,7 +157,7 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     @Override
-    protected void onStructStart(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation) {
+    protected void onStructStart(final Object obj, final Field field, final Bin annotation) {
       try {
         this.counterStack.add(this.arrayCounter);
         this.arrayCounter = 0;
@@ -172,7 +172,7 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     @Override
-    protected void onFieldLong(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation, final long value) {
+    protected void onFieldLong(final Object obj, final Field field, final Bin annotation, final long value) {
       try {
         Long(value);
         if (this.arrayCounter == 0) {
@@ -185,7 +185,7 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     @Override
-    protected void onFieldInt(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation, final int value) {
+    protected void onFieldInt(final Object obj, final Field field, final Bin annotation, final int value) {
       try {
         Int(value);
         if (this.arrayCounter == 0) {
@@ -198,7 +198,7 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     @Override
-    protected void onFieldShort(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation, final boolean signed, final int value) {
+    protected void onFieldShort(final Object obj, final Field field, final Bin annotation, final boolean signed, final int value) {
       try {
         Short(value);
         if (this.arrayCounter == 0) {
@@ -211,7 +211,7 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     @Override
-    protected void onFieldByte(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation, final boolean signed, final int value) {
+    protected void onFieldByte(final Object obj, final Field field, final Bin annotation, final boolean signed, final int value) {
       try {
         Byte(value);
         if (this.arrayCounter == 0) {
@@ -224,7 +224,7 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     @Override
-    protected void onFieldBool(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation, final boolean value) {
+    protected void onFieldBool(final Object obj, final Field field, final Bin annotation, final boolean value) {
       try {
         Byte(value ? 0x01 : 0x00);
         if (this.arrayCounter == 0) {
@@ -237,7 +237,7 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     @Override
-    protected void onFieldBits(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation, final JBBPBitNumber bitNumber, final int value) {
+    protected void onFieldBits(final Object obj, final Field field, final Bin annotation, final JBBPBitNumber bitNumber, final int value) {
       try {
         Byte(value & bitNumber.getMask());
         if (this.arrayCounter == 0) {
@@ -250,7 +250,7 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     @Override
-    protected void onFieldCustom(final Object obj, final Field field, final com.igormaznitsa.jbbp.mapper.Bin annotation, final Object customFieldProcessor, final Object value) {
+    protected void onFieldCustom(final Object obj, final Field field, final Bin annotation, final Object customFieldProcessor, final Object value) {
       try {
         if (extras.isEmpty()) {
           throw new IllegalStateException("There is not any registered extras");

@@ -29,6 +29,7 @@ import java.util.*;
 /**
  * The Class implements the compiler of a bin source script represented as a
  * text value into byte codes.
+ *
  * @since 1.0
  */
 public final class JBBPCompiler {
@@ -55,11 +56,14 @@ public final class JBBPCompiler {
      * Named field counter value for the structure start.
      */
     private final int namedFieldCounter;
-    
+
     /**
      * The Constructor.
-     * @param namedFieldCounter the named field counter value for the structure start
-     * @param startStructureOffset the offset of the start structure byte-code instruction
+     *
+     * @param namedFieldCounter the named field counter value for the structure
+     * start
+     * @param startStructureOffset the offset of the start structure byte-code
+     * instruction
      * @param code the start byte code
      * @param token the token
      */
@@ -125,12 +129,14 @@ public final class JBBPCompiler {
   public static final int CODE_SKIP = 0x0C;
 
   /**
-   * The Byte code of the VAR command. It describes a request to an external processor to load values from a stream.
+   * The Byte code of the VAR command. It describes a request to an external
+   * processor to load values from a stream.
    */
   public static final int CODE_VAR = 0x0D;
 
   /**
-   * The Byte code of the RESET COUNTER command. It resets the inside counter of the input stream.
+   * The Byte code of the RESET COUNTER command. It resets the inside counter of
+   * the input stream.
    */
   public static final int CODE_RESET_COUNTER = 0x0E;
 
@@ -181,7 +187,7 @@ public final class JBBPCompiler {
     int fieldUnrestrictedArrayOffset = -1;
 
     boolean hasVarFields = false;
-    
+
     for (final JBBPToken token : parser) {
       if (token.isComment()) {
         continue;
@@ -197,11 +203,9 @@ public final class JBBPCompiler {
       boolean extraFieldPresented = false;
       int extraField = -1;
 
-      if ((code & 0xF) != CODE_STRUCT_END && fieldUnrestrictedArrayOffset >= 0) {
-        // check that the field is not in the current structure which is a whole stream one
-        if (structureStack.isEmpty() || structureStack.get(structureStack.size() - 1).startStructureOffset != fieldUnrestrictedArrayOffset) {
-          throw new JBBPCompilationException("Attempt to read field or structure after a full stream field", token);
-        }
+      // check that the field is not in the current structure which is a whole stream one
+      if ((code & 0xF) != CODE_STRUCT_END && fieldUnrestrictedArrayOffset >= 0 && (structureStack.isEmpty() || structureStack.get(structureStack.size() - 1).startStructureOffset != fieldUnrestrictedArrayOffset)) {
+        throw new JBBPCompilationException("Attempt to read field or structure after a full stream field", token);
       }
 
       switch (code & 0xF) {
@@ -309,12 +313,13 @@ public final class JBBPCompiler {
           if (token.getFieldName() != null) {
             throw new JBBPCompilationException("A Reset counter field can't be named [" + token.getFieldName() + ']', token);
           }
-          if (token.getFieldTypeParameters().getExtraData()!=null){
+          if (token.getFieldTypeParameters().getExtraData() != null) {
             throw new JBBPCompilationException("A Reset counter field doesn't use extra value [" + token.getFieldName() + ']', token);
           }
-        }break;
+        }
+        break;
         case CODE_STRUCT_START: {
-          structureStack.add(new StructStackItem(namedFields.size() + ((code & JBBPCompiler.FLAG_NAMED)==0 ? 0 : 1), offset - 1, code, token));
+          structureStack.add(new StructStackItem(namedFields.size() + ((code & JBBPCompiler.FLAG_NAMED) == 0 ? 0 : 1), offset - 1, code, token));
         }
         break;
         case CODE_STRUCT_END: {
@@ -361,7 +366,7 @@ public final class JBBPCompiler {
       if ((code & FLAG_NAMED) != 0) {
         final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(token.getFieldName());
         assertName(normalizedName, token);
-        registerNamedField(normalizedName, structureStack.isEmpty() ? 0 : structureStack.get(structureStack.size()-1).namedFieldCounter, startFieldOffset, namedFields, token);
+        registerNamedField(normalizedName, structureStack.isEmpty() ? 0 : structureStack.get(structureStack.size() - 1).namedFieldCounter, startFieldOffset, namedFields, token);
       }
       else {
         if (currentClosedStructure != null && (currentClosedStructure.code & FLAG_NAMED) != 0) {
@@ -399,16 +404,17 @@ public final class JBBPCompiler {
 
   /**
    * The Method checks a value for negative.
+   *
    * @param value a value to be checked
    * @param token the tokens related to the value
    * @throws JBBPCompilationException if the value is a negative one
    */
-  private static void assertNonNegativeValue(final int value, final JBBPToken token){
-    if (value<0) {
+  private static void assertNonNegativeValue(final int value, final JBBPToken token) {
+    if (value < 0) {
       throw new JBBPCompilationException("Detected unsupported negative value for a field must have only zero or a positive one", token);
     }
   }
-  
+
   /**
    * The Method check that a field name supports business rules.
    *
@@ -433,9 +439,9 @@ public final class JBBPCompiler {
    * the path
    */
   private static void registerNamedField(final String normalizedName, final int structureBorder, final int offset, final List<JBBPNamedFieldInfo> namedFields, final JBBPToken token) {
-    for(int i=namedFields.size()-1;i>=structureBorder;i--){
+    for (int i = namedFields.size() - 1; i >= structureBorder; i--) {
       final JBBPNamedFieldInfo info = namedFields.get(i);
-      if (info.getFieldPath().equals(normalizedName)){
+      if (info.getFieldPath().equals(normalizedName)) {
         throw new JBBPCompilationException("Duplicated named field detected [" + normalizedName + ']', token);
       }
     }

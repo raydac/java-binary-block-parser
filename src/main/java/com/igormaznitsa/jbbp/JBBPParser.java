@@ -182,13 +182,11 @@ public final class JBBPParser {
           break;
           case JBBPCompiler.CODE_SKIP: {
             final int skipByteNumber = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
-            if (resultNotIgnored) {
-              if (skipByteNumber > 0) {
+            if (resultNotIgnored && skipByteNumber > 0) {
                 final long skippedBytes = inStream.skip(skipByteNumber);
                 if (skippedBytes != skipByteNumber) {
                   throw new EOFException("Can't skip " + skipByteNumber + " byte(s), skipped only " + skippedBytes + " byte(s)");
                 }
-              }
             }
           }
           break;

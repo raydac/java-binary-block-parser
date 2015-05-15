@@ -137,9 +137,9 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     return result;
   }
 
-  private byte [] _readArray(final int items, final JBBPBitNumber bitNumber) throws IOException {
+  private byte[] _readArray(final int items, final JBBPBitNumber bitNumber) throws IOException {
     final boolean readByteArray = bitNumber == null;
-    
+
     int pos = 0;
     if (items < 0) {
       byte[] buffer = new byte[INITIAL_ARRAY_BUFFER_SIZE];
@@ -166,24 +166,25 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     else {
       // number
       final byte[] buffer = new byte[items];
-      if (readByteArray){
+      if (readByteArray) {
         final int read = this.read(buffer, 0, items);
         if (read != items) {
           throw new EOFException("Have read only " + read + " byte(s) instead of " + items + " byte(s)");
         }
-      }else{
-      for (int i = 0; i < items; i++) {
-        final int next = readBits(bitNumber);
-        if (next < 0) {
-          throw new EOFException("Have read only " + i + " bit portions instead of " + items);
-        }
-        buffer[i] = (byte) next;
       }
+      else {
+        for (int i = 0; i < items; i++) {
+          final int next = readBits(bitNumber);
+          if (next < 0) {
+            throw new EOFException("Have read only " + i + " bit portions instead of " + items);
+          }
+          buffer[i] = (byte) next;
+        }
       }
       return buffer;
     }
   }
-  
+
   /**
    * Read array of bit sequence.
    *
@@ -482,11 +483,13 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       int theBitBuffer = this.bitBuffer;
       int theBitBufferCounter = this.bitsInBuffer;
 
-      final boolean doIncCounter = theBitBufferCounter!=0;
-      
+      final boolean doIncCounter = theBitBufferCounter != 0;
+
       while (i > 0) {
         if (theBitBufferCounter == 0) {
-          if (doIncCounter) this.byteCounter++;
+          if (doIncCounter) {
+            this.byteCounter++;
+          }
           final int nextByte = this.readByteFromStream();
           if (nextByte < 0) {
             if (i == numOfBitsAsNumber) {
@@ -510,7 +513,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
 
       this.bitBuffer = theBitBuffer;
       this.bitsInBuffer = theBitBufferCounter;
-      
+
       return JBBPUtils.reverseBitsInByte(JBBPBitNumber.decode(numOfBitsAsNumber - i), (byte) result) & 0xFF;
     }
   }
@@ -544,11 +547,6 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   }
 
   @Override
-  public boolean markSupported() {
-    return super.markSupported();
-  }
-
-  @Override
   public synchronized void reset() throws IOException {
     in.reset();
     this.bitBuffer = this.markedBitBuffer;
@@ -562,11 +560,6 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     this.markedBitBuffer = this.bitBuffer;
     this.markedByteCounter = this.byteCounter;
     this.markedBitsInBuffer = this.bitsInBuffer;
-  }
-
-  @Override
-  public int available() throws IOException {
-    return super.available();
   }
 
   /**
@@ -625,10 +618,8 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    */
   private int readByteFromStream() throws IOException {
     int result = this.in.read();
-    if (result >= 0) {
-      if (this.msb0) {
-        result = JBBPUtils.reverseBitsInByte((byte) result) & 0xFF;
-      }
+    if (result >= 0 && this.msb0) {
+      result = JBBPUtils.reverseBitsInByte((byte) result) & 0xFF;
     }
     return result;
   }

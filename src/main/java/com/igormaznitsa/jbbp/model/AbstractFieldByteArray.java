@@ -21,6 +21,8 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 /**
  * Inside abstract class to keep common operations for byte array based entities.
  * @param <T> type of array item.
+ * 
+ * @since 1.1.1
  */
 abstract class AbstractFieldByteArray<T extends JBBPAbstractField> extends JBBPAbstractArrayField<T> {
   private static final long serialVersionUID = -884448637983315507L;
