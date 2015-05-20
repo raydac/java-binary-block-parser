@@ -16,9 +16,12 @@
 package com.igormaznitsa.jbbp.io;
 
 import com.igormaznitsa.jbbp.exceptions.JBBPException;
+import com.igormaznitsa.jbbp.exceptions.JBBPOutException;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.model.*;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
+import com.igormaznitsa.jbbp.utils.PackedDecimalUtils;
+
 import java.io.*;
 import java.lang.reflect.Field;
 
@@ -43,6 +46,10 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    */
   private JBBPByteOrder byteOrder;
   /**
+   * The representation to use for packed decimal output.
+   */
+  private JBBPPackedDecimalType bcdType;
+  /**
    * The Bit stream for operations.
    */
   private final JBBPBitOutputStream outStream;
@@ -57,6 +64,11 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   private final ByteArrayOutputStream originalByteArrayOutStream;
 
   /**
+   * Used to convert value to packed decimal bytes.
+   */
+  private final PackedDecimalUtils pdUtils = new PackedDecimalUtils();
+
+  /**
    * The Default byte outOrder.
    */
   public static final JBBPByteOrder DEFAULT_BYTE_ORDER = JBBPByteOrder.BIG_ENDIAN;
@@ -67,6 +79,37 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   public static final JBBPBitOrder DEFAULT_BIT_ORDER = JBBPBitOrder.LSB0;
 
   /**
+   * The default packed decimal representation.
+   */
+  public static final JBBPPackedDecimalType DEFAULT_PACKED_DEC_TYPE = JBBPPackedDecimalType.UNSIGNED;
+
+  /**
+   * Start a DSL session for defined parameters.
+   *
+   * @param byteOrder the byte outOrder to be used for the session
+   * @param bitOrder the bit outOrder to be used for the session
+   * @param bcdType the binary packed decimal representation to use, must not be null
+   * @return the new DSL session generated with the parameters and inside byte
+   * array stream.
+   */
+  public static JBBPOut BeginBin(final JBBPByteOrder byteOrder, final JBBPBitOrder bitOrder, final JBBPPackedDecimalType bcdType) {
+    return new JBBPOut(new ByteArrayOutputStream(), byteOrder, bitOrder, bcdType);
+  }
+
+  /**
+   * Start a DSL session for a defined stream with defined byte outOrder and
+   * bit outOrder parameters.
+   *
+   * @param out the defined stream
+   * @param byteOrder the byte outOrder for the session
+   * @param bitOrder the bit outOrder for the session
+   * @param bcdType the binary packed decimal representation to use, must not be null
+   * @return the new DSL session generated for the stream with parameters
+   */
+  public static JBBPOut BeginBin(final OutputStream out, final JBBPByteOrder byteOrder, final JBBPBitOrder bitOrder, final JBBPPackedDecimalType bcdType) {
+    return new JBBPOut(out, byteOrder, bitOrder, bcdType);
+  }
+  /**
    * Start a DSL session for defined both byte outOrder and bit outOrder parameters.
    *
    * @param byteOrder the byte outOrder to be used for the session
@@ -75,11 +118,12 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    * array stream.
    */
   public static JBBPOut BeginBin(final JBBPByteOrder byteOrder, final JBBPBitOrder bitOrder) {
-    return new JBBPOut(new ByteArrayOutputStream(), byteOrder, bitOrder);
+    return new JBBPOut(new ByteArrayOutputStream(), byteOrder, bitOrder, DEFAULT_PACKED_DEC_TYPE);
   }
 
   /**
-   * Start a DSL session for a defined stream with defined parameters.
+   * Start a DSL session for a defined stream with defined byte outOrder and
+   * bit outOrder parameters.
    *
    * @param out the defined stream
    * @param byteOrder the byte outOrder for the session
@@ -87,7 +131,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    * @return the new DSL session generated for the stream with parameters
    */
   public static JBBPOut BeginBin(final OutputStream out, final JBBPByteOrder byteOrder, final JBBPBitOrder bitOrder) {
-    return new JBBPOut(out, byteOrder, bitOrder);
+    return new JBBPOut(out, byteOrder, bitOrder, DEFAULT_PACKED_DEC_TYPE);
   }
 
   /**
@@ -97,7 +141,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    * inside byte array stream.
    */
   public static JBBPOut BeginBin() {
-    return new JBBPOut(new ByteArrayOutputStream(), DEFAULT_BYTE_ORDER, DEFAULT_BIT_ORDER);
+    return new JBBPOut(new ByteArrayOutputStream(), DEFAULT_BYTE_ORDER, DEFAULT_BIT_ORDER, DEFAULT_PACKED_DEC_TYPE);
   }
 
   /**
@@ -110,7 +154,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    * inside byte array stream.
    */
   public static JBBPOut BeginBin(final int initialSize) {
-    return new JBBPOut(new ByteArrayOutputStream(initialSize), DEFAULT_BYTE_ORDER, DEFAULT_BIT_ORDER);
+    return new JBBPOut(new ByteArrayOutputStream(initialSize), DEFAULT_BYTE_ORDER, DEFAULT_BIT_ORDER, DEFAULT_PACKED_DEC_TYPE);
   }
 
   /**
@@ -121,29 +165,40 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    * output stream.
    */
   public static JBBPOut BeginBin(final OutputStream out) {
-    return new JBBPOut(out, DEFAULT_BYTE_ORDER, DEFAULT_BIT_ORDER);
+    return new JBBPOut(out, DEFAULT_BYTE_ORDER, DEFAULT_BIT_ORDER, DEFAULT_PACKED_DEC_TYPE);
   }
 
   /**
-   * Start a DSL session for default bit outOrder and defined byte outOrder. It will
-   * be using inside byte array stream.
+   * Start a DSL session for default bit outOrder and packed decimal type and defined
+   * byte outOrder. It will be using inside byte array stream.
    *
    * @param byteOrder the byte outOrder for the session, it must not be null.
    * @return the new DSL session
    */
   public static JBBPOut BeginBin(final JBBPByteOrder byteOrder) {
-    return new JBBPOut(new ByteArrayOutputStream(), byteOrder, DEFAULT_BIT_ORDER);
+    return new JBBPOut(new ByteArrayOutputStream(), byteOrder, DEFAULT_BIT_ORDER, DEFAULT_PACKED_DEC_TYPE);
   }
 
   /**
-   * Start a DSL session for default byte outOrder and defined bite outOrder. It will
-   * be using inside byte array stream.
+   * Start a DSL session for default byte outOrder and packed deimal type and
+   * defined bit outOrder. It will be using inside byte array stream.
    *
    * @param bitOrder the bite outOrder for the session, it must not be null.
    * @return the new DSL session
    */
   public static JBBPOut BeginBin(final JBBPBitOrder bitOrder) {
-    return new JBBPOut(new ByteArrayOutputStream(), DEFAULT_BYTE_ORDER, bitOrder);
+    return new JBBPOut(new ByteArrayOutputStream(), DEFAULT_BYTE_ORDER, bitOrder, DEFAULT_PACKED_DEC_TYPE);
+  }
+
+  /**
+   * Start a DSL session for default byte outOrder and bit outOrder and defined
+   * bite outOrder. It will be using inside byte array stream.
+   *
+   * @param bcdType the binary packed decimal representation to use, must not be null
+   * @return the new DSL session
+   */
+  public static JBBPOut BeginBin(final JBBPPackedDecimalType bcdType) {
+    return new JBBPOut(new ByteArrayOutputStream(), DEFAULT_BYTE_ORDER, DEFAULT_BIT_ORDER, bcdType);
   }
 
   /**
@@ -152,10 +207,11 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    * @param outStream the output stream for the session, it must not be null.
    * @param byteOrder the byte outOrder for the session, it must not be null.
    * @param bitOrder the bit outOrder for the session, it must not be null
+   * @param bcdType the binary packed decimal representation to use, must not be null
    * @throws IllegalArgumentException if defined a bit stream which parameters
    * incompatible with defined ones
    */
-  private JBBPOut(final OutputStream outStream, final JBBPByteOrder byteOrder, final JBBPBitOrder bitOrder) {
+  private JBBPOut(final OutputStream outStream, final JBBPByteOrder byteOrder, final JBBPBitOrder bitOrder, final JBBPPackedDecimalType bcdType) {
     JBBPUtils.assertNotNull(outStream, "Out stream must not be null");
     JBBPUtils.assertNotNull(byteOrder, "Byte order must not be null");
     JBBPUtils.assertNotNull(bitOrder, "Bit order must not be null");
@@ -166,6 +222,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
       throw new IllegalArgumentException("Detected JBBPBitOutputStream as argument with already defined different bit order [" + this.bitOrder + ']');
     }
     this.byteOrder = byteOrder;
+    this.bcdType = bcdType;
 
     if (outStream instanceof ByteArrayOutputStream) {
       this.originalByteArrayOutStream = (ByteArrayOutputStream) outStream;
@@ -246,6 +303,22 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
     JBBPUtils.assertNotNull(value, "Byte order must not be null");
     if (this.processCommands) {
       this.byteOrder = value;
+    }
+    return this;
+  }
+
+  /**
+   * Define packed decimal (BCD) representation to use for next session operations.
+   *
+   * @param bcdType the BCD representation, must not be null
+   * @return the DSL session
+   * @throws IOException it will be thrown for transport errors
+   */
+  public JBBPOut PackedDecimalType(final JBBPPackedDecimalType bcdType) throws IOException {
+    assertNotEnded();
+    JBBPUtils.assertNotNull(bcdType, "Packed decimal type must not be null");
+    if (this.processCommands) {
+      this.bcdType = bcdType;
     }
     return this;
   }
@@ -841,6 +914,59 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
     if (this.processCommands) {
       for (final long l : value) {
         _writeLong(l);
+      }
+    }
+    return this;
+  }
+
+  /**
+   * Inside auxiliary method to write a packed decimal value into the session stream
+   * without checking.
+   *
+   * @param length length in bytes of packed decimal field
+   * @param value a long value to be written into
+   * @throws IOException it will be thrown for transport errors
+   * @throws JBBPOutException if value doesn't conform to packed decimal sign or length
+   */
+  private void _writePackedDecimal(final int length, final long value) throws IOException {
+    if (this.byteOrder.equals(JBBPByteOrder.LITTLE_ENDIAN)) {
+      System.out.println("***WARNING: Packed Decimal does not support little endian...using big endian instead");
+    }
+
+    byte[] converted = pdUtils.writeValueToPackedDecimal(length, value, this.bcdType);
+    this.outStream.write(converted);
+  }
+
+  /**
+   * Write a packed decimal (BCD) value into the session stream.
+   *
+   * @param length length in bytes of packed decimal field
+   * @param value a long value to be written as packed decimal
+   * @return the DSL session
+   * @throws IOException it will be thrown for transport errors
+   */
+  public JBBPOut PackedDecimal(final int length, final long value) throws IOException  {
+    assertNotEnded();
+    if (this.processCommands) {
+      _writePackedDecimal(length, value);
+    }
+    return this;
+  }
+
+
+  /**
+   * Write each packed decimal (BCD) value from a long value array into the session stream.
+   *
+   * @param value a long value array which values will be written as packed decimal
+   * @return the DSL session
+   * @throws IOException it will be thrown for transport errors
+   */
+  public JBBPOut PackedDecimal(final int length, final long... value) throws IOException {
+    assertNotEnded();
+    assertArrayNotNull(value);
+    if (this.processCommands) {
+      for (final long l : value) {
+        _writePackedDecimal(length, l);
       }
     }
     return this;

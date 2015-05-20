@@ -543,6 +543,7 @@ public class JBBPTokenizerTest {
             "  // test\n"
             + "  int; \n"
             + "  boolean a;\n"
+            + "  bcd:10 dec;\n"
             + "  byte [1024] array ; \n"
             + "  header {\n"
             + "	    long id;\n"
@@ -553,6 +554,7 @@ public class JBBPTokenizerTest {
     assertParsedItem(iterator.next(), JBBPTokenType.COMMENT, null, null, "test");
     assertParsedItem(iterator.next(), JBBPTokenType.ATOM, "int", null, null);
     assertParsedItem(iterator.next(), JBBPTokenType.ATOM, "boolean", null, "a");
+    assertParsedItem(iterator.next(), JBBPTokenType.ATOM, "bcd:10", null, "dec");
     assertParsedItem(iterator.next(), JBBPTokenType.ATOM, "byte", "1024", "array");
     assertParsedItem(iterator.next(), JBBPTokenType.STRUCT_START, null, null, "header" );
     assertParsedItem(iterator.next(), JBBPTokenType.ATOM, "long", null, "id");

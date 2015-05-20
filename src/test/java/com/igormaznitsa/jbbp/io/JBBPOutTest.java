@@ -302,6 +302,26 @@ public class JBBPOutTest {
   }
 
   @Test
+  public void testPackedDecimal_BigEndian() throws Exception {
+    assertArrayEquals(new byte[]{0x01, 0x31, 0x17, 0x68, 0x46, 0x77, 0x32, 0x15, 0x56, 0x13}, BeginBin().PackedDecimal(10, 1311768467732155613L).End().toByteArray());
+    assertArrayEquals(new byte[]{0x13, 0x11, 0x76, (byte)0x84, 0x67, 0x73, 0x21, 0x55, 0x61, 0x3C}, BeginBin(JBBPPackedDecimalType.SIGNED).PackedDecimal(10, 1311768467732155613L).End().toByteArray());
+    assertArrayEquals(new byte[]{0x13, 0x11, 0x76, (byte)0x84, 0x67, 0x73, 0x21, 0x55, 0x61, 0x3D}, BeginBin(JBBPPackedDecimalType.SIGNED).PackedDecimal(10, -1311768467732155613L).End().toByteArray());
+  }
+
+  @Test
+  public void testPackedDecimal_LittleEndian() throws Exception {
+    assertArrayEquals(new byte[]{0x01, 0x31, 0x17, 0x68, 0x46, 0x77, 0x32, 0x15, 0x56, 0x13}, BeginBin(JBBPByteOrder.LITTLE_ENDIAN).PackedDecimal(10, 1311768467732155613L).End().toByteArray());
+    assertArrayEquals(new byte[]{0x13, 0x11, 0x76, (byte)0x84, 0x67, 0x73, 0x21, 0x55, 0x61, 0x3C}, BeginBin(JBBPByteOrder.LITTLE_ENDIAN).PackedDecimalType(JBBPPackedDecimalType.SIGNED).PackedDecimal(10, 1311768467732155613L).End().toByteArray());
+    assertArrayEquals(new byte[]{0x13, 0x11, 0x76, (byte)0x84, 0x67, 0x73, 0x21, 0x55, 0x61, 0x3D}, BeginBin(JBBPByteOrder.LITTLE_ENDIAN).PackedDecimalType(JBBPPackedDecimalType.SIGNED).PackedDecimal(10, -1311768467732155613L).End().toByteArray());
+  }
+
+  @Test
+  public void testPackedDecimalArray() throws Exception {
+    assertArrayEquals(new byte[]{(byte)0x99, (byte)0x99, 0x00, 0x00, 0x00, 0x11}, BeginBin().PackedDecimal(2, 9999, 0, 11).End().toByteArray());
+    assertArrayEquals(new byte[]{(byte)0x99, (byte)0x9D, 0x00, 0x0C, 0x12, 0x3C}, BeginBin(JBBPPackedDecimalType.SIGNED).PackedDecimal(2, -999, 0, 123).End().toByteArray());
+  }
+
+  @Test
   public void testDouble_BigEndian() throws Exception {
     final long dbl = Double.doubleToLongBits(Double.MAX_VALUE);
     final byte[] array = BeginBin().ByteOrder(JBBPByteOrder.BIG_ENDIAN).Double(Double.MAX_VALUE).End().toByteArray();

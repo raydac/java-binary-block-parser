@@ -63,6 +63,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
     disabledFieldNames.add("ushort");
     disabledFieldNames.add("int");
     disabledFieldNames.add("long");
+    disabledFieldNames.add("bcd");
     disabledFieldNames.add("$");
   }
 

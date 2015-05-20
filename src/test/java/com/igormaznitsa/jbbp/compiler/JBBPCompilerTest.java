@@ -364,6 +364,22 @@ public class JBBPCompilerTest {
   }
 
   @Test
+  public void testCompile_SingleNonamedPackedDecimalDefaultLenField() throws Exception {
+    final byte[] compiled = JBBPCompiler.compile("bcd;").getCompiledData();
+    assertEquals(2, compiled.length);
+    assertEquals(JBBPCompiler.CODE_BCD, compiled[0]);
+    assertEquals(1, compiled[1]);
+  }
+
+  @Test
+  public void testCompile_SingleNonamedPackedDecimalDefinedLenField() throws Exception {
+    final byte[] compiled = JBBPCompiler.compile("bcd:10;").getCompiledData();
+    assertEquals(2, compiled.length);
+    assertEquals(JBBPCompiler.CODE_BCD, compiled[0]);
+    assertEquals(10, compiled[1]);
+  }
+
+  @Test
   public void testCompile_SingleNamedIntField() throws Exception {
     final JBBPCompiledBlock block = JBBPCompiler.compile("int HeLLo;");
     final byte[] compiled = block.getCompiledData();

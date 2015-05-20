@@ -141,6 +141,12 @@ public final class JBBPCompiler {
   public static final int CODE_RESET_COUNTER = 0x0E;
 
   /**
+   * The Byte code of the binary coded decimal (BCD, aka packed decimal) command.
+   * @since 1.1.1
+   */
+  public static final int CODE_BCD = 0x0F;
+
+  /**
    * The Byte-Code Flag shows that the field is a named one.
    */
   public static final int FLAG_NAMED = 0x10;
@@ -285,6 +291,26 @@ public final class JBBPCompiler {
             }
             if (extraField < 1 || extraField > 8) {
               throw new JBBPCompilationException("Wrong bit number, must be 1..8 [" + token.getFieldTypeParameters().getExtraData() + ']', token);
+            }
+          }
+        }
+        break;
+        case CODE_BCD: {
+          final String parsedNumBytes = token.getFieldTypeParameters().getExtraData();
+          extraFieldPresented = true;
+          if (parsedNumBytes == null) {
+            extraField = 1;
+          }
+          else {
+            try {
+              extraField = Integer.parseInt(parsedNumBytes);
+              assertNonNegativeValue(extraField, token);
+            }
+            catch (NumberFormatException ex) {
+              extraField = -1;
+            }
+            if (extraField < 1 || extraField > 10) {
+              throw new JBBPCompilationException("Wrong number of BCD bytes, must be 1..10 [" + token.getFieldTypeParameters().getExtraData() + ']', token);
             }
           }
         }
@@ -511,6 +537,9 @@ public final class JBBPCompiler {
         }
         else if ("long".equals(name)) {
           result |= CODE_LONG;
+        }
+        else if ("bcd".equals(name)) {
+          result |= CODE_BCD;
         }
         else if ("reset$$".equals(name)) {
           result |= CODE_RESET_COUNTER;

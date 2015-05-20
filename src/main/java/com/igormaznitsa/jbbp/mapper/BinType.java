@@ -63,6 +63,10 @@ public enum BinType {
    */
   LONG(JBBPFieldLong.class, false),
   /**
+   * A Mapping field will be mapped to a parsed packed decimal field.
+   */
+  BCD(JBBPFieldPackedDecimal.class, false),
+  /**
    * A Mapping field will be mapped to a parsed bit array field.
    */
   BIT_ARRAY(JBBPFieldArrayBit.class, true),
@@ -94,6 +98,10 @@ public enum BinType {
    * A Mapping field will be mapped to a parsed long array field.
    */
   LONG_ARRAY(JBBPFieldArrayLong.class, true),
+  /**
+   * A Mapping field will be mapped to a parsed packed decimal array field.
+   */
+  BCD_ARRAY(JBBPFieldArrayPackedDecimal.class, true),
   /**
    * A Mapping field will be mapped to a parsed structure field.
    */
