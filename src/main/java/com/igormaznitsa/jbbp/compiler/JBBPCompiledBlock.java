@@ -15,6 +15,7 @@
  */
 package com.igormaznitsa.jbbp.compiler;
 
+import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.compiler.varlen.JBBPIntegerValueEvaluator;
 import com.igormaznitsa.jbbp.exceptions.JBBPException;
 import com.igormaznitsa.jbbp.exceptions.JBBPIllegalArgumentException;
@@ -40,10 +41,16 @@ public final class JBBPCompiledBlock {
    * The Compiled script data.
    */
   private final byte[] compiledArray;
+
   /**
    * The Array of variable size array evaluators.
    */
   private final JBBPIntegerValueEvaluator[] arraySizeEvaluators;
+
+  /**
+   * The Array of variable size array evaluators.
+   */
+  private final JBBPFieldTypeParameterContainer[] customTypeFields;
 
   /**
    * The Flag shows that the compiled block contains var fields.
@@ -60,6 +67,7 @@ public final class JBBPCompiledBlock {
     private byte[] compiledData;
     private boolean hasVarFields;
     private final List<JBBPIntegerValueEvaluator> varLenProcessors = new ArrayList<JBBPIntegerValueEvaluator>();
+    private final List<JBBPFieldTypeParameterContainer> customTypeFields = new ArrayList<JBBPFieldTypeParameterContainer>();
 
     /**
      * Build a compiled block based on the data and check that all needed data
@@ -72,7 +80,7 @@ public final class JBBPCompiledBlock {
       JBBPUtils.assertNotNull(source, "Source is not defined");
       JBBPUtils.assertNotNull(compiledData, "Compiled data is not defined");
 
-      return new JBBPCompiledBlock(this.source, this.namedFields.toArray(new JBBPNamedFieldInfo[this.namedFields.size()]), this.varLenProcessors.isEmpty() ? null : this.varLenProcessors.toArray(new JBBPIntegerValueEvaluator[this.varLenProcessors.size()]), this.compiledData, this.hasVarFields);
+      return new JBBPCompiledBlock(this.source, this.namedFields.toArray(new JBBPNamedFieldInfo[this.namedFields.size()]), this.varLenProcessors.isEmpty() ? null : this.varLenProcessors.toArray(new JBBPIntegerValueEvaluator[this.varLenProcessors.size()]), this.compiledData, this.hasVarFields, this.customTypeFields.toArray(new JBBPFieldTypeParameterContainer[this.customTypeFields.size()]));
     }
 
     /**
@@ -136,6 +144,19 @@ public final class JBBPCompiledBlock {
       }
       return this;
     }
+    
+    /**
+     * Set list of fields processed by custom type field processor.
+     * @param list list of field token info, it can be null
+     * @return this object
+     */
+    public Builder setCustomTypeFields(final List<JBBPFieldTypeParameterContainer> list){
+      this.customTypeFields.clear();
+      if (list != null) {
+        this.customTypeFields.addAll(list);
+      }
+      return this;
+    }
   }
 
   /**
@@ -156,12 +177,13 @@ public final class JBBPCompiledBlock {
    * @param compiledData compiled data block
    * @param hasVarFields the flag shows that te block contains var fields
    */
-  private JBBPCompiledBlock(final String source, final JBBPNamedFieldInfo[] namedFields, final JBBPIntegerValueEvaluator[] arraySizeEvaluators, final byte[] compiledData, final boolean hasVarFields) {
+  private JBBPCompiledBlock(final String source, final JBBPNamedFieldInfo[] namedFields, final JBBPIntegerValueEvaluator[] arraySizeEvaluators, final byte[] compiledData, final boolean hasVarFields, final JBBPFieldTypeParameterContainer [] customTypeFields) {
     this.source = source;
     this.namedFieldData = namedFields;
     this.hasVarFields = hasVarFields;
     this.compiledArray = compiledData;
     this.arraySizeEvaluators = arraySizeEvaluators;
+    this.customTypeFields = customTypeFields;
   }
 
   /**
@@ -210,6 +232,14 @@ public final class JBBPCompiledBlock {
     return this.namedFieldData;
   }
 
+  /**
+   * Get array contains parameter info of detected custom type fields.
+   * @return the array contains the info for every registered custom type field.
+   */
+  public JBBPFieldTypeParameterContainer[] getCustomTypeFields(){
+    return this.customTypeFields;
+  }
+  
   /**
    * Get the array size evaluators
    *

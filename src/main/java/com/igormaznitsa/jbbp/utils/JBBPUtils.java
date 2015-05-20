@@ -934,9 +934,10 @@ public enum JBBPUtils {
       return 0xFFFFFFFF;
     }
     int msk = 1;
-    do{
+    do {
       msk <<= 1;
-    }while(msk <= value);
+    }
+    while (msk <= value);
     return msk - 1;
   }
 

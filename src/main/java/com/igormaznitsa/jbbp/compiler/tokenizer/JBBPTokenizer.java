@@ -16,6 +16,7 @@
 package com.igormaznitsa.jbbp.compiler.tokenizer;
 
 import com.igormaznitsa.jbbp.exceptions.JBBPTokenizerException;
+import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.util.*;
@@ -51,32 +52,55 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
   /**
    * Inside table to keep disabled names for fields.
    */
-  private static final Set<String> disabledFieldNames;
+  private static final Set<String> globalReservedTypeNames;
 
   static {
-    disabledFieldNames = new HashSet<String>();
-    disabledFieldNames.add("bit");
-    disabledFieldNames.add("bool");
-    disabledFieldNames.add("byte");
-    disabledFieldNames.add("ubyte");
-    disabledFieldNames.add("short");
-    disabledFieldNames.add("ushort");
-    disabledFieldNames.add("int");
-    disabledFieldNames.add("long");
-    disabledFieldNames.add("$");
+    globalReservedTypeNames = new HashSet<String>();
+    globalReservedTypeNames.add("bit");
+    globalReservedTypeNames.add("bool");
+    globalReservedTypeNames.add("byte");
+    globalReservedTypeNames.add("ubyte");
+    globalReservedTypeNames.add("short");
+    globalReservedTypeNames.add("ushort");
+    globalReservedTypeNames.add("int");
+    globalReservedTypeNames.add("long");
+    globalReservedTypeNames.add("$");
   }
 
   private final Matcher matcher;
   private int lastCharSubstingFound = -1;
   private final String processingString;
 
+  private final Set<String> reservedTypeNames;
+  
   /**
-   * The Constructor.
+   * Constructor.
    *
    * @param str a string to be parsed, must not be null.
    */
   public JBBPTokenizer(final String str) {
+    this(str,null);
+  }
+
+  /**
+   * Constructor.
+   *
+   * @param str a string to be parsed, must not be null.
+   * @param customFieldTypeProcessor custom field type processor, it can be null
+   */
+  public JBBPTokenizer(final String str, final JBBPCustomFieldTypeProcessor customFieldTypeProcessor) {
     JBBPUtils.assertNotNull(str, "String must not be null");
+    
+    if (customFieldTypeProcessor == null){
+      this.reservedTypeNames = globalReservedTypeNames;
+    }else{
+      this.reservedTypeNames = new HashSet<String>(globalReservedTypeNames);
+      for(final String customType : customFieldTypeProcessor.getCustomFieldTypes()){
+        JBBPUtils.assertNotNull(customType, "Type must not be null");
+        this.reservedTypeNames.add(customType);
+      }
+    }
+    
     this.processingString = str;
     this.matcher = PATTERN.matcher(this.processingString);
     readNextItem();
@@ -176,6 +200,8 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
               else {
                 throw new Error("Illegal byte order char, unexpected error, contact developer please [" + fieldType + ']');
               }
+            }else{
+              byteOrder = JBBPByteOrder.BIG_ENDIAN;
             }
 
             if (!wrongFormat) {
@@ -210,6 +236,17 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
     }
   }
 
+  
+  
+  /**
+   * Case sensitive check that the name is among global reserved ones.
+   * @param name the name to check, must not be null
+   * @return true if the name is global reserved one, false otherwise.
+   */
+  public static boolean isGlobalReservedName(final String name) {
+    return globalReservedTypeNames.contains(name);
+  }
+  
   /**
    * Check a field name
    *
@@ -218,13 +255,13 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
    * @return JBBPTokenizerException if the field name has wrong chars or
    * presented in disabled name set, null otherwise
    */
-  private static JBBPTokenizerException checkFieldName(final String name, final int position) {
+  private JBBPTokenizerException checkFieldName(final String name, final int position) {
     if (name != null) {
       final String normalized = JBBPUtils.normalizeFieldNameOrPath(name);
       if (normalized.indexOf('.') >= 0) {
         return new JBBPTokenizerException("Field name must not contain '.' char", position);
       }
-      if (disabledFieldNames.contains(normalized) || normalized.startsWith("$")) {
+      if (this.reservedTypeNames.contains(normalized) || normalized.startsWith("$")) {
         return new JBBPTokenizerException("'" + name + "' can't be used as field name", position);
       }
     }
@@ -257,6 +294,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
   /**
    * The Operation is unsupported one.
    */
+  @Override
   public void remove() {
     throw new UnsupportedOperationException("Unsupported operation");
   }

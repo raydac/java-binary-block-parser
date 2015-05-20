@@ -79,8 +79,8 @@ public final class JBBPFieldTypeParameterContainer implements Serializable {
   public String toString() {
     final StringBuilder result = new StringBuilder();
 
-    if (byteOrder != null) {
-      result.append(byteOrder == JBBPByteOrder.BIG_ENDIAN ? '>' : '<');
+    if (byteOrder == JBBPByteOrder.LITTLE_ENDIAN) {
+      result.append('<');
     }
     result.append(this.typeName);
     if (extraData != null) {

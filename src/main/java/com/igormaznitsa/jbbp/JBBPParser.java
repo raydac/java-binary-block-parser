@@ -16,6 +16,7 @@
 package com.igormaznitsa.jbbp;
 
 import com.igormaznitsa.jbbp.compiler.*;
+import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.compiler.varlen.JBBPIntegerValueEvaluator;
 import com.igormaznitsa.jbbp.exceptions.JBBPParsingException;
 import com.igormaznitsa.jbbp.io.*;
@@ -61,21 +62,28 @@ public final class JBBPParser {
   private final int flags;
   
   /**
-   * The Constructor.
+   * Custom field type processor for the parser, it can be null.
+   */
+  private final JBBPCustomFieldTypeProcessor customFieldTypeProcessor;
+  
+  /**
+   * Constructor.
    *
    * @param source the source script to parse binary blocks and streams, must
    * not be null
    * @param bitOrder the bit order for bit reading operations, must not be null
+   * @param customFieldTypeProcessor custom field type processor for the parser instance, it can be null
    * @param flags special flags for parsing process
    * @see #FLAG_SKIP_REMAINING_FIELDS_IF_EOF
    */
-  private JBBPParser(final String source, final JBBPBitOrder bitOrder, final int flags) {
+  private JBBPParser(final String source, final JBBPBitOrder bitOrder, final JBBPCustomFieldTypeProcessor customFieldTypeProcessor, final int flags) {
     JBBPUtils.assertNotNull(source, "Script is null");
     JBBPUtils.assertNotNull(bitOrder, "Bit order is null");
+    this.customFieldTypeProcessor = customFieldTypeProcessor;
     this.bitOrder = bitOrder;
     this.flags = flags;
     try {
-      this.compiledBlock = JBBPCompiler.compile(source);
+      this.compiledBlock = JBBPCompiler.compile(source, customFieldTypeProcessor);
     }
     catch (IOException ex) {
       throw new RuntimeException("Can't compile script for unexpected IOException", ex);
@@ -231,6 +239,15 @@ public final class JBBPParser {
             }
           }
           break;
+          case JBBPCompiler.CODE_CUSTOMTYPE: {
+            if (resultNotIgnored){
+              final int extraData = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
+              final JBBPFieldTypeParameterContainer fieldTypeInfo = this.compiledBlock.getCustomTypeFields()[JBBPUtils.unpackInt(compiled, positionAtCompiledBlock)];
+              final JBBPAbstractField field = this.customFieldTypeProcessor.readCustomFieldType(inStream, this.bitOrder, this.flags, fieldTypeInfo, name, extraData, wholeStreamArray, arrayLength);
+              JBBPUtils.assertNotNull(field, "Must not return null as read result");
+              structureFields.add(field);
+            }
+          }break;
           case JBBPCompiler.CODE_BOOL: {
             if (resultNotIgnored) {
               if (arrayLength < 0) {
@@ -511,7 +528,7 @@ public final class JBBPParser {
    * @see JBBPBitOrder#MSB0
    */
   public static JBBPParser prepare(final String script, final JBBPBitOrder bitOrder) {
-    return new JBBPParser(script, bitOrder, 0);
+    return new JBBPParser(script, bitOrder, null, 0);
   }
 
   /**
@@ -529,9 +546,27 @@ public final class JBBPParser {
    * @since 1.1
    */
   public static JBBPParser prepare(final String script, final JBBPBitOrder bitOrder, final int flags) {
-    return new JBBPParser(script, bitOrder, flags);
+    return new JBBPParser(script, bitOrder, null, flags);
   }
 
+  /**
+   * Prepare a parser for a script with defined bit order and special flags.
+   *
+   * @param script a text script contains field order and types reference, it
+   * must not be null
+   * @param bitOrder the bit order for reading operations, it must not be null
+   * @param customFieldTypeProcessor custom field type processor, it can be null
+   * @param flags special flags for parsing
+   * @return the prepared parser for the script
+   * @see JBBPBitOrder#LSB0
+   * @see JBBPBitOrder#MSB0
+   * @see #FLAG_SKIP_REMAINING_FIELDS_IF_EOF
+   *
+   * @since 1.1.1
+   */
+  public static JBBPParser prepare(final String script, final JBBPBitOrder bitOrder, final JBBPCustomFieldTypeProcessor customFieldTypeProcessor, final int flags) {
+    return new JBBPParser(script, bitOrder, customFieldTypeProcessor, flags);
+  }
   
   /**
    * Prepare a parser for a script with default bit order (LSB0) use.

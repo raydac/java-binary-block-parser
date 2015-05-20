@@ -22,6 +22,7 @@ import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.compiler.varlen.JBBPIntegerValueEvaluator;
 import com.igormaznitsa.jbbp.compiler.varlen.JBBPEvaluatorFactory;
 import com.igormaznitsa.jbbp.exceptions.*;
+import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.*;
 import java.util.*;
@@ -141,6 +142,11 @@ public final class JBBPCompiler {
   public static final int CODE_RESET_COUNTER = 0x0E;
 
   /**
+   * The Byte code shows that field should be processed by custom field type processor.
+   */
+  public static final int CODE_CUSTOMTYPE = 0x0F;
+
+  /**
    * The Byte-Code Flag shows that the field is a named one.
    */
   public static final int FLAG_NAMED = 0x10;
@@ -161,28 +167,34 @@ public final class JBBPCompiler {
    */
   public static final int FLAG_LITTLE_ENDIAN = 0x80;
 
+  public static JBBPCompiledBlock compile(final String script) throws IOException {
+    return compile(script, null);
+  }
+
   /**
    * Compile a text script into its byte code representation/
    *
    * @param script a text script to be compiled, must not be null.
+   * @param customTypeFieldProcessor processor to process custom type fields, can be null
    * @return a compiled block for the script.
    * @throws IOException it will be thrown for an inside IO error.
    * @throws JBBPException it will be thrown for any logical or work exception
    * for the parser and compiler
    */
-  public static JBBPCompiledBlock compile(final String script) throws IOException {
+  public static JBBPCompiledBlock compile(final String script, final JBBPCustomFieldTypeProcessor customTypeFieldProcessor) throws IOException {
     JBBPUtils.assertNotNull(script, "Script must not be null");
 
     final JBBPCompiledBlock.Builder builder = JBBPCompiledBlock.prepare().setSource(script);
 
     final List<JBBPNamedFieldInfo> namedFields = new ArrayList<JBBPNamedFieldInfo>();
+    final List<JBBPFieldTypeParameterContainer> customTypeFields = new ArrayList<JBBPFieldTypeParameterContainer>();
     final List<JBBPIntegerValueEvaluator> varLengthEvaluators = new ArrayList<JBBPIntegerValueEvaluator>();
 
     final ByteArrayOutputStream out = new ByteArrayOutputStream();
     int offset = 0;
 
     final List<JBBPCompiler.StructStackItem> structureStack = new ArrayList<JBBPCompiler.StructStackItem>();
-    final JBBPTokenizer parser = new JBBPTokenizer(script);
+    final JBBPTokenizer parser = new JBBPTokenizer(script, customTypeFieldProcessor);
 
     int fieldUnrestrictedArrayOffset = -1;
 
@@ -193,7 +205,7 @@ public final class JBBPCompiler {
         continue;
       }
 
-      final int code = prepareCodeForToken(token);
+      final int code = prepareCodeForToken(token, customTypeFieldProcessor);
       final int startFieldOffset = offset;
 
       out.write(code);
@@ -202,10 +214,11 @@ public final class JBBPCompiler {
       StructStackItem currentClosedStructure = null;
       boolean extraFieldPresented = false;
       int extraField = -1;
-
+      int customTypeFieldIndex = -1;
+      
       // check that the field is not in the current structure which is a whole stream one
       if ((code & 0xF) != CODE_STRUCT_END && fieldUnrestrictedArrayOffset >= 0 && (structureStack.isEmpty() || structureStack.get(structureStack.size() - 1).startStructureOffset != fieldUnrestrictedArrayOffset)) {
-        throw new JBBPCompilationException("Attempt to read field or structure after a full stream field", token);
+        throw new JBBPCompilationException("Attempt to read after a 'till-the-end' field", token);
       }
 
       switch (code & 0xF) {
@@ -215,16 +228,38 @@ public final class JBBPCompiler {
         case CODE_SHORT:
         case CODE_USHORT:
         case CODE_INT:
+        case CODE_CUSTOMTYPE:
         case CODE_LONG: {
-          // do nothing
+          if ((code & 0x0F) == CODE_CUSTOMTYPE) {
+            final String extraDataAsStr = token.getFieldTypeParameters().getExtraData();
+            if (extraDataAsStr == null) {
+              extraField = 0;
+            }
+            else {
+              try {
+                extraField = Integer.parseInt(extraDataAsStr);
+              }
+              catch (NumberFormatException ex) {
+                throw new JBBPCompilationException("Can't parse extra data, must be numeric", token);
+              }
+            }
+            extraFieldPresented = true;
+            if (customTypeFieldProcessor.isAllowed(token.getFieldTypeParameters(), token.getFieldName(), extraField, token.isArray())) {
+              customTypeFieldIndex = customTypeFields.size();
+              customTypeFields.add(token.getFieldTypeParameters());
+            }
+            else {
+              throw new JBBPCompilationException("Illegal parameters for custom type field", token);
+            }
+          }
         }
         break;
         case CODE_SKIP: {
           if (token.getArraySizeAsString() != null) {
-            throw new JBBPCompilationException("A Skip field can't be array", token);
+            throw new JBBPCompilationException("'skip' can't be array", token);
           }
           if (token.getFieldName() != null) {
-            throw new JBBPCompilationException("A Skip field can't be named [" + token.getFieldName() + ']', token);
+            throw new JBBPCompilationException("'skip' must not be named", token);
           }
           final String parsedSkipByteNumber = token.getFieldTypeParameters().getExtraData();
           extraFieldPresented = true;
@@ -244,10 +279,10 @@ public final class JBBPCompiler {
         break;
         case CODE_ALIGN: {
           if (token.getArraySizeAsString() != null) {
-            throw new JBBPCompilationException("An Align field can't be array", token);
+            throw new JBBPCompilationException("'align' can't be array", token);
           }
           if (token.getFieldName() != null) {
-            throw new JBBPCompilationException("An Align field can't be named [" + token.getFieldName() + ']', token);
+            throw new JBBPCompilationException("'align' must not be named", token);
           }
 
           final String parsedAlignBytesNumber = token.getFieldTypeParameters().getExtraData();
@@ -264,7 +299,7 @@ public final class JBBPCompiler {
               extraField = -1;
             }
             if (extraField <= 0) {
-              throw new JBBPCompilationException("Align byte number must be greater than zero [" + token.getFieldTypeParameters().getExtraData() + ']', token);
+              throw new JBBPCompilationException("'align' size must be greater than zero [" + token.getFieldTypeParameters().getExtraData() + ']', token);
             }
           }
         }
@@ -284,7 +319,7 @@ public final class JBBPCompiler {
               extraField = -1;
             }
             if (extraField < 1 || extraField > 8) {
-              throw new JBBPCompilationException("Wrong bit number, must be 1..8 [" + token.getFieldTypeParameters().getExtraData() + ']', token);
+              throw new JBBPCompilationException("Bit-width must be 1..8 [" + token.getFieldTypeParameters().getExtraData() + ']', token);
             }
           }
         }
@@ -362,6 +397,10 @@ public final class JBBPCompiler {
       if (extraFieldPresented) {
         offset += writePackedInt(out, extraField);
       }
+      
+      if (customTypeFieldIndex>=0){
+        offset += writePackedInt(out, customTypeFieldIndex);
+      }
 
       if ((code & FLAG_NAMED) != 0) {
         final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(token.getFieldName());
@@ -397,6 +436,7 @@ public final class JBBPCompiler {
     return builder
             .setNamedFieldData(namedFields)
             .setArraySizeEvaluators(varLengthEvaluators)
+            .setCustomTypeFields(customTypeFields)
             .setCompiledData(compiledBlock)
             .setHasVarFields(hasVarFields)
             .build();
@@ -466,9 +506,10 @@ public final class JBBPCompiler {
    * The Method prepares a byte-code for a token field type and modifiers.
    *
    * @param token a token to be processed, must not be null
+   * @param customTypeFieldProcessor custom type field processor for the parser, it can be null
    * @return the prepared byte code for the token
    */
-  private static int prepareCodeForToken(final JBBPToken token) {
+  private static int prepareCodeForToken(final JBBPToken token, final JBBPCustomFieldTypeProcessor customTypeFieldProcessor) {
     int result = -1;
     switch (token.getType()) {
       case ATOM: {
@@ -516,7 +557,19 @@ public final class JBBPCompiler {
           result |= CODE_RESET_COUNTER;
         }
         else {
-          throw new JBBPCompilationException("Unsupported type [" + descriptor.getTypeName() + ']', token);
+          boolean unsupportedType = true;
+          if (customTypeFieldProcessor != null) {
+            for (final String s : customTypeFieldProcessor.getCustomFieldTypes()) {
+              if (name.equals(s)) {
+                result |= CODE_CUSTOMTYPE;
+                unsupportedType = false;
+                break;
+              }
+            }
+          }
+          if (unsupportedType) {
+            throw new JBBPCompilationException("Unsupported type [" + descriptor.getTypeName() + ']', token);
+          }
         }
       }
       break;

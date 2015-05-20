@@ -21,11 +21,12 @@ package com.igormaznitsa.jbbp.io;
  */
 public enum JBBPBitOrder {
   /**
-   * Most Significant Bit First means that the most significant bit will arrive first, the 7th bit will be read as the first one
+   * Most Significant Bit First means that the most significant bit will arrive first, the 7th bit will be read as the first one.
    */
   MSB0,
   /**
-   * Least Significant Bit First means that the least significant bit will arrive first, the 0th bit will be read as the first one
+   * Least Significant Bit First means that the least significant bit will arrive first, the 0th bit will be read as the first one.
+   * It is default order for Java.
    */
   LSB0
 }
