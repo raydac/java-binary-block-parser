@@ -1,6 +1,11 @@
 Change log
 --------------------------
 
+1.1.1
+- Refactoring
+- Improved tree of JBBP exceptions
+- Fixed NPE in JBBPTextWriter for String field mapped to byte array 
+
 1.1.0
 - Added support to write mapped classes into JBBPOut
 - Added JBBPTextWriter to log binary data as text with commentaries,tabs and separators
