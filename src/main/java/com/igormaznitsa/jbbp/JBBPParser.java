@@ -580,6 +580,20 @@ public final class JBBPParser {
   }
 
   /**
+   * Prepare a parser for a script with default bit order (LSB0) use and with defined custom type field processor.
+   *
+   * @param script a text script contains field order and types reference, it
+   * must not be null
+   * @param customFieldTypeProcessor custom field type processor, can be null
+   * @return the prepared parser for the script
+   * @see JBBPBitOrder#LSB0
+   * @since 1.2.0
+   */
+  public static JBBPParser prepare(final String script, final JBBPCustomFieldTypeProcessor customFieldTypeProcessor) {
+    return JBBPParser.prepare(script, JBBPBitOrder.LSB0, customFieldTypeProcessor, 0);
+  }
+
+  /**
    * Prepare a parser for a script with default bit order (LSB0) use and special flags
    * 
    * @param script a text script contains field order and types reference, it
