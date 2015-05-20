@@ -17,6 +17,7 @@ package com.igormaznitsa.jbbp.compiler;
 
 import com.igormaznitsa.jbbp.compiler.varlen.JBBPIntegerValueEvaluator;
 import com.igormaznitsa.jbbp.exceptions.JBBPException;
+import com.igormaznitsa.jbbp.exceptions.JBBPIllegalArgumentException;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.util.*;
 
@@ -251,6 +252,6 @@ public final class JBBPCompiledBlock {
         return f.getFieldOffsetInCompiledBlock();
       }
     }
-    throw new JBBPException("Unknown field path [" + fieldPath + ']');
+    throw new JBBPIllegalArgumentException("Unknown field path [" + fieldPath + ']');
   }
 }

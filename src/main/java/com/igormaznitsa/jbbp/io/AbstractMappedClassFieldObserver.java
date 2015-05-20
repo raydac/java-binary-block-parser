@@ -16,6 +16,7 @@
 package com.igormaznitsa.jbbp.io;
 
 import com.igormaznitsa.jbbp.exceptions.JBBPException;
+import com.igormaznitsa.jbbp.exceptions.JBBPIllegalArgumentException;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.mapper.BinType;
 import com.igormaznitsa.jbbp.model.*;
@@ -152,12 +153,12 @@ public abstract class AbstractMappedClassFieldObserver {
       if (binAnno == null) {
         binAnno = f.getDeclaringClass().getAnnotation(Bin.class);
         if (binAnno == null) {
-          throw new JBBPException("Can't find any Bin annotation to use for " + f + " field");
+          throw new JBBPIllegalArgumentException("Can't find any Bin annotation to use for " + f + " field");
         }
       }
 
       if (binAnno.custom() && customFieldProcessor == null) {
-        throw new IllegalArgumentException("The Class '" + obj.getClass().getName() + "' contains the field '" + f.getName() + "\' which is a custom one, you must provide a JBBPCustomFieldWriter instance to save the field.");
+        throw new JBBPIllegalArgumentException("The Class '" + obj.getClass().getName() + "' contains the field '" + f.getName() + "\' which is a custom one, you must provide a JBBPCustomFieldWriter instance to save the field.");
       }
 
       processObjectField(obj, f, binAnno, customFieldProcessor);
@@ -477,7 +478,7 @@ public abstract class AbstractMappedClassFieldObserver {
   }
 
   /**
-   * INside auxiliary method to read object field value.
+   * Inside auxiliary method to read object field value.
    *
    * @param obj an object which field is read
    * @param field a field to be read
@@ -490,7 +491,7 @@ public abstract class AbstractMappedClassFieldObserver {
       return field.get(obj);
     }
     catch (Exception ex) {
-      throw new JBBPException("Can't read falue of a field [" + field + ']', ex);
+      throw new JBBPException("Can't get falue from field [" + field + ']', ex);
     }
   }
 

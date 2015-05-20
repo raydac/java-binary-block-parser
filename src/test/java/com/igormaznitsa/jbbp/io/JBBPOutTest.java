@@ -15,6 +15,7 @@
  */
 package com.igormaznitsa.jbbp.io;
 
+import com.igormaznitsa.jbbp.exceptions.JBBPIllegalArgumentException;
 import static com.igormaznitsa.jbbp.io.JBBPOut.*;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.mapper.BinType;
@@ -36,8 +37,12 @@ public class JBBPOutTest {
     assertArrayEquals(new byte[]{(byte) 0x80}, BeginBin(JBBPBitOrder.MSB0).Byte(1).End().toByteArray());
     assertArrayEquals(new byte[]{(byte) 0x80}, BeginBin(1).Byte(0x80).End().toByteArray());
 
-    final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-    assertSame(buffer, BeginBin(buffer).End());
+    final ByteArrayOutputStream buffer1 = new ByteArrayOutputStream();
+    assertSame(buffer1, BeginBin(buffer1).End());
+
+    final ByteArrayOutputStream buffer2 = new ByteArrayOutputStream();
+    BeginBin(buffer2,JBBPByteOrder.LITTLE_ENDIAN, JBBPBitOrder.MSB0).Short(1234).End();
+    assertArrayEquals(new byte[]{(byte)0x4b, (byte)0x20}, buffer2.toByteArray());
   }
 
   @Test
@@ -720,6 +725,21 @@ public class JBBPOutTest {
     assertArrayEquals(new byte[]{1, (byte) 0x40, 3}, JBBPOut.BeginBin().Bin(new Test((byte) 1, (byte) 2, (byte) 3)).End().toByteArray());
   }
 
+  @Test
+  public void testBin_Byte_StringAsByteArray() throws Exception {
+    assertArrayEquals(new byte[0], JBBPOut.BeginBin().Byte("", JBBPBitOrder.LSB0).End().toByteArray());
+    assertArrayEquals(new byte[0], JBBPOut.BeginBin().Byte("", JBBPBitOrder.MSB0).End().toByteArray());
+    assertArrayEquals(new byte[]{65,66,67,68}, JBBPOut.BeginBin().Byte("ABCD", JBBPBitOrder.LSB0).End().toByteArray());
+    assertArrayEquals(new byte[]{(byte)130,66,(byte)194,34}, JBBPOut.BeginBin().Byte("ABCD", JBBPBitOrder.MSB0).End().toByteArray());
+  }
+  
+  @Test
+  public void testBin_Byte_StringAsShortArray() throws Exception {
+    assertArrayEquals(new byte[0], JBBPOut.BeginBin().Short("", JBBPBitOrder.LSB0).End().toByteArray());
+    assertArrayEquals(new byte[0], JBBPOut.BeginBin().Short("", JBBPBitOrder.MSB0).End().toByteArray());
+    assertArrayEquals(new byte[]{0x04, 0x10, 0x04, 0x11, 0x04, 0x12, 0x04, 0x13, 0x04, 0x14}, JBBPOut.BeginBin().Short("АБВГД", JBBPBitOrder.LSB0).End().toByteArray());
+    assertArrayEquals(new byte[]{0x08, 0x20, (byte)0x88, 0x20, (byte)0x48, 0x20, (byte)0xC8, 0x20, (byte)0x28, 0x20}, JBBPOut.BeginBin().Short("АБВГД", JBBPBitOrder.MSB0).End().toByteArray());
+  }
   
   @Bin
   private static class TestWithStaticField {
@@ -1180,7 +1200,7 @@ public class JBBPOutTest {
     assertEquals(2, JBBPOut.BeginBin().Bin(new Test((byte)12,(byte)24)).End().toByteArray().length);
   }
   
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = JBBPIllegalArgumentException.class)
   public void testBin_CustomField_ErrorBecauseNoCustomWriter() throws Exception {
     class Test {
 

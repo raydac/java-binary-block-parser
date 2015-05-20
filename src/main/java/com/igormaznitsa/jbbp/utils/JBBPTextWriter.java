@@ -15,7 +15,7 @@
  */
 package com.igormaznitsa.jbbp.utils;
 
-import com.igormaznitsa.jbbp.exceptions.JBBPException;
+import com.igormaznitsa.jbbp.exceptions.JBBPIOException;
 import com.igormaznitsa.jbbp.io.*;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import java.io.*;
@@ -114,7 +114,7 @@ public class JBBPTextWriter extends FilterWriter {
         HR();
       }
       catch (IOException ex) {
-        throw new JBBPException("Can't log array field", ex);
+        throw new JBBPIOException("Can't log array field", ex);
       }
       finally {
         arrayCounter--;
@@ -135,7 +135,7 @@ public class JBBPTextWriter extends FilterWriter {
         IndentInc();
       }
       catch (IOException ex) {
-        throw new JBBPException("Can't log array field", ex);
+        throw new JBBPIOException("Can't log array field", ex);
       }
       finally {
         arrayCounter++;
@@ -152,7 +152,7 @@ public class JBBPTextWriter extends FilterWriter {
         this.arrayCounter = this.counterStack.pop();
       }
       catch (IOException ex) {
-        throw new JBBPException("Can't log struct field", ex);
+        throw new JBBPIOException("Can't log struct field", ex);
       }
     }
 
@@ -167,7 +167,7 @@ public class JBBPTextWriter extends FilterWriter {
         IndentInc();
       }
       catch (IOException ex) {
-        throw new JBBPException("Can't log short field", ex);
+        throw new JBBPIOException("Can't log short field", ex);
       }
     }
 
@@ -180,7 +180,7 @@ public class JBBPTextWriter extends FilterWriter {
         }
       }
       catch (IOException ex) {
-        throw new JBBPException("Can't log short field", ex);
+        throw new JBBPIOException("Can't log short field", ex);
       }
     }
 
@@ -193,7 +193,7 @@ public class JBBPTextWriter extends FilterWriter {
         }
       }
       catch (IOException ex) {
-        throw new JBBPException("Can't log int field", ex);
+        throw new JBBPIOException("Can't log int field", ex);
       }
     }
 
@@ -206,7 +206,7 @@ public class JBBPTextWriter extends FilterWriter {
         }
       }
       catch (IOException ex) {
-        throw new JBBPException("Can't log short field", ex);
+        throw new JBBPIOException("Can't log short field", ex);
       }
     }
 
@@ -219,7 +219,7 @@ public class JBBPTextWriter extends FilterWriter {
         }
       }
       catch (IOException ex) {
-        throw new JBBPException("Can't log byte field", ex);
+        throw new JBBPIOException("Can't log byte field", ex);
       }
     }
 
@@ -232,7 +232,7 @@ public class JBBPTextWriter extends FilterWriter {
         }
       }
       catch (IOException ex) {
-        throw new JBBPException("Can't log boolean field", ex);
+        throw new JBBPIOException("Can't log boolean field", ex);
       }
     }
 
@@ -245,7 +245,7 @@ public class JBBPTextWriter extends FilterWriter {
         }
       }
       catch (IOException ex) {
-        throw new JBBPException("Can't log bit field", ex);
+        throw new JBBPIOException("Can't log bit field", ex);
       }
     }
 
@@ -271,7 +271,7 @@ public class JBBPTextWriter extends FilterWriter {
         }
       }
       catch (IOException ex) {
-        throw new JBBPException("Can't log custom field", ex);
+        throw new JBBPIOException("Can't log custom field", ex);
       }
     }
 

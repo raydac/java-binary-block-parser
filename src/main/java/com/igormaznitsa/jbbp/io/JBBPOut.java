@@ -15,7 +15,7 @@
  */
 package com.igormaznitsa.jbbp.io;
 
-import com.igormaznitsa.jbbp.exceptions.JBBPException;
+import com.igormaznitsa.jbbp.exceptions.JBBPIOException;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.model.*;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
@@ -960,7 +960,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
     try{
       this.Long(value);
     }catch(IOException ex){
-      throw new JBBPException("Can't write long value", ex);
+      throw new JBBPIOException("Can't write long value", ex);
     }
   }
 
@@ -970,7 +970,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
       this.Int(value);
     }
     catch (IOException ex) {
-      throw new JBBPException("Can't write int value", ex);
+      throw new JBBPIOException("Can't write int value", ex);
     }
   }
 
@@ -980,7 +980,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
       this.Short(value);
     }
     catch (IOException ex) {
-      throw new JBBPException("Can't write short value", ex);
+      throw new JBBPIOException("Can't write short value", ex);
     }
   }
 
@@ -990,7 +990,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
       this.Byte(value);
     }
     catch (IOException ex) {
-      throw new JBBPException("Can't write byte value", ex);
+      throw new JBBPIOException("Can't write byte value", ex);
     }
   }
 
@@ -1000,7 +1000,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
       this.Bool(value, annotation.bitOrder());
     }
     catch (IOException ex) {
-      throw new JBBPException("Can't write bool value", ex);
+      throw new JBBPIOException("Can't write bool value", ex);
     }
   }
 
@@ -1010,7 +1010,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
       this.Bits(bitNumber, value);
     }
     catch (IOException ex) {
-      throw new JBBPException("Can't write bit value", ex);
+      throw new JBBPIOException("Can't write bit value", ex);
     }
   }
 
@@ -1021,7 +1021,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
       writer.writeCustomField(this, this.outStream, obj, field, annotation, value);
     }
     catch (IOException ex) {
-      throw new JBBPException("Can't write custom field", ex);
+      throw new JBBPIOException("Can't write custom field", ex);
     }
   }
   
