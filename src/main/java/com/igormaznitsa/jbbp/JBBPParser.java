@@ -51,6 +51,11 @@ public final class JBBPParser {
   private final JBBPBitOrder bitOrder;
 
   /**
+   * The binary packed decimal representation to use.
+   */
+  private final JBBPPackedDecimalType bcdType;
+
+  /**
    * Empty structure array
    */
   private static final JBBPFieldStruct[] EMPTY_STRUCT_ARRAY = new JBBPFieldStruct[0];
@@ -66,13 +71,15 @@ public final class JBBPParser {
    * @param source the source script to parse binary blocks and streams, must
    * not be null
    * @param bitOrder the bit order for bit reading operations, must not be null
+   * @param bcdType the binary packed decimal representation to use, must not be null
    * @param flags special flags for parsing process
    * @see #FLAG_SKIP_REMAINING_FIELDS_IF_EOF
    */
-  private JBBPParser(final String source, final JBBPBitOrder bitOrder, final int flags) {
+  private JBBPParser(final String source, final JBBPBitOrder bitOrder, final JBBPPackedDecimalType bcdType, final int flags) {
     JBBPUtils.assertNotNull(source, "Script is null");
     JBBPUtils.assertNotNull(bitOrder, "Bit order is null");
     this.bitOrder = bitOrder;
+    this.bcdType = bcdType;
     this.flags = flags;
     try {
       this.compiledBlock = JBBPCompiler.compile(source);
@@ -286,6 +293,19 @@ public final class JBBPParser {
               }
               else {
                 structureFields.add(new JBBPFieldArrayLong(name, inStream.readLongArray(wholeStreamArray ? -1 : arrayLength, byteOrder)));
+              }
+            }
+          }
+          break;
+          case JBBPCompiler.CODE_BCD: {
+            final int numberOfBytes = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
+            if (resultNotIgnored) {
+              if (arrayLength < 0) {
+                final long value = inStream.readPackedDecimal(numberOfBytes, this.bcdType, byteOrder);
+                singleAtomicField = new JBBPFieldPackedDecimal(name, value);
+              }
+              else {
+                structureFields.add(new JBBPFieldArrayPackedDecimal(name, inStream.readPackedDecimalArray(wholeStreamArray ? -1 : arrayLength, numberOfBytes, this.bcdType, byteOrder)));
               }
             }
           }
@@ -511,15 +531,30 @@ public final class JBBPParser {
    * @see JBBPBitOrder#MSB0
    */
   public static JBBPParser prepare(final String script, final JBBPBitOrder bitOrder) {
-    return new JBBPParser(script, bitOrder, 0);
+    return new JBBPParser(script, bitOrder, JBBPPackedDecimalType.UNSIGNED, 0);
   }
 
   /**
-   * Prepare a parser for a script with defined bit order and special flags.
+   * Prepare a parser for a script and a packed decimal type.
+   *
+   * @param script a text script contains field order and types reference, it must not be null
+   * @param bcdType the binary packed decimal representation to use, must not be null
+   * @return the prepared parser for the script
+   * @see JBBPBitOrder#LSB0
+   * @see JBBPBitOrder#MSB0
+   */
+  public static JBBPParser prepare(final String script, final JBBPPackedDecimalType bcdType) {
+    return new JBBPParser(script, JBBPBitOrder.LSB0, bcdType, 0);
+  }
+
+  /**
+   * Prepare a parser for a script with defined bit order, packed decimal type, and
+   * special flags.
    * 
    * @param script a text script contains field order and types reference, it
    * must not be null
    * @param bitOrder the bit order for reading operations, it must not be null
+   * @param bcdType the binary packed decimal representation to use, must not be null
    * @param flags special flags for parsing
    * @return the prepared parser for the script
    * @see JBBPBitOrder#LSB0
@@ -528,13 +563,14 @@ public final class JBBPParser {
    * 
    * @since 1.1
    */
-  public static JBBPParser prepare(final String script, final JBBPBitOrder bitOrder, final int flags) {
-    return new JBBPParser(script, bitOrder, flags);
+  public static JBBPParser prepare(final String script, final JBBPBitOrder bitOrder, final JBBPPackedDecimalType bcdType, final int flags) {
+    return new JBBPParser(script, bitOrder, bcdType, flags);
   }
 
   
   /**
-   * Prepare a parser for a script with default bit order (LSB0) use.
+   * Prepare a parser for a script with default bit order (LSB0) and packed decimal
+   * type (UNSIGNED) use.
    *
    * @param script a text script contains field order and types reference, it must not be null
    * @return the prepared parser for the script
@@ -545,7 +581,8 @@ public final class JBBPParser {
   }
 
   /**
-   * Prepare a parser for a script with default bit order (LSB0) use and special flags
+   * Prepare a parser for a script with default bit order (LSB0) and packed decimal
+   * type (UNSIGNED) use and special flags.
    * 
    * @param script a text script contains field order and types reference, it
    * must not be null
@@ -557,7 +594,7 @@ public final class JBBPParser {
    * @since 1.1
    */
   public static JBBPParser prepare(final String script, final int flags) {
-    return JBBPParser.prepare(script, JBBPBitOrder.LSB0, flags);
+    return JBBPParser.prepare(script, JBBPBitOrder.LSB0, JBBPPackedDecimalType.UNSIGNED, flags);
   }
 
   /**

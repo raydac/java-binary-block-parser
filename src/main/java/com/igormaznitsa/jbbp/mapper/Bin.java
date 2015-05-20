@@ -105,7 +105,15 @@ public @interface Bin {
    * @since 1.1
    */
   int outOrder() default 0;
-  
+
+  /**
+   * Defines the length of the field in bytes (used for variable length non-array types
+   * such as packed decimal).
+   *
+   * @return the length of the field in bytes
+   */
+  int length() default 0;
+
   /**
    * Just either description of the field or some remark.
    * @return the comment as String

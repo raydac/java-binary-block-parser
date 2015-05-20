@@ -17,6 +17,8 @@ package com.igormaznitsa.jbbp.io;
 
 import com.igormaznitsa.jbbp.utils.JBBPSystemProperty;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
+import com.igormaznitsa.jbbp.utils.PackedDecimalUtils;
+
 import java.io.*;
 
 /**
@@ -66,26 +68,57 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   private final boolean msb0;
 
   /**
-   * A Constructor, the LSB0 bit order will be used by default.
+   * Binary Coded Decimal representation type to use.
+   */
+  private final JBBPPackedDecimalType bcdType;
+
+  private PackedDecimalUtils pdUtils = new PackedDecimalUtils();
+
+  /**
+   * A Constructor, with LSB0 bit order and UNSIGNED binary coded decimal to be used
+   * by default.
    *
    * @param in an input stream to be filtered.
    */
   public JBBPBitInputStream(final InputStream in) {
-    this(in, JBBPBitOrder.LSB0);
+    this(in, JBBPBitOrder.LSB0, JBBPPackedDecimalType.UNSIGNED);
+  }
+
+  /**
+   * A Constructor, with UNSIGNED binary coded decimal to be used by default.
+   *
+   * @param in an input stream to be filtered.
+   * @param order a bit order mode for the filter.
+   * @see JBBPBitOrder
+   */
+  public JBBPBitInputStream(final InputStream in, final JBBPBitOrder order) {
+    this(in, order, JBBPPackedDecimalType.UNSIGNED);
+  }
+
+  /**
+   * A Constructor, with LSB0 bit order to be used by default.
+   *
+   * @param in an input stream to be filtered.
+   * @param bcdType the binary coded decimal representation
+   * @see JBBPPackedDecimalType
+   */
+  public JBBPBitInputStream(final InputStream in, final JBBPPackedDecimalType bcdType) {
+    this(in, JBBPBitOrder.LSB0, bcdType);
   }
 
   /**
    * A Constructor.
-   *
    * @param in an input stream to be filtered.
    * @param order a bit order mode for the filter.
-   * @see JBBPBitOrder#LSB0
-   * @see JBBPBitOrder#MSB0
+   * @param bcdType the binary coded decimal representation
+   * @see JBBPBitOrder
+   * @see JBBPPackedDecimalType
    */
-  public JBBPBitInputStream(final InputStream in, final JBBPBitOrder order) {
+  public JBBPBitInputStream(final InputStream in, final JBBPBitOrder order, final JBBPPackedDecimalType bcdType) {
     super(in);
     this.bitsInBuffer = 0;
     this.msb0 = order == JBBPBitOrder.MSB0;
+    this.bcdType = bcdType;
   }
 
   /**
@@ -342,6 +375,49 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   }
 
   /**
+   * Read number of long items from the input stream.
+   *
+   * @param items number of items to be read from the input stream, if less than
+   * zero then all stream till the end will be read
+   * @param byteOrder the order of bytes to be used to decode values
+   * @return read items as a long array
+   * @throws IOException it will be thrown for any transport problem during the
+   * operation
+   * @see JBBPByteOrder#BIG_ENDIAN
+   * @see JBBPByteOrder#LITTLE_ENDIAN
+   */
+  public long[] readPackedDecimalArray(final int items, final int bytes, final JBBPPackedDecimalType bcdType, final JBBPByteOrder byteOrder) throws IOException {
+    int pos = 0;
+    if (items < 0) {
+      long[] buffer = new long[INITIAL_ARRAY_BUFFER_SIZE];
+      // till end
+      while (hasAvailableData()) {
+        final long next = readPackedDecimal(bytes, bcdType, byteOrder);
+        if (buffer.length == pos) {
+          final long[] newbuffer = new long[buffer.length << 1];
+          System.arraycopy(buffer, 0, newbuffer, 0, buffer.length);
+          buffer = newbuffer;
+        }
+        buffer[pos++] = next;
+      }
+      if (buffer.length == pos) {
+        return buffer;
+      }
+      final long[] result = new long[pos];
+      System.arraycopy(buffer, 0, result, 0, pos);
+      return result;
+    }
+    else {
+      // number
+      final long[] buffer = new long[items];
+      for (int i = 0; i < items; i++) {
+        buffer[i] = readPackedDecimal(bytes, bcdType, byteOrder);
+      }
+      return buffer;
+    }
+  }
+
+  /**
    * Read a unsigned short value from the stream.
    *
    * @param byteOrder he order of bytes to be used to decode the read value
@@ -407,6 +483,27 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   }
 
   /**
+   * Read a packed decimal (BCD) value from the stream.  Note that most (or all) packed
+   * decimal implementations are big endian, so little endian byte order is ignored, and
+   * big endian is always used.
+   *
+   * @param length length of packed decimal field in bytes
+   * @param bcdType packed decimal representation (signed or unsigned)
+   * @param byteOrder the order of bytes to be used to decode the read value
+   * @return the decoded value
+   * @throws IOException it will be thrown for any transport problem during the
+   * operation
+   * @throws EOFException if the end of the stream has been reached
+   */
+  public long readPackedDecimal(final int length, final JBBPPackedDecimalType bcdType, final JBBPByteOrder byteOrder) throws IOException {
+    if (byteOrder.equals(JBBPByteOrder.LITTLE_ENDIAN)) {
+      System.out.println("***WARNING: Packed Decimal does not support little endian...using big endian instead");
+    }
+    byte[] theBytes = readByteArray(length);
+    return pdUtils.readValueFromPackedDecimal(theBytes, bcdType);
+  }
+
+  /**
    * Get the current fully read byte counter.
    *
    * @return the number of bytes read fully from the stream
@@ -442,6 +539,16 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    */
   public JBBPBitOrder getBitOrder() {
     return this.msb0 ? JBBPBitOrder.MSB0 : JBBPBitOrder.LSB0;
+  }
+
+  /**
+   * Get the binary coded decimal represenation type for read operations.
+   *
+   * @return the BCD type
+   * @see JBBPPackedDecimalType
+   */
+  public JBBPPackedDecimalType getBcdType() {
+    return bcdType;
   }
 
   /**

@@ -263,6 +263,33 @@ public class JBBPParserTest {
     assertEquals(0x0807060504030201L, result.findFieldForType(JBBPFieldLong.class).getAsLong());
   }
 
+  @Test(expected = EOFException.class)
+  public void testParse_PackedDecimal_ErrorForEOF() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("long;");
+    parser.parse(new byte[0]);
+  }
+
+  @Test
+  public void testParse_SingleDefaultNonamedPackedDecimal_Default() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("bcd:4;");
+    final JBBPFieldStruct result = parser.parse(new byte[]{0x12, 0x34, 0x56, 0x7F});
+    assertEquals(1234567L, result.findFieldForType(JBBPFieldPackedDecimal.class).getAsLong());
+  }
+
+  @Test
+  public void testParse_SingleDefaultNonamedPackedDecimal_BigEndian() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare(">bcd:4;");
+    final JBBPFieldStruct result = parser.parse(new byte[]{0x12, 0x34, 0x56, 0x7F});
+    assertEquals(1234567L, result.findFieldForType(JBBPFieldPackedDecimal.class).getAsLong());
+  }
+
+  @Test // little endian ignored, uses big endian
+  public void testParse_SingleDefaultNonamedPackedDecimal_LittleEndian() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare(">bcd:4;");
+    final JBBPFieldStruct result = parser.parse(new byte[]{0x12, 0x34, 0x56, 0x7F});
+    assertEquals(1234567L, result.findFieldForType(JBBPFieldPackedDecimal.class).getAsLong());
+  }
+
   @Test
   public void testParse_SingleNonamedVar() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("short k; var; int;");

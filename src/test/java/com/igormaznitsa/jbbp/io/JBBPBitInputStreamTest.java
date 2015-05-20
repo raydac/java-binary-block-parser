@@ -146,6 +146,37 @@ public class JBBPBitInputStreamTest {
   }
 
   @Test
+  public void testReadPackedDecimal_Unsigned_BigEndian() throws Exception {
+    assertEquals(1311768467732155613L, asInputStream(0x13, 0x11, 0x76, 0x84, 0x67, 0x73, 0x21, 0x55, 0x61, 0x3F).readPackedDecimal(10, JBBPPackedDecimalType.UNSIGNED, JBBPByteOrder.BIG_ENDIAN));
+    assertEquals(1L, asInputStream(0x1F).readPackedDecimal(1, JBBPPackedDecimalType.UNSIGNED, JBBPByteOrder.BIG_ENDIAN));
+  }
+
+  @Test
+  public void testReadPackedDecimal_Signed_BigEndian() throws Exception {
+    assertEquals(-1311768467732155613L, asInputStream(0x13, 0x11, 0x76, 0x84, 0x67, 0x73, 0x21, 0x55, 0x61, 0x3D).readPackedDecimal(10, JBBPPackedDecimalType.SIGNED, JBBPByteOrder.BIG_ENDIAN));
+    assertEquals(-9876543210L, asInputStream(0x98, 0x76, 0x54, 0x32, 0x10, 0xFD).readPackedDecimal(6, JBBPPackedDecimalType.SIGNED, JBBPByteOrder.BIG_ENDIAN));
+    assertEquals(-9876543210L, asInputStream(0x00, 0x00, 0x00, 0x00, 0x09, 0x87, 0x65, 0x43, 0x21, 0x0D).readPackedDecimal(10, JBBPPackedDecimalType.SIGNED, JBBPByteOrder.BIG_ENDIAN));
+  }
+
+  @Test // same as above...little endian is ignored and big endian is used
+  public void testReadPackedDecimal_Unsigned_LittleEndian() throws Exception {
+    assertEquals(1311768467732155613L, asInputStream(0x13, 0x11, 0x76, 0x84, 0x67, 0x73, 0x21, 0x55, 0x61, 0x3F).readPackedDecimal(10, JBBPPackedDecimalType.UNSIGNED, JBBPByteOrder.LITTLE_ENDIAN));
+    assertEquals(1L, asInputStream(0x1F).readPackedDecimal(1, JBBPPackedDecimalType.UNSIGNED, JBBPByteOrder.LITTLE_ENDIAN));
+  }
+
+  @Test // same as above...little endian is ignored and big endian is used
+  public void testReadPackedDecimal_Signed_LittleEndian() throws Exception {
+    assertEquals(-1311768467732155613L, asInputStream(0x13, 0x11, 0x76, 0x84, 0x67, 0x73, 0x21, 0x55, 0x61, 0x3D).readPackedDecimal(10, JBBPPackedDecimalType.SIGNED, JBBPByteOrder.LITTLE_ENDIAN));
+    assertEquals(-9876543210L, asInputStream(0x98, 0x76, 0x54, 0x32, 0x10, 0xFD).readPackedDecimal(6, JBBPPackedDecimalType.SIGNED, JBBPByteOrder.LITTLE_ENDIAN));
+    assertEquals(-9876543210L, asInputStream(0x00, 0x00, 0x00, 0x00, 0x09, 0x87, 0x65, 0x43, 0x21, 0x0D).readPackedDecimal(10, JBBPPackedDecimalType.SIGNED, JBBPByteOrder.LITTLE_ENDIAN));
+  }
+
+  @Test(expected = EOFException.class)
+  public void testReadPackedDecimal_EOF() throws Exception {
+    asInputStream(0x13, 0x11, 0x76, 0x84, 0x67, 0x73, 0x21, 0x55, 0x61).readPackedDecimal(10, JBBPPackedDecimalType.UNSIGNED, JBBPByteOrder.BIG_ENDIAN);
+  }
+
+  @Test
   public void testRead9bit() throws Exception {
     final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{(byte) 0xDA, 1}));
 
@@ -784,6 +815,27 @@ public class JBBPBitInputStreamTest {
   public void testReadArray_Long_EOF() throws Exception {
     final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5, 6, 7, 0, (byte) 0xFE, (byte) 0xCA, (byte) 0xBE, (byte) 0x01, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4}));
     in.readLongArray(259, JBBPByteOrder.BIG_ENDIAN);
+  }
+
+  @Test
+  public void testReadArray_PackedDecimal_WholeStream() throws Exception {
+    JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{(byte)0x92, 0x23, 0x37, 0x20, 0x36, (byte)0x85, 0x47, 0x75, (byte)0x80, 0x7C,
+        (byte)0x92, 0x23, 0x37, 0x20, 0x36, (byte)0x85, 0x47, 0x75, (byte)0x80, (byte)0x8D, 0x00, 0x00, 0x00, 0x00, 0x09, (byte)0x87, 0x65, 0x43, 0x21, 0x0C}));
+    assertArrayEquals(new long[]{9223372036854775807L, -9223372036854775808L, 9876543210L}, in.readPackedDecimalArray(-1, 10, JBBPPackedDecimalType.SIGNED, JBBPByteOrder.BIG_ENDIAN));
+    assertEquals(30, in.getCounter());
+  }
+
+  @Test
+  public void testReadArray_PackedDecimal_TwoItems() throws Exception {
+    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{0x13, 0x11, 0x76, (byte)0x84, 0x67, 0x73, 0x21, 0x55, 0x61, 0x3C, 0, 0, 0, 0, 0x09, (byte)0x87, 0x65, 0x43, 0x21, 0x0D}));
+    assertArrayEquals(new long[]{1311768467732155613L, -9876543210L}, in.readPackedDecimalArray(2, 10, JBBPPackedDecimalType.SIGNED, JBBPByteOrder.BIG_ENDIAN));
+    assertEquals(20, in.getCounter());
+ }
+
+  @Test(expected = EOFException.class)
+  public void testReadArray_PackedDecimal_EOF() throws Exception {
+    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{0x13, 0x11, 0x76, (byte)0x84, 0x67, 0x73, 0x21, 0x55, 0x61, 0x3C, 0, 0, 0, 0, 0x09, (byte)0x87, 0x65, 0x43, 0x21, 0x0D}));
+    in.readPackedDecimalArray(3, 10, JBBPPackedDecimalType.SIGNED, JBBPByteOrder.BIG_ENDIAN);
   }
 
   @Test
