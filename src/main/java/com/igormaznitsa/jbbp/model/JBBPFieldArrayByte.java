@@ -17,6 +17,9 @@ package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Describes a byte array.
  * @since 1.0
@@ -39,6 +42,20 @@ public final class JBBPFieldArrayByte extends AbstractFieldByteArray<JBBPFieldBy
    */
   public byte[] getArray(){
     return this.array.clone();
+  }
+
+  @Override
+  protected String getKeyPrefix() {
+    return "array_byte";
+  }
+
+  @Override
+  protected Object getValue() {
+    List<Object> valueList = new ArrayList<Object>();
+    for (byte b : getArray()) {
+      valueList.add((int)b);
+    }
+    return valueList;
   }
 
   @Override

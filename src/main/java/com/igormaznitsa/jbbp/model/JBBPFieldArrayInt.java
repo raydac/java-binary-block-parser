@@ -18,6 +18,9 @@ package com.igormaznitsa.jbbp.model;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Describes an array of integers.
  * @since 1.0
@@ -47,7 +50,21 @@ public final class JBBPFieldArrayInt extends JBBPAbstractArrayField<JBBPFieldInt
   public int [] getArray(){
     return this.array.clone();
   }
-  
+
+  @Override
+  protected String getKeyPrefix() {
+    return "array_int";
+  }
+
+  @Override
+  protected Object getValue() {
+    List<Object> valueList = new ArrayList<Object>();
+    for (int i : getArray()) {
+      valueList.add(i);
+    }
+    return valueList;
+  }
+
   @Override
   public int size() {
     return this.array.length;

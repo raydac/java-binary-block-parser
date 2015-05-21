@@ -22,7 +22,11 @@ import com.igormaznitsa.jbbp.mapper.JBBPMapper;
 import com.igormaznitsa.jbbp.mapper.JBBPMapperCustomFieldProcessor;
 import com.igormaznitsa.jbbp.model.finder.JBBPFieldFinder;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Describes a structure.
@@ -385,4 +389,30 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
     return JBBPMapper.map(this, objectToMap, customFieldProcessor, flags);
   }
 
+  @Override
+  protected String getKeyPrefix() {
+    return "field_struct";
+  }
+
+  @Override
+  protected Object getValue() {
+    Map<String, Object> returnMap = new LinkedHashMap<String, Object>();
+    for (int i = 0; i < fields.length; i++) {
+      JBBPAbstractField field = fields[i];
+      returnMap.put(field.getKey(i), field.getValue());
+    }
+    return returnMap;
+  }
+
+  /**
+   * Converts the parsed hierarchy to a {@literal Map<String, Object>}.  The
+   * resulting <code>Map</code> can be easily converted to other data
+   * representations (e.g., JSON, XML).
+   *
+   * @return the map
+   * @see JBBPAbstractField#getValue()
+   */
+  public Map<String, Object> asMap() {
+    return (Map<String, Object>) getValue();
+  }
 }

@@ -18,6 +18,9 @@ package com.igormaznitsa.jbbp.model;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Describes a unsigned short array.
  * @since 1.0
@@ -46,6 +49,20 @@ public final class JBBPFieldArrayUShort extends JBBPAbstractArrayField<JBBPField
    */
   public short [] getArray() {
     return this.array.clone();
+  }
+
+  @Override
+  protected String getKeyPrefix() {
+    return "array_ushort";
+  }
+
+  @Override
+  protected Object getValue() {
+    List<Object> valueList = new ArrayList<Object>();
+    for (int i = 0; i < size(); i++) {
+      valueList.add(getAsInt(i));
+    }
+    return valueList;
   }
 
   @Override

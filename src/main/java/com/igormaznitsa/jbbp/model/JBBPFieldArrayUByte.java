@@ -17,6 +17,9 @@ package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Describes a unsigned byte array.
  * @since 1.0
@@ -40,7 +43,21 @@ public final class JBBPFieldArrayUByte extends AbstractFieldByteArray<JBBPFieldU
   public byte [] getArray(){
     return this.array.clone();
   }
-  
+
+  @Override
+  protected String getKeyPrefix() {
+    return "array_ubyte";
+  }
+
+  @Override
+  protected Object getValue() {
+    List<Object> valueList = new ArrayList<Object>();
+    for (int i = 0; i < size(); i++) {
+      valueList.add(getAsInt(i));
+    }
+    return valueList;
+  }
+
   @Override
   public int size() {
     return this.array.length;

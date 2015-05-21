@@ -38,7 +38,17 @@ public final class JBBPFieldLong extends JBBPAbstractField implements JBBPNumeri
     super(name);
     this.value = value;
   }
-  
+
+  @Override
+  protected String getKeyPrefix() {
+    return "field_long";
+  }
+
+  @Override
+  protected Object getValue() {
+    return getAsLong();
+  }
+
   public int getAsInt() {
     return (int)this.value;
   }
