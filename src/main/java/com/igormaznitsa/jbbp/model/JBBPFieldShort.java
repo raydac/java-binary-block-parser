@@ -68,4 +68,8 @@ public final class JBBPFieldShort extends JBBPAbstractField implements JBBPNumer
     return reverseBits(this.value);
   }
   
+  @Override
+  public String getTypeAsString() {
+    return "short";
+  }
 }

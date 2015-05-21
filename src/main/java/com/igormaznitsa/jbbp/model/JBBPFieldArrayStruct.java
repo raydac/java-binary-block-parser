@@ -77,4 +77,9 @@ public final class JBBPFieldArrayStruct extends JBBPAbstractArrayField<JBBPField
   public Object getValueArrayAsObject(final boolean reverseBits) {
     return this.structs.clone();
   }
+
+  @Override
+  public String getTypeAsString() {
+    return "{} ["+this.structs.length+']';
+  }
 }

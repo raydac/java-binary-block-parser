@@ -18,6 +18,7 @@ package com.igormaznitsa.jbbp.utils;
 import com.igormaznitsa.jbbp.exceptions.JBBPIOException;
 import com.igormaznitsa.jbbp.io.*;
 import com.igormaznitsa.jbbp.mapper.Bin;
+import com.igormaznitsa.jbbp.model.*;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -286,7 +287,7 @@ public class JBBPTextWriter extends FilterWriter {
   private MappedObjectLogger mappedClassObserver;
 
   /**
-   * The INterface describes some extras for the writer which can make
+   * The Interface describes some extras for the writer which can make
    * extra-work.
    */
   public interface Extra {
@@ -788,6 +789,7 @@ public class JBBPTextWriter extends FilterWriter {
   private void ensureNewLineMode() throws IOException {
     if (this.mode != MODE_START_LINE) {
       this.write(this.lineSeparator);
+      this.mode = MODE_START_LINE;
     }
     valuesLineCounter = 0;
   }
@@ -852,13 +854,13 @@ public class JBBPTextWriter extends FilterWriter {
   public JBBPTextWriter Str(final String... str) throws IOException {
     JBBPUtils.assertNotNull(str, "String must not be null");
 
-    ensureValueMode();
     final String oldPrefix = this.prefixValue;
     final String oldPostfix = this.postfixValue;
     this.prefixValue = "";
     this.postfixValue = "";
 
     for (final String s : str) {
+      ensureValueMode();
       printValueString(s == null ? "<NULL>" : s);
     }
 
@@ -1505,9 +1507,11 @@ public class JBBPTextWriter extends FilterWriter {
   }
 
   /**
-   * Print object which marked by Bin annotation to be saved.
+   * Print objects which marked by Bin annotation or successors of
+   * JBBPAbstractField.
    *
-   * @param objs array of object marked by Bin annotation
+   * @param objs array of object marked by Bin annotation or successors of
+   * JBBPAbstractField
    * @return the context
    * @throws IOException it will be thrown if transport errors
    */
@@ -1523,12 +1527,128 @@ public class JBBPTextWriter extends FilterWriter {
         write("<NULL>");
       }
       else {
-        this.mappedClassObserver.init();
-        this.mappedClassObserver.processObject(obj);
+        if (obj instanceof JBBPAbstractField) {
+          printAbstractFieldObject(null, (JBBPAbstractField) obj);
+        }
+        else {
+          this.mappedClassObserver.init();
+          this.mappedClassObserver.processObject(obj);
+        }
       }
     }
 
     return this;
+  }
+
+  protected static String makeFieldComment(final JBBPAbstractField field) {
+    final String path = field.getFieldPath();
+    final StringBuilder result = new StringBuilder(128);
+    result.append(field.getTypeAsString()).append(' ');
+    if (path == null) {
+      result.append("<anonymous>");
+    }
+    else {
+      result.append(path);
+    }
+    return result.toString();
+  }
+
+  protected void printAbstractFieldObject(final String postText, final JBBPAbstractField field) throws IOException {
+    final String postfix = (postText == null ? "" : " " + postText);
+
+    if (field instanceof JBBPAbstractArrayField || field instanceof JBBPFieldStruct) {
+      HR();
+      Comment(" Start " + makeFieldComment(field) + postfix);
+      HR();
+      IndentInc();
+      if (field instanceof JBBPAbstractArrayField) {
+        final JBBPAbstractArrayField<? extends JBBPAbstractField> array = (JBBPAbstractArrayField<? extends JBBPAbstractField>) field;
+        if (array.size() > 0) {
+          if (array instanceof JBBPFieldArrayBit) {
+            Byte(((JBBPFieldArrayBit) array).getArray());
+          }
+          else if (array instanceof JBBPFieldArrayBoolean) {
+            final boolean[] boolArray = ((JBBPFieldArrayBoolean) array).getArray();
+            final String[] arrayToPrint = new String[boolArray.length];
+            for (int i = 0; i < boolArray.length; i++) {
+              arrayToPrint[i] = boolArray[i] ? "T" : "F";
+            }
+            Str(arrayToPrint);
+          }
+          else if (array instanceof JBBPFieldArrayByte) {
+            Byte(((JBBPFieldArrayByte) array).getArray());
+          }
+          else if (array instanceof JBBPFieldArrayInt) {
+            Int(((JBBPFieldArrayInt) array).getArray());
+          }
+          else if (array instanceof JBBPFieldArrayLong) {
+            Long(((JBBPFieldArrayLong) array).getArray());
+          }
+          else if (array instanceof JBBPFieldArrayShort) {
+            Short(((JBBPFieldArrayShort) array).getArray());
+          }
+          else if (array instanceof JBBPFieldArrayStruct) {
+            final JBBPFieldArrayStruct structArray = (JBBPFieldArrayStruct) array;
+            int index = 0;
+            for (final JBBPFieldStruct s : structArray.getArray()) {
+              printAbstractFieldObject('[' + Integer.toString(index++) + ']', s);
+            }
+          }
+          else if (array instanceof JBBPFieldArrayUByte) {
+            Byte(((JBBPFieldArrayUByte) array).getArray());
+          }
+          else if (array instanceof JBBPFieldArrayUShort) {
+            Short(((JBBPFieldArrayUShort) array).getArray());
+          }
+          else {
+            throw new Error("Unexpected field [" + field.getClass() + ']');
+          }
+        }
+      }
+      else {
+        final JBBPFieldStruct struct = (JBBPFieldStruct) field;
+        for (final JBBPAbstractField f : struct.getArray()) {
+          printAbstractFieldObject(null, f);
+        }
+      }
+      IndentDec();
+      HR();
+      Comment(" End " + makeFieldComment(field) + postfix);
+      HR();
+    }
+    else {
+      if (field instanceof JBBPNumericField) {
+        final JBBPNumericField numeric = (JBBPNumericField) field;
+        if (numeric instanceof JBBPFieldBit) {
+          Byte(numeric.getAsInt());
+        }
+        else if (numeric instanceof JBBPFieldBoolean) {
+          Str(numeric.getAsBool() ? "T" : "F");
+        }
+        else if (numeric instanceof JBBPFieldByte) {
+          Byte(numeric.getAsInt());
+        }
+        else if (numeric instanceof JBBPFieldInt) {
+          Int(numeric.getAsInt());
+        }
+        else if (numeric instanceof JBBPFieldLong) {
+          Long(numeric.getAsLong());
+        }
+        else if (numeric instanceof JBBPFieldShort) {
+          Short(numeric.getAsInt());
+        }
+        else if (numeric instanceof JBBPFieldUByte) {
+          Byte(numeric.getAsInt());
+        }
+        else if (numeric instanceof JBBPFieldUShort) {
+          Short(numeric.getAsInt());
+        }
+        else {
+          throw new Error("Unexpected field [" + field.getClass() + ']');
+        }
+        Comment(" " + makeFieldComment(field) + postfix);
+      }
+    }
   }
 
   /**

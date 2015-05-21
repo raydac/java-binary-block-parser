@@ -385,4 +385,8 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
     return JBBPMapper.map(this, objectToMap, customFieldProcessor, flags);
   }
 
+  @Override
+  public String getTypeAsString() {
+    return "{}";
+  }
 }

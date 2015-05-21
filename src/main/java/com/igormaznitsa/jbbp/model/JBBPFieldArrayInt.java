@@ -88,4 +88,8 @@ public final class JBBPFieldArrayInt extends JBBPAbstractArrayField<JBBPFieldInt
     return result;
   }
 
+  @Override
+  public String getTypeAsString() {
+    return "int " + '[' + this.array.length + ']';
+  }
 }

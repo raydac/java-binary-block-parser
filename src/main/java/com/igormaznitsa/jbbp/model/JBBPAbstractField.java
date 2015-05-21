@@ -22,7 +22,7 @@ import java.io.Serializable;
  * The Class is the ancestor for all fields and arrays of fields.
  * @since 1.0
  */
-public class JBBPAbstractField implements Serializable {
+public abstract class JBBPAbstractField implements Serializable {
   private static final long serialVersionUID = 8142829902016660630L;
   
   /**
@@ -63,4 +63,12 @@ public class JBBPAbstractField implements Serializable {
   public String getFieldName(){
     return this.fieldNameInfo == null ? null : this.fieldNameInfo.getFieldName();
   }
+
+  /**
+   * Get the field type in string representation.
+   * 
+   * @return the string representation of field type, like 'int', 'long', 'bool [123]'
+   * @since 1.2.0
+   */
+  public abstract String getTypeAsString();
 }

@@ -24,9 +24,8 @@ import com.igormaznitsa.jbbp.utils.JBBPTextWriter.Extra;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.junit.Test;
+import org.junit.*;
 import static org.junit.Assert.*;
-import org.junit.Before;
 
 public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
 
@@ -688,6 +687,61 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
     finally {
       JBBPUtils.closeQuietly(pngStream);
     }
+  }
+
+  @Test
+  public void testBin_ParsedPng_NonMappedRawStruct() throws Exception {
+    final InputStream pngStream = getResourceAsInputStream("picture.png");
+    try {
+
+      final JBBPParser pngParser = JBBPParser.prepare(
+              "long header;"
+              + "// chunks\n"
+              + "chunks [_]{"
+              + "   int length; "
+              + "   int type; "
+              + "   byte[length] data; "
+              + "   int crc;"
+              + "}"
+      );
+
+      final String text = writer.SetMaxValuesPerLine(16).Bin(pngParser.parse(pngStream)).Close().toString();
+      System.out.println(text);
+      assertFile("testwriterbin2b.txt", text);
+    }
+    finally {
+      JBBPUtils.closeQuietly(pngStream);
+    }
+  }
+
+  @Test
+  public void testBin_AllEasyTypes_NonMappedRawStruct() throws Exception {
+      final JBBPParser parser = JBBPParser.prepare("bit:2 a1; bit:6 a2; byte a; ubyte b; short c; ushort d; int e; long f; bool g;");
+      final byte [] testArray = new byte[]{(byte)0xDE,(byte)0x12,(byte)0xFE,(byte)0x23,(byte)0x11,(byte)0x45,(byte)0xDA,(byte)0x82,(byte)0xA0,(byte)0x33,(byte)0x7F,(byte)0x99,(byte)0x04,(byte)0x10, (byte)0x45, (byte)0xBD, (byte)0xCA, (byte)0xFE, (byte)0x12, (byte)0x11, (byte)0xBA, (byte)0xBE};
+      
+      final String text = writer.SetMaxValuesPerLine(16).Bin(parser.parse(testArray)).Close().toString();
+      System.out.println(text);
+      assertFile("raweasytypeswriterbin.txt", text);
+  }
+
+  @Test
+  public void testBin_AllEasyTypes_Anonymous_NonMappedRawStruct() throws Exception {
+      final JBBPParser parser = JBBPParser.prepare("bit:2; bit:6; byte; ubyte; short; ushort; int; long; bool;");
+      final byte [] testArray = new byte[]{(byte)0xDE,(byte)0x12,(byte)0xFE,(byte)0x23,(byte)0x11,(byte)0x45,(byte)0xDA,(byte)0x82,(byte)0xA0,(byte)0x33,(byte)0x7F,(byte)0x99,(byte)0x04,(byte)0x10, (byte)0x45, (byte)0xBD, (byte)0xCA, (byte)0xFE, (byte)0x12, (byte)0x11, (byte)0xBA, (byte)0xBE};
+      
+      final String text = writer.SetMaxValuesPerLine(16).Bin(parser.parse(testArray)).Close().toString();
+      System.out.println(text);
+      assertFile("raweasytypeswriterbin_an.txt", text);
+  }
+
+  @Test
+  public void testBin_BooleanArray_NonMappedRawStruct() throws Exception {
+      final JBBPParser parser = JBBPParser.prepare("bool [_] array;");
+      final byte [] testArray = new byte[]{(byte)0xDE,(byte)0x00,(byte)0xFE,(byte)0x00,(byte)0x11,(byte)0x45,(byte)0xDA,(byte)0x82,(byte)0xA0,(byte)0x33,(byte)0x7F,(byte)0x99,(byte)0x04,(byte)0x10, (byte)0x45, (byte)0xBD, (byte)0xCA, (byte)0xFE, (byte)0x12, (byte)0x11, (byte)0x00, (byte)0xBE};
+      
+      final String text = writer.SetMaxValuesPerLine(16).Bin(parser.parse(testArray)).Close().toString();
+      System.out.println(text);
+      assertFile("boolarrayraw.txt", text);
   }
 
   @Test

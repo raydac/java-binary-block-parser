@@ -88,4 +88,8 @@ public final class JBBPFieldArrayShort extends JBBPAbstractArrayField<JBBPFieldS
     return result;
   }
   
+  @Override
+  public String getTypeAsString() {
+    return "short " + '[' + this.array.length + ']';
+  }
 }

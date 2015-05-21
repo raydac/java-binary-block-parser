@@ -63,4 +63,9 @@ public final class JBBPFieldBoolean extends JBBPAbstractField implements JBBPNum
   public long getAsInvertedBitOrder() {
     return reverseBits(this.value);
   }  
+
+  @Override
+  public String getTypeAsString() {
+    return "bool";
+  }
 }

@@ -74,4 +74,9 @@ public final class JBBPFieldLong extends JBBPAbstractField implements JBBPNumeri
     return reverseBits(this.value);
   }
 
+  @Override
+  public String getTypeAsString() {
+    return "long";
+  }
+
 }

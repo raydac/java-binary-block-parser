@@ -82,4 +82,8 @@ public final class JBBPFieldBit extends JBBPAbstractField implements JBBPNumeric
     return reverseBits((byte)this.value, this.bitNumber);
   }
  
+  @Override
+  public String getTypeAsString() {
+    return "bit:"+this.bitNumber.getBitNumber();
+  }
 }

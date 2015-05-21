@@ -64,4 +64,10 @@ public final class JBBPFieldByte extends JBBPAbstractField implements JBBPNumeri
   public long getAsInvertedBitOrder() {
     return reverseBits(this.value);
   }
+
+  @Override
+  public String getTypeAsString() {
+    return "byte";
+  }
+
 }

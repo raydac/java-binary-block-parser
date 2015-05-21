@@ -107,4 +107,9 @@ public final class JBBPFieldArrayBit extends JBBPAbstractArrayField<JBBPFieldBit
     }
     return result;
   }
+
+  @Override
+  public String getTypeAsString() {
+    return "bit:"+this.bitNumber.getBitNumber()+" ["+this.array.length+']';
+  }
 }

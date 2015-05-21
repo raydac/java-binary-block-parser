@@ -87,4 +87,9 @@ public final class JBBPFieldArrayLong extends JBBPAbstractArrayField<JBBPFieldLo
     }
     return result;
   }
+
+  @Override
+  public String getTypeAsString() {
+    return "long " + '[' + this.array.length + ']';
+  }
 }

@@ -67,4 +67,9 @@ public final class JBBPFieldUShort extends JBBPAbstractField implements JBBPNume
   public long getAsInvertedBitOrder() {
     return reverseBits(this.value);
   }
+
+  @Override
+  public String getTypeAsString() {
+    return "ushort";
+  }
 }

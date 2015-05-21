@@ -69,4 +69,10 @@ public final class JBBPFieldInt extends JBBPAbstractField implements JBBPNumeric
   public long getAsInvertedBitOrder() {
     return reverseBits(this.value);
   }
+
+  @Override
+  public String getTypeAsString() {
+    return "int";
+  }
+
 }

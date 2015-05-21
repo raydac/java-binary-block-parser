@@ -65,4 +65,8 @@ public final class JBBPFieldUByte extends JBBPAbstractField implements JBBPNumer
     return reverseBits(value);
   }
 
+  @Override
+  public String getTypeAsString() {
+    return "ubyte";
+  }
 }

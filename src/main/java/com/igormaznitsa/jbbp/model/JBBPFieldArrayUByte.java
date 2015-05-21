@@ -71,4 +71,8 @@ public final class JBBPFieldArrayUByte extends AbstractFieldByteArray<JBBPFieldU
     return result;
   }
   
+  @Override
+  public String getTypeAsString() {
+    return "ubyte " + '[' + this.array.length + ']';
+  }
 }
