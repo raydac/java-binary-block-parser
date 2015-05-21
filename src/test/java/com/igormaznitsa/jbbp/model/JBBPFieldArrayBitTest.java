@@ -17,7 +17,7 @@ package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
-import java.util.Random;
+import java.io.Serializable;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -62,6 +62,18 @@ public class JBBPFieldArrayBitTest {
     final int [] etalon = new int[]{255,0,1,2,3};
     for(int i=0;i<etalon.length;i++){
       assertEquals(etalon[i], test.getAsInt(i));
+    }
+  }
+  
+  @Test
+  public void testGetElementAt(){
+    final int [] etalon = new int[]{255,0,1,2,3};
+    final Serializable payload = new FakePayload();
+    test.setPayload(payload);
+    for(int i=0;i<etalon.length;i++){
+      final JBBPFieldBit f = test.getElementAt(i);
+      assertSame(payload,f.getPayload());
+      assertEquals(etalon[i], f.getAsInt());
     }
   }
   

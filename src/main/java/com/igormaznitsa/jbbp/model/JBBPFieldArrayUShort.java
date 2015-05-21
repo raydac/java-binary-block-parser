@@ -55,7 +55,9 @@ public final class JBBPFieldArrayUShort extends JBBPAbstractArrayField<JBBPField
 
   @Override
   public JBBPFieldUShort getElementAt(final int index) {
-    return new JBBPFieldUShort(this.fieldNameInfo, this.array[index]);
+    final JBBPFieldUShort result = new JBBPFieldUShort(this.fieldNameInfo, this.array[index]);
+    result.payload = this.payload;
+    return result;
   }
 
   @Override

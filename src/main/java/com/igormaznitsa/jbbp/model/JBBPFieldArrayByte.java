@@ -48,7 +48,9 @@ public final class JBBPFieldArrayByte extends AbstractFieldByteArray<JBBPFieldBy
 
   @Override
   public JBBPFieldByte getElementAt(final int index) {
-    return new JBBPFieldByte(this.fieldNameInfo, this.array[index]);
+    final JBBPFieldByte result = new JBBPFieldByte(this.fieldNameInfo, this.array[index]);
+    result.payload = this.payload;
+    return result;
   }
 
   @Override

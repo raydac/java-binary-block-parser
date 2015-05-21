@@ -55,7 +55,9 @@ public final class JBBPFieldArrayBoolean extends JBBPAbstractArrayField<JBBPFiel
 
   @Override
   public JBBPFieldBoolean getElementAt(final int index) {
-    return new JBBPFieldBoolean(this.fieldNameInfo, getAsBool(index));
+    final JBBPFieldBoolean result = new JBBPFieldBoolean(this.fieldNameInfo, getAsBool(index));
+    result.payload = this.payload;
+    return result;
   }
 
   @Override

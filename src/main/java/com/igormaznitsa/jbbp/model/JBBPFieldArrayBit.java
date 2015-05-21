@@ -76,7 +76,9 @@ public final class JBBPFieldArrayBit extends JBBPAbstractArrayField<JBBPFieldBit
 
   @Override
   public JBBPFieldBit getElementAt(final int index) {
-    return new JBBPFieldBit(this.fieldNameInfo, this.getAsInt(index), this.bitNumber);
+    final JBBPFieldBit result = new JBBPFieldBit(this.fieldNameInfo, this.getAsInt(index), this.bitNumber);
+    result.payload = this.payload;
+    return result;
   }
 
   @Override

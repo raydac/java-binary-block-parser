@@ -16,6 +16,7 @@
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import java.io.Serializable;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -65,6 +66,18 @@ public class JBBPFieldArrayUByteTest {
     }
   }
 
+  @Test
+  public void testGetElementAt() {
+    final int[] etalon = new int[]{255, 0, 1, 2, 3};
+    final Serializable payload = new FakePayload();
+    test.setPayload(payload);
+    for (int i = 0; i < etalon.length; i++) {
+      final JBBPFieldUByte f = test.getElementAt(i);
+      assertSame(payload, f.getPayload());
+      assertEquals(etalon[i], f.getAsInt());
+    }
+  }
+  
   @Test
   public void testIterable() {
     final int[] etalon = new int[]{255, 0, 1, 2, 3};

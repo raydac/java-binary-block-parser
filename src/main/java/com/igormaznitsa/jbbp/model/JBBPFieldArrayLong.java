@@ -55,7 +55,9 @@ public final class JBBPFieldArrayLong extends JBBPAbstractArrayField<JBBPFieldLo
 
   @Override
   public JBBPFieldLong getElementAt(final int index) {
-    return new JBBPFieldLong(this.fieldNameInfo, this.array[index]);
+    final JBBPFieldLong result = new JBBPFieldLong(this.fieldNameInfo, this.array[index]);
+    result.payload = this.payload;
+    return result;
   }
 
   @Override

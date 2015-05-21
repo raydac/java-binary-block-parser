@@ -97,6 +97,7 @@ public abstract class JBBPAbstractArrayField<T extends JBBPAbstractField> extend
         return getElementAt(this.index++);
       }
 
+      @Override
       public void remove() {
         throw new UnsupportedOperationException("Removing is unsupported here");
       }

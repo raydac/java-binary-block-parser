@@ -16,6 +16,7 @@
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import java.io.Serializable;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -65,6 +66,19 @@ public class JBBPFieldArrayLongTest {
     }
   }
 
+  @Test
+  public void testGetElementAt() {
+    final long[] etalon = new long[]{-278349872364L, 12223423987439324L, 0L, -2782346872343L, 37238468273412L};
+    final Serializable payload = new FakePayload();
+    test.setPayload(payload);
+    for (int i = 0; i < etalon.length; i++) {
+      final JBBPFieldLong f = test.getElementAt(i);
+      assertSame(payload, f.getPayload());
+      assertEquals(etalon[i], f.getAsLong());
+    }
+  }
+
+  
   @Test
   public void testIterable() {
     final long[] etalon = new long[]{-278349872364L, 12223423987439324L, 0L, -2782346872343L, 37238468273412L};
