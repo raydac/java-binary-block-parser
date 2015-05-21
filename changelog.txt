@@ -7,6 +7,8 @@ Change log
 - Fixed NPE in JBBPTextWriter for String field mapped to byte array 
 - Added support of custom field types through JBBPCustomFieldTypeProcessor
 - Added JBBPCustomFieldTypeProcessorAggregator, auxiliary class to join several JBBPCustomFieldTypeProcessors
+- Fixed JBBPTextWriter, added support of logging for JBBPAbstractField objects
+- Added support of payload objects in JBBPAbstractField
 
 1.1.0
 - Added support to write mapped classes into JBBPOut
