@@ -38,7 +38,17 @@ public final class JBBPFieldInt extends JBBPAbstractField implements JBBPNumeric
     super(name);
     this.value = value;
   }
-  
+
+  @Override
+  protected String getKeyPrefix() {
+    return "field_int";
+  }
+
+  @Override
+  protected Object getValue() {
+    return getAsInt();
+  }
+
   public int getAsInt() {
     return this.value;
   }

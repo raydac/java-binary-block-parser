@@ -19,6 +19,9 @@ import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Describes an array contains bit fields.
  * @since 1.0
@@ -59,6 +62,20 @@ public final class JBBPFieldArrayBit extends JBBPAbstractArrayField<JBBPFieldBit
    */
   public byte[] getArray() {
     return this.array.clone();
+  }
+
+  @Override
+  protected String getKeyPrefix() {
+    return "array_bit";
+  }
+
+  @Override
+  protected Object getValue() {
+    List<Object> valueList = new ArrayList<Object>();
+    for (byte b : getArray()) {
+      valueList.add((int)b);
+    }
+    return valueList;
   }
 
   /**

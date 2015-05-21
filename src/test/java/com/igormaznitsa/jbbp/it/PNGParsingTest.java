@@ -22,6 +22,8 @@ import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.model.*;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 import java.util.zip.CRC32;
 import static org.junit.Assert.*;
 import org.junit.Test;
@@ -255,4 +257,128 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
     }
   }
 
+  @Test
+  public void testPngParsing_asMap() throws Exception {
+    final InputStream pngStream = getResourceAsInputStream("picture.png");
+    try {
+
+      final JBBPParser pngParser = JBBPParser.prepare(
+          "long header;"
+              + "// chunks\n"
+              + "chunk [_]{"
+              + "   int length; "
+              + "   int type; "
+              + "   byte[length] data; "
+              + "   int crc;"
+              + "}"
+      );
+
+      final JBBPFieldStruct result = pngParser.parse(pngStream);
+      final Map<String, Object> resultMap = result.asMap();
+
+      assertEquals(0x89504E470D0A1A0AL, resultMap.get("header"));
+
+      final List<Object> chunks = (List<Object>)resultMap.get("chunk");
+      final String[] chunkNames = new String[]{"IHDR", "gAMA", "bKGD", "pHYs", "tIME", "tEXt", "IDAT", "IEND"};
+      final int[] chunkSizes = new int[]{0x0D, 0x04, 0x06, 0x09, 0x07, 0x19, 0x0E5F, 0x00};
+
+      assertEquals(chunkNames.length, chunks.size());
+
+      for (int i = 0; i < chunks.size(); i++) {
+        final String name = chunkNames[i];
+        final int length = chunkSizes[i];
+        final Map<String, Object> chunk = (Map<String, Object>)chunks.get(i);
+        final int chunkName = (name.charAt(0) << 24) | (name.charAt(1) << 16) | (name.charAt(2) << 8) | name.charAt(3);
+
+        assertEquals("Chunk must be " + name, chunkName, chunk.get("type"));
+        assertEquals("Chunk length must be " + length, length, chunk.get("length"));
+
+        final CRC32 crc32 = new CRC32();
+        crc32.update(name.charAt(0));
+        crc32.update(name.charAt(1));
+        crc32.update(name.charAt(2));
+        crc32.update(name.charAt(3));
+
+        if (length != 0) {
+          assertEquals("Data array " + name + " must be " + length, length, ((List)chunk.get("data")).size());
+          final byte[] array = new byte[length];
+          final List<Integer> data = (List<Integer>)chunk.get("data");
+          for (int cnt = 0; cnt < length; cnt++) {
+            array[cnt] = data.get(cnt).byteValue();
+          }
+          crc32.update(array);
+        }
+
+        final int crc = (int) crc32.getValue();
+        assertEquals("CRC32 for " + name + " must be " + crc, crc, chunk.get("crc"));
+      }
+
+      assertEquals(3847, pngParser.getFinalStreamByteCounter());
+    }
+    finally {
+      JBBPUtils.closeQuietly(pngStream);
+    }
+  }
+
+  @Test
+  public void testPngParsing_asMap_unnamed() throws Exception {
+    final InputStream pngStream = getResourceAsInputStream("picture.png");
+    try {
+
+      final JBBPParser pngParser = JBBPParser.prepare(
+          "long;"
+              + "// chunks\n"
+              + "[_]{"
+              + "   int length; "
+              + "   int; "
+              + "   byte[length]; "
+              + "   int;"
+              + "}"
+      );
+
+      final JBBPFieldStruct result = pngParser.parse(pngStream);
+      final Map<String, Object> resultMap = result.asMap();
+      assertEquals(0x89504E470D0A1A0AL, resultMap.get("field_long_0"));
+
+      final List<Object> chunks = (List<Object>)resultMap.get("array_struct_1");
+      final String[] chunkNames = new String[]{"IHDR", "gAMA", "bKGD", "pHYs", "tIME", "tEXt", "IDAT", "IEND"};
+      final int[] chunkSizes = new int[]{0x0D, 0x04, 0x06, 0x09, 0x07, 0x19, 0x0E5F, 0x00};
+
+      assertEquals(chunkNames.length, chunks.size());
+
+      for (int i = 0; i < chunks.size(); i++) {
+        final String name = chunkNames[i];
+        final int length = chunkSizes[i];
+        final Map<String, Object> chunk = (Map<String, Object>)chunks.get(i);
+        final int chunkName = (name.charAt(0) << 24) | (name.charAt(1) << 16) | (name.charAt(2) << 8) | name.charAt(3);
+
+        assertEquals("Chunk must be " + name, chunkName, chunk.get("field_int_1"));
+        assertEquals("Chunk length must be " + length, length, chunk.get("length"));
+
+        final CRC32 crc32 = new CRC32();
+        crc32.update(name.charAt(0));
+        crc32.update(name.charAt(1));
+        crc32.update(name.charAt(2));
+        crc32.update(name.charAt(3));
+
+        if (length != 0) {
+          assertEquals("Data array " + name + " must be " + length, length, ((List)chunk.get("array_byte_2")).size());
+          final byte[] array = new byte[length];
+          final List<Integer> data = (List<Integer>)chunk.get("array_byte_2");
+          for (int cnt = 0; cnt < length; cnt++) {
+            array[cnt] = data.get(cnt).byteValue();
+          }
+          crc32.update(array);
+        }
+
+        final int crc = (int) crc32.getValue();
+        assertEquals("CRC32 for " + name + " must be " + crc, crc, chunk.get("field_int_3"));
+      }
+
+      assertEquals(3847, pngParser.getFinalStreamByteCounter());
+    }
+    finally {
+      JBBPUtils.closeQuietly(pngStream);
+    }
+  }
 }

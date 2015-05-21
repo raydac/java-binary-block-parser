@@ -38,6 +38,16 @@ public final class JBBPFieldBoolean extends JBBPAbstractField implements JBBPNum
     this.value = value;
   }
 
+  @Override
+  protected String getKeyPrefix() {
+    return "field_boolean";
+  }
+
+  @Override
+  protected Object getValue() {
+    return this.value;
+  }
+
   public int getAsInt() {
     return this.value ? 1 : 0;
   }

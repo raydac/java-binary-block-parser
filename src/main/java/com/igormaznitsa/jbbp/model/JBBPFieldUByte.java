@@ -38,7 +38,17 @@ public final class JBBPFieldUByte extends JBBPAbstractField implements JBBPNumer
     super(name);
     this.value = value;
   }
-  
+
+  @Override
+  protected String getKeyPrefix() {
+    return "field_ubyte";
+  }
+
+  @Override
+  protected Object getValue() {
+    return getAsInt();
+  }
+
   public int getAsInt() {
     return this.value & 0xFF;
   }

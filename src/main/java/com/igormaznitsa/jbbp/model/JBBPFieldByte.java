@@ -38,7 +38,17 @@ public final class JBBPFieldByte extends JBBPAbstractField implements JBBPNumeri
     super(name);
     this.value = value;
   }
-  
+
+  @Override
+  protected String getKeyPrefix() {
+    return "field_byte";
+  }
+
+  @Override
+  protected Object getValue() {
+    return getAsInt();
+  }
+
   public int getAsInt() {
     return this.value;
   }

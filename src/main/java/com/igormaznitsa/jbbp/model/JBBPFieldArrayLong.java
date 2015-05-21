@@ -18,6 +18,9 @@ package com.igormaznitsa.jbbp.model;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Describes a long array.
  * @since 1.0
@@ -46,6 +49,20 @@ public final class JBBPFieldArrayLong extends JBBPAbstractArrayField<JBBPFieldLo
    */
   public long [] getArray(){
     return this.array.clone();
+  }
+
+  @Override
+  protected String getKeyPrefix() {
+    return "array_long";
+  }
+
+  @Override
+  protected Object getValue() {
+    List<Object> valueList = new ArrayList<Object>();
+    for (long l : getArray()) {
+      valueList.add(l);
+    }
+    return valueList;
   }
 
   @Override

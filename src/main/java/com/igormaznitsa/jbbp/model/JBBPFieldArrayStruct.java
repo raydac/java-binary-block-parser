@@ -18,6 +18,9 @@ package com.igormaznitsa.jbbp.model;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Describes a structure array. It doesn't support operations to get an array value as a numeric one.
  * @since 1.0
@@ -47,7 +50,21 @@ public final class JBBPFieldArrayStruct extends JBBPAbstractArrayField<JBBPField
   public JBBPFieldStruct [] getArray(){
     return this.structs.clone();
   }
-  
+
+  @Override
+  protected String getKeyPrefix() {
+    return "array_struct";
+  }
+
+  @Override
+  protected Object getValue() {
+    List<Object> valueList = new ArrayList<Object>();
+    for (JBBPFieldStruct struct : getArray()) {
+      valueList.add(struct.getValue());
+    }
+    return valueList;
+  }
+
   @Override
   public int size() {
     return this.structs.length;

@@ -18,6 +18,9 @@ package com.igormaznitsa.jbbp.model;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Describes an array of boolean values.
  * @since 1.0
@@ -39,7 +42,6 @@ public final class JBBPFieldArrayBoolean extends JBBPAbstractArrayField<JBBPFiel
     JBBPUtils.assertNotNull(array, "Array must not be null");
     this.array = array;
   }
-  
   /**
    * Get values of the array.
    * @return values as a boolean array
@@ -47,7 +49,21 @@ public final class JBBPFieldArrayBoolean extends JBBPAbstractArrayField<JBBPFiel
   public boolean [] getArray(){
     return this.array.clone();
   }
-  
+
+  @Override
+  protected String getKeyPrefix() {
+    return "array_boolean";
+  }
+
+  @Override
+  protected Object getValue() {
+    List<Object> valueList = new ArrayList<Object>();
+    for (boolean bool : getArray()) {
+      valueList.add(bool);
+    }
+    return valueList;
+  }
+
   @Override
   public int size() {
     return this.array.length;

@@ -38,7 +38,17 @@ public final class JBBPFieldShort extends JBBPAbstractField implements JBBPNumer
     super(name);
     this.value = value;
   }
-  
+
+  @Override
+  protected String getKeyPrefix() {
+    return "field_short";
+  }
+
+  @Override
+  protected Object getValue() {
+    return getAsInt();
+  }
+
   public int getAsInt() {
     return this.value;
   }

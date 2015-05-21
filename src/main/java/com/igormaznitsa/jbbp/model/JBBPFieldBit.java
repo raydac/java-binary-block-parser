@@ -47,7 +47,17 @@ public final class JBBPFieldBit extends JBBPAbstractField implements JBBPNumeric
     this.bitNumber = bitNumber;
     this.value = value;
   }
-  
+
+  @Override
+  protected String getKeyPrefix() {
+    return "field_bit";
+  }
+
+  @Override
+  protected Object getValue() {
+    return getAsInt();
+  }
+
   /**
    * Get number of valuable bits in the value. It plays informative role and doesn't play role during numeric value getting.
    * @return the number of valuable bits in the value.
