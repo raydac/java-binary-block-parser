@@ -17,10 +17,38 @@ package com.igormaznitsa.jbbp.it;
 
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-import java.io.InputStream;
-import static org.junit.Assert.assertArrayEquals;
+import java.io.*;
+import static org.junit.Assert.*;
 
 public abstract class AbstractParserIntegrationTest {
+
+  public void assertFile(final String fileName, final String text) throws Exception {
+    final InputStream in = this.getClass().getResourceAsStream(fileName);
+    assertNotNull("Can't find file [" + fileName + "]", in);
+    Reader reader = null;
+    String fileText = null;
+    try {
+      reader = new InputStreamReader(in, "UTF-8");
+      final StringWriter wr = new StringWriter();
+
+      while (true) {
+        final int chr = reader.read();
+        if (chr < 0) {
+          break;
+        }
+        wr.write(chr);
+      }
+      wr.close();
+      fileText = wr.toString();
+    }
+    finally {
+      if (reader != null) {
+        reader.close();
+      }
+    }
+
+    assertEquals("File content must be equals", fileText, text);
+  }
 
   public InputStream getResourceAsInputStream(final String resourceName) throws Exception {
     final InputStream result = this.getClass().getResourceAsStream(resourceName);

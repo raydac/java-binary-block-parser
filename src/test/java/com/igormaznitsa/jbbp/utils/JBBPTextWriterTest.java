@@ -31,34 +31,6 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
 
   private JBBPTextWriter writer;
 
-  private void assertFile(final String fileName, final String text) throws Exception {
-    final InputStream in = this.getClass().getResourceAsStream(fileName);
-    assertNotNull("Can't find file [" + fileName + "]", in);
-    Reader reader = null;
-    String fileText = null;
-    try {
-      reader = new InputStreamReader(in, "UTF-8");
-      final StringWriter wr = new StringWriter();
-
-      while (true) {
-        final int chr = reader.read();
-        if (chr < 0) {
-          break;
-        }
-        wr.write(chr);
-      }
-      wr.close();
-      fileText = wr.toString();
-    }
-    finally {
-      if (reader != null) {
-        reader.close();
-      }
-    }
-
-    assertEquals("File content must be equals", fileText, text);
-  }
-
   @Before
   public void before() {
     writer = new JBBPTextWriter(new StringWriter(), JBBPByteOrder.BIG_ENDIAN, "\n", 16, "0x", ".", ";","~", ",");
@@ -721,7 +693,7 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
       
       final String text = writer.SetMaxValuesPerLine(16).Bin(parser.parse(testArray)).Close().toString();
       System.out.println(text);
-      assertFile("raweasytypeswriterbin.txt", text);
+      assertFile("txtwrtrjbbpobj1.txt", text);
   }
 
   @Test
@@ -731,7 +703,7 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
       
       final String text = writer.SetMaxValuesPerLine(16).Bin(parser.parse(testArray)).Close().toString();
       System.out.println(text);
-      assertFile("raweasytypeswriterbin_an.txt", text);
+      assertFile("txtwrtrjbbpobj2.txt", text);
   }
 
   @Test
