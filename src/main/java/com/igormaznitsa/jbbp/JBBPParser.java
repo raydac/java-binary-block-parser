@@ -132,8 +132,12 @@ public final class JBBPParser {
         break;
       }
       
-      final int code = compiled[positionAtCompiledBlock.getAndIncrement()] & 0xFF;
-
+      final int c = compiled[positionAtCompiledBlock.getAndIncrement()] & 0xFF;
+      final boolean noExtraField = (c & JBBPCompiler.FLAG_EXTRA_FLAGS) == 0;
+      final int ec = noExtraField ? 0 : compiled[positionAtCompiledBlock.getAndIncrement()] & 0xFF;
+      
+      final int code = (ec<<8) | c;
+      
       final JBBPNamedFieldInfo name = (code & JBBPCompiler.FLAG_NAMED) == 0 ? null : compiledBlock.getNamedFields()[positionAtNamedFieldList.getAndIncrement()];
       final JBBPByteOrder byteOrder = (code & JBBPCompiler.FLAG_LITTLE_ENDIAN) == 0 ? JBBPByteOrder.BIG_ENDIAN : JBBPByteOrder.LITTLE_ENDIAN;
 
@@ -141,7 +145,7 @@ public final class JBBPParser {
       final boolean wholeStreamArray;
       final int arrayLength;
       final int packedArraySizeOffset;
-      switch (code & (JBBPCompiler.FLAG_ARRAY | JBBPCompiler.FLAG_EXPRESSION_OR_WHOLESTREAM)) {
+      switch (code & (JBBPCompiler.FLAG_ARRAY | (JBBPCompiler.EXTRAFLAG_EXPRESSION_OR_WHOLESTREAM<<8))) {
         case JBBPCompiler.FLAG_ARRAY: {
           final int pos = positionAtCompiledBlock.get();
           arrayLength = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
@@ -149,13 +153,13 @@ public final class JBBPParser {
           wholeStreamArray = false;
         }
         break;
-        case JBBPCompiler.FLAG_EXPRESSION_OR_WHOLESTREAM: {
+        case (JBBPCompiler.EXTRAFLAG_EXPRESSION_OR_WHOLESTREAM << 8): {
           wholeStreamArray = resultNotIgnored;
           packedArraySizeOffset = 0;
           arrayLength = 0;
         }
         break;
-        case JBBPCompiler.FLAG_ARRAY | JBBPCompiler.FLAG_EXPRESSION_OR_WHOLESTREAM: {
+        case JBBPCompiler.FLAG_ARRAY | (JBBPCompiler.EXTRAFLAG_EXPRESSION_OR_WHOLESTREAM << 8): {
           final JBBPIntegerValueEvaluator evaluator = this.compiledBlock.getArraySizeEvaluators()[positionAtVarLengthProcessors.getAndIncrement()];
           arrayLength = resultNotIgnored ? evaluator.eval(inStream, positionAtCompiledBlock.get(), this.compiledBlock, namedNumericFieldMap) : 0;
           packedArraySizeOffset = 0;
@@ -359,7 +363,7 @@ public final class JBBPParser {
                     final int structStart = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
 
                     if (inStream.hasAvailableData()) {
-                      positionAtCompiledBlock.set(structStart + 1);
+                      positionAtCompiledBlock.set(structStart + (noExtraField ? 1 : 2));
                     }
                   }
 
@@ -386,7 +390,7 @@ public final class JBBPParser {
                         // not the last
                         positionAtNamedFieldList.set(nameFieldCurrent);
                         positionAtVarLengthProcessors.set(varLenProcCurrent);
-                        positionAtCompiledBlock.set(structBodyStart + packedArraySizeOffset + 1);
+                        positionAtCompiledBlock.set(structBodyStart + packedArraySizeOffset + (noExtraField ? 1 : 2));
                       }
                     }
                   }

@@ -165,11 +165,16 @@ public final class JBBPCompiler {
   public static final int FLAG_LITTLE_ENDIAN = 0x40;
 
   /**
-   * The Byte-Code Flag shows that the field is an array which size is defined
+   * The Flag shows that next byte contains extra flags.
+   */
+  public static final int FLAG_EXTRA_FLAGS = 0x80;
+
+  /**
+   * The Extra flag shows that the field is an array which size is defined
    * by an expression or the array is unsized and must be read till the end of a
    * stream.
    */
-  public static final int FLAG_EXPRESSION_OR_WHOLESTREAM = 0x80;
+  public static final int EXTRAFLAG_EXPRESSION_OR_WHOLESTREAM = 0x01;
 
   public static JBBPCompiledBlock compile(final String script) throws IOException {
     return compile(script, null);
@@ -213,9 +218,20 @@ public final class JBBPCompiler {
       final int code = prepareCodeForToken(token, customTypeFieldProcessor);
       final int startFieldOffset = offset;
 
+      final int extracode = code >>> 8;
+      
       out.write(code);
       offset++;
 
+      final int backOffset;
+      if ((code & FLAG_EXTRA_FLAGS)!=0){
+        out.write(extracode);
+        offset++;
+        backOffset = 2;
+      }else{
+        backOffset = 1;
+      }
+      
       StructStackItem currentClosedStructure = null;
       boolean extraFieldPresented = false;
       int extraField = -1;
@@ -359,7 +375,7 @@ public final class JBBPCompiler {
         }
         break;
         case CODE_STRUCT_START: {
-          structureStack.add(new StructStackItem(namedFields.size() + ((code & JBBPCompiler.FLAG_NAMED) == 0 ? 0 : 1), offset - 1, code, token));
+          structureStack.add(new StructStackItem(namedFields.size() + ((code & JBBPCompiler.FLAG_NAMED) == 0 ? 0 : 1), startFieldOffset, code, token));
         }
         break;
         case CODE_STRUCT_END: {
@@ -377,13 +393,13 @@ public final class JBBPCompiler {
       }
 
       if ((code & FLAG_ARRAY) != 0) {
-        if ((code & FLAG_EXPRESSION_OR_WHOLESTREAM) != 0) {
+        if ((extracode & EXTRAFLAG_EXPRESSION_OR_WHOLESTREAM) != 0) {
           if ("_".equals(token.getArraySizeAsString())) {
             if (fieldUnrestrictedArrayOffset >= 0) {
               throw new JBBPCompilationException("Detected two or more unlimited arrays [" + script + ']', token);
             }
             else {
-              fieldUnrestrictedArrayOffset = offset - 1;
+              fieldUnrestrictedArrayOffset = startFieldOffset;
             }
           }
           else {
@@ -522,7 +538,7 @@ public final class JBBPCompiler {
         final JBBPFieldTypeParameterContainer descriptor = token.getFieldTypeParameters();
 
         result = descriptor.getByteOrder() == JBBPByteOrder.LITTLE_ENDIAN ? FLAG_LITTLE_ENDIAN : 0;
-        result |= token.getArraySizeAsString() == null ? 0 : (token.isVarArrayLength() ? FLAG_ARRAY | FLAG_EXPRESSION_OR_WHOLESTREAM : FLAG_ARRAY);
+        result |= token.getArraySizeAsString() == null ? 0 : (token.isVarArrayLength() ? FLAG_ARRAY | FLAG_EXTRA_FLAGS | (EXTRAFLAG_EXPRESSION_OR_WHOLESTREAM<<8) : FLAG_ARRAY);
         result |= token.getFieldName() == null ? 0 : FLAG_NAMED;
 
         final String name = descriptor.getTypeName().toLowerCase(Locale.ENGLISH);
@@ -584,7 +600,7 @@ public final class JBBPCompiler {
       }
       break;
       case STRUCT_START: {
-        result = token.getArraySizeAsString() == null ? 0 : (token.isVarArrayLength() ? FLAG_ARRAY | FLAG_EXPRESSION_OR_WHOLESTREAM : FLAG_ARRAY);
+        result = token.getArraySizeAsString() == null ? 0 : (token.isVarArrayLength() ? FLAG_ARRAY | FLAG_EXTRA_FLAGS | (EXTRAFLAG_EXPRESSION_OR_WHOLESTREAM << 8) : FLAG_ARRAY);
         result |= token.getFieldName() == null ? 0 : FLAG_NAMED;
         result |= CODE_STRUCT_START;
       }

@@ -40,12 +40,13 @@ public class JBBPCompilerTest {
   @Test
   public void testCompile_StructForWholeStreamAsSecondField() throws Exception {
     final JBBPCompiledBlock block = JBBPCompiler.compile("byte;test [_] {byte;}");
-    assertEquals(5, block.getCompiledData().length);
+    assertEquals(6, block.getCompiledData().length);
     assertEquals(JBBPCompiler.CODE_BYTE, block.getCompiledData()[0]);
-    assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_EXPRESSION_OR_WHOLESTREAM | JBBPCompiler.FLAG_NAMED, block.getCompiledData()[1] & 0xFF);
-    assertEquals(JBBPCompiler.CODE_BYTE, block.getCompiledData()[2]);
-    assertEquals(JBBPCompiler.CODE_STRUCT_END, block.getCompiledData()[3]);
-    assertEquals(1, block.getCompiledData()[4]);
+    assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_EXTRA_FLAGS | JBBPCompiler.FLAG_NAMED, block.getCompiledData()[1] & 0xFF);
+    assertEquals(JBBPCompiler.EXTRAFLAG_EXPRESSION_OR_WHOLESTREAM, block.getCompiledData()[2] & 0xFF);
+    assertEquals(JBBPCompiler.CODE_BYTE, block.getCompiledData()[3]);
+    assertEquals(JBBPCompiler.CODE_STRUCT_END, block.getCompiledData()[4]);
+    assertEquals(1, block.getCompiledData()[5]);
   }
 
   @Test
@@ -62,24 +63,26 @@ public class JBBPCompilerTest {
   @Test
   public void testCompile_WholeStreamArrayInsideStructure() throws Exception {
     final JBBPCompiledBlock block = JBBPCompiler.compile("test {byte [_];}");
-    assertEquals(4, block.getCompiledData().length);
+    assertEquals(5, block.getCompiledData().length);
     assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_NAMED, block.getCompiledData()[0]);
-    assertEquals(JBBPCompiler.CODE_BYTE | JBBPCompiler.FLAG_EXPRESSION_OR_WHOLESTREAM, block.getCompiledData()[1] & 0xFF);
-    assertEquals(JBBPCompiler.CODE_STRUCT_END, block.getCompiledData()[2]);
-    assertEquals(0, block.getCompiledData()[3]);
+    assertEquals(JBBPCompiler.CODE_BYTE | JBBPCompiler.FLAG_EXTRA_FLAGS, block.getCompiledData()[1] & 0xFF);
+    assertEquals(JBBPCompiler.EXTRAFLAG_EXPRESSION_OR_WHOLESTREAM, block.getCompiledData()[2] & 0xFF);
+    assertEquals(JBBPCompiler.CODE_STRUCT_END, block.getCompiledData()[3]);
+    assertEquals(0, block.getCompiledData()[4]);
   }
 
   @Test
   public void testCompile_WholeStreamStructureArrayInsideStructure() throws Exception {
     final JBBPCompiledBlock block = JBBPCompiler.compile("test { whole[_]{ byte;}}");
-    assertEquals(7, block.getCompiledData().length);
+    assertEquals(8, block.getCompiledData().length);
     assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_NAMED, block.getCompiledData()[0]);
-    assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_EXPRESSION_OR_WHOLESTREAM, block.getCompiledData()[1] & 0xFF);
-    assertEquals(JBBPCompiler.CODE_BYTE, block.getCompiledData()[2]);
-    assertEquals(JBBPCompiler.CODE_STRUCT_END, block.getCompiledData()[3]);
-    assertEquals(1, block.getCompiledData()[4]);
-    assertEquals(JBBPCompiler.CODE_STRUCT_END, block.getCompiledData()[5]);
-    assertEquals(0, block.getCompiledData()[6]);
+    assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_EXTRA_FLAGS, block.getCompiledData()[1] & 0xFF);
+    assertEquals(JBBPCompiler.EXTRAFLAG_EXPRESSION_OR_WHOLESTREAM, block.getCompiledData()[2] & 0xFF);
+    assertEquals(JBBPCompiler.CODE_BYTE, block.getCompiledData()[3]);
+    assertEquals(JBBPCompiler.CODE_STRUCT_END, block.getCompiledData()[4]);
+    assertEquals(1, block.getCompiledData()[5]);
+    assertEquals(JBBPCompiler.CODE_STRUCT_END, block.getCompiledData()[6]);
+    assertEquals(0, block.getCompiledData()[7]);
   }
 
   @Test
@@ -459,15 +462,16 @@ public class JBBPCompilerTest {
   public void testCompile_VarLengthByteArrayInStructure() throws Exception {
     final JBBPCompiledBlock block = JBBPCompiler.compile("out { int len; some {byte [len] HeLLo;} }");
     final byte[] compiled = block.getCompiledData();
-    assertEquals(8, compiled.length);
+    assertEquals(9, compiled.length);
     assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_NAMED, compiled[0]);
     assertEquals(JBBPCompiler.CODE_INT | JBBPCompiler.FLAG_NAMED, compiled[1] & 0xFF);
     assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_NAMED, compiled[2]);
-    assertEquals(JBBPCompiler.CODE_BYTE | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_ARRAY | JBBPCompiler.FLAG_EXPRESSION_OR_WHOLESTREAM, compiled[3] & 0xFF);
-    assertEquals(JBBPCompiler.CODE_STRUCT_END, compiled[4]);
-    assertEquals(2, compiled[5]);
-    assertEquals(JBBPCompiler.CODE_STRUCT_END, compiled[6]);
-    assertEquals(0, compiled[7]);
+    assertEquals(JBBPCompiler.CODE_BYTE | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_ARRAY | JBBPCompiler.FLAG_EXTRA_FLAGS, compiled[3] & 0xFF);
+    assertEquals(JBBPCompiler.EXTRAFLAG_EXPRESSION_OR_WHOLESTREAM, compiled[4] & 0xFF);
+    assertEquals(JBBPCompiler.CODE_STRUCT_END, compiled[5]);
+    assertEquals(2, compiled[6]);
+    assertEquals(JBBPCompiler.CODE_STRUCT_END, compiled[7]);
+    assertEquals(0, compiled[8]);
     assertEquals(4, block.getNamedFields().length);
     assertEquals("out", block.getNamedFields()[0].getFieldPath());
     assertEquals("out.len", block.getNamedFields()[1].getFieldPath());
@@ -499,10 +503,11 @@ public class JBBPCompilerTest {
   public void testCompile_ArrayWithUndefinedLength() throws Exception {
     final JBBPCompiledBlock compiled = JBBPCompiler.compile("byte [_] HeLLo;");
     final JBBPNamedFieldInfo field = compiled.findFieldForPath("hello");
-    assertEquals(1, compiled.getCompiledData().length);
+    assertEquals(2, compiled.getCompiledData().length);
     assertNotNull(field);
     assertEquals(0, field.getFieldOffsetInCompiledBlock());
-    assertEquals(JBBPCompiler.CODE_BYTE | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_EXPRESSION_OR_WHOLESTREAM, compiled.getCompiledData()[0] & 0xFF);
+    assertEquals(JBBPCompiler.CODE_BYTE | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_EXTRA_FLAGS, compiled.getCompiledData()[0] & 0xFF);
+    assertEquals(JBBPCompiler.EXTRAFLAG_EXPRESSION_OR_WHOLESTREAM, compiled.getCompiledData()[1] & 0xFF);
   }
 
   @Test
