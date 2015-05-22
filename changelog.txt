@@ -9,6 +9,7 @@ Change log
 - Added JBBPCustomFieldTypeProcessorAggregator, auxiliary class to join several JBBPCustomFieldTypeProcessors
 - Fixed JBBPTextWriter, added support of logging for JBBPAbstractField objects
 - Added support of payload objects in JBBPAbstractField
+- Improved inside script compiler and interpreter to support future extensions.
 
 1.1.0
 - Added support to write mapped classes into JBBPOut
