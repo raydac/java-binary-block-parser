@@ -142,7 +142,8 @@ public final class JBBPCompiler {
   public static final int CODE_RESET_COUNTER = 0x0E;
 
   /**
-   * The Byte code shows that field should be processed by custom field type processor.
+   * The Byte code shows that field should be processed by custom field type
+   * processor.
    */
   public static final int CODE_CUSTOMTYPE = 0x0F;
 
@@ -150,22 +151,25 @@ public final class JBBPCompiler {
    * The Byte-Code Flag shows that the field is a named one.
    */
   public static final int FLAG_NAMED = 0x10;
+  
+  /**
+   * The Byte-Code Flag shows that the field is an array but it must be omitted
+   * for unlimited field arrays.
+   */
+  public static final int FLAG_ARRAY = 0x20;
+  
+  /**
+   * The Byte-Code Flag shows that a multi-byte field must be decoded as
+   * Little-endian one.
+   */
+  public static final int FLAG_LITTLE_ENDIAN = 0x40;
+
   /**
    * The Byte-Code Flag shows that the field is an array which size is defined
    * by an expression or the array is unsized and must be read till the end of a
    * stream.
    */
-  public static final int FLAG_EXPRESSION_OR_WHOLESTREAM = 0x20;
-  /**
-   * The Byte-Code Flag shows that the field is an array but it must be omitted
-   * for unlimited field arrays.
-   */
-  public static final int FLAG_ARRAY = 0x40;
-  /**
-   * The Byte-Code Flag shows that a multi-byte field must be decoded as
-   * Little-endian one.
-   */
-  public static final int FLAG_LITTLE_ENDIAN = 0x80;
+  public static final int FLAG_EXPRESSION_OR_WHOLESTREAM = 0x80;
 
   public static JBBPCompiledBlock compile(final String script) throws IOException {
     return compile(script, null);
@@ -175,7 +179,8 @@ public final class JBBPCompiler {
    * Compile a text script into its byte code representation/
    *
    * @param script a text script to be compiled, must not be null.
-   * @param customTypeFieldProcessor processor to process custom type fields, can be null
+   * @param customTypeFieldProcessor processor to process custom type fields,
+   * can be null
    * @return a compiled block for the script.
    * @throws IOException it will be thrown for an inside IO error.
    * @throws JBBPException it will be thrown for any logical or work exception
@@ -215,7 +220,7 @@ public final class JBBPCompiler {
       boolean extraFieldPresented = false;
       int extraField = -1;
       int customTypeFieldIndex = -1;
-      
+
       // check that the field is not in the current structure which is a whole stream one
       if ((code & 0xF) != CODE_STRUCT_END && fieldUnrestrictedArrayOffset >= 0 && (structureStack.isEmpty() || structureStack.get(structureStack.size() - 1).startStructureOffset != fieldUnrestrictedArrayOffset)) {
         throw new JBBPCompilationException("Attempt to read after a 'till-the-end' field", token);
@@ -397,8 +402,8 @@ public final class JBBPCompiler {
       if (extraFieldPresented) {
         offset += writePackedInt(out, extraField);
       }
-      
-      if (customTypeFieldIndex>=0){
+
+      if (customTypeFieldIndex >= 0) {
         offset += writePackedInt(out, customTypeFieldIndex);
       }
 
@@ -506,7 +511,8 @@ public final class JBBPCompiler {
    * The Method prepares a byte-code for a token field type and modifiers.
    *
    * @param token a token to be processed, must not be null
-   * @param customTypeFieldProcessor custom type field processor for the parser, it can be null
+   * @param customTypeFieldProcessor custom type field processor for the parser,
+   * it can be null
    * @return the prepared byte code for the token
    */
   private static int prepareCodeForToken(final JBBPToken token, final JBBPCustomFieldTypeProcessor customTypeFieldProcessor) {
