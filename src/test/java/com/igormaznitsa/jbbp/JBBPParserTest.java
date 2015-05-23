@@ -354,6 +354,27 @@ public class JBBPParserTest {
   }
 
   @Test
+  public void testParse_VarArray_ExtraNumericFieldAsExpression() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("ubyte s; ubyte a; var:(a/21) [s*2] vvv; ubyte b;");
+    final JBBPFieldStruct parsed = parser.parse(new byte[]{4, (byte) 123, 0x12, 0x34, 0x11, 0x22, 0x56}, new JBBPVarFieldProcessor() {
+
+      public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(JBBPBitInputStream inStream, int arraySize, JBBPNamedFieldInfo fieldName, int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        inStream.skip(3);
+        assertEquals(123 / 21, extraValue);
+        assertEquals(8, arraySize);
+        return new JBBPFieldArrayByte(fieldName, new byte[]{1,2,3,4,5,6,7,8});
+      }
+
+      public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+      }
+    }, null);
+    assertEquals(123, parsed.findFieldForNameAndType("a", JBBPFieldUByte.class).getAsInt());
+    assertArrayEquals(new byte[]{1,2,3,4,5,6,7,8}, parsed.findFieldForNameAndType("vvv", JBBPFieldArrayByte.class).getArray());
+    assertEquals(0x22, parsed.findFieldForNameAndType("b", JBBPFieldUByte.class).getAsInt());
+  }
+
+  @Test
   public void testParse_NamedVarWithCustomOrder() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("short k; <var:-12345 Some; int;");
     final JBBPIntCounter counter = new JBBPIntCounter();
