@@ -38,7 +38,7 @@ public interface JBBPCustomFieldTypeProcessor  {
    * Called by compiler to check parameters for custom field.
    * @param fieldType field type info, it must not be null
    * @param fieldName name of the field, it can be null for anonymous fields
-   * @param extraData number placed as extra value for field, followed by ':' if not presented then zero
+   * @param extraData number placed as extra value for field, followed by ':' if not presented then zero, if it is expression then -1
    * @param isArray flag shows that the field describes an array
    * @return true if such configuration allowed, false otherwise
    */

@@ -298,6 +298,11 @@ public class JBBPParserTest {
   }
 
   @Test
+  public void testGetFlags() throws Exception {
+    assertEquals(123,JBBPParser.prepare("byte;", 123).getFlags());
+  }
+  
+  @Test
   public void testParse_Bit_ExtraNumericFieldAsExpression() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("ubyte a; bit:(a*4-12) b; bit:(a) c; bit:(a*2) d;");
     final JBBPFieldStruct parsed = parser.parse(new byte[]{4, 0x12, 0x34});

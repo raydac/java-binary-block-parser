@@ -382,7 +382,7 @@ public final class JBBPCompiler {
               extraFieldNumberAsInt = 0;
             }
             else {
-              if ((code & EXT_FLAG_EXTRA_AS_EXPRESSION) != 0) {
+              if (extraFieldNumericDataAsExpression) {
                 varLengthEvaluators.add(JBBPEvaluatorFactory.getInstance().make(token.getFieldTypeParameters().getExtraData(), namedFields, out.toByteArray()));
                 writeExtraFieldNumberInCompiled = false;
               }
