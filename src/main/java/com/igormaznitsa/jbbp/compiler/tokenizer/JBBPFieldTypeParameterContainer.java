@@ -75,6 +75,26 @@ public final class JBBPFieldTypeParameterContainer implements Serializable {
     return this.extraData;
   }
 
+  /**
+   * Extract expression for extra data.
+   * @return extracted expression from extra data, null if it is not extra data
+   */
+  public String getExtraDataExpression() {
+    String result = null;
+    if (hasExpressionAsExtraData()){
+      result = this.extraData.substring(1,this.extraData.length()-1);
+    }
+    return result;
+  }
+  
+  /**
+   * Check that the extra data is expression.
+   * @return true if the extra data is expression, false otherwise
+   */
+  public boolean hasExpressionAsExtraData(){
+    return this.extraData != null && this.extraData.startsWith("(") && this.extraData.endsWith(")");
+  }
+  
   @Override
   public String toString() {
     final StringBuilder result = new StringBuilder();

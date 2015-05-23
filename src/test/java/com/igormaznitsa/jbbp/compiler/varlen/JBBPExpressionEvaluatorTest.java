@@ -17,12 +17,12 @@ package com.igormaznitsa.jbbp.compiler.varlen;
 
 import com.igormaznitsa.jbbp.JBBPExternalValueProvider;
 import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
-import com.igormaznitsa.jbbp.TestUtils;
 import com.igormaznitsa.jbbp.compiler.*;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPEvalException;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
+import com.igormaznitsa.jbbp.model.JBBPNumericField;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.ByteArrayInputStream;
 import java.util.*;
@@ -241,6 +241,18 @@ public class JBBPExpressionEvaluatorTest {
   public void testExpression_Mul() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("5623*567", null, null);
     assertEquals(5623 * 567, expr.eval(null, 0, null, null));
+  }
+
+  @Test
+  public void testExpression_SingleCharNamedVar_Mul() {
+    final JBBPNamedFieldInfo varA = new JBBPNamedFieldInfo("a", "a", 0);
+    final byte[] compiled = new byte[]{JBBPCompiler.CODE_INT | JBBPCompiler.FLAG_NAMED};
+    final List<JBBPNamedFieldInfo> list = Collections.singletonList(varA);
+
+    JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("a*2", list, compiled);
+    final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap();
+    map.putField(new JBBPFieldInt(varA, 123));
+    assertEquals(123 * 2 , expr.eval(null, 0, JBBPCompiledBlock.prepare().setCompiledData(compiled).setNamedFieldData(list).setSource("no source").build(), map));
   }
 
   @Test

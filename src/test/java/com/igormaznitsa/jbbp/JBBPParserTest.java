@@ -27,6 +27,7 @@ import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class JBBPParserTest {
@@ -297,9 +298,64 @@ public class JBBPParserTest {
   }
 
   @Test
+  public void testParse_Bit_ExtraNumericFieldAsExpression() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("ubyte a; bit:(a*4-12) b; bit:(a) c; bit:(a*2) d;");
+    final JBBPFieldStruct parsed = parser.parse(new byte[]{4, 0x12, 0x34});
+    assertEquals(4, parsed.findFieldForNameAndType("a", JBBPFieldUByte.class).getAsInt());
+    assertEquals(2, parsed.findFieldForNameAndType("b", JBBPFieldBit.class).getAsInt());
+    assertEquals(1, parsed.findFieldForNameAndType("c", JBBPFieldBit.class).getAsInt());
+    assertEquals(0x34, parsed.findFieldForNameAndType("d", JBBPFieldBit.class).getAsInt());
+  }
+
+  @Test
+  public void testParse_BitArray_ExtraNumericFieldAsExpression() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("ubyte s; ubyte a; bit:(a*4-12) [s] b; bit:(a*2) d;");
+    final JBBPFieldStruct parsed = parser.parse(new byte[]{2, 4, 0x12, 0x34});
+    assertEquals(2, parsed.findFieldForNameAndType("s", JBBPFieldUByte.class).getAsInt());
+    assertEquals(4, parsed.findFieldForNameAndType("a", JBBPFieldUByte.class).getAsInt());
+    assertArrayEquals(new byte[]{2, 1}, parsed.findFieldForNameAndType("b", JBBPFieldArrayBit.class).getArray());
+    assertEquals(0x34, parsed.findFieldForNameAndType("d", JBBPFieldBit.class).getAsInt());
+  }
+
+  @Test
+  public void testParse_Skip_ExtraNumericFieldAsExpression() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("ubyte a; skip:(a*2); ubyte b;");
+    final JBBPFieldStruct parsed = parser.parse(new byte[]{2, 0x12, 0x34, 0x11, 0x22, 0x56});
+    assertEquals(2, parsed.findFieldForNameAndType("a", JBBPFieldUByte.class).getAsInt());
+    assertEquals(0x56, parsed.findFieldForNameAndType("b", JBBPFieldUByte.class).getAsInt());
+  }
+
+  @Test
+  public void testParse_Align_ExtraNumericFieldAsExpression() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("ubyte a; align:(a+1); ubyte b;");
+    final JBBPFieldStruct parsed = parser.parse(new byte[]{2, 0x12, 0x34, 0x11, 0x22, 0x56});
+    assertEquals(2, parsed.findFieldForNameAndType("a", JBBPFieldUByte.class).getAsInt());
+    assertEquals(0x11, parsed.findFieldForNameAndType("b", JBBPFieldUByte.class).getAsInt());
+  }
+
+  @Test
+  public void testParse_Var_ExtraNumericFieldAsExpression() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("ubyte a; var:(a/21) vvv; ubyte b;");
+    final JBBPFieldStruct parsed = parser.parse(new byte[]{(byte) 123, 0x12, 0x34, 0x11, 0x22, 0x56}, new JBBPVarFieldProcessor() {
+
+      public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(JBBPBitInputStream inStream, int arraySize, JBBPNamedFieldInfo fieldName, int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+      }
+
+      public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        inStream.skip(3);
+        assertEquals(123 / 21, extraValue);
+        return new JBBPFieldInt(fieldName, 666);
+      }
+    }, null);
+    assertEquals(123, parsed.findFieldForNameAndType("a", JBBPFieldUByte.class).getAsInt());
+    assertEquals(666, parsed.findFieldForNameAndType("vvv", JBBPFieldInt.class).getAsInt());
+    assertEquals(0x22, parsed.findFieldForNameAndType("b", JBBPFieldUByte.class).getAsInt());
+  }
+
+  @Test
   public void testParse_NamedVarWithCustomOrder() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("short k; <var:-12345 Some; int;");
-
     final JBBPIntCounter counter = new JBBPIntCounter();
 
     final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
@@ -1570,16 +1626,15 @@ public class JBBPParserTest {
     final JBBPParser parser = JBBPParser.prepare("int a; int b;");
     parser.parse(stream);
   }
-  
 
   @Test
   public void testParse_NoErrorForIgnoreRemainingFieldsFlag() throws Exception {
     final JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4}));
-    final JBBPParser parser = JBBPParser.prepare("int a; int b;",JBBPParser.FLAG_SKIP_REMAINING_FIELDS_IF_EOF);
+    final JBBPParser parser = JBBPParser.prepare("int a; int b;", JBBPParser.FLAG_SKIP_REMAINING_FIELDS_IF_EOF);
     final JBBPFieldStruct result = parser.parse(stream);
     assertEquals(1, result.getArray().length);
     assertEquals("a", result.getArray()[0].getFieldName());
-    assertEquals(0x01020304, ((JBBPFieldInt)result.findFieldForName("a")).getAsInt());
+    assertEquals(0x01020304, ((JBBPFieldInt) result.findFieldForName("a")).getAsInt());
   }
-  
+
 }

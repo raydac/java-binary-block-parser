@@ -145,7 +145,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
   /**
    * The Pattern to parse an expression.
    */
-  private static final Pattern pattern = Pattern.compile("([0-9]+)|([\\(\\)])|(<<|>>>|>>|[\\%\\*\\+\\-\\/\\&\\|\\^\\~])|([\\S][^\\<\\>\\s\\+\\%\\*\\-\\/\\(\\)\\&\\|\\^\\~]+)");
+  private static final Pattern pattern = Pattern.compile("([0-9]+)|([\\(\\)])|(<<|>>>|>>|[\\%\\*\\+\\-\\/\\&\\|\\^\\~])|([\\S][^\\<\\>\\s\\+\\%\\*\\-\\/\\(\\)\\&\\|\\^\\~]*)");
 
   /**
    * Inside stack for the expression.

@@ -151,13 +151,13 @@ public final class JBBPCompiler {
    * The Byte-Code Flag shows that the field is a named one.
    */
   public static final int FLAG_NAMED = 0x10;
-  
+
   /**
    * The Byte-Code Flag shows that the field is an array but it must be omitted
    * for unlimited field arrays.
    */
   public static final int FLAG_ARRAY = 0x20;
-  
+
   /**
    * The Byte-Code Flag shows that a multi-byte field must be decoded as
    * Little-endian one.
@@ -165,15 +165,23 @@ public final class JBBPCompiler {
   public static final int FLAG_LITTLE_ENDIAN = 0x40;
 
   /**
-   * The Flag shows that the byte code is wide and contains extra byte in the next position of compiled block.
+   * The Flag shows that the byte code is wide and contains extra byte in the
+   * next position of compiled block.
    */
   public static final int FLAG_WIDE = 0x80;
 
   /**
-   * The flag (placed only in the second byte of wide codes) shows that the field is an array which calculated size or unlimited and must be read till the end of a
-   * stream.
+   * The flag (placed only in the second byte of wide codes) shows that the
+   * field is an array which calculated size or unlimited and must be read till
+   * the end of a stream.
    */
   public static final int EXT_FLAG_EXPRESSION_OR_WHOLESTREAM = 0x01;
+
+  /**
+   * The flag shows that the extra numeric value for field should be recognized
+   * not as number but as expression.
+   */
+  public static final int EXT_FLAG_EXTRA_AS_EXPRESSION = 0x02;
 
   public static JBBPCompiledBlock compile(final String script) throws IOException {
     return compile(script, null);
@@ -218,24 +226,26 @@ public final class JBBPCompiler {
       final int startFieldOffset = offset;
 
       final int extracode = code >>> 8;
-      
+
       out.write(code);
       offset++;
 
-      if ((code & FLAG_WIDE)!=0){
+      if ((code & FLAG_WIDE) != 0) {
         out.write(extracode);
         offset++;
       }
-      
+
       StructStackItem currentClosedStructure = null;
-      boolean extraFieldPresented = false;
-      int extraField = -1;
+      boolean writeExtraFieldNumberInCompiled = false;
+      int extraFieldNumberAsInt = -1;
       int customTypeFieldIndex = -1;
 
       // check that the field is not in the current structure which is a whole stream one
       if ((code & 0xF) != CODE_STRUCT_END && fieldUnrestrictedArrayOffset >= 0 && (structureStack.isEmpty() || structureStack.get(structureStack.size() - 1).startStructureOffset != fieldUnrestrictedArrayOffset)) {
         throw new JBBPCompilationException("Attempt to read after a 'till-the-end' field", token);
       }
+
+      final boolean extraFieldNumericDataAsExpression = ((code >>> 8) & EXT_FLAG_EXTRA_AS_EXPRESSION) != 0;
 
       switch (code & 0xF) {
         case CODE_BOOL:
@@ -247,20 +257,25 @@ public final class JBBPCompiler {
         case CODE_CUSTOMTYPE:
         case CODE_LONG: {
           if ((code & 0x0F) == CODE_CUSTOMTYPE) {
-            final String extraDataAsStr = token.getFieldTypeParameters().getExtraData();
-            if (extraDataAsStr == null) {
-              extraField = 0;
+            if (extraFieldNumericDataAsExpression) {
+              varLengthEvaluators.add(JBBPEvaluatorFactory.getInstance().make(token.getFieldTypeParameters().getExtraDataExpression(), namedFields, out.toByteArray()));
             }
             else {
-              try {
-                extraField = Integer.parseInt(extraDataAsStr);
+              final String extraDataAsStr = token.getFieldTypeParameters().getExtraData();
+              if (extraDataAsStr == null) {
+                extraFieldNumberAsInt = 0;
               }
-              catch (NumberFormatException ex) {
-                throw new JBBPCompilationException("Can't parse extra data, must be numeric", token);
+              else {
+                try {
+                  extraFieldNumberAsInt = Integer.parseInt(extraDataAsStr);
+                }
+                catch (NumberFormatException ex) {
+                  throw new JBBPCompilationException("Can't parse extra data, must be numeric", token);
+                }
               }
+              writeExtraFieldNumberInCompiled = true;
             }
-            extraFieldPresented = true;
-            if (customTypeFieldProcessor.isAllowed(token.getFieldTypeParameters(), token.getFieldName(), extraField, token.isArray())) {
+            if (customTypeFieldProcessor.isAllowed(token.getFieldTypeParameters(), token.getFieldName(), extraFieldNumberAsInt, token.isArray())) {
               customTypeFieldIndex = customTypeFields.size();
               customTypeFields.add(token.getFieldTypeParameters());
             }
@@ -277,18 +292,23 @@ public final class JBBPCompiler {
           if (token.getFieldName() != null) {
             throw new JBBPCompilationException("'skip' must not be named", token);
           }
-          final String parsedSkipByteNumber = token.getFieldTypeParameters().getExtraData();
-          extraFieldPresented = true;
-          if (parsedSkipByteNumber == null) {
-            extraField = 1;
+          if (extraFieldNumericDataAsExpression) {
+            varLengthEvaluators.add(JBBPEvaluatorFactory.getInstance().make(token.getFieldTypeParameters().getExtraDataExpression(), namedFields, out.toByteArray()));
           }
           else {
-            try {
-              extraField = Integer.parseInt(parsedSkipByteNumber);
-              assertNonNegativeValue(extraField, token);
+            final String extraNumberAsStr = token.getFieldTypeParameters().getExtraData();
+            writeExtraFieldNumberInCompiled = true;
+            if (extraNumberAsStr == null) {
+              extraFieldNumberAsInt = 1;
             }
-            catch (NumberFormatException ex) {
-              extraField = -1;
+            else {
+              try {
+                extraFieldNumberAsInt = Integer.parseInt(extraNumberAsStr);
+                assertNonNegativeValue(extraFieldNumberAsInt, token);
+              }
+              catch (NumberFormatException ex) {
+                extraFieldNumberAsInt = -1;
+              }
             }
           }
         }
@@ -301,58 +321,79 @@ public final class JBBPCompiler {
             throw new JBBPCompilationException("'align' must not be named", token);
           }
 
-          final String parsedAlignBytesNumber = token.getFieldTypeParameters().getExtraData();
-          extraFieldPresented = true;
-          if (parsedAlignBytesNumber == null) {
-            extraField = 1;
+          if (extraFieldNumericDataAsExpression) {
+            varLengthEvaluators.add(JBBPEvaluatorFactory.getInstance().make(token.getFieldTypeParameters().getExtraDataExpression(), namedFields, out.toByteArray()));
           }
           else {
-            try {
-              extraField = Integer.parseInt(parsedAlignBytesNumber);
-              assertNonNegativeValue(extraField, token);
+            final String extraNumberAsStr = token.getFieldTypeParameters().getExtraData();
+            writeExtraFieldNumberInCompiled = true;
+            if (extraNumberAsStr == null) {
+              extraFieldNumberAsInt = 1;
             }
-            catch (NumberFormatException ex) {
-              extraField = -1;
-            }
-            if (extraField <= 0) {
-              throw new JBBPCompilationException("'align' size must be greater than zero [" + token.getFieldTypeParameters().getExtraData() + ']', token);
+            else {
+              try {
+                extraFieldNumberAsInt = Integer.parseInt(extraNumberAsStr);
+                assertNonNegativeValue(extraFieldNumberAsInt, token);
+              }
+              catch (NumberFormatException ex) {
+                extraFieldNumberAsInt = -1;
+              }
+              if (extraFieldNumberAsInt <= 0) {
+                throw new JBBPCompilationException("'align' size must be greater than zero [" + token.getFieldTypeParameters().getExtraData() + ']', token);
+              }
             }
           }
         }
         break;
         case CODE_BIT: {
-          final String parsedBitNumber = token.getFieldTypeParameters().getExtraData();
-          extraFieldPresented = true;
-          if (parsedBitNumber == null) {
-            extraField = 1;
+          if (extraFieldNumericDataAsExpression) {
+            varLengthEvaluators.add(JBBPEvaluatorFactory.getInstance().make(token.getFieldTypeParameters().getExtraDataExpression(), namedFields, out.toByteArray()));
           }
           else {
-            try {
-              extraField = Integer.parseInt(parsedBitNumber);
-              assertNonNegativeValue(extraField, token);
+            final String extraFieldNumAsStr = token.getFieldTypeParameters().getExtraData();
+            writeExtraFieldNumberInCompiled = true;
+            if (extraFieldNumAsStr == null) {
+              extraFieldNumberAsInt = 1;
             }
-            catch (NumberFormatException ex) {
-              extraField = -1;
-            }
-            if (extraField < 1 || extraField > 8) {
-              throw new JBBPCompilationException("Bit-width must be 1..8 [" + token.getFieldTypeParameters().getExtraData() + ']', token);
+            else {
+              try {
+                extraFieldNumberAsInt = Integer.parseInt(extraFieldNumAsStr);
+                assertNonNegativeValue(extraFieldNumberAsInt, token);
+              }
+              catch (NumberFormatException ex) {
+                extraFieldNumberAsInt = -1;
+              }
+              if (extraFieldNumberAsInt < 1 || extraFieldNumberAsInt > 8) {
+                throw new JBBPCompilationException("Bit-width must be 1..8 [" + token.getFieldTypeParameters().getExtraData() + ']', token);
+              }
             }
           }
         }
         break;
         case CODE_VAR: {
           hasVarFields = true;
-          final String parsedExtraField = token.getFieldTypeParameters().getExtraData();
-          extraFieldPresented = true;
-          if (parsedExtraField == null) {
-            extraField = 0;
+          if (extraFieldNumericDataAsExpression) {
+            varLengthEvaluators.add(JBBPEvaluatorFactory.getInstance().make(token.getFieldTypeParameters().getExtraDataExpression(), namedFields, out.toByteArray()));
           }
           else {
-            try {
-              extraField = Integer.parseInt(parsedExtraField);
+            final String extraFieldNumStr = token.getFieldTypeParameters().getExtraData();
+            writeExtraFieldNumberInCompiled = true;
+            if (extraFieldNumStr == null) {
+              extraFieldNumberAsInt = 0;
             }
-            catch (NumberFormatException ex) {
-              throw new JBBPCompilationException("Can't parse the extra value of a VAR field, must be integer [" + token.getFieldTypeParameters().getExtraData() + ']', token);
+            else {
+              if ((code & EXT_FLAG_EXTRA_AS_EXPRESSION) != 0) {
+                varLengthEvaluators.add(JBBPEvaluatorFactory.getInstance().make(token.getFieldTypeParameters().getExtraData(), namedFields, out.toByteArray()));
+                writeExtraFieldNumberInCompiled = false;
+              }
+              else {
+                try {
+                  extraFieldNumberAsInt = Integer.parseInt(extraFieldNumStr);
+                }
+                catch (NumberFormatException ex) {
+                  throw new JBBPCompilationException("Can't parse the extra value of a VAR field, must be integer [" + token.getFieldTypeParameters().getExtraData() + ']', token);
+                }
+              }
             }
           }
         }
@@ -410,8 +451,8 @@ public final class JBBPCompiler {
         }
       }
 
-      if (extraFieldPresented) {
-        offset += writePackedInt(out, extraField);
+      if (writeExtraFieldNumberInCompiled) {
+        offset += writePackedInt(out, extraFieldNumberAsInt);
       }
 
       if (customTypeFieldIndex >= 0) {
@@ -533,7 +574,11 @@ public final class JBBPCompiler {
         final JBBPFieldTypeParameterContainer descriptor = token.getFieldTypeParameters();
 
         result = descriptor.getByteOrder() == JBBPByteOrder.LITTLE_ENDIAN ? FLAG_LITTLE_ENDIAN : 0;
-        result |= token.getArraySizeAsString() == null ? 0 : (token.isVarArrayLength() ? FLAG_ARRAY | FLAG_WIDE | (EXT_FLAG_EXPRESSION_OR_WHOLESTREAM<<8) : FLAG_ARRAY);
+
+        final boolean hasExpressionAsExtraNumber = descriptor.hasExpressionAsExtraData();
+
+        result |= token.getArraySizeAsString() == null ? 0 : (token.isVarArrayLength() ? FLAG_ARRAY | FLAG_WIDE | (EXT_FLAG_EXPRESSION_OR_WHOLESTREAM << 8) : FLAG_ARRAY);
+        result |= hasExpressionAsExtraNumber ? FLAG_WIDE | (EXT_FLAG_EXTRA_AS_EXPRESSION << 8) : 0;
         result |= token.getFieldName() == null ? 0 : FLAG_NAMED;
 
         final String name = descriptor.getTypeName().toLowerCase(Locale.ENGLISH);

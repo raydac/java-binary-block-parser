@@ -133,15 +133,25 @@ public final class JBBPParser {
       }
       
       final int c = compiled[positionAtCompiledBlock.getAndIncrement()] & 0xFF;
-      final boolean noExtraField = (c & JBBPCompiler.FLAG_WIDE) == 0;
-      final int ec = noExtraField ? 0 : compiled[positionAtCompiledBlock.getAndIncrement()] & 0xFF;
-      
+      final boolean wideCode = (c & JBBPCompiler.FLAG_WIDE) != 0;
+      final int ec = wideCode ? compiled[positionAtCompiledBlock.getAndIncrement()] & 0xFF : 0;
+      final boolean extraFieldNumAsExpr = (ec & JBBPCompiler.EXT_FLAG_EXTRA_AS_EXPRESSION)!=0;
       final int code = (ec<<8) | c;
       
       final JBBPNamedFieldInfo name = (code & JBBPCompiler.FLAG_NAMED) == 0 ? null : compiledBlock.getNamedFields()[positionAtNamedFieldList.getAndIncrement()];
       final JBBPByteOrder byteOrder = (code & JBBPCompiler.FLAG_LITTLE_ENDIAN) == 0 ? JBBPByteOrder.BIG_ENDIAN : JBBPByteOrder.LITTLE_ENDIAN;
 
       final boolean resultNotIgnored = !skipStructureFields;
+
+      final int extraFieldNumExprResult;
+      if (extraFieldNumAsExpr) {
+        final JBBPIntegerValueEvaluator evaluator = this.compiledBlock.getArraySizeEvaluators()[positionAtVarLengthProcessors.getAndIncrement()];
+        extraFieldNumExprResult = resultNotIgnored ? evaluator.eval(inStream, positionAtCompiledBlock.get(), this.compiledBlock, namedNumericFieldMap) : 0;
+      }
+      else {
+        extraFieldNumExprResult = 0;
+      }
+
       final boolean wholeStreamArray;
       final int arrayLength;
       final int packedArraySizeOffset;
@@ -186,14 +196,14 @@ public final class JBBPParser {
           }
           break;
           case JBBPCompiler.CODE_ALIGN: {
-            final int alignValue = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
+            final int alignValue = extraFieldNumAsExpr ? extraFieldNumExprResult : JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
             if (resultNotIgnored) {
               inStream.align(alignValue);
             }
           }
           break;
           case JBBPCompiler.CODE_SKIP: {
-            final int skipByteNumber = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
+            final int skipByteNumber = extraFieldNumAsExpr ? extraFieldNumExprResult : JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
             if (resultNotIgnored && skipByteNumber > 0) {
                 final long skippedBytes = inStream.skip(skipByteNumber);
                 if (skippedBytes != skipByteNumber) {
@@ -203,7 +213,7 @@ public final class JBBPParser {
           }
           break;
           case JBBPCompiler.CODE_BIT: {
-            final int numberOfBits = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
+            final int numberOfBits = extraFieldNumAsExpr ? extraFieldNumExprResult : JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
             if (resultNotIgnored) {
               final JBBPBitNumber bitNumber = JBBPBitNumber.decode(numberOfBits);
               if (arrayLength < 0) {
@@ -220,7 +230,7 @@ public final class JBBPParser {
           }
           break;
           case JBBPCompiler.CODE_VAR: {
-            final int extraField = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
+            final int extraField = extraFieldNumAsExpr ? extraFieldNumExprResult : JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
             if (resultNotIgnored) {
               if (arrayLength < 0) {
                 singleAtomicField = varFieldProcessor.readVarField(inStream, name, extraField, byteOrder, namedNumericFieldMap);
@@ -244,8 +254,8 @@ public final class JBBPParser {
           }
           break;
           case JBBPCompiler.CODE_CUSTOMTYPE: {
+            final int extraData = extraFieldNumAsExpr ? extraFieldNumExprResult : JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
             if (resultNotIgnored){
-              final int extraData = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
               final JBBPFieldTypeParameterContainer fieldTypeInfo = this.compiledBlock.getCustomTypeFields()[JBBPUtils.unpackInt(compiled, positionAtCompiledBlock)];
               final JBBPAbstractField field = this.customFieldTypeProcessor.readCustomFieldType(inStream, this.bitOrder, this.flags, fieldTypeInfo, name, extraData, wholeStreamArray, arrayLength);
               JBBPUtils.assertNotNull(field, "Must not return null as read result");
@@ -363,7 +373,7 @@ public final class JBBPParser {
                     final int structStart = JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
 
                     if (inStream.hasAvailableData()) {
-                      positionAtCompiledBlock.set(structStart + (noExtraField ? 1 : 2));
+                      positionAtCompiledBlock.set(structStart + (wideCode ? 2 : 1));
                     }
                   }
 
@@ -390,7 +400,7 @@ public final class JBBPParser {
                         // not the last
                         positionAtNamedFieldList.set(nameFieldCurrent);
                         positionAtVarLengthProcessors.set(varLenProcCurrent);
-                        positionAtCompiledBlock.set(structBodyStart + packedArraySizeOffset + (noExtraField ? 1 : 2));
+                        positionAtCompiledBlock.set(structBodyStart + packedArraySizeOffset + (wideCode ? 2 : 1));
                       }
                     }
                   }

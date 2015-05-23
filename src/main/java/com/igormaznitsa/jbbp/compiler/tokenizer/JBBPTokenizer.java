@@ -42,12 +42,12 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
   /**
    * The Pattern to break a string to tokens.
    */
-  private static final Pattern PATTERN = Pattern.compile("\\s*\\/\\/.*$|\\s*(\\})|\\s*([^\\s\\;\\[\\]\\}\\{\\/]+)?\\s*(?:\\[\\s*([^\\[\\]\\{\\}\\;]+)\\s*\\])?\\s*([^\\d\\s\\;\\[\\]\\}\\{\\/][^\\s\\;\\[\\]\\}\\{\\/]*)?\\s*([\\{\\;])", Pattern.MULTILINE);
+  private static final Pattern PATTERN = Pattern.compile("\\s*\\/\\/.*$|\\s*(\\})|\\s*([^\\s\\;\\[\\]\\}\\{]+)?\\s*(?:\\[\\s*([^\\[\\]\\{\\}\\;]+)\\s*\\])?\\s*([^\\d\\s\\;\\[\\]\\}\\{\\/][^\\s\\;\\[\\]\\}\\{\\/]*)?\\s*([\\{\\;])", Pattern.MULTILINE);
 
   /**
    * The Pattern to break field type to parameters.
    */
-  private static final Pattern FIELD_TYPE_BREAK_PATTERN = Pattern.compile("^([<>])?([\\w][\\w\\$]*)(?::([-]?\\d+))?$");
+  private static final Pattern FIELD_TYPE_BREAK_PATTERN = Pattern.compile("^([<>])?([\\w][\\w\\$]*)(?::((?:[-]?\\d+)|(?:\\(.+\\))))?$");
 
   /**
    * Inside table to keep disabled names for fields.
@@ -64,6 +64,8 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
     globalReservedTypeNames.add("ushort");
     globalReservedTypeNames.add("int");
     globalReservedTypeNames.add("long");
+    globalReservedTypeNames.add("align");
+    globalReservedTypeNames.add("skip");
     globalReservedTypeNames.add("$");
   }
 
