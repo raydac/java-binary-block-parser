@@ -1,3 +1,4 @@
+[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.igormaznitsa/jbbp/badge.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|jbbp|1.2.0|jar)
 Introduction
 =============
 Sometime it is very important to parse in Java some binary block data, may be not in very fast way but structures can have complex format and byte and bit orders can be very different. In Python we have [the Struct package](https://docs.python.org/2/library/struct.html) for operations to parse binary blocks but in Java such operations look a bit verbose and take some time to be programmed, so that I decided during my vacation to develop a framework which would decrease verbosity for such operations in Java and will decrease my work in future because I am too lazy to write a lot of code.<br>
