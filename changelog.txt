@@ -1,6 +1,9 @@
 Change log
 --------------------------
 
+1.2.1
+- 
+
 1.2.0
 - Refactoring
 - Improved tree of JBBP exceptions
