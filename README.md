@@ -104,7 +104,7 @@ The first char shows the byte order to be used for parsing of the field (if the 
 
 Supported data types and commands
 ==================================
-- **bit[:(<number Of bits>|'('expression')')]** - a bit field of fixed size (1..7 bits), by default 1
+- **bit[:(number_of_bits|expression_in_parentheses)]** - a bit field of fixed size (1..7 bits), by default 1
 - **byte** - a signed byte field (8 bits)
 - **ubyte** - a unsigned byte field (8 bits)
 - **bool** - a boolean field (1 byte)
@@ -112,10 +112,12 @@ Supported data types and commands
 - **ushort**- a unsigned short field (2 bytes)
 - **int** - an integer field (4 bytes)
 - **long** - a long field (8 bytes)
-- **align[:(<number Of bytes>|'('expression')')]** - align the counter for number of bytes, by default 1. NB: It works relative to the current read byte counter!
-- **skip[:(<number Of bytes>|'('expression')')]** - skip number of bytes, by default 1
-- **var[:(<numeric value>|'('expression')']** - a var field which should be read through an external processor defined by the user
-- **reset$$** - reset the input stream read byte counter, it is very useful for relative alignment operations 
+- **align[:(number_of_bytes|expression_in_parentheses)]** - align the counter for number of bytes, by default 1. NB: It works relative to the current read byte counter!
+- **skip[:(number_of_bytes|expression_in_parentheses)]** - skip number of bytes, by default 1
+- **var[:(numeric_value|expression_in_parentheses)]** - a var field which should be read through an external processor defined by the user
+- **reset$$** - reset the input stream read byte counter, it is very useful for relative alignment operations   
+
+__expression_in_parentheses - means (expression)__
 
 Structures
 ===========
