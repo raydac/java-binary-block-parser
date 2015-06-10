@@ -11,6 +11,17 @@ The Framework is under [Apache License 2.0](http://www.apache.org/licenses/LICEN
 
 Change log
 ===========
+- **1.2.0**
+  - Refactoring
+  - Improved tree of JBBP exceptions
+  - Fixed NPE in JBBPTextWriter for String field mapped to byte array 
+  - Added support of custom field types through JBBPCustomFieldTypeProcessor
+  - Added JBBPCustomFieldTypeProcessorAggregator, auxiliary class to join several JBBPCustomFieldTypeProcessors
+  - Fixed JBBPTextWriter, added support of logging for JBBPAbstractField objects
+  - Added support of payload objects in JBBPAbstractField
+  - Improved inside script compiler and interpreter to support future extensions.
+  - Fixed expression evaluator to support single char field names in expressions.
+  - Added support of expressions in extra field numeric data part (example bit:(field*2))
 - **1.1.0**
   - Added support for mapped classes output into JBBPOut
   - Added JBBPTextWriter to log binary data as text with commentaries,tabs and separators
@@ -33,7 +44,7 @@ The Framework is published in the Maven Central thus it can be added as a depend
 <dependency>
   <groupId>com.igormaznitsa</groupId>
   <artifactId>jbbp</artifactId>
-  <version>1.1.0</version>
+  <version>1.2.0</version>
 </dependency>
 ```
 also the precompiled jar, javadoc and sources can be downloaded manually from [the Maven central.](http://search.maven.org/#browse|808871750) 
@@ -93,7 +104,7 @@ The first char shows the byte order to be used for parsing of the field (if the 
 
 Supported data types and commands
 ==================================
-- **bit[:<number Of bits>]** - a bit field of fixed size (1..7 bits), by default 1
+- **bit[:(<number Of bits>|'('expression')')]** - a bit field of fixed size (1..7 bits), by default 1
 - **byte** - a signed byte field (8 bits)
 - **ubyte** - a unsigned byte field (8 bits)
 - **bool** - a boolean field (1 byte)
@@ -101,9 +112,9 @@ Supported data types and commands
 - **ushort**- a unsigned short field (2 bytes)
 - **int** - an integer field (4 bytes)
 - **long** - a long field (8 bytes)
-- **align[:<number Of bytes>]** - align the counter for number of bytes, by default 1. NB: It works relative to the current read byte counter!
-- **skip[:<number Of bytes>]** - skip number of bytes, by default 1
-- **var[:<numeric value>]** - a var field which should be read through an external processor defined by the user
+- **align[:(<number Of bytes>|'('expression')')]** - align the counter for number of bytes, by default 1. NB: It works relative to the current read byte counter!
+- **skip[:(<number Of bytes>|'('expression')')]** - skip number of bytes, by default 1
+- **var[:(<numeric value>|'('expression')']** - a var field which should be read through an external processor defined by the user
 - **reset$$** - reset the input stream read byte counter, it is very useful for relative alignment operations 
 
 Structures
