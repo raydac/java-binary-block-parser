@@ -52,12 +52,19 @@ also the precompiled jar, javadoc and sources can be downloaded manually from [t
 
 Hello world
 ============
-The Framework is very easy in use because it has only two main classes for its functionality com.igormaznitsa.jbbp.JBBPParser (for data parsing) and com.igormaznitsa.jbbp.io.JBBPOut (for binary block writing), both of them work over low-level IO classes com.igormaznitsa.jbbp.io.JBBPBitInputStream and com.igormaznitsa.jbbp.io.JBBPBitOutputStream which are the core for the framework. 
+The Framework is very easy in use because it has only two main classes for its functionality com.igormaznitsa.jbbp.JBBPParser (for data parsing) and com.igormaznitsa.jbbp.io.JBBPOut (for binary block writing), both of them work over low-level IO classes com.igormaznitsa.jbbp.io.JBBPBitInputStream and com.igormaznitsa.jbbp.io.JBBPBitOutputStream which are the core for the framework.   
+
+The Easiest case below shows how to parse byte array to bits.   
 ```Java
- class Mapped { @Bin(type = BinType.BYTE_ARRAY) String text;}
-    Mapped mapped = JBBPParser.prepare("byte [_]  text;").parse(JBBPOut.BeginBin().Byte("Hello World").End().toByteArray()).mapTo(Mapped.class);
-    assertEquals("Hello World",mapped.text);
+  byte [] parsedBits = JBBPParser.prepare("bit:1 [_];").parse(new byte[]{1,2,3,4,5}).
+          findFieldForType(JBBPFieldArrayBit.class).getArray();
 ```
+Of course sometime it is not a comfortable way to look for parsed fields in the result, so you can use mapping of parsed data to class fields.
+```Java
+class Parsed {@Bin(type = BinType.BIT_ARRAY)byte[] parsed;}
+Parsed parsedBits = JBBPParser.prepare("bit:1 [_] parsed;").parse(new byte[]{1,2,3,4,5}).mapTo(Parsed.class);
+```
+
 More compex example with features added as of 1.1.0
 ====================================================
 The Example shows how to parse a byte written in non-standard MSB0 order (Java has LSB0 bit order) to bit fields, print its values and pack fields back 
