@@ -1507,8 +1507,9 @@ public class JBBPTextWriter extends FilterWriter {
   }
 
   /**
-   * Print objects which marked by Bin annotation or successors of
-   * JBBPAbstractField.
+   * Print objects which marked by Bin annotation or successors of JBBPAbstractField. 
+   * <b>NB! Keep in mind that values of fields will be processed for their attributes before printing 
+   * and for instance a bit field with inversion will be shown as inverted one.</b>
    *
    * @param objs array of object marked by Bin annotation or successors of
    * JBBPAbstractField
