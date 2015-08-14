@@ -58,7 +58,8 @@ public @interface Bin {
   BinType type() default BinType.UNDEFINED;
 
   /**
-   * Order of bits for the field.
+   * Order of bits for the field. 
+   * <b>NB! The Value has strong effect! A Numeric field content will be inverted during mapping or saving of the field if the value is MSB0 (Java uses standard LSB0)</b>
    *
    * @return LSB0 or MSB0 outOrder, LSB0 by default
    * @see JBBPBitOrder
