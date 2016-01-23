@@ -19,7 +19,10 @@
    enable-background="new 0 0 379.539 304.487"
    xml:space="preserve"
    inkscape:version="0.91 r"
-   sodipodi:docname="logo.svg"><metadata
+   sodipodi:docname="logo.svg"
+   inkscape:export-filename="/home/igorm/Projects_PET/java-binary-block-parser/logo.png"
+   inkscape:export-xdpi="936.84186"
+   inkscape:export-ydpi="936.84186"><metadata
      id="metadata3694"><rdf:RDF><cc:Work
          rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
@@ -49,7 +52,7 @@
      id="namedview3690"
      showgrid="false"
      inkscape:zoom="1.4860133"
-     inkscape:cx="-140.70593"
+     inkscape:cx="-244.00245"
      inkscape:cy="-13.328611"
      inkscape:window-x="-2"
      inkscape:window-y="26"
