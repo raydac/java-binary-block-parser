@@ -6,7 +6,7 @@ Introduction
 Sometime it is very important to parse in Java some binary block data, may be not in very fast way but structures can have complex format and byte and bit orders can be very different. In Python we have [the Struct package](https://docs.python.org/2/library/struct.html) for operations to parse binary blocks but in Java such operations look a bit verbose and take some time to be programmed, so that I decided during my vacation to develop a framework which would decrease verbosity for such operations in Java and will decrease my work in future because I am too lazy to write a lot of code.<br>
 p.s.<br>
 For instance I have been very actively using the framework in [the ZX-Poly emulator](https://github.com/raydac/zxpoly) to parse snapshot files and save results.   
-![Use cases](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_usecases.png)
+![Use cases](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_mm.png)
 License
 ========
 The Framework is under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
