@@ -3,14 +3,14 @@
 
 Introduction
 =============
-Sometime it is very important to parse in Java some binary block data, may be not in very fast way but structures can have complex format and byte and bit orders can be very different. In Python we have [the Struct package](https://docs.python.org/2/library/struct.html) for operations to parse binary blocks but in Java such operations look a bit verbose and take some time to be programmed, so that I decided during my vacation to develop a framework which would decrease verbosity for such operations in Java and will decrease my work in future because I am too lazy to write a lot of code.<br>
+It is very often in my projects when I needs to parse some binary data in Java. Java has some embedded features for that (for instance ByteBuffer), but I wanted to work with bits and describe binary structure in some domain specific language. I was very impressed by the [the Python Struct package](https://docs.python.org/2/library/struct.html) package so that I decided to make something like that. So JBBP was born.<br>
 p.s.<br>
 For instance I have been very actively using the framework in [the ZX-Poly emulator](https://github.com/raydac/zxpoly) to parse snapshot files and save results.   
 ![Use cases](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_mm.png)
+
 License
 ========
 The Framework is under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
-
 
 Change log
 ===========
@@ -36,9 +36,9 @@ Change log
 - **1.0**
   - The Initial version 
   
-Java support
+Compatibility
 =============
-  The Framework developed to support Java platform since Java SE 1.5+, its inside mapping has been developed in such manner to support work under the Android platform (as of Android 2.0) so that the framework is an Android compatible one. It doesn't use any NIO and usage of the non-standard sun.misc.unsafe class is isolated with reflection. 
+The Framework supports Java platform since Java SE 1.5+, its inside mapping mechanism developed in such manner to be compatible and with Android platform (as of Android 2.0) so that the framework is also Android compatible one (2.0+). It doesn't use any NIO and usage of the non-standard sun.misc.unsafe class is isolated through reflection mechanism. The Library doesn't have any external dependencies.
   
 How to use with Maven
 ======================
