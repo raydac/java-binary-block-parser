@@ -1,6 +1,8 @@
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.igormaznitsa/jbbp/badge.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|jbbp|1.2.0|jar)   
 [![Codacy Badge](https://api.codacy.com/project/badge/grade/50b0281430a94eb6abe417409f99ed58)](https://www.codacy.com/app/rrg4400/java-binary-block-parser)   
 
+![JBBP Logo](https://github.com/raydac/java-binary-block-parser/blob/master/logo.png)
+
 Introduction
 =============
 It is very often in my projects when I needs to parse some binary data in Java. Java has some embedded features for that (for instance ByteBuffer), but I wanted to work with bits and describe binary structure in some domain specific language. I was very impressed by the [the Python Struct package](https://docs.python.org/2/library/struct.html) package so that I decided to make something like that. So JBBP was born.<br>
