@@ -111,6 +111,19 @@ Fields
 ==================
 ![JBBP field format, types and examples](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_fields.png)
 
+#Primitive types
+The Framework supports full set of Java numeric primitives with extra types like ubyte and bit.
+![JBBP field format, types and examples](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_primitives.png)
+#Complex types
+The Framework provides support for arrays and structures. Just keep in mind that in expressions you can make links to field values only defined before expression.
+![JBBP field format, types and examples](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_complex_types.png)
+#Special types
+Special types makes some actions to skip data in input stream
+![JBBP field format, types and examples](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_special_fields.png)
+#Byte order
+Every multi-byte type can be read with different byte order.
+![JBBP field format, types and examples](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_byteorder.png)
+
 Expressions
 ============
 Expressions are used for calculation of length of arrays and allow brackets and integer operators which work similar to Java operators:
