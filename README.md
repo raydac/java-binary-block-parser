@@ -40,11 +40,14 @@ Change log
   
 Compatibility
 =============
-The Framework supports Java platform since Java SE 1.5+, its inside mapping mechanism developed in such manner to be compatible and with Android platform (as of Android 2.0) so that the framework is also Android compatible one (2.0+). It doesn't use any NIO and usage of the non-standard sun.misc.unsafe class is isolated through reflection mechanism. The Library doesn't have any external dependencies.
+The Framework is compatible with:
+* Java 1.5+
+* Android 2.0+
+For mapping sometime it uses reflection.
   
-How to use with Maven
+Maven dependency
 ======================
-The Framework is published in the Maven Central thus it can be added as a dependency into a project
+The Framework is published in the Maven Central and can be easily added as a dependency into a maven project
 ```
 <dependency>
   <groupId>com.igormaznitsa</groupId>
@@ -52,7 +55,7 @@ The Framework is published in the Maven Central thus it can be added as a depend
   <version>1.2.0</version>
 </dependency>
 ```
-also the precompiled jar, javadoc and sources can be downloaded manually from [the Maven central.](http://search.maven.org/#browse|808871750) 
+the precompiled library jar, javadoc and sources also can be downloaded directly from [the Maven central.](http://search.maven.org/#browse|808871750) 
 
 Hello world
 ============
@@ -104,40 +107,9 @@ The Example will print in console the text below
 ; END : Flags
 ;--------------------------------------------------------------------------------
 ```
-Format of a field
+Fields
 ==================
-Each field can be just a field or an array of fields, also it can be anonymous one or named one.
-
-    [<|>]field_type [[array_size|expression|_]] [field_name] ; 
-
-The first char shows the byte order to be used for parsing of the field (if the field is a multi-byte one) and can be omitted (and in the case the default order for the parser will be used). The Parser allows to parse a field as Big-Endinan one (for '>' prefix, it is the default state so that it can be omitted) and Little-Endian one (for '<' prefix). [You can read about endianness in wikipedia.](http://en.wikipedia.org/wiki/Endianness)
-
-**The Field name will be normalized to its lower-case representation, so that keep in your mind that names are case insensitive.**
-
-Supported data types and commands
-==================================
-- **bit[:(number_of_bits|expression_in_parentheses)]** - a bit field of fixed size (1..7 bits), by default 1
-- **byte** - a signed byte field (8 bits)
-- **ubyte** - a unsigned byte field (8 bits)
-- **bool** - a boolean field (1 byte)
-- **short** - a signed short field (2 bytes)
-- **ushort**- a unsigned short field (2 bytes)
-- **int** - an integer field (4 bytes)
-- **long** - a long field (8 bytes)
-- **align[:(number_of_bytes|expression_in_parentheses)]** - align the counter for number of bytes, by default 1. NB: It works relative to the current read byte counter!
-- **skip[:(number_of_bytes|expression_in_parentheses)]** - skip number of bytes, by default 1
-- **var[:(numeric_value|expression_in_parentheses)]** - a var field which should be read through an external processor defined by the user
-- **reset$$** - reset the input stream read byte counter, it is very useful for relative alignment operations   
-
-__expression_in_parentheses - means (expression)__
-
-Structures
-===========
-Fields can be collected in structures, the format of structure definition: 
-```
-[structure_name] [[array_size|expression|_]] { fields... } 
-```
-Structures can contain another structures and every field inside a structure has path in the format ***structure_name.field_name*** but if you want use field names inside the same structure then use their names without name of structure. 
+![JBBP field format, types and examples](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_fields.png)
 
 Expressions
 ============

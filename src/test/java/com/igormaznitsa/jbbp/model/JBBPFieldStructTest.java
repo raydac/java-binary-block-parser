@@ -210,4 +210,17 @@ public class JBBPFieldStructTest {
     assertEquals(3, mapped.c);
   }
   
+  @Test
+  public void testInterStructFieldReferences() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("header {ubyte sections; ubyte datalen;} sections [header.sections]{byte[header.datalen] data;}");
+    
+    final JBBPFieldArrayStruct sections = parser.parse(new byte[]{3, 2, 1, 2, 3, 4, 5, 6}).findFieldForNameAndType("sections", JBBPFieldArrayStruct.class);
+    assertEquals(3, sections.size());
+    for(int i=0;i<3;i++){
+      JBBPFieldArrayByte data = sections.getElementAt(i).findFieldForNameAndType("data", JBBPFieldArrayByte.class);
+      final int base = i*2;
+      assertArrayEquals(new byte []{(byte)(base+1), (byte)(base+2)}, data.getArray());
+    }
+  }
+  
 }
