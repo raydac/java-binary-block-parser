@@ -109,18 +109,26 @@ The Example will print in console the text below
 ```
 Fields
 ==================
+Every field can have case insensitive name which should not contain '.' (because it is reserved for links to structure field values) and '#'(because it is also reserver for inside usage).
+Field name must not be started by a number or chars '$' and '_'. *Field names are case insensitive!*
+```
+int someNamedField;
+byte field1;
+byte field2;
+byte field3;
+```
 ![JBBP field format, types and examples](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_fields.png)
 
-#Primitive types
+##Primitive types
 The Framework supports full set of Java numeric primitives with extra types like ubyte and bit.
 ![JBBP field format, types and examples](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_primitives.png)
-#Complex types
+##Complex types
 The Framework provides support for arrays and structures. Just keep in mind that in expressions you can make links to field values only defined before expression.
 ![JBBP field format, types and examples](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_complex_types.png)
-#Special types
+##Special types
 Special types makes some actions to skip data in input stream
 ![JBBP field format, types and examples](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_special_fields.png)
-#Byte order
+##Byte order
 Every multi-byte type can be read with different byte order.
 ![JBBP field format, types and examples](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_byteorder.png)
 
@@ -140,10 +148,6 @@ int field1;
    }
    byte [field1+struct1.field2] data;
 ```
-
-Field names
-============
-You can use any chars for field names but you can't use '.' in names (because the special char is used as the separator in field paths) and a name must not be started with a number. Also you must not use the symbols '$' and '_' as the first char in the name because they are used by the parser for special purposes. 
 
 Commentaries
 =============
