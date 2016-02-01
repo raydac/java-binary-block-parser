@@ -1,5 +1,7 @@
-[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.igormaznitsa/jbbp/badge.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|jbbp|1.2.0|jar)   
-[![Codacy Badge](https://api.codacy.com/project/badge/grade/50b0281430a94eb6abe417409f99ed58)](https://www.codacy.com/app/rrg4400/java-binary-block-parser)   
+[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.igormaznitsa/jbbp/badge.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|jbbp|1.2.0|jar)
+[![Codacy Badge](https://api.codacy.com/project/badge/grade/50b0281430a94eb6abe417409f99ed58)](https://www.codacy.com/app/rrg4400/java-binary-block-parser)
+![Java 5.0+](https://img.shields.io/badge/Java-5.0%2b-green.svg)
+![Android 2.0+](https://img.shields.io/badge/Android-2.0%2b-green.svg)
 
 ![JBBP Logo](https://github.com/raydac/java-binary-block-parser/blob/master/logo.png)
 
