@@ -1,7 +1,9 @@
+[![License Apache 2.0](https://img.shields.io/badge/License-Apache%20License%202.0-green.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.igormaznitsa/jbbp/badge.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|jbbp|1.2.0|jar)
 [![Codacy Badge](https://api.codacy.com/project/badge/grade/50b0281430a94eb6abe417409f99ed58)](https://www.codacy.com/app/rrg4400/java-binary-block-parser)
-![Java 5.0+](https://img.shields.io/badge/Java-5.0%2b-green.svg)
-![Android 2.0+](https://img.shields.io/badge/Android-2.0%2b-green.svg)
+[![Java 5.0+](https://img.shields.io/badge/Java-5.0%2b-green.svg)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+[![Android 2.0+](https://img.shields.io/badge/Android-2.0%2b-green.svg)](http://developer.android.com/sdk/index.html)
+[![PayPal donation](https://img.shields.io/badge/Donation-PayPal-red.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=AHWJHJFBAWGL2)
 
 ![JBBP Logo](https://github.com/raydac/java-binary-block-parser/blob/master/logo.png)
 
@@ -11,10 +13,6 @@ It is very often in my projects when I needs to parse some binary data in Java. 
 p.s.<br>
 For instance I have been very actively using the framework in [the ZX-Poly emulator](https://github.com/raydac/zxpoly) to parse snapshot files and save results.   
 ![Use cases](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_mm.png)
-
-License
-========
-The Framework is under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
 Change log
 ===========
@@ -39,13 +37,6 @@ Change log
   - Added new auxiliary methods in JBBPUtils 
 - **1.0**
   - The Initial version 
-  
-Compatibility
-=============
-The Framework is compatible with:
-* Java 1.5+
-* Android 2.0+
-For mapping sometime it uses reflection.
   
 Maven dependency
 ======================
@@ -287,7 +278,3 @@ final byte [] array =
             Long(0x123456789ABCDEF1L, 0x212356239091AB32L).
           End().toByteArray();
 ```
-Donation   
-=========
-If you like the software you can make some donation to the author   
-[![https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=AHWJHJFBAWGL2)
