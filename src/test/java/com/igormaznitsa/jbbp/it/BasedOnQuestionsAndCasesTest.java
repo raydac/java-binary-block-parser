@@ -54,4 +54,42 @@ public class BasedOnQuestionsAndCasesTest {
     
     assertArrayEquals(new byte[]{(byte)0x3D,(byte)0xF8}, JBBPOut.BeginBin(JBBPBitOrder.MSB0).Bin(parsed).End().toByteArray());
   }
+
+  /**
+   * Case 08-feb-2016
+   *
+   * Incoming data: 0x024281
+   * Timestamp format : <a href="http://www.etsi.org/deliver/etsi_en/300300_300399/30039202/02.03.02_60/en_30039202v020302p.pdf">Terrestrial Trunked Radio</a>
+   *
+   * @throws Exception for any error
+   */
+  @Test
+  public void testParseTimeStampFromTETRASavedInMSB0() throws Exception {
+    final byte [] TEST_DATA = new byte[]{0x2, 0x42, (byte) 0x81};
+    
+    class TetraTimestamp {
+      @Bin (type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_2, outOrder = 1, bitOrder = JBBPBitOrder.MSB0)
+      byte timezone;
+      @Bin (type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_2, outOrder = 2, bitOrder = JBBPBitOrder.MSB0)
+      byte reserved;
+      @Bin (type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_4, outOrder = 3, bitOrder = JBBPBitOrder.MSB0)
+      byte month;
+      @Bin (type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_5, outOrder = 4, bitOrder = JBBPBitOrder.MSB0)
+      byte day;
+      @Bin (type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_5, outOrder = 5, bitOrder = JBBPBitOrder.MSB0)
+      byte hour;
+      @Bin (type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_6, outOrder = 6, bitOrder = JBBPBitOrder.MSB0)
+      byte minute;
+    }
+    
+    
+    TetraTimestamp parsed = JBBPParser.prepare("bit:2 timezone; bit:2 reserved; bit:4 month; bit:5 day; bit:5 hour; bit:6 minute;", JBBPBitOrder.MSB0).parse(TEST_DATA).mapTo(TetraTimestamp.class);
+    
+    assertEquals(2, parsed.month);
+    assertEquals(8, parsed.day);
+    assertEquals(10, parsed.hour);
+    assertEquals(1, parsed.minute);
+    
+    assertArrayEquals(TEST_DATA, JBBPOut.BeginBin(JBBPBitOrder.MSB0).Bin(parsed).End().toByteArray());
+  }
 }
