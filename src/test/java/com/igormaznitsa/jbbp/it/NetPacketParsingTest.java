@@ -56,6 +56,7 @@ public class NetPacketParsingTest extends AbstractParserIntegrationTest {
           +"ushort HeaderChecksum;"
           +"int SourceAddress;"
           +"int DestinationAddress;"
+          +"byte [(InternetHeaderLength-5)*4] Options;"
       );
 
       final JBBPParser tcpHeader = JBBPParser.prepare(
@@ -92,7 +93,9 @@ public class NetPacketParsingTest extends AbstractParserIntegrationTest {
       final JBBPFieldStruct parsedIPHeader = ipParserHeaderWithoutOptions.parse(netPacketStream);
 
       assertEquals(4, parsedIPHeader.findFieldForNameAndType("Version",JBBPFieldBit.class).getAsInt());
-      assertEquals(5, parsedIPHeader.findFieldForNameAndType("InternetHeaderLength",JBBPFieldBit.class).getAsInt());
+
+      final int internetHeaderLength = parsedIPHeader.findFieldForNameAndType("InternetHeaderLength", JBBPFieldBit.class).getAsInt();
+      assertEquals(5, internetHeaderLength);
       assertEquals(0, parsedIPHeader.findFieldForNameAndType("DSCP",JBBPFieldBit.class).getAsInt());
       assertEquals(0, parsedIPHeader.findFieldForNameAndType("ECN",JBBPFieldBit.class).getAsInt());
       
@@ -111,6 +114,8 @@ public class NetPacketParsingTest extends AbstractParserIntegrationTest {
       assertEquals(0x7DB6, parsedIPHeader.findFieldForNameAndType("HeaderChecksum",JBBPFieldUShort.class).getAsInt());
       assertEquals(0xD5C7B393, parsedIPHeader.findFieldForNameAndType("SourceAddress",JBBPFieldInt.class).getAsInt());
       assertEquals(0xC0A80145, parsedIPHeader.findFieldForNameAndType("DestinationAddress",JBBPFieldInt.class).getAsInt());
+      
+      assertEquals(0, parsedIPHeader.findFieldForNameAndType("Options", JBBPFieldArrayByte.class).getArray().length);
       
       // Check TCP header
       netPacketStream.resetCounter();
