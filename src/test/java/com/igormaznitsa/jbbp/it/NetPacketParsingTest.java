@@ -91,7 +91,7 @@ public class NetPacketParsingTest extends AbstractParserIntegrationTest {
       final int etherTypeOrLength = parsedEthernetHeader.findFieldForNameAndType("EtherTypeOrLength", JBBPFieldUShort.class).getAsInt();
       assertEquals("Ethernet type or length", 0x800, etherTypeOrLength);
       
-      if (etherTypeOrLength>=1536) {
+      if (etherTypeOrLength>1500) {
         // list of protocols http://standards-oui.ieee.org/ethertype/eth.txt
         System.out.println("Ethernet type is : 0x"+Integer.toHexString(etherTypeOrLength).toUpperCase());
       } else {
