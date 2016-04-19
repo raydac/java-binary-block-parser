@@ -157,7 +157,7 @@ public class NetPacketParsingTest extends AbstractParserIntegrationTest {
       assertEquals(0, parsedTcpHeader.findFieldForNameAndType("Option", JBBPFieldArrayByte.class).size());
       
       // extract data
-      final int payloadDataLength = ipTotalPacketLength - 20 - (int)netPacketStream.getCounter();
+      final int payloadDataLength = ipTotalPacketLength - (internetHeaderLength*4) - (int)netPacketStream.getCounter();
       final byte [] data = netPacketStream.readByteArray(payloadDataLength);
       assertEquals(119, data.length);
       
