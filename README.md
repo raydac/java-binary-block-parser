@@ -119,6 +119,26 @@ The Framework supports full set of Java numeric primitives with extra types like
 ##Complex types
 The Framework provides support for arrays and structures. Just keep in mind that in expressions you can make links to field values only defined before expression.
 ![JBBP field format, types and examples](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_complex_types.png)
+
+##Variable fields
+If you have some data which structure is variable then you can use the `var` type for defined field and process reading of the data manually with custom [JBBPVarFieldProcessor](https://github.com/raydac/java-binary-block-parser/blob/master/src/main/java/com/igormaznitsa/jbbp/JBBPVarFieldProcessor.java) instance.
+```
+    final JBBPParser parser = JBBPParser.prepare("short k; var; int;");
+    final JBBPIntCounter counter = new JBBPIntCounter();
+    final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
+
+      public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        fail("Must not be called");
+        return null;
+      }
+
+      public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+        final int value = inStream.readByte();
+        return new JBBPFieldByte(fieldName, (byte) value);
+      }
+    }, null);
+```
+
 ##Special types
 Special types makes some actions to skip data in input stream
 ![JBBP field format, types and examples](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_special_fields.png)
