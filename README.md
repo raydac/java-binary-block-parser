@@ -138,6 +138,7 @@ If you have some data which structure is variable then you can use the `var` typ
       }
     }, null);
 ```
+*NB! Some programmers trying to use only parser for complex data, it is mistake. In the case it is much better to have several easy parsers working with the same [JBBPBitInputStream](https://github.com/raydac/java-binary-block-parser/blob/master/src/main/java/com/igormaznitsa/jbbp/io/JBBPBitInputStream.java) instance, it allows to keep decision points on Java level and make solution easier.*
 
 ##Special types
 Special types makes some actions to skip data in input stream
