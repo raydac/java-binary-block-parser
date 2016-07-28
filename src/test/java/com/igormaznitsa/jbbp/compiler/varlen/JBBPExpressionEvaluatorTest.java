@@ -22,7 +22,6 @@ import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPEvalException;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
-import com.igormaznitsa.jbbp.model.JBBPNumericField;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.ByteArrayInputStream;
 import java.util.*;
@@ -171,57 +170,66 @@ public class JBBPExpressionEvaluatorTest {
     assertEquals(2 * 8 * 6 / 4 + 3 * 2 - 11 % 3 & 8 - ~8, expr.eval(null, 0, JBBPCompiledBlock.prepare().setCompiledData(compiled).setNamedFieldData(list).setSource("no source").build(), map));
   }
 
-  @Test(expected = JBBPCompilationException.class)
-  public void testExpression_StackOverfow_ForDefaultDepth() throws Exception {
+  @Test
+  public void testExpression_MustNotThrowStackOverfow() throws Exception {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("1+(2+(3+(4+(5+(6+(7+(8+(9+(10+(11+(12+(13+(14+(15+(16+(17+(18+(19+(20*2)))))))))))))))))))", null, null);
+    assertEquals(21,expr.getMaxStackDepth());
     assertEquals(1+(2+(3+(4+(5+(6+(7+(8+(9+(10+(11+(12+(13+(14+(15+(16+(17+(18+(19+(20*2))))))))))))))))))), expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_NegativeConstant() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("-5678", null, null);
+    assertEquals(1, expr.getMaxStackDepth());
     assertEquals(-5678, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_UnaryMinusWithSingleConstantInBrackets() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("-(5678)", null, null);
+    assertEquals(1, expr.getMaxStackDepth());
     assertEquals(-5678, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_UnaryNotWithSingleConstantInBrackets() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("~(5678)", null, null);
+    assertEquals(1, expr.getMaxStackDepth());
     assertEquals(~5678, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_UnaryOperatorsInEasyExpression() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("-6*-7*3*+6*-32", null, null);
+    assertEquals(2, expr.getMaxStackDepth());
     assertEquals(-6 * -7 * 3 * +6 * -32, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_UnaryMinusInExpression() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("8*  - 5678", null, null);
+    assertEquals(2, expr.getMaxStackDepth());
     assertEquals(8 * -5678, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_UnaryMinusInExpressionAsFirstArgument() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("-5678 * 8", null, null);
+    assertEquals(2, expr.getMaxStackDepth());
     assertEquals(-5678 * 8, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_WithoutVariablesAndBrackets() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("10+2*42/3-8%2", null, null);
+    assertEquals(3, expr.getMaxStackDepth());
     assertEquals(10 + 2 * 42 / 3 - 8 % 2, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_WithoutVariablesAndWithBrackets() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("(10+2)*42/(3-8)%2", null, null);
+    assertEquals(3, expr.getMaxStackDepth());
     assertEquals((10 + 2) * 42 / (3 - 8) % 2, expr.eval(null, 0, null, null));
   }
 
@@ -234,12 +242,14 @@ public class JBBPExpressionEvaluatorTest {
   @Test
   public void testExpression_unaryPlus() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("+567", null, null);
+    assertEquals(1, expr.getMaxStackDepth());
     assertEquals(567, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_Mul() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("5623*567", null, null);
+    assertEquals(2, expr.getMaxStackDepth());
     assertEquals(5623 * 567, expr.eval(null, 0, null, null));
   }
 
@@ -250,6 +260,7 @@ public class JBBPExpressionEvaluatorTest {
     final List<JBBPNamedFieldInfo> list = Collections.singletonList(varA);
 
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("a*2", list, compiled);
+    assertEquals(2, expr.getMaxStackDepth());
     final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap();
     map.putField(new JBBPFieldInt(varA, 123));
     assertEquals(123 * 2 , expr.eval(null, 0, JBBPCompiledBlock.prepare().setCompiledData(compiled).setNamedFieldData(list).setSource("no source").build(), map));
@@ -258,120 +269,140 @@ public class JBBPExpressionEvaluatorTest {
   @Test
   public void testExpression_Div() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("5623/567", null, null);
+    assertEquals(2, expr.getMaxStackDepth());
     assertEquals(5623 / 567, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_Mod() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("5623%567", null, null);
+    assertEquals(2, expr.getMaxStackDepth());
     assertEquals(5623 % 567, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_Sub() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("5623-567", null, null);
+    assertEquals(2, expr.getMaxStackDepth());
     assertEquals(5623 - 567, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_Add() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("5623+567", null, null);
+    assertEquals(2, expr.getMaxStackDepth());
     assertEquals(5623 + 567, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_And() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("5623&567", null, null);
+    assertEquals(2, expr.getMaxStackDepth());
     assertEquals(5623 & 567, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_Or() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("5623|567", null, null);
+    assertEquals(2, expr.getMaxStackDepth());
     assertEquals(5623 | 567, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_Xor() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("5623^567", null, null);
+    assertEquals(2, expr.getMaxStackDepth());
     assertEquals(5623 ^ 567, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_Not() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("~567", null, null);
+    assertEquals(1, expr.getMaxStackDepth());
     assertEquals(~567, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_TestUnaryTwoOperators() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("-~567", null, null);
+    assertEquals(1, expr.getMaxStackDepth());
     assertEquals(-~567, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_TestUnaryThreeOperators() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("~-~567", null, null);
+    assertEquals(1, expr.getMaxStackDepth());
     assertEquals(~-~567, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_TestUnaryTwoOperatorsInExpression() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("~-567-~567", null, null);
+    assertEquals(2, expr.getMaxStackDepth());
     assertEquals(~-567 - ~567, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_TestUnaryThreeOperatorsInExpression() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("-~-567-~-567", null, null);
+    assertEquals(2, expr.getMaxStackDepth());
     assertEquals(-~-567 - ~-567, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_TestComplexUnaryWithConstant() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("-~-~~567", null, null);
+    assertEquals(1, expr.getMaxStackDepth());
     assertEquals(-~-~ ~567, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_TestComplexUnaryWithConstantAndBrackets() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("-(~-(~~567))", null, null);
+    assertEquals(1, expr.getMaxStackDepth());
     assertEquals(-(~-(~ ~567)), expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_TestComplexUnaryWithExpressionAndBrackets() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("-(~+-(~+~567*-(+34)))", null, null);
+    assertEquals(2, expr.getMaxStackDepth());
     assertEquals(-(~+-(~+~567 * -(+34))), expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_MultipleUnaryPlusOutsideBracketsAndOneInBrackets() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("++++++(+54)", null, null);
+    assertEquals(1, expr.getMaxStackDepth());
     assertEquals(+(+54), expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_ConstantAndMultipleUnaryPlusOutsideBracketsAndOneInBrackets() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("112++++++(+54)", null, null);
+    assertEquals(2, expr.getMaxStackDepth());
     assertEquals(112 + (+54), expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_TestComplexUnaryInConstantExpression() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("445*-~-~+~567", null, null);
+    assertEquals(2, expr.getMaxStackDepth());
     assertEquals(445 * -~-~+~567, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_ComplexLogicalWithConstants() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("~23*-1234&~123/(34+89)|3232%56^~2234", null, null);
+    assertEquals(4, expr.getMaxStackDepth());
     assertEquals(~23 * -1234 & ~123 / (34 + 89) | 3232 % 56 ^ ~2234, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_LeftShift() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("1234<<3", null, null);
+    assertEquals(2, expr.getMaxStackDepth());
     assertEquals(1234 << 3, expr.eval(null, 0, null, null));
   }
 
@@ -383,6 +414,7 @@ public class JBBPExpressionEvaluatorTest {
   @Test
   public void testExpression_RightShift() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("1234>>3", null, null);
+    assertEquals(2, expr.getMaxStackDepth());
     assertEquals(1234 >> 3, expr.eval(null, 0, null, null));
   }
 
@@ -394,12 +426,14 @@ public class JBBPExpressionEvaluatorTest {
   @Test
   public void testExpression_RightSignShift() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("-1>>>3", null, null);
+    assertEquals(2, expr.getMaxStackDepth());
     assertEquals(-1 >>> 3, expr.eval(null, 0, null, null));
   }
 
   @Test
   public void testExpression_RightSignShiftWithInversion() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("-1>>>~3&7", null, null);
+    assertEquals(2, expr.getMaxStackDepth());
     assertEquals(-1 >>> ~3 & 7, expr.eval(null, 0, null, null));
   }
 
@@ -411,6 +445,7 @@ public class JBBPExpressionEvaluatorTest {
   @Test
   public void testExpression_ReverseByte() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("((($v*2050&139536)|($v*32800&558144))*65793>>16)&255", null, null);
+    assertEquals(3, expr.getMaxStackDepth());
     assertEquals(JBBPUtils.reverseBitsInByte((byte) 123) & 0xFF, expr.eval(null, 0, null, new JBBPNamedNumericFieldMap(new JBBPExternalValueProvider() {
 
       public int provideArraySize(final String fieldName, final JBBPNamedNumericFieldMap numericFieldMap, final JBBPCompiledBlock compiledBlock) {
@@ -447,6 +482,7 @@ public class JBBPExpressionEvaluatorTest {
     final JBBPCompiledBlock compiledBlock = JBBPCompiledBlock.prepare().setCompiledData(compiled).setSource("none").setNamedFieldData(list).build();
 
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("123*($value-45/3)", list, compiled);
+    assertEquals(4, expr.getMaxStackDepth());
     assertEquals(123 * (value - 45 / 3), expr.eval(null, 0, compiledBlock, map));
   }
 
@@ -472,7 +508,8 @@ public class JBBPExpressionEvaluatorTest {
     final JBBPCompiledBlock compiledBlock = JBBPCompiledBlock.prepare().setCompiledData(compiled).setSource("none").setNamedFieldData(list).build();
 
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("123*($value-45/3)*$$", list, compiled);
-
+    assertEquals(4, expr.getMaxStackDepth());
+    
     final JBBPBitInputStream inStream = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5}));
     inStream.read();
     inStream.read();

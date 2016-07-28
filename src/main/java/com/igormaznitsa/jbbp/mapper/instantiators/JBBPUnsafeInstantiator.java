@@ -34,7 +34,7 @@ public final class JBBPUnsafeInstantiator implements JBBPClassInstantiator {
   /**
    * The sun,misc.Unsafe.allocateInstance method.
    */
-  private static final Method allocateInstance;
+  private static final Method ALLOCATE_INSTANCE_METHOD;
 
   static {
     try {
@@ -42,8 +42,8 @@ public final class JBBPUnsafeInstantiator implements JBBPClassInstantiator {
       final Field singleoneInstanceField = unsafeClass.getDeclaredField("theUnsafe");
       JBBPUtils.makeAccessible(singleoneInstanceField);
       SUN_MISC_UNSAFE = (sun.misc.Unsafe) singleoneInstanceField.get(null);
-      allocateInstance = unsafeClass.getMethod("allocateInstance", Class.class);
-      JBBPUtils.makeAccessible(allocateInstance);
+      ALLOCATE_INSTANCE_METHOD = unsafeClass.getMethod("allocateInstance", Class.class);
+      JBBPUtils.makeAccessible(ALLOCATE_INSTANCE_METHOD);
     }
     catch (ClassNotFoundException e) {
       throw new Error("Can;t find 'sun.misc.Unsafe' class", e);
@@ -68,7 +68,7 @@ public final class JBBPUnsafeInstantiator implements JBBPClassInstantiator {
   public <T> T makeClassInstance(final Class<T> klazz) throws InstantiationException {
     JBBPUtils.assertNotNull(klazz, "Class must not be null");
     try {
-      return klazz.cast(allocateInstance.invoke(SUN_MISC_UNSAFE, klazz));
+      return klazz.cast(ALLOCATE_INSTANCE_METHOD.invoke(SUN_MISC_UNSAFE, klazz));
     }
     catch (InvocationTargetException ex) {
       final Throwable cause = ex.getTargetException();

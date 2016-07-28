@@ -52,21 +52,21 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
   /**
    * Inside table to keep disabled names for fields.
    */
-  private static final Set<String> globalReservedTypeNames;
+  private static final Set<String> GLOBAL_RESERVED_TYPE_NAMES;
 
   static {
-    globalReservedTypeNames = new HashSet<String>();
-    globalReservedTypeNames.add("bit");
-    globalReservedTypeNames.add("bool");
-    globalReservedTypeNames.add("byte");
-    globalReservedTypeNames.add("ubyte");
-    globalReservedTypeNames.add("short");
-    globalReservedTypeNames.add("ushort");
-    globalReservedTypeNames.add("int");
-    globalReservedTypeNames.add("long");
-    globalReservedTypeNames.add("align");
-    globalReservedTypeNames.add("skip");
-    globalReservedTypeNames.add("$");
+    GLOBAL_RESERVED_TYPE_NAMES = new HashSet<String>();
+    GLOBAL_RESERVED_TYPE_NAMES.add("bit");
+    GLOBAL_RESERVED_TYPE_NAMES.add("bool");
+    GLOBAL_RESERVED_TYPE_NAMES.add("byte");
+    GLOBAL_RESERVED_TYPE_NAMES.add("ubyte");
+    GLOBAL_RESERVED_TYPE_NAMES.add("short");
+    GLOBAL_RESERVED_TYPE_NAMES.add("ushort");
+    GLOBAL_RESERVED_TYPE_NAMES.add("int");
+    GLOBAL_RESERVED_TYPE_NAMES.add("long");
+    GLOBAL_RESERVED_TYPE_NAMES.add("align");
+    GLOBAL_RESERVED_TYPE_NAMES.add("skip");
+    GLOBAL_RESERVED_TYPE_NAMES.add("$");
   }
 
   private final Matcher matcher;
@@ -94,9 +94,9 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
     JBBPUtils.assertNotNull(str, "String must not be null");
     
     if (customFieldTypeProcessor == null){
-      this.reservedTypeNames = globalReservedTypeNames;
+      this.reservedTypeNames = GLOBAL_RESERVED_TYPE_NAMES;
     }else{
-      this.reservedTypeNames = new HashSet<String>(globalReservedTypeNames);
+      this.reservedTypeNames = new HashSet<String>(GLOBAL_RESERVED_TYPE_NAMES);
       for(final String customType : customFieldTypeProcessor.getCustomFieldTypes()){
         JBBPUtils.assertNotNull(customType, "Type must not be null");
         this.reservedTypeNames.add(customType);
@@ -246,7 +246,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
    * @return true if the name is global reserved one, false otherwise.
    */
   public static boolean isGlobalReservedName(final String name) {
-    return globalReservedTypeNames.contains(name);
+    return GLOBAL_RESERVED_TYPE_NAMES.contains(name);
   }
   
   /**

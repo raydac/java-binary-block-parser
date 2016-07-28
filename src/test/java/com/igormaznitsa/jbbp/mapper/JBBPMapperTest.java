@@ -53,7 +53,7 @@ public class JBBPMapperTest {
     JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.set(this.className);
     final JBBPClassInstantiator instance = JBBPClassInstantiatorFactory.getInstance().make(JBBPClassInstantiatorType.AUTO);
     JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.remove();
-    TestUtils.injectDeclaredFinalFieldValue(JBBPMapper.class, null, "klazzInstantiator", instance);
+    TestUtils.injectDeclaredFinalFieldValue(JBBPMapper.class, null, "CLASS_INSTANTIATOR", instance);
   }
   
   @Test

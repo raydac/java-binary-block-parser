@@ -46,7 +46,7 @@ public final class JBBPMapper {
   /**
    * The Special auxiliary object to generate class instances.
    */
-  private static final JBBPClassInstantiator klazzInstantiator = JBBPClassInstantiatorFactory.getInstance().make();
+  private static final JBBPClassInstantiator CLASS_INSTANTIATOR = JBBPClassInstantiatorFactory.getInstance().make();
 
   /**
    * Create a class instance, map binary data of a structure for its path to its
@@ -588,7 +588,7 @@ public final class JBBPMapper {
    */
   private static <T> T allocateMemoryForClass(final JBBPFieldStruct root, final Class<T> klazz) {
     try {
-      return klazzInstantiator.makeClassInstance(klazz);
+      return CLASS_INSTANTIATOR.makeClassInstance(klazz);
     }
     catch (InstantiationException ex) {
       throw new JBBPMapperException("Can't make an instance of a class", root, klazz, null, ex);

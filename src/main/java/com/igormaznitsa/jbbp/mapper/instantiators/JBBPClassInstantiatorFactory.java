@@ -26,9 +26,9 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 public final class JBBPClassInstantiatorFactory {
 
   /**
-   * The Factory instance.
+   * The Factory INSTANCE.
    */
-  private static final JBBPClassInstantiatorFactory instance = new JBBPClassInstantiatorFactory();
+  private static final JBBPClassInstantiatorFactory INSTANCE = new JBBPClassInstantiatorFactory();
 
   /**
    * The Hidden constructor.
@@ -38,19 +38,19 @@ public final class JBBPClassInstantiatorFactory {
   }
 
   /**
-   * Get the factory instance.
+   * Get the factory INSTANCE.
    *
-   * @return the factory instance, must not be null
+   * @return the factory INSTANCE, must not be null
    */
   public static JBBPClassInstantiatorFactory getInstance() {
-    return instance;
+    return INSTANCE;
   }
 
   /**
    * Make an instantiator automatically for the current platform.
    *
-   * @return the class instantiator instance which is compatible with the
-   * current platform
+   * @return the class instantiator INSTANCE which is compatible with the
+ current platform
    * @see JBBPClassInstantiator
    */
   public JBBPClassInstantiator make() {
@@ -61,8 +61,8 @@ public final class JBBPClassInstantiatorFactory {
    * Make an instantiator for defined type.
    *
    * @param type the type of needed instantiator, must not be null
-   * @return the class instantiator instance which is compatible with the
-   * current platform
+   * @return the class instantiator INSTANCE which is compatible with the
+ current platform
    */
   public JBBPClassInstantiator make(final JBBPClassInstantiatorType type) {
     JBBPUtils.assertNotNull(type, "Type must not be null");

@@ -25,7 +25,7 @@ import java.util.List;
  * @since 1.0
  */
 public final class JBBPEvaluatorFactory {
-  private static final JBBPEvaluatorFactory instance = new JBBPEvaluatorFactory();
+  private static final JBBPEvaluatorFactory INSTANCE = new JBBPEvaluatorFactory();
   
   private JBBPEvaluatorFactory(){
     
@@ -33,10 +33,10 @@ public final class JBBPEvaluatorFactory {
   
   /**
    * Get an Instance of the factory.
-   * @return the factory instance.
+   * @return the factory INSTANCE.
    */
   public static JBBPEvaluatorFactory getInstance(){
-    return instance;
+    return INSTANCE;
   }
   
   /**

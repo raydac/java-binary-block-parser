@@ -22,7 +22,6 @@ import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPEvalException;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.utils.JBBPIntCounter;
-import com.igormaznitsa.jbbp.utils.JBBPSystemProperty;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.*;
 import java.util.*;
@@ -30,16 +29,12 @@ import java.util.regex.*;
 
 /**
  * The Class implements an evaluator which can calculate an expression.
+ *
  * @since 1.0
  */
 public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator {
 
   private static final long serialVersionUID = -2951446352849455161L;
-
-  /**
-   * The Maximum stack depth for the expression.
-   */
-  public static final int MAX_STACK_DEPTH = JBBPSystemProperty.PROPERTY_EXPRESSION_STACK_DEPTH.getAsInteger(16);
 
   /**
    * Code for a left bracket.
@@ -132,32 +127,31 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
    */
   private final String expressionSource;
   /**
-   * The Array contains external variable names which values should be provided
-   * externally.
+   * The Array contains external variable names which values should be provided externally.
    */
   private final String[] externalValueNames;
 
   /**
-   * Array of first chars of operators to recognize a string as possible
-   * expression.
+   * Max stack depth for the expression.
+   *
+   * @since 1.2.1
    */
-  private static final char[] operatorFirstChars = new char[]{'(', '+', '-', '*', '/', '%', '|', '&', '^', '~', ')', '>', '<'};
+  private final int maxStackDepth;
+
+  /**
+   * Array of first chars of operators to recognize a string as possible expression.
+   */
+  private static final char[] OPERATOR_FIRST_CHARS = new char[]{'(', '+', '-', '*', '/', '%', '|', '&', '^', '~', ')', '>', '<'};
   /**
    * The Pattern to parse an expression.
    */
-  private static final Pattern pattern = Pattern.compile("([0-9]+)|([\\(\\)])|(<<|>>>|>>|[\\%\\*\\+\\-\\/\\&\\|\\^\\~])|([\\S][^\\<\\>\\s\\+\\%\\*\\-\\/\\(\\)\\&\\|\\^\\~]*)");
-
-  /**
-   * Inside stack for the expression.
-   */
-  private final int[] stack = new int[MAX_STACK_DEPTH];
+  private static final Pattern PATTERN = Pattern.compile("([0-9]+)|([\\(\\)])|(<<|>>>|>>|[\\%\\*\\+\\-\\/\\&\\|\\^\\~])|([\\S][^\\<\\>\\s\\+\\%\\*\\-\\/\\(\\)\\&\\|\\^\\~]*)");
 
   /**
    * Check that a string represents a unary operator.
    *
    * @param operator an operator to be checked, must not be null.
-   * @throws JBBPCompilationException if the operator is not supported unary
-   * operator.
+   * @throws JBBPCompilationException if the operator is not supported unary operator.
    */
   private void assertUnaryOperator(final String operator) {
     if (!("+".equals(operator) || "-".equals(operator) || "~".equals(operator))) {
@@ -169,8 +163,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
    * Encode code of an operator to code of similar unary operator.
    *
    * @param code a code of operator.
-   * @return code of an unary similar operator if it exists, the same code
-   * otherwise
+   * @return code of an unary similar operator if it exists, the same code otherwise
    */
   private static int codeToUnary(final int code) {
     final int result;
@@ -190,19 +183,17 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
   }
 
   /**
-   * The Constructor. It makes compilation an expression into internal
-   * representation.
+   * The Constructor. It makes compilation an expression into internal representation.
    *
    * @param expression a source expression, must not be null
    * @param namedFields a named field info list, must not be null
-   * @param compiledData the current compiled data block of JBBP parent script
-   * for the expression, must not be null
+   * @param compiledData the current compiled data block of JBBP parent script for the expression, must not be null
    * @throws JBBPCompilationException if any problem in compilation
    */
   public JBBPExpressionEvaluator(final String expression, final List<JBBPNamedFieldInfo> namedFields, final byte[] compiledData) {
     this.expressionSource = expression;
 
-    final Matcher matcher = pattern.matcher(expression);
+    final Matcher matcher = PATTERN.matcher(expression);
     int lastFound = -1;
 
     final ByteArrayOutputStream compiedScript = new ByteArrayOutputStream(256);
@@ -246,8 +237,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
           extValue = true;
           nameIndex = externalValueNameList.size();
           externalValueNameList.add(normalized.substring(1));
-        }
-        else {
+        } else {
           extValue = false;
           nameIndex = JBBPCompilerUtils.findIndexForFieldPath(normalized, namedFields);
           if (nameIndex < 0) {
@@ -281,72 +271,55 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
             unaryOperatorCode = -1;
           }
 
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
           throw new Error("Unexpected IO exception", ex);
         }
         theFirstInTheSubExpression = false;
-      }
-      else if (operator != null) {
+      } else if (operator != null) {
         counterOperators++;
 
         final int code;
         if ("+".equals(operator)) {
           code = CODE_ADD;
-        }
-        else if ("-".equals(operator)) {
+        } else if ("-".equals(operator)) {
           code = CODE_MINUS;
-        }
-        else if ("*".equals(operator)) {
+        } else if ("*".equals(operator)) {
           code = CODE_MUL;
-        }
-        else if ("%".equals(operator)) {
+        } else if ("%".equals(operator)) {
           code = CODE_MOD;
-        }
-        else if ("/".equals(operator)) {
+        } else if ("/".equals(operator)) {
           code = CODE_DIV;
-        }
-        else if ("&".equals(operator)) {
+        } else if ("&".equals(operator)) {
           code = CODE_AND;
-        }
-        else if ("|".equals(operator)) {
+        } else if ("|".equals(operator)) {
           code = CODE_OR;
-        }
-        else if ("^".equals(operator)) {
+        } else if ("^".equals(operator)) {
           code = CODE_XOR;
-        }
-        else if ("~".equals(operator)) {
+        } else if ("~".equals(operator)) {
           code = CODE_NOT;
-        }
-        else if ("<<".equals(operator)) {
+        } else if ("<<".equals(operator)) {
           code = CODE_LSHIFT;
-        }
-        else if (">>".equals(operator)) {
+        } else if (">>".equals(operator)) {
           code = CODE_RSHIFT;
-        }
-        else if (">>>".equals(operator)) {
+        } else if (">>>".equals(operator)) {
           code = CODE_RSIGNSHIFT;
-        }
-        else {
+        } else {
           throw new Error("Detected unsupported operator, cotact developer [" + operator + ']');
         }
 
         if (theFirstInTheSubExpression) {
           assertUnaryOperator(operator);
           unaryOperatorCode = codeToUnary(code);
-        }
-        else if (prevoperator) {
+        } else if (prevoperator) {
           if (unaryOperatorCode > 0) {
             assertUnaryOperator(operator);
             operationStack.add(unaryOperatorCode);
             unaryOperatorCode = codeToUnary(code);
-          }
-          else {
+          } else {
             assertUnaryOperator(operator);
             unaryOperatorCode = codeToUnary(code);
           }
-        }
-        else {
+        } else {
           unaryOperatorCode = -1;
           final int currentPriority = PRIORITIES[code];
           while (!operationStack.isEmpty()) {
@@ -354,8 +327,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
             if (PRIORITIES[top] >= currentPriority) {
               operationStack.remove(operationStack.size() - 1);
               compiedScript.write(top);
-            }
-            else {
+            } else {
               break;
             }
           }
@@ -363,8 +335,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
         }
         prevoperator = true;
         theFirstInTheSubExpression = false;
-      }
-      else if (bracket != null) {
+      } else if (bracket != null) {
         prevoperator = false;
         if ("(".equals(bracket)) {
           if (unaryOperatorCode > 0) {
@@ -373,15 +344,13 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
           }
           operationStack.add(PSEUDOCODE_LEFT_BRACKET);
           theFirstInTheSubExpression = true;
-        }
-        else if (")".equals(bracket)) {
+        } else if (")".equals(bracket)) {
           boolean metLeftPart = false;
           while (!operationStack.isEmpty()) {
             final int top = operationStack.remove(operationStack.size() - 1);
             if (top != PSEUDOCODE_LEFT_BRACKET) {
               compiedScript.write(top);
-            }
-            else {
+            } else {
               metLeftPart = true;
               break;
             }
@@ -389,12 +358,10 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
           if (!metLeftPart) {
             throw new JBBPCompilationException("Detected unclosed bracket [" + this.expressionSource + ']');
           }
-        }
-        else {
+        } else {
           throw new Error("Detected unsupported bracket, connect developer for the error [" + bracket + ']');
         }
-      }
-      else if (number != null) {
+      } else if (number != null) {
         counterVarsAndConstants++;
 
         prevoperator = false;
@@ -427,12 +394,10 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
           compiedScript.write(CODE_CONST);
           try {
             compiedScript.write(JBBPUtils.packInt(parsed));
-          }
-          catch (IOException ex) {
+          } catch (IOException ex) {
             throw new RuntimeException("Unexpected IO exception", ex);
           }
-        }
-        catch (NumberFormatException ex) {
+        } catch (NumberFormatException ex) {
           throw new JBBPCompilationException("Can't parse a numeric constant, only decimal integers are supported '" + number + "' [" + this.expressionSource + ']', null, ex);
         }
         theFirstInTheSubExpression = false;
@@ -446,8 +411,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
     if (counterOperators == 0) {
       if (counterVarsAndConstants == 0) {
         throw new JBBPCompilationException("Empty expression [" + this.expressionSource + ']');
-      }
-      else if (counterVarsAndConstants > 1) {
+      } else if (counterVarsAndConstants > 1) {
         throw new JBBPCompilationException("No operators [" + this.expressionSource + ']');
       }
     }
@@ -466,32 +430,133 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
 
     this.compiledExpression = compiedScript.toByteArray();
     this.externalValueNames = externalValueNameList.isEmpty() ? null : externalValueNameList.toArray(new String[externalValueNameList.size()]);
+
+    this.maxStackDepth = calculateMaxStackDepth();
+  }
+
+  private static String code2operator(final int code) {
+    final String result;
+    switch (code) {
+      case CODE_AND:
+        result = "&";
+        break;
+      case CODE_UNARYPLUS:
+      case CODE_ADD:
+        result = "+";
+        break;
+      case CODE_OR:
+        result = "|";
+        break;
+      case CODE_DIV:
+        result = "/";
+        break;
+      case CODE_MUL:
+        result = "*";
+        break;
+      case CODE_MOD:
+        result = "%";
+        break;
+      case CODE_LSHIFT:
+        result = "<<";
+        break;
+      case CODE_RSHIFT:
+        result = ">>";
+        break;
+      case CODE_RSIGNSHIFT:
+        result = ">>>";
+        break;
+      case CODE_UNARYMINUS:
+      case CODE_MINUS:
+        result = "-";
+        break;
+      case CODE_XOR:
+        result = "^";
+        break;
+      default:
+        result = "CODE:" + code;
+        break;
+    }
+    return result;
+  }
+
+  private int calculateMaxStackDepth() {
+    int stackMaxPosition = 0;
+    int stackPosition = 0;
+
+    final JBBPIntCounter counter = new JBBPIntCounter();
+
+    while (counter.get() < this.compiledExpression.length) {
+      final int code = this.compiledExpression[counter.getAndIncrement()];
+      switch (code) {
+        case CODE_EXTVAR:
+        case CODE_VAR:
+        case CODE_CONST: {
+          JBBPUtils.unpackInt(this.compiledExpression, counter);
+          stackPosition++;
+          stackMaxPosition = Math.max(stackPosition, stackMaxPosition);
+        }
+        break;
+        case CODE_AND:
+        case CODE_ADD:
+        case CODE_OR:
+        case CODE_DIV:
+        case CODE_MUL:
+        case CODE_MOD:
+        case CODE_LSHIFT:
+        case CODE_RSHIFT:
+        case CODE_RSIGNSHIFT:
+        case CODE_MINUS:
+        case CODE_XOR: {
+          if (stackPosition < 2) {
+            throw new JBBPEvalException("Operator '" + code2operator(code) + "' needs two operands", this);
+          }
+          // decrease for one position
+          stackPosition--;
+        }
+        break;
+        case CODE_UNARYMINUS:
+        case CODE_UNARYPLUS:
+        case CODE_NOT: {
+          // stack not changed
+          if (stackPosition < 1) {
+            throw new JBBPEvalException("Operator '" + code2operator(code) + "' needs operand", this);
+          }
+        }
+        break;
+        default:
+          throw new Error("Detected unsupported operation, contact developer");
+      }
+    }
+
+    if (stackPosition != 1 || stackPosition > stackMaxPosition) {
+      throw new JBBPEvalException("Wrong expression [" + this.expressionSource + "] (" + stackPosition + ':' + stackMaxPosition + ')', this);
+    }
+    return stackMaxPosition;
   }
 
   /**
-   * Check that the current stack depth is enough.
+   * Get the max stack depth needed for the expression.
    *
-   * @param stackDepth the current stack depth
-   * @throws JBBPCompilationException if the stack depth is not enough
+   * @return max stack depth for expression
+   * @since 1.2.1
    */
-  private void assertStackDepth(final int stackDepth) {
-    if (stackDepth >= MAX_STACK_DEPTH) {
-      throw new JBBPCompilationException("Can't calculate expression, stack overflow [" + expressionSource + ']');
-    }
+  public int getMaxStackDepth() {
+    return this.maxStackDepth;
   }
 
   /**
    * Evaluate the expression.
    *
    * @param inStream the input stream of data, must not be null
-   * @param currentCompiledBlockOffset the current offset inside the compiled
-   * JBBP script
+   * @param currentCompiledBlockOffset the current offset inside the compiled JBBP script
    * @param compiledBlockData the compiled JBBP script, must not be null
    * @param fieldMap the named field info map, must not be null
    * @return calculated integer result of the expression
    * @throws JBBPEvalException if there is any problem during processing
    */
   public int eval(final JBBPBitInputStream inStream, final int currentCompiledBlockOffset, final JBBPCompiledBlock compiledBlockData, final JBBPNamedNumericFieldMap fieldMap) {
+    final int[] stack = new int[this.maxStackDepth];
+
     int stackDepth = 0;
 
     final JBBPIntCounter counter = new JBBPIntCounter();
@@ -501,124 +566,80 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
       switch (code) {
         case CODE_EXTVAR:
         case CODE_VAR: {
-          assertStackDepth(stackDepth);
           final int index = JBBPUtils.unpackInt(this.compiledExpression, counter);
 
           stack[stackDepth++] = code == CODE_EXTVAR
-                  ? "$".equals(this.externalValueNames[index]) ? (int) inStream.getCounter() : fieldMap.getExternalFieldValue(this.externalValueNames[index], compiledBlockData, this)
-                  : fieldMap.get(compiledBlockData.getNamedFields()[index]).getAsInt();
+              ? "$".equals(this.externalValueNames[index]) ? (int) inStream.getCounter() : fieldMap.getExternalFieldValue(this.externalValueNames[index], compiledBlockData, this)
+              : fieldMap.get(compiledBlockData.getNamedFields()[index]).getAsInt();
         }
         break;
         case CODE_CONST: {
-          assertStackDepth(stackDepth);
-
           stack[stackDepth++] = JBBPUtils.unpackInt(this.compiledExpression, counter);
         }
         break;
         case CODE_ADD: {
-          if (stackDepth < 2) {
-            throw new JBBPEvalException("'+' needs two arguments [" + this.expressionSource + ']', this);
-          }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] += top;
         }
         break;
         case CODE_AND: {
-          if (stackDepth < 2) {
-            throw new JBBPEvalException("'&' needs two arguments [" + this.expressionSource + ']', this);
-          }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] &= top;
         }
         break;
         case CODE_OR: {
-          if (stackDepth < 2) {
-            throw new JBBPEvalException("'|' needs two arguments [" + this.expressionSource + ']', this);
-          }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] |= top;
         }
         break;
         case CODE_XOR: {
-          if (stackDepth < 2) {
-            throw new JBBPEvalException("'^' needs two arguments [" + this.expressionSource + ']', this);
-          }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] ^= top;
         }
         break;
         case CODE_MINUS: {
-          if (stackDepth < 2) {
-            throw new JBBPEvalException("'-' needs one or two arguments [" + this.expressionSource + ']', this);
-          }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] -= top;
         }
         break;
         case CODE_UNARYMINUS: {
-          if (stackDepth < 1) {
-            throw new JBBPEvalException("Unary operator '-' needs one argument [" + this.expressionSource + ']', this);
-          }
           stack[stackDepth - 1] = -stack[stackDepth - 1];
         }
         break;
         case CODE_UNARYPLUS: {
-          if (stackDepth < 1) {
-            throw new JBBPEvalException("Unary operator '-' needs one argument [" + this.expressionSource + ']', this);
-          }
+          // do nothing
         }
         break;
         case CODE_NOT: {
-          if (stackDepth < 1) {
-            throw new JBBPEvalException("Unary operator '~' needs one argument [" + this.expressionSource + ']', this);
-          }
           stack[stackDepth - 1] = ~stack[stackDepth - 1];
         }
         break;
         case CODE_DIV: {
-          if (stackDepth < 2) {
-            throw new JBBPEvalException("'/' needs two arguments [" + this.expressionSource + ']', this);
-          }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] /= top;
         }
         break;
         case CODE_MUL: {
-          if (stackDepth < 2) {
-            throw new JBBPEvalException("'*' needs two arguments [" + this.expressionSource + ']', this);
-          }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] *= top;
         }
         break;
         case CODE_MOD: {
-          if (stackDepth < 2) {
-            throw new JBBPEvalException("'%' needs two arguments [" + this.expressionSource + ']', this);
-          }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] %= top;
         }
         break;
         case CODE_LSHIFT: {
-          if (stackDepth < 2) {
-            throw new JBBPEvalException("'<<' needs two arguments [" + this.expressionSource + ']', this);
-          }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] <<= top;
         }
         break;
         case CODE_RSHIFT: {
-          if (stackDepth < 2) {
-            throw new JBBPEvalException("'>>' needs two arguments [" + this.expressionSource + ']', this);
-          }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] >>= top;
         }
         break;
         case CODE_RSIGNSHIFT: {
-          if (stackDepth < 2) {
-            throw new JBBPEvalException("'>>>' needs two arguments [" + this.expressionSource + ']', this);
-          }
           final int top = stack[--stackDepth];
           stack[stackDepth - 1] >>>= top;
         }
@@ -628,9 +649,6 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
       }
     }
 
-    if (stackDepth != 1) {
-      throw new JBBPEvalException("Wrong expression [" + this.expressionSource + ']', this);
-    }
     return stack[0];
   }
 
@@ -644,7 +662,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
 
     boolean result = false;
 
-    for (final char chr : operatorFirstChars) {
+    for (final char chr : OPERATOR_FIRST_CHARS) {
       if (str.indexOf(chr) >= 0) {
         result = true;
         break;

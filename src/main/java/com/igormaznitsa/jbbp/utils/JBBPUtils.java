@@ -29,10 +29,11 @@ import java.util.concurrent.ArrayBlockingQueue;
  *
  * @since 1.0
  */
-public enum JBBPUtils {
+public final class JBBPUtils {
 
-  ;
-
+  private JBBPUtils(){
+  }
+  
   /**
    * Inside auxiliary class to make makeAccessible as a privileged action.
    * @since 1.1
@@ -61,7 +62,7 @@ public enum JBBPUtils {
    *
    * @since 1.1
    */
-  private static final Queue<PrivilegedProcessor> processorsQueue = new ArrayBlockingQueue<PrivilegedProcessor>(32);
+  private static final Queue<PrivilegedProcessor> PROCESSORS_QUEUE = new ArrayBlockingQueue<PrivilegedProcessor>(32);
 
   /**
    * Make accessible an accessible object, AccessController.doPrivileged will be
@@ -73,13 +74,13 @@ public enum JBBPUtils {
    */
   public static void makeAccessible(final AccessibleObject obj) {
     if (obj != null) {
-      PrivilegedProcessor processor = processorsQueue.poll();
+      PrivilegedProcessor processor = PROCESSORS_QUEUE.poll();
       if (processor == null) {
         processor = new PrivilegedProcessor();
       }
       processor.setAccessibleObject(obj);
       AccessController.doPrivileged(processor);
-      processorsQueue.offer(processor);
+      PROCESSORS_QUEUE.offer(processor);
     }
   }
 

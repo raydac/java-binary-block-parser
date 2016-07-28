@@ -22,10 +22,6 @@ package com.igormaznitsa.jbbp.utils;
  */
 public enum JBBPSystemProperty {
   /**
-   * The Property allows to redefine the default depth of the stack for expression evaluators.
-   */
-  PROPERTY_EXPRESSION_STACK_DEPTH("jbbp.expr.stack.depth"),
-  /**
    * The Property allows to define which class will work as a class instantiator for the JBBP mapper.
    */
   PROPERTY_INSTANTIATOR_CLASS("jbbp.mapper.instantiator"),
