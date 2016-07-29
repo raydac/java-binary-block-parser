@@ -46,12 +46,12 @@ Change log
   - The Initial version 
   
 # Maven dependency
-The Framework is published in the Maven Central and can be easily added as a dependency into a maven project
+The Framework has been published in the Maven Central and can be easily added as a dependency
 ```
 <dependency>
   <groupId>com.igormaznitsa</groupId>
   <artifactId>jbbp</artifactId>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
 </dependency>
 ```
 the precompiled library jar, javadoc and sources also can be downloaded directly from [the Maven central.](http://search.maven.org/#browse|808871750) 
