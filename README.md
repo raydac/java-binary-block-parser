@@ -301,3 +301,20 @@ final byte [] array =
             Long(0x123456789ABCDEF1L, 0x212356239091AB32L).
           End().toByteArray();
 ```
+# Public snapshot repository for the plugin
+To make accessible the snapshot version of the plugin during development, I have tuned public maven snapshot repository which can be added into project with snippet
+```xml
+<repositories>
+ <repository>
+  <id>coldcore.ru-snapshots</id>
+  <name>ColdCore.RU Mvn Snapshots</name>
+  <url>http://coldcore.ru/m2</url>
+  <snapshots>
+   <enabled>true</enabled>
+  </snapshots>
+  <releases>
+   <enabled>false</enabled>
+  </releases>
+ </repository>
+</repositories>
+```
