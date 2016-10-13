@@ -301,8 +301,8 @@ final byte [] array =
             Long(0x123456789ABCDEF1L, 0x212356239091AB32L).
           End().toByteArray();
 ```
-# Public snapshot repository for the plugin
-To make accessible the snapshot version of the plugin during development, I have tuned public maven snapshot repository which can be added into project with snippet
+# Public snapshot repository for the library
+To make accessible the snapshot version of the library during development, I have tuned public maven snapshot repository which can be added into project with snippet
 ```xml
 <repositories>
  <repository>
