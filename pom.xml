@@ -98,6 +98,15 @@
 
   <profiles>
     <profile>
+      <id>localrepo</id>
+      <distributionManagement>
+        <snapshotRepository>
+          <id>local-oss-git-repo</id>
+          <url>file:///home/igorm/Projects_PET/iam-oss-mvn-snapshots</url>
+        </snapshotRepository>
+      </distributionManagement>
+    </profile>
+    <profile>
       <id>coverage</id>
       <build>
         <plugins>
