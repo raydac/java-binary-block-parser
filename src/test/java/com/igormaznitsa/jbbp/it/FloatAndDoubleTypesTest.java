@@ -26,15 +26,16 @@ import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
-import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.model.JBBPAbstractArrayField;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.model.JBBPNumericField;
-import com.igormaznitsa.jbbp.utils.JBBPTextWriter;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
+/**
+ * Test and example how to organize work with Float and Double values in JBBP (the formats are not supported out of the box)
+ */
 public strictfp class FloatAndDoubleTypesTest {
 
   public static final class JBBPFieldFloat extends JBBPAbstractField implements JBBPNumericField {
