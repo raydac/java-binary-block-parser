@@ -1,5 +1,5 @@
 [![Codewake](https://www.codewake.com/badges/ask_question_flat_square.svg)](https://www.codewake.com/p/jbbp)
-[![Coverage Status](https://coveralls.io/repos/github/raydac/java-binary-block-parser/badge.svg?branch=master)](https://coveralls.io/github/raydac/java-binary-block-parser?branch=master)
+[![Coverity Status](https://scan.coverity.com/projects/raydac-java-binary-block-parser)
 [![License Apache 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-green.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.igormaznitsa/jbbp/badge.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|jbbp|1.2.1|jar)
 [![Codacy Badge](https://api.codacy.com/project/badge/grade/50b0281430a94eb6abe417409f99ed58)](https://www.codacy.com/app/rrg4400/java-binary-block-parser)
