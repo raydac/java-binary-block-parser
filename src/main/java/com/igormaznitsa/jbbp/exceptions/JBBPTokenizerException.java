@@ -1,5 +1,5 @@
-/* 
- * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
+/*
+ * Copyright 2017 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,31 +17,34 @@ package com.igormaznitsa.jbbp.exceptions;
 
 /**
  * The Exception can be thrown during parsing sources for tokens and allows to figure out the position of the problematic token.
+ *
  * @since 1.0
  */
 public class JBBPTokenizerException extends JBBPCompilationException {
-  private static final long serialVersionUID = -1132154077305894146L;
+    private static final long serialVersionUID = -1132154077305894146L;
 
-  /**
-   * The Token position.
-   */
-  private final int position;
+    /**
+     * The Token position.
+     */
+    private final int position;
 
-  /**
-   * The Constructor.
-   * @param message the exception message.
-   * @param pos the position of a problematic token inside sources.
-   */
-  public JBBPTokenizerException(final String message, final int pos) {
-    super(message);
-    this.position = pos;
-  }
+    /**
+     * The Constructor.
+     *
+     * @param message the exception message.
+     * @param pos     the position of a problematic token inside sources.
+     */
+    public JBBPTokenizerException(final String message, final int pos) {
+        super(message);
+        this.position = pos;
+    }
 
-  /**
-   * get the position in sources of the problematic token.
-   * @return the position or -1 if the position is unknown.
-   */
-  public int getPosition() {
-    return this.position;
-  }
+    /**
+     * get the position in sources of the problematic token.
+     *
+     * @return the position or -1 if the position is unknown.
+     */
+    public int getPosition() {
+        return this.position;
+    }
 }

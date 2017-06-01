@@ -1,5 +1,5 @@
-/* 
- * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
+/*
+ * Copyright 2017 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,69 +21,73 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
  * Describes a bit field.
+ *
  * @since 1.0
  */
 public final class JBBPFieldBit extends JBBPAbstractField implements JBBPNumericField, BitEntity {
-  private static final long serialVersionUID = 3113427734366331529L;
-  /**
-   * Inside value storage.
-   */
-  private final int value;
-  
-  /**
-   * The Value shows how many bits are really contain the value in the byte.
-   */
-  private final JBBPBitNumber bitNumber;
-  
-  /**
-   * The Constructor.
-   * @param name a field name info, it can be null.
-   * @param value the field value
-   * @param bitNumber number of valuable bits in the value, must not be null
-   */
-  public JBBPFieldBit(final JBBPNamedFieldInfo name,final int value, final JBBPBitNumber bitNumber) {
-    super(name);
-    JBBPUtils.assertNotNull(bitNumber, "Number of bits must not be null");
-    this.bitNumber = bitNumber;
-    this.value = value;
-  }
-  
-  /**
-   * Get number of valuable bits in the value. It plays informative role and doesn't play role during numeric value getting.
-   * @return the number of valuable bits in the value.
-   */
-  public JBBPBitNumber getBitWidth(){
-    return this.bitNumber;
-  }
-  
-  public int getAsInt() {
-    return this.value & 0xFF;
-  }
+    private static final long serialVersionUID = 3113427734366331529L;
+    /**
+     * Inside value storage.
+     */
+    private final int value;
 
-  public long getAsLong() {
-    return getAsInt();
-  }
+    /**
+     * The Value shows how many bits are really contain the value in the byte.
+     */
+    private final JBBPBitNumber bitNumber;
 
-  public boolean getAsBool() {
-    return this.value != 0;
-  }
+    /**
+     * The Constructor.
+     *
+     * @param name      a field name info, it can be null.
+     * @param value     the field value
+     * @param bitNumber number of valuable bits in the value, must not be null
+     */
+    public JBBPFieldBit(final JBBPNamedFieldInfo name, final int value, final JBBPBitNumber bitNumber) {
+        super(name);
+        JBBPUtils.assertNotNull(bitNumber, "Number of bits must not be null");
+        this.bitNumber = bitNumber;
+        this.value = value;
+    }
 
-  /**
-   * Get the reversed bit representation of the value.
-   * @param value the value to be reversed
-   * @param bits number of bits to be reversed, must not be null
-   * @return the reversed value
-   */
-  public static long reverseBits(final byte value, final JBBPBitNumber bits){
-    return JBBPUtils.reverseBitsInByte(value) >>> (8 - bits.getBitNumber()) & bits.getMask();
-  }
-  
-  public long getAsInvertedBitOrder() {
-    return reverseBits((byte)this.value, this.bitNumber);
-  }
- 
-  @Override
-  public String getTypeAsString() {
-    return "bit:"+this.bitNumber.getBitNumber();
-  }
+    /**
+     * Get the reversed bit representation of the value.
+     *
+     * @param value the value to be reversed
+     * @param bits  number of bits to be reversed, must not be null
+     * @return the reversed value
+     */
+    public static long reverseBits(final byte value, final JBBPBitNumber bits) {
+        return JBBPUtils.reverseBitsInByte(value) >>> (8 - bits.getBitNumber()) & bits.getMask();
+    }
+
+    /**
+     * Get number of valuable bits in the value. It plays informative role and doesn't play role during numeric value getting.
+     *
+     * @return the number of valuable bits in the value.
+     */
+    public JBBPBitNumber getBitWidth() {
+        return this.bitNumber;
+    }
+
+    public int getAsInt() {
+        return this.value & 0xFF;
+    }
+
+    public long getAsLong() {
+        return getAsInt();
+    }
+
+    public boolean getAsBool() {
+        return this.value != 0;
+    }
+
+    public long getAsInvertedBitOrder() {
+        return reverseBits((byte) this.value, this.bitNumber);
+    }
+
+    @Override
+    public String getTypeAsString() {
+        return "bit:" + this.bitNumber.getBitNumber();
+    }
 }

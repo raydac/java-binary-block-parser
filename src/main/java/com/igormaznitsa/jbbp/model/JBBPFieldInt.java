@@ -1,5 +1,5 @@
-/* 
- * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
+/*
+ * Copyright 2017 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,59 +20,61 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
  * Describes an integer field.
+ *
  * @since 1.0
  */
-public final class JBBPFieldInt extends JBBPAbstractField implements JBBPNumericField{
-  private static final long serialVersionUID = 5493764792042809716L;
-  /**
-   * Inside value storage.
-   */
-  private final int value;
+public final class JBBPFieldInt extends JBBPAbstractField implements JBBPNumericField {
+    private static final long serialVersionUID = 5493764792042809716L;
+    /**
+     * Inside value storage.
+     */
+    private final int value;
 
-  /**
-   * The Constructor.
-   * @param name a field name info, it can be null.
-   * @param value the field value
-   */
-  public JBBPFieldInt(final JBBPNamedFieldInfo name, final int value) {
-    super(name);
-    this.value = value;
-  }
-  
-  public int getAsInt() {
-    return this.value;
-  }
+    /**
+     * The Constructor.
+     *
+     * @param name  a field name info, it can be null.
+     * @param value the field value
+     */
+    public JBBPFieldInt(final JBBPNamedFieldInfo name, final int value) {
+        super(name);
+        this.value = value;
+    }
 
-  public long getAsLong() {
-    return this.getAsInt();
-  }
+    /**
+     * Get the reversed bit representation of the value.
+     *
+     * @param value the value to be reversed
+     * @return the reversed value
+     */
+    public static long reverseBits(final int value) {
+        final int b0 = JBBPUtils.reverseBitsInByte((byte) value) & 0xFF;
+        final int b1 = JBBPUtils.reverseBitsInByte((byte) (value >> 8)) & 0xFF;
+        final int b2 = JBBPUtils.reverseBitsInByte((byte) (value >> 16)) & 0xFF;
+        final int b3 = JBBPUtils.reverseBitsInByte((byte) (value >> 24)) & 0xFF;
 
-  public boolean getAsBool() {
-    return this.value != 0;
-  }
+        return (long) ((b0 << 24) | (b1 << 16) | (b2 << 8) | b3);
+    }
 
-  /**
-   * Get the reversed bit representation of the value.
-   *
-   * @param value the value to be reversed
-   * @return the reversed value
-   */
-  public static long reverseBits(final int value) {
-    final int b0 = JBBPUtils.reverseBitsInByte((byte) value) & 0xFF;
-    final int b1 = JBBPUtils.reverseBitsInByte((byte) (value >> 8)) & 0xFF;
-    final int b2 = JBBPUtils.reverseBitsInByte((byte) (value >> 16)) & 0xFF;
-    final int b3 = JBBPUtils.reverseBitsInByte((byte) (value >> 24)) & 0xFF;
+    public int getAsInt() {
+        return this.value;
+    }
 
-    return (long) ((b0 << 24) | (b1 << 16) | (b2 << 8) | b3);
-  }
-  
-  public long getAsInvertedBitOrder() {
-    return reverseBits(this.value);
-  }
+    public long getAsLong() {
+        return this.getAsInt();
+    }
 
-  @Override
-  public String getTypeAsString() {
-    return "int";
-  }
+    public boolean getAsBool() {
+        return this.value != 0;
+    }
+
+    public long getAsInvertedBitOrder() {
+        return reverseBits(this.value);
+    }
+
+    @Override
+    public String getTypeAsString() {
+        return "int";
+    }
 
 }

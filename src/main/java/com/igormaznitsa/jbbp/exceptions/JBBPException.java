@@ -1,5 +1,5 @@
-/* 
- * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
+/*
+ * Copyright 2017 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,25 +17,28 @@ package com.igormaznitsa.jbbp.exceptions;
 
 /**
  * The Root Exception for all JBBP exceptions.
+ *
  * @since 1.0
  */
 public class JBBPException extends RuntimeException {
-  private static final long serialVersionUID = -3311082983804835019L;
+    private static final long serialVersionUID = -3311082983804835019L;
 
-  /**
-   * A Constructor.
-   * @param message the message for the exception 
-   */
-  public JBBPException(final String message) {
-    super(message);
-  }
+    /**
+     * A Constructor.
+     *
+     * @param message the message for the exception
+     */
+    public JBBPException(final String message) {
+        super(message);
+    }
 
-  /**
-   * A Constructor.
-   * @param message the message for the exception
-   * @param cause the root cause for the exception
-   */
-  public JBBPException(final String message, final Throwable cause) {
-    super(message, cause);
-  }
+    /**
+     * A Constructor.
+     *
+     * @param message the message for the exception
+     * @param cause   the root cause for the exception
+     */
+    public JBBPException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
 }

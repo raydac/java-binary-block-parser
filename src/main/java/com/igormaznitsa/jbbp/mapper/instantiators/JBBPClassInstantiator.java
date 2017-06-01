@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Igor Maznitsa.
+ * Copyright 2017 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,17 @@ package com.igormaznitsa.jbbp.mapper.instantiators;
 
 /**
  * Interface describes a memory allocator for Java classes.
+ *
  * @since 1.0
  */
 public interface JBBPClassInstantiator {
-  /**
-   * Allocate memory area for a class.
-   * @param <T> the class type
-   * @param klazz the class which should be instantiated, must not be null 
-   * @return an instance of the class
-   * @throws InstantiationException  it will be thrown if the class can;t be instantiated
-   */
-  <T> T makeClassInstance(Class<T> klazz) throws InstantiationException;
+    /**
+     * Allocate memory area for a class.
+     *
+     * @param <T>   the class type
+     * @param klazz the class which should be instantiated, must not be null
+     * @return an instance of the class
+     * @throws InstantiationException it will be thrown if the class can;t be instantiated
+     */
+    <T> T makeClassInstance(Class<T> klazz) throws InstantiationException;
 }

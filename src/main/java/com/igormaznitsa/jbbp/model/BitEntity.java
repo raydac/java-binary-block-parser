@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Igor Maznitsa.
+ * Copyright 2017 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,14 @@ import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 
 /**
  * The Interface describes a field which contains data which width is lesser or equals byte.
+ *
  * @since 1.0
  */
 public interface BitEntity {
-  /**
-   * Get the width of the field.
-   * @return the width of the field, must not be null
-   */
-  JBBPBitNumber getBitWidth();
+    /**
+     * Get the width of the field.
+     *
+     * @return the width of the field, must not be null
+     */
+    JBBPBitNumber getBitWidth();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Igor Maznitsa.
+ * Copyright 2017 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.igormaznitsa.jbbp.utils;
 
 import com.igormaznitsa.jbbp.exceptions.JBBPException;
 import com.igormaznitsa.jbbp.mapper.Bin;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 
@@ -28,59 +29,59 @@ import java.lang.reflect.Field;
  */
 public abstract class JBBPTextWriterExtraAdapter implements JBBPTextWriter.Extra {
 
-  public void onNewLine(final JBBPTextWriter context, final int lineNumber) throws IOException {
-  }
-
-  public void onBeforeFirstValue(final JBBPTextWriter context) throws IOException {
-  }
-
-  public void onClose(final JBBPTextWriter context) throws IOException {
-  }
-
-  public String doConvertByteToStr(final JBBPTextWriter context, final int value) throws IOException {
-    return null;
-  }
-
-  public String doConvertShortToStr(final JBBPTextWriter context, final int value) throws IOException {
-    return null;
-  }
-
-  public String doConvertIntToStr(final JBBPTextWriter context, final int value) throws IOException {
-    return null;
-  }
-
-  public String doConvertLongToStr(final JBBPTextWriter context, final long value) throws IOException {
-    return null;
-  }
-
-  public String doConvertObjToStr(final JBBPTextWriter context, final int id, final Object obj) throws IOException {
-    return null;
-  }
-
-  public String doConvertCustomField(final JBBPTextWriter context, final Object obj, final Field field, final Bin annotation) throws IOException {
-    return null;
-  }
-
-  public void onReachedMaxValueNumberForLine(final JBBPTextWriter context) throws IOException {
-
-  }
-
-  /**
-   * Auxiliary method to extract field value.
-   * @param instance object instance, can be null
-   * @param field the filed which value should be extracted, must not be null
-   * @return the field value
-   */
-  public Object extractFieldValue(final Object instance, final Field field) {
-    JBBPUtils.assertNotNull(field, "Field must not be null");
-    try {
-      if (!field.isAccessible()){
-        JBBPUtils.makeAccessible(field);
-      }
-      return field.get(instance);
+    public void onNewLine(final JBBPTextWriter context, final int lineNumber) throws IOException {
     }
-    catch (Exception ex) {
-      throw new JBBPException("Can't extract value from field for exception", ex);
+
+    public void onBeforeFirstValue(final JBBPTextWriter context) throws IOException {
     }
-  }
+
+    public void onClose(final JBBPTextWriter context) throws IOException {
+    }
+
+    public String doConvertByteToStr(final JBBPTextWriter context, final int value) throws IOException {
+        return null;
+    }
+
+    public String doConvertShortToStr(final JBBPTextWriter context, final int value) throws IOException {
+        return null;
+    }
+
+    public String doConvertIntToStr(final JBBPTextWriter context, final int value) throws IOException {
+        return null;
+    }
+
+    public String doConvertLongToStr(final JBBPTextWriter context, final long value) throws IOException {
+        return null;
+    }
+
+    public String doConvertObjToStr(final JBBPTextWriter context, final int id, final Object obj) throws IOException {
+        return null;
+    }
+
+    public String doConvertCustomField(final JBBPTextWriter context, final Object obj, final Field field, final Bin annotation) throws IOException {
+        return null;
+    }
+
+    public void onReachedMaxValueNumberForLine(final JBBPTextWriter context) throws IOException {
+
+    }
+
+    /**
+     * Auxiliary method to extract field value.
+     *
+     * @param instance object instance, can be null
+     * @param field    the filed which value should be extracted, must not be null
+     * @return the field value
+     */
+    public Object extractFieldValue(final Object instance, final Field field) {
+        JBBPUtils.assertNotNull(field, "Field must not be null");
+        try {
+            if (!field.isAccessible()) {
+                JBBPUtils.makeAccessible(field);
+            }
+            return field.get(instance);
+        } catch (Exception ex) {
+            throw new JBBPException("Can't extract value from field for exception", ex);
+        }
+    }
 }

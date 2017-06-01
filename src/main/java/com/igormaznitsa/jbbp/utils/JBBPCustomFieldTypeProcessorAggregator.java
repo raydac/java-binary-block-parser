@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Igor Maznitsa.
+ * Copyright 2017 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,10 @@ import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
+
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The Aggregator allows to join several custom field type processors.
@@ -30,34 +32,36 @@ import java.util.*;
  * @since 1.2.0
  */
 public class JBBPCustomFieldTypeProcessorAggregator implements JBBPCustomFieldTypeProcessor {
-  private final Map<String,JBBPCustomFieldTypeProcessor> customTypeMap;
-  private final String [] types;
-  
-  /**
-   * Constructor.
-   * @param processors processors which should be joined.
-   */
-  public JBBPCustomFieldTypeProcessorAggregator(final JBBPCustomFieldTypeProcessor ... processors) {
-    this.customTypeMap = new HashMap<String, JBBPCustomFieldTypeProcessor>();
-    for(final JBBPCustomFieldTypeProcessor p : processors){
-      for(final String s : p.getCustomFieldTypes()){
-        JBBPUtils.assertNotNull(s, "Type must not be null");
-        if (this.customTypeMap.containsKey(s)) throw new IllegalArgumentException("Detected duplicated field type ["+s+']');
-        this.customTypeMap.put(s, p);
-      }
+    private final Map<String, JBBPCustomFieldTypeProcessor> customTypeMap;
+    private final String[] types;
+
+    /**
+     * Constructor.
+     *
+     * @param processors processors which should be joined.
+     */
+    public JBBPCustomFieldTypeProcessorAggregator(final JBBPCustomFieldTypeProcessor... processors) {
+        this.customTypeMap = new HashMap<String, JBBPCustomFieldTypeProcessor>();
+        for (final JBBPCustomFieldTypeProcessor p : processors) {
+            for (final String s : p.getCustomFieldTypes()) {
+                JBBPUtils.assertNotNull(s, "Type must not be null");
+                if (this.customTypeMap.containsKey(s))
+                    throw new IllegalArgumentException("Detected duplicated field type [" + s + ']');
+                this.customTypeMap.put(s, p);
+            }
+        }
+        this.types = this.customTypeMap.keySet().toArray(new String[this.customTypeMap.size()]);
     }
-    this.types = this.customTypeMap.keySet().toArray(new String[this.customTypeMap.size()]);
-  }
 
-  public String[] getCustomFieldTypes() {
-    return this.types;
-  }
+    public String[] getCustomFieldTypes() {
+        return this.types;
+    }
 
-  public boolean isAllowed(final JBBPFieldTypeParameterContainer fieldType, final String fieldName, final int extraData, final boolean isArray) {
-    return this.customTypeMap.get(fieldType.getTypeName()).isAllowed(fieldType, fieldName, extraData, isArray);
-  }
+    public boolean isAllowed(final JBBPFieldTypeParameterContainer fieldType, final String fieldName, final int extraData, final boolean isArray) {
+        return this.customTypeMap.get(fieldType.getTypeName()).isAllowed(fieldType, fieldName, extraData, isArray);
+    }
 
-  public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer fieldType, JBBPNamedFieldInfo fieldName, int extraData, boolean readWholeStream, int arrayLength) throws IOException {
-    return this.customTypeMap.get(fieldType.getTypeName()).readCustomFieldType(in, bitOrder, parserFlags, fieldType, fieldName, extraData, readWholeStream, arrayLength);
-  }
+    public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer fieldType, JBBPNamedFieldInfo fieldName, int extraData, boolean readWholeStream, int arrayLength) throws IOException {
+        return this.customTypeMap.get(fieldType.getTypeName()).readCustomFieldType(in, bitOrder, parserFlags, fieldType, fieldName, extraData, readWholeStream, arrayLength);
+    }
 }

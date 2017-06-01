@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Igor Maznitsa.
+ * Copyright 2017 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,19 @@
  */
 package com.igormaznitsa.jbbp.mapper;
 
-import com.igormaznitsa.jbbp.io.*;
+import com.igormaznitsa.jbbp.io.JBBPBitNumber;
+import com.igormaznitsa.jbbp.io.JBBPBitOrder;
+import com.igormaznitsa.jbbp.io.JBBPCustomFieldWriter;
+import com.igormaznitsa.jbbp.io.JBBPOut;
 import com.igormaznitsa.jbbp.utils.JBBPTextWriter;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+
+import java.lang.annotation.*;
 
 /**
  * The annotation describes a field in a class which can be mapped and loaded
  * from parsed a JBBP structure. Also it can be used for whole class but in the
  * case be careful and use default name and path values. The Class is not thread safe.
+ *
  * @since 1.0
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -34,84 +35,87 @@ import java.lang.annotation.Target;
 @Inherited
 public @interface Bin {
 
-  /**
-   * Name of a structure element to be mapped to the field.
-   *
-   * @return string name, if it is empty then the name of a field will be used
-   * as name
-   */
-  String name() default "";
+    /**
+     * Name of a structure element to be mapped to the field.
+     *
+     * @return string name, if it is empty then the name of a field will be used
+     * as name
+     */
+    String name() default "";
 
-  /**
-   * Path inside structure to an element to be mapped to the field.
-   *
-   * @return string path, if it is empty then the path is not used
-   */
-  String path() default "";
+    /**
+     * Path inside structure to an element to be mapped to the field.
+     *
+     * @return string path, if it is empty then the path is not used
+     */
+    String path() default "";
 
-  /**
-   * Type of mapped parsed structure element.
-   *
-   * @return the mapped parsed structure element type
-   * @see BinType
-   */
-  BinType type() default BinType.UNDEFINED;
+    /**
+     * Type of mapped parsed structure element.
+     *
+     * @return the mapped parsed structure element type
+     * @see BinType
+     */
+    BinType type() default BinType.UNDEFINED;
 
-  /**
-   * Order of bits for the field. 
-   * <b>NB! The Value has strong effect! A Numeric field content will be inverted during mapping or saving of the field if the value is MSB0 (Java uses standard LSB0)</b>
-   *
-   * @return LSB0 or MSB0 outOrder, LSB0 by default
-   * @see JBBPBitOrder
-   */
-  JBBPBitOrder bitOrder() default JBBPBitOrder.LSB0;
+    /**
+     * Order of bits for the field.
+     * <b>NB! The Value has strong effect! A Numeric field content will be inverted during mapping or saving of the field if the value is MSB0 (Java uses standard LSB0)</b>
+     *
+     * @return LSB0 or MSB0 outOrder, LSB0 by default
+     * @see JBBPBitOrder
+     */
+    JBBPBitOrder bitOrder() default JBBPBitOrder.LSB0;
 
-  /**
-   * The Flag shows that the field must be processed by a defined externally
-   * custom field processors during loading and saving.
-   *
-   * @return true if the mapping field must be processed externally, false
-   * otherwise
-   * @see JBBPMapperCustomFieldProcessor
-   * @see JBBPCustomFieldWriter
-   */
-  boolean custom() default false;
+    /**
+     * The Flag shows that the field must be processed by a defined externally
+     * custom field processors during loading and saving.
+     *
+     * @return true if the mapping field must be processed externally, false
+     * otherwise
+     * @see JBBPMapperCustomFieldProcessor
+     * @see JBBPCustomFieldWriter
+     */
+    boolean custom() default false;
 
-  /**
-   * The Filed contains some extra text info which can be used by a custom field
-   * processor, the engine doesn't use the field.
-   *
-   * @return the extra field as String
-   * @see JBBPMapperCustomFieldProcessor
-   */
-  String extra() default "";
-  
-  /**
-   * The Value defines how many bytes are actual ones in the field, works for numeric field and arrays and allows make mapping to bit fields.The Property
-   * works only for save and logging.
-   * @return the number of lower bits, by default 8 bits
-   * @see JBBPTextWriter#Bin(java.lang.Object...)
-   * @see JBBPOut#Bin(java.lang.Object)
-   * @see JBBPOut#Bin(java.lang.Object, com.igormaznitsa.jbbp.io.JBBPCustomFieldWriter) 
-   * @since 1.1
-   */
-  JBBPBitNumber outBitNumber() default JBBPBitNumber.BITS_8;
-  
-  /**
-   * The Value defines the field order to sort fields of the class for save or logging.
-   * @return the outOrder of the field as number (the mapping will make ascending sorting)
-   * @see JBBPTextWriter#Bin(java.lang.Object...) 
-   * @see JBBPOut#Bin(java.lang.Object)
-   * @see JBBPOut#Bin(java.lang.Object,com.igormaznitsa.jbbp.io.JBBPCustomFieldWriter)
-   * @since 1.1
-   */
-  int outOrder() default 0;
-  
-  /**
-   * Just either description of the field or some remark.
-   * @return the comment as String
-   * @see JBBPTextWriter#Bin(java.lang.Object...) 
-   * @since 1.1
-   */
-  String comment() default "";
+    /**
+     * The Filed contains some extra text info which can be used by a custom field
+     * processor, the engine doesn't use the field.
+     *
+     * @return the extra field as String
+     * @see JBBPMapperCustomFieldProcessor
+     */
+    String extra() default "";
+
+    /**
+     * The Value defines how many bytes are actual ones in the field, works for numeric field and arrays and allows make mapping to bit fields.The Property
+     * works only for save and logging.
+     *
+     * @return the number of lower bits, by default 8 bits
+     * @see JBBPTextWriter#Bin(java.lang.Object...)
+     * @see JBBPOut#Bin(java.lang.Object)
+     * @see JBBPOut#Bin(java.lang.Object, com.igormaznitsa.jbbp.io.JBBPCustomFieldWriter)
+     * @since 1.1
+     */
+    JBBPBitNumber outBitNumber() default JBBPBitNumber.BITS_8;
+
+    /**
+     * The Value defines the field order to sort fields of the class for save or logging.
+     *
+     * @return the outOrder of the field as number (the mapping will make ascending sorting)
+     * @see JBBPTextWriter#Bin(java.lang.Object...)
+     * @see JBBPOut#Bin(java.lang.Object)
+     * @see JBBPOut#Bin(java.lang.Object, com.igormaznitsa.jbbp.io.JBBPCustomFieldWriter)
+     * @since 1.1
+     */
+    int outOrder() default 0;
+
+    /**
+     * Just either description of the field or some remark.
+     *
+     * @return the comment as String
+     * @see JBBPTextWriter#Bin(java.lang.Object...)
+     * @since 1.1
+     */
+    String comment() default "";
 }

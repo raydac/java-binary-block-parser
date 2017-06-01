@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Igor Maznitsa.
+ * Copyright 2017 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,42 +20,46 @@ import com.igormaznitsa.jbbp.compiler.varlen.JBBPIntegerValueEvaluator;
 
 /**
  * The Exception is thrown if any errors during execution of an array length evaluator.
+ *
  * @since 1.0
  */
 public class JBBPEvalException extends JBBPException {
-  private static final long serialVersionUID = -8580688001091915787L;
+    private static final long serialVersionUID = -8580688001091915787L;
 
-  /**
-   * The Evaluator which is the cause of the exception.
-   */
-  private final JBBPIntegerValueEvaluator evaluator;
-  
-  /**
-   * A Constructor.
-   * @param message a message, can be null
-   * @param evaluator a cause evaluator, can be null
-   */
-  public JBBPEvalException(final String message, final JBBPIntegerValueEvaluator evaluator) {
-    this(message,evaluator,null);
-  }
+    /**
+     * The Evaluator which is the cause of the exception.
+     */
+    private final JBBPIntegerValueEvaluator evaluator;
 
-  /**
-   * A Constructor.
-   * @param message a message, can be null
-   * @param evaluator a cause evaluator, can be null
-   * @param cause a cause exception, can be null
-   */
-  public JBBPEvalException(final String message, final JBBPIntegerValueEvaluator evaluator, Throwable cause) {
-    super(message, cause);
-    this.evaluator = evaluator;
-  }
-  
-  /**
-   * get the cause evaluator.
-   * @return the cause evaluator for the exception, can be null
-   */
-  public JBBPIntegerValueEvaluator getEvaluator(){
-    return this.evaluator;
-  }
-  
+    /**
+     * A Constructor.
+     *
+     * @param message   a message, can be null
+     * @param evaluator a cause evaluator, can be null
+     */
+    public JBBPEvalException(final String message, final JBBPIntegerValueEvaluator evaluator) {
+        this(message, evaluator, null);
+    }
+
+    /**
+     * A Constructor.
+     *
+     * @param message   a message, can be null
+     * @param evaluator a cause evaluator, can be null
+     * @param cause     a cause exception, can be null
+     */
+    public JBBPEvalException(final String message, final JBBPIntegerValueEvaluator evaluator, Throwable cause) {
+        super(message, cause);
+        this.evaluator = evaluator;
+    }
+
+    /**
+     * get the cause evaluator.
+     *
+     * @return the cause evaluator for the exception, can be null
+     */
+    public JBBPIntegerValueEvaluator getEvaluator() {
+        return this.evaluator;
+    }
+
 }

@@ -1,5 +1,5 @@
-/* 
- * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
+/*
+ * Copyright 2017 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,50 +19,55 @@ import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPToken;
 
 /**
  * The Exception can be thrown during compilation phase and may provide the problematic token.
+ *
  * @since 1.0
  */
 public class JBBPCompilationException extends JBBPException {
-  private static final long serialVersionUID = -7567503709641292590L;
-  
-  /**
-   * The Problematic token, it can be null.
-   */
-  private final JBBPToken token;
+    private static final long serialVersionUID = -7567503709641292590L;
 
-  /**
-   * A Constructor.
-   * @param text the text of message for the exception.
-   */
-  public JBBPCompilationException(final String text){
-    this(text,null);
-  }
-  
-  /**
-   * A Constructor.
-   * @param text the text of message for the exception.
-   * @param token the problematic token, it can be null.
-   */
-  public JBBPCompilationException(final String text, final JBBPToken token){
-    super(text);
-    this.token = token;
-  }
-  
-  /**
-   * A Constructor.
-   * @param text the text of message for the exception
-   * @param token the problematic token for the exception, it can be null
-   * @param cause the root cause for the exception
-   */
-  public JBBPCompilationException(final String text, final JBBPToken token, final Throwable cause){
-    super(text, cause);
-    this.token = token;
-  }
-  
-  /**
-   * Get the problematic token.
-   * @return the problematic token or null if the token is undefined
-   */
-  public JBBPToken getToken(){
-    return this.token;
-  }
+    /**
+     * The Problematic token, it can be null.
+     */
+    private final JBBPToken token;
+
+    /**
+     * A Constructor.
+     *
+     * @param text the text of message for the exception.
+     */
+    public JBBPCompilationException(final String text) {
+        this(text, null);
+    }
+
+    /**
+     * A Constructor.
+     *
+     * @param text  the text of message for the exception.
+     * @param token the problematic token, it can be null.
+     */
+    public JBBPCompilationException(final String text, final JBBPToken token) {
+        super(text);
+        this.token = token;
+    }
+
+    /**
+     * A Constructor.
+     *
+     * @param text  the text of message for the exception
+     * @param token the problematic token for the exception, it can be null
+     * @param cause the root cause for the exception
+     */
+    public JBBPCompilationException(final String text, final JBBPToken token, final Throwable cause) {
+        super(text, cause);
+        this.token = token;
+    }
+
+    /**
+     * Get the problematic token.
+     *
+     * @return the problematic token or null if the token is undefined
+     */
+    public JBBPToken getToken() {
+        return this.token;
+    }
 }

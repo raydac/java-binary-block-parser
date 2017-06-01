@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Igor Maznitsa.
+ * Copyright 2017 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,19 +18,20 @@ package com.igormaznitsa.jbbp.mapper.instantiators;
 
 /**
  * Type of class instantiator to provide new class instances for mapping.
+ *
  * @since 1.0
  */
 public enum JBBPClassInstantiatorType {
-  /**
-   * Auto recognition of the platform features and choice of appropriate one.
-   */
-  AUTO,
-  /**
-   * A Safe version which use standard Java approach but can be non-working in some cases.
-   */
-  SAFE,
-  /**
-   * A Version using sun.misc.Unsafe to allocate memory for objects without constructor calls.
-   */
-  UNSAFE;
+    /**
+     * Auto recognition of the platform features and choice of appropriate one.
+     */
+    AUTO,
+    /**
+     * A Safe version which use standard Java approach but can be non-working in some cases.
+     */
+    SAFE,
+    /**
+     * A Version using sun.misc.Unsafe to allocate memory for objects without constructor calls.
+     */
+    UNSAFE;
 }

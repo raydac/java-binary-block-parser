@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Igor Maznitsa.
+ * Copyright 2017 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,18 @@ package com.igormaznitsa.jbbp.exceptions;
 
 /**
  * The Exception can be thrown when detected incompatible or unusable parameter.
- * 
+ *
  * @since 1.1.1
  */
 public class JBBPIllegalArgumentException extends JBBPIOException {
-  private static final long serialVersionUID = 2811626713945893782L;
+    private static final long serialVersionUID = 2811626713945893782L;
 
-  public JBBPIllegalArgumentException(String message) {
-    super(message);
-  }
+    public JBBPIllegalArgumentException(String message) {
+        super(message);
+    }
 
-  public JBBPIllegalArgumentException(String message, Throwable cause) {
-    super(message, cause);
-  }
-  
+    public JBBPIllegalArgumentException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
 }

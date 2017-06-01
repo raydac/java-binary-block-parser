@@ -1,5 +1,5 @@
-/* 
- * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
+/*
+ * Copyright 2017 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,66 +20,69 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
  * Describes a structure array. It doesn't support operations to get an array value as a numeric one.
+ *
  * @since 1.0
  */
 public final class JBBPFieldArrayStruct extends JBBPAbstractArrayField<JBBPFieldStruct> {
-  private static final long serialVersionUID = 8614627616366111833L;
-  /**
-   * Inside value storage.
-   */
-  private final JBBPFieldStruct [] structs;
-  
-  /**
-   * The Constructor.
-   * @param name a field name info, it can be null
-   * @param array a value array, it must not be null
-   */
-  public JBBPFieldArrayStruct(final JBBPNamedFieldInfo name, final JBBPFieldStruct [] array) {
-    super(name);
-    JBBPUtils.assertNotNull(array, "Array must not be null");
-    this.structs = array;
-  }
+    private static final long serialVersionUID = 8614627616366111833L;
+    /**
+     * Inside value storage.
+     */
+    private final JBBPFieldStruct[] structs;
 
-  /**
-   * Get the value array.
-   * @return the value array as a structure array
-   */
-  public JBBPFieldStruct [] getArray(){
-    return this.structs.clone();
-  }
-  
-  @Override
-  public int size() {
-    return this.structs.length;
-  }
+    /**
+     * The Constructor.
+     *
+     * @param name  a field name info, it can be null
+     * @param array a value array, it must not be null
+     */
+    public JBBPFieldArrayStruct(final JBBPNamedFieldInfo name, final JBBPFieldStruct[] array) {
+        super(name);
+        JBBPUtils.assertNotNull(array, "Array must not be null");
+        this.structs = array;
+    }
 
-  @Override
-  public JBBPFieldStruct getElementAt(final int index) {
-    return this.structs[index];
-  }
+    /**
+     * Get the value array.
+     *
+     * @return the value array as a structure array
+     */
+    public JBBPFieldStruct[] getArray() {
+        return this.structs.clone();
+    }
 
-  @Override
-  public int getAsInt(final int index) {
-    throw new UnsupportedOperationException("Structure can't be mapped to integer");
-  }
+    @Override
+    public int size() {
+        return this.structs.length;
+    }
 
-  @Override
-  public long getAsLong(final int index) {
-    throw new UnsupportedOperationException("Structure can't be mapped to long");
-  }
+    @Override
+    public JBBPFieldStruct getElementAt(final int index) {
+        return this.structs[index];
+    }
 
-  @Override
-  public boolean getAsBool(final int index) {
-    throw new UnsupportedOperationException("Structure can't be mapped to boolean");
-  }
+    @Override
+    public int getAsInt(final int index) {
+        throw new UnsupportedOperationException("Structure can't be mapped to integer");
+    }
 
-  @Override
-  public Object getValueArrayAsObject(final boolean reverseBits) {
-    return this.structs.clone();
-  }
+    @Override
+    public long getAsLong(final int index) {
+        throw new UnsupportedOperationException("Structure can't be mapped to long");
+    }
 
-  @Override
-  public String getTypeAsString() {
-    return "{} ["+this.structs.length+']';
-  }
+    @Override
+    public boolean getAsBool(final int index) {
+        throw new UnsupportedOperationException("Structure can't be mapped to boolean");
+    }
+
+    @Override
+    public Object getValueArrayAsObject(final boolean reverseBits) {
+        return this.structs.clone();
+    }
+
+    @Override
+    public String getTypeAsString() {
+        return "{} [" + this.structs.length + ']';
+    }
 }

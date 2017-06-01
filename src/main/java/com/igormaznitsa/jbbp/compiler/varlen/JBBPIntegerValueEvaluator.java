@@ -1,5 +1,5 @@
-/* 
- * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
+/*
+ * Copyright 2017 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,25 @@
 package com.igormaznitsa.jbbp.compiler.varlen;
 
 import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
-import com.igormaznitsa.jbbp.compiler.*;
+import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
+
 import java.io.Serializable;
 
 /**
  * The Interface describes a class which can evaluate and provide an integer value.
+ *
  * @since 1.0
  */
 public interface JBBPIntegerValueEvaluator extends Serializable {
-  /**
-   * Calculate an integer value.
-   * @param inStream  a bit input stream
-   * @param currentCompiledBlockOffset the current offset in the compiled block
-   * @param block a compiled script block
-   * @param fieldMap a named numeric field map
-   * @return calculated value as integer
-   */
-  int eval(JBBPBitInputStream inStream, int currentCompiledBlockOffset, JBBPCompiledBlock block, JBBPNamedNumericFieldMap fieldMap);
+    /**
+     * Calculate an integer value.
+     *
+     * @param inStream                   a bit input stream
+     * @param currentCompiledBlockOffset the current offset in the compiled block
+     * @param block                      a compiled script block
+     * @param fieldMap                   a named numeric field map
+     * @return calculated value as integer
+     */
+    int eval(JBBPBitInputStream inStream, int currentCompiledBlockOffset, JBBPCompiledBlock block, JBBPNamedNumericFieldMap fieldMap);
 }

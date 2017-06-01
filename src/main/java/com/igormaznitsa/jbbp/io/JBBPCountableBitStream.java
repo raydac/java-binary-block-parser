@@ -1,5 +1,5 @@
-/* 
- * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
+/*
+ * Copyright 2017 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,38 +17,43 @@ package com.igormaznitsa.jbbp.io;
 
 /**
  * The Interface describes a stream which can manipulate bits and count number of bytes.
+ *
  * @since 1.0
  */
 public interface JBBPCountableBitStream {
 
-  /**
-   * Get the number of bytes passed from the stream.
-   * @return the number of passed bytes
-   */
-  long getCounter();
+    /**
+     * Get the number of bytes passed from the stream.
+     *
+     * @return the number of passed bytes
+     */
+    long getCounter();
 
-  /**
-   * Get the bit order for the stream.
-   * @return the bit order
-   * @see JBBPBitOrder#LSB0
-   * @see JBBPBitOrder#MSB0
-   */
-  JBBPBitOrder getBitOrder();
+    /**
+     * Get the bit order for the stream.
+     *
+     * @return the bit order
+     * @see JBBPBitOrder#LSB0
+     * @see JBBPBitOrder#MSB0
+     */
+    JBBPBitOrder getBitOrder();
 
-  /**
-   * Reset the inside byte counter of the stream, inside bit buffer will be reset.
-   */
-  void resetCounter();
-  
-  /**
-   * Get the inside stream bit buffer.
-   * @return the value from inside the stream bit buffer
-   */
-  int getBitBuffer();
+    /**
+     * Reset the inside byte counter of the stream, inside bit buffer will be reset.
+     */
+    void resetCounter();
 
-  /**
-   * Get the number of bits cached in the bit buffer.
-   * @return the number of bits cached in the stream bit buffer
-   */
-  int getBufferedBitsNumber();
+    /**
+     * Get the inside stream bit buffer.
+     *
+     * @return the value from inside the stream bit buffer
+     */
+    int getBitBuffer();
+
+    /**
+     * Get the number of bits cached in the bit buffer.
+     *
+     * @return the number of bits cached in the stream bit buffer
+     */
+    int getBufferedBitsNumber();
 }

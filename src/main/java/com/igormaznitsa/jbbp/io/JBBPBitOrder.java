@@ -1,5 +1,5 @@
-/* 
- * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
+/*
+ * Copyright 2017 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,17 @@ package com.igormaznitsa.jbbp.io;
 
 /**
  * Constants for bit order of reading operations.
+ *
  * @since 1.0
  */
 public enum JBBPBitOrder {
-  /**
-   * Most Significant Bit First means that the most significant bit will arrive first, the 7th bit will be read as the first one.
-   */
-  MSB0,
-  /**
-   * Least Significant Bit First means that the least significant bit will arrive first, the 0th bit will be read as the first one.
-   * It is default order for Java.
-   */
-  LSB0
+    /**
+     * Most Significant Bit First means that the most significant bit will arrive first, the 7th bit will be read as the first one.
+     */
+    MSB0,
+    /**
+     * Least Significant Bit First means that the least significant bit will arrive first, the 0th bit will be read as the first one.
+     * It is default order for Java.
+     */
+    LSB0
 }

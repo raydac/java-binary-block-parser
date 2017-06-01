@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Igor Maznitsa.
+ * Copyright 2017 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,29 +20,29 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
  * Inside abstract class to keep common operations for byte array based entities.
+ *
  * @param <T> type of array item.
- * 
  * @since 1.1.1
  */
 abstract class AbstractFieldByteArray<T extends JBBPAbstractField> extends JBBPAbstractArrayField<T> {
-  private static final long serialVersionUID = -884448637983315507L;
-  
-  protected final byte [] array;
+    private static final long serialVersionUID = -884448637983315507L;
 
-  public AbstractFieldByteArray(final JBBPNamedFieldInfo name, final byte [] array) {
-    super(name);
-    JBBPUtils.assertNotNull(array, "Array must not be null");
-    this.array = array;
-  }
-  
-  @Override
-  public boolean getAsBool(final int index) {
-    return this.array[index] != 0;
-  }
+    protected final byte[] array;
 
-  @Override
-  public long getAsLong(final int index) {
-    return this.getAsInt(index);
-  }
+    public AbstractFieldByteArray(final JBBPNamedFieldInfo name, final byte[] array) {
+        super(name);
+        JBBPUtils.assertNotNull(array, "Array must not be null");
+        this.array = array;
+    }
+
+    @Override
+    public boolean getAsBool(final int index) {
+        return this.array[index] != 0;
+    }
+
+    @Override
+    public long getAsLong(final int index) {
+        return this.getAsInt(index);
+    }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Igor Maznitsa.
+ * Copyright 2017 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,18 @@ package com.igormaznitsa.jbbp.exceptions;
 
 /**
  * The Exception can be thrown for transport errors
- * 
+ *
  * @since 1.1.1
  */
 public class JBBPIOException extends JBBPException {
-  private static final long serialVersionUID = 1151192250682443895L;
+    private static final long serialVersionUID = 1151192250682443895L;
 
-  public JBBPIOException(final String message) {
-    super(message);
-  }
+    public JBBPIOException(final String message) {
+        super(message);
+    }
 
-  public JBBPIOException(final String message, final Throwable cause) {
-    super(message, cause);
-  }
-  
+    public JBBPIOException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
+
 }

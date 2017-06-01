@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Igor Maznitsa.
+ * Copyright 2017 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,16 +20,18 @@ import java.io.IOException;
 
 /**
  * The Interface describes a class which can write some custom values into the context output stream (DSL command Var()).
+ *
  * @since 1.0
  */
 public interface JBBPOutVarProcessor {
-  /**
-   * Process a DSL Var() command.
-   * @param context the DSL context, must not be null
-   * @param outStream the output stream for the context, must not be null
-   * @param args optional arguments, can be null
-   * @return true is to continue processing of DSL commands, false skip all commands till the End()
-   * @throws IOException it should be thrown for transport errors
-   */
-  boolean processVarOut(JBBPOut context, JBBPBitOutputStream outStream, Object ... args) throws IOException;
+    /**
+     * Process a DSL Var() command.
+     *
+     * @param context   the DSL context, must not be null
+     * @param outStream the output stream for the context, must not be null
+     * @param args      optional arguments, can be null
+     * @return true is to continue processing of DSL commands, false skip all commands till the End()
+     * @throws IOException it should be thrown for transport errors
+     */
+    boolean processVarOut(JBBPOut context, JBBPBitOutputStream outStream, Object... args) throws IOException;
 }

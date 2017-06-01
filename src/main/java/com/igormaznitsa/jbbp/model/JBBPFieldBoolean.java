@@ -1,5 +1,5 @@
-/* 
- * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
+/*
+ * Copyright 2017 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,53 +19,55 @@ import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 
 /**
  * Describes a boolean field.
+ *
  * @since 1.0
  */
 public final class JBBPFieldBoolean extends JBBPAbstractField implements JBBPNumericField {
-  private static final long serialVersionUID = 4165558936928450699L;
-  /**
-   * Inside value storage.
-   */
-  private final boolean value;
+    private static final long serialVersionUID = 4165558936928450699L;
+    /**
+     * Inside value storage.
+     */
+    private final boolean value;
 
-  /**
-   * The Constructor.
-   * @param name a field name info, it can be null.
-   * @param value the field value
-   */
-  public JBBPFieldBoolean(final JBBPNamedFieldInfo name, final boolean value) {
-    super(name);
-    this.value = value;
-  }
+    /**
+     * The Constructor.
+     *
+     * @param name  a field name info, it can be null.
+     * @param value the field value
+     */
+    public JBBPFieldBoolean(final JBBPNamedFieldInfo name, final boolean value) {
+        super(name);
+        this.value = value;
+    }
 
-  public int getAsInt() {
-    return this.value ? 1 : 0;
-  }
+    /**
+     * Get the reversed bit representation of the value. But for boolean it doesn't work and made for compatibility
+     *
+     * @param value the value to be reversed
+     * @return the reversed value
+     */
+    public static long reverseBits(final boolean value) {
+        return value ? 1 : 0;
+    }
 
-  public long getAsLong() {
-    return this.getAsInt();
-  }
+    public int getAsInt() {
+        return this.value ? 1 : 0;
+    }
 
-  public boolean getAsBool() {
-    return this.value;
-  }
+    public long getAsLong() {
+        return this.getAsInt();
+    }
 
-  /**
-   * Get the reversed bit representation of the value. But for boolean it doesn't work and made for compatibility
-   *
-   * @param value the value to be reversed
-   * @return the reversed value
-   */
-  public static long reverseBits(final boolean value){
-    return value ? 1 : 0;
-  }
-  
-  public long getAsInvertedBitOrder() {
-    return reverseBits(this.value);
-  }  
+    public boolean getAsBool() {
+        return this.value;
+    }
 
-  @Override
-  public String getTypeAsString() {
-    return "bool";
-  }
+    public long getAsInvertedBitOrder() {
+        return reverseBits(this.value);
+    }
+
+    @Override
+    public String getTypeAsString() {
+        return "bool";
+    }
 }

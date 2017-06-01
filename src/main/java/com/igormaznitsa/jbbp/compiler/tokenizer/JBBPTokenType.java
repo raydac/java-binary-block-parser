@@ -1,5 +1,5 @@
-/* 
- * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
+/*
+ * Copyright 2017 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,23 +17,24 @@ package com.igormaznitsa.jbbp.compiler.tokenizer;
 
 /**
  * The Enumeration represents allowed token types to be met in binary block parser script.
+ *
  * @since 1.0
  */
 public enum JBBPTokenType {
-  /**
-   * A Commentaries.
-   */
-  COMMENT,
-  /**
-   * A Structure opening token.
-   */
-  STRUCT_START,
-  /**
-   * A Regular field or field array.
-   */
-  ATOM,
-  /**
-   * A Structure closing token.
-   */
-  STRUCT_END
+    /**
+     * A Commentaries.
+     */
+    COMMENT,
+    /**
+     * A Structure opening token.
+     */
+    STRUCT_START,
+    /**
+     * A Regular field or field array.
+     */
+    ATOM,
+    /**
+     * A Structure closing token.
+     */
+    STRUCT_END
 }

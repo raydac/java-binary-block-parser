@@ -1,5 +1,5 @@
-/* 
- * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
+/*
+ * Copyright 2017 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,105 +16,112 @@
 package com.igormaznitsa.jbbp.compiler.tokenizer;
 
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
+
 import java.io.Serializable;
 
 /**
  * The Class is a container to keep parsed field type parameters.
+ *
  * @since 1.0
  */
 public final class JBBPFieldTypeParameterContainer implements Serializable {
 
-  private static final long serialVersionUID = 1557492283811982431L;
-  
-  /**
-   * The Byte order for the field.
-   */
-  private final JBBPByteOrder byteOrder;
-  /**
-   * The field type.
-   */
-  private final String typeName;
-  /**
-   * Extra data for the field (for instance number of bits for a bit field).
-   */
-  private final String extraData;
+    private static final long serialVersionUID = 1557492283811982431L;
 
-  /**
-   * The Constructor
-   * @param byteOrder the byte order for the field, must not be null
-   * @param typeName the type of the field, can be null
-   * @param extraData the extra data placed after ':' char, can be null
-   */
-  public JBBPFieldTypeParameterContainer(final JBBPByteOrder byteOrder, final String typeName, final String extraData) {
-    this.byteOrder = byteOrder;
-    this.typeName = typeName;
-    this.extraData = extraData;
-  }
+    /**
+     * The Byte order for the field.
+     */
+    private final JBBPByteOrder byteOrder;
+    /**
+     * The field type.
+     */
+    private final String typeName;
+    /**
+     * Extra data for the field (for instance number of bits for a bit field).
+     */
+    private final String extraData;
 
-  /**
-   * Get the byte order for the field. It can be null.
-   * @return the defined byte order for the field.
-   */
-  public JBBPByteOrder getByteOrder() {
-    return this.byteOrder;
-  }
-
-  /**
-   * Get the type name of the field.
-   * @return the type name as String.
-   */
-  public String getTypeName() {
-    return this.typeName;
-  }
-
-  /**
-   * Get the extra data for the field.
-   * @return the extra data as string or null.
-   */
-  public String getExtraData() {
-    return this.extraData;
-  }
-
-  /**
-   * Extract expression for extra data.
-   * @return extracted expression from extra data, null if it is not extra data
-   */
-  public String getExtraDataExpression() {
-    String result = null;
-    if (hasExpressionAsExtraData()){
-      result = this.extraData.substring(1,this.extraData.length()-1);
-    }
-    return result;
-  }
-  
-  /**
-   * Check that the extra data is expression.
-   * @return true if the extra data is expression, false otherwise
-   */
-  public boolean hasExpressionAsExtraData(){
-    return this.extraData != null && this.extraData.startsWith("(") && this.extraData.endsWith(")");
-  }
-  
-  @Override
-  public String toString() {
-    final StringBuilder result = new StringBuilder();
-
-    if (byteOrder == JBBPByteOrder.LITTLE_ENDIAN) {
-      result.append('<');
-    }
-    result.append(this.typeName);
-    if (extraData != null) {
-      int insertIndex = typeName.indexOf(' ');
-      if (insertIndex < 0) {
-        insertIndex = result.length();
-      }
-      else {
-        insertIndex++;
-      }
-      result.insert(insertIndex, ':' + extraData);
-
+    /**
+     * The Constructor
+     *
+     * @param byteOrder the byte order for the field, must not be null
+     * @param typeName  the type of the field, can be null
+     * @param extraData the extra data placed after ':' char, can be null
+     */
+    public JBBPFieldTypeParameterContainer(final JBBPByteOrder byteOrder, final String typeName, final String extraData) {
+        this.byteOrder = byteOrder;
+        this.typeName = typeName;
+        this.extraData = extraData;
     }
 
-    return result.toString();
-  }
+    /**
+     * Get the byte order for the field. It can be null.
+     *
+     * @return the defined byte order for the field.
+     */
+    public JBBPByteOrder getByteOrder() {
+        return this.byteOrder;
+    }
+
+    /**
+     * Get the type name of the field.
+     *
+     * @return the type name as String.
+     */
+    public String getTypeName() {
+        return this.typeName;
+    }
+
+    /**
+     * Get the extra data for the field.
+     *
+     * @return the extra data as string or null.
+     */
+    public String getExtraData() {
+        return this.extraData;
+    }
+
+    /**
+     * Extract expression for extra data.
+     *
+     * @return extracted expression from extra data, null if it is not extra data
+     */
+    public String getExtraDataExpression() {
+        String result = null;
+        if (hasExpressionAsExtraData()) {
+            result = this.extraData.substring(1, this.extraData.length() - 1);
+        }
+        return result;
+    }
+
+    /**
+     * Check that the extra data is expression.
+     *
+     * @return true if the extra data is expression, false otherwise
+     */
+    public boolean hasExpressionAsExtraData() {
+        return this.extraData != null && this.extraData.startsWith("(") && this.extraData.endsWith(")");
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder result = new StringBuilder();
+
+        if (byteOrder == JBBPByteOrder.LITTLE_ENDIAN) {
+            result.append('<');
+        }
+        result.append(this.typeName);
+        if (extraData != null) {
+            int insertIndex = typeName.indexOf(' ');
+            if (insertIndex < 0) {
+                insertIndex = result.length();
+            } else {
+                insertIndex++;
+            }
+            result.insert(insertIndex, ':' + extraData);
+
+        }
+
+        return result.toString();
+    }
 }
