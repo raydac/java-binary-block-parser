@@ -1,0 +1,32 @@
+package ${packageName};
+
+import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
+import com.igormaznitsa.jbbp.io.JBBPBitOrder;
+
+${classComments}
+public class ${className} {
+  
+  ${fields}
+  
+  public ${className} (byte [] array) {
+    this(new JBBPBitInputStream(array, ${bitOrder}));
+  }
+
+  public ${className} (InputStream inStream) {
+    final JBBPBitInputStream theStream;
+    if (inStream instanceof JBBPBitInputStream) {
+      theStream = (JBBPBitInputStream) inStream;
+    } else {
+      theStream = new JBBPBitInputStream(inStream,${bitOrder});
+    }
+  }
+
+  private void readFields() {
+    ${readFieldsBody}
+  }
+
+  ${methods}
+
+  ${extraMethods}
+  
+}

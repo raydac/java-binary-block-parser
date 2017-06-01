@@ -621,4 +621,13 @@ public final class JBBPParser {
     public long getFinalStreamByteCounter() {
         return this.finalStreamByteCounter;
     }
+
+    /**
+     * Get compiled block containing compiled information for the parser.
+     * @return compiled block, must not be null
+     * @since 1.3.0
+     */
+    public JBBPCompiledBlock getCompiledBlock() {
+        return this.compiledBlock;
+    }
 }
