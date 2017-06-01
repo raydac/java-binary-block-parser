@@ -382,18 +382,12 @@ public final class JBBPCompiler {
               extraFieldNumberAsInt = 0;
             }
             else {
-              if (extraFieldNumericDataAsExpression) {
-                varLengthEvaluators.add(JBBPEvaluatorFactory.getInstance().make(token.getFieldTypeParameters().getExtraData(), namedFields, out.toByteArray()));
-                writeExtraFieldNumberInCompiled = false;
-              }
-              else {
                 try {
                   extraFieldNumberAsInt = Integer.parseInt(extraFieldNumStr);
                 }
                 catch (NumberFormatException ex) {
                   throw new JBBPCompilationException("Can't parse the extra value of a VAR field, must be integer [" + token.getFieldTypeParameters().getExtraData() + ']', token);
                 }
-              }
             }
           }
         }

@@ -18,17 +18,25 @@ package com.igormaznitsa.jbbp.mapper.instantiators;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+
 import static org.junit.Assert.*;
+
+import org.apache.commons.lang3.SystemUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
 public class JBBPClassInstantiatorTest {
-  
+
   @Parameterized.Parameters
   public static Collection<JBBPClassInstantiator[]> getParameters(){
-    return Arrays.asList(new JBBPClassInstantiator[]{new JBBPUnsafeInstantiator()}, new JBBPClassInstantiator[]{new JBBPSafeInstantiator()});
+    if (SystemUtils.IS_JAVA_9) {
+      return Collections.singletonList(new JBBPClassInstantiator[]{new JBBPSafeInstantiator()});
+    } else {
+      return Arrays.asList(new JBBPClassInstantiator[]{new JBBPUnsafeInstantiator()}, new JBBPClassInstantiator[]{new JBBPSafeInstantiator()});
+    }
   }
   
   private final JBBPClassInstantiator instantiator;

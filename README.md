@@ -17,6 +17,10 @@ For instance I have been very actively using the framework in [the ZX-Poly emula
 
 Change log
 ===========
+- **1.3.0-SNAPSHOT**
+  - Class version target has been changed to Java 1.6
+  - Minor refactoring
+  
 - **1.2.1 (28-JUL-2016)**
   - __Fixed issue [#10 "assertArrayLength throws exception in multi-thread"](https://github.com/raydac/java-binary-block-parser/issues/10), many thanks to @sky4star for the bug report.__
   - minor refactoring
