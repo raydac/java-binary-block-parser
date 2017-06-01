@@ -9,7 +9,8 @@
 
 ![JBBP Logo](https://github.com/raydac/java-binary-block-parser/blob/master/logo.png)
 
-#Introduction
+Introduction
+============
 Java has some embedded features to parse binary data (for instance ByteBuffer), but I wanted to work with separated bits and describe binary structure in some strong DSL(domain specific language). I was very impressed by the [the Python Struct package](https://docs.python.org/2/library/struct.html) package so that I decided to make something like that. So JBBP was born.<br>
 p.s.<br>
 For instance I have been very actively using the framework in [the ZX-Poly emulator](https://github.com/raydac/zxpoly) to parse snapshot files and save results.   
