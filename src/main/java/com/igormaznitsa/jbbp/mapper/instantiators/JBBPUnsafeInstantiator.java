@@ -29,6 +29,7 @@ import java.lang.reflect.Method;
  *
  * @since 1.0
  */
+@SuppressWarnings("LiteralClassName")
 public final class JBBPUnsafeInstantiator implements JBBPClassInstantiator {
 
     /**

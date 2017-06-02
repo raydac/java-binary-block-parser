@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
  *
  * @since 1.0
  */
+@SuppressWarnings("IterableAndIterator")
 public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPToken> {
 
     /**

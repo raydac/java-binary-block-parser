@@ -24,6 +24,7 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
  *
  * @since 1.0
  */
+@SuppressWarnings("LiteralClassName")
 public final class JBBPClassInstantiatorFactory {
 
     /**

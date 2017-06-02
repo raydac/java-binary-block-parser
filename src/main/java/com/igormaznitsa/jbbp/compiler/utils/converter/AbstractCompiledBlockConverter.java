@@ -34,6 +34,7 @@ public abstract class AbstractCompiledBlockConverter<T extends AbstractCompiledB
         this.compiledBlock = notNullCompiledBlock;
     }
 
+    @SuppressWarnings("unchecked")
     public final T process() {
         this.onConvertStart();
 
