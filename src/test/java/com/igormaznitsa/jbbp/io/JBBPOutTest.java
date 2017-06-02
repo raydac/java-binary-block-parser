@@ -591,6 +591,7 @@ public class JBBPOutTest {
             Byte(0xCC).
             Var(new JBBPOutVarProcessor() {
 
+              @Override
               public boolean processVarOut(final JBBPOut context, final JBBPBitOutputStream outStream, final Object... args) throws IOException {
                 assertNotNull(context);
                 assertNotNull(outStream);
@@ -625,6 +626,7 @@ public class JBBPOutTest {
             Byte(0xCC).
             Var(new JBBPOutVarProcessor() {
 
+              @Override
               public boolean processVarOut(final JBBPOut context, final JBBPBitOutputStream outStream, final Object... args) throws IOException {
                 assertNotNull(context);
                 assertNotNull(outStream);
@@ -664,6 +666,7 @@ public class JBBPOutTest {
             Utf8("werwerew").
             Var(new JBBPOutVarProcessor() {
 
+              @Override
               public boolean processVarOut(JBBPOut context, JBBPBitOutputStream outStream, Object... args) throws IOException {
                 fail("Must not be called");
                 return false;
@@ -677,6 +680,7 @@ public class JBBPOutTest {
   @Test
   public void testVar_VariableContent() throws Exception {
     final JBBPOutVarProcessor var = new JBBPOutVarProcessor() {
+      @Override
       public boolean processVarOut(JBBPOut context, JBBPBitOutputStream outStream, Object... args) throws IOException {
         final int type = (Integer) args[0];
         switch (type) {
@@ -1233,6 +1237,7 @@ public class JBBPOutTest {
     }
 
     assertArrayEquals(new byte[]{1,2,3}, JBBPOut.BeginBin().Bin(new Test((byte)1,(byte)0),new JBBPCustomFieldWriter() {
+      @Override
       public void writeCustomField(JBBPOut context, JBBPBitOutputStream outStream, Object instanceToSave, Field instanceCustomField, Bin fieldAnnotation, Object value) throws IOException {
         assertNotNull(context);
         assertNotNull(outStream);

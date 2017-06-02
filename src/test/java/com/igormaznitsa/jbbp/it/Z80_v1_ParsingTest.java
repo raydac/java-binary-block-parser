@@ -93,6 +93,7 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
 
   private static class RLEDataEncoder implements JBBPOutVarProcessor {
 
+    @Override
     public boolean processVarOut(final JBBPOut context, final JBBPBitOutputStream outStream, final Object... args) throws IOException {
       final byte[] unpackedData = (byte[]) args[1];
       if (((Number) args[0]).intValue() == 0) {
@@ -167,6 +168,7 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
 
   private static class DataProcessor implements JBBPMapperCustomFieldProcessor, JBBPCustomFieldWriter {
 
+    @Override
     public Object prepareObjectForMapping(JBBPFieldStruct parsedBlock, Bin annotation, Field field) {
       if (field.getName().equals("data")) {
         final byte[] data = parsedBlock.findFieldForNameAndType("data", JBBPFieldArrayByte.class).getArray();
@@ -218,6 +220,7 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
       }
     }
 
+    @Override
     public void writeCustomField(final JBBPOut context, final JBBPBitOutputStream out, final Object instanceForSaving, final Field instanceCustomField, final Bin fieldAnnotation, final Object value) throws IOException {
       try {
         final byte [] array = (byte[])instanceCustomField.get(instanceForSaving);

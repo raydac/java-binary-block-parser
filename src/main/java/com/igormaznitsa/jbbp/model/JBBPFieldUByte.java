@@ -51,18 +51,22 @@ public final class JBBPFieldUByte extends JBBPAbstractField implements JBBPNumer
         return JBBPUtils.reverseBitsInByte(value) & 0xFF;
     }
 
+    @Override
     public int getAsInt() {
         return this.value & 0xFF;
     }
 
+    @Override
     public long getAsLong() {
         return this.getAsInt();
     }
 
+    @Override
     public boolean getAsBool() {
         return this.value != 0;
     }
 
+    @Override
     public long getAsInvertedBitOrder() {
         return reverseBits(value);
     }

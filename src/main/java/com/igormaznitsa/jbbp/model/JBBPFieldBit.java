@@ -66,22 +66,27 @@ public final class JBBPFieldBit extends JBBPAbstractField implements JBBPNumeric
      *
      * @return the number of valuable bits in the value.
      */
+    @Override
     public JBBPBitNumber getBitWidth() {
         return this.bitNumber;
     }
 
+    @Override
     public int getAsInt() {
         return this.value & 0xFF;
     }
 
+    @Override
     public long getAsLong() {
         return getAsInt();
     }
 
+    @Override
     public boolean getAsBool() {
         return this.value != 0;
     }
 
+    @Override
     public long getAsInvertedBitOrder() {
         return reverseBits((byte) this.value, this.bitNumber);
     }

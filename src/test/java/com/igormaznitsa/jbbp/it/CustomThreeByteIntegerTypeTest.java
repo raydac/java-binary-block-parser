@@ -71,14 +71,17 @@ public class CustomThreeByteIntegerTypeTest extends AbstractParserIntegrationTes
 
     private static final String[] TYPES = new String[]{"int24"};
 
+    @Override
     public String[] getCustomFieldTypes() {
       return TYPES;
     }
 
+    @Override
     public boolean isAllowed(final JBBPFieldTypeParameterContainer fieldType, final String fieldName, final int extraData, final boolean isArray) {
       return extraData == 0;
     }
     
+    @Override
     public JBBPAbstractField readCustomFieldType(final JBBPBitInputStream in, final JBBPBitOrder bitOrder, final int parserFlags, final JBBPFieldTypeParameterContainer customTypeFieldInfo, final JBBPNamedFieldInfo fieldName, final int extraData, final boolean readWholeStream, final int arrayLength) throws IOException {
       if (arrayLength < 0){
         return new JBBPFieldInt(fieldName, readThreeBytesAsInt(in, customTypeFieldInfo.getByteOrder(), bitOrder));

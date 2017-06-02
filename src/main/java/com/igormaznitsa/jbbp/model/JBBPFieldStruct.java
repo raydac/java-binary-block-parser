@@ -70,6 +70,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
         return this.fields.clone();
     }
 
+    @Override
     public JBBPAbstractField findFieldForPath(final String fieldPath) {
         final String[] parsedName = JBBPUtils.splitString(JBBPUtils.normalizeFieldNameOrPath(fieldPath), '.');
 
@@ -96,6 +97,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
         return found;
     }
 
+    @Override
     public JBBPAbstractField findFieldForName(final String name) {
         final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(name);
 
@@ -110,6 +112,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
         return result;
     }
 
+    @Override
     public <T extends JBBPAbstractField> T findFieldForType(final Class<T> fieldType) {
         T result = null;
 
@@ -129,6 +132,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
         return result;
     }
 
+    @Override
     public <T extends JBBPAbstractField> T findFirstFieldForType(final Class<T> fieldType) {
         T result = null;
 
@@ -141,6 +145,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
         return result;
     }
 
+    @Override
     public <T extends JBBPAbstractField> T findLastFieldForType(final Class<T> fieldType) {
         T result = null;
 
@@ -154,6 +159,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
         return result;
     }
 
+    @Override
     public <T extends JBBPAbstractField> T findFieldForNameAndType(final String fieldName, final Class<T> fieldType) {
         final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(fieldName);
 
@@ -168,6 +174,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
         return result;
     }
 
+    @Override
     public boolean nameExists(final String fieldName) {
         final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(fieldName);
 
@@ -182,6 +189,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
         return result;
     }
 
+    @Override
     public boolean pathExists(final String fieldPath) {
         final String normalizedPath = JBBPUtils.normalizeFieldNameOrPath(fieldPath);
 
@@ -196,6 +204,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
         return result;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T extends JBBPAbstractField> T findFieldForPathAndType(final String fieldPath, final Class<T> fieldType) {
         final JBBPAbstractField field = this.findFieldForPath(fieldPath);

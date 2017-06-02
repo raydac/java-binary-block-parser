@@ -404,6 +404,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
      *
      * @return the number of bytes read fully from the stream
      */
+    @Override
     public long getCounter() {
         return this.byteCounter;
     }
@@ -413,6 +414,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
      *
      * @return the bit buffer state
      */
+    @Override
     public int getBitBuffer() {
         return this.bitBuffer;
     }
@@ -422,6 +424,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
      *
      * @return the number of buffered bits in the bit buffer
      */
+    @Override
     public int getBufferedBitsNumber() {
         return this.bitsInBuffer;
     }
@@ -433,6 +436,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
      * @see JBBPBitOrder#LSB0
      * @see JBBPBitOrder#MSB0
      */
+    @Override
     public JBBPBitOrder getBitOrder() {
         return this.msb0 ? JBBPBitOrder.MSB0 : JBBPBitOrder.LSB0;
     }
@@ -711,6 +715,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
      * @see #getBufferedBitsNumber()
      * @see #hasAvailableData() .
      */
+    @Override
     public void resetCounter() {
         if (this.bitsInBuffer < 8) {
             this.bitsInBuffer = 0;

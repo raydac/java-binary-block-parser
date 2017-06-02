@@ -264,7 +264,7 @@ public final class JBBPUtils {
      */
     public static byte reverseBitsInByte(final byte value) {
         final int v = value & 0xFF;
-        return (byte) (((v * 0x0802 & 0x22110) | (v * 0x8020 & 0x88440)) * 0x10101 >> 16);
+        return (byte) ((((v * 0x0802 & 0x22110) | (v * 0x8020 & 0x88440)) * 0x10101) >> 16);
     }
 
     /**
@@ -925,6 +925,7 @@ public final class JBBPUtils {
             this.theObject = obj;
         }
 
+        @Override
         public AccessibleObject run() {
             final AccessibleObject objectToProcess = this.theObject;
             this.theObject = null;

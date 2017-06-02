@@ -28,6 +28,7 @@ public class JBBPClassInstantiatorFactoryTest {
   }
   
   public static class FakeInstantiator implements JBBPClassInstantiator {
+    @Override
     public <T> T makeClassInstance(Class<T> klazz) throws InstantiationException {
       return null;
     }

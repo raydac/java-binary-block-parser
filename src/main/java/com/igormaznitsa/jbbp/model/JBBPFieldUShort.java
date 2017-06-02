@@ -54,18 +54,22 @@ public final class JBBPFieldUShort extends JBBPAbstractField implements JBBPNume
         return (long) ((b0 << 8) | b1) & 0xFFFFL;
     }
 
+    @Override
     public int getAsInt() {
         return this.value & 0xFFFF;
     }
 
+    @Override
     public long getAsLong() {
         return this.getAsInt();
     }
 
+    @Override
     public boolean getAsBool() {
         return this.value != 0;
     }
 
+    @Override
     public long getAsInvertedBitOrder() {
         return reverseBits(this.value);
     }

@@ -56,18 +56,22 @@ public final class JBBPFieldInt extends JBBPAbstractField implements JBBPNumeric
         return (long) ((b0 << 24) | (b1 << 16) | (b2 << 8) | b3);
     }
 
+    @Override
     public int getAsInt() {
         return this.value;
     }
 
+    @Override
     public long getAsLong() {
         return this.getAsInt();
     }
 
+    @Override
     public boolean getAsBool() {
         return this.value != 0;
     }
 
+    @Override
     public long getAsInvertedBitOrder() {
         return reverseBits(this.value);
     }

@@ -627,7 +627,7 @@ public abstract class AbstractMappedClassFieldObserver {
                 return true;
             }
             if (obj instanceof OrderedField) {
-                return this.field == ((OrderedField) obj).field;
+                return this.field.equals(((OrderedField) obj).field);
             }
             return false;
         }
@@ -637,6 +637,7 @@ public abstract class AbstractMappedClassFieldObserver {
             return this.order;
         }
 
+        @Override
         public int compareTo(final OrderedField o) {
             return this.order < o.order ? -1 : 1;
         }

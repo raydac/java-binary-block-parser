@@ -60,18 +60,22 @@ public final class JBBPFieldLong extends JBBPAbstractField implements JBBPNumeri
         return (b0 << 56) | (b1 << 48) | (b2 << 40) | (b3 << 32) | (b4 << 24) | (b5 << 16) | (b6 << 8) | b7;
     }
 
+    @Override
     public int getAsInt() {
         return (int) this.value;
     }
 
+    @Override
     public long getAsLong() {
         return this.value;
     }
 
+    @Override
     public boolean getAsBool() {
         return this.value != 0;
     }
 
+    @Override
     public long getAsInvertedBitOrder() {
         return reverseBits(this.value);
     }

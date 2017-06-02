@@ -74,6 +74,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
      * @see JBBPBitOrder#LSB0
      * @see JBBPBitOrder#MSB0
      */
+    @Override
     public JBBPBitOrder getBitOrder() {
         return this.msb0 ? JBBPBitOrder.MSB0 : JBBPBitOrder.LSB0;
     }
@@ -140,6 +141,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
      *
      * @return the long value contains number of bytes written into the stream
      */
+    @Override
     public long getCounter() {
         return this.byteCounter;
     }
@@ -149,6 +151,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
      *
      * @return the inside bit buffer value
      */
+    @Override
     public int getBitBuffer() {
         return this.bitBuffer;
     }
@@ -158,6 +161,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
      *
      * @return the number of cached bits in the bit buffer
      */
+    @Override
     public int getBufferedBitsNumber() {
         return this.bitBufferCount;
     }
@@ -291,6 +295,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
     /**
      * Reset the byte counter for the stream. The Inside bit buffer will be reset also.
      */
+    @Override
     public void resetCounter() {
         this.bitBuffer = 0;
         this.bitBufferCount = 0;

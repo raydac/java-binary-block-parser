@@ -53,14 +53,17 @@ public strictfp class FloatAndDoubleTypesTest {
       return Float.intBitsToFloat(this.value);
     }
 
+    @Override
     public int getAsInt() {
       return this.value;
     }
 
+    @Override
     public long getAsLong() {
       return this.getAsInt();
     }
 
+    @Override
     public boolean getAsBool() {
       return this.value != 0;
     }
@@ -74,6 +77,7 @@ public strictfp class FloatAndDoubleTypesTest {
       return (long) ((b0 << 24) | (b1 << 16) | (b2 << 8) | b3);
     }
 
+    @Override
     public long getAsInvertedBitOrder() {
       return reverseBits(this.value);
     }
@@ -173,14 +177,17 @@ public strictfp class FloatAndDoubleTypesTest {
       return Double.longBitsToDouble(this.value);
     }
 
+    @Override
     public int getAsInt() {
       return (int) this.value;
     }
 
+    @Override
     public long getAsLong() {
       return this.value;
     }
 
+    @Override
     public boolean getAsBool() {
       return this.value != 0;
     }
@@ -198,6 +205,7 @@ public strictfp class FloatAndDoubleTypesTest {
       return (b0 << 56) | (b1 << 48) | (b2 << 40) | (b3 << 32) | (b4 << 24) | (b5 << 16) | (b6 << 8) | b7;
     }
 
+    @Override
     public long getAsInvertedBitOrder() {
       return reverseBits(this.value);
     }
@@ -286,14 +294,17 @@ public strictfp class FloatAndDoubleTypesTest {
 
     private static final String[] TYPES = new String[]{"float", "double"};
 
+    @Override
     public String[] getCustomFieldTypes() {
       return TYPES;
     }
 
+    @Override
     public boolean isAllowed(final JBBPFieldTypeParameterContainer fieldType, final String fieldName, final int extraData, final boolean isArray) {
       return true;
     }
 
+    @Override
     public JBBPAbstractField readCustomFieldType(final JBBPBitInputStream in, final JBBPBitOrder bitOrder, final int parserFlags, final JBBPFieldTypeParameterContainer customTypeFieldInfo, final JBBPNamedFieldInfo fieldName, final int extraData, final boolean readWholeStream, final int arrayLength) throws IOException {
       final JBBPAbstractField result;
 

@@ -33,10 +33,12 @@ public class JBBPCustomFieldTypeProcessorTest {
     final JBBPCustomFieldTypeProcessor testProcessor = new JBBPCustomFieldTypeProcessor() {
       private final String[] types = new String[]{"some1", "some2", "some3"};
 
+      @Override
       public String[] getCustomFieldTypes() {
         return this.types;
       }
 
+      @Override
       public boolean isAllowed(final JBBPFieldTypeParameterContainer fieldType, final String fieldName, final int extraData, final boolean isArray) {
         callCounter.incrementAndGet();
 
@@ -71,6 +73,7 @@ public class JBBPCustomFieldTypeProcessorTest {
         return true;
       }
 
+      @Override
       public JBBPAbstractField readCustomFieldType(final JBBPBitInputStream in, final JBBPBitOrder bitOrder, final int parserFlags, final JBBPFieldTypeParameterContainer customFieldTypeInfo, final JBBPNamedFieldInfo fieldName, final int extraData, final boolean readWholeStream, final int arrayLength) throws IOException {
         final String type = customFieldTypeInfo.getTypeName();
 
@@ -133,10 +136,12 @@ public class JBBPCustomFieldTypeProcessorTest {
     final JBBPCustomFieldTypeProcessor testProcessor = new JBBPCustomFieldTypeProcessor() {
       private final String[] types = new String[]{"some1", "some2", "some3"};
 
+      @Override
       public String[] getCustomFieldTypes() {
         return this.types;
       }
 
+      @Override
       public boolean isAllowed(final JBBPFieldTypeParameterContainer fieldType, final String fieldName, final int extraData, final boolean isArray) {
         callCounter.incrementAndGet();
 
@@ -166,6 +171,7 @@ public class JBBPCustomFieldTypeProcessorTest {
         return true;
       }
 
+      @Override
       public JBBPAbstractField readCustomFieldType(final JBBPBitInputStream in, final JBBPBitOrder bitOrder, final int parserFlags, final JBBPFieldTypeParameterContainer customFieldTypeInfo, final JBBPNamedFieldInfo fieldName, final int extraData, final boolean readWholeStream, final int arrayLength) throws IOException {
         final String type = customFieldTypeInfo.getTypeName();
 

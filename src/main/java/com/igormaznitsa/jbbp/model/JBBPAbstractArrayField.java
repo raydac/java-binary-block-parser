@@ -90,14 +90,17 @@ public abstract class JBBPAbstractArrayField<T extends JBBPAbstractField> extend
      *
      * @return an iterator for the array
      */
+    @Override
     public Iterator<T> iterator() {
         return new Iterator<T>() {
             private int index = 0;
 
+            @Override
             public boolean hasNext() {
                 return this.index < size();
             }
 
+            @Override
             public T next() {
                 if (this.index >= size()) {
                     throw new NoSuchElementException(this.index + ">=" + size());

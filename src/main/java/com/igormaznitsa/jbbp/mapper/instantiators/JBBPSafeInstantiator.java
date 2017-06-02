@@ -128,6 +128,7 @@ public final class JBBPSafeInstantiator implements JBBPClassInstantiator {
         return constructors[0];
     }
 
+    @Override
     public <T> T makeClassInstance(final Class<T> klazz) throws InstantiationException {
         try {
             if (isInnerClass(klazz) || klazz.isLocalClass()) {

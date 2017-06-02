@@ -53,14 +53,17 @@ public class JBBPCustomFieldTypeProcessorAggregator implements JBBPCustomFieldTy
         this.types = this.customTypeMap.keySet().toArray(new String[this.customTypeMap.size()]);
     }
 
+    @Override
     public String[] getCustomFieldTypes() {
         return this.types;
     }
 
+    @Override
     public boolean isAllowed(final JBBPFieldTypeParameterContainer fieldType, final String fieldName, final int extraData, final boolean isArray) {
         return this.customTypeMap.get(fieldType.getTypeName()).isAllowed(fieldType, fieldName, extraData, isArray);
     }
 
+    @Override
     public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer fieldType, JBBPNamedFieldInfo fieldName, int extraData, boolean readWholeStream, int arrayLength) throws IOException {
         return this.customTypeMap.get(fieldType.getTypeName()).readCustomFieldType(in, bitOrder, parserFlags, fieldType, fieldName, extraData, readWholeStream, arrayLength);
     }

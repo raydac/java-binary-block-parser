@@ -46,6 +46,7 @@ public class JBBPNamedNumericFieldMapTest {
   public void testConstructor_ProviderIsNotNull() {
     final JBBPExternalValueProvider provider = new JBBPExternalValueProvider() {
 
+      @Override
       public int provideArraySize(String fieldName, JBBPNamedNumericFieldMap numericFieldMap, JBBPCompiledBlock compiledBlock) {
         return 0;
       }
@@ -59,6 +60,7 @@ public class JBBPNamedNumericFieldMapTest {
   public void testGetExternalValueProvider() {
     final JBBPExternalValueProvider provider = new JBBPExternalValueProvider() {
 
+      @Override
       public int provideArraySize(String fieldName, JBBPNamedNumericFieldMap numericFieldMap, JBBPCompiledBlock compiledBlock) {
         return 0;
       }

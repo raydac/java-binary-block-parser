@@ -166,6 +166,7 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
     final int ITERATIONS = 1000;
     
     final Runnable test = new Runnable(){
+      @Override
       public void run() {
         for(int i=0;i<ITERATIONS;i++){
           try{

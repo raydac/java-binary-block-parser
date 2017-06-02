@@ -50,18 +50,22 @@ public final class JBBPFieldBoolean extends JBBPAbstractField implements JBBPNum
         return value ? 1 : 0;
     }
 
+    @Override
     public int getAsInt() {
         return this.value ? 1 : 0;
     }
 
+    @Override
     public long getAsLong() {
         return this.getAsInt();
     }
 
+    @Override
     public boolean getAsBool() {
         return this.value;
     }
 
+    @Override
     public long getAsInvertedBitOrder() {
         return reverseBits(this.value);
     }

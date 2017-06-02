@@ -271,11 +271,13 @@ public class JBBPParserTest {
 
     final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
+      @Override
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         fail("Must not be called");
         return null;
       }
 
+      @Override
       public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         assertNotNull(inStream);
         final int value = inStream.readByte();
@@ -342,10 +344,12 @@ public class JBBPParserTest {
     final JBBPParser parser = JBBPParser.prepare("ubyte a; var:(a/21) vvv; ubyte b;");
     final JBBPFieldStruct parsed = parser.parse(new byte[]{(byte) 123, 0x12, 0x34, 0x11, 0x22, 0x56}, new JBBPVarFieldProcessor() {
 
+      @Override
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(JBBPBitInputStream inStream, int arraySize, JBBPNamedFieldInfo fieldName, int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
       }
 
+      @Override
       public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         inStream.skip(3);
         assertEquals(123 / 21, extraValue);
@@ -362,6 +366,7 @@ public class JBBPParserTest {
     final JBBPParser parser = JBBPParser.prepare("ubyte s; ubyte a; var:(a/21) [s*2] vvv; ubyte b;");
     final JBBPFieldStruct parsed = parser.parse(new byte[]{4, (byte) 123, 0x12, 0x34, 0x11, 0x22, 0x56}, new JBBPVarFieldProcessor() {
 
+      @Override
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(JBBPBitInputStream inStream, int arraySize, JBBPNamedFieldInfo fieldName, int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         inStream.skip(3);
         assertEquals(123 / 21, extraValue);
@@ -369,6 +374,7 @@ public class JBBPParserTest {
         return new JBBPFieldArrayByte(fieldName, new byte[]{1,2,3,4,5,6,7,8});
       }
 
+      @Override
       public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
       }
@@ -385,11 +391,13 @@ public class JBBPParserTest {
 
     final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
+      @Override
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         fail("Must not be called");
         return null;
       }
 
+      @Override
       public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         assertNotNull(inStream);
         final int value = inStream.readByte();
@@ -416,11 +424,13 @@ public class JBBPParserTest {
 
     final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
+      @Override
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         fail("Must not be called");
         return null;
       }
 
+      @Override
       public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         return null;
       }
@@ -433,11 +443,13 @@ public class JBBPParserTest {
 
     final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
+      @Override
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         fail("Must not be called");
         return null;
       }
 
+      @Override
       public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         return new JBBPFieldArrayByte(fieldName, new byte[]{1, 2, 3});
       }
@@ -450,11 +462,13 @@ public class JBBPParserTest {
 
     final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
+      @Override
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         fail("Must not be called");
         return null;
       }
 
+      @Override
       public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         assertNotNull(fieldName);
         return new JBBPFieldByte(new JBBPNamedFieldInfo("jskdjhsd", "dlkjsf", 0), (byte) 1);
@@ -470,6 +484,7 @@ public class JBBPParserTest {
 
     final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
+      @Override
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         assertNotNull(inStream);
         final int value = inStream.readByte();
@@ -486,6 +501,7 @@ public class JBBPParserTest {
         return new JBBPFieldArrayByte(fieldName, new byte[]{(byte) value});
       }
 
+      @Override
       public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         fail("Must not be called");
         return null;
@@ -504,6 +520,7 @@ public class JBBPParserTest {
 
     final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
+      @Override
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         assertNotNull(inStream);
         final int value = inStream.readByte();
@@ -520,6 +537,7 @@ public class JBBPParserTest {
         return new JBBPFieldArrayByte(fieldName, new byte[]{(byte) value});
       }
 
+      @Override
       public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         fail("Must not be called");
         return null;
@@ -538,6 +556,7 @@ public class JBBPParserTest {
 
     final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
+      @Override
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         assertNotNull(inStream);
 
@@ -553,6 +572,7 @@ public class JBBPParserTest {
         return new JBBPFieldArrayByte(fieldName, inStream.readByteArray(-1));
       }
 
+      @Override
       public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         fail("Must not be called");
         return null;
@@ -569,11 +589,13 @@ public class JBBPParserTest {
 
     final JBBPFieldStruct struct = parser.parse(new byte[]{0, 0}, new JBBPVarFieldProcessor() {
 
+      @Override
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         assertEquals(0, arraySize);
         return new JBBPFieldArrayByte(fieldName, new byte[0]);
       }
 
+      @Override
       public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         fail("Must not be called");
         return null;
@@ -589,11 +611,13 @@ public class JBBPParserTest {
 
     final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
+      @Override
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         assertEquals(0x0908, arraySize);
         return null;
       }
 
+      @Override
       public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         fail("Must not be called");
         return null;
@@ -607,11 +631,13 @@ public class JBBPParserTest {
 
     final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
+      @Override
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         assertNotNull(fieldName);
         return new JBBPFieldArrayByte(new JBBPNamedFieldInfo("jskdjhsd", "dlkjsf", 0), new byte[]{1});
       }
 
+      @Override
       public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         fail("Must not be called");
         return null;
@@ -775,11 +801,13 @@ public class JBBPParserTest {
   public void testParse_ProcessingOfExtraFieldValuesInSkippedStructureFields() throws Exception {
     final JBBPFieldStruct parsed = JBBPParser.prepare("byte len; struct1 [len] { int a; var:23231223 [1024] helloarray; int b; bit:3; bit:7 [10233]; var:-1332 hello; skip:34221223; bit:7; bit:1; align:3445; bit:2; int skippedInt; long lng; insidestruct {bit:1; bit:2; bit:3;} } int end; ").parse(new byte[]{0, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
+      @Override
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(JBBPBitInputStream inStream, int arraySize, JBBPNamedFieldInfo fieldName, int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         fail("Must not be called");
         return null;
       }
 
+      @Override
       public JBBPAbstractField readVarField(JBBPBitInputStream inStream, JBBPNamedFieldInfo fieldName, int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         fail("Must not be called");
         return null;
@@ -792,11 +820,13 @@ public class JBBPParserTest {
   public void testParse_ProcessingOfExtraFieldValuesInSkippedStructureFields1() throws Exception {
     final JBBPFieldStruct parsed = JBBPParser.prepare("byte len; struct1 [len] {var:-1332 hello; align:3445; } int end; ").parse(new byte[]{0, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
+      @Override
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(JBBPBitInputStream inStream, int arraySize, JBBPNamedFieldInfo fieldName, int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         fail("Must not be called");
         return null;
       }
 
+      @Override
       public JBBPAbstractField readVarField(JBBPBitInputStream inStream, JBBPNamedFieldInfo fieldName, int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         fail("Must not be called");
         return null;

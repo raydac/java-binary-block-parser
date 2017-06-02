@@ -396,7 +396,7 @@ public class JBBPExpressionEvaluatorTest {
   public void testExpression_ComplexLogicalWithConstants() {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("~23*-1234&~123/(34+89)|3232%56^~2234", null, null);
     assertEquals(4, expr.getMaxStackDepth());
-    assertEquals(~23 * -1234 & ~123 / (34 + 89) | 3232 % 56 ^ ~2234, expr.eval(null, 0, null, null));
+    assertEquals((~23 * -1234 & ~123 / (34 + 89)) | (3232 % 56 ^ ~2234), expr.eval(null, 0, null, null));
   }
 
   @Test
@@ -448,6 +448,7 @@ public class JBBPExpressionEvaluatorTest {
     assertEquals(3, expr.getMaxStackDepth());
     assertEquals(JBBPUtils.reverseBitsInByte((byte) 123) & 0xFF, expr.eval(null, 0, null, new JBBPNamedNumericFieldMap(new JBBPExternalValueProvider() {
 
+      @Override
       public int provideArraySize(final String fieldName, final JBBPNamedNumericFieldMap numericFieldMap, final JBBPCompiledBlock compiledBlock) {
         if ("v".equals(fieldName)) {
           return 123;
@@ -465,6 +466,7 @@ public class JBBPExpressionEvaluatorTest {
     final int value = 1234;
     final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap(new JBBPExternalValueProvider() {
 
+      @Override
       public int provideArraySize(final String fieldName, final JBBPNamedNumericFieldMap numericFieldMap, final JBBPCompiledBlock compiledBlock) {
         if (fieldName.equals("value")) {
           return value;
@@ -491,6 +493,7 @@ public class JBBPExpressionEvaluatorTest {
     final int value = 1234;
     final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap(new JBBPExternalValueProvider() {
 
+      @Override
       public int provideArraySize(final String fieldName, final JBBPNamedNumericFieldMap numericFieldMap, final JBBPCompiledBlock compiledBlock) {
         if (fieldName.equals("value")) {
           return value;

@@ -52,6 +52,7 @@ public class JBBPOnlyFieldEvaluatorTest {
     final int value = 1234;
     final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap(new JBBPExternalValueProvider() {
 
+      @Override
       public int provideArraySize(final String fieldName, final JBBPNamedNumericFieldMap numericFieldMap, final JBBPCompiledBlock compiledBlock) {
         if (fieldName.equals("value")) {
           return value;
@@ -77,6 +78,7 @@ public class JBBPOnlyFieldEvaluatorTest {
     final int value = 1234;
     final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap(new JBBPExternalValueProvider() {
 
+      @Override
       public int provideArraySize(final String fieldName, final JBBPNamedNumericFieldMap numericFieldMap, final JBBPCompiledBlock compiledBlock) {
         if (fieldName.equals("$value")) {
           return value;

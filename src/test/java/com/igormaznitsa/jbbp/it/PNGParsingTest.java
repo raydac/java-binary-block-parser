@@ -181,6 +181,7 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
 
       final JBBPFieldStruct result = pngParser.parse(pngStream, null, new JBBPExternalValueProvider() {
 
+        @Override
         public int provideArraySize(final String fieldName, final JBBPNamedNumericFieldMap numericFieldMap, final JBBPCompiledBlock compiledBlock) {
           if ("value".equals(fieldName)) {
             return numericFieldMap.findFieldForPathAndType("chunk.length", JBBPFieldInt.class).getAsInt();

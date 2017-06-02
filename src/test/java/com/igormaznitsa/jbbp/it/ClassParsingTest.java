@@ -169,6 +169,7 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
   private JBBPVarFieldProcessor getVarFieldProcessor() {
     return new JBBPVarFieldProcessor() {
 
+      @Override
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         if ("cp_item".equals(fieldName.getFieldName())) {
           final int tagItem = inStream.readByte();
@@ -238,6 +239,7 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
         return null;
       }
 
+      @Override
       public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         fail("Must not be called");
         return null;

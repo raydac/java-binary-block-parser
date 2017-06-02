@@ -575,6 +575,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
      * @return calculated integer result of the expression
      * @throws JBBPEvalException if there is any problem during processing
      */
+    @Override
     public int eval(final JBBPBitInputStream inStream, final int currentCompiledBlockOffset, final JBBPCompiledBlock compiledBlockData, final JBBPNamedNumericFieldMap fieldMap) {
         final int[] stack = new int[this.maxStackDepth];
 

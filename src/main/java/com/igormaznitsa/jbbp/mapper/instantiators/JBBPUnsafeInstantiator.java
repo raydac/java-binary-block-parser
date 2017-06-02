@@ -63,6 +63,7 @@ public final class JBBPUnsafeInstantiator implements JBBPClassInstantiator {
         }
     }
 
+    @Override
     public <T> T makeClassInstance(final Class<T> klazz) throws InstantiationException {
         JBBPUtils.assertNotNull(klazz, "Class must not be null");
         try {

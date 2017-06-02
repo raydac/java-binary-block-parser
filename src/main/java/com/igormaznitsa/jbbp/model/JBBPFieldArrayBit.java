@@ -67,6 +67,7 @@ public final class JBBPFieldArrayBit extends JBBPAbstractArrayField<JBBPFieldBit
      *
      * @return the valuable bit number, must not be null
      */
+    @Override
     public JBBPBitNumber getBitWidth() {
         return this.bitNumber;
     }

@@ -363,6 +363,7 @@ public class JBBPMapperTest {
     final ClassWithPrivateFields fld = JBBPParser.prepare("int field;").parse(new byte[]{1, 2, 3, 4}).mapTo(ClassWithPrivateFields.class);
     AccessController.doPrivileged(new PrivilegedAction<Void>(){
 
+      @Override
       public Void run() {
         try{
           final Field field = fld.getClass().getDeclaredField("field");
@@ -383,6 +384,7 @@ public class JBBPMapperTest {
     final class Mapped { @Bin int a; @Bin(custom = true, extra = "TEST_TEXT") String b; @Bin int c;}
     final Mapped mapped = JBBPParser.prepare("int a; int b; int c;").parse(new byte []{1,2,3,4, 0x4A, 0x46, 0x49, 0x46, 5,6,7,8}).mapTo(Mapped.class, new JBBPMapperCustomFieldProcessor() {
 
+      @Override
       public Object prepareObjectForMapping(final JBBPFieldStruct parsedBlock, final Bin annotation, final Field field) {
         if ("b".equals(field.getName()) && "TEST_TEXT".equals(annotation.extra())){
           final int bvalue = parsedBlock.findFieldForNameAndType("b", JBBPFieldInt.class).getAsInt();
@@ -409,6 +411,7 @@ public class JBBPMapperTest {
     
     final Mapped result = (Mapped)JBBPParser.prepare("int a; int b; int c;").parse(new byte []{1,2,3,4, 0x4A, 0x46, 0x49, 0x46, 5,6,7,8}).mapTo(mapped, new JBBPMapperCustomFieldProcessor() {
 
+      @Override
       public Object prepareObjectForMapping(final JBBPFieldStruct parsedBlock, final Bin annotation, final Field field) {
         if ("b".equals(field.getName()) && "TEST_TEXT".equals(annotation.extra())){
           final int bvalue = parsedBlock.findFieldForNameAndType("b", JBBPFieldInt.class).getAsInt();

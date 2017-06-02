@@ -259,14 +259,17 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
         return null;
     }
 
+    @Override
     public Iterator<JBBPToken> iterator() {
         return this;
     }
 
+    @Override
     public boolean hasNext() {
         return !(this.detectedException == null && this.nextItem == null);
     }
 
+    @Override
     public JBBPToken next() {
         if (this.detectedException != null) {
             final JBBPTokenizerException ex = this.detectedException;

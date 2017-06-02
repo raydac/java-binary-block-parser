@@ -48,6 +48,7 @@ public final class JBBPOnlyFieldEvaluator implements JBBPIntegerValueEvaluator {
         this.namedFieldIndex = namedFieldIndex;
     }
 
+    @Override
     public int eval(final JBBPBitInputStream inStream, final int currentCompiledBlockOffset, final JBBPCompiledBlock block, final JBBPNamedNumericFieldMap fieldMap) {
         final int result = externalFieldName == null
                 ? fieldMap.get(block.getNamedFields()[this.namedFieldIndex]).getAsInt()

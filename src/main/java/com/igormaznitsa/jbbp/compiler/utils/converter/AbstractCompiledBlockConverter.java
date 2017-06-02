@@ -144,7 +144,7 @@ public abstract class AbstractCompiledBlockConverter<T extends AbstractCompiledB
 
         this.onConvertEnd();
 
-        return (T)this;
+        return (T) this;
     }
 
     public void onActionItem(int offsetInCompiledBlock, int actionType, JBBPIntegerValueEvaluator nullableArgument) {
@@ -184,6 +184,7 @@ public abstract class AbstractCompiledBlockConverter<T extends AbstractCompiledB
             this.value = value;
         }
 
+        @Override
         public int eval(final JBBPBitInputStream inStream, final int currentCompiledBlockOffset, final JBBPCompiledBlock block, final JBBPNamedNumericFieldMap fieldMap) {
             return this.value;
         }

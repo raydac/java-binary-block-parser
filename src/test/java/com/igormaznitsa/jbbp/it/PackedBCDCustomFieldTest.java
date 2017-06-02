@@ -30,10 +30,12 @@ public class PackedBCDCustomFieldTest implements JBBPCustomFieldTypeProcessor {
 
   private static final String [] types = new String[]{"bcd", "sbcd"};
   
+  @Override
   public String[] getCustomFieldTypes() {
     return types;
   }
 
+  @Override
   public boolean isAllowed(final JBBPFieldTypeParameterContainer fieldType, final String fieldName, final int extraData, final boolean isArray) {
     if (fieldType.getByteOrder() == JBBPByteOrder.LITTLE_ENDIAN){
       System.err.println("Packed Decimal does not support little endian...using big endian instead");
@@ -66,6 +68,7 @@ public class PackedBCDCustomFieldTest implements JBBPCustomFieldTypeProcessor {
   }
 
   
+  @Override
   public JBBPAbstractField readCustomFieldType(final JBBPBitInputStream in, final JBBPBitOrder bitOrder, final int parserFlags, final JBBPFieldTypeParameterContainer customTypeFieldInfo, JBBPNamedFieldInfo fieldName, int extraData, boolean readWholeStream, int arrayLength) throws IOException {
     final boolean signed = "sbcd".equals(customTypeFieldInfo.getTypeName());
     
