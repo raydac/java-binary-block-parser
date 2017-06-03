@@ -49,10 +49,26 @@ public class TextBuffer {
         return this.print(text).println();
     }
 
-    public String toStringAndClean() {
-        final String text = this.buffer.toString();
-        this.clean();
-        return text;
+    public String toStringAndClean(final int spacesOnPrefix) {
+        final StringBuilder locbuffer = new StringBuilder(spacesOnPrefix);
+        for (int i = 0; i < spacesOnPrefix; i++) {
+            locbuffer.append(' ');
+        }
+        final String prefix = locbuffer.toString();
+
+
+        final boolean lastCharIsNL = this.buffer.length() > 0 ? this.buffer.charAt(this.buffer.length() - 1) == '\n' : false;
+        final String[] splitted = this.buffer.toString().split("\n");
+
+        locbuffer.setLength(0);
+
+        for (int i = 0; i < splitted.length; i++) {
+            if (i > 0) locbuffer.append('\n');
+            locbuffer.append(prefix).append(splitted[i]);
+        }
+        if (lastCharIsNL) locbuffer.append('\n');
+
+        return locbuffer.toString();
     }
 
     @Override

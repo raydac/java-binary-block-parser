@@ -17,19 +17,45 @@
 package com.igormaznitsa.jbbp.compiler.utils.converter;
 
 import com.igormaznitsa.jbbp.JBBPParser;
-import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
+import org.mdkt.compiler.*;
 
 public class ParserToJavaClassTest {
 
     @Test
-    public void testConvertSimpleParser() throws Exception {
-        final JBBPParser parser = JBBPParser.prepare("byte;");
-        final String converted = new ParserToJavaClass(JBBPBitOrder.LSB0,"com.igormaznitsa.test","TestClass", parser, null).process().getResult();
+    public void testConvert_Primitives() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare("bool;byte;ubyte;short;ushort;int;<long;");
+        final String converted = new ParserToJavaClass("com.igormaznitsa.test","TestClass", parser, null).process().getResult();
 
         System.out.println(converted);
+
+        final Class<?> theClass = InMemoryJavaCompiler.compile("com.igormaznitsa.test.TestClass",converted);
+
+        theClass.newInstance();
+    }
+
+    @Test
+    public void testConvert_Arrays() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare("bool[10];byte[20];ubyte[30];short[40];ushort[50];int[60];long[70];");
+        final String converted = new ParserToJavaClass("com.igormaznitsa.test","TestClass", parser, null).process().getResult();
+
+        System.out.println(converted);
+
+        final Class<?> theClass = InMemoryJavaCompiler.compile("com.igormaznitsa.test.TestClass",converted);
+
+        theClass.newInstance();
+    }
+
+    @Test
+    public void testConvert_Actions() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare("skip:34;align:8;reset$$;");
+        final String converted = new ParserToJavaClass("com.igormaznitsa.test","TestClass", parser, null).process().getResult();
+
+        System.out.println(converted);
+
+        final Class<?> theClass = InMemoryJavaCompiler.compile("com.igormaznitsa.test.TestClass",converted);
+
+        theClass.newInstance();
     }
 
 }

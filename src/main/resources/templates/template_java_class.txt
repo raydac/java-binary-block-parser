@@ -2,31 +2,45 @@ package ${packageName};
 
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
+import com.igormaznitsa.jbbp.io.JBBPByteOrder;
+import com.igormaznitsa.jbbp.utils.JBBPUtils;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.IOException;
 
 ${classComments}
 public class ${className} {
   
-  ${fields}
-  
-  public ${className} (byte [] array) {
-    this(new JBBPBitInputStream(array, ${bitOrder}));
+${mainFields}
+
+  public ${className}(){
   }
 
-  public ${className} (InputStream inStream) {
+  public ${className} read(byte [] array) throws IOException {
+    return this.read(new JBBPBitInputStream(new ByteArrayInputStream(array)));
+  }
+
+  public ${className} read(InputStream inStream) throws IOException {
+    return this.read(inStream, JBBPBitOrder.LSB0);
+  }
+
+  public ${className} read(InputStream inStream, JBBPBitOrder bitOrder) throws IOException {
     final JBBPBitInputStream theStream;
+
     if (inStream instanceof JBBPBitInputStream) {
-      theStream = (JBBPBitInputStream) inStream;
+      theStream = ((JBBPBitInputStream) inStream).getBitOrder() == bitOrder ? (JBBPBitInputStream)inStream : new JBBPBitInputStream(inStream,bitOrder);
     } else {
-      theStream = new JBBPBitInputStream(inStream,${bitOrder});
+      theStream = new JBBPBitInputStream(inStream,bitOrder);
     }
+
+${readFieldsBody}
+
+    return this;
   }
 
-  private void readFields() {
-    ${readFieldsBody}
-  }
+${methods}
 
-  ${methods}
-
-  ${extraMethods}
+${extraMethods}
   
 }
