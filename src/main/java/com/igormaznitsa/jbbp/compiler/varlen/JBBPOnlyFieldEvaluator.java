@@ -17,6 +17,7 @@ package com.igormaznitsa.jbbp.compiler.varlen;
 
 import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
+import com.igormaznitsa.jbbp.compiler.utils.converter.ExpressionEvaluatorVisitor;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 
 /**
@@ -63,4 +64,20 @@ public final class JBBPOnlyFieldEvaluator implements JBBPIntegerValueEvaluator {
         return this.externalFieldName == null ? "NamedFieldIndex=" + this.namedFieldIndex : this.externalFieldName;
     }
 
+    @Override
+    public void visit(final JBBPCompiledBlock block, final int currentCompiledBlockOffset, final ExpressionEvaluatorVisitor visitor) {
+        visitor.begin();
+
+        if (this.externalFieldName == null) {
+            visitor.visit(block.getNamedFields()[this.namedFieldIndex],null);
+        } else {
+            if (this.externalFieldName.equals("$")) {
+                visitor.visit(ExpressionEvaluatorVisitor.Special.STREAM_COUNTER);
+            } else {
+                visitor.visit(null,this.externalFieldName);
+            }
+        }
+
+        visitor.end();
+    }
 }

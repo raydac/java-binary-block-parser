@@ -36,14 +36,20 @@ public interface ExpressionEvaluatorVisitor {
     }
 
     enum Operator {
-        ADD("+", 200), SUB("-", 200), MUL("*", 300), MOD("%", 300), NOT("~", 500), OR("|", 50), AND("&", 150), XOR("^", 100), DIV("/", 300), LSHIFT("<<", 175), RSHIFT(">>", 175), URSHIFT(">>>", 175), UNARY_PLUS("+", 500), UNARY_MINUS("-", 500);
+        ADD("+", 2, 200), SUB("-", 2, 200), MUL("*", 2, 300), MOD("%", 2, 300), NOT("~", 1, 500), OR("|", 2, 50), AND("&", 2, 150), XOR("^", 2, 100), DIV("/", 2, 300), LSHIFT("<<", 2, 175), RSHIFT(">>", 2, 175), URSHIFT(">>>", 2, 175), UNARY_PLUS("+", 1, 500), UNARY_MINUS("-", 1, 500);
 
         private final int priority;
+        private final int args;
         private final String text;
 
-        private Operator(final String text, final int priority) {
+        private Operator(final String text, final int args, final int priority) {
+            this.args = args;
             this.priority = priority;
             this.text = text;
+        }
+
+        public int getArgs() {
+            return this.args;
         }
 
         public static Operator findForText(final String text) {

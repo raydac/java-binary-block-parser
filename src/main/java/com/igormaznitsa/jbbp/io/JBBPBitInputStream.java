@@ -442,6 +442,19 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     }
 
     /**
+     * Read bit field from the stream, if it is impossible then IOException will be thrown.
+     * @param numOfBitsToRead field width, must not be null
+     * @return read value from the stream
+     * @throws IOException it will be thrown if EOF or troubles to read the stream
+     * @since 1.3.0
+     */
+    public byte readBitField(final JBBPBitNumber numOfBitsToRead) throws IOException {
+        final int value = this.readBits(numOfBitsToRead);
+        if (value<0) throw new EOFException("Can't read bits from stream [" + numOfBitsToRead + ']');
+        return (byte) value;
+    }
+
+    /**
      * Read number of bits from the input stream. It reads bits from input stream
      * since 0 bit and make reversion to return bits in the right order when 0 bit
      * is 0 bit. if the stream is completed early than the data read then reading

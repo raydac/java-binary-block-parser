@@ -310,11 +310,8 @@ public final class JBBPParser {
                         if (resultNotIgnored) {
                             final JBBPBitNumber bitNumber = JBBPBitNumber.decode(numberOfBits);
                             if (arrayLength < 0) {
-                                final int read = inStream.readBits(bitNumber);
-                                if (read < 0) {
-                                    throw new EOFException("Can't read bits from stream [" + bitNumber + ']');
-                                }
-                                singleAtomicField = new JBBPFieldBit(name, read, bitNumber);
+                                final int read = inStream.readBitField(bitNumber);
+                                singleAtomicField = new JBBPFieldBit(name, read & 0xFF, bitNumber);
                             } else {
                                 structureFields.add(new JBBPFieldArrayBit(name, inStream.readBitsArray(wholeStreamArray ? -1 : arrayLength, bitNumber), bitNumber));
                             }

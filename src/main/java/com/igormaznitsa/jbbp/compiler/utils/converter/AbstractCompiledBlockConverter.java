@@ -104,7 +104,7 @@ public abstract class AbstractCompiledBlockConverter<T extends AbstractCompiledB
 
                 case JBBPCompiler.CODE_BIT: {
                     final JBBPIntegerValueEvaluator numberOfBits = extraFieldNumAsExpr ? extraFieldValueEvaluator : new IntegerConstantValueEvaluator(JBBPUtils.unpackInt(compiledData, positionAtCompiledBlock));
-                    onBitField(theOffset, name, byteOrder, numberOfBits, arraySizeEvaluator);
+                    onBitField(theOffset, name, numberOfBits, arraySizeEvaluator);
                 }
                 break;
 
@@ -160,7 +160,7 @@ public abstract class AbstractCompiledBlockConverter<T extends AbstractCompiledB
     public void onCustom(int offsetInCompiledBlock, JBBPFieldTypeParameterContainer notNullfieldType, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPByteOrder byteOrder, JBBPIntegerValueEvaluator nullableArraySize) {
     }
 
-    public void onBitField(int offsetInCompiledBlock, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPByteOrder byteOrder, JBBPIntegerValueEvaluator notNullFieldSize, JBBPIntegerValueEvaluator nullableArraySize) {
+    public void onBitField(int offsetInCompiledBlock, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPIntegerValueEvaluator notNullFieldSize, JBBPIntegerValueEvaluator nullableArraySize) {
     }
 
     public void onStructStart(int offsetInCompiledBlock, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPIntegerValueEvaluator nullableArraySize) {

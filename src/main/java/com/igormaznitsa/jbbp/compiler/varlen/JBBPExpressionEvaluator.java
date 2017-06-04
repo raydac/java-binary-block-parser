@@ -19,6 +19,7 @@ import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.utils.JBBPCompilerUtils;
+import com.igormaznitsa.jbbp.compiler.utils.converter.ExpressionEvaluatorVisitor;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPEvalException;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
@@ -672,6 +673,79 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
         }
 
         return stack[0];
+    }
+
+    @Override
+    public void visit(final JBBPCompiledBlock block, final int currentCompiledBlockOffset, final ExpressionEvaluatorVisitor visitor) {
+        final JBBPIntCounter counter = new JBBPIntCounter();
+
+        while (counter.get() < this.compiledExpression.length) {
+            final int code = this.compiledExpression[counter.getAndIncrement()];
+            switch (code) {
+                case CODE_EXTVAR:
+                case CODE_VAR: {
+                    final int index = JBBPUtils.unpackInt(this.compiledExpression, counter);
+
+                    if (code == CODE_EXTVAR) {
+                        if ("$".equals(this.externalValueNames[index])) {
+                            visitor.visit(ExpressionEvaluatorVisitor.Special.STREAM_COUNTER);
+                        } else {
+                            visitor.visit(null, this.externalValueNames[index]);
+                        }
+                    } else {
+                        visitor.visit(block.getNamedFields()[index], null);
+                    }
+                }
+                break;
+                case CODE_CONST:
+                    visitor.visit(JBBPUtils.unpackInt(this.compiledExpression, counter));
+                    break;
+                case CODE_ADD:
+                    visitor.visit(ExpressionEvaluatorVisitor.Operator.ADD);
+                    break;
+                case CODE_AND:
+                    visitor.visit(ExpressionEvaluatorVisitor.Operator.AND);
+                    break;
+                case CODE_OR:
+                    visitor.visit(ExpressionEvaluatorVisitor.Operator.OR);
+                    break;
+                case CODE_XOR:
+                    visitor.visit(ExpressionEvaluatorVisitor.Operator.XOR);
+                    break;
+                case CODE_MINUS:
+                    visitor.visit(ExpressionEvaluatorVisitor.Operator.SUB);
+                    break;
+                case CODE_UNARYMINUS:
+                    visitor.visit(ExpressionEvaluatorVisitor.Operator.UNARY_MINUS);
+                    break;
+                case CODE_UNARYPLUS:
+                    visitor.visit(ExpressionEvaluatorVisitor.Operator.UNARY_PLUS);
+                    break;
+                case CODE_NOT:
+                    visitor.visit(ExpressionEvaluatorVisitor.Operator.NOT);
+                    break;
+                case CODE_DIV:
+                    visitor.visit(ExpressionEvaluatorVisitor.Operator.DIV);
+                    break;
+                case CODE_MUL:
+                    visitor.visit(ExpressionEvaluatorVisitor.Operator.MUL);
+                    break;
+                case CODE_MOD:
+                    visitor.visit(ExpressionEvaluatorVisitor.Operator.MOD);
+                    break;
+                case CODE_LSHIFT:
+                    visitor.visit(ExpressionEvaluatorVisitor.Operator.LSHIFT);
+                    break;
+                case CODE_RSHIFT:
+                    visitor.visit(ExpressionEvaluatorVisitor.Operator.RSHIFT);
+                    break;
+                case CODE_RSIGNSHIFT:
+                    visitor.visit(ExpressionEvaluatorVisitor.Operator.URSHIFT);
+                    break;
+                default:
+                    throw new Error("Detected unsupported operation, contact developer");
+            }
+        }
     }
 
     @Override

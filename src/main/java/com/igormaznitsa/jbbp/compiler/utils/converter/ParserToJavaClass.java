@@ -22,6 +22,7 @@ import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.compiler.varlen.JBBPIntegerValueEvaluator;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
+import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
@@ -109,7 +110,37 @@ public class ParserToJavaClass extends AbstractCompiledBlockConverter<ParserToJa
     }
 
     @Override
-    public void onBitField(final int offsetInCompiledBlock, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPByteOrder byteOrder, final JBBPIntegerValueEvaluator notNullFieldSize, final JBBPIntegerValueEvaluator nullableArraySize) {
+    public void onBitField(final int offsetInCompiledBlock, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPIntegerValueEvaluator notNullFieldSize, final JBBPIntegerValueEvaluator nullableArraySize) {
+        TextBuffer fieldOut = this.currentInsideClass == null ? this.mainFields : this.currentInsideClass;
+
+        final String fieldName = nullableNameFieldInfo == null ? "_afield" + anonymousFieldCounter.getAndIncrement() : nullableNameFieldInfo.getFieldName();
+        final String javaFieldType = "byte";
+
+        String sizeOfField = evaluatorToString(offsetInCompiledBlock, notNullFieldSize);
+        try{
+            sizeOfField = "JBBPBitNumber."+JBBPBitNumber.decode(Integer.parseInt(sizeOfField)).name();
+        }catch(NumberFormatException ex){
+            sizeOfField = "JBBPBitNumber.decode("+sizeOfField+')';
+        }
+
+
+        final String arraySize = nullableArraySize == null ? null : evaluatorToString(offsetInCompiledBlock, nullableArraySize);
+
+        final String fieldModifier;
+        if (nullableNameFieldInfo == null) {
+            fieldModifier = "protected ";
+        } else {
+            fieldModifier = "public ";
+        }
+
+        if (arraySize == null) {
+            this.readFieldsBody.print(fieldName).print(" = theStream.readBitField(").print(sizeOfField).println(");");
+        } else {
+            this.readFieldsBody.print(fieldName).print(" = theStream.readBitsArray(").print(arraySize).print(",").print(sizeOfField).println(");");
+        }
+
+        fieldOut.println(nullableNameFieldInfo == null ? "// an anonymous field" : "// the named field '" + nullableNameFieldInfo.getFieldName() + '\'');
+        fieldOut.print(fieldModifier).print(javaFieldType).print(" ").print(nullableArraySize == null ? "" : "[] ").print(fieldName).println(";").println();
 
     }
 
@@ -123,23 +154,91 @@ public class ParserToJavaClass extends AbstractCompiledBlockConverter<ParserToJa
         this.detectedVarFields = true;
     }
 
-    private String evaluatorToString(final JBBPIntegerValueEvaluator evaluator){
-        return "-1";
+    private String evaluatorToString(final int offsetInBlock, final JBBPIntegerValueEvaluator evaluator) {
+        final StringBuilder buffer = new StringBuilder();
+
+        final ExpressionEvaluatorVisitor visitor = new ExpressionEvaluatorVisitor() {
+            private final List<Object> stack = new ArrayList<Object>();
+
+            @Override
+            public ExpressionEvaluatorVisitor begin() {
+                this.stack.clear();
+                return this;
+            }
+
+            @Override
+            public ExpressionEvaluatorVisitor visit(final Special specialField) {
+                stack.add(specialField);
+                return this;
+            }
+
+            @Override
+            public ExpressionEvaluatorVisitor visit(final JBBPNamedFieldInfo nullableNameFieldInfo, final String nullableExternalFieldName) {
+                if (nullableNameFieldInfo != null) {
+                    this.stack.add(nullableNameFieldInfo);
+                } else if (nullableExternalFieldName!= null) {
+                    this.stack.add(nullableExternalFieldName);
+                }
+                return this;
+            }
+
+            @Override
+            public ExpressionEvaluatorVisitor visit(final Operator operator) {
+                this.stack.add(operator);
+                return this;
+            }
+
+            @Override
+            public ExpressionEvaluatorVisitor visit(final int value) {
+                this.stack.add(value);
+                return this;
+            }
+
+            @Override
+            public ExpressionEvaluatorVisitor end() {
+                // process operators
+                for(int i=0;i<this.stack.size();i++) {
+                }
+
+                // process rest
+                for(final Object obj : this.stack) {
+                    if (obj instanceof Special) {
+                        switch((Special)obj){
+                            case STREAM_COUNTER: buffer.append("(int)theStream.getCounter()");break;
+                            default: throw new Error("Unexpected special type:"+obj);
+                        }
+                    } else
+                    if (obj instanceof Integer) {
+                        buffer.append(obj.toString());
+                    } else if (obj instanceof JBBPNamedFieldInfo) {
+
+                    } else if (obj instanceof String) {
+
+                    } else throw new Error("Unexpected item");
+                }
+
+                return this;
+            }
+        };
+
+        evaluator.visit(this.compiledBlock, offsetInBlock, visitor);
+
+        return buffer.toString();
     }
 
     @Override
     public void onPrimitive(final int offsetInCompiledBlock, final int primitiveType, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPByteOrder byteOrder, final JBBPIntegerValueEvaluator nullableArraySize) {
-        TextBuffer fieldOut = this.currentInsideClass  == null ? this.mainFields : this.currentInsideClass;
+        TextBuffer fieldOut = this.currentInsideClass == null ? this.mainFields : this.currentInsideClass;
 
-        final String fieldName = nullableNameFieldInfo == null ? "_afield"+anonymousFieldCounter.getAndIncrement() : nullableNameFieldInfo.getFieldName();
+        final String fieldName = nullableNameFieldInfo == null ? "_afield" + anonymousFieldCounter.getAndIncrement() : nullableNameFieldInfo.getFieldName();
         final String javaFieldType;
 
-        final String arraySize = nullableArraySize == null ? null : evaluatorToString(nullableArraySize);
+        final String arraySize = nullableArraySize == null ? null : evaluatorToString(offsetInCompiledBlock, nullableArraySize);
 
         switch (primitiveType) {
             case JBBPCompiler.CODE_BOOL: {
                 javaFieldType = "boolean";
-                if (arraySize== null) {
+                if (arraySize == null) {
                     this.readFieldsBody.print(fieldName).println(" = theStream.readBoolean();");
                 } else {
                     this.readFieldsBody.print(fieldName).print(" = theStream.readBoolArray(").print(arraySize).println(");");
@@ -151,7 +250,7 @@ public class ParserToJavaClass extends AbstractCompiledBlockConverter<ParserToJa
                 javaFieldType = "byte";
                 if (arraySize == null) {
                     this.readFieldsBody.print(fieldName).println(" = (byte) theStream.readByte();");
-                }else{
+                } else {
                     this.readFieldsBody.print(fieldName).print(" = theStream.readByteArray(").print(arraySize).println(");");
                     if (byteOrder == JBBPByteOrder.LITTLE_ENDIAN) {
                         this.readFieldsBody.print("JBBPUtils.reverseArray(").print(fieldName).println(");");
@@ -187,27 +286,38 @@ public class ParserToJavaClass extends AbstractCompiledBlockConverter<ParserToJa
                 }
             }
             break;
-            default: throw new Error("Unexpected primitive type, contact developer : "+primitiveType);
+            default:
+                throw new Error("Unexpected primitive type, contact developer : " + primitiveType);
         }
 
-        fieldOut.println(nullableNameFieldInfo == null ? "// anonymous field" : "// field "+nullableNameFieldInfo.getFieldName());
-        fieldOut.print("public ").print(javaFieldType).print(" ").print(nullableArraySize == null ? "" : "[] ").print(fieldName).println(";").println();
+        final String fieldModifier;
+        if (nullableNameFieldInfo == null) {
+            fieldModifier = "protected ";
+        } else {
+            fieldModifier = "public ";
+        }
+
+        fieldOut.println(nullableNameFieldInfo == null ? "// an anonymous field" : "// the named field '" + nullableNameFieldInfo.getFieldName() + '\'');
+        fieldOut.print(fieldModifier).print(javaFieldType).print(" ").print(nullableArraySize == null ? "" : "[] ").print(fieldName).println(";").println();
     }
 
     @Override
     public void onActionItem(final int offsetInCompiledBlock, final int actionType, final JBBPIntegerValueEvaluator nullableArgument) {
-        final String valueTxt = nullableArgument == null ? null : evaluatorToString(nullableArgument);
+        final String valueTxt = nullableArgument == null ? null : evaluatorToString(offsetInCompiledBlock, nullableArgument);
 
-        switch(actionType) {
+        switch (actionType) {
             case JBBPCompiler.CODE_RESET_COUNTER: {
                 this.readFieldsBody.println("theStream.resetCounter();");
-            }break;
-            case JBBPCompiler.CODE_ALIGN :  {
+            }
+            break;
+            case JBBPCompiler.CODE_ALIGN: {
                 this.readFieldsBody.print("theStream.align(").print(valueTxt).println(");");
-            }break;
-            case JBBPCompiler.CODE_SKIP : {
+            }
+            break;
+            case JBBPCompiler.CODE_SKIP: {
                 this.readFieldsBody.print("theStream.skip(").print(valueTxt).println(");");
-            }break;
+            }
+            break;
             default: {
                 throw new Error("Detected unknown action, contact developer!");
             }

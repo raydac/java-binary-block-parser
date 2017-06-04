@@ -24,7 +24,7 @@ public class ParserToJavaClassTest {
 
     @Test
     public void testConvert_Primitives() throws Exception {
-        final JBBPParser parser = JBBPParser.prepare("bool;byte;ubyte;short;ushort;int;<long;");
+        final JBBPParser parser = JBBPParser.prepare("bit;bool;byte;ubyte;short;ushort;int;<long;bool bool_field;int int_field;");
         final String converted = new ParserToJavaClass("com.igormaznitsa.test","TestClass", parser, null).process().getResult();
 
         System.out.println(converted);
@@ -36,7 +36,7 @@ public class ParserToJavaClassTest {
 
     @Test
     public void testConvert_Arrays() throws Exception {
-        final JBBPParser parser = JBBPParser.prepare("bool[10];byte[20];ubyte[30];short[40];ushort[50];int[60];long[70];");
+        final JBBPParser parser = JBBPParser.prepare("bool[10];byte[20];ubyte[30];short[40];ushort[50];>int[60];<long[$$];");
         final String converted = new ParserToJavaClass("com.igormaznitsa.test","TestClass", parser, null).process().getResult();
 
         System.out.println(converted);
