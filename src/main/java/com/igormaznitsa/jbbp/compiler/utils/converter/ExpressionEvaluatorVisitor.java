@@ -48,10 +48,6 @@ public interface ExpressionEvaluatorVisitor {
             this.text = text;
         }
 
-        public int getArgsNumber() {
-            return this.args;
-        }
-
         public static Operator findForText(final String text) {
             Operator result = null;
             for (final Operator p : values()) {
@@ -61,6 +57,10 @@ public interface ExpressionEvaluatorVisitor {
                 }
             }
             return result;
+        }
+
+        public int getArgsNumber() {
+            return this.args;
         }
 
         public String getText() {

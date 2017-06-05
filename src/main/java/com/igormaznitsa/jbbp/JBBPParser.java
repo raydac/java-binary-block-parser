@@ -621,6 +621,7 @@ public final class JBBPParser {
 
     /**
      * Get compiled block containing compiled information for the parser.
+     *
      * @return compiled block, must not be null
      * @since 1.3.0
      */

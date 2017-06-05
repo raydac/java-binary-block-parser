@@ -69,12 +69,12 @@ public final class JBBPOnlyFieldEvaluator implements JBBPIntegerValueEvaluator {
         visitor.begin();
 
         if (this.externalFieldName == null) {
-            visitor.visit(block.getNamedFields()[this.namedFieldIndex],null);
+            visitor.visit(block.getNamedFields()[this.namedFieldIndex], null);
         } else {
             if (this.externalFieldName.equals("$")) {
                 visitor.visit(ExpressionEvaluatorVisitor.Special.STREAM_COUNTER);
             } else {
-                visitor.visit(null,this.externalFieldName);
+                visitor.visit(null, this.externalFieldName);
             }
         }
 

@@ -58,14 +58,13 @@ public class ParserToJavaClass extends AbstractCompiledBlockConverter<ParserToJa
     private final TextBuffer classComments = new TextBuffer();
     private final TextBuffer constructorBody = new TextBuffer();
     private final List<TextBuffer> embeddedClasses = new ArrayList<TextBuffer>();
-    private TextBuffer currentInsideClass;
-    private String classModifiers;
-    private List<String> constructorArgs = new ArrayList<String>();
     private final AtomicBoolean detectedCustomFields = new AtomicBoolean();
     private final AtomicBoolean detectedVarFields = new AtomicBoolean();
     private final AtomicBoolean detectedExternalFieldsInEvaluator = new AtomicBoolean();
     private final AtomicInteger anonymousFieldCounter = new AtomicInteger();
-
+    private TextBuffer currentInsideClass;
+    private String classModifiers;
+    private List<String> constructorArgs = new ArrayList<String>();
     private String result;
 
     public ParserToJavaClass(final String packageName, final String className, final JBBPParser notNullParser, final String nullableExtraMethods) {
@@ -73,9 +72,22 @@ public class ParserToJavaClass extends AbstractCompiledBlockConverter<ParserToJa
     }
 
     public ParserToJavaClass(final String packageName, final String className, final int parserFlags, final JBBPCompiledBlock notNullCompiledBlock, final String nullableExtraMethods) {
-        super(parserFlags,notNullCompiledBlock);
+        super(parserFlags, notNullCompiledBlock);
         this.packageName = packageName;
         this.className = className;
+    }
+
+    private static String toArgs(final List<String> args) {
+        final StringBuilder result = new StringBuilder();
+        for (final String s : args) {
+            if (result.length() > 0) result.append(',');
+            result.append(s);
+        }
+        return result.toString();
+    }
+
+    private static String toJStr(final Object obj) {
+        return obj == null ? "null" : "\"" + obj.toString() + "\"";
     }
 
     @Override
@@ -101,7 +113,7 @@ public class ParserToJavaClass extends AbstractCompiledBlockConverter<ParserToJa
 
     @Override
     public void onConvertEnd() {
-        if (this.detectedExternalFieldsInEvaluator.get()){
+        if (this.detectedExternalFieldsInEvaluator.get()) {
             this.classModifiers += "abstract ";
             this.methods.println("public abstract int getValueForName(String name);");
         }
@@ -117,7 +129,7 @@ public class ParserToJavaClass extends AbstractCompiledBlockConverter<ParserToJa
         }
 
         this.result = TEMPLATE
-                .replace("${classModifiers}",this.classModifiers)
+                .replace("${classModifiers}", this.classModifiers)
                 .replace("${import}", this.imports.toStringAndClean(0))
                 .replace("${readFields}", this.readFields.toStringAndClean(4))
                 .replace("${methods}", this.methods.toStringAndClean(4))
@@ -147,11 +159,11 @@ public class ParserToJavaClass extends AbstractCompiledBlockConverter<ParserToJa
         final String fieldName = nullableNameFieldInfo == null ? "_afield" + anonymousFieldCounter.getAndIncrement() : nullableNameFieldInfo.getFieldName();
         final String javaFieldType = "byte";
 
-        String sizeOfField = evaluatorToString(offsetInCompiledBlock, notNullFieldSize,this.detectedExternalFieldsInEvaluator);
-        try{
-            sizeOfField = "JBBPBitNumber."+JBBPBitNumber.decode(Integer.parseInt(sizeOfField)).name();
-        }catch(NumberFormatException ex){
-            sizeOfField = "JBBPBitNumber.decode("+sizeOfField+')';
+        String sizeOfField = evaluatorToString(offsetInCompiledBlock, notNullFieldSize, this.detectedExternalFieldsInEvaluator);
+        try {
+            sizeOfField = "JBBPBitNumber." + JBBPBitNumber.decode(Integer.parseInt(sizeOfField)).name();
+        } catch (NumberFormatException ex) {
+            sizeOfField = "JBBPBitNumber.decode(" + sizeOfField + ')';
         }
 
 
@@ -192,10 +204,10 @@ public class ParserToJavaClass extends AbstractCompiledBlockConverter<ParserToJa
         fieldOut.println(nullableNameFieldInfo == null ? "// an anonymous field" : "// the named field '" + nullableNameFieldInfo.getFieldName() + '\'');
         fieldOut.print(fieldModifier).print("JBBPAbstractField ").print(fieldName).println(";").println();
 
-        final String jbbpNFI = nullableNameFieldInfo == null ? null : "new JBBPNamedFieldInfo(\""+nullableNameFieldInfo.getFieldName()+"\",\""+nullableNameFieldInfo.getFieldPath()+"\","+nullableNameFieldInfo.getFieldOffsetInCompiledBlock()+")";
-        final String jbbpFTPC = "new JBBPFieldTypeParameterContainer(JBBPByteOrder."+notNullfieldType.getByteOrder().name()+","+ toJStr(notNullfieldType.getTypeName())+","+toJStr(notNullfieldType.getExtraData())+")";
+        final String jbbpNFI = nullableNameFieldInfo == null ? null : "new JBBPNamedFieldInfo(\"" + nullableNameFieldInfo.getFieldName() + "\",\"" + nullableNameFieldInfo.getFieldPath() + "\"," + nullableNameFieldInfo.getFieldOffsetInCompiledBlock() + ")";
+        final String jbbpFTPC = "new JBBPFieldTypeParameterContainer(JBBPByteOrder." + notNullfieldType.getByteOrder().name() + "," + toJStr(notNullfieldType.getTypeName()) + "," + toJStr(notNullfieldType.getExtraData()) + ")";
 
-        if (jbbpNFI!=null) {
+        if (jbbpNFI != null) {
             this.staticFields.print("private static final JBBPNamedFieldInfo __nfi_").print(fieldName).print(" = ").print(jbbpNFI).println(";");
         }
         this.staticFields.print("private static final JBBPFieldTypeParameterContainer __ftpc_").print(fieldName).print(" = ").print(jbbpFTPC).println(";");
@@ -206,10 +218,10 @@ public class ParserToJavaClass extends AbstractCompiledBlockConverter<ParserToJa
                 .print("this.__cftProcessor.readCustomFieldType(theStream,theStream.getBitOrder()")
                 .print(",").print(this.parserFlags)
                 .print(",").print("${className}.__ftpc_").print(fieldName)
-                .print(",").print(jbbpNFI == null ? "null" : "${className}.__nfi_"+fieldName)
-                .print(",").print(extraDataValueEvaluator == null ? "0" : evaluatorToString(offsetInCompiledBlock,extraDataValueEvaluator,this.detectedExternalFieldsInEvaluator))
+                .print(",").print(jbbpNFI == null ? "null" : "${className}.__nfi_" + fieldName)
+                .print(",").print(extraDataValueEvaluator == null ? "0" : evaluatorToString(offsetInCompiledBlock, extraDataValueEvaluator, this.detectedExternalFieldsInEvaluator))
                 .print(",").print(readWholeStream)
-                .print(",").print(nullableArraySizeEvaluator == null ? "-1" : evaluatorToString(offsetInCompiledBlock,nullableArraySizeEvaluator, this.detectedExternalFieldsInEvaluator))
+                .print(",").print(nullableArraySizeEvaluator == null ? "-1" : evaluatorToString(offsetInCompiledBlock, nullableArraySizeEvaluator, this.detectedExternalFieldsInEvaluator))
                 .println(");");
     }
 
@@ -242,7 +254,7 @@ public class ParserToJavaClass extends AbstractCompiledBlockConverter<ParserToJa
             public ExpressionEvaluatorVisitor visit(final JBBPNamedFieldInfo nullableNameFieldInfo, final String nullableExternalFieldName) {
                 if (nullableNameFieldInfo != null) {
                     this.stack.add(nullableNameFieldInfo);
-                } else if (nullableExternalFieldName!= null) {
+                } else if (nullableExternalFieldName != null) {
                     detectedExternalField.set(true);
                     this.stack.add(nullableExternalFieldName);
                 }
@@ -263,18 +275,20 @@ public class ParserToJavaClass extends AbstractCompiledBlockConverter<ParserToJa
 
             private String argToString(final Object obj) {
                 if (obj instanceof Special) {
-                    switch((Special)obj){
-                        case STREAM_COUNTER: return "(int)theStream.getCounter()";
-                        default: throw new Error("Unexpected special");
+                    switch ((Special) obj) {
+                        case STREAM_COUNTER:
+                            return "(int)theStream.getCounter()";
+                        default:
+                            throw new Error("Unexpected special");
                     }
                 } else if (obj instanceof Integer) {
                     return obj.toString();
                 } else if (obj instanceof String) {
-                    return "this.getValueForName(\""+obj.toString()+"\")";
+                    return "this.getValueForName(\"" + obj.toString() + "\")";
                 } else if (obj instanceof JBBPNamedFieldInfo) {
-                    return ((JBBPNamedFieldInfo)obj).getFieldPath();
+                    return ((JBBPNamedFieldInfo) obj).getFieldPath();
                 }
-                throw new Error("Unexpected object : "+obj);
+                throw new Error("Unexpected object : " + obj);
             }
 
             @Override
@@ -284,23 +298,23 @@ public class ParserToJavaClass extends AbstractCompiledBlockConverter<ParserToJa
 
                 final List<String> values = new ArrayList<String>();
 
-                for(int i=0;i<this.stack.size();i++) {
+                for (int i = 0; i < this.stack.size(); i++) {
                     final Object cur = this.stack.get(i);
                     if (cur instanceof Operator) {
-                        final Operator op = (Operator)cur;
+                        final Operator op = (Operator) cur;
 
-                        if (lastOp!=null && lastOp.getPriority()<op.getPriority()){
-                            buffer.insert(0,'(').append(')');
+                        if (lastOp != null && lastOp.getPriority() < op.getPriority()) {
+                            buffer.insert(0, '(').append(')');
                         }
 
-                        if (op.getArgsNumber()<=values.size()) {
+                        if (op.getArgsNumber() <= values.size()) {
                             if (op.getArgsNumber() == 1) {
-                                buffer.append(op.getText()).append(values.remove(values.size()-1));
+                                buffer.append(op.getText()).append(values.remove(values.size() - 1));
                             } else {
-                                buffer.append(values.remove(values.size()-2)).append(op.getText()).append(values.remove(values.size()-1));
+                                buffer.append(values.remove(values.size() - 2)).append(op.getText()).append(values.remove(values.size() - 1));
                             }
                         } else {
-                            buffer.append(op.getText()).append(values.remove(values.size()-1));
+                            buffer.append(op.getText()).append(values.remove(values.size() - 1));
                         }
 
                         lastOp = op;
@@ -309,7 +323,7 @@ public class ParserToJavaClass extends AbstractCompiledBlockConverter<ParserToJa
                     }
                 }
 
-                if (!values.isEmpty()){
+                if (!values.isEmpty()) {
                     buffer.append(values.get(0));
                 }
 
@@ -418,18 +432,5 @@ public class ParserToJavaClass extends AbstractCompiledBlockConverter<ParserToJa
                 throw new Error("Detected unknown action, contact developer!");
             }
         }
-    }
-
-    private static String toArgs(final List<String> args) {
-        final StringBuilder result = new StringBuilder();
-        for(final String s : args){
-            if (result.length()>0) result.append(',');
-            result.append(s);
-        }
-        return result.toString();
-    }
-
-    private static String toJStr(final Object obj) {
-        return obj == null ? "null" : "\""+obj.toString()+"\"";
     }
 }
