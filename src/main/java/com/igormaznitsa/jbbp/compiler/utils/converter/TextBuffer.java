@@ -24,6 +24,16 @@ public class TextBuffer {
         this.buffer = new StringBuilder();
     }
 
+    public TextBuffer print(final int value) {
+        this.buffer.append(value);
+        return this;
+    }
+
+    public TextBuffer print(final boolean value) {
+        this.buffer.append(value ? "true" : "false");
+        return this;
+    }
+
     public TextBuffer print(final String text) {
         this.buffer.append(text);
         return this;

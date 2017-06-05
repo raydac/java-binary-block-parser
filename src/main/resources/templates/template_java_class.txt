@@ -5,17 +5,19 @@ import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.IOException;
+${import}
 
 ${classComments}
-public class ${className} {
-  
-${mainFields}
+${classModifiers} class ${className} {
 
-  public ${className}(){
+${mainFields}
+${staticFields}
+
+  public ${className}(${constructorArgs}){
+${constructorBody}
   }
 
   public ${className} read(byte [] array) throws IOException {
@@ -35,13 +37,10 @@ ${mainFields}
       theStream = new JBBPBitInputStream(inStream,bitOrder);
     }
 
-${readFieldsBody}
+${readFields}
 
     return this;
   }
 
 ${methods}
-
-${extraMethods}
-  
 }

@@ -677,6 +677,8 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
 
     @Override
     public void visit(final JBBPCompiledBlock block, final int currentCompiledBlockOffset, final ExpressionEvaluatorVisitor visitor) {
+        visitor.begin();
+
         final JBBPIntCounter counter = new JBBPIntCounter();
 
         while (counter.get() < this.compiledExpression.length) {
@@ -746,6 +748,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
                     throw new Error("Detected unsupported operation, contact developer");
             }
         }
+        visitor.end();
     }
 
     @Override

@@ -29,8 +29,10 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 public abstract class AbstractCompiledBlockConverter<T extends AbstractCompiledBlockConverter> {
 
     protected final JBBPCompiledBlock compiledBlock;
+    protected final int parserFlags;
 
-    public AbstractCompiledBlockConverter(final JBBPCompiledBlock notNullCompiledBlock) {
+    public AbstractCompiledBlockConverter(final int parserFlags, final JBBPCompiledBlock notNullCompiledBlock) {
+        this.parserFlags = parserFlags;
         this.compiledBlock = notNullCompiledBlock;
     }
 
@@ -67,14 +69,16 @@ public abstract class AbstractCompiledBlockConverter<T extends AbstractCompiledB
 
             final JBBPIntegerValueEvaluator arraySizeEvaluator;
 
+            boolean readWholeStream = false;
+
             switch (code & (JBBPCompiler.FLAG_ARRAY | (JBBPCompiler.EXT_FLAG_EXPRESSION_OR_WHOLESTREAM << 8))) {
                 case JBBPCompiler.FLAG_ARRAY: {
-                    final int pos = positionAtCompiledBlock.get();
                     arraySizeEvaluator = new IntegerConstantValueEvaluator(JBBPUtils.unpackInt(compiledData, positionAtCompiledBlock));
                 }
                 break;
                 case (JBBPCompiler.EXT_FLAG_EXPRESSION_OR_WHOLESTREAM << 8): {
                     arraySizeEvaluator = new IntegerConstantValueEvaluator(-1);
+                    readWholeStream = true;
                 }
                 break;
                 case JBBPCompiler.FLAG_ARRAY | (JBBPCompiler.EXT_FLAG_EXPRESSION_OR_WHOLESTREAM << 8): {
@@ -133,9 +137,9 @@ public abstract class AbstractCompiledBlockConverter<T extends AbstractCompiledB
                 }
                 break;
                 case JBBPCompiler.CODE_CUSTOMTYPE: {
-                    final JBBPIntegerValueEvaluator extraData = extraFieldNumAsExpr ? extraFieldValueEvaluator : new IntegerConstantValueEvaluator(JBBPUtils.unpackInt(compiledData, positionAtCompiledBlock));
+                    final JBBPIntegerValueEvaluator extraDataValueEvaluator = extraFieldNumAsExpr ? extraFieldValueEvaluator : new IntegerConstantValueEvaluator(JBBPUtils.unpackInt(compiledData, positionAtCompiledBlock));
                     final JBBPFieldTypeParameterContainer fieldTypeInfo = this.compiledBlock.getCustomTypeFields()[JBBPUtils.unpackInt(compiledData, positionAtCompiledBlock)];
-                    onCustom(theOffset, fieldTypeInfo, name, byteOrder, extraData);
+                    onCustom(theOffset, fieldTypeInfo, name, byteOrder, readWholeStream, arraySizeEvaluator, extraDataValueEvaluator);
                 }
                 break;
                 default:
@@ -157,7 +161,7 @@ public abstract class AbstractCompiledBlockConverter<T extends AbstractCompiledB
     public void onVar(int offsetInCompiledBlock, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPByteOrder byteOrder, JBBPIntegerValueEvaluator nullableArraySize) {
     }
 
-    public void onCustom(int offsetInCompiledBlock, JBBPFieldTypeParameterContainer notNullfieldType, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPByteOrder byteOrder, JBBPIntegerValueEvaluator nullableArraySize) {
+    public void onCustom(int offsetInCompiledBlock, JBBPFieldTypeParameterContainer notNullfieldType, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPByteOrder byteOrder, boolean readWholeStream, JBBPIntegerValueEvaluator nullableArraySizeEvaluator, JBBPIntegerValueEvaluator extraDataValueEvaluator) {
     }
 
     public void onBitField(int offsetInCompiledBlock, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPIntegerValueEvaluator notNullFieldSize, JBBPIntegerValueEvaluator nullableArraySize) {
@@ -190,6 +194,7 @@ public abstract class AbstractCompiledBlockConverter<T extends AbstractCompiledB
             return this.value;
         }
 
+        @Override
         public void visit(JBBPCompiledBlock block, int currentCompiledBlockOffset, ExpressionEvaluatorVisitor visitor) {
             visitor.begin();
             visitor.visit(this.value);

@@ -48,7 +48,7 @@ public interface ExpressionEvaluatorVisitor {
             this.text = text;
         }
 
-        public int getArgs() {
+        public int getArgsNumber() {
             return this.args;
         }
 
