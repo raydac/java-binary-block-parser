@@ -36,7 +36,20 @@ public interface ExpressionEvaluatorVisitor {
     }
 
     enum Operator {
-        ADD("+", 2, 200), SUB("-", 2, 200), MUL("*", 2, 300), MOD("%", 2, 300), NOT("~", 1, 500), OR("|", 2, 50), AND("&", 2, 150), XOR("^", 2, 100), DIV("/", 2, 300), LSHIFT("<<", 2, 175), RSHIFT(">>", 2, 175), URSHIFT(">>>", 2, 175), UNARY_PLUS("+", 1, 500), UNARY_MINUS("-", 1, 500);
+        ADD("+", 2, 200),
+        SUB("-", 2, 200),
+        MUL("*", 2, 300),
+        MOD("%", 2, 300),
+        NOT("~", 1, 500),
+        OR("|", 2, 50),
+        AND("&", 2, 150),
+        XOR("^", 2, 100),
+        DIV("/", 2, 300),
+        LSHIFT("<<", 2, 175),
+        RSHIFT(">>", 2, 175),
+        URSHIFT(">>>", 2, 175),
+        UNARY_PLUS("+", 1, 500),
+        UNARY_MINUS("-", 1, 500);
 
         private final int priority;
         private final int args;
