@@ -23,6 +23,7 @@ import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mdkt.compiler.*;
 
@@ -78,6 +79,7 @@ public class ParserToJavaClassTest {
         theClass.newInstance();
     }
 
+    @Ignore
     @Test
     public void testConvert_CustomField() throws Exception {
         final JBBPCustomFieldTypeProcessor proc = new JBBPCustomFieldTypeProcessor() {
