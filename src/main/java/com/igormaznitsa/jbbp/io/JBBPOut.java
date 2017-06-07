@@ -685,6 +685,26 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
     }
 
     /**
+     * Write short values from a char array
+     *
+     * @param value a char array which values should be written into, it
+     *              must not be null
+     * @return the DSL session
+     * @throws IOException it will be thrown for transport errors
+     * @since 1.3
+     */
+    public JBBPOut Short(final char[] value) throws IOException {
+        assertNotEnded();
+        assertArrayNotNull(value);
+        if (this.processCommands) {
+            for (final char v : value) {
+                this._writeShort((int)v);
+            }
+        }
+        return this;
+    }
+
+    /**
      * Write lower pair of bytes of each integer value from an integer array into
      * the session stream as a short value.
      *

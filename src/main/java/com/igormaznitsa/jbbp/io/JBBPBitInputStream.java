@@ -253,6 +253,49 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     }
 
     /**
+     * Read number of unsigned short items from the input stream.
+     *
+     * @param items     number of items to be read from the input stream, if less than
+     *                  zero then all stream till the end will be read
+     * @param byteOrder the order of bytes to be used to decode short values
+     * @return read items as a char array
+     * @throws IOException it will be thrown for any transport problem during the
+     *                     operation
+     * @see JBBPByteOrder#BIG_ENDIAN
+     * @see JBBPByteOrder#LITTLE_ENDIAN
+     * @since 1.3
+     */
+    public char[] readUShortArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
+        int pos = 0;
+        if (items < 0) {
+            char[] buffer = new char[INITIAL_ARRAY_BUFFER_SIZE];
+            // till end
+            while (hasAvailableData()) {
+                final int next = readUnsignedShort(byteOrder);
+                if (buffer.length == pos) {
+                    final char[] newbuffer = new char[buffer.length << 1];
+                    System.arraycopy(buffer, 0, newbuffer, 0, buffer.length);
+                    buffer = newbuffer;
+                }
+                buffer[pos++] = (char) next;
+            }
+            if (buffer.length == pos) {
+                return buffer;
+            }
+            final char[] result = new char[pos];
+            System.arraycopy(buffer, 0, result, 0, pos);
+            return result;
+        } else {
+            // number
+            final char[] buffer = new char[items];
+            for (int i = 0; i < items; i++) {
+                buffer[i] = (char) readUnsignedShort(byteOrder);
+            }
+            return buffer;
+        }
+    }
+
+    /**
      * Read number of integer items from the input stream.
      *
      * @param items     number of items to be read from the input stream, if less than
