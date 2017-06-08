@@ -673,11 +673,55 @@ public class JBBPBitInputStreamTest {
   }
 
   @Test
+  public void testReadArray_UShort_WholeStream() throws Exception {
+    JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5, 6, 7, 0}));
+    assertArrayEquals(new char[]{0x0102, 0x0304, 0x0506, 0x0700}, in.readUShortArray(-1, JBBPByteOrder.BIG_ENDIAN));
+    assertEquals(8, in.getCounter());
+
+    final Random rnd = new Random(1234);
+
+    final byte[] buff = new byte[JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE * 2];
+    rnd.nextBytes(buff);
+
+    in = new JBBPBitInputStream(new ByteArrayInputStream(buff));
+    final char[] read = in.readUShortArray(-1, JBBPByteOrder.BIG_ENDIAN);
+    assertEquals(buff.length, in.getCounter());
+
+    assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE, read.length);
+    for (int i = 0; i < read.length; i++) {
+      final int val = read[i];
+      final int j = i * 2;
+      assertEquals(val, ((buff[j] << 8) | ((buff[j + 1] & 0xFF))) & 0xFFFF);
+    }
+
+    final byte[] big = new byte[JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE * 128];
+    rnd.nextBytes(big);
+
+    in = new JBBPBitInputStream(new ByteArrayInputStream(big));
+
+    final char[] readbig = in.readUShortArray(-1, JBBPByteOrder.BIG_ENDIAN);
+
+    assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE * 64, readbig.length);
+    for (int i = 0; i < readbig.length; i++) {
+      final int val = readbig[i];
+      final int j = i * 2;
+      assertEquals(val, ((big[j] << 8) | ((big[j + 1] & 0xFF))) & 0xFFFF);
+    }
+  }
+
+  @Test
   public void testReadArray_Short_TwoItems() throws Exception {
     final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5, 6, 7, 0}));
     assertArrayEquals(new short[]{0x0102, 0x0304}, in.readShortArray(2, JBBPByteOrder.BIG_ENDIAN));
     assertEquals(4, in.getCounter());
-}
+  }
+
+  @Test
+  public void testReadArray_UShort_TwoItems() throws Exception {
+    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5, 6, 7, 0}));
+    assertArrayEquals(new char[]{0x0102, 0x0304}, in.readUShortArray(2, JBBPByteOrder.BIG_ENDIAN));
+    assertEquals(4, in.getCounter());
+  }
 
   @Test(expected = EOFException.class)
   public void testReadArray_Short_EOF() throws Exception {

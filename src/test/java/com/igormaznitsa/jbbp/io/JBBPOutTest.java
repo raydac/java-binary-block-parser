@@ -240,6 +240,11 @@ public class JBBPOutTest {
   }
 
   @Test
+  public void testShortArray_AsChars_BigEndian() throws Exception {
+    assertArrayEquals(new byte[]{1, 2, 3, 4}, BeginBin().ByteOrder(JBBPByteOrder.BIG_ENDIAN).Short(new char[]{0x0102, 0x0304}).End().toByteArray());
+  }
+
+  @Test
   public void testShortArray_AsIntegers_LittleEndian() throws Exception {
     assertArrayEquals(new byte[]{2, 1, 4, 3}, BeginBin().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).Short(0x0102, 0x0304).End().toByteArray());
   }
