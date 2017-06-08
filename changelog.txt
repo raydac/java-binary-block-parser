@@ -1,8 +1,11 @@
 Change log
 --------------------------
 
-1.2.1
-- 
+1.3.0
+- added method to read unsigned short values as char [] into JBBPBitInputStream
+- Class version target has been changed to Java 1.6
+- Minor refactoring
+
 
 1.2.0
 - Refactoring
