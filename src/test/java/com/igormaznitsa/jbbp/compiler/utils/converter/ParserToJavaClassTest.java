@@ -32,7 +32,7 @@ import java.io.IOException;
 public class ParserToJavaClassTest {
 
     @Test
-    public void testConvert_Primitives() throws Exception {
+    public void testCompilation_PrimitiveSet() throws Exception {
         final JBBPParser parser = JBBPParser.prepare("bit;bool;byte;ubyte;short;ushort;int;<long;bool bool_field;int int_field;");
         final String converted = new ParserToJavaClass("com.igormaznitsa.test","TestClass", parser, null).process().getResult();
 
@@ -44,7 +44,7 @@ public class ParserToJavaClassTest {
     }
 
     @Test
-    public void testConvert_Arrays() throws Exception {
+    public void testCompilation_ArraySet() throws Exception {
         final JBBPParser parser = JBBPParser.prepare("bool[10];byte[20];ubyte[30];short[40];ushort[50];>int[60];<long[$$];");
         final String converted = new ParserToJavaClass("com.igormaznitsa.test","TestClass", parser, null).process().getResult();
 
@@ -56,7 +56,19 @@ public class ParserToJavaClassTest {
     }
 
     @Test
-    public void testConvert_Expression() throws Exception {
+    public void testCompilation_ParserWithFlag_SkipRemainingFields() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare("bool[10];byte[20];ubyte[30];short[40];ushort[50];>int[60];<long[$$];",JBBPParser.FLAG_SKIP_REMAINING_FIELDS_IF_EOF);
+        final String converted = new ParserToJavaClass("com.igormaznitsa.test","TestClass", parser, null).process().getResult();
+
+        System.out.println(converted);
+
+        final Class<?> theClass = InMemoryJavaCompiler.compile("com.igormaznitsa.test.TestClass",converted);
+
+        theClass.newInstance();
+    }
+
+    @Test
+    public void testCompilation_ArrayWithLengthAsExpression() throws Exception {
         final JBBPParser parser = JBBPParser.prepare("int a;byte[10*(2+a)<<$$];");
         final String converted = new ParserToJavaClass("com.igormaznitsa.test","TestClass", parser, null).process().getResult();
 
@@ -68,7 +80,7 @@ public class ParserToJavaClassTest {
     }
 
     @Test
-    public void testConvert_Actions() throws Exception {
+    public void testCompilation_ActionItems() throws Exception {
         final JBBPParser parser = JBBPParser.prepare("skip:34;align:8;reset$$;");
         final String converted = new ParserToJavaClass("com.igormaznitsa.test","TestClass", parser, null).process().getResult();
 
@@ -79,9 +91,9 @@ public class ParserToJavaClassTest {
         theClass.newInstance();
     }
 
-    @Ignore
+    @Ignore("underconstruction")
     @Test
-    public void testConvert_CustomField() throws Exception {
+    public void testCompilation_CustomField() throws Exception {
         final JBBPCustomFieldTypeProcessor proc = new JBBPCustomFieldTypeProcessor() {
             @Override
             public String[] getCustomFieldTypes() {

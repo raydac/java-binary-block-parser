@@ -345,6 +345,10 @@ public class ParserToJavaClass extends AbstractCompiledBlockConverter<ParserToJa
 
         final String arraySize = nullableArraySize == null ? null : evaluatorToString(offsetInCompiledBlock, nullableArraySize, this.detectedExternalFieldsInEvaluator);
 
+        if ((this.parserFlags & JBBPParser.FLAG_SKIP_REMAINING_FIELDS_IF_EOF) != 0) {
+            this.readFields.println("if (!theStream.hasAvailableData()) return this;");
+        }
+
         switch (primitiveType) {
             case JBBPCompiler.CODE_BOOL: {
                 javaFieldType = "boolean";
@@ -377,7 +381,15 @@ public class ParserToJavaClass extends AbstractCompiledBlockConverter<ParserToJa
                 }
             }
             break;
-            case JBBPCompiler.CODE_USHORT:
+            case JBBPCompiler.CODE_USHORT: {
+                javaFieldType = "char";
+                if (arraySize == null) {
+                    this.readFields.print(fieldName).print(" = (char)theStream.readUnsignedShort(JBBPByteOrder.").print(byteOrder.name()).println(");");
+                } else {
+                    this.readFields.print(fieldName).print(" = theStream.readUShortArray(").print(arraySize).print(",JBBPByteOrder.").print(byteOrder.name()).println(");");
+                }
+            }
+            break;
             case JBBPCompiler.CODE_SHORT: {
                 javaFieldType = "short";
                 if (arraySize == null) {
