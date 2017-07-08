@@ -128,6 +128,7 @@ public abstract class AbstractCompiledBlockConverter<T extends AbstractCompiledB
                 }
                 break;
                 case JBBPCompiler.CODE_STRUCT_END: {
+                    JBBPUtils.unpackInt(compiledData, positionAtCompiledBlock);
                     onStructEnd(theOffset, name);
                 }
                 break;

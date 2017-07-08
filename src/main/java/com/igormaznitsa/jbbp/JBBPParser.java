@@ -19,6 +19,7 @@ import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiler;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
+import com.igormaznitsa.jbbp.compiler.utils.converter.ConverterToJavaClassSrc;
 import com.igormaznitsa.jbbp.compiler.varlen.JBBPIntegerValueEvaluator;
 import com.igormaznitsa.jbbp.exceptions.JBBPParsingException;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
@@ -627,5 +628,16 @@ public final class JBBPParser {
      */
     public JBBPCompiledBlock getCompiledBlock() {
         return this.compiledBlock;
+    }
+
+    /**
+     * Generate java class sources for the parser.
+     * @param classPackage package for the new generated class, must not be null
+     * @param className class name of the new generated class, must not be null
+     * @return generated sources of class file
+     * @since 1.3
+     */
+    public String makeClassSrc(final String classPackage, final String className) {
+        return new ConverterToJavaClassSrc(classPackage,className,this).process().getResult();
     }
 }
