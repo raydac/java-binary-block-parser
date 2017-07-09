@@ -492,7 +492,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
                         }
                         return "this."+raw;
                     } else {
-                        return fieldPath;
+                        return ROOT_STRUCT_NAME+'.'+fieldPath;
                     }
                 }
                 throw new Error("Unexpected object : " + obj);
