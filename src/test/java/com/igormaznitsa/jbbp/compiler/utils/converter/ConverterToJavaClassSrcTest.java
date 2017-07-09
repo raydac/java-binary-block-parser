@@ -66,9 +66,7 @@ public class ConverterToJavaClassSrcTest extends AbstractJavaClassCompilerTest {
         final ClassLoader cloader = saveAndCompile(new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, classSrc));
     }
 
-
     @Test
-    @Ignore("under development")
     public void testPngParsing() throws Exception {
         final JBBPParser pngParser = JBBPParser.prepare(
                 "long header;"

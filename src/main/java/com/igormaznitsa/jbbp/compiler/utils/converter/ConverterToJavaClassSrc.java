@@ -64,8 +64,6 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
         }
 
         public String asJavaType() {
-//            JBBPBitOutputStream j;
-//            j.
             return this.javaType;
         }
 
@@ -117,14 +115,26 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
         private final TextBuffer fields = new TextBuffer();
         private final TextBuffer readFunc = new TextBuffer();
         private final TextBuffer writeFunc = new TextBuffer();
+        private final JBBPNamedFieldInfo fieldInfo;
+        private final String path;
 
-        private Struct(final Struct parent, final String className, final String classModifiers) {
+        private Struct(final JBBPNamedFieldInfo fieldInfo, final Struct parent, final String className, final String classModifiers) {
+            this.path = parent == null ? "" : parent.path + (parent.path.isEmpty() ? "" : ".") + className.toLowerCase(Locale.ENGLISH);
+            this.fieldInfo = fieldInfo;
             this.classModifiers = classModifiers;
             this.className = className;
             this.parent = parent;
             if (this.parent != null) {
                 this.parent.children.add(this);
             }
+        }
+
+        public String getPath() {
+            return this.path;
+        }
+
+        public JBBPNamedFieldInfo getNamedFieldInfo() {
+            return this.fieldInfo;
         }
 
         public Struct findRoot() {
@@ -169,7 +179,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
 
             buffer.println();
 
-            buffer.indent().println(String.format("public %s read(JBBPBitInputStream in) throws IOException {", this.className));
+            buffer.indent().println(String.format("public %s read(final JBBPBitInputStream in) throws IOException {", this.className));
             buffer.incIndent();
             buffer.printLinesWithIndent(this.readFunc.toString());
             buffer.indent().println("return this;");
@@ -178,7 +188,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
 
             buffer.println();
 
-            buffer.indent().println(String.format("public %s write(JBBPBitOutputStream out) throws IOException {", this.className));
+            buffer.indent().println(String.format("public %s write(final JBBPBitOutputStream out) throws IOException {", this.className));
             buffer.incIndent();
             buffer.printLinesWithIndent(this.writeFunc.toString());
             buffer.indent().println("return this;");
@@ -236,7 +246,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
         this.anonymousFieldCounter.set(1234);
         this.structStack.clear();
 
-        this.structStack.add(new Struct(null, className, "public"));
+        this.structStack.add(new Struct(null, null, className, "public"));
     }
 
     public String getResult() {
@@ -267,7 +277,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
         final String structName = (nullableNameFieldInfo == null ? makeAnonymousStructName() : nullableNameFieldInfo.getFieldName()).toLowerCase(Locale.ENGLISH);
         final String structType = structName.toUpperCase(Locale.ENGLISH);
         final String arraySize = nullableArraySize == null ? null : evaluatorToString(offsetInCompiledBlock, nullableArraySize, this.detectedExternalFieldsInEvaluator);
-        final Struct newStruct = new Struct(this.getCurrentStruct(), structType, "public static");
+        final Struct newStruct = new Struct(nullableNameFieldInfo, this.getCurrentStruct(), structType, "public static");
 
         final String fieldModifier;
         if (nullableNameFieldInfo == null) {
@@ -287,7 +297,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
 
             if ("-1".equals(arraySize)) {
                 this.getCurrentStruct().getReadFunc().indent()
-                        .println(String.format("List<%3$s> __%1$s_tmplst__ = new ArrayList<%3$s>(); while (in.hasAvailableData()){ __%1$s_tmplst__.add(new %3$s(%4$s).read(in));} this.%1$s = __%1$s_tmplst__.toArray(new %3$s[%1$s_lst.size()]);__%1$s_tmplst__ = null;", structName, arraySize, structType, (this.structStack.size() == 1 ? "this" : ROOT_STRUCT_NAME)));
+                        .println(String.format("List<%3$s> __%1$s_tmplst__ = new ArrayList<%3$s>(); while (in.hasAvailableData()){ __%1$s_tmplst__.add(new %3$s(%4$s).read(in));} this.%1$s = __%1$s_tmplst__.toArray(new %3$s[__%1$s_tmplst__.size()]);__%1$s_tmplst__ = null;", structName, arraySize, structType, (this.structStack.size() == 1 ? "this" : ROOT_STRUCT_NAME)));
             } else {
                 this.getCurrentStruct().getReadFunc().indent()
                         .print("if (").print(String.format("this.%1$s == null || this.%1$s.length != %2$s){ this.%1$s = new %3$s[%2$s]; for(int i=0;i<%2$s;i++){ this.%1$s[i] = new %3$s(%4$s);}}", structName, arraySize, structType, (this.structStack.size() == 1 ? "this" : "this." + ROOT_STRUCT_NAME)))
@@ -473,7 +483,17 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
                 } else if (obj instanceof String) {
                     return "this.getValueForName(\"" + obj.toString() + "\")";
                 } else if (obj instanceof JBBPNamedFieldInfo) {
-                    return ((JBBPNamedFieldInfo) obj).getFieldPath();
+                    final String pathToCurrentStruct = getCurrentStruct().getPath();
+                    final String fieldPath = ((JBBPNamedFieldInfo) obj).getFieldPath();
+                    if (fieldPath.startsWith(pathToCurrentStruct)) {
+                        String raw = fieldPath.substring(pathToCurrentStruct.length());
+                        if (raw.startsWith(".")) {
+                            raw = raw.substring(1);
+                        }
+                        return "this."+raw;
+                    } else {
+                        return fieldPath;
+                    }
                 }
                 throw new Error("Unexpected object : " + obj);
             }
