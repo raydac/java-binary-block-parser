@@ -16,6 +16,7 @@
 package com.igormaznitsa.jbbp.compiler.utils.converter;
 
 import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
+import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiler;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
@@ -34,6 +35,10 @@ public abstract class AbstractCompiledBlockConverter<T extends AbstractCompiledB
     public AbstractCompiledBlockConverter(final int parserFlags, final JBBPCompiledBlock notNullCompiledBlock) {
         this.parserFlags = parserFlags;
         this.compiledBlock = notNullCompiledBlock;
+    }
+
+    protected boolean isFlagSkipRemainingFieldsIfEOF(){
+        return (this.parserFlags & JBBPParser.FLAG_SKIP_REMAINING_FIELDS_IF_EOF) != 0;
     }
 
     @SuppressWarnings("unchecked")

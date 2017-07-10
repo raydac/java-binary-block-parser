@@ -288,13 +288,14 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
 
         if (arraySize == null) {
             this.getCurrentStruct().getFields().indent().print(fieldModifier).print(" %s %s;", structType, structName).println();
+            processSkipRemainingFlag();
             this.getCurrentStruct().getReadFunc().indent()
                     .print(String.format("if ( this.%1$s == null) { this.%1$s = new %2$s(%3$s);}", structName, structType, this.structStack.size() == 1 ? "this" : "this." + ROOT_STRUCT_NAME))
                     .println(String.format(" this.%s.read(in);", structName));
             this.getCurrentStruct().getWriteFunc().indent().print(structName).println(".write(out);");
         } else {
             this.getCurrentStruct().getFields().indent().print(fieldModifier).print(" %s [] %s;", structType, structName).println();
-
+            processSkipRemainingFlag();
             if ("-1".equals(arraySize)) {
                 this.getCurrentStruct().getReadFunc().indent()
                         .println(String.format("List<%3$s> __%1$s_tmplst__ = new ArrayList<%3$s>(); while (in.hasAvailableData()){ __%1$s_tmplst__.add(new %3$s(%4$s).read(in));} this.%1$s = __%1$s_tmplst__.toArray(new %3$s[__%1$s_tmplst__.size()]);__%1$s_tmplst__ = null;", structName, arraySize, structType, (this.structStack.size() == 1 ? "this" : ROOT_STRUCT_NAME)));
@@ -307,6 +308,12 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
 
 
         this.structStack.add(0, newStruct);
+    }
+
+    private void processSkipRemainingFlag(){
+        if (this.isFlagSkipRemainingFieldsIfEOF()){
+            this.getCurrentStruct().getReadFunc().indent().println("if (!in.hasAvailableData()) return this;");
+        }
     }
 
     @Override
@@ -329,6 +336,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
             fieldModifier = "public";
         }
 
+        processSkipRemainingFlag();
         if (nullableArraySize == null) {
             getCurrentStruct().getFields().println(String.format("%s %s %s;", fieldModifier, type.asJavaType(), fieldName));
             getCurrentStruct().getReadFunc().println(String.format("this.%s = %s;", fieldName, type.makeReaderForSingleField("in", byteOrder)));
@@ -365,6 +373,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
             fieldModifier = "public ";
         }
 
+        processSkipRemainingFlag();
         if (arraySize == null) {
             getCurrentStruct().getReadFunc().indent().println(String.format("this.%s = in.readBitField(%s);", fieldName, sizeOfField));
             getCurrentStruct().getWriteFunc().indent().println(String.format("out.writeBits(this.%s,%s);", fieldName, sizeOfField));
@@ -492,7 +501,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
                         }
                         return "this."+raw;
                     } else {
-                        return ROOT_STRUCT_NAME+'.'+fieldPath;
+                        return "this."+ROOT_STRUCT_NAME+'.'+fieldPath;
                     }
                 }
                 throw new Error("Unexpected object : " + obj);
