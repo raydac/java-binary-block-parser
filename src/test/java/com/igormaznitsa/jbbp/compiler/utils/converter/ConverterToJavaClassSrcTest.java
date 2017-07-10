@@ -67,6 +67,14 @@ public class ConverterToJavaClassSrcTest extends AbstractJavaClassCompilerTest {
     }
 
     @Test
+    public void testPrimitiveArrayInsideStructArray() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare("ubyte len; {ubyte[len];} ubyte [_] rest;");
+        final String classSrc = parser.makeClassSrc(PACKAGE_NAME, CLASS_NAME);
+        System.out.println(classSrc);
+        final ClassLoader cloader = saveAndCompile(new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, classSrc));
+    }
+
+    @Test
     public void testPngParsing() throws Exception {
         final JBBPParser pngParser = JBBPParser.prepare(
                 "long header;"
