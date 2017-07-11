@@ -16,10 +16,18 @@
 
 package com.igormaznitsa.jbbp.compiler.utils.converter;
 
+import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.JBBPParser;
+import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
+import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
+import com.igormaznitsa.jbbp.io.JBBPBitOrder;
+import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.testaux.AbstractJavaClassCompilerTest;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import java.io.IOException;
 
 public class ConverterToJavaClassSrcTest extends AbstractJavaClassCompilerTest {
 
@@ -69,6 +77,31 @@ public class ConverterToJavaClassSrcTest extends AbstractJavaClassCompilerTest {
     @Test
     public void testPrimitiveArrayInsideStructArray() throws Exception {
         final JBBPParser parser = JBBPParser.prepare("ubyte len; {ubyte[len];} ubyte [_] rest;");
+        final String classSrc = parser.makeClassSrc(PACKAGE_NAME, CLASS_NAME);
+        System.out.println(classSrc);
+        final ClassLoader cloader = saveAndCompile(new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, classSrc));
+    }
+
+    @Test
+    @Ignore("under construction")
+    public void testCustomType() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare("some alpha;", new JBBPCustomFieldTypeProcessor() {
+            @Override
+            public String[] getCustomFieldTypes() {
+                return new String[]{"some"};
+            }
+
+            @Override
+            public boolean isAllowed(JBBPFieldTypeParameterContainer fieldType, String fieldName, int extraData, boolean isArray) {
+                return true;
+            }
+
+            @Override
+            public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer customTypeFieldInfo, JBBPNamedFieldInfo fieldName, int extraData, boolean readWholeStream, int arrayLength) throws IOException {
+                return null;
+            }
+        });
+
         final String classSrc = parser.makeClassSrc(PACKAGE_NAME, CLASS_NAME);
         System.out.println(classSrc);
         final ClassLoader cloader = saveAndCompile(new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, classSrc));

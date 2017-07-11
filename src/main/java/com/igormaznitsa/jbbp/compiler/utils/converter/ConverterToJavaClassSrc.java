@@ -37,13 +37,13 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
     private static final String ROOT_STRUCT_NAME = "__root_struct_1975__";
 
     private enum PrimitiveType {
-        BOOL(CODE_BOOL, false, "boolean", "%s.readBoolean()", "%s.readBoolArray(%s)", "%s.write(%s ? 1 : 0)", "for(int i=0;i<%3$s;i++){%1$s.write(%2$s[i] ? 1 : 0);}", "for(int i=0;i<%2$s.length;i++){%1$s.write(%2$s[i] ? 1 : 0);}"),
-        BYTE(CODE_BYTE, false, "byte", "(byte)%s.readByte()", "%s.readByteArray(%s)", "%s.write(%s)", "for(int i=0;i<%3$s;i++){%1$s.write(%2$s[i]);}", "for(int i=0;i<%2$s.length;i++){%1$s.write(%2$s[i]);}"),
-        UBYTE(CODE_UBYTE, false, "byte", "(byte)%s.readByte()", "%s.readByteArray(%s)", "%s.write(%s)", "for(int i=0;i<%3$s;i++){%1$s.write(%2$s[i] & 0xFF);}", "for(int i=0;i<%2$s.length;i++){%1$s.write(%2$s[i] & 0xFF);}"),
-        SHORT(CODE_SHORT, true, "short", "(short)%s.readUnsignedShort(%s)", "%s.readShortArray(%s,%s)", "%s.writeShort(%s,%s)", "for(int i=0;i<%3$s;i++){%1$s.writeShort(%2$s[i],%4$s);}", "for(int i=0;i<%2$s.length;i++){%1$s.writeShort(%2$s[i],%3$s);}"),
-        USHORT(CODE_USHORT, true, "char", "(char)%s.readUnsignedShort(%s)", "%s.readUShortArray(%s,%s)", "%s.writeShort(%s,%s)", "for(int i=0;i<%3$s;i++){%1$s.writeShort(%2$s[i],%4$s);}", "for(int i=0;i<%2$s.length;i++){%1$s.writeShort(%2$s[i],%3$s);}"),
-        INT(CODE_INT, true, "int", "%s.readInt(%s)", "%s.readIntArray(%s,%s)", "%s.writeInt(%s,%s)", "for(int i=0;i<%3$s;i++){%1$s.writeInt(%2$s[i],%4$s);}", "for(int i=0;i<%2$s.length;i++){%1$s.writeInt(%2$s[i],%3$s);}"),
-        LONG(CODE_LONG, true, "long", "%s.readLong(%s)", "%s.readLongArray(%s,%s)", "%s.writeLong(%s,%s)", "for(int i=0;i<%3$s;i++){%1$s.writeLong(%2$s[i],%4$s);}", "for(int i=0;i<%2$s.length;i++){%1$s.writeLong(%2$s[i],%3$s);}");
+        BOOL(CODE_BOOL, false, "boolean", "%s.readBoolean()", "%s.readBoolArray(%s)", "%s.write(%s ? 1 : 0)", "for(int I=0;I<%3$s;I++){%1$s.write(%2$s[I] ? 1 : 0);}", "for(int I=0;I<%2$s.length;I++){%1$s.write(%2$s[I] ? 1 : 0);}"),
+        BYTE(CODE_BYTE, false, "byte", "(byte)%s.readByte()", "%s.readByteArray(%s)", "%s.write(%s)", "for(int I=0;I<%3$s;I++){%1$s.write(%2$s[I]);}", "for(int I=0;I<%2$s.length;I++){%1$s.write(%2$s[I]);}"),
+        UBYTE(CODE_UBYTE, false, "byte", "(byte)%s.readByte()", "%s.readByteArray(%s)", "%s.write(%s)", "for(int I=0;I<%3$s;I++){%1$s.write(%2$s[I] & 0xFF);}", "for(int I=0;I<%2$s.length;I++){%1$s.write(%2$s[I] & 0xFF);}"),
+        SHORT(CODE_SHORT, true, "short", "(short)%s.readUnsignedShort(%s)", "%s.readShortArray(%s,%s)", "%s.writeShort(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeShort(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeShort(%2$s[I],%3$s);}"),
+        USHORT(CODE_USHORT, true, "char", "(char)%s.readUnsignedShort(%s)", "%s.readUShortArray(%s,%s)", "%s.writeShort(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeShort(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeShort(%2$s[I],%3$s);}"),
+        INT(CODE_INT, true, "int", "%s.readInt(%s)", "%s.readIntArray(%s,%s)", "%s.writeInt(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeInt(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeInt(%2$s[I],%3$s);}"),
+        LONG(CODE_LONG, true, "long", "%s.readLong(%s)", "%s.readLongArray(%s,%s)", "%s.writeLong(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeLong(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeLong(%2$s[I],%3$s);}");
 
         private final int code;
         private final String javaType;
@@ -164,8 +164,8 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
             return this.parent;
         }
 
-        public void write(final TextBuffer buffer, final String commonSectionText) {
-            buffer.indent().print(this.classModifiers).print(" class ").print(this.className).println(" {");
+        public void write(final TextBuffer buffer, final String extraModifier, final String commonSectionText) {
+            buffer.indent().println(String.format("%s%sclass %s {",this.classModifiers, extraModifier == null ? " " : ' '+extraModifier+' ', this.className));
             buffer.incIndent();
 
             if (this.parent == null) {
@@ -173,7 +173,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
             }
 
             for (final Struct c : this.children) {
-                c.write(buffer, null);
+                c.write(buffer, null, null);
             }
             buffer.println();
 
@@ -197,7 +197,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
 
             buffer.println();
 
-            buffer.indent().println(String.format("public %s read(final JBBPBitInputStream in) throws IOException {", this.className));
+            buffer.indent().println(String.format("public %s read(final JBBPBitInputStream In) throws IOException {", this.className));
             buffer.incIndent();
             buffer.printLinesWithIndent(this.readFunc.toString());
             buffer.indent().println("return this;");
@@ -206,7 +206,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
 
             buffer.println();
 
-            buffer.indent().println(String.format("public %s write(final JBBPBitOutputStream out) throws IOException {", this.className));
+            buffer.indent().println(String.format("public %s write(final JBBPBitOutputStream Out) throws IOException {", this.className));
             buffer.incIndent();
             buffer.printLinesWithIndent(this.writeFunc.toString());
             buffer.indent().println("return this;");
@@ -285,12 +285,15 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
 
         buffer.println("import com.igormaznitsa.jbbp.model.*;");
         buffer.println("import com.igormaznitsa.jbbp.io.*;");
+        buffer.println("import com.igormaznitsa.jbbp.compiler.*;");
+        buffer.println("import com.igormaznitsa.jbbp.compiler.tokenizer.*;");
         buffer.println("import java.io.IOException;");
         buffer.println("import java.util.*;");
 
         buffer.println();
 
-        this.structStack.get(0).write(buffer, this.specialSection.toString());
+        this.structStack.get(0).write(buffer, null, this.specialSection.toString());
+
         this.result = buffer.toString();
     }
 
@@ -298,7 +301,8 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
     public void onStructStart(final int offsetInCompiledBlock, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPIntegerValueEvaluator nullableArraySize) {
         final String structName = (nullableNameFieldInfo == null ? makeAnonymousStructName() : nullableNameFieldInfo.getFieldName()).toLowerCase(Locale.ENGLISH);
         final String structType = structName.toUpperCase(Locale.ENGLISH);
-        final String arraySize = nullableArraySize == null ? null : evaluatorToString(offsetInCompiledBlock, nullableArraySize, this.detectedExternalFieldsInEvaluator);
+        final String arraySizeIn = nullableArraySize == null ? null : evaluatorToString("In", offsetInCompiledBlock, nullableArraySize, this.detectedExternalFieldsInEvaluator);
+        final String arraySizeOut = nullableArraySize == null ? null : evaluatorToString("Out", offsetInCompiledBlock, nullableArraySize, this.detectedExternalFieldsInEvaluator);
         final Struct newStruct = new Struct(nullableNameFieldInfo, this.getCurrentStruct(), structType, "public static");
 
         final String fieldModifier;
@@ -308,23 +312,25 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
             fieldModifier = "public";
         }
 
-        if (arraySize == null) {
+        if (nullableArraySize == null) {
             this.getCurrentStruct().getFields().indent().print(fieldModifier).print(" %s %s;", structType, structName).println();
             processSkipRemainingFlag();
             this.getCurrentStruct().getReadFunc().indent()
                     .print(String.format("if ( this.%1$s == null) { this.%1$s = new %2$s(%3$s);}", structName, structType, this.structStack.size() == 1 ? "this" : "this." + ROOT_STRUCT_NAME))
-                    .println(String.format(" this.%s.read(in);", structName));
-            this.getCurrentStruct().getWriteFunc().indent().print(structName).println(".write(out);");
+                    .println(String.format(" this.%s.read(In);", structName));
+            this.getCurrentStruct().getWriteFunc().indent().print(structName).println(".write(Out);");
         } else {
             this.getCurrentStruct().getFields().indent().print(fieldModifier).print(" %s [] %s;", structType, structName).println();
             processSkipRemainingFlag();
-            if ("-1".equals(arraySize)) {
+            if ("-1".equals(arraySizeIn)) {
                 this.getCurrentStruct().getReadFunc().indent()
-                        .println(String.format("List<%3$s> __%1$s_tmplst__ = new ArrayList<%3$s>(); while (in.hasAvailableData()){ __%1$s_tmplst__.add(new %3$s(%4$s).read(in));} this.%1$s = __%1$s_tmplst__.toArray(new %3$s[__%1$s_tmplst__.size()]);__%1$s_tmplst__ = null;", structName, arraySize, structType, (this.structStack.size() == 1 ? "this" : ROOT_STRUCT_NAME)));
+                        .println(String.format("List<%3$s> __%1$s_tmplst__ = new ArrayList<%3$s>(); while (In.hasAvailableData()){ __%1$s_tmplst__.add(new %3$s(%4$s).read(In));} this.%1$s = __%1$s_tmplst__.toArray(new %3$s[__%1$s_tmplst__.size()]);__%1$s_tmplst__ = null;", structName, arraySizeIn, structType, (this.structStack.size() == 1 ? "this" : ROOT_STRUCT_NAME)));
+                this.getCurrentStruct().getWriteFunc().indent().print(String.format("for (int I=0;I<this.%1$s.length;I++){ this.%1$s[I].write(Out); }",structName));
             } else {
                 this.getCurrentStruct().getReadFunc().indent()
-                        .print("if (").print(String.format("this.%1$s == null || this.%1$s.length != %2$s){ this.%1$s = new %3$s[%2$s]; for(int i=0;i<%2$s;i++){ this.%1$s[i] = new %3$s(%4$s);}}", structName, arraySize, structType, (this.structStack.size() == 1 ? "this" : "this." + ROOT_STRUCT_NAME)))
-                        .println(String.format("for (int i=0;i<%2$s;i++){ this.%1$s[i].read(in); }", structName, arraySize));
+                        .print("if (").print(String.format("this.%1$s == null || this.%1$s.length != %2$s){ this.%1$s = new %3$s[%2$s]; for(int I=0;I<%2$s;I++){ this.%1$s[I] = new %3$s(%4$s);}}", structName, arraySizeIn, structType, (this.structStack.size() == 1 ? "this" : "this." + ROOT_STRUCT_NAME)))
+                        .println(String.format("for (int I=0;I<%2$s;I++){ this.%1$s[I].read(in); }", structName, arraySizeIn));
+                this.getCurrentStruct().getWriteFunc().indent().print(String.format("for (int I=0;I<%2$s;I++){ this.%1$s[I].write(Out); }",structName, arraySizeOut));
             }
         }
 
@@ -347,7 +353,8 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
     public void onPrimitive(final int offsetInCompiledBlock, final int primitiveType, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPByteOrder byteOrder, final JBBPIntegerValueEvaluator nullableArraySize) {
         final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() : nullableNameFieldInfo.getFieldName();
 
-        final String arraySize = nullableArraySize == null ? null : evaluatorToString(offsetInCompiledBlock, nullableArraySize, this.detectedExternalFieldsInEvaluator);
+        final String arraySizeIn = nullableArraySize == null ? null : evaluatorToString("In", offsetInCompiledBlock, nullableArraySize, this.detectedExternalFieldsInEvaluator);
+        final String arraySizeOut = nullableArraySize == null ? null : evaluatorToString("Out", offsetInCompiledBlock, nullableArraySize, this.detectedExternalFieldsInEvaluator);
 
         final PrimitiveType type = PrimitiveType.findForCode(primitiveType);
 
@@ -361,15 +368,15 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
         processSkipRemainingFlag();
         if (nullableArraySize == null) {
             getCurrentStruct().getFields().println(String.format("%s %s %s;", fieldModifier, type.asJavaType(), fieldName));
-            getCurrentStruct().getReadFunc().println(String.format("this.%s = %s;", fieldName, type.makeReaderForSingleField("in", byteOrder)));
-            getCurrentStruct().getWriteFunc().print(type.makeWriterForSingleField("out", "this." + fieldName, byteOrder)).println(";");
+            getCurrentStruct().getReadFunc().println(String.format("this.%s = %s;", fieldName, type.makeReaderForSingleField("In", byteOrder)));
+            getCurrentStruct().getWriteFunc().print(type.makeWriterForSingleField("Out", "this." + fieldName, byteOrder)).println(";");
         } else {
             getCurrentStruct().getFields().println(String.format("%s %s [] %s;", fieldModifier, type.asJavaType(), fieldName));
-            getCurrentStruct().getReadFunc().println(String.format("this.%s = %s;", fieldName, type.makeReaderForArray("in", arraySize, byteOrder)));
-            if ("-1".equals(arraySize)) {
-                getCurrentStruct().getWriteFunc().print(type.makeWriterForArrayWithUnknownSize("out", "this." + fieldName, byteOrder)).println(";");
+            getCurrentStruct().getReadFunc().println(String.format("this.%s = %s;", fieldName, type.makeReaderForArray("In", arraySizeIn, byteOrder)));
+            if ("-1".equals(arraySizeOut)) {
+                getCurrentStruct().getWriteFunc().print(type.makeWriterForArrayWithUnknownSize("Out", "this." + fieldName, byteOrder)).println(";");
             } else {
-                getCurrentStruct().getWriteFunc().print(type.makeWriterForArray("out", "this." + fieldName, arraySize, byteOrder)).println(";");
+                getCurrentStruct().getWriteFunc().print(type.makeWriterForArray("Out", "this." + fieldName, arraySizeOut, byteOrder)).println(";");
             }
         }
     }
@@ -379,14 +386,22 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
         final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() : nullableNameFieldInfo.getFieldName();
         final String javaFieldType = "byte";
 
-        String sizeOfField = evaluatorToString(offsetInCompiledBlock, notNullFieldSize, this.detectedExternalFieldsInEvaluator);
+        String sizeOfFieldIn = evaluatorToString("In",offsetInCompiledBlock, notNullFieldSize, this.detectedExternalFieldsInEvaluator);
+        String sizeOfFieldOut = evaluatorToString("Out",offsetInCompiledBlock, notNullFieldSize, this.detectedExternalFieldsInEvaluator);
         try {
-            sizeOfField = "JBBPBitNumber." + JBBPBitNumber.decode(Integer.parseInt(sizeOfField)).name();
+            sizeOfFieldIn = "JBBPBitNumber." + JBBPBitNumber.decode(Integer.parseInt(sizeOfFieldIn)).name();
         } catch (NumberFormatException ex) {
-            sizeOfField = "JBBPBitNumber.decode(" + sizeOfField + ')';
+            sizeOfFieldIn = "JBBPBitNumber.decode(" + sizeOfFieldIn + ')';
         }
 
-        final String arraySize = nullableArraySize == null ? null : evaluatorToString(offsetInCompiledBlock, nullableArraySize, this.detectedExternalFieldsInEvaluator);
+        try {
+            sizeOfFieldOut = "JBBPBitNumber." + JBBPBitNumber.decode(Integer.parseInt(sizeOfFieldOut)).name();
+        } catch (NumberFormatException ex) {
+            sizeOfFieldOut = "JBBPBitNumber.decode(" + sizeOfFieldOut + ')';
+        }
+
+        final String arraySizeIn = nullableArraySize == null ? null : evaluatorToString("In", offsetInCompiledBlock, nullableArraySize, this.detectedExternalFieldsInEvaluator);
+        final String arraySizeOut = nullableArraySize == null ? null : evaluatorToString("Out", offsetInCompiledBlock, nullableArraySize, this.detectedExternalFieldsInEvaluator);
 
         final String fieldModifier;
         if (nullableNameFieldInfo == null) {
@@ -396,15 +411,20 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
         }
 
         processSkipRemainingFlag();
-        if (arraySize == null) {
-            getCurrentStruct().getReadFunc().indent().println(String.format("this.%s = in.readBitField(%s);", fieldName, sizeOfField));
-            getCurrentStruct().getWriteFunc().indent().println(String.format("out.writeBits(this.%s,%s);", fieldName, sizeOfField));
+
+        if (arraySizeIn == null) {
+            getCurrentStruct().getReadFunc().indent().println(String.format("this.%s = In.readBitField(%s);", fieldName, sizeOfFieldIn));
         } else {
-            getCurrentStruct().getReadFunc().indent().print(fieldName).print(" = in.readBitsArray(").print(arraySize).print(",").print(sizeOfField).println(");");
-            if ("-1".equals(arraySize)) {
-                getCurrentStruct().getWriteFunc().indent().print("for(int i=0;i<").print(fieldName).print(".length").print(";i++)").println(String.format(" out.writeBits(this.%s[i],%s);", fieldName, sizeOfField));
+            getCurrentStruct().getReadFunc().indent().print(fieldName).print(" = In.readBitsArray(").print(arraySizeIn).print(",").print(sizeOfFieldIn).println(");");
+        }
+
+        if (arraySizeOut == null) {
+            getCurrentStruct().getWriteFunc().indent().println(String.format("Out.writeBits(this.%s,%s);", fieldName, sizeOfFieldOut));
+        } else {
+            if ("-1".equals(arraySizeIn)) {
+                getCurrentStruct().getWriteFunc().indent().print("for(int I=0; I<").print(fieldName).print(".length").print(";I++)").println(String.format(" Out.writeBits(this.%s[I],%s);", fieldName, sizeOfFieldOut));
             } else {
-                getCurrentStruct().getWriteFunc().indent().print("for(int i=0;i<").print(arraySize).print(";i++)").println(String.format(" out.writeBits(this.%s[i],%s);", fieldName, sizeOfField));
+                getCurrentStruct().getWriteFunc().indent().print("for(int I=0; I<").print(arraySizeOut).print("; I++)").println(String.format(" Out.writeBits(this.%s[I],%s);", fieldName, sizeOfFieldOut));
             }
         }
 
@@ -412,15 +432,15 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
     }
 
     private String makeAnonymousFieldName() {
-        return "_anoField" + this.anonymousFieldCounter.getAndIncrement();
+        return "_AnoField" + this.anonymousFieldCounter.getAndIncrement();
     }
 
     private String makeSpecialFieldName() {
-        return "_specField" + this.specialFieldsCounter.getAndIncrement();
+        return "_SpecField" + this.specialFieldsCounter.getAndIncrement();
     }
 
     private String makeAnonymousStructName() {
-        return "_anoStruct" + this.anonymousFieldCounter.getAndIncrement();
+        return "_AnoStruct" + this.anonymousFieldCounter.getAndIncrement();
     }
 
     @Override
@@ -431,9 +451,9 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
         final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() : nullableNameFieldInfo.getFieldName();
         final String fieldModifier;
         if (nullableNameFieldInfo == null) {
-            fieldModifier = "protected ";
+            fieldModifier = "protected";
         } else {
-            fieldModifier = "public ";
+            fieldModifier = "public";
         }
 
         final String specialFieldName = makeSpecialFieldName();
@@ -452,46 +472,43 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
 
         this.specialSection.println(String.format("private static final JBBPFieldTypeParameterContainer %s = %s;",
                 specialFieldName_typeParameterContainer,
-                "new JBBPFieldTypeParameterContainer(JBBPByteOrder." + notNullfieldType.getByteOrder().name() + "," + notNullfieldType.getTypeName() + "," + notNullfieldType.getExtraData() + ")"
+                "new JBBPFieldTypeParameterContainer(JBBPByteOrder." + notNullfieldType.getByteOrder().name() + ",\"" + notNullfieldType.getTypeName() + "\"," + notNullfieldType.getExtraData() + ")"
         ));
 
         processSkipRemainingFlag();
         this.getCurrentStruct().getReadFunc().println(String.format("%s = %s;",
                 fieldName,
-                String.format("%s.readCustomFieldType(in, in.getBitOrder(), %d, %s, %s, %s, %b, %s);",
-                        this.getCurrentStruct().isRoot() ? "this." : "this." + ROOT_STRUCT_NAME,
+                String.format("%s.readCustomFieldType(In, In.getBitOrder(), %d, %s, %s, %s, %b, %s);",
+                        this.getCurrentStruct().isRoot() ? "this" : "this." + ROOT_STRUCT_NAME,
                         this.parserFlags,
                         specialFieldName_typeParameterContainer,
                         nullableNameFieldInfo == null ? "null" : specialFieldName_fieldNameInfo,
-                        extraDataValueEvaluator == null ? "0" : evaluatorToString(offsetInCompiledBlock, extraDataValueEvaluator, this.detectedExternalFieldsInEvaluator),
+                        extraDataValueEvaluator == null ? "0" : evaluatorToString("In", offsetInCompiledBlock, extraDataValueEvaluator, this.detectedExternalFieldsInEvaluator),
                         readWholeStream,
-                        nullableArraySizeEvaluator == null ? "-1" : evaluatorToString(offsetInCompiledBlock, nullableArraySizeEvaluator, this.detectedExternalFieldsInEvaluator)
+                        nullableArraySizeEvaluator == null ? "-1" : evaluatorToString("In", offsetInCompiledBlock, nullableArraySizeEvaluator, this.detectedExternalFieldsInEvaluator)
                 )
         ));
 
-
         this.getCurrentStruct().getWriteFunc().println(String.format("%s;",
-                String.format("%s.writeCustomFieldType(out, %s, %s, %s, %s, %s);",
-                        this.getCurrentStruct().isRoot() ? "this." : "this." + ROOT_STRUCT_NAME,
+                String.format("%s.writeCustomFieldType(Out, %s, %s, %s, %s, %s);",
+                        this.getCurrentStruct().isRoot() ? "this" : "this." + ROOT_STRUCT_NAME,
                         "this." + fieldName,
                         specialFieldName_typeParameterContainer,
                         nullableNameFieldInfo == null ? "null" : specialFieldName_fieldNameInfo,
-                        extraDataValueEvaluator == null ? "0" : evaluatorToString(offsetInCompiledBlock, extraDataValueEvaluator, this.detectedExternalFieldsInEvaluator),
-                        nullableArraySizeEvaluator == null ? "-1" : evaluatorToString(offsetInCompiledBlock, nullableArraySizeEvaluator, this.detectedExternalFieldsInEvaluator)
+                        extraDataValueEvaluator == null ? "0" : evaluatorToString("Out", offsetInCompiledBlock, extraDataValueEvaluator, this.detectedExternalFieldsInEvaluator),
+                        nullableArraySizeEvaluator == null ? "-1" : evaluatorToString("Out", offsetInCompiledBlock, nullableArraySizeEvaluator, this.detectedExternalFieldsInEvaluator)
                 )
         ));
-
-        this.getCurrentStruct().getWriteFunc().println(String.format("%s JBBPAbstractField %s;", fieldModifier, fieldName));
-    }
+   }
 
     @Override
     public void onVar(final int offsetInCompiledBlock, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPByteOrder byteOrder, final JBBPIntegerValueEvaluator nullableArraySize) {
         this.detectedVarFields.set(true);
-
+        //TODO to do
 
     }
 
-    private String evaluatorToString(final int offsetInBlock, final JBBPIntegerValueEvaluator evaluator, final AtomicBoolean detectedExternalField) {
+    private String evaluatorToString(final String streamName, final int offsetInBlock, final JBBPIntegerValueEvaluator evaluator, final AtomicBoolean detectedExternalField) {
         final StringBuilder buffer = new StringBuilder();
 
         detectedExternalField.set(false);
@@ -538,7 +555,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
                 if (obj instanceof Special) {
                     switch ((Special) obj) {
                         case STREAM_COUNTER:
-                            return "(int)theStream.getCounter()";
+                            return "(int)" + streamName + ".getCounter()";
                         default:
                             throw new Error("Unexpected special");
                     }
@@ -610,22 +627,23 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
 
     @Override
     public void onActionItem(final int offsetInCompiledBlock, final int actionType, final JBBPIntegerValueEvaluator nullableArgument) {
-        final String valueTxt = nullableArgument == null ? null : evaluatorToString(offsetInCompiledBlock, nullableArgument, this.detectedExternalFieldsInEvaluator);
+        final String valueTxtIn = nullableArgument == null ? null : evaluatorToString("In", offsetInCompiledBlock, nullableArgument, this.detectedExternalFieldsInEvaluator);
+        final String valueTxtOut = nullableArgument == null ? null : evaluatorToString("Out", offsetInCompiledBlock, nullableArgument, this.detectedExternalFieldsInEvaluator);
 
         switch (actionType) {
             case JBBPCompiler.CODE_RESET_COUNTER: {
-                getCurrentStruct().getReadFunc().println("in.resetCounter();");
-                getCurrentStruct().getWriteFunc().println("out.resetCounter();");
+                getCurrentStruct().getReadFunc().println("In.resetCounter();");
+                getCurrentStruct().getWriteFunc().println("Out.resetCounter();");
             }
             break;
             case JBBPCompiler.CODE_ALIGN: {
-                getCurrentStruct().getReadFunc().indent().print("in.align(").print(valueTxt).println(");");
-                getCurrentStruct().getWriteFunc().indent().print("out.align(").print(valueTxt).println(");");
+                getCurrentStruct().getReadFunc().indent().print("In.align(").print(valueTxtIn).println(");");
+                getCurrentStruct().getWriteFunc().indent().print("Out.align(").print(valueTxtOut).println(");");
             }
             break;
             case JBBPCompiler.CODE_SKIP: {
-                getCurrentStruct().getReadFunc().indent().print("in.skip(").print(valueTxt).println(");");
-                getCurrentStruct().getWriteFunc().indent().print("for(int i=0; i<").print(valueTxt).println(";i++) out.write(0);");
+                getCurrentStruct().getReadFunc().indent().print("In.skip(").print(valueTxtIn).println(");");
+                getCurrentStruct().getWriteFunc().indent().print("for(int I=0; I<").print(valueTxtOut).println(";I++) Out.write(0);");
             }
             break;
             default: {
