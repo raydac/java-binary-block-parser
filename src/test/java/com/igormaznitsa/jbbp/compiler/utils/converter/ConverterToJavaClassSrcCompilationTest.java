@@ -24,12 +24,11 @@ import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.testaux.AbstractJavaClassCompilerTest;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
 
-public class ConverterToJavaClassSrcTest extends AbstractJavaClassCompilerTest {
+public class ConverterToJavaClassSrcCompilationTest extends AbstractJavaClassCompilerTest {
 
     private static final String PACKAGE_NAME = "com.igormaznitsa.test";
     private static final String CLASS_NAME = "TestClass";
@@ -109,6 +108,14 @@ public class ConverterToJavaClassSrcTest extends AbstractJavaClassCompilerTest {
             }
         });
 
+        final String classSrc = parser.makeClassSrc(PACKAGE_NAME, CLASS_NAME);
+        System.out.println(classSrc);
+        final ClassLoader cloader = saveAndCompile(new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, classSrc));
+    }
+
+    @Test
+    public void testVarType() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare("var alpha; var [$$] beta;");
         final String classSrc = parser.makeClassSrc(PACKAGE_NAME, CLASS_NAME);
         System.out.println(classSrc);
         final ClassLoader cloader = saveAndCompile(new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, classSrc));

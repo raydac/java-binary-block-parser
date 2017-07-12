@@ -132,6 +132,7 @@ public abstract class AbstractCompiledBlockConverter<T extends AbstractCompiledB
                     onStructStart(theOffset, name, arraySizeEvaluator);
                 }
                 break;
+
                 case JBBPCompiler.CODE_STRUCT_END: {
                     JBBPUtils.unpackInt(compiledData, positionAtCompiledBlock);
                     onStructEnd(theOffset, name);
@@ -139,9 +140,11 @@ public abstract class AbstractCompiledBlockConverter<T extends AbstractCompiledB
                 break;
 
                 case JBBPCompiler.CODE_VAR: {
-                    onVar(theOffset, name, byteOrder, arraySizeEvaluator);
+                    final JBBPIntegerValueEvaluator extraDataValueEvaluator = extraFieldNumAsExpr ? extraFieldValueEvaluator : new IntegerConstantValueEvaluator(JBBPUtils.unpackInt(compiledData, positionAtCompiledBlock));
+                    onVar(theOffset, name, byteOrder, readWholeStream, arraySizeEvaluator, extraDataValueEvaluator);
                 }
                 break;
+
                 case JBBPCompiler.CODE_CUSTOMTYPE: {
                     final JBBPIntegerValueEvaluator extraDataValueEvaluator = extraFieldNumAsExpr ? extraFieldValueEvaluator : new IntegerConstantValueEvaluator(JBBPUtils.unpackInt(compiledData, positionAtCompiledBlock));
                     final JBBPFieldTypeParameterContainer fieldTypeInfo = this.compiledBlock.getCustomTypeFields()[JBBPUtils.unpackInt(compiledData, positionAtCompiledBlock)];
@@ -164,7 +167,7 @@ public abstract class AbstractCompiledBlockConverter<T extends AbstractCompiledB
     public void onPrimitive(int offsetInCompiledBlock, int primitiveType, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPByteOrder byteOrder, JBBPIntegerValueEvaluator nullableArraySize) {
     }
 
-    public void onVar(int offsetInCompiledBlock, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPByteOrder byteOrder, JBBPIntegerValueEvaluator nullableArraySize) {
+    public void onVar(int offsetInCompiledBlock, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPByteOrder byteOrder, boolean readWholeStreamIntoArray, JBBPIntegerValueEvaluator nullableArraySize,  JBBPIntegerValueEvaluator extraDataValueEvaluator) {
     }
 
     public void onCustom(int offsetInCompiledBlock, JBBPFieldTypeParameterContainer notNullfieldType, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPByteOrder byteOrder, boolean readWholeStream, JBBPIntegerValueEvaluator nullableArraySizeEvaluator, JBBPIntegerValueEvaluator extraDataValueEvaluator) {
