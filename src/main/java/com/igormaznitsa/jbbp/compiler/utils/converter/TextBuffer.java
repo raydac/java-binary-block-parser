@@ -78,6 +78,10 @@ public class TextBuffer {
         return this;
     }
 
+    public boolean isEmpty(){
+        return this.buffer.length() == 0;
+    }
+
     public TextBuffer println(final String text) {
         return this.print(text).println();
     }

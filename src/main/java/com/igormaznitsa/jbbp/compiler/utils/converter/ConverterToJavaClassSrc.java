@@ -34,7 +34,7 @@ import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.*;
 
 public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<ConverterToJavaClassSrc> {
 
-    private static final String ROOT_STRUCT_NAME = "__root_struct_1975__";
+    private static final String ROOT_STRUCT_NAME = "mainRootStruct";
 
     private enum PrimitiveType {
         BOOL(CODE_BOOL, false, "boolean", "%s.readBoolean()", "%s.readBoolArray(%s)", "%s.write(%s ? 1 : 0)", "for(int I=0;I<%3$s;I++){%1$s.write(%2$s[I] ? 1 : 0);}", "for(int I=0;I<%2$s.length;I++){%1$s.write(%2$s[I] ? 1 : 0);}"),
@@ -304,6 +304,13 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
             this.specialMethods.println("public abstract JBBPAbstractField readCustomFieldType(JBBPBitInputStream inStrean, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean readWholeStream, int arraySize);");
             this.specialMethods.println();
             this.specialMethods.println("public abstract void writeCustomFieldType(JBBPBitOutputStream outStream, JBBPAbstractField fieldValue, JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, int arraySize);");
+        }
+
+        if (this.detectedExternalFieldsInEvaluator.get()) {
+            if (!this.specialMethods.isEmpty()){
+                this.specialMethods.println();
+            }
+            this.specialMethods.println("public abstract int getNamedValueForExpression(Object callSource, String valueName);");
         }
 
         final String specialMethodsText = this.specialMethods.toString();
@@ -580,7 +587,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
                 } else if (obj instanceof Integer) {
                     return obj.toString();
                 } else if (obj instanceof String) {
-                    return "this.getValueForName(\"" + obj.toString() + "\")";
+                    return String.format("%s.getNamedValueForExpression(this, \"%s\")", (getCurrentStruct().isRoot() ?  "this" : "this."+ROOT_STRUCT_NAME), obj.toString());
                 } else if (obj instanceof JBBPNamedFieldInfo) {
                     final String pathToCurrentStruct = getCurrentStruct().getPath();
                     final String fieldPath = ((JBBPNamedFieldInfo) obj).getFieldPath();
