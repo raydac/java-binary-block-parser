@@ -83,7 +83,14 @@ public class ConverterToJavaClassSrcTest extends AbstractJavaClassCompilerTest {
     }
 
     @Test
-    @Ignore("under construction")
+    public void testExternalValueInExpression() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare("ubyte len; int [len*2+$ex] hello;");
+        final String classSrc = parser.makeClassSrc(PACKAGE_NAME, CLASS_NAME);
+        System.out.println(classSrc);
+        final ClassLoader cloader = saveAndCompile(new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, classSrc));
+    }
+
+    @Test
     public void testCustomType() throws Exception {
         final JBBPParser parser = JBBPParser.prepare("some alpha;", new JBBPCustomFieldTypeProcessor() {
             @Override

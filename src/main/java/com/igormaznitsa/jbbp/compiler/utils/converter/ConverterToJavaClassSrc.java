@@ -164,16 +164,16 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
             return this.parent;
         }
 
-        public void write(final TextBuffer buffer, final String extraModifier, final String commonSectionText) {
+        public void write(final TextBuffer buffer, final String extraModifier, final String commonSectionText, final String specialMethods) {
             buffer.indent().println(String.format("%s%sclass %s {",this.classModifiers, extraModifier == null ? " " : ' '+extraModifier+' ', this.className));
             buffer.incIndent();
 
-            if (this.parent == null) {
+            if (commonSectionText!=null) {
                 buffer.printLinesWithIndent(commonSectionText);
             }
 
             for (final Struct c : this.children) {
-                c.write(buffer, null, null);
+                c.write(buffer, null, null, null);
             }
             buffer.println();
 
@@ -213,6 +213,12 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
             buffer.decIndent();
             buffer.indent().println("}");
 
+            if (specialMethods!=null){
+                buffer.println();
+                buffer.printLinesWithIndent(specialMethods);
+                buffer.println();
+            }
+
             buffer.decIndent();
             buffer.indent().println("}");
 
@@ -242,6 +248,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
     private final AtomicInteger specialFieldsCounter = new AtomicInteger();
     private final List<Struct> structStack = new ArrayList<Struct>();
     private final TextBuffer specialSection = new TextBuffer();
+    private final TextBuffer specialMethods = new TextBuffer();
     private String result;
 
     public ConverterToJavaClassSrc(final String packageName, final String className, final JBBPParser notNullParser) {
@@ -267,6 +274,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
         this.specialFieldsCounter.set(1);
         this.specialSection.clean();
         this.structStack.clear();
+        this.specialMethods.clean();
 
         this.structStack.add(new Struct(null, null, className, "public"));
     }
@@ -292,7 +300,17 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
 
         buffer.println();
 
-        this.structStack.get(0).write(buffer, null, this.specialSection.toString());
+        if (this.detectedCustomFields.get()) {
+            this.specialMethods.println("public abstract JBBPAbstractField readCustomFieldType(JBBPBitInputStream inStrean, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean readWholeStream, int arraySize);");
+            this.specialMethods.println();
+            this.specialMethods.println("public abstract void writeCustomFieldType(JBBPBitOutputStream outStream, JBBPAbstractField fieldValue, JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, int arraySize);");
+        }
+
+        final String specialMethodsText = this.specialMethods.toString();
+
+        this.structStack.get(0).write(buffer,
+                this.detectedCustomFields.get() || this.detectedVarFields.get() || this.detectedExternalFieldsInEvaluator.get() ? "abstract" : null,
+                this.specialSection.toString(), specialMethodsText.isEmpty() ? null : specialMethodsText);
 
         this.result = buffer.toString();
     }
