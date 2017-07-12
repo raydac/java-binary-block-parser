@@ -72,7 +72,7 @@ public abstract class AbstractJavaClassCompilerTest {
         final Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(classFiles);
 
         if (!compiler.getTask(null, fileManager, null, null, null, compilationUnits).call()) {
-            for (final Diagnostic diagnostic : diagnostics.getDiagnostics()) {
+            for (final Diagnostic<?> diagnostic : diagnostics.getDiagnostics()) {
                 System.err.format("Error on line %d in %s%n", diagnostic.getLineNumber(), diagnostic.getSource());
             }
             throw new IOException("Error during compilation");

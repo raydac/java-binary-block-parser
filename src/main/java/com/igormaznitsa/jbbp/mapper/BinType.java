@@ -116,9 +116,9 @@ public enum BinType {
     /**
      * The Field class for the value.
      *
-     * @param fieldClass
+     * @param fieldClass class for the type
      */
-    private BinType(final Class<? extends JBBPAbstractField> fieldClass, final boolean array) {
+    BinType(final Class<? extends JBBPAbstractField> fieldClass, final boolean array) {
         this.fieldClass = fieldClass;
         this.isarray = array;
     }

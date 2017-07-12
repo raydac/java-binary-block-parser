@@ -445,7 +445,7 @@ public class JBBPOutTest {
     }
 
     try {
-      out.Utf8((String) null);
+      out.Utf8(null);
       fail("Must throw ISE");
     }
     catch (IllegalStateException ex) {

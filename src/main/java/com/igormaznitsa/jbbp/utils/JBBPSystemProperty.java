@@ -42,7 +42,7 @@ public enum JBBPSystemProperty {
      *
      * @param propertyName the property name
      */
-    private JBBPSystemProperty(final String propertyName) {
+    JBBPSystemProperty(final String propertyName) {
         this.propertyName = propertyName;
     }
 

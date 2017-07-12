@@ -1094,7 +1094,7 @@ public class JBBPTextWriter extends FilterWriter {
     public String toString() {
         final String result;
         if (this.out instanceof StringWriter) {
-            result = ((StringWriter) this.out).toString();
+            result = this.out.toString();
         } else {
             result = JBBPTextWriter.class.getName() + '(' + this.out.getClass().getName() + ")@" + System.identityHashCode(this);
         }

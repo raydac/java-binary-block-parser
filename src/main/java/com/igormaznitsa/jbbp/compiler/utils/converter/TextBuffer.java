@@ -89,8 +89,8 @@ public class TextBuffer {
     public TextBuffer printLinesWithIndent(final String text) {
         final String[] splitted = text.split("\n");
 
-        for (int i = 0; i < splitted.length; i++) {
-            this.indent().println(splitted[i]);
+        for (final String aSplitted : splitted) {
+            this.indent().println(aSplitted);
         }
 
         return this;

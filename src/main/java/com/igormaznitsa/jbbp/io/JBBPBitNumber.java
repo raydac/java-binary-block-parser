@@ -64,7 +64,7 @@ public enum JBBPBitNumber {
      */
     private final int mask;
 
-    private JBBPBitNumber(final int numberOfBits, final int mask) {
+    JBBPBitNumber(final int numberOfBits, final int mask) {
         this.numberOfBits = numberOfBits;
         this.mask = mask;
     }

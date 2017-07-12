@@ -27,7 +27,7 @@ import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.utils.JBBPIntCounter;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
-public abstract class AbstractCompiledBlockConverter<T extends AbstractCompiledBlockConverter> {
+public abstract class AbstractCompiledBlockConverter<T extends AbstractCompiledBlockConverter<?>> {
 
     protected final JBBPCompiledBlock compiledBlock;
     protected final int parserFlags;

@@ -129,7 +129,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
         private final String path;
 
         private Struct(final JBBPNamedFieldInfo fieldInfo, final Struct parent, final String className, final String classModifiers) {
-            this.path = parent == null ? "" : parent.path + (parent.path.isEmpty() ? "" : ".") + className.toLowerCase(Locale.ENGLISH);
+            this.path = parent == null ? "" : parent.path + (parent.path.length() == 0 ? "" : ".") + className.toLowerCase(Locale.ENGLISH);
             this.fieldInfo = fieldInfo;
             this.classModifiers = classModifiers;
             this.className = className;
@@ -330,7 +330,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
 
         this.structStack.get(0).write(buffer,
                 this.detectedCustomFields.get() || this.detectedVarFields.get() || this.detectedExternalFieldsInEvaluator.get() ? "abstract" : null,
-                this.specialSection.toString(), specialMethodsText.isEmpty() ? null : specialMethodsText);
+                this.specialSection.toString(), specialMethodsText.length() == 0 ? null : specialMethodsText);
 
         this.result = buffer.toString();
     }
@@ -690,8 +690,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
 
                 final List<String> values = new ArrayList<String>();
 
-                for (int i = 0; i < this.stack.size(); i++) {
-                    final Object cur = this.stack.get(i);
+                for (final Object cur : this.stack) {
                     if (cur instanceof Operator) {
                         final Operator op = (Operator) cur;
 

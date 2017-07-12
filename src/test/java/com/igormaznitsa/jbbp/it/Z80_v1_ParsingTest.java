@@ -104,13 +104,12 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
         int value = -1;
         int counter = 0;
 
-        for (int i = 0; i < unpackedData.length; i++) {
-          final int cur = unpackedData[i] & 0xFF;
+        for (final byte anUnpackedData : unpackedData) {
+          final int cur = anUnpackedData & 0xFF;
           if (value < 0) {
             value = cur;
             counter = 1;
-          }
-          else {
+          } else {
             if (value == cur) {
               counter++;
               if (counter == 0xFF) {
@@ -118,13 +117,11 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
                 value = -1;
                 counter = 0;
               }
-            }
-            else if (counter >= 5 || (value == 0xED && counter > 1)) {
+            } else if (counter >= 5 || (value == 0xED && counter > 1)) {
               context.Byte(0xED, 0xED, counter, value);
               counter = 1;
               value = cur;
-            }
-            else {
+            } else {
               while (counter != 0) {
                 context.Byte(value);
                 counter--;
@@ -133,8 +130,7 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
                 context.Byte(cur);
                 value = -1;
                 counter = 0;
-              }
-              else {
+              } else {
                 counter = 1;
                 value = cur;
               }

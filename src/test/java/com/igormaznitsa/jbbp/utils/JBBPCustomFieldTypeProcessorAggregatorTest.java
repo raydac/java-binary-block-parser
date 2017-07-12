@@ -129,9 +129,9 @@ public class JBBPCustomFieldTypeProcessorAggregatorTest {
       this.type = type;
       this.proc = proc;
     }
-  };
+  }
 
-  @Test
+    @Test
   public void testAllowedAndRead() throws Exception {
 
     final List<Record> allowed = new ArrayList<Record>();

@@ -55,7 +55,7 @@ public interface ExpressionEvaluatorVisitor {
         private final int args;
         private final String text;
 
-        private Operator(final String text, final int args, final int priority) {
+        Operator(final String text, final int args, final int priority) {
             this.args = args;
             this.priority = priority;
             this.text = text;

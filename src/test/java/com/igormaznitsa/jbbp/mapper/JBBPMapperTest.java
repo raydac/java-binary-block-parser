@@ -373,8 +373,8 @@ public class JBBPMapperTest {
           throw new RuntimeException(ex);
         }
         return null;
-      };
-      
+      }
+
     });
     
   }
