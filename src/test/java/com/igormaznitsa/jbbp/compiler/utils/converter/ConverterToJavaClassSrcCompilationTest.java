@@ -34,6 +34,14 @@ public class ConverterToJavaClassSrcCompilationTest extends AbstractJavaClassCom
     private static final String CLASS_NAME = "TestClass";
 
     @Test
+    public void testExpression() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare("bool bbb; long aaa; ubyte kkk; int [(aaa*1*(2-4))/(100%9>>1)&56|~kkk^78&bbb];");
+        final String classSrc = parser.makeClassSrc(PACKAGE_NAME, CLASS_NAME);
+        System.out.println(classSrc);
+        final ClassLoader cloader = saveAndCompile(new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, classSrc));
+    }
+
+    @Test
     public void testSinglePrimitiveNamedFields() throws Exception {
         final JBBPParser parser = JBBPParser.prepare("bit a;byte b;ubyte c;short d;ushort e;bool f;int g;long h;");
         final String classSrc = parser.makeClassSrc(PACKAGE_NAME, CLASS_NAME);
@@ -91,7 +99,7 @@ public class ConverterToJavaClassSrcCompilationTest extends AbstractJavaClassCom
 
     @Test
     public void testCustomType() throws Exception {
-        final JBBPParser parser = JBBPParser.prepare("some alpha;", new JBBPCustomFieldTypeProcessor() {
+        final JBBPParser parser = JBBPParser.prepare("some alpha; byte[alpha<<3];", new JBBPCustomFieldTypeProcessor() {
             @Override
             public String[] getCustomFieldTypes() {
                 return new String[]{"some"};
@@ -116,6 +124,16 @@ public class ConverterToJavaClassSrcCompilationTest extends AbstractJavaClassCom
     @Test
     public void testVarType() throws Exception {
         final JBBPParser parser = JBBPParser.prepare("var alpha; var [$$] beta;");
+        final String classSrc = parser.makeClassSrc(PACKAGE_NAME, CLASS_NAME);
+        System.out.println(classSrc);
+        final ClassLoader cloader = saveAndCompile(new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, classSrc));
+    }
+
+    @Test
+    public void testAllVariantsWithLinksToExternalStructures() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare("bit:1 bit1; bit:2 bit2; bit:3 bit3; bit:4 bit4; bit:5 bit5; bit:6 bit6; bit:7 bit7; bit:8 bit8;" +
+                "byte alpha; ubyte beta; short gamma; ushort delta; bool epsilon; int teta; long longField; var varField;" +
+                "struct1 { byte someByte; struct2 {bit:3 [34*someByte<<1+$ext] data;} }");
         final String classSrc = parser.makeClassSrc(PACKAGE_NAME, CLASS_NAME);
         System.out.println(classSrc);
         final ClassLoader cloader = saveAndCompile(new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, classSrc));

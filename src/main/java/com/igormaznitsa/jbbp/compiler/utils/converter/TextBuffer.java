@@ -47,13 +47,13 @@ public class TextBuffer {
         return this;
     }
 
-    public TextBuffer prints(final String text, final Object... args) {
-        this.buffer.append(' ').append(String.format(text, args)).append(' ');
+    public TextBuffer printf(final String text, final Object... args) {
+        this.buffer.append(String.format(text, args));
         return this;
     }
 
-    public TextBuffer print(final String text, final Object... args) {
-        this.buffer.append(String.format(text, args));
+    public TextBuffer print(final String text) {
+        this.buffer.append(text);
         return this;
     }
 
