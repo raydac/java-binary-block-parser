@@ -99,7 +99,7 @@ public class ConverterToJavaClassSrcCompilationTest extends AbstractJavaClassCom
 
     @Test
     public void testCustomType() throws Exception {
-        final JBBPParser parser = JBBPParser.prepare("some alpha; byte[alpha<<3];", new JBBPCustomFieldTypeProcessor() {
+        final JBBPParser parser = JBBPParser.prepare("some alpha;", new JBBPCustomFieldTypeProcessor() {
             @Override
             public String[] getCustomFieldTypes() {
                 return new String[]{"some"};
