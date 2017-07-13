@@ -18,6 +18,7 @@ For instance I have been very actively using the framework in [the ZX-Poly emula
 Change log
 ===========
 - **1.3.0-SNAPSHOT**
+  - added converter of compiled parser into Java class sources
   - added method to read unsigned short values as char [] into JBBPBitInputStream
   - Class version target has been changed to Java 1.6
   - Minor refactoring
