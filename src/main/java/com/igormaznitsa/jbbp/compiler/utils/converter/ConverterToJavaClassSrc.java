@@ -34,219 +34,6 @@ import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.*;
 public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<ConverterToJavaClassSrc> {
 
     private static final String ROOT_STRUCT_NAME = "mainRootStruct";
-
-    private enum FieldType {
-        BOOL(CODE_BOOL, false, "boolean", "boolean", "%s.readBoolean()", "%s.readBoolArray(%s)", "%s.write(%s ? 1 : 0)", "for(int I=0;I<%3$s;I++){%1$s.write(%2$s[I] ? 1 : 0);}", "for(int I=0;I<%2$s.length;I++){%1$s.write(%2$s[I] ? 1 : 0);}"),
-        BYTE(CODE_BYTE, false, "byte", "byte", "(byte)%s.readByte()", "%s.readByteArray(%s)", "%s.write(%s)", "for(int I=0;I<%3$s;I++){%1$s.write(%2$s[I]);}", "for(int I=0;I<%2$s.length;I++){%1$s.write(%2$s[I]);}"),
-        UBYTE(CODE_UBYTE, false, "char", "byte", "(char)(%s.readByte() & 0xFF)", "%s.readByteArray(%s)", "%s.write(%s)", "for(int I=0;I<%3$s;I++){%1$s.write(%2$s[I] & 0xFF);}", "for(int I=0;I<%2$s.length;I++){%1$s.write(%2$s[I] & 0xFF);}"),
-        SHORT(CODE_SHORT, true, "short", "short", "(short)%s.readUnsignedShort(%s)", "%s.readShortArray(%s,%s)", "%s.writeShort(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeShort(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeShort(%2$s[I],%3$s);}"),
-        USHORT(CODE_USHORT, true, "char", "char", "(char)%s.readUnsignedShort(%s)", "%s.readUShortArray(%s,%s)", "%s.writeShort(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeShort(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeShort(%2$s[I],%3$s);}"),
-        INT(CODE_INT, true, "int", "int", "%s.readInt(%s)", "%s.readIntArray(%s,%s)", "%s.writeInt(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeInt(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeInt(%2$s[I],%3$s);}"),
-        LONG(CODE_LONG, true, "long", "long", "%s.readLong(%s)", "%s.readLongArray(%s,%s)", "%s.writeLong(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeLong(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeLong(%2$s[I],%3$s);}"),
-        CUSTOM(-1, false, "", "", "", "", "", "", ""),
-        VAR(-2, false, "", "", "", "", "", "", ""),
-        BIT(-3, false, "", "", "", "", "", "", "");
-
-        private final int code;
-        private final String javaSingleType;
-        private final String javaArrayType;
-        private final String methodReadOne;
-        private final String methodReadArray;
-        private final String methodWriteOne;
-        private final String methodWriteArray;
-        private final String methodWriteArrayWithUnknownSize;
-        private final boolean multiByte;
-
-        FieldType(final int code, final boolean multiByte, final String javaSingleType, final String javaArrayType, final String readOne, final String readArray, final String writeOne, final String writeArray, final String writeArrayWithUnknownSize) {
-            this.code = code;
-            this.methodWriteArrayWithUnknownSize = writeArrayWithUnknownSize;
-            this.multiByte = multiByte;
-            this.javaSingleType = javaSingleType;
-            this.javaArrayType = javaArrayType;
-            this.methodReadArray = readArray;
-            this.methodReadOne = readOne;
-            this.methodWriteArray = writeArray;
-            this.methodWriteOne = writeOne;
-        }
-
-        public String asJavaSingleFieldType() {
-            return this.javaSingleType;
-        }
-
-        public String asJavaArrayFieldType() {
-            return this.javaArrayType;
-        }
-
-        public String makeReaderForSingleField(final String streamName, final JBBPByteOrder byteOrder) {
-            if (this.multiByte) {
-                return String.format(this.methodReadOne, streamName, "JBBPByteOrder." + byteOrder.name());
-            } else {
-                return String.format(this.methodReadOne, streamName);
-            }
-        }
-
-        public String makeWriterForSingleField(final String streamName, final String fieldName, final JBBPByteOrder byteOrder) {
-            if (this.multiByte) {
-                return String.format(this.methodWriteOne, streamName, fieldName, "JBBPByteOrder." + byteOrder.name());
-            } else {
-                return String.format(this.methodWriteOne, streamName, fieldName);
-            }
-        }
-
-        public String makeReaderForArray(final String streamName, final String arraySize, final JBBPByteOrder byteOrder) {
-            if (this.multiByte) {
-                return String.format(this.methodReadArray, streamName, arraySize, "JBBPByteOrder." + byteOrder.name());
-            } else {
-                return String.format(this.methodReadArray, streamName, arraySize);
-            }
-        }
-
-        public String makeWriterForArray(final String streamName, final String fieldName, final String arraySize, final JBBPByteOrder byteOrder) {
-            if (this.multiByte) {
-                return String.format(this.methodWriteArray, streamName, fieldName, arraySize, "JBBPByteOrder." + byteOrder.name());
-            } else {
-                return String.format(this.methodWriteArray, streamName, fieldName, arraySize);
-            }
-        }
-
-        public String makeWriterForArrayWithUnknownSize(final String streamName, final String fieldName, final JBBPByteOrder byteOrder) {
-            if (this.multiByte) {
-                return String.format(this.methodWriteArrayWithUnknownSize, streamName, fieldName, "JBBPByteOrder." + byteOrder.name());
-            } else {
-                return String.format(this.methodWriteArrayWithUnknownSize, streamName, fieldName);
-            }
-        }
-
-        public static FieldType findForCode(final int code) {
-            for (final FieldType t : values()) {
-                if (t.code == code) return t;
-            }
-            return null;
-        }
-    }
-
-    private static class Struct {
-        private final String classModifiers;
-        private final String className;
-        private final Struct parent;
-        private final List<Struct> children = new ArrayList<Struct>();
-        private final TextBuffer fields = new TextBuffer();
-        private final TextBuffer readFunc = new TextBuffer();
-        private final TextBuffer writeFunc = new TextBuffer();
-        private final JBBPNamedFieldInfo fieldInfo;
-        private final String path;
-
-        private Struct(final JBBPNamedFieldInfo fieldInfo, final Struct parent, final String className, final String classModifiers) {
-            this.path = parent == null ? "" : parent.path + (parent.path.length() == 0 ? "" : ".") + className.toLowerCase(Locale.ENGLISH);
-            this.fieldInfo = fieldInfo;
-            this.classModifiers = classModifiers;
-            this.className = className;
-            this.parent = parent;
-            if (this.parent != null) {
-                this.parent.children.add(this);
-            }
-        }
-
-        public boolean isRoot() {
-            return this.parent == null;
-        }
-
-        public String getPath() {
-            return this.path;
-        }
-
-        public JBBPNamedFieldInfo getNamedFieldInfo() {
-            return this.fieldInfo;
-        }
-
-        public Struct findRoot() {
-            if (this.parent == null) return this;
-            return this.parent.findRoot();
-        }
-
-        public String getClassName() {
-            return this.className;
-        }
-
-        public Struct getParent() {
-            return this.parent;
-        }
-
-        public void write(final TextBuffer buffer, final String extraModifier, final String commonSectionText, final String specialMethods) {
-            buffer.indent().printf("%s%sclass %s {%n", this.classModifiers, extraModifier == null ? " " : ' ' + extraModifier + ' ', this.className);
-            buffer.incIndent();
-
-            if (commonSectionText != null) {
-                buffer.printLinesWithIndent(commonSectionText);
-            }
-
-            for (final Struct c : this.children) {
-                c.write(buffer, null, null, null);
-            }
-            buffer.println();
-
-            buffer.printLinesWithIndent(this.fields.toString());
-            if (this.parent != null) {
-                buffer.indent().println("private final " + findRoot().className + ' ' + ROOT_STRUCT_NAME + ';');
-            }
-            buffer.println();
-
-            buffer.indent().print("public ").print(this.className).print(" (")
-                    .print(this.parent == null ? "" : (findRoot().className + " root"))
-                    .println(") {");
-
-            buffer.incIndent();
-            if (this.parent != null) {
-                buffer.indent().print(ROOT_STRUCT_NAME).print(" = ").println("root;");
-            }
-            buffer.decIndent();
-
-            buffer.indent().println("}");
-
-            buffer.println();
-
-            buffer.indent().printf("public %s read(final JBBPBitInputStream In) throws IOException {%n", this.className);
-            buffer.incIndent();
-            buffer.printLinesWithIndent(this.readFunc.toString());
-            buffer.indent().println("return this;");
-            buffer.decIndent();
-            buffer.indent().println("}");
-
-            buffer.println();
-
-            buffer.indent().printf("public %s write(final JBBPBitOutputStream Out) throws IOException {%n", this.className);
-            buffer.incIndent();
-            buffer.printLinesWithIndent(this.writeFunc.toString());
-            buffer.indent().println("return this;");
-            buffer.decIndent();
-            buffer.indent().println("}");
-
-            if (specialMethods != null) {
-                buffer.println();
-                buffer.printLinesWithIndent(specialMethods);
-                buffer.println();
-            }
-
-            buffer.decIndent();
-            buffer.indent().println("}");
-
-        }
-
-        public TextBuffer getWriteFunc() {
-            return this.writeFunc;
-        }
-
-        public TextBuffer getReadFunc() {
-            return this.readFunc;
-        }
-
-        public TextBuffer getFields() {
-            return this.fields;
-        }
-
-    }
-
-
     private final String packageName;
     private final String className;
     private final AtomicBoolean detectedCustomFields = new AtomicBoolean();
@@ -259,11 +46,9 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
     private final TextBuffer specialSection = new TextBuffer();
     private final TextBuffer specialMethods = new TextBuffer();
     private String result;
-
     public ConverterToJavaClassSrc(final String packageName, final String className, final JBBPParser notNullParser) {
         this(packageName, className, notNullParser.getFlags(), notNullParser.getCompiledBlock());
     }
-
     public ConverterToJavaClassSrc(final String packageName, final String className, final int parserFlags, final JBBPCompiledBlock notNullCompiledBlock) {
         super(parserFlags, notNullCompiledBlock);
         this.packageName = packageName;
@@ -631,35 +416,6 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
         detectedExternalField.set(false);
 
         final ExpressionEvaluatorVisitor visitor = new ExpressionEvaluatorVisitor() {
-            class ExprTreeItem {
-                Operator op;
-                Object left;
-                Object right;
-
-                ExprTreeItem(Operator op) {
-                    this.op = op;
-                }
-
-                boolean doesNeedBrackets(Object obj) {
-                    if (obj == null || !(obj instanceof ExprTreeItem)) return false;
-                    final ExprTreeItem that = (ExprTreeItem) obj;
-                    return that.op.getPriority() < this.op.getPriority();
-                }
-
-                @Override
-                public String toString() {
-                    String leftStr = arg2str(this.left);
-                    String rightStr = arg2str(this.right);
-                    if (doesNeedBrackets(this.left)) {
-                        leftStr = '(' + leftStr + ')';
-                    }
-                    if (doesNeedBrackets(this.right)) {
-                        rightStr = '(' + rightStr + ')';
-                    }
-                    return (leftStr == null ? "" : leftStr) + this.op.getText() + (rightStr == null ? "" : rightStr);
-                }
-            }
-
             private final List<Object> stack = new ArrayList<Object>();
 
             @Override
@@ -738,13 +494,16 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
                         break;
                         case CUSTOM:
                         case VAR: {
-                            throw new IllegalArgumentException("Detected request to VAR or CUSTOM variable in expression [" + ((JBBPNamedFieldInfo) obj).getFieldPath() + ']');
+                            result = "((JBBPNumericField)" + result + ").getAsInt()";
                         }
-                        default:
-                            break;
+                        break;
+                        default: {
+                            result = "(int)" + result;
+                        }
+                        break;
                     }
 
-                    return "(int)" + result;
+                    return result;
                 } else {
                     return null;
                 }
@@ -784,13 +543,41 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
 
                 return this;
             }
+
+            class ExprTreeItem {
+                Operator op;
+                Object left;
+                Object right;
+
+                ExprTreeItem(Operator op) {
+                    this.op = op;
+                }
+
+                boolean doesNeedBrackets(Object obj) {
+                    if (obj == null || !(obj instanceof ExprTreeItem)) return false;
+                    final ExprTreeItem that = (ExprTreeItem) obj;
+                    return that.op.getPriority() < this.op.getPriority();
+                }
+
+                @Override
+                public String toString() {
+                    String leftStr = arg2str(this.left);
+                    String rightStr = arg2str(this.right);
+                    if (doesNeedBrackets(this.left)) {
+                        leftStr = '(' + leftStr + ')';
+                    }
+                    if (doesNeedBrackets(this.right)) {
+                        rightStr = '(' + rightStr + ')';
+                    }
+                    return (leftStr == null ? "" : leftStr) + this.op.getText() + (rightStr == null ? "" : rightStr);
+                }
+            }
         };
 
         evaluator.visit(this.compiledBlock, offsetInBlock, visitor);
 
         return buffer.toString();
     }
-
 
     @Override
     public void onActionItem(final int offsetInCompiledBlock, final int actionType, final JBBPIntegerValueEvaluator nullableArgument) {
@@ -817,5 +604,216 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
                 throw new Error("Detected unknown action, contact developer!");
             }
         }
+    }
+
+    private enum FieldType {
+        BOOL(CODE_BOOL, false, "boolean", "boolean", "%s.readBoolean()", "%s.readBoolArray(%s)", "%s.write(%s ? 1 : 0)", "for(int I=0;I<%3$s;I++){%1$s.write(%2$s[I] ? 1 : 0);}", "for(int I=0;I<%2$s.length;I++){%1$s.write(%2$s[I] ? 1 : 0);}"),
+        BYTE(CODE_BYTE, false, "byte", "byte", "(byte)%s.readByte()", "%s.readByteArray(%s)", "%s.write(%s)", "for(int I=0;I<%3$s;I++){%1$s.write(%2$s[I]);}", "for(int I=0;I<%2$s.length;I++){%1$s.write(%2$s[I]);}"),
+        UBYTE(CODE_UBYTE, false, "char", "byte", "(char)(%s.readByte() & 0xFF)", "%s.readByteArray(%s)", "%s.write(%s)", "for(int I=0;I<%3$s;I++){%1$s.write(%2$s[I] & 0xFF);}", "for(int I=0;I<%2$s.length;I++){%1$s.write(%2$s[I] & 0xFF);}"),
+        SHORT(CODE_SHORT, true, "short", "short", "(short)%s.readUnsignedShort(%s)", "%s.readShortArray(%s,%s)", "%s.writeShort(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeShort(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeShort(%2$s[I],%3$s);}"),
+        USHORT(CODE_USHORT, true, "char", "char", "(char)%s.readUnsignedShort(%s)", "%s.readUShortArray(%s,%s)", "%s.writeShort(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeShort(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeShort(%2$s[I],%3$s);}"),
+        INT(CODE_INT, true, "int", "int", "%s.readInt(%s)", "%s.readIntArray(%s,%s)", "%s.writeInt(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeInt(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeInt(%2$s[I],%3$s);}"),
+        LONG(CODE_LONG, true, "long", "long", "%s.readLong(%s)", "%s.readLongArray(%s,%s)", "%s.writeLong(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeLong(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeLong(%2$s[I],%3$s);}"),
+        CUSTOM(-1, false, "", "", "", "", "", "", ""),
+        VAR(-2, false, "", "", "", "", "", "", ""),
+        BIT(-3, false, "", "", "", "", "", "", "");
+
+        private final int code;
+        private final String javaSingleType;
+        private final String javaArrayType;
+        private final String methodReadOne;
+        private final String methodReadArray;
+        private final String methodWriteOne;
+        private final String methodWriteArray;
+        private final String methodWriteArrayWithUnknownSize;
+        private final boolean multiByte;
+
+        FieldType(final int code, final boolean multiByte, final String javaSingleType, final String javaArrayType, final String readOne, final String readArray, final String writeOne, final String writeArray, final String writeArrayWithUnknownSize) {
+            this.code = code;
+            this.methodWriteArrayWithUnknownSize = writeArrayWithUnknownSize;
+            this.multiByte = multiByte;
+            this.javaSingleType = javaSingleType;
+            this.javaArrayType = javaArrayType;
+            this.methodReadArray = readArray;
+            this.methodReadOne = readOne;
+            this.methodWriteArray = writeArray;
+            this.methodWriteOne = writeOne;
+        }
+
+        public static FieldType findForCode(final int code) {
+            for (final FieldType t : values()) {
+                if (t.code == code) return t;
+            }
+            return null;
+        }
+
+        public String asJavaSingleFieldType() {
+            return this.javaSingleType;
+        }
+
+        public String asJavaArrayFieldType() {
+            return this.javaArrayType;
+        }
+
+        public String makeReaderForSingleField(final String streamName, final JBBPByteOrder byteOrder) {
+            if (this.multiByte) {
+                return String.format(this.methodReadOne, streamName, "JBBPByteOrder." + byteOrder.name());
+            } else {
+                return String.format(this.methodReadOne, streamName);
+            }
+        }
+
+        public String makeWriterForSingleField(final String streamName, final String fieldName, final JBBPByteOrder byteOrder) {
+            if (this.multiByte) {
+                return String.format(this.methodWriteOne, streamName, fieldName, "JBBPByteOrder." + byteOrder.name());
+            } else {
+                return String.format(this.methodWriteOne, streamName, fieldName);
+            }
+        }
+
+        public String makeReaderForArray(final String streamName, final String arraySize, final JBBPByteOrder byteOrder) {
+            if (this.multiByte) {
+                return String.format(this.methodReadArray, streamName, arraySize, "JBBPByteOrder." + byteOrder.name());
+            } else {
+                return String.format(this.methodReadArray, streamName, arraySize);
+            }
+        }
+
+        public String makeWriterForArray(final String streamName, final String fieldName, final String arraySize, final JBBPByteOrder byteOrder) {
+            if (this.multiByte) {
+                return String.format(this.methodWriteArray, streamName, fieldName, arraySize, "JBBPByteOrder." + byteOrder.name());
+            } else {
+                return String.format(this.methodWriteArray, streamName, fieldName, arraySize);
+            }
+        }
+
+        public String makeWriterForArrayWithUnknownSize(final String streamName, final String fieldName, final JBBPByteOrder byteOrder) {
+            if (this.multiByte) {
+                return String.format(this.methodWriteArrayWithUnknownSize, streamName, fieldName, "JBBPByteOrder." + byteOrder.name());
+            } else {
+                return String.format(this.methodWriteArrayWithUnknownSize, streamName, fieldName);
+            }
+        }
+    }
+
+    private static class Struct {
+        private final String classModifiers;
+        private final String className;
+        private final Struct parent;
+        private final List<Struct> children = new ArrayList<Struct>();
+        private final TextBuffer fields = new TextBuffer();
+        private final TextBuffer readFunc = new TextBuffer();
+        private final TextBuffer writeFunc = new TextBuffer();
+        private final JBBPNamedFieldInfo fieldInfo;
+        private final String path;
+
+        private Struct(final JBBPNamedFieldInfo fieldInfo, final Struct parent, final String className, final String classModifiers) {
+            this.path = parent == null ? "" : parent.path + (parent.path.length() == 0 ? "" : ".") + className.toLowerCase(Locale.ENGLISH);
+            this.fieldInfo = fieldInfo;
+            this.classModifiers = classModifiers;
+            this.className = className;
+            this.parent = parent;
+            if (this.parent != null) {
+                this.parent.children.add(this);
+            }
+        }
+
+        public boolean isRoot() {
+            return this.parent == null;
+        }
+
+        public String getPath() {
+            return this.path;
+        }
+
+        public JBBPNamedFieldInfo getNamedFieldInfo() {
+            return this.fieldInfo;
+        }
+
+        public Struct findRoot() {
+            if (this.parent == null) return this;
+            return this.parent.findRoot();
+        }
+
+        public String getClassName() {
+            return this.className;
+        }
+
+        public Struct getParent() {
+            return this.parent;
+        }
+
+        public void write(final TextBuffer buffer, final String extraModifier, final String commonSectionText, final String specialMethods) {
+            buffer.indent().printf("%s%sclass %s {%n", this.classModifiers, extraModifier == null ? " " : ' ' + extraModifier + ' ', this.className);
+            buffer.incIndent();
+
+            if (commonSectionText != null) {
+                buffer.printLinesWithIndent(commonSectionText);
+            }
+
+            for (final Struct c : this.children) {
+                c.write(buffer, null, null, null);
+            }
+            buffer.println();
+
+            buffer.printLinesWithIndent(this.fields.toString());
+            if (this.parent != null) {
+                buffer.indent().println("private final " + findRoot().className + ' ' + ROOT_STRUCT_NAME + ';');
+            }
+            buffer.println();
+
+            buffer.indent().print("public ").print(this.className).print(" (")
+                    .print(this.parent == null ? "" : (findRoot().className + " root"))
+                    .println(") {");
+
+            buffer.incIndent();
+            if (this.parent != null) {
+                buffer.indent().print(ROOT_STRUCT_NAME).print(" = ").println("root;");
+            }
+            buffer.decIndent();
+
+            buffer.indent().println("}");
+
+            buffer.println();
+
+            buffer.indent().printf("public %s read(final JBBPBitInputStream In) throws IOException {%n", this.className);
+            buffer.incIndent();
+            buffer.printLinesWithIndent(this.readFunc.toString());
+            buffer.indent().println("return this;");
+            buffer.decIndent();
+            buffer.indent().println("}");
+
+            buffer.println();
+
+            buffer.indent().printf("public %s write(final JBBPBitOutputStream Out) throws IOException {%n", this.className);
+            buffer.incIndent();
+            buffer.printLinesWithIndent(this.writeFunc.toString());
+            buffer.indent().println("return this;");
+            buffer.decIndent();
+            buffer.indent().println("}");
+
+            if (specialMethods != null) {
+                buffer.println();
+                buffer.printLinesWithIndent(specialMethods);
+                buffer.println();
+            }
+
+            buffer.decIndent();
+            buffer.indent().println("}");
+
+        }
+
+        public TextBuffer getWriteFunc() {
+            return this.writeFunc;
+        }
+
+        public TextBuffer getReadFunc() {
+            return this.readFunc;
+        }
+
+        public TextBuffer getFields() {
+            return this.fields;
+        }
+
     }
 }
