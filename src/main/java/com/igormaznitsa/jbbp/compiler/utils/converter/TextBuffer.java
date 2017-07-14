@@ -96,6 +96,28 @@ public class TextBuffer {
         return this;
     }
 
+    public TextBuffer printCommentLinesWithIndent(final String text) {
+        final String[] splitted = text.split("\n");
+
+        for (final String aSplitted : splitted) {
+            this.indent().print("// ").println(aSplitted);
+        }
+
+        return this;
+    }
+
+    public TextBuffer printJavaDocLinesWithIndent(final String text) {
+        final String[] splitted = text.split("\n");
+
+        this.indent().println("/**");
+        for (final String aSplitted : splitted) {
+            this.indent().print(" * ").println(aSplitted);
+        }
+        this.indent().println(" */");
+
+        return this;
+    }
+
     @Override
     public String toString() {
         return this.buffer.toString();

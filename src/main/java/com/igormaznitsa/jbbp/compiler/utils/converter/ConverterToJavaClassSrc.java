@@ -137,6 +137,8 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
 
         final String specialMethodsText = this.specialMethods.toString();
 
+        buffer.printJavaDocLinesWithIndent("Generated from JBBP script by internal JBBP Class Source Generator");
+
         this.structStack.get(0).write(buffer,
                 this.detectedCustomFields.get() || this.detectedVarFields.get() || this.detectedExternalFieldsInEvaluator.get() ? "abstract" : null,
                 this.specialSection.toString(), specialMethodsText.length() == 0 ? null : specialMethodsText);
