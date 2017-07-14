@@ -236,8 +236,6 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
 
         registerNamedField(nullableNameFieldInfo, FieldType.BIT);
 
-        final String javaFieldType = "byte";
-
         String sizeOfFieldIn = evaluatorToString("In", offsetInCompiledBlock, notNullFieldSize, this.detectedExternalFieldsInEvaluator);
         String sizeOfFieldOut = evaluatorToString("Out", offsetInCompiledBlock, notNullFieldSize, this.detectedExternalFieldsInEvaluator);
         try {
@@ -257,15 +255,15 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
 
         final String fieldModifier;
         if (nullableNameFieldInfo == null) {
-            fieldModifier = "protected ";
+            fieldModifier = "protected";
         } else {
-            fieldModifier = "public ";
+            fieldModifier = "public";
         }
 
         processSkipRemainingFlag();
 
         if (arraySizeIn == null) {
-            getCurrentStruct().getReadFunc().indent().printf("this.%s = In.readBitField(%s);%n", fieldName, sizeOfFieldIn);
+            getCurrentStruct().getReadFunc().indent().printf("this.%s = (short)(In.readBitField(%s) & 0xFF);%n", fieldName, sizeOfFieldIn);
         } else {
             getCurrentStruct().getReadFunc().indent().print(fieldName).print(" = In.readBitsArray(").print(arraySizeIn).print(",").print(sizeOfFieldIn).println(");");
         }
@@ -280,7 +278,11 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
             }
         }
 
-        getCurrentStruct().getFields().indent().print(fieldModifier).print(javaFieldType).print(" ").print(nullableArraySize == null ? "" : "[] ").print(fieldName).println(";").println();
+        if (nullableArraySize == null) {
+            getCurrentStruct().getFields().indent().printf("%s short %s;%n", fieldModifier, fieldName);
+        } else {
+            getCurrentStruct().getFields().indent().printf("%s byte [] %s;%n", fieldModifier, fieldName);
+        }
     }
 
     private String makeAnonymousFieldName() {

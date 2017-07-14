@@ -74,7 +74,7 @@ public class TextBuffer {
     }
 
     public TextBuffer println() {
-        this.buffer.append('\n');
+        this.buffer.append(String.format("%n"));
         return this;
     }
 
