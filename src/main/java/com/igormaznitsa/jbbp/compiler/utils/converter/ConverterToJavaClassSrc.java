@@ -34,18 +34,32 @@ import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.*;
 public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<ConverterToJavaClassSrc> {
 
     private static final String ROOT_STRUCT_NAME = "mainRootStruct";
+
     private final String packageName;
+
     private final String className;
     private final AtomicBoolean detectedCustomFields = new AtomicBoolean();
     private final AtomicBoolean detectedExternalFieldsInEvaluator = new AtomicBoolean();
     private final AtomicBoolean detectedVarFields = new AtomicBoolean();
     private final AtomicInteger anonymousFieldCounter = new AtomicInteger();
     private final AtomicInteger specialFieldsCounter = new AtomicInteger();
-    private final Map<JBBPNamedFieldInfo, FieldType> detectedNamedFields = new HashMap<JBBPNamedFieldInfo, FieldType>();
+    private final Map<JBBPNamedFieldInfo, NamedFieldInfo> detectedNamedFields = new HashMap<JBBPNamedFieldInfo, NamedFieldInfo>();
     private final List<Struct> structStack = new ArrayList<Struct>();
     private final TextBuffer specialSection = new TextBuffer();
     private final TextBuffer specialMethods = new TextBuffer();
     private String result;
+
+    private NamedFieldInfo registerNamedField(final JBBPNamedFieldInfo fieldInfo, final FieldType fieldType) {
+        NamedFieldInfo result = null;
+        if (fieldInfo != null ) {
+            if (this.detectedNamedFields.containsKey(fieldInfo))
+                throw new Error("Detected duplication of named field : " + fieldInfo);
+            result = new NamedFieldInfo(fieldInfo, this.getCurrentStruct(), fieldType);
+            this.detectedNamedFields.put(fieldInfo, result);
+        }
+        return result;
+    }
+
     public ConverterToJavaClassSrc(final String packageName, final String className, final JBBPParser notNullParser) {
         this(packageName, className, notNullParser.getFlags(), notNullParser.getCompiledBlock());
     }
@@ -185,17 +199,18 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
     @Override
     public void onPrimitive(final int offsetInCompiledBlock, final int primitiveType, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPByteOrder byteOrder, final JBBPIntegerValueEvaluator nullableArraySize) {
         final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() : nullableNameFieldInfo.getFieldName();
+        final FieldType type = FieldType.findForCode(primitiveType);
+
+        registerNamedField(nullableNameFieldInfo,type);
 
         final String arraySizeIn = nullableArraySize == null ? null : evaluatorToString("In", offsetInCompiledBlock, nullableArraySize, this.detectedExternalFieldsInEvaluator);
         final String arraySizeOut = nullableArraySize == null ? null : evaluatorToString("Out", offsetInCompiledBlock, nullableArraySize, this.detectedExternalFieldsInEvaluator);
 
-        final FieldType type = FieldType.findForCode(primitiveType);
 
         final String fieldModifier;
         if (nullableNameFieldInfo == null) {
             fieldModifier = "protected";
         } else {
-            this.detectedNamedFields.put(nullableNameFieldInfo, type);
             fieldModifier = "public";
         }
 
@@ -218,6 +233,9 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
     @Override
     public void onBitField(final int offsetInCompiledBlock, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPIntegerValueEvaluator notNullFieldSize, final JBBPIntegerValueEvaluator nullableArraySize) {
         final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() : nullableNameFieldInfo.getFieldName();
+
+        registerNamedField(nullableNameFieldInfo,FieldType.BIT);
+
         final String javaFieldType = "byte";
 
         String sizeOfFieldIn = evaluatorToString("In", offsetInCompiledBlock, notNullFieldSize, this.detectedExternalFieldsInEvaluator);
@@ -242,7 +260,6 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
             fieldModifier = "protected ";
         } else {
             fieldModifier = "public ";
-            this.detectedNamedFields.put(nullableNameFieldInfo, FieldType.BIT);
         }
 
         processSkipRemainingFlag();
@@ -282,19 +299,19 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
     public void onCustom(final int offsetInCompiledBlock, final JBBPFieldTypeParameterContainer notNullfieldType, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPByteOrder byteOrder, final boolean readWholeStream, final JBBPIntegerValueEvaluator nullableArraySizeEvaluator, final JBBPIntegerValueEvaluator extraDataValueEvaluator) {
         this.detectedCustomFields.set(true);
 
+        registerNamedField(nullableNameFieldInfo,FieldType.CUSTOM);
+
         final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() : nullableNameFieldInfo.getFieldName();
         final String fieldModifier;
         if (nullableNameFieldInfo == null) {
             fieldModifier = "protected";
         } else {
             fieldModifier = "public";
-            this.detectedNamedFields.put(nullableNameFieldInfo, FieldType.CUSTOM);
         }
 
         final String specialFieldName = makeSpecialFieldName();
         final String specialFieldName_fieldNameInfo = specialFieldName + "FieldInfo";
         final String specialFieldName_typeParameterContainer = specialFieldName + "TypeParameter";
-
 
         this.getCurrentStruct().getFields().printf("%s JBBPAbstractField %s;%n", fieldModifier, fieldName);
 
@@ -340,13 +357,14 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
     public void onVar(final int offsetInCompiledBlock, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPByteOrder byteOrder, final boolean readWholeStreamIntoArray, final JBBPIntegerValueEvaluator nullableArraySizeEvaluator, final JBBPIntegerValueEvaluator extraDataValueEvaluator) {
         this.detectedVarFields.set(true);
 
+        registerNamedField(nullableNameFieldInfo,FieldType.VAR);
+
         final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() : nullableNameFieldInfo.getFieldName();
         final String fieldModifier;
         if (nullableNameFieldInfo == null) {
             fieldModifier = "protected";
         } else {
             fieldModifier = "public";
-            this.detectedNamedFields.put(nullableNameFieldInfo, FieldType.VAR);
         }
 
         final String specialFieldName = makeSpecialFieldName();
@@ -468,37 +486,22 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
                 } else if (obj instanceof String) {
                     return String.format("%s.getNamedValueForExpression(this, \"%s\")", (getCurrentStruct().isRoot() ? "this" : "this." + ROOT_STRUCT_NAME), obj.toString());
                 } else if (obj instanceof JBBPNamedFieldInfo) {
-                    final FieldType fieldType = detectedNamedFields.get(obj);
-                    final String pathToCurrentStruct = getCurrentStruct().getPath();
-                    final String fieldPath = ((JBBPNamedFieldInfo) obj).getFieldPath();
+                    final NamedFieldInfo namedFieldInfo= detectedNamedFields.get(obj);
+                    final String fieldPath = namedFieldInfo.makeSrcPath(getCurrentStruct());
 
                     String result;
-
-                    if (fieldPath.startsWith(pathToCurrentStruct)) {
-                        String raw = fieldPath.substring(pathToCurrentStruct.length());
-                        if (raw.startsWith(".")) {
-                            raw = raw.substring(1);
-                        }
-                        result = "this." + raw;
-                    } else {
-                        result = "this." + ROOT_STRUCT_NAME + '.' + fieldPath;
-                    }
-
-                    JBBPAbstractField j;
-
-
-                    switch (fieldType) {
+                    switch (namedFieldInfo.fieldType) {
                         case BOOL: {
-                            result = '(' + result + "?1:0)";
+                            result = '(' + fieldPath+ "?1:0)";
                         }
                         break;
                         case CUSTOM:
                         case VAR: {
-                            result = "((JBBPNumericField)" + result + ").getAsInt()";
+                            result = "((JBBPNumericField)" + fieldPath + ").getAsInt()";
                         }
                         break;
                         default: {
-                            result = "(int)" + result;
+                            result = "(int)" + fieldPath;
                         }
                         break;
                     }
@@ -815,5 +818,30 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
             return this.fields;
         }
 
+    }
+
+    private static final class NamedFieldInfo {
+        final JBBPNamedFieldInfo info;
+        final Struct struct;
+        final FieldType fieldType;
+
+        NamedFieldInfo(final JBBPNamedFieldInfo info, final Struct struct, final FieldType fieldType) {
+            this.info = info;
+            this.struct = struct;
+            this.fieldType = fieldType;
+        }
+
+        public String makeSrcPath(final Struct currentStruct) {
+            if (this.struct == currentStruct) {
+                return "this." + info.getFieldName();
+            } else {
+                final String structPath = this.struct.getPath();
+                if (currentStruct.isRoot()){
+                    return "this."+(structPath.length() == 0 ? "" : structPath+".") + info.getFieldName();
+                } else {
+                    return "this."+ROOT_STRUCT_NAME+'.'+(structPath.length() == 0 ? "" : structPath+".") + info.getFieldName();
+                }
+            }
+        }
     }
 }
