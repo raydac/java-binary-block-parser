@@ -35,7 +35,7 @@ public class ConverterToJavaClassSrcCompilationTest extends AbstractJavaClassCom
 
     @Test
     public void testExpression() throws Exception {
-        final JBBPParser parser = JBBPParser.prepare("bit:8 bitf; var somevar; bool bbb; long aaa; ubyte kkk; {{int lrn; {int [(lrn/aaa*1*(2*somevar-4))/(100%9>>bitf)&56|~kkk^78&bbb];}}}");
+        final JBBPParser parser = JBBPParser.prepare("bit:8 bitf; var somevar; bool bbb; long aaa; ubyte kkk; {{int lrn; {int [(lrn/aaa*1*(2*somevar-4)&$joomla)/(100%9>>bitf)&56|~kkk^78&bbb];}}}");
         final String classSrc = parser.makeClassSrc(PACKAGE_NAME, CLASS_NAME);
         System.out.println(classSrc);
         final ClassLoader cloader = saveAndCompile(new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, classSrc));
