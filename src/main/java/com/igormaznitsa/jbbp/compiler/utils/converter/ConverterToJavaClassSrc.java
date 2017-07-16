@@ -442,8 +442,6 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
     private String evaluatorToString(final String streamName, final int offsetInBlock, final JBBPIntegerValueEvaluator evaluator, final AtomicBoolean detectedExternalField) {
         final StringBuilder buffer = new StringBuilder();
 
-        detectedExternalField.set(false);
-
         final ExpressionEvaluatorVisitor visitor = new ExpressionEvaluatorVisitor() {
             private final List<Object> stack = new ArrayList<Object>();
 
@@ -740,21 +738,9 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
             return this.path;
         }
 
-        public JBBPNamedFieldInfo getNamedFieldInfo() {
-            return this.fieldInfo;
-        }
-
         public Struct findRoot() {
             if (this.parent == null) return this;
             return this.parent.findRoot();
-        }
-
-        public String getClassName() {
-            return this.className;
-        }
-
-        public Struct getParent() {
-            return this.parent;
         }
 
         public void write(final TextBuffer buffer, final String extraModifier, final String commonSectionText, final String specialMethods) {
