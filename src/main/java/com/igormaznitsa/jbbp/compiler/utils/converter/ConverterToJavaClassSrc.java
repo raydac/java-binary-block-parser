@@ -625,8 +625,8 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
 
     private enum FieldType {
         BOOL(CODE_BOOL, false, "boolean", "boolean", "%s.readBoolean()", "%s.readBoolArray(%s)", "%s.write(%s ? 1 : 0)", "for(int I=0;I<%3$s;I++){%1$s.write(%2$s[I] ? 1 : 0);}", "for(int I=0;I<%2$s.length;I++){%1$s.write(%2$s[I] ? 1 : 0);}"),
-        BYTE(CODE_BYTE, false, "byte", "byte", "(byte)%s.readByte()", "%s.readByteArray(%s)", "%s.write(%s)", "for(int I=0;I<%3$s;I++){%1$s.write(%2$s[I]);}", "for(int I=0;I<%2$s.length;I++){%1$s.write(%2$s[I]);}"),
-        UBYTE(CODE_UBYTE, false, "char", "byte", "(char)(%s.readByte() & 0xFF)", "%s.readByteArray(%s)", "%s.write(%s)", "for(int I=0;I<%3$s;I++){%1$s.write(%2$s[I] & 0xFF);}", "for(int I=0;I<%2$s.length;I++){%1$s.write(%2$s[I] & 0xFF);}"),
+        BYTE(CODE_BYTE, false, "byte", "byte", "(byte)%s.readByte()", "%s.readByteArray(%s, %s)", "%s.write(%s)", "%1$s.writeBytes(%2$s, %3$s, %4$s)", "%1$s.writeBytes(%2$s, %2$s.length, %3$s)"),
+        UBYTE(CODE_UBYTE, false, "char", "byte", "(char)(%s.readByte() & 0xFF)", "%s.readByteArray(%s, %s)", "%s.write(%s)", "%1$s.writeBytes(%2$s, %3$s, %4$s)", "%1$s.writeBytes(%2$s, %2$s.length, %3$s)"),
         SHORT(CODE_SHORT, true, "short", "short", "(short)%s.readUnsignedShort(%s)", "%s.readShortArray(%s,%s)", "%s.writeShort(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeShort(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeShort(%2$s[I],%3$s);}"),
         USHORT(CODE_USHORT, true, "char", "char", "(char)%s.readUnsignedShort(%s)", "%s.readUShortArray(%s,%s)", "%s.writeShort(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeShort(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeShort(%2$s[I],%3$s);}"),
         INT(CODE_INT, true, "int", "int", "%s.readInt(%s)", "%s.readIntArray(%s,%s)", "%s.writeInt(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeInt(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeInt(%2$s[I],%3$s);}"),
@@ -683,47 +683,27 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
 
         public String makeReaderForSingleField(final String streamName, final JBBPByteOrder byteOrder) {
             assertNotUnknown();
-            if (this.multiByte) {
-                return String.format(this.methodReadOne, streamName, "JBBPByteOrder." + byteOrder.name());
-            } else {
-                return String.format(this.methodReadOne, streamName);
-            }
+            return String.format(this.methodReadOne, streamName, "JBBPByteOrder." + byteOrder.name());
         }
 
         public String makeWriterForSingleField(final String streamName, final String fieldName, final JBBPByteOrder byteOrder) {
             assertNotUnknown();
-            if (this.multiByte) {
-                return String.format(this.methodWriteOne, streamName, fieldName, "JBBPByteOrder." + byteOrder.name());
-            } else {
-                return String.format(this.methodWriteOne, streamName, fieldName);
-            }
+            return String.format(this.methodWriteOne, streamName, fieldName, "JBBPByteOrder." + byteOrder.name());
         }
 
         public String makeReaderForArray(final String streamName, final String arraySize, final JBBPByteOrder byteOrder) {
             assertNotUnknown();
-            if (this.multiByte) {
-                return String.format(this.methodReadArray, streamName, arraySize, "JBBPByteOrder." + byteOrder.name());
-            } else {
-                return String.format(this.methodReadArray, streamName, arraySize);
-            }
+            return String.format(this.methodReadArray, streamName, arraySize, "JBBPByteOrder." + byteOrder.name());
         }
 
         public String makeWriterForArray(final String streamName, final String fieldName, final String arraySize, final JBBPByteOrder byteOrder) {
             assertNotUnknown();
-            if (this.multiByte) {
-                return String.format(this.methodWriteArray, streamName, fieldName, arraySize, "JBBPByteOrder." + byteOrder.name());
-            } else {
-                return String.format(this.methodWriteArray, streamName, fieldName, arraySize);
-            }
+            return String.format(this.methodWriteArray, streamName, fieldName, arraySize, "JBBPByteOrder." + byteOrder.name());
         }
 
         public String makeWriterForArrayWithUnknownSize(final String streamName, final String fieldName, final JBBPByteOrder byteOrder) {
             assertNotUnknown();
-            if (this.multiByte) {
-                return String.format(this.methodWriteArrayWithUnknownSize, streamName, fieldName, "JBBPByteOrder." + byteOrder.name());
-            } else {
-                return String.format(this.methodWriteArrayWithUnknownSize, streamName, fieldName);
-            }
+            return String.format(this.methodWriteArrayWithUnknownSize, streamName, fieldName, "JBBPByteOrder." + byteOrder.name());
         }
     }
 
