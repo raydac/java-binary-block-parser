@@ -91,7 +91,7 @@ public class ConverterToJavaClassSrcCompilationTest extends AbstractJavaClassCom
 
     @Test
     public void testExternalValueInExpression() throws Exception {
-        final JBBPParser parser = JBBPParser.prepare("ubyte len; int [len*2+$ex] hello;");
+        final JBBPParser parser = JBBPParser.prepare("ubyte len; <int [len*2+$ex] hello;");
         final String classSrc = parser.makeClassSrc(PACKAGE_NAME, CLASS_NAME);
         System.out.println(classSrc);
         final ClassLoader cloader = saveAndCompile(new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, classSrc));

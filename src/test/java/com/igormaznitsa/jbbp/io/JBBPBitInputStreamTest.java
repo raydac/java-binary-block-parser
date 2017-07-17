@@ -629,6 +629,18 @@ public class JBBPBitInputStreamTest {
     assertArrayEquals(new byte[]{1, 2, 3,}, in.readByteArray(3));
   }
 
+  @Test
+  public void testReadArray_Bytes_BIG_ENDIAN_ThreeItems() throws Exception {
+    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5, 6, 7, 0}));
+    assertArrayEquals(new byte[]{1, 2, 3,}, in.readByteArray(3,JBBPByteOrder.BIG_ENDIAN));
+  }
+
+  @Test
+  public void testReadArray_Bytes_LITTLE_ENDIAN_ThreeItems() throws Exception {
+    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5, 6, 7, 0}));
+    assertArrayEquals(new byte[]{3, 2, 1,}, in.readByteArray(3,JBBPByteOrder.LITTLE_ENDIAN));
+  }
+
   @Test(expected = EOFException.class)
   public void testReadArray_Bytes_EOF() throws Exception {
     final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5, 6, 7, 0}));

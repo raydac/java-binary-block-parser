@@ -76,6 +76,72 @@ public class JBBPBitOutputStreamTest {
   }
 
   @Test
+  public void testWriteBytes_BIG_ENDIAN_wholeArray() throws Exception {
+    final ByteArrayOutputStream outBiuffer = new ByteArrayOutputStream();
+    final JBBPBitOutputStream out = new JBBPBitOutputStream(outBiuffer);
+    assertEquals(0,out.getCounter());
+    out.writeBytes(new byte[]{1,2,3,4,5},-1, JBBPByteOrder.BIG_ENDIAN);
+    out.flush();
+    assertEquals(5,out.getCounter());
+    assertArrayEquals(new byte[]{1,2,3,4,5}, outBiuffer.toByteArray());
+  }
+
+  @Test
+  public void testWriteBytes_BIG_ENDIAN_zeroArray() throws Exception {
+    final ByteArrayOutputStream outBiuffer = new ByteArrayOutputStream();
+    final JBBPBitOutputStream out = new JBBPBitOutputStream(outBiuffer);
+    assertEquals(0,out.getCounter());
+    out.writeBytes(new byte[]{1,2,3,4,5},0, JBBPByteOrder.BIG_ENDIAN);
+    out.flush();
+    assertEquals(0,out.getCounter());
+    assertArrayEquals(new byte[0], outBiuffer.toByteArray());
+  }
+
+  @Test
+  public void testWriteBytes_BIG_ENDIAN_threeItemsOfArray() throws Exception {
+    final ByteArrayOutputStream outBiuffer = new ByteArrayOutputStream();
+    final JBBPBitOutputStream out = new JBBPBitOutputStream(outBiuffer);
+    assertEquals(0,out.getCounter());
+    out.writeBytes(new byte[]{1,2,3,4,5},3, JBBPByteOrder.BIG_ENDIAN);
+    out.flush();
+    assertEquals(3,out.getCounter());
+    assertArrayEquals(new byte[]{1,2,3}, outBiuffer.toByteArray());
+  }
+
+  @Test
+  public void testWriteBytes_LITTLE_ENDIAN_threeItemsOfArray() throws Exception {
+    final ByteArrayOutputStream outBiuffer = new ByteArrayOutputStream();
+    final JBBPBitOutputStream out = new JBBPBitOutputStream(outBiuffer);
+    assertEquals(0,out.getCounter());
+    out.writeBytes(new byte[]{1,2,3,4,5},3, JBBPByteOrder.LITTLE_ENDIAN);
+    out.flush();
+    assertEquals(3,out.getCounter());
+    assertArrayEquals(new byte[]{3,2,1}, outBiuffer.toByteArray());
+  }
+
+  @Test
+  public void testWriteBytes_LITTLE_ENDIAN_zeroArray() throws Exception {
+    final ByteArrayOutputStream outBiuffer = new ByteArrayOutputStream();
+    final JBBPBitOutputStream out = new JBBPBitOutputStream(outBiuffer);
+    assertEquals(0,out.getCounter());
+    out.writeBytes(new byte[]{1,2,3,4,5},0, JBBPByteOrder.LITTLE_ENDIAN);
+    out.flush();
+    assertEquals(0,out.getCounter());
+    assertArrayEquals(new byte[0], outBiuffer.toByteArray());
+  }
+
+  @Test
+  public void testWriteBytes_LITTLE_ENDIAN_wholeArray() throws Exception {
+    final ByteArrayOutputStream outBiuffer = new ByteArrayOutputStream();
+    final JBBPBitOutputStream out = new JBBPBitOutputStream(outBiuffer);
+    assertEquals(0,out.getCounter());
+    out.writeBytes(new byte[]{1,2,3,4,5},-1, JBBPByteOrder.LITTLE_ENDIAN);
+    out.flush();
+    assertEquals(5,out.getCounter());
+    assertArrayEquals(new byte[]{5,4,3,2,1}, outBiuffer.toByteArray());
+  }
+
+  @Test
   public void testWriteByte() throws Exception {
     final ByteArrayOutputStream outBiuffer = new ByteArrayOutputStream();
     final JBBPBitOutputStream out = new JBBPBitOutputStream(outBiuffer);
