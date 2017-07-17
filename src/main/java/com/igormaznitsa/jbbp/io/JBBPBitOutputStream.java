@@ -293,6 +293,27 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
     }
 
     /**
+     * Write number of items from byte array into stream
+     *
+     * @param array     array, must not be null
+     * @param length    number of items to be written, if -1 then whole array
+     * @param byteOrder order of bytes, if LITTLE_ENDIAN then array will be reversed
+     * @throws IOException it will be thrown if any transport error
+     * @see JBBPByteOrder#LITTLE_ENDIAN
+     * @since 1.3.0
+     */
+    public void writeBytes(final byte[] array, final int length, final JBBPByteOrder byteOrder) throws IOException {
+        if (byteOrder == JBBPByteOrder.LITTLE_ENDIAN) {
+            int i = length < 0 ? array.length - 1 : length - 1;
+            while (i >= 0) {
+                this.write(array[i--]);
+            }
+        } else {
+            this.write(array, 0, length < 0 ? array.length : length);
+        }
+    }
+
+    /**
      * Reset the byte counter for the stream. The Inside bit buffer will be reset also.
      */
     @Override
