@@ -367,8 +367,7 @@ public final class JBBPParser {
                             if (arrayLength < 0) {
                                 singleAtomicField = new JBBPFieldByte(name, (byte) inStream.readByte());
                             } else {
-                                final byte[] array = inStream.readByteArray(wholeStreamArray ? -1 : arrayLength);
-                                structureFields.add(new JBBPFieldArrayByte(name, byteOrder == JBBPByteOrder.LITTLE_ENDIAN ? JBBPUtils.reverseArray(array) : array));
+                                structureFields.add(new JBBPFieldArrayByte(name, inStream.readByteArray(wholeStreamArray ? -1 : arrayLength, byteOrder)));
                             }
                         }
                     }
@@ -378,8 +377,7 @@ public final class JBBPParser {
                             if (arrayLength < 0) {
                                 singleAtomicField = new JBBPFieldUByte(name, (byte) inStream.readByte());
                             } else {
-                                final byte[] array = inStream.readByteArray(wholeStreamArray ? -1 : arrayLength);
-                                structureFields.add(new JBBPFieldArrayUByte(name, byteOrder == JBBPByteOrder.LITTLE_ENDIAN ? JBBPUtils.reverseArray(array) : array));
+                                structureFields.add(new JBBPFieldArrayUByte(name, inStream.readByteArray(wholeStreamArray ? -1 : arrayLength, byteOrder)));
                             }
                         }
                     }
