@@ -16,58 +16,61 @@
 
 package com.igormaznitsa.jbbp.utils;
 
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class JBBPSystemPropertyTest {
-  
-  @Before
-  public void before(){
-    for(final JBBPSystemProperty p : JBBPSystemProperty.values()){
-      System.clearProperty(p.getPropertyName());
+
+    @Before
+    public void before() {
+        for (final JBBPSystemProperty p : JBBPSystemProperty.values()) {
+            System.clearProperty(p.getPropertyName());
+        }
     }
-  }
-  
-  @Test
-  public void testSet() {
-    assertNull(System.getProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName()));
-    JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.set("hello_world");
-    assertEquals("hello_world",System.getProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName()));
-  }
-  
-  @Test
-  public void testRemove(){
-    System.setProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName(),"1234");
-    JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.remove();
-    assertNull(System.getProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName()));
-  }
-  
-  @Test
-  public void testGetAsString_Default() {
-    assertEquals("12345",JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getAsString("12345"));
-  }
-  
-  @Test
-  public void testGetAsString_DefinedValue() {
-    System.setProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName(), "5678");
-    assertEquals("5678",JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getAsString("12345"));
-  }
-  
-  @Test
-  public void testGetAsInteger_Default() {
-    assertEquals(12345,JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getAsInteger(12345));
-  }
-  
-  @Test
-  public void testGetAsInteger_DefinedValue() {
-    System.setProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName(), "5678");
-    assertEquals(5678,JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getAsInteger(12345));
-  }
-  
-  @Test(expected = Error.class)
-  public void testGetAsInteger_ErrorForNonIntegerValue() {
-    System.setProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName(), "abcd");
-    JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getAsInteger(12345);
-  }
-  
+
+    @Test
+    public void testSet() {
+        assertNull(System.getProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName()));
+        JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.set("hello_world");
+        assertEquals("hello_world", System.getProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName()));
+    }
+
+    @Test
+    public void testRemove() {
+        System.setProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName(), "1234");
+        JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.remove();
+        assertNull(System.getProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName()));
+    }
+
+    @Test
+    public void testGetAsString_Default() {
+        assertEquals("12345", JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getAsString("12345"));
+    }
+
+    @Test
+    public void testGetAsString_DefinedValue() {
+        System.setProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName(), "5678");
+        assertEquals("5678", JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getAsString("12345"));
+    }
+
+    @Test
+    public void testGetAsInteger_Default() {
+        assertEquals(12345, JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getAsInteger(12345));
+    }
+
+    @Test
+    public void testGetAsInteger_DefinedValue() {
+        System.setProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName(), "5678");
+        assertEquals(5678, JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getAsInteger(12345));
+    }
+
+    @Test(expected = Error.class)
+    public void testGetAsInteger_ErrorForNonIntegerValue() {
+        System.setProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName(), "abcd");
+        JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getAsInteger(12345);
+    }
+
 }

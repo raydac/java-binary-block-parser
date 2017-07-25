@@ -28,8 +28,9 @@ import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.FLAG_ARRAY;
  *
  * @since 1.0
  */
-public enum JBBPCompilerUtils {
-    ;
+public final class JBBPCompilerUtils {
+    private JBBPCompilerUtils() {
+    }
 
     /**
      * Find a named field info index in a list for its path.

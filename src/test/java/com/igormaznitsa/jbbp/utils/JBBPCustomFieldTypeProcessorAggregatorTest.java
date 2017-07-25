@@ -23,204 +23,208 @@ import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.model.JBBPFieldByte;
-import java.io.IOException;
-import java.util.*;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 public class JBBPCustomFieldTypeProcessorAggregatorTest {
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testConstructor_ErrorForDuplicatedType() throws Exception {
-    final JBBPCustomFieldTypeProcessor proc1 = new JBBPCustomFieldTypeProcessor() {
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_ErrorForDuplicatedType() throws Exception {
+        final JBBPCustomFieldTypeProcessor proc1 = new JBBPCustomFieldTypeProcessor() {
 
-      @Override
-      public String[] getCustomFieldTypes() {
-        return new String[]{"type1", "type2", "type3"};
-      }
+            @Override
+            public String[] getCustomFieldTypes() {
+                return new String[]{"type1", "type2", "type3"};
+            }
 
-      @Override
-      public boolean isAllowed(JBBPFieldTypeParameterContainer fieldType, String fieldName, int extraData, boolean isArray) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-      }
+            @Override
+            public boolean isAllowed(JBBPFieldTypeParameterContainer fieldType, String fieldName, int extraData, boolean isArray) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
 
-      @Override
-      public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer customTypeFieldInfo, JBBPNamedFieldInfo fieldName, int extraData, boolean readWholeStream, int arrayLength) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-      }
-    };
+            @Override
+            public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer customTypeFieldInfo, JBBPNamedFieldInfo fieldName, int extraData, boolean readWholeStream, int arrayLength) throws IOException {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+        };
 
-    final JBBPCustomFieldTypeProcessor proc2 = new JBBPCustomFieldTypeProcessor() {
+        final JBBPCustomFieldTypeProcessor proc2 = new JBBPCustomFieldTypeProcessor() {
 
-      @Override
-      public String[] getCustomFieldTypes() {
-        return new String[]{"type5", "type6", "type3"};
-      }
+            @Override
+            public String[] getCustomFieldTypes() {
+                return new String[]{"type5", "type6", "type3"};
+            }
 
-      @Override
-      public boolean isAllowed(JBBPFieldTypeParameterContainer fieldType, String fieldName, int extraData, boolean isArray) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-      }
+            @Override
+            public boolean isAllowed(JBBPFieldTypeParameterContainer fieldType, String fieldName, int extraData, boolean isArray) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
 
-      @Override
-      public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer customTypeFieldInfo, JBBPNamedFieldInfo fieldName, int extraData, boolean readWholeStream, int arrayLength) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-      }
-    };
+            @Override
+            public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer customTypeFieldInfo, JBBPNamedFieldInfo fieldName, int extraData, boolean readWholeStream, int arrayLength) throws IOException {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+        };
 
-    new JBBPCustomFieldTypeProcessorAggregator(proc1, proc2);
-  }
-
-  @Test
-  public void testJoiningTypes() throws Exception {
-    final JBBPCustomFieldTypeProcessor proc1 = new JBBPCustomFieldTypeProcessor() {
-
-      @Override
-      public String[] getCustomFieldTypes() {
-        return new String[]{"type1", "type2", "type3"};
-      }
-
-      @Override
-      public boolean isAllowed(JBBPFieldTypeParameterContainer fieldType, String fieldName, int extraData, boolean isArray) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-      }
-
-      @Override
-      public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer customTypeFieldInfo, JBBPNamedFieldInfo fieldName, int extraData, boolean readWholeStream, int arrayLength) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-      }
-    };
-
-    final JBBPCustomFieldTypeProcessor proc2 = new JBBPCustomFieldTypeProcessor() {
-
-      @Override
-      public String[] getCustomFieldTypes() {
-        return new String[]{"type4", "type5", "type6"};
-      }
-
-      @Override
-      public boolean isAllowed(JBBPFieldTypeParameterContainer fieldType, String fieldName, int extraData, boolean isArray) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-      }
-
-      @Override
-      public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer customTypeFieldInfo, JBBPNamedFieldInfo fieldName, int extraData, boolean readWholeStream, int arrayLength) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-      }
-    };
-
-    final List<String> types = Arrays.asList(new JBBPCustomFieldTypeProcessorAggregator(proc1, proc2).getCustomFieldTypes());
-
-    assertEquals(6, types.size());
-    assertTrue(types.contains("type1"));
-    assertTrue(types.contains("type2"));
-    assertTrue(types.contains("type3"));
-    assertTrue(types.contains("type4"));
-    assertTrue(types.contains("type5"));
-    assertTrue(types.contains("type6"));
-  }
-
-  static class Record {
-
-    final String type;
-    final JBBPCustomFieldTypeProcessor proc;
-
-    public Record(final String type, final JBBPCustomFieldTypeProcessor proc) {
-      this.type = type;
-      this.proc = proc;
+        new JBBPCustomFieldTypeProcessorAggregator(proc1, proc2);
     }
-  }
 
     @Test
-  public void testAllowedAndRead() throws Exception {
+    public void testJoiningTypes() throws Exception {
+        final JBBPCustomFieldTypeProcessor proc1 = new JBBPCustomFieldTypeProcessor() {
 
-    final List<Record> allowed = new ArrayList<Record>();
-    final List<Record> read = new ArrayList<Record>();
+            @Override
+            public String[] getCustomFieldTypes() {
+                return new String[]{"type1", "type2", "type3"};
+            }
 
-    final JBBPCustomFieldTypeProcessor proc1 = new JBBPCustomFieldTypeProcessor() {
+            @Override
+            public boolean isAllowed(JBBPFieldTypeParameterContainer fieldType, String fieldName, int extraData, boolean isArray) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
 
-      @Override
-      public String[] getCustomFieldTypes() {
-        return new String[]{"type1", "type2", "type3"};
-      }
+            @Override
+            public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer customTypeFieldInfo, JBBPNamedFieldInfo fieldName, int extraData, boolean readWholeStream, int arrayLength) throws IOException {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+        };
 
-      @Override
-      public boolean isAllowed(JBBPFieldTypeParameterContainer fieldType, String fieldName, int extraData, boolean isArray) {
-        allowed.add(new Record(fieldType.getTypeName(), this));
-        return true;
-      }
+        final JBBPCustomFieldTypeProcessor proc2 = new JBBPCustomFieldTypeProcessor() {
 
-      @Override
-      public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer customTypeFieldInfo, JBBPNamedFieldInfo fieldName, int extraData, boolean readWholeStream, int arrayLength) throws IOException {
-        read.add(new Record(customTypeFieldInfo.getTypeName(), this));
-        return new JBBPFieldByte(fieldName, (byte)in.readByte());
-      }
-    };
+            @Override
+            public String[] getCustomFieldTypes() {
+                return new String[]{"type4", "type5", "type6"};
+            }
 
-    final JBBPCustomFieldTypeProcessor proc2 = new JBBPCustomFieldTypeProcessor() {
+            @Override
+            public boolean isAllowed(JBBPFieldTypeParameterContainer fieldType, String fieldName, int extraData, boolean isArray) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
 
-      @Override
-      public String[] getCustomFieldTypes() {
-        return new String[]{"type4", "type5", "type6"};
-      }
+            @Override
+            public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer customTypeFieldInfo, JBBPNamedFieldInfo fieldName, int extraData, boolean readWholeStream, int arrayLength) throws IOException {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+        };
 
-      @Override
-      public boolean isAllowed(JBBPFieldTypeParameterContainer fieldType, String fieldName, int extraData, boolean isArray) {
-        allowed.add(new Record(fieldType.getTypeName(), this));
-        return true;
-      }
+        final List<String> types = Arrays.asList(new JBBPCustomFieldTypeProcessorAggregator(proc1, proc2).getCustomFieldTypes());
 
-      @Override
-      public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer customTypeFieldInfo, JBBPNamedFieldInfo fieldName, int extraData, boolean readWholeStream, int arrayLength) throws IOException {
-        read.add(new Record(customTypeFieldInfo.getTypeName(), this));
-        return new JBBPFieldByte(fieldName, (byte) in.readByte());
-      }
-    };
+        assertEquals(6, types.size());
+        assertTrue(types.contains("type1"));
+        assertTrue(types.contains("type2"));
+        assertTrue(types.contains("type3"));
+        assertTrue(types.contains("type4"));
+        assertTrue(types.contains("type5"));
+        assertTrue(types.contains("type6"));
+    }
 
-    final JBBPParser parser = JBBPParser.prepare("type1; type2; type3; type4; type5; type6;",JBBPBitOrder.LSB0,new JBBPCustomFieldTypeProcessorAggregator(proc1, proc2),0);
+    @Test
+    public void testAllowedAndRead() throws Exception {
 
-    assertEquals(6, allowed.size());
+        final List<Record> allowed = new ArrayList<Record>();
+        final List<Record> read = new ArrayList<Record>();
 
-    assertEquals("type1", allowed.get(0).type);
-    assertSame(proc1, allowed.get(0).proc);
+        final JBBPCustomFieldTypeProcessor proc1 = new JBBPCustomFieldTypeProcessor() {
 
-    assertEquals("type2", allowed.get(1).type);
-    assertSame(proc1, allowed.get(1).proc);
+            @Override
+            public String[] getCustomFieldTypes() {
+                return new String[]{"type1", "type2", "type3"};
+            }
 
-    assertEquals("type3", allowed.get(2).type);
-    assertSame(proc1, allowed.get(2).proc);
+            @Override
+            public boolean isAllowed(JBBPFieldTypeParameterContainer fieldType, String fieldName, int extraData, boolean isArray) {
+                allowed.add(new Record(fieldType.getTypeName(), this));
+                return true;
+            }
 
-    assertEquals("type4", allowed.get(3).type);
-    assertSame(proc2, allowed.get(3).proc);
+            @Override
+            public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer customTypeFieldInfo, JBBPNamedFieldInfo fieldName, int extraData, boolean readWholeStream, int arrayLength) throws IOException {
+                read.add(new Record(customTypeFieldInfo.getTypeName(), this));
+                return new JBBPFieldByte(fieldName, (byte) in.readByte());
+            }
+        };
 
-    assertEquals("type5", allowed.get(4).type);
-    assertSame(proc2, allowed.get(4).proc);
+        final JBBPCustomFieldTypeProcessor proc2 = new JBBPCustomFieldTypeProcessor() {
 
-    assertEquals("type6", allowed.get(5).type);
-    assertSame(proc2, allowed.get(5).proc);
-    
-    parser.parse(new byte[]{0,0,0,0,0,0});
-    
-    assertEquals(6, read.size());
+            @Override
+            public String[] getCustomFieldTypes() {
+                return new String[]{"type4", "type5", "type6"};
+            }
 
-    assertEquals("type1", read.get(0).type);
-    assertSame(proc1, read.get(0).proc);
+            @Override
+            public boolean isAllowed(JBBPFieldTypeParameterContainer fieldType, String fieldName, int extraData, boolean isArray) {
+                allowed.add(new Record(fieldType.getTypeName(), this));
+                return true;
+            }
 
-    assertEquals("type2", read.get(1).type);
-    assertSame(proc1, read.get(1).proc);
+            @Override
+            public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer customTypeFieldInfo, JBBPNamedFieldInfo fieldName, int extraData, boolean readWholeStream, int arrayLength) throws IOException {
+                read.add(new Record(customTypeFieldInfo.getTypeName(), this));
+                return new JBBPFieldByte(fieldName, (byte) in.readByte());
+            }
+        };
 
-    assertEquals("type3", read.get(2).type);
-    assertSame(proc1, read.get(2).proc);
+        final JBBPParser parser = JBBPParser.prepare("type1; type2; type3; type4; type5; type6;", JBBPBitOrder.LSB0, new JBBPCustomFieldTypeProcessorAggregator(proc1, proc2), 0);
 
-    assertEquals("type4", read.get(3).type);
-    assertSame(proc2, read.get(3).proc);
+        assertEquals(6, allowed.size());
 
-    assertEquals("type5", read.get(4).type);
-    assertSame(proc2, read.get(4).proc);
+        assertEquals("type1", allowed.get(0).type);
+        assertSame(proc1, allowed.get(0).proc);
 
-    assertEquals("type6", read.get(5).type);
-    assertSame(proc2, read.get(5).proc);
+        assertEquals("type2", allowed.get(1).type);
+        assertSame(proc1, allowed.get(1).proc);
 
-  }
+        assertEquals("type3", allowed.get(2).type);
+        assertSame(proc1, allowed.get(2).proc);
+
+        assertEquals("type4", allowed.get(3).type);
+        assertSame(proc2, allowed.get(3).proc);
+
+        assertEquals("type5", allowed.get(4).type);
+        assertSame(proc2, allowed.get(4).proc);
+
+        assertEquals("type6", allowed.get(5).type);
+        assertSame(proc2, allowed.get(5).proc);
+
+        parser.parse(new byte[]{0, 0, 0, 0, 0, 0});
+
+        assertEquals(6, read.size());
+
+        assertEquals("type1", read.get(0).type);
+        assertSame(proc1, read.get(0).proc);
+
+        assertEquals("type2", read.get(1).type);
+        assertSame(proc1, read.get(1).proc);
+
+        assertEquals("type3", read.get(2).type);
+        assertSame(proc1, read.get(2).proc);
+
+        assertEquals("type4", read.get(3).type);
+        assertSame(proc2, read.get(3).proc);
+
+        assertEquals("type5", read.get(4).type);
+        assertSame(proc2, read.get(4).proc);
+
+        assertEquals("type6", read.get(5).type);
+        assertSame(proc2, read.get(5).proc);
+
+    }
+
+    static class Record {
+
+        final String type;
+        final JBBPCustomFieldTypeProcessor proc;
+
+        public Record(final String type, final JBBPCustomFieldTypeProcessor proc) {
+            this.type = type;
+            this.proc = proc;
+        }
+    }
 
 }

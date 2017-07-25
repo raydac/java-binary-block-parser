@@ -21,99 +21,101 @@ import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
+import org.junit.Test;
+
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 public class JBBPOnlyFieldEvaluatorTest {
-  
-  @Test
-  public void testNumericValue() {
-    final int value = 1234;
-    final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap();
-    final JBBPNamedFieldInfo nameInfo = new JBBPNamedFieldInfo("value", "value", value);
-    
-    map.putField(new JBBPFieldInt(nameInfo,value));
 
-    final List<JBBPNamedFieldInfo> list = new ArrayList<JBBPNamedFieldInfo>();
-    list.add(nameInfo);
-    
-    final byte[] compiled = new byte[]{0};
-    final JBBPCompiledBlock compiledBlock = JBBPCompiledBlock.prepare().setCompiledData(compiled).setSource("none").setNamedFieldData(list).build();
+    @Test
+    public void testNumericValue() {
+        final int value = 1234;
+        final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap();
+        final JBBPNamedFieldInfo nameInfo = new JBBPNamedFieldInfo("value", "value", value);
 
-    JBBPOnlyFieldEvaluator expr = new JBBPOnlyFieldEvaluator(null, 0);
-    assertEquals(value, expr.eval(null,0, compiledBlock, map));
-  }
-  
-  @Test
-  public void testExternalValue() {
-    final int value = 1234;
-    final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap(new JBBPExternalValueProvider() {
+        map.putField(new JBBPFieldInt(nameInfo, value));
 
-      @Override
-      public int provideArraySize(final String fieldName, final JBBPNamedNumericFieldMap numericFieldMap, final JBBPCompiledBlock compiledBlock) {
-        if (fieldName.equals("value")) {
-          return value;
-        }
-        assertNotNull(numericFieldMap);
-        assertNotNull(compiledBlock);
-        fail("Unexpected request for value [" + fieldName + ']');
-        return -1;
-      }
-    });
+        final List<JBBPNamedFieldInfo> list = new ArrayList<JBBPNamedFieldInfo>();
+        list.add(nameInfo);
 
-    final List<JBBPNamedFieldInfo> list = new ArrayList<JBBPNamedFieldInfo>();
+        final byte[] compiled = new byte[]{0};
+        final JBBPCompiledBlock compiledBlock = JBBPCompiledBlock.prepare().setCompiledData(compiled).setSource("none").setNamedFieldData(list).build();
 
-    final byte[] compiled = new byte[]{0};
-    final JBBPCompiledBlock compiledBlock = JBBPCompiledBlock.prepare().setCompiledData(compiled).setSource("none").setNamedFieldData(list).build();
+        JBBPOnlyFieldEvaluator expr = new JBBPOnlyFieldEvaluator(null, 0);
+        assertEquals(value, expr.eval(null, 0, compiledBlock, map));
+    }
 
-    JBBPOnlyFieldEvaluator expr = new JBBPOnlyFieldEvaluator("value", -1);
-    assertEquals(value, expr.eval(null,0, compiledBlock, map));
-  }
-  
-  @Test
-  public void testExternalValueNamedAsFirstCharDollar() {
-    final int value = 1234;
-    final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap(new JBBPExternalValueProvider() {
+    @Test
+    public void testExternalValue() {
+        final int value = 1234;
+        final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap(new JBBPExternalValueProvider() {
 
-      @Override
-      public int provideArraySize(final String fieldName, final JBBPNamedNumericFieldMap numericFieldMap, final JBBPCompiledBlock compiledBlock) {
-        if (fieldName.equals("$value")) {
-          return value;
-        }
-        assertNotNull(numericFieldMap);
-        assertNotNull(compiledBlock);
-        fail("Unexpected request for value [" + fieldName + ']');
-        return -1;
-      }
-    });
+            @Override
+            public int provideArraySize(final String fieldName, final JBBPNamedNumericFieldMap numericFieldMap, final JBBPCompiledBlock compiledBlock) {
+                if (fieldName.equals("value")) {
+                    return value;
+                }
+                assertNotNull(numericFieldMap);
+                assertNotNull(compiledBlock);
+                fail("Unexpected request for value [" + fieldName + ']');
+                return -1;
+            }
+        });
 
-    final List<JBBPNamedFieldInfo> list = new ArrayList<JBBPNamedFieldInfo>();
+        final List<JBBPNamedFieldInfo> list = new ArrayList<JBBPNamedFieldInfo>();
 
-    final byte[] compiled = new byte[]{0};
-    final JBBPCompiledBlock compiledBlock = JBBPCompiledBlock.prepare().setCompiledData(compiled).setSource("none").setNamedFieldData(list).build();
+        final byte[] compiled = new byte[]{0};
+        final JBBPCompiledBlock compiledBlock = JBBPCompiledBlock.prepare().setCompiledData(compiled).setSource("none").setNamedFieldData(list).build();
 
-    JBBPOnlyFieldEvaluator expr = new JBBPOnlyFieldEvaluator("$value", -1);
-    assertEquals(value, expr.eval(null,0, compiledBlock, map));
-  }
-  
-  @Test
-  public void testCounterOfStreamAsParameter() throws Exception {
-    final List<JBBPNamedFieldInfo> list = new ArrayList<JBBPNamedFieldInfo>();
+        JBBPOnlyFieldEvaluator expr = new JBBPOnlyFieldEvaluator("value", -1);
+        assertEquals(value, expr.eval(null, 0, compiledBlock, map));
+    }
 
-    final byte[] compiled = new byte[]{0};
-    final JBBPCompiledBlock compiledBlock = JBBPCompiledBlock.prepare().setCompiledData(compiled).setSource("none").setNamedFieldData(list).build();
+    @Test
+    public void testExternalValueNamedAsFirstCharDollar() {
+        final int value = 1234;
+        final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap(new JBBPExternalValueProvider() {
 
-    JBBPOnlyFieldEvaluator expr = new JBBPOnlyFieldEvaluator("$", -1);
-    
-    final JBBPBitInputStream inStream = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1,2,3,4,5}));
-    inStream.read();
-    inStream.read();
-    inStream.read();
-    
-    assertEquals(3, expr.eval(inStream,0, compiledBlock, null));
-  }
-  
+            @Override
+            public int provideArraySize(final String fieldName, final JBBPNamedNumericFieldMap numericFieldMap, final JBBPCompiledBlock compiledBlock) {
+                if (fieldName.equals("$value")) {
+                    return value;
+                }
+                assertNotNull(numericFieldMap);
+                assertNotNull(compiledBlock);
+                fail("Unexpected request for value [" + fieldName + ']');
+                return -1;
+            }
+        });
+
+        final List<JBBPNamedFieldInfo> list = new ArrayList<JBBPNamedFieldInfo>();
+
+        final byte[] compiled = new byte[]{0};
+        final JBBPCompiledBlock compiledBlock = JBBPCompiledBlock.prepare().setCompiledData(compiled).setSource("none").setNamedFieldData(list).build();
+
+        JBBPOnlyFieldEvaluator expr = new JBBPOnlyFieldEvaluator("$value", -1);
+        assertEquals(value, expr.eval(null, 0, compiledBlock, map));
+    }
+
+    @Test
+    public void testCounterOfStreamAsParameter() throws Exception {
+        final List<JBBPNamedFieldInfo> list = new ArrayList<JBBPNamedFieldInfo>();
+
+        final byte[] compiled = new byte[]{0};
+        final JBBPCompiledBlock compiledBlock = JBBPCompiledBlock.prepare().setCompiledData(compiled).setSource("none").setNamedFieldData(list).build();
+
+        JBBPOnlyFieldEvaluator expr = new JBBPOnlyFieldEvaluator("$", -1);
+
+        final JBBPBitInputStream inStream = new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5}));
+        inStream.read();
+        inStream.read();
+        inStream.read();
+
+        assertEquals(3, expr.eval(inStream, 0, compiledBlock, null));
+    }
+
 }

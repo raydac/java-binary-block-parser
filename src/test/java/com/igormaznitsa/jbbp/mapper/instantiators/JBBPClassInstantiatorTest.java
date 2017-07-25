@@ -16,187 +16,193 @@
 
 package com.igormaznitsa.jbbp.mapper.instantiators;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-
-import static org.junit.Assert.*;
-
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+
+import static org.junit.Assert.assertNotNull;
+
 @RunWith(Parameterized.class)
 public class JBBPClassInstantiatorTest {
 
-  @Parameterized.Parameters
-  public static Collection<JBBPClassInstantiator[]> getParameters(){
-    if (SystemUtils.IS_JAVA_9) {
-      return Collections.singletonList(new JBBPClassInstantiator[]{new JBBPSafeInstantiator()});
-    } else {
-      return Arrays.asList(new JBBPClassInstantiator[]{new JBBPUnsafeInstantiator()}, new JBBPClassInstantiator[]{new JBBPSafeInstantiator()});
-    }
-  }
-  
-  private final JBBPClassInstantiator instantiator;
-  
-  public JBBPClassInstantiatorTest(final JBBPClassInstantiator val){
-    this.instantiator = val;
-  }
-  
-  static class StaticInnerOne {
-    PrivateStaticInnerTwo two;
-  }
-  
-  private static class PrivateStaticInnerTwo {
-    int hello;
-  }
-  
-  public static class Static {
-    StaticInnerOne inner;
-  }
+    private final JBBPClassInstantiator instantiator;
 
-  class NonStaticInnerOne {
-    PrivateStaticInnerTwo two;
-  }
-  
-  private class PrivateNonStaticInnerTwo {
-    int hello;
-  }
-  
-  public class NonStatic {
-    StaticInnerOne inner;
-  }
-
-  
-  @Test
-  public void testStaticClass() throws Exception{
-    assertNotNull(instantiator.makeClassInstance(Static.class));
-    assertNotNull(instantiator.makeClassInstance(StaticInnerOne.class));
-    assertNotNull(instantiator.makeClassInstance(PrivateStaticInnerTwo.class));
-  }
-  
-  @Test
-  public void testNonStaticClass() throws Exception{
-    assertNotNull(instantiator.makeClassInstance(NonStatic.class));
-    assertNotNull(instantiator.makeClassInstance(NonStaticInnerOne.class));
-    assertNotNull(instantiator.makeClassInstance(PrivateNonStaticInnerTwo.class));
-  }
-  
-  @Test
-  public void testInnerClass() throws Exception{
-    class InnerTwo {
-      int a;
-    }
-    class InnerOne {
-      InnerTwo two;
-    }
-    class Inner {
-      InnerOne one;
-    }
-    
-    assertNotNull(instantiator.makeClassInstance(Inner.class));
-    assertNotNull(instantiator.makeClassInstance(InnerOne.class));
-    assertNotNull(instantiator.makeClassInstance(InnerTwo.class));
-  }
-  
-  @Test
-  public void testInnerClassHierarchy() throws Exception{
-    class InnerOne {
-      int a;
-    }
-    class InnerTwo extends InnerOne {
-      int b;
-    }
-    class InnerThree extends InnerTwo{
-      int c;
-    }
-    
-    assertNotNull(instantiator.makeClassInstance(InnerOne.class));
-    assertNotNull(instantiator.makeClassInstance(InnerTwo.class));
-    assertNotNull(instantiator.makeClassInstance(InnerThree.class));
-  }
-
-  @Test
-  public void testCreateLocalClass_OnlyNonDefaultConstructor() throws Exception {
-    class NoDefaultConstructor {
-      int i;
-      NoDefaultConstructor(byte a, short m, char b, boolean c, int d, long e, float f, double g, String h, byte[] array) {
-        i = d;
-      }
+    public JBBPClassInstantiatorTest(final JBBPClassInstantiator val) {
+        this.instantiator = val;
     }
 
-    assertNotNull(instantiator.makeClassInstance(NoDefaultConstructor.class));
-  }
-
-  @Test
-  public void testCreateLocalClass_TwoCounsturctorsPlusDefaultConstructor() throws Exception {
-    class WithDefaultConstructor {
-      int i;
-      WithDefaultConstructor(byte a, short m, char b, boolean c, int d, long e, float f, double g, String h, byte[] array) {
-        i = d;
-      }
-
-      WithDefaultConstructor(int d) {
-        i = d;
-      }
-      
-      WithDefaultConstructor(){
-        i = 0;
-      }
+    @Parameterized.Parameters
+    public static Collection<JBBPClassInstantiator[]> getParameters() {
+        if (SystemUtils.IS_JAVA_9) {
+            return Collections.singletonList(new JBBPClassInstantiator[]{new JBBPSafeInstantiator()});
+        } else {
+            return Arrays.asList(new JBBPClassInstantiator[]{new JBBPUnsafeInstantiator()}, new JBBPClassInstantiator[]{new JBBPSafeInstantiator()});
+        }
     }
 
-    assertNotNull(instantiator.makeClassInstance(WithDefaultConstructor.class));
-  }
-
-  @Test
-  public void testCreateLocalClass_TwoCounsturctors() throws Exception {
-    class NoDefaultConstructor {
-      int i;
-      NoDefaultConstructor(byte a, short m, char b, boolean c, int d, long e, float f, double g, String h, byte[] array) {
-        i = d;
-      }
-
-      NoDefaultConstructor(int d) {
-        i = d;
-      }
+    @Test
+    public void testStaticClass() throws Exception {
+        assertNotNull(instantiator.makeClassInstance(Static.class));
+        assertNotNull(instantiator.makeClassInstance(StaticInnerOne.class));
+        assertNotNull(instantiator.makeClassInstance(PrivateStaticInnerTwo.class));
     }
 
-    assertNotNull(instantiator.makeClassInstance(NoDefaultConstructor.class));
-  }
+    @Test
+    public void testNonStaticClass() throws Exception {
+        assertNotNull(instantiator.makeClassInstance(NonStatic.class));
+        assertNotNull(instantiator.makeClassInstance(NonStaticInnerOne.class));
+        assertNotNull(instantiator.makeClassInstance(PrivateNonStaticInnerTwo.class));
+    }
 
-  
-  private static final class StaticTwoConstructorsPlusDefaultConstructor {
-    int i;
-    private StaticTwoConstructorsPlusDefaultConstructor(byte a, short m, char b, boolean c, int d, long e, float f, double g, String h, byte[] array) {
-      i = d;
-    }
-    private StaticTwoConstructorsPlusDefaultConstructor(int d) {
-      i = d;
-    }
-    private StaticTwoConstructorsPlusDefaultConstructor() {
-      i = 0;
-    }
-  }
-  
-  private static final class StaticTwoConstructors {
-    int i;
-    private StaticTwoConstructors(byte a, short m, char b, boolean c, int d, long e, float f, double g, String h, byte[] array) {
-      i = d;
-    }
-    private StaticTwoConstructors(int d) {
-      i = d;
-    }
-  }
-  
-  @Test
-  public void testCreateStaticClass_TwoConstructorsPlusDefaultConstructor() throws Exception {
-    assertNotNull(instantiator.makeClassInstance(StaticTwoConstructorsPlusDefaultConstructor.class));
-  }
+    @Test
+    public void testInnerClass() throws Exception {
+        class InnerTwo {
+            int a;
+        }
+        class InnerOne {
+            InnerTwo two;
+        }
+        class Inner {
+            InnerOne one;
+        }
 
-  @Test
-  public void testCreateStaticClass_TwoConstructors() throws Exception {
-    assertNotNull(instantiator.makeClassInstance(StaticTwoConstructors.class));
-  }
+        assertNotNull(instantiator.makeClassInstance(Inner.class));
+        assertNotNull(instantiator.makeClassInstance(InnerOne.class));
+        assertNotNull(instantiator.makeClassInstance(InnerTwo.class));
+    }
+
+    @Test
+    public void testInnerClassHierarchy() throws Exception {
+        class InnerOne {
+            int a;
+        }
+        class InnerTwo extends InnerOne {
+            int b;
+        }
+        class InnerThree extends InnerTwo {
+            int c;
+        }
+
+        assertNotNull(instantiator.makeClassInstance(InnerOne.class));
+        assertNotNull(instantiator.makeClassInstance(InnerTwo.class));
+        assertNotNull(instantiator.makeClassInstance(InnerThree.class));
+    }
+
+    @Test
+    public void testCreateLocalClass_OnlyNonDefaultConstructor() throws Exception {
+        class NoDefaultConstructor {
+            int i;
+
+            NoDefaultConstructor(byte a, short m, char b, boolean c, int d, long e, float f, double g, String h, byte[] array) {
+                i = d;
+            }
+        }
+
+        assertNotNull(instantiator.makeClassInstance(NoDefaultConstructor.class));
+    }
+
+    @Test
+    public void testCreateLocalClass_TwoCounsturctorsPlusDefaultConstructor() throws Exception {
+        class WithDefaultConstructor {
+            int i;
+
+            WithDefaultConstructor(byte a, short m, char b, boolean c, int d, long e, float f, double g, String h, byte[] array) {
+                i = d;
+            }
+
+            WithDefaultConstructor(int d) {
+                i = d;
+            }
+
+            WithDefaultConstructor() {
+                i = 0;
+            }
+        }
+
+        assertNotNull(instantiator.makeClassInstance(WithDefaultConstructor.class));
+    }
+
+    @Test
+    public void testCreateLocalClass_TwoCounsturctors() throws Exception {
+        class NoDefaultConstructor {
+            int i;
+
+            NoDefaultConstructor(byte a, short m, char b, boolean c, int d, long e, float f, double g, String h, byte[] array) {
+                i = d;
+            }
+
+            NoDefaultConstructor(int d) {
+                i = d;
+            }
+        }
+
+        assertNotNull(instantiator.makeClassInstance(NoDefaultConstructor.class));
+    }
+
+    @Test
+    public void testCreateStaticClass_TwoConstructorsPlusDefaultConstructor() throws Exception {
+        assertNotNull(instantiator.makeClassInstance(StaticTwoConstructorsPlusDefaultConstructor.class));
+    }
+
+    @Test
+    public void testCreateStaticClass_TwoConstructors() throws Exception {
+        assertNotNull(instantiator.makeClassInstance(StaticTwoConstructors.class));
+    }
+
+    static class StaticInnerOne {
+        PrivateStaticInnerTwo two;
+    }
+
+    private static class PrivateStaticInnerTwo {
+        int hello;
+    }
+
+    public static class Static {
+        StaticInnerOne inner;
+    }
+
+    private static final class StaticTwoConstructorsPlusDefaultConstructor {
+        int i;
+
+        private StaticTwoConstructorsPlusDefaultConstructor(byte a, short m, char b, boolean c, int d, long e, float f, double g, String h, byte[] array) {
+            i = d;
+        }
+
+        private StaticTwoConstructorsPlusDefaultConstructor(int d) {
+            i = d;
+        }
+
+        private StaticTwoConstructorsPlusDefaultConstructor() {
+            i = 0;
+        }
+    }
+
+    private static final class StaticTwoConstructors {
+        int i;
+
+        private StaticTwoConstructors(byte a, short m, char b, boolean c, int d, long e, float f, double g, String h, byte[] array) {
+            i = d;
+        }
+
+        private StaticTwoConstructors(int d) {
+            i = d;
+        }
+    }
+
+    class NonStaticInnerOne {
+        PrivateStaticInnerTwo two;
+    }
+
+    private class PrivateNonStaticInnerTwo {
+        int hello;
+    }
+
+    public class NonStatic {
+        StaticInnerOne inner;
+    }
 }

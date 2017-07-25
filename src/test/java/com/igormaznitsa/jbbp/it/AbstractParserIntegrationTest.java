@@ -17,55 +17,58 @@ package com.igormaznitsa.jbbp.it;
 
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-import java.io.*;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringWriter;
+
 import static org.junit.Assert.*;
 
 public abstract class AbstractParserIntegrationTest {
 
-  public void assertFile(final String fileName, final String text) throws Exception {
-    final InputStream in = this.getClass().getResourceAsStream(fileName);
-    assertNotNull("Can't find file [" + fileName + "]", in);
-    Reader reader = null;
-    String fileText = null;
-    try {
-      reader = new InputStreamReader(in, "UTF-8");
-      final StringWriter wr = new StringWriter();
+    public void assertFile(final String fileName, final String text) throws Exception {
+        final InputStream in = this.getClass().getResourceAsStream(fileName);
+        assertNotNull("Can't find file [" + fileName + "]", in);
+        Reader reader = null;
+        String fileText = null;
+        try {
+            reader = new InputStreamReader(in, "UTF-8");
+            final StringWriter wr = new StringWriter();
 
-      while (true) {
-        final int chr = reader.read();
-        if (chr < 0) {
-          break;
+            while (true) {
+                final int chr = reader.read();
+                if (chr < 0) {
+                    break;
+                }
+                wr.write(chr);
+            }
+            wr.close();
+            fileText = wr.toString();
+        } finally {
+            if (reader != null) {
+                reader.close();
+            }
         }
-        wr.write(chr);
-      }
-      wr.close();
-      fileText = wr.toString();
-    }
-    finally {
-      if (reader != null) {
-        reader.close();
-      }
+
+        assertEquals("File content must be equals", fileText, text);
     }
 
-    assertEquals("File content must be equals", fileText, text);
-  }
+    public InputStream getResourceAsInputStream(final String resourceName) throws Exception {
+        final InputStream result = this.getClass().getResourceAsStream(resourceName);
+        if (result == null) {
+            throw new NullPointerException("Can't find resource '" + resourceName + '\'');
+        }
+        return result;
+    }
 
-  public InputStream getResourceAsInputStream(final String resourceName) throws Exception {
-    final InputStream result = this.getClass().getResourceAsStream(resourceName);
-    if (result == null) {
-      throw new NullPointerException("Can't find resource '" + resourceName + '\'');
+    public void assertResource(final String resourceName, final byte[] content) throws Exception {
+        final InputStream in = getResourceAsInputStream(resourceName);
+        try {
+            final byte[] fileContent = new JBBPBitInputStream(in).readByteArray(-1);
+            assertArrayEquals("Content of '" + resourceName + "'", fileContent, content);
+        } finally {
+            JBBPUtils.closeQuietly(in);
+        }
     }
-    return result;
-  }
-  
-  public void assertResource(final String resourceName, final byte[] content) throws Exception {
-    final InputStream in = getResourceAsInputStream(resourceName);
-    try {
-      final byte[] fileContent = new JBBPBitInputStream(in).readByteArray(-1);
-      assertArrayEquals("Content of '" + resourceName + "'", fileContent, content);
-    }
-    finally {
-      JBBPUtils.closeQuietly(in);
-    }
-  }
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.igormaznitsa.jbbp.compiler.utils.converter;
+package com.igormaznitsa.jbbp.compiler.conversion;
 
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
@@ -30,36 +30,134 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.*;
 
-public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<ConverterToJavaClassSrc> {
+/**
+ * Implementation of converter to convert a compiled JBBPParser into Java class sources.
+ * If a parser contains variable field, custom fields or external values in expressions then the result class will be abstract one and its abstract methods must be implemented in successor.
+ *
+ * @since 1.3
+ */
+public class ParserToJavaClassConverter extends CompiledBlockVisitor {
 
+    /**
+     * Name of the field to be used as link to the root structure instance in child structures.
+     */
     private static final String NAME_ROOT_STRUCT = "_Root_";
+
+    /**
+     * Name of the field to keep information about parser flags.
+     */
     private static final String NAME_PARSER_FLAGS = "_ParserFlags_";
+
+    /**
+     * Name of the input stream argument.
+     */
     private static final String NAME_INPUT_STREAM = "In";
+
+    /**
+     * Name of the output stream argument.
+     */
     private static final String NAME_OUTPUT_STREAM = "Out";
 
-
+    /**
+     * Name of the package  for the creating class sources.
+     */
     private final String packageName;
 
+    /**
+     * Name of the target class.
+     */
     private final String className;
+
+    /**
+     * Flag shows that there were detected custom fields during process.
+     */
     private final AtomicBoolean detectedCustomFields = new AtomicBoolean();
+
+    /**
+     * Flag shows that there were detected external fields during process.
+     */
     private final AtomicBoolean detectedExternalFieldsInEvaluator = new AtomicBoolean();
+
+    /**
+     * Flag shows that there were detected variable fields during process.
+     */
     private final AtomicBoolean detectedVarFields = new AtomicBoolean();
-    private final AtomicInteger anonymousFieldCounter = new AtomicInteger();
-    private final AtomicInteger specialFieldsCounter = new AtomicInteger();
+
+    /**
+     * Map of detected named fields to their name field info object.
+     */
     private final Map<JBBPNamedFieldInfo, NamedFieldInfo> detectedNamedFields = new HashMap<JBBPNamedFieldInfo, NamedFieldInfo>();
+
+    /**
+     * Counter of anonymous fields to generate unique names.
+     */
+    private final AtomicInteger anonymousFieldCounter = new AtomicInteger();
+
+    /**
+     * Counter of special fields to generate their unique names.
+     */
+    private final AtomicInteger specialFieldsCounter = new AtomicInteger();
+
+    /**
+     * The List implements stack of current processing structures. The 0 contains the root.
+     */
     private final List<Struct> structStack = new ArrayList<Struct>();
+
+    /**
+     * Text buffer for the special section.
+     */
     private final TextBuffer specialSection = new TextBuffer();
+
+    /**
+     * Text buffer for the special methods.
+     */
     private final TextBuffer specialMethods = new TextBuffer();
+    /**
+     * Text to be added into the result class as comment before package info.
+     */
+    private final String classHeadComment;
+    /**
+     * The Field contans conversion result after process end.
+     */
     private String result;
 
-    public ConverterToJavaClassSrc(final String packageName, final String className, final JBBPParser notNullParser) {
-        this(packageName, className, notNullParser.getFlags(), notNullParser.getCompiledBlock());
+    /**
+     * Constructor
+     *
+     * @param packageName   the package name for target class, must not be null
+     * @param className     the target class name, must not be null
+     * @param notNullParser the parser to be converted, must not be null
+     */
+    public ParserToJavaClassConverter(final String packageName, final String className, final JBBPParser notNullParser) {
+        this(packageName, className, null, notNullParser);
     }
 
-    public ConverterToJavaClassSrc(final String packageName, final String className, final int parserFlags, final JBBPCompiledBlock notNullCompiledBlock) {
+    /**
+     * Constructor
+     *
+     * @param packageName              the package name for target class, must not be null
+     * @param className                the target class name, must not be null
+     * @param nullableClassHeadComment the text to be placed as comment before package data.
+     * @param notNullParser            the parser to be converted, must not be null
+     */
+    public ParserToJavaClassConverter(final String packageName, final String className, final String nullableClassHeadComment, final JBBPParser notNullParser) {
+        this(packageName, className, nullableClassHeadComment, notNullParser.getFlags(), notNullParser.getCompiledBlock());
+    }
+
+    /**
+     * The Main constructor
+     *
+     * @param packageName              the package name for target class, must not be null
+     * @param className                the target class name, must not be null
+     * @param nullableClassHeadComment the text to be placed as comment before package data.
+     * @param parserFlags              the parser flags to be used for conversion
+     * @param notNullCompiledBlock     the compiled parser data block, must not be null
+     */
+    public ParserToJavaClassConverter(final String packageName, final String className, final String nullableClassHeadComment, final int parserFlags, final JBBPCompiledBlock notNullCompiledBlock) {
         super(parserFlags, notNullCompiledBlock);
         this.packageName = packageName;
         this.className = className;
+        this.classHeadComment = nullableClassHeadComment;
     }
 
     private NamedFieldInfo registerNamedField(final JBBPNamedFieldInfo fieldInfo, final FieldType fieldType) {
@@ -78,7 +176,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
     }
 
     @Override
-    public void onConvertStart() {
+    public void visitStart() {
         this.detectedCustomFields.set(false);
         this.detectedExternalFieldsInEvaluator.set(false);
         this.detectedVarFields.set(false);
@@ -92,13 +190,22 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
         this.structStack.add(new Struct(null, null, className, "public"));
     }
 
+    /**
+     * Get result of the conversion process.
+     *
+     * @return the result, it will not be null if the process completed without errors.
+     */
     public String getResult() {
         return this.result;
     }
 
     @Override
-    public void onConvertEnd() {
+    public void visitEnd() {
         final TextBuffer buffer = new TextBuffer();
+
+        if (this.classHeadComment != null) {
+            buffer.printCommentMultiLinesWithIndent(this.classHeadComment);
+        }
 
         buffer.print("package ").print(this.packageName).println(";");
 
@@ -164,7 +271,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
     }
 
     @Override
-    public void onStructStart(final int offsetInCompiledBlock, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPIntegerValueEvaluator nullableArraySize) {
+    public void visitStructureStart(final int offsetInCompiledBlock, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPIntegerValueEvaluator nullableArraySize) {
         final String structName = (nullableNameFieldInfo == null ? makeAnonymousStructName() : nullableNameFieldInfo.getFieldName()).toLowerCase(Locale.ENGLISH);
         final String structType = structName.toUpperCase(Locale.ENGLISH);
         final String arraySizeIn = nullableArraySize == null ? null : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.detectedExternalFieldsInEvaluator);
@@ -211,12 +318,12 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
     }
 
     @Override
-    public void onStructEnd(final int offsetInCompiledBlock, final JBBPNamedFieldInfo nullableNameFieldInfo) {
+    public void visitStructureEnd(final int offsetInCompiledBlock, final JBBPNamedFieldInfo nullableNameFieldInfo) {
         this.structStack.remove(0);
     }
 
     @Override
-    public void onPrimitive(final int offsetInCompiledBlock, final int primitiveType, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPByteOrder byteOrder, final JBBPIntegerValueEvaluator nullableArraySize) {
+    public void visitPrimitiveField(final int offsetInCompiledBlock, final int primitiveType, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPByteOrder byteOrder, final boolean readWholeStreamAsArray, final JBBPIntegerValueEvaluator nullableArraySize) {
         final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() : nullableNameFieldInfo.getFieldName();
         final FieldType type = FieldType.findForCode(primitiveType);
 
@@ -241,7 +348,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
         } else {
             getCurrentStruct().getFields().printf("%s %s [] %s;%n", fieldModifier, type.asJavaArrayFieldType(), fieldName);
             getCurrentStruct().getReadFunc().printf("this.%s = %s;%n", fieldName, type.makeReaderForArray(NAME_INPUT_STREAM, arraySizeIn, byteOrder));
-            if ("-1".equals(arraySizeOut)) {
+            if (readWholeStreamAsArray) {
                 getCurrentStruct().getWriteFunc().print(type.makeWriterForArrayWithUnknownSize(NAME_OUTPUT_STREAM, "this." + fieldName, byteOrder)).println(";");
             } else {
                 getCurrentStruct().getWriteFunc().print(type.makeWriterForArray(NAME_OUTPUT_STREAM, "this." + fieldName, arraySizeOut, byteOrder)).println(";");
@@ -250,7 +357,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
     }
 
     @Override
-    public void onBitField(final int offsetInCompiledBlock, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPIntegerValueEvaluator notNullFieldSize, final JBBPIntegerValueEvaluator nullableArraySize) {
+    public void visitBitField(final int offsetInCompiledBlock, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPIntegerValueEvaluator notNullFieldSize, final JBBPIntegerValueEvaluator nullableArraySize) {
         final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() : nullableNameFieldInfo.getFieldName();
 
         registerNamedField(nullableNameFieldInfo, FieldType.BIT);
@@ -317,7 +424,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
     }
 
     @Override
-    public void onCustom(final int offsetInCompiledBlock, final JBBPFieldTypeParameterContainer notNullfieldType, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPByteOrder byteOrder, final boolean readWholeStream, final JBBPIntegerValueEvaluator nullableArraySizeEvaluator, final JBBPIntegerValueEvaluator extraDataValueEvaluator) {
+    public void visitCustomField(final int offsetInCompiledBlock, final JBBPFieldTypeParameterContainer notNullfieldType, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPByteOrder byteOrder, final boolean readWholeStream, final JBBPIntegerValueEvaluator nullableArraySizeEvaluator, final JBBPIntegerValueEvaluator extraDataValueEvaluator) {
         this.detectedCustomFields.set(true);
 
         registerNamedField(nullableNameFieldInfo, FieldType.CUSTOM);
@@ -374,7 +481,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
     }
 
     @Override
-    public void onVar(final int offsetInCompiledBlock, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPByteOrder byteOrder, final boolean readWholeStreamIntoArray, final JBBPIntegerValueEvaluator nullableArraySizeEvaluator, final JBBPIntegerValueEvaluator extraDataValueEvaluator) {
+    public void visitVarField(final int offsetInCompiledBlock, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPByteOrder byteOrder, final boolean readWholeStreamIntoArray, final JBBPIntegerValueEvaluator nullableArraySizeEvaluator, final JBBPIntegerValueEvaluator extraDataValueEvaluator) {
         this.detectedVarFields.set(true);
 
         registerNamedField(nullableNameFieldInfo, FieldType.VAR);
@@ -444,6 +551,15 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
         }
     }
 
+    /**
+     * Convert an evaluator into strng representation
+     *
+     * @param streamName            name of the stream in the case, must not be null
+     * @param offsetInBlock         offset of the data in the compiled block
+     * @param evaluator             the evaluator to be converted, must not be null
+     * @param detectedExternalField container of flag for detected external fields, must not be null
+     * @return the evaluator string representation, must not be null
+     */
     private String evaluatorToString(final String streamName, final int offsetInBlock, final JBBPIntegerValueEvaluator evaluator, final AtomicBoolean detectedExternalField) {
         final StringBuilder buffer = new StringBuilder();
 
@@ -451,19 +567,19 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
             private final List<Object> stack = new ArrayList<Object>();
 
             @Override
-            public ExpressionEvaluatorVisitor begin() {
+            public ExpressionEvaluatorVisitor visitStart() {
                 this.stack.clear();
                 return this;
             }
 
             @Override
-            public ExpressionEvaluatorVisitor visit(final Special specialField) {
+            public ExpressionEvaluatorVisitor visitSpecial(final Special specialField) {
                 this.stack.add(specialField);
                 return this;
             }
 
             @Override
-            public ExpressionEvaluatorVisitor visit(final JBBPNamedFieldInfo nullableNameFieldInfo, final String nullableExternalFieldName) {
+            public ExpressionEvaluatorVisitor visitField(final JBBPNamedFieldInfo nullableNameFieldInfo, final String nullableExternalFieldName) {
                 if (nullableNameFieldInfo != null) {
                     this.stack.add(nullableNameFieldInfo);
                 } else if (nullableExternalFieldName != null) {
@@ -474,13 +590,13 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
             }
 
             @Override
-            public ExpressionEvaluatorVisitor visit(final Operator operator) {
+            public ExpressionEvaluatorVisitor visitOperator(final Operator operator) {
                 this.stack.add(operator);
                 return this;
             }
 
             @Override
-            public ExpressionEvaluatorVisitor visit(final int value) {
+            public ExpressionEvaluatorVisitor visitConstant(final int value) {
                 this.stack.add(value);
                 return this;
             }
@@ -527,7 +643,7 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
             }
 
             @Override
-            public ExpressionEvaluatorVisitor end() {
+            public ExpressionEvaluatorVisitor visitEnd() {
                 buffer.setLength(0);
 
                 for (int i = 0; i < this.stack.size(); i++) {
@@ -591,13 +707,13 @@ public class ConverterToJavaClassSrc extends AbstractCompiledBlockConverter<Conv
             }
         };
 
-        evaluator.visit(this.compiledBlock, offsetInBlock, visitor);
+        evaluator.visitItems(this.compiledBlock, offsetInBlock, visitor);
 
         return buffer.toString();
     }
 
     @Override
-    public void onActionItem(final int offsetInCompiledBlock, final int actionType, final JBBPIntegerValueEvaluator nullableArgument) {
+    public void visitActionItem(final int offsetInCompiledBlock, final int actionType, final JBBPIntegerValueEvaluator nullableArgument) {
         final String valueTxtIn = nullableArgument == null ? "1" : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArgument, this.detectedExternalFieldsInEvaluator);
         final String valueTxtOut = nullableArgument == null ? "1" : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArgument, this.detectedExternalFieldsInEvaluator);
 

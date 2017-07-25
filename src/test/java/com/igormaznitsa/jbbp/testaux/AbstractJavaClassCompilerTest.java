@@ -32,24 +32,6 @@ public abstract class AbstractJavaClassCompilerTest {
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
 
-    public final static class JavaClassContent {
-        private final String className;
-        private final String classText;
-
-        public JavaClassContent(final String className, final String classText) {
-            this.className = className;
-            this.classText = classText;
-        }
-
-        public File makeFile(final File folder) {
-            return new File(folder, this.className.replace('.', '/') + ".java");
-        }
-
-        public String getText() {
-            return this.classText;
-        }
-    }
-
     public ClassLoader saveAndCompile(final JavaClassContent... klasses) throws IOException {
         final File folder = this.tempFolder.newFolder();
 
@@ -81,6 +63,24 @@ public abstract class AbstractJavaClassCompilerTest {
         final ClassLoader result = new URLClassLoader(new URL[]{folder.toURI().toURL()});
 
         return result;
+    }
+
+    public final static class JavaClassContent {
+        private final String className;
+        private final String classText;
+
+        public JavaClassContent(final String className, final String classText) {
+            this.className = className;
+            this.classText = classText;
+        }
+
+        public File makeFile(final File folder) {
+            return new File(folder, this.className.replace('.', '/') + ".java");
+        }
+
+        public String getText() {
+            return this.classText;
+        }
     }
 
 }

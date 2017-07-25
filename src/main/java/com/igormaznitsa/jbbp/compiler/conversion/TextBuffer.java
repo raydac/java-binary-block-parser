@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.igormaznitsa.jbbp.compiler.utils.converter;
+package com.igormaznitsa.jbbp.compiler.conversion;
 
 public class TextBuffer {
 
@@ -21,6 +21,10 @@ public class TextBuffer {
 
     private int tabCounter = 0;
 
+
+    public TextBuffer() {
+        this.buffer = new StringBuilder();
+    }
 
     public TextBuffer incIndent() {
         this.tabCounter++;
@@ -30,11 +34,6 @@ public class TextBuffer {
     public TextBuffer decIndent() {
         if (this.tabCounter > 0) this.tabCounter--;
         return this;
-    }
-
-
-    public TextBuffer() {
-        this.buffer = new StringBuilder();
     }
 
     public TextBuffer print(final int value) {
@@ -78,7 +77,7 @@ public class TextBuffer {
         return this;
     }
 
-    public boolean isEmpty(){
+    public boolean isEmpty() {
         return this.buffer.length() == 0;
     }
 
@@ -102,6 +101,18 @@ public class TextBuffer {
         for (final String aSplitted : splitted) {
             this.indent().print("// ").println(aSplitted);
         }
+
+        return this;
+    }
+
+    public TextBuffer printCommentMultiLinesWithIndent(final String text) {
+        final String[] splitted = text.split("\n");
+
+        this.indent().println("/*");
+        for (final String aSplitted : splitted) {
+            this.indent().print(" * ").println(aSplitted);
+        }
+        this.indent().println(" */");
 
         return this;
     }

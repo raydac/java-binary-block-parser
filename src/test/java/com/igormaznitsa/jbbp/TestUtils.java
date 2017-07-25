@@ -22,37 +22,41 @@ import java.lang.reflect.Modifier;
 /**
  * Different useful auxiliary test methods
  */
-public enum TestUtils {;
-  /**
-   * Inject new value into final field
-   * @param klazz a class which field must be injected, must not be null
-   * @param instance the instance of the class, it can be null for static fields
-   * @param fieldName the field name, must not be null
-   * @param value the value to be injected
-   * @throws Exception it will be thrown for any error
-   */      
-  public static void injectDeclaredFinalFieldValue(final Class<?> klazz, final Object instance, final String fieldName, final Object value) throws Exception {
-    final Field field = klazz.getDeclaredField(fieldName);
-    field.setAccessible(true);
+public enum TestUtils {
+    ;
 
-    final Field modifiersField = Field.class.getDeclaredField("modifiers");
-    modifiersField.setAccessible(true);
-    modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+    /**
+     * Inject new value into final field
+     *
+     * @param klazz     a class which field must be injected, must not be null
+     * @param instance  the instance of the class, it can be null for static fields
+     * @param fieldName the field name, must not be null
+     * @param value     the value to be injected
+     * @throws Exception it will be thrown for any error
+     */
+    public static void injectDeclaredFinalFieldValue(final Class<?> klazz, final Object instance, final String fieldName, final Object value) throws Exception {
+        final Field field = klazz.getDeclaredField(fieldName);
+        field.setAccessible(true);
 
-    field.set(instance, value);
-  }
+        final Field modifiersField = Field.class.getDeclaredField("modifiers");
+        modifiersField.setAccessible(true);
+        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
 
-  /**
-   * Get a field value.
-   * @param klazz a class which field will be read, must not be null
-   * @param instance an instance of the class, can be null for static fields
-   * @param fieldName the field name, must not be null
-   * @return the field value
-   * @throws Exception it will be thrown for any error
-   */
-  public static Object getFieldValue(final Class<?> klazz, final Object instance, final String fieldName) throws Exception {
-    final Field field = klazz.getDeclaredField(fieldName);
-    field.setAccessible(true);
-    return field.get(instance);
-  }
+        field.set(instance, value);
+    }
+
+    /**
+     * Get a field value.
+     *
+     * @param klazz     a class which field will be read, must not be null
+     * @param instance  an instance of the class, can be null for static fields
+     * @param fieldName the field name, must not be null
+     * @return the field value
+     * @throws Exception it will be thrown for any error
+     */
+    public static Object getFieldValue(final Class<?> klazz, final Object instance, final String fieldName) throws Exception {
+        final Field field = klazz.getDeclaredField(fieldName);
+        field.setAccessible(true);
+        return field.get(instance);
+    }
 }

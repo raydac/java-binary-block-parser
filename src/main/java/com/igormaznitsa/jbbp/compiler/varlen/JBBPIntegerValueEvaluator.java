@@ -17,7 +17,7 @@ package com.igormaznitsa.jbbp.compiler.varlen;
 
 import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
-import com.igormaznitsa.jbbp.compiler.utils.converter.ExpressionEvaluatorVisitor;
+import com.igormaznitsa.jbbp.compiler.conversion.ExpressionEvaluatorVisitor;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 
 import java.io.Serializable;
@@ -39,6 +39,13 @@ public interface JBBPIntegerValueEvaluator extends Serializable {
      */
     int eval(JBBPBitInputStream inStream, int currentCompiledBlockOffset, JBBPCompiledBlock block, JBBPNamedNumericFieldMap fieldMap);
 
-
-    void visit(JBBPCompiledBlock block, int currentCompiledBlockOffset, ExpressionEvaluatorVisitor visitor);
+    /**
+     * Visit all expression items
+     *
+     * @param block                      the compiled block contains value, must not be null
+     * @param currentCompiledBlockOffset the offset of the data in the compiled block
+     * @param visitor                    the visitor to visit items, must not be null
+     * @since 1.3
+     */
+    void visitItems(JBBPCompiledBlock block, int currentCompiledBlockOffset, ExpressionEvaluatorVisitor visitor);
 }

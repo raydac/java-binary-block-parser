@@ -17,7 +17,7 @@ package com.igormaznitsa.jbbp.compiler.varlen;
 
 import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
-import com.igormaznitsa.jbbp.compiler.utils.converter.ExpressionEvaluatorVisitor;
+import com.igormaznitsa.jbbp.compiler.conversion.ExpressionEvaluatorVisitor;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 
 /**
@@ -65,19 +65,19 @@ public final class JBBPOnlyFieldEvaluator implements JBBPIntegerValueEvaluator {
     }
 
     @Override
-    public void visit(final JBBPCompiledBlock block, final int currentCompiledBlockOffset, final ExpressionEvaluatorVisitor visitor) {
-        visitor.begin();
+    public void visitItems(final JBBPCompiledBlock block, final int currentCompiledBlockOffset, final ExpressionEvaluatorVisitor visitor) {
+        visitor.visitStart();
 
         if (this.externalFieldName == null) {
-            visitor.visit(block.getNamedFields()[this.namedFieldIndex], null);
+            visitor.visitField(block.getNamedFields()[this.namedFieldIndex], null);
         } else {
             if (this.externalFieldName.equals("$")) {
-                visitor.visit(ExpressionEvaluatorVisitor.Special.STREAM_COUNTER);
+                visitor.visitSpecial(ExpressionEvaluatorVisitor.Special.STREAM_COUNTER);
             } else {
-                visitor.visit(null, this.externalFieldName);
+                visitor.visitField(null, this.externalFieldName);
             }
         }
 
-        visitor.end();
+        visitor.visitEnd();
     }
 }

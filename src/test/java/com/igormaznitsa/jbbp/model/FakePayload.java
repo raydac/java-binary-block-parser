@@ -18,6 +18,6 @@ package com.igormaznitsa.jbbp.model;
 import java.io.Serializable;
 
 public class FakePayload implements Serializable {
-  private static final long serialVersionUID = 9192692187614580755L;
-  
+    private static final long serialVersionUID = 9192692187614580755L;
+
 }

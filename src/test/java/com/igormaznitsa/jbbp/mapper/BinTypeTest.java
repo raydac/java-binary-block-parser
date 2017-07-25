@@ -17,39 +17,40 @@
 package com.igormaznitsa.jbbp.mapper;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertEquals;
 
 public class BinTypeTest {
 
-  @Test(expected = NullPointerException.class)
-  public void testNPEInFindCompatibleForNull() {
-    BinType.findCompatible(null);
-  }
-  
-  @Test
-  public void testFindCompatiblePrimitiveArray() {
-    assertEquals(BinType.BYTE_ARRAY, BinType.findCompatible(byte[].class));
-    assertEquals(BinType.USHORT_ARRAY, BinType.findCompatible(char[].class));
-    assertEquals(BinType.SHORT_ARRAY, BinType.findCompatible(short[].class));
-    assertEquals(BinType.BOOL_ARRAY, BinType.findCompatible(boolean[].class));
-    assertEquals(BinType.INT_ARRAY, BinType.findCompatible(int[].class));
-    assertEquals(BinType.LONG_ARRAY, BinType.findCompatible(long[].class));
-    assertEquals(BinType.STRUCT_ARRAY, BinType.findCompatible(String[].class));
-    assertEquals(BinType.INT_ARRAY,BinType.findCompatible(float[].class));
-    assertEquals(BinType.LONG_ARRAY,BinType.findCompatible(double[].class));
-  }
-  
-  @Test
-  public void testFindCompatiblePrimitive() {
-    assertEquals(BinType.BYTE, BinType.findCompatible(byte.class));
-    assertEquals(BinType.USHORT, BinType.findCompatible(char.class));
-    assertEquals(BinType.SHORT, BinType.findCompatible(short.class));
-    assertEquals(BinType.BOOL, BinType.findCompatible(boolean.class));
-    assertEquals(BinType.INT, BinType.findCompatible(int.class));
-    assertEquals(BinType.LONG, BinType.findCompatible(long.class));
-    assertEquals(BinType.BYTE_ARRAY, BinType.findCompatible(String.class));
-    assertEquals(BinType.INT,BinType.findCompatible(float.class));
-    assertEquals(BinType.LONG,BinType.findCompatible(double.class));
-  }
-  
+    @Test(expected = NullPointerException.class)
+    public void testNPEInFindCompatibleForNull() {
+        BinType.findCompatible(null);
+    }
+
+    @Test
+    public void testFindCompatiblePrimitiveArray() {
+        assertEquals(BinType.BYTE_ARRAY, BinType.findCompatible(byte[].class));
+        assertEquals(BinType.USHORT_ARRAY, BinType.findCompatible(char[].class));
+        assertEquals(BinType.SHORT_ARRAY, BinType.findCompatible(short[].class));
+        assertEquals(BinType.BOOL_ARRAY, BinType.findCompatible(boolean[].class));
+        assertEquals(BinType.INT_ARRAY, BinType.findCompatible(int[].class));
+        assertEquals(BinType.LONG_ARRAY, BinType.findCompatible(long[].class));
+        assertEquals(BinType.STRUCT_ARRAY, BinType.findCompatible(String[].class));
+        assertEquals(BinType.INT_ARRAY, BinType.findCompatible(float[].class));
+        assertEquals(BinType.LONG_ARRAY, BinType.findCompatible(double[].class));
+    }
+
+    @Test
+    public void testFindCompatiblePrimitive() {
+        assertEquals(BinType.BYTE, BinType.findCompatible(byte.class));
+        assertEquals(BinType.USHORT, BinType.findCompatible(char.class));
+        assertEquals(BinType.SHORT, BinType.findCompatible(short.class));
+        assertEquals(BinType.BOOL, BinType.findCompatible(boolean.class));
+        assertEquals(BinType.INT, BinType.findCompatible(int.class));
+        assertEquals(BinType.LONG, BinType.findCompatible(long.class));
+        assertEquals(BinType.BYTE_ARRAY, BinType.findCompatible(String.class));
+        assertEquals(BinType.INT, BinType.findCompatible(float.class));
+        assertEquals(BinType.LONG, BinType.findCompatible(double.class));
+    }
+
 }

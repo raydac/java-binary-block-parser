@@ -17,90 +17,88 @@ package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 public class JBBPFieldArrayStructTest {
 
-  private final JBBPFieldArrayStruct test = new JBBPFieldArrayStruct(
-          new JBBPNamedFieldInfo("test.field", "field", 999), new JBBPFieldStruct[]{
-            new JBBPFieldStruct(null, new JBBPAbstractField[0]), 
+    private final JBBPFieldArrayStruct test = new JBBPFieldArrayStruct(
+            new JBBPNamedFieldInfo("test.field", "field", 999), new JBBPFieldStruct[]{
+            new JBBPFieldStruct(null, new JBBPAbstractField[0]),
             new JBBPFieldStruct(null, new JBBPAbstractField[0])
-          }
-  );
-
-  @Test
-  public void testNameAndOffset() {
-    assertEquals("test.field", test.getFieldPath());
-    assertEquals("field", test.getFieldName());
-    assertNotNull(test.getNameInfo());
-    assertEquals(999, test.getNameInfo().getFieldOffsetInCompiledBlock());
-  }
-
-  @Test
-  public void testSize() {
-    assertEquals(2, test.size());
-  }
-
-  @Test
-  public void testGetArray() {
-    assertEquals(2, test.getArray().length);
-    assertNotNull(test.getArray()[0]);
-    assertNotNull(test.getArray()[1]);
-  }
-
-  @Test
-  public void testGetAsBool() {
-    try {
-      test.getAsBool(0);
-      fail("Must throw UOE");
     }
-    catch (UnsupportedOperationException ex) {
+    );
 
+    @Test
+    public void testNameAndOffset() {
+        assertEquals("test.field", test.getFieldPath());
+        assertEquals("field", test.getFieldName());
+        assertNotNull(test.getNameInfo());
+        assertEquals(999, test.getNameInfo().getFieldOffsetInCompiledBlock());
     }
-  }
 
-  @Test
-  public void testGetAsInt() {
-    try {
-      test.getAsInt(0);
-      fail("Must throw UOE");
+    @Test
+    public void testSize() {
+        assertEquals(2, test.size());
     }
-    catch (UnsupportedOperationException ex) {
 
+    @Test
+    public void testGetArray() {
+        assertEquals(2, test.getArray().length);
+        assertNotNull(test.getArray()[0]);
+        assertNotNull(test.getArray()[1]);
     }
-  }
 
-  @Test
-  public void testGetAsLong() {
-    try {
-      test.getAsLong(0);
-      fail("Must throw UOE");
+    @Test
+    public void testGetAsBool() {
+        try {
+            test.getAsBool(0);
+            fail("Must throw UOE");
+        } catch (UnsupportedOperationException ex) {
+
+        }
     }
-    catch (UnsupportedOperationException ex) {
 
+    @Test
+    public void testGetAsInt() {
+        try {
+            test.getAsInt(0);
+            fail("Must throw UOE");
+        } catch (UnsupportedOperationException ex) {
+
+        }
     }
-  }
 
-  @Test
-  public void testIterable() {
-    int counter = 0;
-    for (final JBBPFieldStruct f : test) {
-      assertNotNull(f);
-      counter++;
+    @Test
+    public void testGetAsLong() {
+        try {
+            test.getAsLong(0);
+            fail("Must throw UOE");
+        } catch (UnsupportedOperationException ex) {
+
+        }
     }
-    assertEquals(2, counter);
-  }
 
-  @Test
-  public void testGetValueArrayAsObject() throws Exception {
-    final Object resultForFalse = test.getValueArrayAsObject(false);
-    final Object resultForTrue = test.getValueArrayAsObject(true);
-  
-    assertNotSame(test.getArray(), resultForFalse);
-    assertNotSame(test.getArray(), resultForTrue);
-    assertNotSame(resultForTrue, resultForFalse);
-  
-    assertArrayEquals((Object[])resultForTrue, test.getArray());
-    assertArrayEquals((Object[])resultForTrue, (Object[])resultForFalse);
-  }
+    @Test
+    public void testIterable() {
+        int counter = 0;
+        for (final JBBPFieldStruct f : test) {
+            assertNotNull(f);
+            counter++;
+        }
+        assertEquals(2, counter);
+    }
+
+    @Test
+    public void testGetValueArrayAsObject() throws Exception {
+        final Object resultForFalse = test.getValueArrayAsObject(false);
+        final Object resultForTrue = test.getValueArrayAsObject(true);
+
+        assertNotSame(test.getArray(), resultForFalse);
+        assertNotSame(test.getArray(), resultForTrue);
+        assertNotSame(resultForTrue, resultForFalse);
+
+        assertArrayEquals((Object[]) resultForTrue, test.getArray());
+        assertArrayEquals((Object[]) resultForTrue, (Object[]) resultForFalse);
+    }
 }

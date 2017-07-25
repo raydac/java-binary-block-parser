@@ -18,8 +18,8 @@ package com.igormaznitsa.jbbp.compiler.varlen;
 import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.compiler.conversion.ExpressionEvaluatorVisitor;
 import com.igormaznitsa.jbbp.compiler.utils.JBBPCompilerUtils;
-import com.igormaznitsa.jbbp.compiler.utils.converter.ExpressionEvaluatorVisitor;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPEvalException;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
@@ -676,8 +676,8 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
     }
 
     @Override
-    public void visit(final JBBPCompiledBlock block, final int currentCompiledBlockOffset, final ExpressionEvaluatorVisitor visitor) {
-        visitor.begin();
+    public void visitItems(final JBBPCompiledBlock block, final int currentCompiledBlockOffset, final ExpressionEvaluatorVisitor visitor) {
+        visitor.visitStart();
 
         final JBBPIntCounter counter = new JBBPIntCounter();
 
@@ -690,65 +690,65 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
 
                     if (code == CODE_EXTVAR) {
                         if ("$".equals(this.externalValueNames[index])) {
-                            visitor.visit(ExpressionEvaluatorVisitor.Special.STREAM_COUNTER);
+                            visitor.visitSpecial(ExpressionEvaluatorVisitor.Special.STREAM_COUNTER);
                         } else {
-                            visitor.visit(null, this.externalValueNames[index]);
+                            visitor.visitField(null, this.externalValueNames[index]);
                         }
                     } else {
-                        visitor.visit(block.getNamedFields()[index], null);
+                        visitor.visitField(block.getNamedFields()[index], null);
                     }
                 }
                 break;
                 case CODE_CONST:
-                    visitor.visit(JBBPUtils.unpackInt(this.compiledExpression, counter));
+                    visitor.visitConstant(JBBPUtils.unpackInt(this.compiledExpression, counter));
                     break;
                 case CODE_ADD:
-                    visitor.visit(ExpressionEvaluatorVisitor.Operator.ADD);
+                    visitor.visitOperator(ExpressionEvaluatorVisitor.Operator.ADD);
                     break;
                 case CODE_AND:
-                    visitor.visit(ExpressionEvaluatorVisitor.Operator.AND);
+                    visitor.visitOperator(ExpressionEvaluatorVisitor.Operator.AND);
                     break;
                 case CODE_OR:
-                    visitor.visit(ExpressionEvaluatorVisitor.Operator.OR);
+                    visitor.visitOperator(ExpressionEvaluatorVisitor.Operator.OR);
                     break;
                 case CODE_XOR:
-                    visitor.visit(ExpressionEvaluatorVisitor.Operator.XOR);
+                    visitor.visitOperator(ExpressionEvaluatorVisitor.Operator.XOR);
                     break;
                 case CODE_MINUS:
-                    visitor.visit(ExpressionEvaluatorVisitor.Operator.SUB);
+                    visitor.visitOperator(ExpressionEvaluatorVisitor.Operator.SUB);
                     break;
                 case CODE_UNARYMINUS:
-                    visitor.visit(ExpressionEvaluatorVisitor.Operator.UNARY_MINUS);
+                    visitor.visitOperator(ExpressionEvaluatorVisitor.Operator.UNARY_MINUS);
                     break;
                 case CODE_UNARYPLUS:
-                    visitor.visit(ExpressionEvaluatorVisitor.Operator.UNARY_PLUS);
+                    visitor.visitOperator(ExpressionEvaluatorVisitor.Operator.UNARY_PLUS);
                     break;
                 case CODE_NOT:
-                    visitor.visit(ExpressionEvaluatorVisitor.Operator.NOT);
+                    visitor.visitOperator(ExpressionEvaluatorVisitor.Operator.NOT);
                     break;
                 case CODE_DIV:
-                    visitor.visit(ExpressionEvaluatorVisitor.Operator.DIV);
+                    visitor.visitOperator(ExpressionEvaluatorVisitor.Operator.DIV);
                     break;
                 case CODE_MUL:
-                    visitor.visit(ExpressionEvaluatorVisitor.Operator.MUL);
+                    visitor.visitOperator(ExpressionEvaluatorVisitor.Operator.MUL);
                     break;
                 case CODE_MOD:
-                    visitor.visit(ExpressionEvaluatorVisitor.Operator.MOD);
+                    visitor.visitOperator(ExpressionEvaluatorVisitor.Operator.MOD);
                     break;
                 case CODE_LSHIFT:
-                    visitor.visit(ExpressionEvaluatorVisitor.Operator.LSHIFT);
+                    visitor.visitOperator(ExpressionEvaluatorVisitor.Operator.LSHIFT);
                     break;
                 case CODE_RSHIFT:
-                    visitor.visit(ExpressionEvaluatorVisitor.Operator.RSHIFT);
+                    visitor.visitOperator(ExpressionEvaluatorVisitor.Operator.RSHIFT);
                     break;
                 case CODE_RSIGNSHIFT:
-                    visitor.visit(ExpressionEvaluatorVisitor.Operator.URSHIFT);
+                    visitor.visitOperator(ExpressionEvaluatorVisitor.Operator.URSHIFT);
                     break;
                 default:
                     throw new Error("Detected unsupported operation, contact developer");
             }
         }
-        visitor.end();
+        visitor.visitEnd();
     }
 
     @Override

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.igormaznitsa.jbbp.compiler.utils.converter;
+package com.igormaznitsa.jbbp.compiler.conversion;
 
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.JBBPParser;
@@ -28,7 +28,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-public class ConverterToJavaClassSrcCompilationTest extends AbstractJavaClassCompilerTest {
+public class ParserToJavaClassConverterCompilationTest extends AbstractJavaClassCompilerTest {
 
     private static final String PACKAGE_NAME = "com.igormaznitsa.test";
     private static final String CLASS_NAME = "TestClass";
@@ -36,7 +36,7 @@ public class ConverterToJavaClassSrcCompilationTest extends AbstractJavaClassCom
     @Test
     public void testExpression() throws Exception {
         final JBBPParser parser = JBBPParser.prepare("bit:8 bitf; var somevar; bool bbb; long aaa; ubyte kkk; {{int lrn; {int [(lrn/aaa*1*(2*somevar-4)&$joomla)/(100%9>>bitf)&56|~kkk^78&bbb];}}}");
-        final String classSrc = parser.makeClassSrc(PACKAGE_NAME, CLASS_NAME);
+        final String classSrc = parser.makeClassSrc(PACKAGE_NAME, CLASS_NAME, "some multiline text\nto be added into header");
         System.out.println(classSrc);
         final ClassLoader cloader = saveAndCompile(new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, classSrc));
     }

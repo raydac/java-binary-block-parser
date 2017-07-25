@@ -13,23 +13,63 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.igormaznitsa.jbbp.compiler.utils.converter;
+package com.igormaznitsa.jbbp.compiler.conversion;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 
+/**
+ * Interface describes a visitor for compiled expressions.
+ *
+ * @since 1.3
+ */
 public interface ExpressionEvaluatorVisitor {
 
-    ExpressionEvaluatorVisitor begin();
+    /**
+     * Start visit.
+     *
+     * @return the visitor instance, must not be null
+     */
+    ExpressionEvaluatorVisitor visitStart();
 
-    ExpressionEvaluatorVisitor visit(Special specialField);
+    /**
+     * Visit special field (like stream counter)
+     *
+     * @param specialField
+     * @return the visitor instance, must not be null
+     */
+    ExpressionEvaluatorVisitor visitSpecial(Special specialField);
 
-    ExpressionEvaluatorVisitor visit(JBBPNamedFieldInfo nullableNameFieldInfo, String nullableExternalFieldName);
+    /**
+     * Visit field item, it can be or named field or external field (which name starts with $)
+     *
+     * @param nullableNameFieldInfo     name info for the field, it will be null for external fields
+     * @param nullableExternalFieldName name of external field, it will be null for regular field
+     * @return the visitor instance, must not be null
+     */
+    ExpressionEvaluatorVisitor visitField(JBBPNamedFieldInfo nullableNameFieldInfo, String nullableExternalFieldName);
 
-    ExpressionEvaluatorVisitor visit(Operator operator);
+    /**
+     * Visit operator
+     *
+     * @param operator operator item to be visited, must not be null
+     * @return the visitor instance, must not be null
+     */
+    ExpressionEvaluatorVisitor visitOperator(Operator operator);
 
-    ExpressionEvaluatorVisitor visit(int value);
+    /**
+     * Visit integer costant
+     *
+     * @param value integer constant
+     * @return the visitor instance, must not be null
+     */
+    ExpressionEvaluatorVisitor visitConstant(int value);
 
-    ExpressionEvaluatorVisitor end();
+    /**
+     * End of expression
+     *
+     * @return the visitor instance, must not be null
+     */
+    ExpressionEvaluatorVisitor visitEnd();
 
     enum Special {
         STREAM_COUNTER
