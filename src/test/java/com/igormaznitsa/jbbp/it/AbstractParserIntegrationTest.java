@@ -31,7 +31,7 @@ public abstract class AbstractParserIntegrationTest {
         final InputStream in = this.getClass().getResourceAsStream(fileName);
         assertNotNull("Can't find file [" + fileName + "]", in);
         Reader reader = null;
-        String fileText = null;
+        String fileText;
         try {
             reader = new InputStreamReader(in, "UTF-8");
             final StringWriter wr = new StringWriter();

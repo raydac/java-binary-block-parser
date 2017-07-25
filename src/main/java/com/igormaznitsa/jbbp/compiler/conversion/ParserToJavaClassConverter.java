@@ -117,7 +117,7 @@ public class ParserToJavaClassConverter extends CompiledBlockVisitor {
      */
     private final String classHeadComment;
     /**
-     * The Field contans conversion result after process end.
+     * The Field contains conversion result after process end.
      */
     private String result;
 
@@ -552,7 +552,7 @@ public class ParserToJavaClassConverter extends CompiledBlockVisitor {
     }
 
     /**
-     * Convert an evaluator into strng representation
+     * Convert an evaluator into string representation
      *
      * @param streamName            name of the stream in the case, must not be null
      * @param offsetInBlock         offset of the data in the compiled block

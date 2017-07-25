@@ -178,13 +178,13 @@ public final class JBBPCompiler {
             final int code = prepareCodeForToken(token, customTypeFieldProcessor);
             final int startFieldOffset = offset;
 
-            final int extracode = code >>> 8;
+            final int extraCode = code >>> 8;
 
             out.write(code);
             offset++;
 
             if ((code & FLAG_WIDE) != 0) {
-                out.write(extracode);
+                out.write(extraCode);
                 offset++;
             }
 
@@ -359,7 +359,7 @@ public final class JBBPCompiler {
             }
 
             if ((code & FLAG_ARRAY) != 0) {
-                if ((extracode & EXT_FLAG_EXPRESSION_OR_WHOLESTREAM) != 0) {
+                if ((extraCode & EXT_FLAG_EXPRESSION_OR_WHOLESTREAM) != 0) {
                     if ("_".equals(token.getArraySizeAsString())) {
                         if (fieldUnrestrictedArrayOffset >= 0) {
                             throw new JBBPCompilationException("Detected two or more unlimited arrays [" + script + ']', token);
@@ -407,7 +407,7 @@ public final class JBBPCompiler {
         }
 
         if (!structureStack.isEmpty()) {
-            throw new JBBPCompilationException("Detected nonclosed " + structureStack.size() + " structure(s)");
+            throw new JBBPCompilationException("Detected non-closed " + structureStack.size() + " structure(s)");
         }
 
         final byte[] compiledBlock = out.toByteArray();

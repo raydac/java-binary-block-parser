@@ -164,7 +164,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
         final Matcher matcher = PATTERN.matcher(expression);
         int lastFound = -1;
 
-        final ByteArrayOutputStream compiedScript = new ByteArrayOutputStream(256);
+        final ByteArrayOutputStream compiledScript = new ByteArrayOutputStream(256);
 
         final List<Integer> operationStack = new ArrayList<Integer>();
 
@@ -215,8 +215,8 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
                 }
 
                 try {
-                    compiedScript.write(extValue ? CODE_EXTVAR : CODE_VAR);
-                    compiedScript.write(JBBPUtils.packInt(nameIndex));
+                    compiledScript.write(extValue ? CODE_EXTVAR : CODE_VAR);
+                    compiledScript.write(JBBPUtils.packInt(nameIndex));
 
                     if (unaryOperatorCode > 0) {
                         switch (unaryOperatorCode) {
@@ -226,11 +226,11 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
                             break;
                             case CODE_MINUS:
                             case CODE_UNARYMINUS: {
-                                compiedScript.write(CODE_UNARYMINUS);
+                                compiledScript.write(CODE_UNARYMINUS);
                             }
                             break;
                             case CODE_NOT: {
-                                compiedScript.write(CODE_NOT);
+                                compiledScript.write(CODE_NOT);
                             }
                             break;
                             default:
@@ -294,7 +294,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
                         final int top = operationStack.get(operationStack.size() - 1);
                         if (PRIORITIES[top] >= currentPriority) {
                             operationStack.remove(operationStack.size() - 1);
-                            compiedScript.write(top);
+                            compiledScript.write(top);
                         } else {
                             break;
                         }
@@ -317,7 +317,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
                     while (!operationStack.isEmpty()) {
                         final int top = operationStack.remove(operationStack.size() - 1);
                         if (top != PSEUDOCODE_LEFT_BRACKET) {
-                            compiedScript.write(top);
+                            compiledScript.write(top);
                         } else {
                             metLeftPart = true;
                             break;
@@ -359,9 +359,9 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
                     }
 
                     unaryOperatorCode = -1;
-                    compiedScript.write(CODE_CONST);
+                    compiledScript.write(CODE_CONST);
                     try {
-                        compiedScript.write(JBBPUtils.packInt(parsed));
+                        compiledScript.write(JBBPUtils.packInt(parsed));
                     } catch (IOException ex) {
                         throw new RuntimeException("Unexpected IO exception", ex);
                     }
@@ -389,14 +389,14 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
             if (top == PSEUDOCODE_LEFT_BRACKET) {
                 throw new JBBPCompilationException("Detected unclosed bracket [" + this.expressionSource + ']');
             }
-            compiedScript.write(top);
+            compiledScript.write(top);
         }
 
         if (lastFound < 0) {
             throw new JBBPCompilationException("Can't extract expression [" + this.expressionSource + ']');
         }
 
-        this.compiledExpression = compiedScript.toByteArray();
+        this.compiledExpression = compiledScript.toByteArray();
         this.externalValueNames = externalValueNameList.isEmpty() ? null : externalValueNameList.toArray(new String[externalValueNameList.size()]);
 
         this.maxStackDepth = calculateMaxStackDepth();

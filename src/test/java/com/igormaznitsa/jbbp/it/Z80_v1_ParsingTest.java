@@ -165,7 +165,7 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
     @Test
     public void testParseAndPackThrowMapping() throws Exception {
         final InputStream in = getResourceAsInputStream("test.z80");
-        Z80Snapshot parsed = null;
+        Z80Snapshot parsed;
         try {
             parsed = z80Parser.parse(in).mapTo(Z80Snapshot.class, new DataProcessor());
         } finally {

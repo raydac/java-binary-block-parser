@@ -106,7 +106,7 @@ public final class JBBPNamedFieldInfo implements Serializable {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "[fieldPath=" + this.fieldPath + ", fieldName=" + this.fieldName + ", offetInCompiledBlock=" + this.offsetInCompiledBlock + ']';
+        return this.getClass().getSimpleName() + "[fieldPath=" + this.fieldPath + ", fieldName=" + this.fieldName + ", offsetInCompiledBlock=" + this.offsetInCompiledBlock + ']';
     }
 
 }

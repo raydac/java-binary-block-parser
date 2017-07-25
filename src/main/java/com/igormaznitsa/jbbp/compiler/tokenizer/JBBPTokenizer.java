@@ -197,7 +197,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
 
                         wrongFormat = false;
 
-                        JBBPByteOrder byteOrder = null;
+                        JBBPByteOrder byteOrder;
                         if (groupTypeByteOrder != null) {
                             if (">".equals(groupTypeByteOrder)) {
                                 byteOrder = JBBPByteOrder.BIG_ENDIAN;

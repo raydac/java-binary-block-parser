@@ -26,10 +26,7 @@ import java.io.IOException;
 import java.lang.reflect.AccessibleObject;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
@@ -353,9 +350,7 @@ public final class JBBPUtils {
      */
     public static List<JBBPAbstractField> fieldsAsList(final JBBPAbstractField... fields) {
         final List<JBBPAbstractField> result = new ArrayList<JBBPAbstractField>();
-        for (final JBBPAbstractField f : fields) {
-            result.add(f);
-        }
+        Collections.addAll(result, fields);
         return result;
     }
 

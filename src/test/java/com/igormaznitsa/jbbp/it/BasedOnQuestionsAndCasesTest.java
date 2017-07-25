@@ -156,7 +156,7 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
                 + "byte [_] Data;");
 
         InputStream inStream = getResourceAsInputStream("tcppacket.bin");
-        byte[] testArray = null;
+        byte[] testArray;
         try {
             testArray = new JBBPBitInputStream(inStream).readByteArray(-1);
             assertEquals(173, testArray.length);

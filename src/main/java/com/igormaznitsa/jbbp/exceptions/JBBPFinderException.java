@@ -53,7 +53,7 @@ public class JBBPFinderException extends JBBPException {
      *
      * @return the name or the path used for search, it can be null
      */
-    public String getNamrOrPath() {
+    public String getNameOrPath() {
         return this.nameOrPath;
     }
 
