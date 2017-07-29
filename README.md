@@ -18,8 +18,9 @@ For instance I have been very actively using the framework in [the ZX-Poly emula
 Change log
 ===========
 - **1.3.0-SNAPSHOT**
+  - created [Maven plugin](https://github.com/raydac/jbbp-maven-plugin) to generate Java class sources (1.6+) from JBBP scripts
   - added extra byte array reading writing methods with byte order support into JBBPBitInputStream and JBBPBitOutputStream
-  - added converter of compiled parser into Java class sources
+  - added converter of compiled parser data into Java class sources (1.6+)
   - added method to read unsigned short values as char [] into JBBPBitInputStream
   - Class version target has been changed to Java 1.6
   - Minor refactoring
