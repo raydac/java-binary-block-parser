@@ -313,7 +313,7 @@ public class ParserToJavaClassConverter extends CompiledBlockVisitor {
 
     private void processSkipRemainingFlag() {
         if (this.isFlagSkipRemainingFieldsIfEOF()) {
-            this.getCurrentStruct().getReadFunc().indent().println("if (!in.hasAvailableData()) return this;");
+            this.getCurrentStruct().getReadFunc().indent().println(String.format("if (!%s.hasAvailableData()) return this;",NAME_INPUT_STREAM));
         }
     }
 
