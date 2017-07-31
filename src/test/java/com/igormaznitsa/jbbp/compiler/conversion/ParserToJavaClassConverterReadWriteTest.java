@@ -52,7 +52,7 @@ public class ParserToJavaClassConverterReadWriteTest extends AbstractJavaClassCo
   }
   
   @Test
-  public void testReadWite_ByteArray() throws Exception {
+  public void testReadWite_ByteArrayWholeStream() throws Exception {
     final Object instance = make("byte [_] byteArray;");
     assertNull("by default must be null",TestUtils.getField(instance, "bytearray", byte[].class));
   
