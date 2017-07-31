@@ -46,17 +46,20 @@ public enum TestUtils {
     }
 
     /**
-     * Get a field value.
-     *
-     * @param klazz     a class which field will be read, must not be null
-     * @param instance  an instance of the class, can be null for static fields
-     * @param fieldName the field name, must not be null
-     * @return the field value
-     * @throws Exception it will be thrown for any error
+     * Read field value, also allows to provide dot-separated chain of fields
+     * @param <T> expected type of value
+     * @param instance instance of object, must not be null
+     * @param fieldName field name, can be single name or dot-separated one, must not be null 
+     * @param klazz expected value class, must not be null
+     * @return value, can be null
+     * @throws Exception it will be thrown if any error
      */
-    public static Object getFieldValue(final Class<?> klazz, final Object instance, final String fieldName) throws Exception {
-        final Field field = klazz.getDeclaredField(fieldName);
-        field.setAccessible(true);
-        return field.get(instance);
+  public static <T> T getField(final Object instance, final String fieldName, final Class<T> klazz) throws Exception {
+    final String [] fields = fieldName.split("\\.");
+    Object result = instance;
+    for (final String f : fields) {
+      result = result.getClass().getField(f).get(result);
     }
+    return klazz.cast(result);
+  }
 }
