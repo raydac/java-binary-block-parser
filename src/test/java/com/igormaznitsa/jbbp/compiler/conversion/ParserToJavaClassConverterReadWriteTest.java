@@ -25,6 +25,9 @@ import static org.junit.Assert.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 import org.apache.commons.io.IOUtils;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
@@ -35,8 +38,8 @@ import com.igormaznitsa.jbbp.io.JBBPBitOutputStream;
  */
 public class ParserToJavaClassConverterReadWriteTest extends AbstractJavaClassCompilerTest {
 
-  private static final String PACKAGE_NAME = "com.igormaznitsa.test";
-  private static final String CLASS_NAME = "TestClass";
+  protected static final String PACKAGE_NAME = "com.igormaznitsa.test";
+  protected static final String CLASS_NAME = "TestClass";
   private static final Random RND = new Random(123456);
 
   private byte[] loadResource(final String name) throws Exception {
@@ -53,8 +56,12 @@ public class ParserToJavaClassConverterReadWriteTest extends AbstractJavaClassCo
   }
 
   private Object compileAndMakeInstance(final String script) throws Exception {
-    final ClassLoader cloader = saveAndCompile(new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, JBBPParser.prepare(script).makeClassSrc(PACKAGE_NAME, CLASS_NAME)));
-    return cloader.loadClass(PACKAGE_NAME + '.' + CLASS_NAME).newInstance();
+    return compileAndMakeInstance(PACKAGE_NAME + '.' + CLASS_NAME, new JavaClassContent[]{new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, JBBPParser.prepare(script).makeClassSrc(PACKAGE_NAME, CLASS_NAME))});
+  }
+
+  private Object compileAndMakeInstance(final String instanceClassName, final JavaClassContent[] classContents) throws Exception {
+    final ClassLoader cloader = saveAndCompile(classContents);
+    return cloader.loadClass(instanceClassName).newInstance();
   }
 
   private Object callRead(final Object instance, final byte[] array) throws Exception {
@@ -165,73 +172,73 @@ public class ParserToJavaClassConverterReadWriteTest extends AbstractJavaClassCo
 
   @Test
   public void testReadWrite_SNA() throws Exception {
-    final Object instance = compileAndMakeInstance( "ubyte regI;"
-                    + "<ushort altHL; <ushort altDE; <ushort altBC; <ushort altAF;"
-                    + "<ushort regHL; <ushort regDE; <ushort regBC; <ushort regIY; <ushort regIX;"
-                    + "ubyte iff; ubyte regR;"
-                    + "<ushort regAF; <ushort regSP;"
-                    + "ubyte im;"
-                    + "ubyte borderColor;"
-                    + "byte [49152] ramDump;");
-    
+    final Object instance = compileAndMakeInstance("ubyte regI;"
+        + "<ushort altHL; <ushort altDE; <ushort altBC; <ushort altAF;"
+        + "<ushort regHL; <ushort regDE; <ushort regBC; <ushort regIY; <ushort regIX;"
+        + "ubyte iff; ubyte regR;"
+        + "<ushort regAF; <ushort regSP;"
+        + "ubyte im;"
+        + "ubyte borderColor;"
+        + "byte [49152] ramDump;");
+
     final byte[] snaEtalon = loadResource("zexall.sna");
-   
+
     callRead(instance, snaEtalon.clone());
-    
-      assertEquals(0x3F, getField(instance, "regi", Character.class).charValue());
-       assertEquals(0x2758, getField(instance, "althl", Character.class).charValue());
-       assertEquals(0x369B, getField(instance, "altde", Character.class).charValue());
-       assertEquals(0x1721, getField(instance, "altbc", Character.class).charValue());
-       assertEquals(0x0044, getField(instance, "altaf", Character.class).charValue());
 
-       assertEquals(0x2D2B, getField(instance, "reghl", Character.class).charValue());
-       assertEquals(0x80ED, getField(instance, "regde", Character.class).charValue());
-       assertEquals(0x803E, getField(instance, "regbc", Character.class).charValue());
-       assertEquals(0x5C3A, getField(instance, "regiy", Character.class).charValue());
-       assertEquals(0x03D4, getField(instance, "regix", Character.class).charValue());
+    assertEquals(0x3F, getField(instance, "regi", Character.class).charValue());
+    assertEquals(0x2758, getField(instance, "althl", Character.class).charValue());
+    assertEquals(0x369B, getField(instance, "altde", Character.class).charValue());
+    assertEquals(0x1721, getField(instance, "altbc", Character.class).charValue());
+    assertEquals(0x0044, getField(instance, "altaf", Character.class).charValue());
 
-       assertEquals(0x00, getField(instance, "iff", Character.class).charValue());
-       assertEquals(0x0AE, getField(instance, "regr", Character.class).charValue());
-       
-       assertEquals(0x14A1, getField(instance, "regaf", Character.class).charValue());
-       assertEquals(0x7E62, getField(instance, "regsp", Character.class).charValue());
+    assertEquals(0x2D2B, getField(instance, "reghl", Character.class).charValue());
+    assertEquals(0x80ED, getField(instance, "regde", Character.class).charValue());
+    assertEquals(0x803E, getField(instance, "regbc", Character.class).charValue());
+    assertEquals(0x5C3A, getField(instance, "regiy", Character.class).charValue());
+    assertEquals(0x03D4, getField(instance, "regix", Character.class).charValue());
 
-       assertEquals(0x01, getField(instance, "im", Character.class).charValue());
-       assertEquals(0x07, getField(instance, "bordercolor", Character.class).charValue());
+    assertEquals(0x00, getField(instance, "iff", Character.class).charValue());
+    assertEquals(0x0AE, getField(instance, "regr", Character.class).charValue());
 
-       assertEquals(49152, getField(instance, "ramdump", byte[].class).length);
-   
-       assertArrayEquals(snaEtalon, callWrite(instance));
+    assertEquals(0x14A1, getField(instance, "regaf", Character.class).charValue());
+    assertEquals(0x7E62, getField(instance, "regsp", Character.class).charValue());
+
+    assertEquals(0x01, getField(instance, "im", Character.class).charValue());
+    assertEquals(0x07, getField(instance, "bordercolor", Character.class).charValue());
+
+    assertEquals(49152, getField(instance, "ramdump", byte[].class).length);
+
+    assertArrayEquals(snaEtalon, callWrite(instance));
   }
-  
+
   @Test
   public void testReadWrite_TGA_noColormap() throws Exception {
-        final Object instance = compileAndMakeInstance( "Header {" +
-                    "          ubyte IDLength;" +
-                    "          ubyte ColorMapType;" +
-                    "          ubyte ImageType;" +
-                    "          <ushort CMapStart;" +
-                    "          <ushort CMapLength;" +
-                    "          ubyte CMapDepth;" +
-                    "          <short XOffset;" +
-                    "          <short YOffset;" +
-                    "          <ushort Width;" +
-                    "          <ushort Height;" +
-                    "          ubyte PixelDepth;" +
-                    "          ImageDesc {" +
-                    "              bit:4 PixelAttrNumber;" +
-                    "              bit:2 Pos;" +
-                    "              bit:2 Reserved;" +
-                    "          }" +
-                    "      }" +
-                    "byte [Header.IDLength] ImageID;" +
-                    "ColorMap [ (Header.ColorMapType & 1) * Header.CMapLength ] {" +
-                    "    byte [Header.CMapDepth >>> 3] ColorMapItem; " +
-                    " }" +
-                    "byte [_] ImageData;");
-    
+    final Object instance = compileAndMakeInstance("Header {"
+        + "          ubyte IDLength;"
+        + "          ubyte ColorMapType;"
+        + "          ubyte ImageType;"
+        + "          <ushort CMapStart;"
+        + "          <ushort CMapLength;"
+        + "          ubyte CMapDepth;"
+        + "          <short XOffset;"
+        + "          <short YOffset;"
+        + "          <ushort Width;"
+        + "          <ushort Height;"
+        + "          ubyte PixelDepth;"
+        + "          ImageDesc {"
+        + "              bit:4 PixelAttrNumber;"
+        + "              bit:2 Pos;"
+        + "              bit:2 Reserved;"
+        + "          }"
+        + "      }"
+        + "byte [Header.IDLength] ImageID;"
+        + "ColorMap [ (Header.ColorMapType & 1) * Header.CMapLength ] {"
+        + "    byte [Header.CMapDepth >>> 3] ColorMapItem; "
+        + " }"
+        + "byte [_] ImageData;");
+
     final byte[] tgaEtalon = loadResource("cbw8.tga");
-    
+
     callRead(instance, tgaEtalon.clone());
 
     assertEquals("Truevision(R) Sample Image".length(), getField(instance, "imageid", byte[].class).length);
@@ -240,38 +247,38 @@ public class ParserToJavaClassConverterReadWriteTest extends AbstractJavaClassCo
     assertEquals(8, getField(instance, "header.pixeldepth", Character.class).charValue());
     assertEquals(0, getField(instance, "colormap", Object[].class).length);
     assertEquals(8715, getField(instance, "imagedata", byte[].class).length);
-    
+
     assertArrayEquals(tgaEtalon, callWrite(instance));
   }
 
   @Test
   public void testReadWrite_TGA_hasColormap() throws Exception {
-        final Object instance = compileAndMakeInstance( "Header {" +
-                    "          ubyte IDLength;" +
-                    "          ubyte ColorMapType;" +
-                    "          ubyte ImageType;" +
-                    "          <ushort CMapStart;" +
-                    "          <ushort CMapLength;" +
-                    "          ubyte CMapDepth;" +
-                    "          <short XOffset;" +
-                    "          <short YOffset;" +
-                    "          <ushort Width;" +
-                    "          <ushort Height;" +
-                    "          ubyte PixelDepth;" +
-                    "          ImageDesc {" +
-                    "              bit:4 PixelAttrNumber;" +
-                    "              bit:2 Pos;" +
-                    "              bit:2 Reserved;" +
-                    "          }" +
-                    "      }" +
-                    "byte [Header.IDLength] ImageID;" +
-                    "ColorMap [ (Header.ColorMapType & 1) * Header.CMapLength ] {" +
-                    "    byte [Header.CMapDepth >>> 3] ColorMapItem; " +
-                    " }" +
-                    "byte [_] ImageData;");
-    
+    final Object instance = compileAndMakeInstance("Header {"
+        + "          ubyte IDLength;"
+        + "          ubyte ColorMapType;"
+        + "          ubyte ImageType;"
+        + "          <ushort CMapStart;"
+        + "          <ushort CMapLength;"
+        + "          ubyte CMapDepth;"
+        + "          <short XOffset;"
+        + "          <short YOffset;"
+        + "          <ushort Width;"
+        + "          <ushort Height;"
+        + "          ubyte PixelDepth;"
+        + "          ImageDesc {"
+        + "              bit:4 PixelAttrNumber;"
+        + "              bit:2 Pos;"
+        + "              bit:2 Reserved;"
+        + "          }"
+        + "      }"
+        + "byte [Header.IDLength] ImageID;"
+        + "ColorMap [ (Header.ColorMapType & 1) * Header.CMapLength ] {"
+        + "    byte [Header.CMapDepth >>> 3] ColorMapItem; "
+        + " }"
+        + "byte [_] ImageData;");
+
     final byte[] tgaEtalon = loadResource("indexedcolor.tga");
-    
+
     callRead(instance, tgaEtalon.clone());
 
     assertEquals("".length(), getField(instance, "imageid", byte[].class).length);
@@ -280,7 +287,61 @@ public class ParserToJavaClassConverterReadWriteTest extends AbstractJavaClassCo
     assertEquals(8, getField(instance, "header.pixeldepth", Character.class).charValue());
     assertEquals(256, getField(instance, "colormap", Object[].class).length);
     assertEquals(155403, getField(instance, "imagedata", byte[].class).length);
-    
+
     assertArrayEquals(tgaEtalon, callWrite(instance));
+  }
+
+  @Test
+  public void testReadWrite_Z80v1() throws Exception {
+    final Object instance = compileAndMakeInstance("byte reg_a; byte reg_f; <short reg_bc; <short reg_hl; <short reg_pc; <short reg_sp; byte reg_ir; byte reg_r; "
+        + "flags{ bit:1 reg_r_bit7; bit:3 bordercolor; bit:1 basic_samrom; bit:1 compressed; bit:2 nomeaning;}"
+        + "<short reg_de; <short reg_bc_alt; <short reg_de_alt; <short reg_hl_alt; byte reg_a_alt; byte reg_f_alt; <short reg_iy; <short reg_ix; byte iff; byte iff2;"
+        + "emulFlags{bit:2 interruptmode; bit:1 issue2emulation; bit:1 doubleintfreq; bit:2 videosync; bit:2 inputdevice;}"
+        + "byte [_] data;");
+
+    final byte[] z80Etalon = loadResource("test.z80");
+
+    callRead(instance, z80Etalon.clone());
+
+    assertEquals((byte)0x7E, getField(instance, "reg_a", Byte.class).byteValue());
+    assertEquals((byte)0x86, getField(instance, "reg_f", Byte.class).byteValue());
+    assertEquals((short)0x7A74, getField(instance, "reg_bc", Short.class).shortValue());
+    assertEquals((short)0x7430, getField(instance, "reg_hl", Short.class).shortValue());
+
+    assertEquals((short)12198, getField(instance, "reg_pc", Short.class).shortValue());
+    assertEquals((short)65330, getField(instance, "reg_sp", Short.class).shortValue());
+
+    assertEquals((byte)0x3F, getField(instance, "reg_ir", Byte.class).byteValue());
+    assertEquals((byte)0x1A, getField(instance, "reg_r", Byte.class).byteValue());
+
+    assertEquals((byte)0, getField(instance, "flags.reg_r_bit7", Byte.class).byteValue());
+    assertEquals((byte)2, getField(instance, "flags.bordercolor", Byte.class).byteValue());
+    assertEquals((byte)0, getField(instance, "flags.basic_samrom", Byte.class).byteValue());
+    assertEquals((byte)1, getField(instance, "flags.compressed", Byte.class).byteValue());
+    assertEquals((byte)0, getField(instance, "flags.nomeaning", Byte.class).byteValue());
+
+    assertEquals((short)0x742B, getField(instance, "reg_de", Short.class).shortValue());
+    assertEquals((short)0x67C6, getField(instance, "reg_bc_alt", Short.class).shortValue());
+    assertEquals((short)0x3014, getField(instance, "reg_de_alt", Short.class).shortValue());
+    assertEquals((short)0x3461, getField(instance, "reg_hl_alt", Short.class).shortValue());
+
+    assertEquals((byte)0x00, getField(instance, "reg_a_alt", Byte.class).byteValue());
+    assertEquals((byte)0x46, getField(instance, "reg_f_alt", Byte.class).byteValue());
+
+    assertEquals((short)0x5C3A, getField(instance, "reg_iy", Short.class).shortValue());
+    assertEquals((short)0x03D4, getField(instance, "reg_ix", Short.class).shortValue());
+    
+    assertEquals((byte)0xFF, getField(instance, "iff", Byte.class).byteValue());
+    assertEquals((byte)0xFF, getField(instance, "iff2", Byte.class).byteValue());
+
+    assertEquals((byte)1, getField(instance, "emulflags.interruptmode", Byte.class).byteValue());
+    assertEquals((byte)0, getField(instance, "emulflags.issue2emulation", Byte.class).byteValue());
+    assertEquals((byte)0, getField(instance, "emulflags.doubleintfreq", Byte.class).byteValue());
+    assertEquals((byte)0, getField(instance, "emulflags.videosync", Byte.class).byteValue());
+    assertEquals((byte)0, getField(instance, "emulflags.inputdevice", Byte.class).byteValue());
+    
+    assertEquals(12399, getField(instance, "data", byte[].class).length);
+
+    assertArrayEquals(z80Etalon, callWrite(instance));
   }
 }

@@ -32,7 +32,11 @@ public abstract class AbstractJavaClassCompilerTest {
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
 
-    public ClassLoader saveAndCompile(final JavaClassContent... klasses) throws IOException {
+    public ClassLoader saveAndCompile(final JavaClassContent ... klasses) throws IOException {
+      return this.saveAndCompile(null, klasses);
+    }
+    
+    public ClassLoader saveAndCompile(final ClassLoader classLoader, final JavaClassContent... klasses) throws IOException {
         final File folder = this.tempFolder.newFolder();
 
         final List<File> classFiles = new ArrayList<File>();
@@ -67,7 +71,7 @@ public abstract class AbstractJavaClassCompilerTest {
             throw new IOException("Error during compilation");
         }
 
-        final ClassLoader result = new URLClassLoader(new URL[]{folder.toURI().toURL()});
+        final ClassLoader result = classLoader == null ?  new URLClassLoader(new URL[]{folder.toURI().toURL()}) : classLoader;
         return result;
         
     }

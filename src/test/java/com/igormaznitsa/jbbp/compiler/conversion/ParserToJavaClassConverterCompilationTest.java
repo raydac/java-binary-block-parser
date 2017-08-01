@@ -41,6 +41,19 @@ public class ParserToJavaClassConverterCompilationTest extends AbstractJavaClass
         final ClassLoader cloader = saveAndCompile(new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, classSrc));
     }
 
+
+    @Test
+    public void testZ80snap1() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare( "byte reg_a; byte reg_f; <short reg_bc; <short reg_hl; <short reg_pc; <short reg_sp; byte reg_ir; byte reg_r; "
+                    + "flags{ bit:1 reg_r_bit7; bit:3 bordercolor; bit:1 basic_samrom; bit:1 compressed; bit:2 nomeaning;}"
+                    + "<short reg_de; <short reg_bc_alt; <short reg_de_alt; <short reg_hl_alt; byte reg_a_alt; byte reg_f_alt; <short reg_iy; <short reg_ix; byte iff; byte iff2;"
+                    + "emulFlags{bit:2 interruptmode; bit:1 issue2emulation; bit:1 doubleintfreq; bit:2 videosync; bit:2 inputdevice;}"
+                    + "byte [_] data;");
+        final String classSrc = parser.makeClassSrc(PACKAGE_NAME, CLASS_NAME);
+        System.out.println(classSrc);
+        final ClassLoader cloader = saveAndCompile(new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, classSrc));
+    }
+    
     @Test
     public void testSinglePrimitiveNamedFields() throws Exception {
         final JBBPParser parser = JBBPParser.prepare("bit a;byte b;ubyte c;short d;ushort e;bool f;int g;long h;");
