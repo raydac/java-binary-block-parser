@@ -616,7 +616,7 @@ public class ParserToJavaClassConverter extends CompiledBlockVisitor {
                 } else if (obj instanceof String) {
                     return String.format("%s.getNamedValue(this, \"%s\")", (getCurrentStruct().isRoot() ? "this" : "this." + NAME_ROOT_STRUCT), obj.toString());
                 } else if (obj instanceof JBBPNamedFieldInfo) {
-                    final NamedFieldInfo namedFieldInfo = detectedNamedFields.get(obj);
+                    final NamedFieldInfo namedFieldInfo = detectedNamedFields.get((JBBPNamedFieldInfo)obj);
                     final String fieldPath = namedFieldInfo.makeSrcPath(getCurrentStruct());
 
                     String result;
