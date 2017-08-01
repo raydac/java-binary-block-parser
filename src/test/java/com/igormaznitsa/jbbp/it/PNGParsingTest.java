@@ -15,6 +15,7 @@
  */
 package com.igormaznitsa.jbbp.it;
 
+import static com.igormaznitsa.jbbp.TestUtils.assertPngChunk;
 import com.igormaznitsa.jbbp.JBBPExternalValueProvider;
 import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
 import com.igormaznitsa.jbbp.JBBPParser;
@@ -53,28 +54,6 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
 
         final int crc = (int) crc32.getValue();
         assertEquals("CRC32 for " + name + " must be " + crc, crc, chunk.findLastFieldForType(JBBPFieldInt.class).getAsInt());
-
-    }
-
-    private static void assertChunk(final String name, final int length, final int chunkType, final int chunkLength, final int chunkCrc, final byte[] data) {
-        final int chunkName = (name.charAt(0) << 24) | (name.charAt(1) << 16) | (name.charAt(2) << 8) | name.charAt(3);
-
-        assertEquals("Chunk must be " + name, chunkName, chunkName);
-        assertEquals("Chunk length must be " + length, length, chunkLength);
-
-        final CRC32 crc32 = new CRC32();
-        crc32.update(name.charAt(0));
-        crc32.update(name.charAt(1));
-        crc32.update(name.charAt(2));
-        crc32.update(name.charAt(3));
-
-        if (length != 0) {
-            assertEquals("Data array " + name + " must be " + length, length, data.length);
-            crc32.update(data);
-        }
-
-        final int crc = (int) crc32.getValue();
-        assertEquals("CRC32 for " + name + " must be " + crc, crc, chunkCrc);
 
     }
 
@@ -119,7 +98,7 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
             assertEquals(chunkNames.length, png.chuNK.length);
 
             for (int i = 0; i < png.chuNK.length; i++) {
-                assertChunk(chunkNames[i], chunkSizes[i], png.chuNK[i].type, png.chuNK[i].length, png.chuNK[i].crc, png.chuNK[i].data);
+                assertPngChunk(chunkNames[i], chunkSizes[i], png.chuNK[i].type, png.chuNK[i].length, png.chuNK[i].crc, png.chuNK[i].data);
             }
 
             assertEquals(3847, pngParser.getFinalStreamByteCounter());
