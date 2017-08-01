@@ -290,20 +290,20 @@ public class ParserToJavaClassConverter extends CompiledBlockVisitor {
             processSkipRemainingFlag();
             this.getCurrentStruct().getReadFunc().indent()
                     .printf("if ( this.%1$s == null) { this.%1$s = new %2$s(%3$s);}", structName, structType, this.structStack.size() == 1 ? "this" : "this." + NAME_ROOT_STRUCT)
-                    .printf(" this.%s.read(In);%n", structName);
+                    .printf(" this.%s.read(%s);%n", structName, NAME_INPUT_STREAM);
             this.getCurrentStruct().getWriteFunc().indent().print(structName).println(".write(Out);");
         } else {
             this.getCurrentStruct().getFields().indent().print(fieldModifier).printf(" %s [] %s;", structType, structName).println();
             processSkipRemainingFlag();
             if ("-1".equals(arraySizeIn)) {
                 this.getCurrentStruct().getReadFunc().indent()
-                        .printf("List<%3$s> __%1$s_tmplst__ = new ArrayList<%3$s>(); while (In.hasAvailableData()){ __%1$s_tmplst__.add(new %3$s(%4$s).read(In));} this.%1$s = __%1$s_tmplst__.toArray(new %3$s[__%1$s_tmplst__.size()]);__%1$s_tmplst__ = null;%n", structName, arraySizeIn, structType, (this.structStack.size() == 1 ? "this" : NAME_ROOT_STRUCT));
-                this.getCurrentStruct().getWriteFunc().indent().printf("for (int I=0;I<this.%1$s.length;I++){ this.%1$s[I].write(Out); }%n", structName);
+                        .printf("List<%3$s> __%1$s_tmplst__ = new ArrayList<%3$s>(); while (%5$s.hasAvailableData()){ __%1$s_tmplst__.add(new %3$s(%4$s).read(%5$s));} this.%1$s = __%1$s_tmplst__.toArray(new %3$s[__%1$s_tmplst__.size()]);__%1$s_tmplst__ = null;%n", structName, arraySizeIn, structType, (this.structStack.size() == 1 ? "this" : NAME_ROOT_STRUCT), NAME_INPUT_STREAM);
+                this.getCurrentStruct().getWriteFunc().indent().printf("for (int I=0;I<this.%1$s.length;I++){ this.%1$s[I].write(%2$s); }%n", structName, NAME_OUTPUT_STREAM);
             } else {
                 this.getCurrentStruct().getReadFunc().indent()
                         .printf("if (this.%1$s == null || this.%1$s.length != %2$s){ this.%1$s = new %3$s[%2$s]; for(int I=0;I<%2$s;I++){ this.%1$s[I] = new %3$s(%4$s);}}", structName, arraySizeIn, structType, (this.structStack.size() == 1 ? "this" : "this." + NAME_ROOT_STRUCT))
-                        .printf("for (int I=0;I<%2$s;I++){ this.%1$s[I].read(in); }%n", structName, arraySizeIn);
-                this.getCurrentStruct().getWriteFunc().indent().printf("for (int I=0;I<%2$s;I++){ this.%1$s[I].write(Out); }", structName, arraySizeOut);
+                        .printf("for (int I=0;I<%2$s;I++){ this.%1$s[I].read(%3$s); }%n", structName, arraySizeIn, NAME_INPUT_STREAM);
+                this.getCurrentStruct().getWriteFunc().indent().printf("for (int I=0;I<%2$s;I++){ this.%1$s[I].write(%3$s); }", structName, arraySizeOut, NAME_OUTPUT_STREAM);
             }
         }
 
