@@ -389,7 +389,7 @@ public class ParserToJavaClassConverter extends CompiledBlockVisitor {
         processSkipRemainingFlag();
 
         if (arraySizeIn == null) {
-            getCurrentStruct().getReadFunc().indent().printf("this.%s = (short)(In.readBitField(%s) & 0xFF);%n", fieldName, sizeOfFieldIn);
+            getCurrentStruct().getReadFunc().indent().printf("this.%s = In.readBitField(%s);%n", fieldName, sizeOfFieldIn);
         } else {
             getCurrentStruct().getReadFunc().indent().print(fieldName).print(" = In.readBitsArray(").print(arraySizeIn).print(",").print(sizeOfFieldIn).println(");");
         }
@@ -405,7 +405,7 @@ public class ParserToJavaClassConverter extends CompiledBlockVisitor {
         }
 
         if (nullableArraySize == null) {
-            getCurrentStruct().getFields().indent().printf("%s short %s;%n", fieldModifier, fieldName);
+            getCurrentStruct().getFields().indent().printf("%s byte %s;%n", fieldModifier, fieldName);
         } else {
             getCurrentStruct().getFields().indent().printf("%s byte [] %s;%n", fieldModifier, fieldName);
         }
