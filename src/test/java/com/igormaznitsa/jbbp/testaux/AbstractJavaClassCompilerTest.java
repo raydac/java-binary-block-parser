@@ -57,12 +57,19 @@ public abstract class AbstractJavaClassCompilerTest {
             for (final Diagnostic<?> diagnostic : diagnostics.getDiagnostics()) {
                 System.err.format("Error on line %d in %s%n", diagnostic.getLineNumber(), diagnostic.getSource());
             }
+            
+            for(final File f : classFiles){
+              System.err.println("File '"+f.getName()+'\'');
+              System.err.println("-------------------------------------------");
+              System.err.println(FileUtils.readFileToString(f));
+            }
+            
             throw new IOException("Error during compilation");
         }
 
         final ClassLoader result = new URLClassLoader(new URL[]{folder.toURI().toURL()});
-
         return result;
+        
     }
 
     public final static class JavaClassContent {
