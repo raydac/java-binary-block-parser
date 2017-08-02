@@ -24,11 +24,23 @@ import com.igormaznitsa.jbbp.testaux.AbstractJavaClassCompilerTest;
 import static org.junit.Assert.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 import org.apache.commons.io.IOUtils;
+import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
+import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
+import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.io.JBBPBitOutputStream;
+import com.igormaznitsa.jbbp.io.JBBPByteOrder;
+import com.igormaznitsa.jbbp.model.JBBPAbstractField;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayInt;
+import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 
 /**
  * Test reading writing with converted classes from parser.
@@ -53,11 +65,13 @@ public class ParserToJavaClassConverterReadWriteTest extends AbstractJavaClassCo
   }
 
   private Object compileAndMakeInstance(final String script) throws Exception {
-    return compileAndMakeInstance(PACKAGE_NAME + '.' + CLASS_NAME, new JavaClassContent[]{new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, JBBPParser.prepare(script).makeClassSrc(PACKAGE_NAME, CLASS_NAME))});
+    return compileAndMakeInstance(PACKAGE_NAME + '.' + CLASS_NAME, script, (JBBPCustomFieldTypeProcessor) null);
   }
 
-  private Object compileAndMakeInstance(final String instanceClassName, final JavaClassContent[] classContents) throws Exception {
-    final ClassLoader cloader = saveAndCompile(classContents);
+  private Object compileAndMakeInstance(final String instanceClassName, final String script, final JBBPCustomFieldTypeProcessor customFieldProcessor, final JavaClassContent... extraClasses) throws Exception {
+    final List<JavaClassContent> klazzes = new ArrayList<JavaClassContent>(Arrays.asList(extraClasses));
+    klazzes.add(0, new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, JBBPParser.prepare(script, customFieldProcessor).makeClassSrc(PACKAGE_NAME, CLASS_NAME)));
+    final ClassLoader cloader = saveAndCompile(klazzes.toArray(new JavaClassContent[klazzes.size()]));
     return cloader.loadClass(instanceClassName).newInstance();
   }
 
@@ -300,45 +314,138 @@ public class ParserToJavaClassConverterReadWriteTest extends AbstractJavaClassCo
 
     callRead(instance, z80Etalon.clone());
 
-    assertEquals((byte)0x7E, getField(instance, "reg_a", Byte.class).byteValue());
-    assertEquals((byte)0x86, getField(instance, "reg_f", Byte.class).byteValue());
-    assertEquals((short)0x7A74, getField(instance, "reg_bc", Short.class).shortValue());
-    assertEquals((short)0x7430, getField(instance, "reg_hl", Short.class).shortValue());
+    assertEquals((byte) 0x7E, getField(instance, "reg_a", Byte.class).byteValue());
+    assertEquals((byte) 0x86, getField(instance, "reg_f", Byte.class).byteValue());
+    assertEquals((short) 0x7A74, getField(instance, "reg_bc", Short.class).shortValue());
+    assertEquals((short) 0x7430, getField(instance, "reg_hl", Short.class).shortValue());
 
-    assertEquals((short)12198, getField(instance, "reg_pc", Short.class).shortValue());
-    assertEquals((short)65330, getField(instance, "reg_sp", Short.class).shortValue());
+    assertEquals((short) 12198, getField(instance, "reg_pc", Short.class).shortValue());
+    assertEquals((short) 65330, getField(instance, "reg_sp", Short.class).shortValue());
 
-    assertEquals((byte)0x3F, getField(instance, "reg_ir", Byte.class).byteValue());
-    assertEquals((byte)0x1A, getField(instance, "reg_r", Byte.class).byteValue());
+    assertEquals((byte) 0x3F, getField(instance, "reg_ir", Byte.class).byteValue());
+    assertEquals((byte) 0x1A, getField(instance, "reg_r", Byte.class).byteValue());
 
-    assertEquals((byte)0, getField(instance, "flags.reg_r_bit7", Byte.class).byteValue());
-    assertEquals((byte)2, getField(instance, "flags.bordercolor", Byte.class).byteValue());
-    assertEquals((byte)0, getField(instance, "flags.basic_samrom", Byte.class).byteValue());
-    assertEquals((byte)1, getField(instance, "flags.compressed", Byte.class).byteValue());
-    assertEquals((byte)0, getField(instance, "flags.nomeaning", Byte.class).byteValue());
+    assertEquals((byte) 0, getField(instance, "flags.reg_r_bit7", Byte.class).byteValue());
+    assertEquals((byte) 2, getField(instance, "flags.bordercolor", Byte.class).byteValue());
+    assertEquals((byte) 0, getField(instance, "flags.basic_samrom", Byte.class).byteValue());
+    assertEquals((byte) 1, getField(instance, "flags.compressed", Byte.class).byteValue());
+    assertEquals((byte) 0, getField(instance, "flags.nomeaning", Byte.class).byteValue());
 
-    assertEquals((short)0x742B, getField(instance, "reg_de", Short.class).shortValue());
-    assertEquals((short)0x67C6, getField(instance, "reg_bc_alt", Short.class).shortValue());
-    assertEquals((short)0x3014, getField(instance, "reg_de_alt", Short.class).shortValue());
-    assertEquals((short)0x3461, getField(instance, "reg_hl_alt", Short.class).shortValue());
+    assertEquals((short) 0x742B, getField(instance, "reg_de", Short.class).shortValue());
+    assertEquals((short) 0x67C6, getField(instance, "reg_bc_alt", Short.class).shortValue());
+    assertEquals((short) 0x3014, getField(instance, "reg_de_alt", Short.class).shortValue());
+    assertEquals((short) 0x3461, getField(instance, "reg_hl_alt", Short.class).shortValue());
 
-    assertEquals((byte)0x00, getField(instance, "reg_a_alt", Byte.class).byteValue());
-    assertEquals((byte)0x46, getField(instance, "reg_f_alt", Byte.class).byteValue());
+    assertEquals((byte) 0x00, getField(instance, "reg_a_alt", Byte.class).byteValue());
+    assertEquals((byte) 0x46, getField(instance, "reg_f_alt", Byte.class).byteValue());
 
-    assertEquals((short)0x5C3A, getField(instance, "reg_iy", Short.class).shortValue());
-    assertEquals((short)0x03D4, getField(instance, "reg_ix", Short.class).shortValue());
-    
-    assertEquals((byte)0xFF, getField(instance, "iff", Byte.class).byteValue());
-    assertEquals((byte)0xFF, getField(instance, "iff2", Byte.class).byteValue());
+    assertEquals((short) 0x5C3A, getField(instance, "reg_iy", Short.class).shortValue());
+    assertEquals((short) 0x03D4, getField(instance, "reg_ix", Short.class).shortValue());
 
-    assertEquals((byte)1, getField(instance, "emulflags.interruptmode", Byte.class).byteValue());
-    assertEquals((byte)0, getField(instance, "emulflags.issue2emulation", Byte.class).byteValue());
-    assertEquals((byte)0, getField(instance, "emulflags.doubleintfreq", Byte.class).byteValue());
-    assertEquals((byte)0, getField(instance, "emulflags.videosync", Byte.class).byteValue());
-    assertEquals((byte)0, getField(instance, "emulflags.inputdevice", Byte.class).byteValue());
-    
+    assertEquals((byte) 0xFF, getField(instance, "iff", Byte.class).byteValue());
+    assertEquals((byte) 0xFF, getField(instance, "iff2", Byte.class).byteValue());
+
+    assertEquals((byte) 1, getField(instance, "emulflags.interruptmode", Byte.class).byteValue());
+    assertEquals((byte) 0, getField(instance, "emulflags.issue2emulation", Byte.class).byteValue());
+    assertEquals((byte) 0, getField(instance, "emulflags.doubleintfreq", Byte.class).byteValue());
+    assertEquals((byte) 0, getField(instance, "emulflags.videosync", Byte.class).byteValue());
+    assertEquals((byte) 0, getField(instance, "emulflags.inputdevice", Byte.class).byteValue());
+
     assertEquals(12399, getField(instance, "data", byte[].class).length);
 
     assertArrayEquals(z80Etalon, callWrite(instance));
   }
+
+  @Test
+  public void testReadWrite_CustomField() throws Exception {
+    final Object klazz = compileAndMakeInstance("com.igormaznitsa.jbbp.test.CustomFieldParser", "threebyte one;<threebyte two; threebyte [18] arrayone; <threebyte [_] arraytwo;", new JBBPCustomFieldTypeProcessor() {
+      private final String[] names = new String[]{"threebyte"};
+
+      @Override
+      public String[] getCustomFieldTypes() {
+        return names;
+      }
+
+      @Override
+      public boolean isAllowed(JBBPFieldTypeParameterContainer fieldType, String fieldName, int extraData, boolean isArray) {
+        return true;
+      }
+
+      @Override
+      public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer customTypeFieldInfo, JBBPNamedFieldInfo fieldName, int extraData, boolean readWholeStream, int arrayLength) throws IOException {
+        fail("Must not be called");
+        return null;
+      }
+    }, new JavaClassContent("com.igormaznitsa.jbbp.test.CustomFieldParser", "package com.igormaznitsa.jbbp.test;\n"
+        + "import com.igormaznitsa.jbbp.model.*;\n"
+        + "import com.igormaznitsa.jbbp.io.*;\n"
+        + "import com.igormaznitsa.jbbp.compiler.*;\n"
+        + "import com.igormaznitsa.jbbp.compiler.tokenizer.*;\n"
+        + "import java.io.IOException;\n"
+        + "import java.util.*;\n"
+        + ""
+        + "public class CustomFieldParser extends " + PACKAGE_NAME + '.' + CLASS_NAME + "{"
+        + " private int readThree(JBBPBitInputStream in, JBBPByteOrder byteOrder) throws IOException {"
+        + "   int a = in.readByte();"
+        + "   int b = in.readByte();"
+        + "   int c = in.readByte();"
+        + "   return byteOrder == JBBPByteOrder.BIG_ENDIAN ? (a << 16) | (b << 8) | c : (c << 16) | (b << 8) | a;"
+        + " }"
+        + " private void writeThree(JBBPBitOutputStream out, JBBPByteOrder byteOrder, int value) throws IOException {"
+        + "   int c = value & 0xFF; int b = (value >> 8) & 0xFF; int a = (value >> 16) & 0xFF;"
+        + "   if (byteOrder == JBBPByteOrder.BIG_ENDIAN) {"
+        + "     out.write(a); out.write(b); out.write(c);"
+        + "   } else {"
+        +"      out.write(c); out.write(b); out.write(a);"    
+        + "   }"
+        + " }"
+        + " public JBBPAbstractField readCustomFieldType(Object sourceStruct, JBBPBitInputStream inStream, JBBPBitOrder bitOrder, JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean readWholeStream, int arraySize) throws IOException{"
+        + "   if (readWholeStream || arraySize>=0) {"
+        + "      if (readWholeStream) {"
+        + "         com.igormaznitsa.jbbp.utils.IntArrayByteStream buffer = new com.igormaznitsa.jbbp.utils.IntArrayByteStream();"
+        + "         while(inStream.hasAvailableData()){ buffer.write(readThree(inStream, typeParameterContainer.getByteOrder())); }"
+        + "         return new JBBPFieldArrayInt(nullableNamedFieldInfo, buffer.toIntArray());"
+        + "      } else {"
+        + "        int [] arra = new int[arraySize];"
+        + "        for (int i=0;i<arraySize;i++){ arra [i] = readThree(inStream, typeParameterContainer.getByteOrder()); }"
+        + "        return new JBBPFieldArrayInt(nullableNamedFieldInfo, arra);"
+        + "      }"
+        + "   } else {"
+        + "      return new JBBPFieldInt(nullableNamedFieldInfo, readThree(inStream, typeParameterContainer.getByteOrder()));"
+        + "   }"
+        + " }"
+        + " public void writeCustomFieldType(Object sourceStruct, JBBPBitOutputStream outStream, JBBPAbstractField fieldValue, JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean wholeArray, int arraySize) throws IOException {"
+        + "   if (arraySize>=0 || wholeArray) {"
+        + "     int [] arra = ((JBBPFieldArrayInt) fieldValue).getArray();"
+        + "     int len = wholeArray ? arra.length : arraySize;"
+        + "     for(int i=0;i<len;i++) { writeThree(outStream, typeParameterContainer.getByteOrder(), arra[i]);}"
+        + "   } else {"
+        + "     writeThree(outStream, typeParameterContainer.getByteOrder(), ((JBBPFieldInt)fieldValue).getAsInt());"
+        + "   }"
+        + " }"
+        + "}"));
+    
+        final byte [] etalonArray = new byte[1000*3];
+        int v = 1;
+        for(int i=0;i<etalonArray.length;i++){
+          etalonArray[i] = (byte)(v % 167);
+          v++;
+        }
+    
+        callRead(klazz, etalonArray.clone());
+        final JBBPFieldInt one = getField(klazz, "one", JBBPFieldInt.class);
+        assertEquals(0x010203,one.getAsInt());
+        
+        final JBBPFieldInt two = getField(klazz, "two", JBBPFieldInt.class);
+        assertEquals(0x060504,two.getAsInt());
+
+        final JBBPFieldArrayInt arrayone = getField(klazz, "arrayone", JBBPFieldArrayInt.class);
+        assertEquals(18,arrayone.getArray().length);
+
+        final JBBPFieldArrayInt arraytwo = getField(klazz, "arraytwo", JBBPFieldArrayInt.class);
+        assertEquals(980,arraytwo.getArray().length);
+        
+        assertArrayEquals(etalonArray,callWrite(klazz));
+  }
+
 }

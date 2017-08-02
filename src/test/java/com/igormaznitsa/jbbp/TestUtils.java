@@ -99,5 +99,4 @@ public enum TestUtils {
   public static String wavInt2Str(final int value) {
     return new String(new char[]{(char) (value & 0xFF), (char) ((value >>> 8) & 0xFF), (char) ((value >>> 16) & 0xFF), (char) (value >>> 24)});
   }
-
 }
