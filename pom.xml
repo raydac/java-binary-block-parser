@@ -238,8 +238,8 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.20</version>
         <configuration>
-          <threadCountClasses>${cpu.count}</threadCountClasses>
-          <parallel>classes</parallel>
+          <forkMode>pertest</forkMode>
+          <reuseForks>false</reuseForks>
         </configuration>
       </plugin>
       <plugin>
