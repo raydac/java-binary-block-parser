@@ -43,7 +43,7 @@ import static org.junit.Assert.*;
 @RunWith(Parameterized.class)
 public class JBBPMapperTest {
 
-    private String className;
+    private final String className;
 
     public JBBPMapperTest(final String instantiatorClassName) {
         this.className = instantiatorClassName;
