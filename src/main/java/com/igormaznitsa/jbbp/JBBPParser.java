@@ -638,7 +638,7 @@ public final class JBBPParser {
      * @since 1.3
      */
     public String makeClassSrc(final String classPackage, final String className, final String nullableClassHeaderComment) {
-        return ((ParserToJavaClassConverter) (new ParserToJavaClassConverter(classPackage, className, nullableClassHeaderComment, this).visit())).getResult();
+        return ParserToJavaClassConverter.class.cast(new ParserToJavaClassConverter(classPackage, className, nullableClassHeaderComment, this).visit()).getResult();
     }
 
     /**

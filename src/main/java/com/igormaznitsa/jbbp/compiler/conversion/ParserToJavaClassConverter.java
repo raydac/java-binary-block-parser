@@ -195,7 +195,7 @@ public class ParserToJavaClassConverter extends CompiledBlockVisitor {
     this.structStack.clear();
     this.specialMethods.clean();
 
-    this.structStack.add(new Struct(null, null, className, "public"));
+    this.structStack.add(new Struct(null, className, "public"));
   }
 
   /**
@@ -285,7 +285,7 @@ public class ParserToJavaClassConverter extends CompiledBlockVisitor {
     final String structType = structName.toUpperCase(Locale.ENGLISH);
     final String arraySizeIn = nullableArraySize == null ? null : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.detectedExternalFieldsInEvaluator);
     final String arraySizeOut = nullableArraySize == null ? null : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.detectedExternalFieldsInEvaluator);
-    final Struct newStruct = new Struct(nullableNameFieldInfo, this.getCurrentStruct(), structType, "public static");
+    final Struct newStruct = new Struct(this.getCurrentStruct(), structType, "public static");
 
     final String fieldModifier;
     if (nullableNameFieldInfo == null) {
@@ -850,12 +850,10 @@ public class ParserToJavaClassConverter extends CompiledBlockVisitor {
     private final TextBuffer fields = new TextBuffer();
     private final TextBuffer readFunc = new TextBuffer();
     private final TextBuffer writeFunc = new TextBuffer();
-    private final JBBPNamedFieldInfo fieldInfo;
     private final String path;
 
-    private Struct(final JBBPNamedFieldInfo fieldInfo, final Struct parent, final String className, final String classModifiers) {
+    private Struct(final Struct parent, final String className, final String classModifiers) {
       this.path = parent == null ? "" : parent.path + (parent.path.length() == 0 ? "" : ".") + className.toLowerCase(Locale.ENGLISH);
-      this.fieldInfo = fieldInfo;
       this.classModifiers = classModifiers;
       this.className = className;
       this.parent = parent;
