@@ -112,7 +112,7 @@ public class ParserToJavaClassConverterCompilationTest extends AbstractJavaClass
 
     @Test
     public void testCustomType() throws Exception {
-        final JBBPParser parser = JBBPParser.prepare("some alpha;", new JBBPCustomFieldTypeProcessor() {
+        final JBBPParser parser = JBBPParser.prepare("some alpha; some:1 beta;", new JBBPCustomFieldTypeProcessor() {
             @Override
             public String[] getCustomFieldTypes() {
                 return new String[]{"some"};

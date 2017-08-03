@@ -38,6 +38,7 @@ import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.io.JBBPBitOutputStream;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
+import com.igormaznitsa.jbbp.model.JBBPAbstractArrayField;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
@@ -85,6 +86,16 @@ public class ParserToJavaClassConverterReadWriteTest extends AbstractJavaClassCo
     instance.getClass().getMethod("write", JBBPBitOutputStream.class).invoke(instance, new JBBPBitOutputStream(bout));
     bout.close();
     return bout.toByteArray();
+  }
+
+  @Test
+  public void testReadWrite_BooleanArrayWholeStream() throws Exception {
+    final Object instance = compileAndMakeInstance("bool [_] boolArray;");
+    assertNull("by default must be null", getField(instance, "boolarray", boolean[].class));
+    final byte[] etalon = new byte[]{1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1};
+    callRead(instance, etalon.clone());
+    assertArrayEquals(new boolean[]{true, false, true, true, false, true, true, true, false, false, false, true, true, true, true}, getField(instance, "boolarray", boolean[].class));
+    assertArrayEquals(etalon, callWrite(instance));
   }
 
   @Test
@@ -358,7 +369,7 @@ public class ParserToJavaClassConverterReadWriteTest extends AbstractJavaClassCo
 
   @Test
   public void testReadWrite_CustomField() throws Exception {
-    final Object klazz = compileAndMakeInstance("com.igormaznitsa.jbbp.test.CustomFieldParser", "threebyte one;<threebyte two; threebyte [18] arrayone; <threebyte [_] arraytwo;", new JBBPCustomFieldTypeProcessor() {
+    final Object klazz = compileAndMakeInstance("com.igormaznitsa.jbbp.test.CustomFieldParser", "threebyte one;<threebyte two; threebyte:2 [18] arrayone; <threebyte:3 [_] arraytwo;", new JBBPCustomFieldTypeProcessor() {
       private final String[] names = new String[]{"threebyte"};
 
       @Override
@@ -396,56 +407,138 @@ public class ParserToJavaClassConverterReadWriteTest extends AbstractJavaClassCo
         + "   if (byteOrder == JBBPByteOrder.BIG_ENDIAN) {"
         + "     out.write(a); out.write(b); out.write(c);"
         + "   } else {"
-        +"      out.write(c); out.write(b); out.write(a);"    
+        + "      out.write(c); out.write(b); out.write(a);"
         + "   }"
         + " }"
         + " public JBBPAbstractField readCustomFieldType(Object sourceStruct, JBBPBitInputStream inStream, JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean readWholeStream, int arraySize) throws IOException{"
         + "   if (readWholeStream || arraySize>=0) {"
         + "      if (readWholeStream) {"
+        + "         if (extraValue!=3) throw new Error(\"must be 3\");"
         + "         com.igormaznitsa.jbbp.utils.IntArrayByteStream buffer = new com.igormaznitsa.jbbp.utils.IntArrayByteStream();"
         + "         while(inStream.hasAvailableData()){ buffer.write(readThree(inStream, typeParameterContainer.getByteOrder())); }"
         + "         return new JBBPFieldArrayInt(nullableNamedFieldInfo, buffer.toIntArray());"
         + "      } else {"
+        + "         if (extraValue!=2) throw new Error(\"must be 2\");"
         + "        int [] arra = new int[arraySize];"
         + "        for (int i=0;i<arraySize;i++){ arra [i] = readThree(inStream, typeParameterContainer.getByteOrder()); }"
         + "        return new JBBPFieldArrayInt(nullableNamedFieldInfo, arra);"
         + "      }"
         + "   } else {"
+        + "      if (extraValue!=0) throw new Error(\"must be 0\");"
         + "      return new JBBPFieldInt(nullableNamedFieldInfo, readThree(inStream, typeParameterContainer.getByteOrder()));"
         + "   }"
         + " }"
         + " public void writeCustomFieldType(Object sourceStruct, JBBPBitOutputStream outStream, JBBPAbstractField fieldValue, JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean wholeArray, int arraySize) throws IOException {"
         + "   if (arraySize>=0 || wholeArray) {"
+        + "     if (wholeArray && extraValue!=3) throw new Error(\"wrong extra\");"
+        + "     if (arraySize>=0 && extraValue!=2) throw new Error(\"wrong extra\");"
         + "     int [] arra = ((JBBPFieldArrayInt) fieldValue).getArray();"
         + "     int len = wholeArray ? arra.length : arraySize;"
         + "     for(int i=0;i<len;i++) { writeThree(outStream, typeParameterContainer.getByteOrder(), arra[i]);}"
         + "   } else {"
+        + "     if (extraValue!=0) throw new Error(\"must be 0\");"
         + "     writeThree(outStream, typeParameterContainer.getByteOrder(), ((JBBPFieldInt)fieldValue).getAsInt());"
         + "   }"
         + " }"
         + "}"));
-    
-        final byte [] etalonArray = new byte[1000*3];
-        int v = 1;
-        for(int i=0;i<etalonArray.length;i++){
-          etalonArray[i] = (byte)(v % 167);
-          v++;
-        }
-    
-        callRead(klazz, etalonArray.clone());
-        final JBBPFieldInt one = getField(klazz, "one", JBBPFieldInt.class);
-        assertEquals(0x010203,one.getAsInt());
-        
-        final JBBPFieldInt two = getField(klazz, "two", JBBPFieldInt.class);
-        assertEquals(0x060504,two.getAsInt());
 
-        final JBBPFieldArrayInt arrayone = getField(klazz, "arrayone", JBBPFieldArrayInt.class);
-        assertEquals(18,arrayone.getArray().length);
+    final byte[] etalonArray = new byte[1000 * 3];
+    int v = 1;
+    for (int i = 0; i < etalonArray.length; i++) {
+      etalonArray[i] = (byte) (v % 167);
+      v++;
+    }
 
-        final JBBPFieldArrayInt arraytwo = getField(klazz, "arraytwo", JBBPFieldArrayInt.class);
-        assertEquals(980,arraytwo.getArray().length);
-        
-        assertArrayEquals(etalonArray,callWrite(klazz));
+    callRead(klazz, etalonArray.clone());
+    final JBBPFieldInt one = getField(klazz, "one", JBBPFieldInt.class);
+    assertEquals(0x010203, one.getAsInt());
+
+    final JBBPFieldInt two = getField(klazz, "two", JBBPFieldInt.class);
+    assertEquals(0x060504, two.getAsInt());
+
+    final JBBPFieldArrayInt arrayone = getField(klazz, "arrayone", JBBPFieldArrayInt.class);
+    assertEquals(18, arrayone.getArray().length);
+
+    final JBBPFieldArrayInt arraytwo = getField(klazz, "arraytwo", JBBPFieldArrayInt.class);
+    assertEquals(980, arraytwo.getArray().length);
+
+    assertArrayEquals(etalonArray, callWrite(klazz));
+  }
+
+  @Test
+  public void testReadWrite_VarFields() throws Exception {
+    final Object klazz = compileAndMakeInstance("com.igormaznitsa.jbbp.test.VarFieldParser", "var:12 one;<var:12 two; var:4 [18] arrayone; <var:4 [_] arraytwo;", null, new JavaClassContent("com.igormaznitsa.jbbp.test.VarFieldParser", "package com.igormaznitsa.jbbp.test;\n"
+        + "import com.igormaznitsa.jbbp.model.*;\n"
+        + "import com.igormaznitsa.jbbp.io.*;\n"
+        + "import com.igormaznitsa.jbbp.compiler.*;\n"
+        + "import com.igormaznitsa.jbbp.compiler.tokenizer.*;\n"
+        + "import java.io.IOException;\n"
+        + "import java.util.*;\n"
+        + ""
+        + "public class VarFieldParser extends " + PACKAGE_NAME + '.' + CLASS_NAME + "{"
+        + " private int readThree(JBBPBitInputStream in, JBBPByteOrder byteOrder) throws IOException {"
+        + "   int a = in.readByte();"
+        + "   int b = in.readByte();"
+        + "   int c = in.readByte();"
+        + "   return byteOrder == JBBPByteOrder.BIG_ENDIAN ? (a << 16) | (b << 8) | c : (c << 16) | (b << 8) | a;"
+        + " }"
+        + " private void writeThree(JBBPBitOutputStream out, JBBPByteOrder byteOrder, int value) throws IOException {"
+        + "   int c = value & 0xFF; int b = (value >> 8) & 0xFF; int a = (value >> 16) & 0xFF;"
+        + "   if (byteOrder == JBBPByteOrder.BIG_ENDIAN) {"
+        + "     out.write(a); out.write(b); out.write(c);"
+        + "   } else {"
+        + "      out.write(c); out.write(b); out.write(a);"
+        + "   }"
+        + " }"
+        + "public JBBPAbstractField readVarField(Object sourceStruct, JBBPBitInputStream inStream, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue) throws IOException{"
+        + "   if (extraValue!=12) throw new Error(\"wrong extra\");"
+        + "   return new JBBPFieldInt(nullableNamedFieldInfo, readThree(inStream, byteOrder));"
+        + "}"
+        + "public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(Object sourceStruct, JBBPBitInputStream inStream, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean readWholeStream, int arraySize) throws IOException {"
+        + "   if (extraValue!=4) throw new Error(\"wrong extra\");"
+        + "   if (readWholeStream) {"
+        + "         com.igormaznitsa.jbbp.utils.IntArrayByteStream buffer = new com.igormaznitsa.jbbp.utils.IntArrayByteStream();"
+        + "         while(inStream.hasAvailableData()){ buffer.write(readThree(inStream, byteOrder)); }"
+        + "         return new JBBPFieldArrayInt(nullableNamedFieldInfo, buffer.toIntArray());"
+        + "      } else {"
+        + "        int [] arra = new int[arraySize];"
+        + "        for (int i=0;i<arraySize;i++){ arra [i] = readThree(inStream, byteOrder); }"
+        + "        return new JBBPFieldArrayInt(nullableNamedFieldInfo, arra);"
+        + "      }"
+        + "}"
+        + "public void writeVarField(Object sourceStruct, JBBPAbstractField value, JBBPBitOutputStream outStream, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue) throws IOException{"
+        + "   if (extraValue!=12) throw new Error(\"wrong extra\");"
+        + "     writeThree(outStream, byteOrder, ((JBBPFieldInt)value).getAsInt());"
+        + "}"
+        + "public void writeVarArray(Object sourceStruct, JBBPAbstractArrayField<? extends JBBPAbstractField> array, JBBPBitOutputStream outStream, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, int arraySizeToWrite) throws IOException{"
+        + "   if (extraValue!=4) throw new Error(\"wrong extra\");"
+        + "     int [] arra = ((JBBPFieldArrayInt) array).getArray();"
+        + "     int len = arraySizeToWrite < 0 ? arra.length : arraySizeToWrite;"
+        + "     for(int i=0;i<len;i++) { writeThree(outStream, byteOrder, arra[i]);}"
+        + "}"
+        + "}"));
+
+    final byte[] etalonArray = new byte[1000 * 3];
+    int v = 1;
+    for (int i = 0; i < etalonArray.length; i++) {
+      etalonArray[i] = (byte) (v % 167);
+      v++;
+    }
+
+    callRead(klazz, etalonArray.clone());
+    final JBBPFieldInt one = getField(klazz, "one", JBBPFieldInt.class);
+    assertEquals(0x010203, one.getAsInt());
+
+    final JBBPFieldInt two = getField(klazz, "two", JBBPFieldInt.class);
+    assertEquals(0x060504, two.getAsInt());
+
+    final JBBPFieldArrayInt arrayone = getField(klazz, "arrayone", JBBPFieldArrayInt.class);
+    assertEquals(18, arrayone.getArray().length);
+
+    final JBBPFieldArrayInt arraytwo = getField(klazz, "arraytwo", JBBPFieldArrayInt.class);
+    assertEquals(980, arraytwo.getArray().length);
+
+    assertArrayEquals(etalonArray, callWrite(klazz));
   }
 
 }
