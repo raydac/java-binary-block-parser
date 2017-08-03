@@ -399,7 +399,7 @@ public class ParserToJavaClassConverterReadWriteTest extends AbstractJavaClassCo
         +"      out.write(c); out.write(b); out.write(a);"    
         + "   }"
         + " }"
-        + " public JBBPAbstractField readCustomFieldType(Object sourceStruct, JBBPBitInputStream inStream, JBBPBitOrder bitOrder, JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean readWholeStream, int arraySize) throws IOException{"
+        + " public JBBPAbstractField readCustomFieldType(Object sourceStruct, JBBPBitInputStream inStream, JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean readWholeStream, int arraySize) throws IOException{"
         + "   if (readWholeStream || arraySize>=0) {"
         + "      if (readWholeStream) {"
         + "         com.igormaznitsa.jbbp.utils.IntArrayByteStream buffer = new com.igormaznitsa.jbbp.utils.IntArrayByteStream();"

@@ -225,8 +225,8 @@ public class ParserToJavaClassConverter extends CompiledBlockVisitor {
         this.specialSection.indent().printf("protected static final int %s = %d;", NAME_PARSER_FLAGS, this.parserFlags);
 
         if (this.detectedCustomFields.get()) {
-            this.specialMethods.printJavaDocLinesWithIndent("Reading of custom fields\n@param sourceStruct source structure holding the field, must not be null\n@param inStream the input stream, must not be null\n@param bitOrder bit order to read data, must not be null\n@param typeParameterContainer info about field type, must not be null\n@param nullableNamedFieldInfo info abut field name, it can be null\n@param extraValue value from extra field part\n@param readWholeStream flag to read the stream as array till the stream end if true\n@param arraySize if array then it is zero or great\n@exception IOException if data can't be read\n@return read value as abstract field, must not be null");
-            this.specialMethods.println("public abstract JBBPAbstractField readCustomFieldType(Object sourceStruct, JBBPBitInputStream inStream, JBBPBitOrder bitOrder, JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean readWholeStream, int arraySize) throws IOException;");
+            this.specialMethods.printJavaDocLinesWithIndent("Reading of custom fields\n@param sourceStruct source structure holding the field, must not be null\n@param inStream the input stream, must not be null\n@param typeParameterContainer info about field type, must not be null\n@param nullableNamedFieldInfo info abut field name, it can be null\n@param extraValue value from extra field part\n@param readWholeStream flag to read the stream as array till the stream end if true\n@param arraySize if array then it is zero or great\n@exception IOException if data can't be read\n@return read value as abstract field, must not be null");
+            this.specialMethods.println("public abstract JBBPAbstractField readCustomFieldType(Object sourceStruct, JBBPBitInputStream inStream, JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean readWholeStream, int arraySize) throws IOException;");
             this.specialMethods.println();
             this.specialMethods.printJavaDocLinesWithIndent("Writing custom fields\n@param sourceStruct source structure holding the field, must not be null\n@param outStream the output stream, must not be null\n@param fieldValue value to be written\n@param typeParameterContainer info about field type, must not be null\n@param nullableNamedFieldInfo info abut field name, it can be null\n@param extraValue value from extra field part\n@param wholeArray true if to write whole array\n@param arraySize if array then it is zero or great\n@exception IOException if data can't be written");
             this.specialMethods.println("public abstract void writeCustomFieldType(Object sourceStruct, JBBPBitOutputStream outStream, JBBPAbstractField fieldValue, JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean wholeArray, int arraySize) throws IOException;");
@@ -458,7 +458,7 @@ public class ParserToJavaClassConverter extends CompiledBlockVisitor {
         processSkipRemainingFlag();
         this.getCurrentStruct().getReadFunc().printf("%s = %s;%n",
                 fieldName,
-                String.format("%s.readCustomFieldType(this, In, In.getBitOrder(), %s, %s, %s, %b, %s)",
+                String.format("%s.readCustomFieldType(this, In, %s, %s, %s, %b, %s)",
                         this.getCurrentStruct().isRoot() ? "this" : "this." + NAME_ROOT_STRUCT,
                         specialFieldName_typeParameterContainer,
                         nullableNameFieldInfo == null ? "null" : specialFieldName_fieldNameInfo,
