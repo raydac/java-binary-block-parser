@@ -210,9 +210,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
                             byteOrder = JBBPByteOrder.BIG_ENDIAN;
                         }
 
-                        if (!wrongFormat) {
-                            parsedType = new JBBPFieldTypeParameterContainer(byteOrder, groupTypeName, groupTypeExtraField);
-                        }
+                        parsedType = new JBBPFieldTypeParameterContainer(byteOrder, groupTypeName, groupTypeExtraField);
                     }
 
                     if (wrongFormat) {
