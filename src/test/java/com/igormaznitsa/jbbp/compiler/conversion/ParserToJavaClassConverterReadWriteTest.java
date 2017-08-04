@@ -419,6 +419,7 @@ public class ParserToJavaClassConverterReadWriteTest extends AbstractJavaClassCo
         + "   }"
         + " }"
         + " public JBBPAbstractField readCustomFieldType(Object sourceStruct, JBBPBitInputStream inStream, JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean readWholeStream, int arraySize) throws IOException{"
+        + "   if (sourceStruct == null) throw new Error(\"Struct must not be null\");"
         + "   if (readWholeStream || arraySize>=0) {"
         + "      if (readWholeStream) {"
         + "         if (extraValue!=3) throw new Error(\"must be 3\");"
@@ -437,6 +438,7 @@ public class ParserToJavaClassConverterReadWriteTest extends AbstractJavaClassCo
         + "   }"
         + " }"
         + " public void writeCustomFieldType(Object sourceStruct, JBBPBitOutputStream outStream, JBBPAbstractField fieldValue, JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean wholeArray, int arraySize) throws IOException {"
+        + "   if (sourceStruct == null) throw new Error(\"Struct must not be null\");"
         + "   if (arraySize>=0 || wholeArray) {"
         + "     if (wholeArray && extraValue!=3) throw new Error(\"wrong extra\");"
         + "     if (arraySize>=0 && extraValue!=2) throw new Error(\"wrong extra\");"
@@ -503,6 +505,7 @@ public class ParserToJavaClassConverterReadWriteTest extends AbstractJavaClassCo
         + "   return new JBBPFieldInt(nullableNamedFieldInfo, readThree(inStream, byteOrder));"
         + "}"
         + "public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(Object sourceStruct, JBBPBitInputStream inStream, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean readWholeStream, int arraySize) throws IOException {"
+        + "   if (sourceStruct == null) throw new Error(\"Struct must not be null\");"
         + "   if (extraValue!=4) throw new Error(\"wrong extra\");"
         + "   if (readWholeStream) {"
         + "         com.igormaznitsa.jbbp.utils.IntArrayByteStream buffer = new com.igormaznitsa.jbbp.utils.IntArrayByteStream();"
@@ -515,10 +518,12 @@ public class ParserToJavaClassConverterReadWriteTest extends AbstractJavaClassCo
         + "      }"
         + "}"
         + "public void writeVarField(Object sourceStruct, JBBPAbstractField value, JBBPBitOutputStream outStream, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue) throws IOException{"
+        + "   if (sourceStruct == null) throw new Error(\"Struct must not be null\");"
         + "   if (extraValue!=12) throw new Error(\"wrong extra\");"
         + "     writeThree(outStream, byteOrder, ((JBBPFieldInt)value).getAsInt());"
         + "}"
         + "public void writeVarArray(Object sourceStruct, JBBPAbstractArrayField<? extends JBBPAbstractField> array, JBBPBitOutputStream outStream, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, int arraySizeToWrite) throws IOException{"
+        + "   if (sourceStruct == null) throw new Error(\"Struct must not be null\");"
         + "   if (extraValue!=4) throw new Error(\"wrong extra\");"
         + "     int [] arra = ((JBBPFieldArrayInt) array).getArray();"
         + "     int len = arraySizeToWrite < 0 ? arra.length : arraySizeToWrite;"
@@ -549,6 +554,36 @@ public class ParserToJavaClassConverterReadWriteTest extends AbstractJavaClassCo
     assertArrayEquals(etalonArray, callWrite(klazz));
   }
 
+  @Test
+  public void testReadWrite_NamedExternalFieldInExpression() throws Exception {
+    final Object klazz = compileAndMakeInstance("com.igormaznitsa.jbbp.test.ExtraFieldParser", "byte [$one*$two] data;", null, new JavaClassContent("com.igormaznitsa.jbbp.test.ExtraFieldParser", "package com.igormaznitsa.jbbp.test;\n"
+        + "import com.igormaznitsa.jbbp.model.*;\n"
+        + "import com.igormaznitsa.jbbp.io.*;\n"
+        + "import com.igormaznitsa.jbbp.compiler.*;\n"
+        + "import com.igormaznitsa.jbbp.compiler.tokenizer.*;\n"
+        + "import java.io.IOException;\n"
+        + "import java.util.*;\n"
+        + "public class ExtraFieldParser extends " + PACKAGE_NAME + '.' + CLASS_NAME + "{"
+        + "    public int getNamedValue(Object sourceStruct, String valueName){"
+        + "      if (sourceStruct == null) throw new Error(\"Struct must not be null\");"
+        + "      if (\"one\".equals(valueName)) return 11;"    
+        + "      if (\"two\".equals(valueName)) return 7;"    
+        + "      throw new Error(\"Unexpected value \"+valueName);"    
+        + "   }"    
+        + "}"));
+    
+        final byte [] array = new byte[77];
+        
+        RND.nextBytes(array);
+        final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(array.clone()));
+    
+        callRead(klazz, in);
+        assertFalse(in.hasAvailableData());
+        assertEquals(77, getField(klazz, "data", byte[].class).length);
+        
+        assertArrayEquals(array, callWrite(klazz));
+  }
+  
   @Test
   public void testReadWrite_NetPacket() throws Exception {
     final Object ethernetHeader = compileAndMakeInstance("byte[6] MacDestination;"
