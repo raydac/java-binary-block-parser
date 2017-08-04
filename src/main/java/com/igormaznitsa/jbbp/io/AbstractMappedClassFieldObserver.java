@@ -626,10 +626,7 @@ public abstract class AbstractMappedClassFieldObserver {
             if (obj == this) {
                 return true;
             }
-            if (obj instanceof OrderedField) {
-                return this.field.equals(((OrderedField) obj).field);
-            }
-            return false;
+            return obj instanceof OrderedField ? this.field.equals(((OrderedField) obj).field) : false;
         }
 
         @Override

@@ -60,12 +60,10 @@ public final class JBBPEvaluatorFactory {
             result = new JBBPExpressionEvaluator(expression, namedFields, compiledScript);
         } else {
             // only field
-            final String externalFieldName;
             int index = -1;
             if (expression.startsWith("$")) {
                 result = new JBBPOnlyFieldEvaluator(expression.substring(1), index);
             } else {
-                externalFieldName = null;
                 for (int i = namedFields.size() - 1; i >= 0; i--) {
                     final JBBPNamedFieldInfo field = namedFields.get(i);
                     if (expression.equals(field.getFieldPath())) {
@@ -77,7 +75,7 @@ public final class JBBPEvaluatorFactory {
                     result = new JBBPExpressionEvaluator(expression, namedFields, compiledScript);
                 } else {
                     JBBPCompilerUtils.assertFieldIsNotArrayOrInArray(namedFields.get(index), namedFields, compiledScript);
-                    result = new JBBPOnlyFieldEvaluator(externalFieldName, index);
+                    result = new JBBPOnlyFieldEvaluator(null, index);
                 }
             }
         }

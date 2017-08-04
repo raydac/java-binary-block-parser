@@ -732,10 +732,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
      * @throws IOException it will be thrown for transport errors
      */
     public boolean hasAvailableData() throws IOException {
-        if (this.bitsInBuffer > 0) {
-            return true;
-        }
-        return loadNextByteInBuffer() >= 0;
+        return this.bitsInBuffer > 0 || loadNextByteInBuffer() >= 0;
     }
 
     @Override
