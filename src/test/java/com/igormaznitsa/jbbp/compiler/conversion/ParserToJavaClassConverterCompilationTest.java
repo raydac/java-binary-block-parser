@@ -170,6 +170,14 @@ public class ParserToJavaClassConverterCompilationTest extends AbstractJavaClass
     }
 
     @Test
+    public void testPrimitiveFieldsInExpression() throws Exception {
+        final JBBPParser pngParser = JBBPParser.prepare("long lfield; int ifield; byte bfield; ggg {ubyte ubfield; short shfield;} ushort ushfield; bit:4 bitfield; byte [bfield*ggg.shfield<<bitfield-ggg.ubfield&ushfield%lfield/ifield] array;");
+        final String classSrc = pngParser.makeClassSrc(PACKAGE_NAME, CLASS_NAME);
+        System.out.println(classSrc);
+        final ClassLoader cloader = saveAndCompile(new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, classSrc));
+    }
+    
+    @Test
     public void testAllTypes() throws Exception {
         final JBBPParser parser = JBBPParser.prepare("custom alpha; custom [123] beta; {{ var [alpha*$extr] variarr; var fld;}}", new JBBPCustomFieldTypeProcessor() {
             @Override

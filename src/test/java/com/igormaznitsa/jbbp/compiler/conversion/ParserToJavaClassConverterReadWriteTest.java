@@ -75,15 +75,25 @@ public class ParserToJavaClassConverterReadWriteTest extends AbstractJavaClassCo
   }
 
   private Object callRead(final Object instance, final byte[] array) throws Exception {
-    instance.getClass().getMethod("read", JBBPBitInputStream.class).invoke(instance, new JBBPBitInputStream(new ByteArrayInputStream(array)));
+    return this.callRead(instance, new JBBPBitInputStream(new ByteArrayInputStream(array)));
+  }
+
+  private Object callRead(final Object instance, final JBBPBitInputStream inStream) throws Exception {
+    instance.getClass().getMethod("read", JBBPBitInputStream.class).invoke(instance, inStream);
     return instance;
   }
 
   private byte[] callWrite(final Object instance) throws Exception {
     final ByteArrayOutputStream bout = new ByteArrayOutputStream();
-    instance.getClass().getMethod("write", JBBPBitOutputStream.class).invoke(instance, new JBBPBitOutputStream(bout));
-    bout.close();
+    final JBBPBitOutputStream bitout = new JBBPBitOutputStream(bout);
+    instance.getClass().getMethod("write", JBBPBitOutputStream.class).invoke(instance, bitout);
+    bitout.close();
     return bout.toByteArray();
+  }
+
+  private void callWrite(final Object instance, final JBBPBitOutputStream outStream) throws Exception {
+    final ByteArrayOutputStream bout = new ByteArrayOutputStream();
+    instance.getClass().getMethod("write", JBBPBitOutputStream.class).invoke(instance, outStream);
   }
 
   @Test
@@ -537,6 +547,132 @@ public class ParserToJavaClassConverterReadWriteTest extends AbstractJavaClassCo
     assertEquals(980, arraytwo.getArray().length);
 
     assertArrayEquals(etalonArray, callWrite(klazz));
+  }
+
+  @Test
+  public void testReadWrite_NetPacket() throws Exception {
+    final Object ethernetHeader = compileAndMakeInstance("byte[6] MacDestination;"
+        + "byte[6] MacSource;"
+        + "ushort EtherTypeOrLength;");
+    
+    final Object ipHeader = compileAndMakeInstance("bit:4 InternetHeaderLength;"
+        + "bit:4 Version;"
+        + "bit:2 ECN;"
+        + "bit:6 DSCP;"
+        + "ushort TotalPacketLength;"
+        + "ushort Identification;"
+        + "ushort IPFlagsAndFragmentOffset;"
+        + "ubyte TTL;"
+        + "ubyte Protocol;"
+        + "ushort HeaderChecksum;"
+        + "int SourceAddress;"
+        + "int DestinationAddress;"
+        + "byte [(InternetHeaderLength-5)*4] Options;");
+
+    final Object tcpHeader = compileAndMakeInstance("ushort SourcePort;"
+        + "ushort DestinationPort;"
+        + "int SequenceNumber;"
+        + "int AcknowledgementNumber;"
+        + "bit:1 NONCE;"
+        + "bit:3 RESERVED;"
+        + "bit:4 HLEN;"
+        + "bit:1 FIN;"
+        + "bit:1 SYN;"
+        + "bit:1 RST;"
+        + "bit:1 PSH;"
+        + "bit:1 ACK;"
+        + "bit:1 URG;"
+        + "bit:1 ECNECHO;"
+        + "bit:1 CWR;"
+        + "ushort WindowSize;"
+        + "ushort TCPCheckSum;"
+        + "ushort UrgentPointer;"
+        + "byte [$$-HLEN*4] Option;");
+
+    final byte[] netPacketEtalon = loadResource("tcppacket.bin");
+
+    final JBBPBitInputStream inStream = new JBBPBitInputStream(new ByteArrayInputStream(netPacketEtalon));
+
+    callRead(ethernetHeader, inStream);
+    assertArrayEquals("Destination MAC", new byte[]{(byte) 0x60, (byte) 0x67, (byte) 0x20, (byte) 0xE1, (byte) 0xF9, (byte) 0xF8}, getField(ethernetHeader, "macdestination", byte[].class));
+    assertArrayEquals("Source MAC", new byte[]{(byte) 0x00, (byte) 0x26, (byte) 0x44, (byte) 0x74, (byte) 0xFE, (byte) 0x66}, getField(ethernetHeader, "macsource", byte[].class));
+    final int etherTypeOrLength = getField(ethernetHeader, "ethertypeorlength", Character.class).charValue();
+    assertEquals("Ethernet type or length", 0x800, etherTypeOrLength);
+
+    inStream.resetCounter();
+    callRead(ipHeader, inStream);
+
+    assertEquals("IP Version", 4, getField(ipHeader, "version", Byte.class).intValue());
+
+    final int internetHeaderLength = getField(ipHeader, "internetheaderlength", Byte.class).intValue();
+    assertEquals("Length of the IP header (in 4 byte items)", 5, internetHeaderLength);
+    assertEquals("Differentiated Services Code Point", 0, getField(ipHeader, "dscp", Byte.class).intValue());
+    assertEquals("Explicit Congestion Notification", 0, getField(ipHeader, "ecn", Byte.class).intValue());
+
+    final int ipTotalPacketLength = getField(ipHeader, "totalpacketlength", Character.class);
+
+    assertEquals("Entire IP packet size, including header and data, in bytes", 159, ipTotalPacketLength);
+    assertEquals("Identification", 30810, getField(ipHeader, "identification", Character.class).charValue());
+
+    final int ipFlagsAndFragmentOffset = getField(ipHeader, "ipflagsandfragmentoffset", Character.class);
+
+    assertEquals("Extracted IP flags", 0x2, ipFlagsAndFragmentOffset >>> 13);
+    assertEquals("Extracted Fragment offset", 0x00, ipFlagsAndFragmentOffset & 0x1FFF);
+
+    assertEquals("Time To Live", 0x39, getField(ipHeader, "ttl", Character.class).charValue());
+    assertEquals("Protocol (RFC-790)", 0x06, getField(ipHeader, "protocol", Character.class).charValue());
+    assertEquals("IPv4 Header Checksum", 0x7DB6, getField(ipHeader, "headerchecksum", Character.class).charValue());
+    assertEquals("Source IP address", 0xD5C7B393, getField(ipHeader, "sourceaddress", Integer.class).intValue());
+    assertEquals("Destination IP address", 0xC0A80145, getField(ipHeader, "destinationaddress", Integer.class).intValue());
+
+    assertEquals(0, getField(ipHeader, "options", byte[].class).length);
+
+    inStream.resetCounter();
+    callRead(tcpHeader, inStream);
+
+    assertEquals(40018, getField(tcpHeader, "sourceport", Character.class).charValue());
+    assertEquals(56344, getField(tcpHeader, "destinationport", Character.class).charValue());
+    assertEquals(0xE0084171, getField(tcpHeader, "sequencenumber", Integer.class).intValue());
+    assertEquals(0xAB616F71, getField(tcpHeader, "acknowledgementnumber", Integer.class).intValue());
+
+    assertEquals(0, getField(tcpHeader, "fin", Byte.class).intValue());
+    assertEquals(0, getField(tcpHeader, "syn", Byte.class).intValue());
+    assertEquals(0, getField(tcpHeader, "rst", Byte.class).intValue());
+    assertEquals(1, getField(tcpHeader, "psh", Byte.class).intValue());
+    assertEquals(1, getField(tcpHeader, "ack", Byte.class).intValue());
+    assertEquals(0, getField(tcpHeader, "urg", Byte.class).intValue());
+    assertEquals(0, getField(tcpHeader, "ecnecho", Byte.class).intValue());
+    assertEquals(0, getField(tcpHeader, "cwr", Byte.class).intValue());
+    assertEquals(0, getField(tcpHeader, "nonce", Byte.class).intValue());
+    assertEquals(0, getField(tcpHeader, "reserved", Byte.class).intValue());
+
+    assertEquals(5, getField(tcpHeader, "hlen", Byte.class).intValue());
+
+    assertEquals(40880, getField(tcpHeader, "windowsize", Character.class).charValue());
+    assertEquals(0x8BB6, getField(tcpHeader, "tcpchecksum", Character.class).charValue());
+    assertEquals(0, getField(tcpHeader, "urgentpointer", Character.class).charValue());
+
+    assertEquals(0, getField(tcpHeader, "option", byte[].class).length);
+
+    final int payloadDataLength = ipTotalPacketLength - (internetHeaderLength * 4) - (int) inStream.getCounter();
+    final byte[] data = inStream.readByteArray(payloadDataLength);
+    assertEquals(119, data.length);
+    
+    assertFalse(inStream.hasAvailableData());
+    
+    final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    final JBBPBitOutputStream outStream = new JBBPBitOutputStream(bos);
+    
+    callWrite(ethernetHeader, outStream);
+    outStream.resetCounter();
+    callWrite(ipHeader, outStream);
+    outStream.resetCounter();
+    callWrite(tcpHeader, outStream);
+    
+    outStream.write(data);
+    
+    outStream.close();
+    assertArrayEquals(netPacketEtalon, bos.toByteArray());
   }
 
 }
