@@ -631,7 +631,7 @@ public class ParserToJavaClassConverterReadWriteTest extends AbstractJavaClassCo
     callRead(ethernetHeader, inStream);
     assertArrayEquals("Destination MAC", new byte[]{(byte) 0x60, (byte) 0x67, (byte) 0x20, (byte) 0xE1, (byte) 0xF9, (byte) 0xF8}, getField(ethernetHeader, "macdestination", byte[].class));
     assertArrayEquals("Source MAC", new byte[]{(byte) 0x00, (byte) 0x26, (byte) 0x44, (byte) 0x74, (byte) 0xFE, (byte) 0x66}, getField(ethernetHeader, "macsource", byte[].class));
-    final int etherTypeOrLength = getField(ethernetHeader, "ethertypeorlength", Character.class).charValue();
+    final int etherTypeOrLength = getField(ethernetHeader, "ethertypeorlength", Character.class);
     assertEquals("Ethernet type or length", 0x800, etherTypeOrLength);
 
     inStream.resetCounter();
