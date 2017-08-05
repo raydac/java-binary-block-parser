@@ -22,6 +22,7 @@ import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.testaux.AbstractJavaClassCompilerTest;
 import static com.igormaznitsa.jbbp.TestUtils.*;
 import org.junit.Test;
+import com.igormaznitsa.jbbp.JBBPParser;
 
 public class ParserToJavaClassConverterExpressionTest extends AbstractJavaClassCompilerTest {
 
@@ -37,18 +38,31 @@ public class ParserToJavaClassConverterExpressionTest extends AbstractJavaClassC
     });
 
     callRead(obj, in);
-    assertEquals(etalonValue, getField(obj, "data", byte[].class).length);
+
+    final int detectedlength = getField(obj, "data", byte[].class).length;
+    
+    if (etalonValue!=detectedlength){
+      System.err.println(JBBPParser.prepare(String.format("byte [%s] data;", expression)).makeClassSrc(PACKAGE_NAME, CLASS_NAME));
+      fail(etalonValue+"!="+detectedlength);
+    }
   }
 
   @Test
   public void testArithmeticOps() throws Exception {
-    assertExpression(11 * (8 - 7) % 13 + (13 - 1) / 2, "11*(8-7)%13+(13-1)/2");
+    assertExpression(11 * (+8 - 7) % 13 + (-13 - 1) / 2, "11*(+8-7)%13+(-13-1)/2");
     assertExpression(11 + 22 * 33 / 44 % 55, "11 + 22 * 33 / 44 % 55");
   }
 
   @Test
   public void testBitOps() throws Exception {
     assertExpression(123 & 345 | 234 ^ ~123 & 255, "123&345|234^~123&255");
+    assertExpression(-123 & 345 | 234 ^ ~ -123 & 255, "-123&345|234^~-123&255");
+  }
+
+  @Test
+  public void testShifts() throws Exception {
+    assertExpression(1234>>3<<2>>>1, "1234>>3<<2>>>1");
+    assertExpression((123456>>(3<<2))>>>1, "(123456>>(3<<2))>>>1");
   }
 
   @Test
