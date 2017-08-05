@@ -705,7 +705,13 @@ public class ParserToJavaClassConverter extends CompiledBlockVisitor {
             return false;
           }
           final ExprTreeItem that = (ExprTreeItem) obj;
-          return that.op.getPriority() <= this.op.getPriority();
+
+          if (that.op.getPriority() < this.op.getPriority()) {
+            return true;
+          } else {
+            return (that.op == Operator.LSHIFT || that.op == Operator.RSHIFT || that.op == Operator.URSHIFT)
+                && (this.op == Operator.LSHIFT || this.op == Operator.RSHIFT || this.op == Operator.URSHIFT);
+          }
         }
 
         @Override

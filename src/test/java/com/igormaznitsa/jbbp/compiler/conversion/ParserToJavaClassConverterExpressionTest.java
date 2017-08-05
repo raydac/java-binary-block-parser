@@ -51,6 +51,7 @@ public class ParserToJavaClassConverterExpressionTest extends AbstractJavaClassC
   public void testArithmeticOps() throws Exception {
     assertExpression(11 * (+8 - 7) % 13 + (-13 - 1) / 2, "11*(+8-7)%13+(-13-1)/2");
     assertExpression(11 + 22 * 33 / 44 % 55, "11 + 22 * 33 / 44 % 55");
+    assertExpression((3 * (5 * 7)) / 11, "(3 * (5 * 7)) / 11");
   }
 
   @Test
@@ -63,6 +64,9 @@ public class ParserToJavaClassConverterExpressionTest extends AbstractJavaClassC
   public void testShifts() throws Exception {
     assertExpression(1234 >> 3 << 2 >>> 1, "1234>>3<<2>>>1");
     assertExpression((123456 >> (3 << 2)) >>> 1, "(123456>>(3<<2))>>>1");
+    assertExpression(56 << (3 << 2), "56 << (3 << 2)");
+    assertExpression(56 << 3 << 2, "56 << 3 << 2");
+    assertExpression(123456 >> (3 << 2), "123456>>(3<<2)");
   }
 
   @Test
