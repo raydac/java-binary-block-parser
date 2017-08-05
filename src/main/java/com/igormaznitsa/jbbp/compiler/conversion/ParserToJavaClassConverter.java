@@ -705,7 +705,7 @@ public class ParserToJavaClassConverter extends CompiledBlockVisitor {
             return false;
           }
           final ExprTreeItem that = (ExprTreeItem) obj;
-          return that.op.getPriority() < this.op.getPriority();
+          return that.op.getPriority() <= this.op.getPriority();
         }
 
         @Override
