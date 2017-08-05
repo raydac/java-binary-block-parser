@@ -15,21 +15,14 @@
  */
 package com.igormaznitsa.jbbp.compiler.conversion;
 
-import static com.igormaznitsa.jbbp.TestUtils.assertPngChunk;
-import static com.igormaznitsa.jbbp.TestUtils.getField;
-import static com.igormaznitsa.jbbp.TestUtils.wavInt2Str;
+import static com.igormaznitsa.jbbp.TestUtils.*;
 import org.junit.Test;
-import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.testaux.AbstractJavaClassCompilerTest;
 import static org.junit.Assert.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
 import org.apache.commons.io.IOUtils;
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
@@ -46,10 +39,6 @@ import com.igormaznitsa.jbbp.model.JBBPFieldInt;
  */
 public class ParserToJavaClassConverterReadWriteTest extends AbstractJavaClassCompilerTest {
 
-  protected static final String PACKAGE_NAME = "com.igormaznitsa.test";
-  protected static final String CLASS_NAME = "TestClass";
-  private static final Random RND = new Random(123456);
-
   private byte[] loadResource(final String name) throws Exception {
     final InputStream result = this.getClass().getClassLoader().getResourceAsStream("com/igormaznitsa/jbbp/it/" + name);
     try {
@@ -61,39 +50,6 @@ public class ParserToJavaClassConverterReadWriteTest extends AbstractJavaClassCo
     finally {
       IOUtils.closeQuietly(result);
     }
-  }
-
-  private Object compileAndMakeInstance(final String script) throws Exception {
-    return compileAndMakeInstance(PACKAGE_NAME + '.' + CLASS_NAME, script, (JBBPCustomFieldTypeProcessor) null);
-  }
-
-  private Object compileAndMakeInstance(final String instanceClassName, final String script, final JBBPCustomFieldTypeProcessor customFieldProcessor, final JavaClassContent... extraClasses) throws Exception {
-    final List<JavaClassContent> klazzes = new ArrayList<JavaClassContent>(Arrays.asList(extraClasses));
-    klazzes.add(0, new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, JBBPParser.prepare(script, customFieldProcessor).makeClassSrc(PACKAGE_NAME, CLASS_NAME)));
-    final ClassLoader cloader = saveAndCompile(klazzes.toArray(new JavaClassContent[klazzes.size()]));
-    return cloader.loadClass(instanceClassName).newInstance();
-  }
-
-  private Object callRead(final Object instance, final byte[] array) throws Exception {
-    return this.callRead(instance, new JBBPBitInputStream(new ByteArrayInputStream(array)));
-  }
-
-  private Object callRead(final Object instance, final JBBPBitInputStream inStream) throws Exception {
-    instance.getClass().getMethod("read", JBBPBitInputStream.class).invoke(instance, inStream);
-    return instance;
-  }
-
-  private byte[] callWrite(final Object instance) throws Exception {
-    final ByteArrayOutputStream bout = new ByteArrayOutputStream();
-    final JBBPBitOutputStream bitout = new JBBPBitOutputStream(bout);
-    instance.getClass().getMethod("write", JBBPBitOutputStream.class).invoke(instance, bitout);
-    bitout.close();
-    return bout.toByteArray();
-  }
-
-  private void callWrite(final Object instance, final JBBPBitOutputStream outStream) throws Exception {
-    final ByteArrayOutputStream bout = new ByteArrayOutputStream();
-    instance.getClass().getMethod("write", JBBPBitOutputStream.class).invoke(instance, outStream);
   }
 
   @Test

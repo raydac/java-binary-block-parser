@@ -30,9 +30,6 @@ import java.io.IOException;
 
 public class ParserToJavaClassConverterCompilationTest extends AbstractJavaClassCompilerTest {
 
-    private static final String PACKAGE_NAME = "com.igormaznitsa.test";
-    private static final String CLASS_NAME = "TestClass";
-
     @Test
     public void testExpression() throws Exception {
         final JBBPParser parser = JBBPParser.prepare("bit:8 bitf; var somevar; bool bbb; long aaa; ubyte kkk; {{int lrn; {int [(lrn/aaa*1*(2*somevar-4)&$joomla)/(100%9>>bitf)&56|~kkk^78&bbb];}}}");
