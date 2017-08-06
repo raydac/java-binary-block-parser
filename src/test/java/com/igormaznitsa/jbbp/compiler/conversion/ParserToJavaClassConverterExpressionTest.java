@@ -56,8 +56,11 @@ public class ParserToJavaClassConverterExpressionTest extends AbstractJavaClassC
 
   @Test
   public void testBitOps() throws Exception {
+    assertExpression(123 ^ 345 & 767, "123 ^ 345 & 767");
+    assertExpression((123 | 883) ^ 345 & 767, "(123 | 883) ^ 345 & 767");
     assertExpression(123 & 345 | 234 ^ ~123 & 255, "123&345|234^~123&255");
     assertExpression(-123 & 345 | 234 ^ ~-123 & 255, "-123&345|234^~-123&255");
+    assertExpression((-123 & (345 | (234 ^ ~-123))) & 1023, "(-123 & (345 | (234 ^ ~-123))) & 1023");
   }
 
   @Test
@@ -71,6 +74,8 @@ public class ParserToJavaClassConverterExpressionTest extends AbstractJavaClassC
 
   @Test
   public void testComplex() throws Exception {
+    assertExpression(3 * 2 + 8 << 4 - 3, "3*2+8<<4-3");
+    assertExpression(3 * 2 + 8 << 4 - 3 & 7, "3*2+8<<4-3&7");
     assertExpression((11 * (8 - 7)) % 13 + (1234 >> 3 << 2) >>> 1 + (13 - 1) / 2 + ((11 + 22) * 33 / 44 % 55) - (123 & 345 | 234 ^ ~123) & 255, "(11 * (8 - 7)) % 13 + ( 1234>>3<<2)>>>1 + (13 - 1) / 2 + ((11 + 22) * 33 / 44 % 55) - (123 & 345 | 234 ^ ~123) & 255");
   }
 
