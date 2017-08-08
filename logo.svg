@@ -76,9 +76,9 @@
      inkscape:window-height="1009"
      id="namedview3690"
      showgrid="false"
-     inkscape:zoom="7.9999999"
-     inkscape:cx="-4.8510611"
-     inkscape:cy="30.223912"
+     inkscape:zoom="5.6568542"
+     inkscape:cx="3.5824605"
+     inkscape:cy="28.731911"
      inkscape:window-x="0"
      inkscape:window-y="24"
      inkscape:window-maximized="1"
@@ -99,7 +99,7 @@
        style="stop-color:#ED1C24"
        id="stop3678" /></radialGradient><g
      id="g4311"
-     transform="translate(10.125,-0.56250001)"><path
+     transform="translate(10.21875,-0.62500001)"><path
        sodipodi:nodetypes="cccccccccscccccccsscccccc"
        style="clip-rule:evenodd;fill-rule:evenodd"
        inkscape:connector-curvature="0"
@@ -144,7 +144,7 @@
      inkscape:connector-curvature="0" /><g
      transform="matrix(0.08735618,0,0,0.08735618,10.680748,-18.115071)"
      id="g4883"
-     style="stroke-width:1.14473867;stroke-miterlimit:4;stroke-dasharray:none"><g
+     style="stroke-width:1.14473867;stroke-miterlimit:4;stroke-dasharray:none;opacity:1"><g
        style="fill:#000000;stroke-width:1.14473867;stroke-miterlimit:4;stroke-dasharray:none"
        id="g4166"><path
          style="fill:#000000;fill-rule:evenodd;stroke:#ffffff;stroke-width:1.14473867;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
@@ -189,7 +189,7 @@
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'ZX Spectrum';-inkscape-font-specification:'ZX Spectrum'" /></text>
 <text
      xml:space="preserve"
-     style="font-style:normal;font-weight:normal;font-size:21.85092545px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#008bff;fill-opacity:1;stroke:#00ffff;stroke-width:0.30000001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     style="font-style:normal;font-weight:normal;font-size:21.85092545px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ff4444;fill-opacity:1;stroke:#800000;stroke-width:0.30000001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;"
      x="-1.4599185"
      y="38.183647"
      id="text4987"
@@ -198,18 +198,18 @@
        id="tspan4989"
        x="-1.4599185"
        y="38.183647"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25px;font-family:'ZX Spectrum';-inkscape-font-specification:'ZX Spectrum';fill:#008bff;fill-opacity:1;stroke:#00ffff;stroke-width:0.30000001;stroke-miterlimit:4;stroke-dasharray:none">0</tspan></text>
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25px;font-family:'ZX Spectrum';-inkscape-font-specification:'ZX Spectrum';fill:#ff4444;fill-opacity:1;stroke:#800000;stroke-width:0.30000001;stroke-miterlimit:4;stroke-dasharray:none;">0</tspan></text>
 <g
-     style="fill:#ff5555;stroke:#d40000"
+     style="fill:#8fa1ff;stroke:#000080;fill-opacity:1"
      id="g4995"
      transform="translate(-0.66597726,-18.671632)"><text
        sodipodi:linespacing="125%"
        id="text4991"
        y="56.805279"
        x="57.208683"
-       style="font-style:normal;font-weight:normal;font-size:21.52741051px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ff5555;fill-opacity:1;stroke:#d40000;stroke-width:0.2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="font-style:normal;font-weight:normal;font-size:21.52741051px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#8fa1ff;fill-opacity:1;stroke:#000080;stroke-width:0.2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        xml:space="preserve"><tspan
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25px;font-family:'ZX Spectrum';-inkscape-font-specification:'ZX Spectrum';fill:#ff5555;stroke:#d40000;stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25px;font-family:'ZX Spectrum';-inkscape-font-specification:'ZX Spectrum';fill:#8fa1ff;stroke:#000080;stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1"
          y="56.805279"
          x="57.208683"
          id="tspan4993"
