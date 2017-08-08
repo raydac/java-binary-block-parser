@@ -623,10 +623,7 @@ public abstract class AbstractMappedClassFieldObserver {
             if (obj == null) {
                 return false;
             }
-            if (obj == this) {
-                return true;
-            }
-            return obj instanceof OrderedField ? this.field.equals(((OrderedField) obj).field) : false;
+            return obj == this || (obj instanceof OrderedField ? this.field.equals(((OrderedField) obj).field) : false);
         }
 
         @Override

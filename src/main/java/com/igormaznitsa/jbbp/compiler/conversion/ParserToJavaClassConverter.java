@@ -17,7 +17,6 @@ package com.igormaznitsa.jbbp.compiler.conversion;
 
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
-import com.igormaznitsa.jbbp.compiler.JBBPCompiler;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.compiler.varlen.JBBPIntegerValueEvaluator;
@@ -627,7 +626,7 @@ public class ParserToJavaClassConverter extends CompiledBlockVisitor {
         } else if (obj instanceof String) {
           return String.format("%s.getNamedValue(this, \"%s\")", (getCurrentStruct().isRoot() ? "this" : "this." + NAME_ROOT_STRUCT), obj.toString());
         } else if (obj instanceof JBBPNamedFieldInfo) {
-          final NamedFieldInfo namedFieldInfo = detectedNamedFields.get((JBBPNamedFieldInfo) obj);
+          final NamedFieldInfo namedFieldInfo = detectedNamedFields.get(obj);
           final String fieldPath = namedFieldInfo.makeSrcPath(getCurrentStruct());
 
           String result;
@@ -706,12 +705,7 @@ public class ParserToJavaClassConverter extends CompiledBlockVisitor {
           }
           final ExprTreeItem that = (ExprTreeItem) obj;
 
-          if (that.op.getPriority() < this.op.getPriority()) {
-            return true;
-          } else {
-            return (that.op == Operator.LSHIFT || that.op == Operator.RSHIFT || that.op == Operator.URSHIFT)
-                && (this.op == Operator.LSHIFT || this.op == Operator.RSHIFT || this.op == Operator.URSHIFT);
-          }
+          return that.op.getPriority() < this.op.getPriority() || (that.op == Operator.LSHIFT || that.op == Operator.RSHIFT || that.op == Operator.URSHIFT) && (this.op == Operator.LSHIFT || this.op == Operator.RSHIFT || this.op == Operator.URSHIFT);
         }
 
         @Override

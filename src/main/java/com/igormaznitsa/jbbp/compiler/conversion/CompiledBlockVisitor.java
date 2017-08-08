@@ -225,9 +225,9 @@ public class CompiledBlockVisitor {
      * @param offsetInCompiledBlock    offset in the compiled block
      * @param nullableNameFieldInfo    field info, null if the field is anonymous one
      * @param byteOrder                byte order for the field, must not be null
-     * @param readWholeStreamIntoArray
-     * @param nullableArraySize
-     * @param extraDataValueEvaluator
+     * @param readWholeStreamIntoArray true if whole stream should be read as array of var type, false otherwise
+     * @param nullableArraySize        if not null then evaluator of array size to be read from stream
+     * @param extraDataValueEvaluator  if not null then extra data evaluator for the var field
      */
     public void visitVarField(int offsetInCompiledBlock, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPByteOrder byteOrder, boolean readWholeStreamIntoArray, JBBPIntegerValueEvaluator nullableArraySize, JBBPIntegerValueEvaluator extraDataValueEvaluator) {
     }

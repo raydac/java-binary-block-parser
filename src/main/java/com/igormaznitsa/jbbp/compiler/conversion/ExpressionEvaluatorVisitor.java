@@ -34,7 +34,7 @@ public interface ExpressionEvaluatorVisitor {
     /**
      * Visit special field (like stream counter)
      *
-     * @param specialField
+     * @param specialField special value to be visited, must not be null
      * @return the visitor instance, must not be null
      */
     ExpressionEvaluatorVisitor visitSpecial(Special specialField);
