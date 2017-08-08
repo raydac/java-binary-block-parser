@@ -62,7 +62,6 @@ public abstract class AbstractJavaClassCompilerTest {
   }
 
   protected void callWrite(final Object instance, final JBBPBitOutputStream outStream) throws Exception {
-    final ByteArrayOutputStream bout = new ByteArrayOutputStream();
     instance.getClass().getMethod("write", JBBPBitOutputStream.class).invoke(instance, outStream);
   }
   

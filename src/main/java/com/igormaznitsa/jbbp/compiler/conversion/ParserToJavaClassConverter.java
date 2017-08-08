@@ -740,17 +740,17 @@ public class ParserToJavaClassConverter extends CompiledBlockVisitor {
     final String valueTxtOut = nullableArgument == null ? "1" : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArgument, this.detectedExternalFieldsInEvaluator);
 
     switch (actionType) {
-      case JBBPCompiler.CODE_RESET_COUNTER: {
+      case CODE_RESET_COUNTER: {
         getCurrentStruct().getReadFunc().println(NAME_INPUT_STREAM + ".resetCounter();");
         getCurrentStruct().getWriteFunc().println(NAME_OUTPUT_STREAM + ".resetCounter();");
       }
       break;
-      case JBBPCompiler.CODE_ALIGN: {
+      case CODE_ALIGN: {
         getCurrentStruct().getReadFunc().indent().print(NAME_INPUT_STREAM + ".align(").print(valueTxtIn).println(");");
         getCurrentStruct().getWriteFunc().indent().print(NAME_OUTPUT_STREAM + ".align(").print(valueTxtOut).println(");");
       }
       break;
-      case JBBPCompiler.CODE_SKIP: {
+      case CODE_SKIP: {
         getCurrentStruct().getReadFunc().indent().print(NAME_INPUT_STREAM + ".skip(").print(valueTxtIn).println(");");
         getCurrentStruct().getWriteFunc().indent().printf("for(int I=0; I<%s; I++) %s.write(0);%n", valueTxtOut, NAME_OUTPUT_STREAM);
       }
