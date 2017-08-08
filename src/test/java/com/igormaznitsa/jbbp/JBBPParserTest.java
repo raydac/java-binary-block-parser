@@ -294,6 +294,7 @@ public class JBBPParserTest {
             }
         }, null);
 
+        assertNotNull(struct);
         assertEquals(33, struct.findFieldForType(JBBPFieldByte.class).getAsInt());
         assertEquals(1, counter.get());
     }
@@ -435,6 +436,8 @@ public class JBBPParserTest {
                 return null;
             }
         }, null);
+        
+        assertNotNull(struct);
     }
 
     @Test(expected = JBBPParsingException.class)
@@ -454,6 +457,8 @@ public class JBBPParserTest {
                 return new JBBPFieldArrayByte(fieldName, new byte[]{1, 2, 3});
             }
         }, null);
+        
+        assertNotNull(struct);
     }
 
     @Test(expected = JBBPParsingException.class)
@@ -474,6 +479,8 @@ public class JBBPParserTest {
                 return new JBBPFieldByte(new JBBPNamedFieldInfo("jskdjhsd", "dlkjsf", 0), (byte) 1);
             }
         }, null);
+        
+        assertNotNull(struct);
     }
 
     @Test
@@ -508,6 +515,7 @@ public class JBBPParserTest {
             }
         }, null);
 
+        assertNotNull(struct);
         assertArrayEquals(new byte[]{33}, struct.findFieldForType(JBBPFieldArrayByte.class).getArray());
         assertEquals(1, counter.get());
     }
@@ -544,6 +552,7 @@ public class JBBPParserTest {
             }
         }, null);
 
+        assertNotNull(struct);
         assertArrayEquals(new byte[]{33}, struct.findFieldForNameAndType("some", JBBPFieldArrayByte.class).getArray());
         assertEquals(1, counter.get());
     }
@@ -579,6 +588,7 @@ public class JBBPParserTest {
             }
         }, null);
 
+        assertNotNull(struct);
         assertArrayEquals(new byte[]{33, 1, 2, 3, 4}, struct.findFieldForNameAndType("some", JBBPFieldArrayByte.class).getArray());
         assertEquals(1, counter.get());
     }
@@ -602,6 +612,7 @@ public class JBBPParserTest {
             }
         }, null);
 
+        assertNotNull(struct);
         assertEquals(0, struct.findFieldForNameAndType("some", JBBPFieldArrayByte.class).size());
     }
 
@@ -623,6 +634,7 @@ public class JBBPParserTest {
                 return null;
             }
         }, null);
+        assertNotNull(struct);
     }
 
     @Test(expected = JBBPParsingException.class)
@@ -643,6 +655,7 @@ public class JBBPParserTest {
                 return null;
             }
         }, null);
+        assertNotNull(struct);
     }
 
     @Test(expected = EOFException.class)
