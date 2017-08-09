@@ -51,12 +51,11 @@ public final class JBBPOnlyFieldEvaluator implements JBBPIntegerValueEvaluator {
 
     @Override
     public int eval(final JBBPBitInputStream inStream, final int currentCompiledBlockOffset, final JBBPCompiledBlock block, final JBBPNamedNumericFieldMap fieldMap) {
-        final int result = externalFieldName == null
+        return externalFieldName == null
                 ? fieldMap.get(block.getNamedFields()[this.namedFieldIndex]).getAsInt()
                 : this.externalFieldName.equals("$")
                 ? (int) inStream.getCounter()
                 : fieldMap.getExternalFieldValue(this.externalFieldName, block, this);
-        return result;
     }
 
     @Override

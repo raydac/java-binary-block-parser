@@ -35,14 +35,14 @@ import static org.junit.Assert.*;
 
 public class ClassParsingTest extends AbstractParserIntegrationTest {
 
-    private static final int FORMAT_J2SE8 = 0x34;
-    private static final int FORMAT_J2SE7 = 0x33;
-    private static final int FORMAT_J2SE6 = 0x32;
-    private static final int FORMAT_J2SE5 = 0x31;
-    private static final int FORMAT_JDK14 = 0x30;
-    private static final int FORMAT_JDK13 = 0x2F;
-    private static final int FORMAT_JDK12 = 0x2E;
-    private static final int FORMAT_JDK11 = 0x2D;
+//    public static final int FORMAT_J2SE8 = 0x34;
+    public static final int FORMAT_J2SE7 = 0x33;
+//    public static final int FORMAT_J2SE6 = 0x32;
+    public static final int FORMAT_J2SE5 = 0x31;
+//    public static final int FORMAT_JDK14 = 0x30;
+//    public static final int FORMAT_JDK13 = 0x2F;
+//    public static final int FORMAT_JDK12 = 0x2E;
+//    public static final int FORMAT_JDK11 = 0x2D;
 
     private static final int CONSTANT_Class = 7;
     private static final int CONSTANT_Fieldref = 9;

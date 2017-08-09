@@ -32,6 +32,7 @@ import org.junit.Test;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class PackedBCDCustomFieldTest implements JBBPCustomFieldTypeProcessor {
 
@@ -109,7 +110,7 @@ public class PackedBCDCustomFieldTest implements JBBPCustomFieldTypeProcessor {
 
     @Test(expected = JBBPCompilationException.class)
     public void testParse_SingleDefaultNonamedPackedDecimal_LittleEndian_Exception() throws Exception {
-        final JBBPParser parser = JBBPParser.prepare("<bcd:4;", this);
+        assertNotNull(JBBPParser.prepare("<bcd:4;", this));
     }
 
 }

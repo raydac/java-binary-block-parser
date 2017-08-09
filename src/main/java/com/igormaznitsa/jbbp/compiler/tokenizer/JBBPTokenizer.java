@@ -160,7 +160,6 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
                 }
 
                 String fieldType = groupTypeOrName;
-                final String arrayLength = groupArrayLength;
 
                 int position = matcher.start();
 
@@ -221,7 +220,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
                     parsedType = null;
                 }
 
-                this.nextItem = new JBBPToken(type, position, parsedType, arrayLength, fieldName);
+                this.nextItem = new JBBPToken(type, position, parsedType, groupArrayLength, fieldName);
                 lastCharSubstingFound = matcher.end();
             }
         } else {

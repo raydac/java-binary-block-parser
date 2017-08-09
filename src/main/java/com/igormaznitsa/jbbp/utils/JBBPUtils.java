@@ -711,15 +711,14 @@ public final class JBBPUtils {
         if (ulongValue == 0) {
             return "0";
         } else {
-            long cur = ulongValue;
             final String result;
-            if (cur > 0) {
-                result = Long.toString(cur, radix).toUpperCase(Locale.ENGLISH);
+            if (ulongValue > 0) {
+                result = Long.toString(ulongValue, radix).toUpperCase(Locale.ENGLISH);
             } else {
                 final char[] buffer = charBuffer == null || charBuffer.length < 64 ? new char[64] : charBuffer;
                 int pos = buffer.length;
-                long topPart = cur >>> 32;
-                long bottomPart = (cur & 0xFFFFFFFFL) + ((topPart % radix) << 32);
+                long topPart = ulongValue >>> 32;
+                long bottomPart = (ulongValue & 0xFFFFFFFFL) + ((topPart % radix) << 32);
                 topPart /= radix;
                 while ((bottomPart | topPart) > 0) {
                     final int val = (int) (bottomPart % radix);
