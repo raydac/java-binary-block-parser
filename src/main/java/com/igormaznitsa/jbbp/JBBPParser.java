@@ -348,7 +348,12 @@ public final class JBBPParser {
                             final JBBPFieldTypeParameterContainer fieldTypeInfo = this.compiledBlock.getCustomTypeFields()[JBBPUtils.unpackInt(compiled, positionAtCompiledBlock)];
                             final JBBPAbstractField field = this.customFieldTypeProcessor.readCustomFieldType(inStream, this.bitOrder, this.flags, fieldTypeInfo, name, extraData, wholeStreamArray, arrayLength);
                             JBBPUtils.assertNotNull(field, "Must not return null as read result");
-                            structureFields.add(field);
+
+                            if (arrayLength < 0) {
+                                singleAtomicField = field;
+                            } else {
+                                structureFields.add(field);
+                            }
                         }
                     }
                     break;
