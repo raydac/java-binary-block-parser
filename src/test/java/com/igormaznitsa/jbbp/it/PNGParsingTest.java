@@ -15,7 +15,6 @@
  */
 package com.igormaznitsa.jbbp.it;
 
-import static com.igormaznitsa.jbbp.TestUtils.assertPngChunk;
 import com.igormaznitsa.jbbp.JBBPExternalValueProvider;
 import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
 import com.igormaznitsa.jbbp.JBBPParser;
@@ -29,6 +28,7 @@ import org.junit.Test;
 import java.io.InputStream;
 import java.util.zip.CRC32;
 
+import static com.igormaznitsa.jbbp.TestUtils.assertPngChunk;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 

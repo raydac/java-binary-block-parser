@@ -15,15 +15,6 @@
  */
 package com.igormaznitsa.jbbp.compiler.conversion;
 
-import static com.igormaznitsa.jbbp.TestUtils.*;
-import org.junit.Test;
-import com.igormaznitsa.jbbp.testaux.AbstractJavaClassCompilerTest;
-import static org.junit.Assert.*;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import org.apache.commons.io.IOUtils;
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
@@ -33,6 +24,17 @@ import com.igormaznitsa.jbbp.io.JBBPBitOutputStream;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
+import com.igormaznitsa.jbbp.testaux.AbstractJavaClassCompilerTest;
+import org.apache.commons.io.IOUtils;
+import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import static com.igormaznitsa.jbbp.TestUtils.*;
+import static org.junit.Assert.*;
 
 /**
  * Test reading writing with converted classes from parser.
@@ -333,7 +335,7 @@ public class ParserToJavaClassConverterReadWriteTest extends AbstractJavaClassCo
 
   @Test
   public void testReadWrite_CustomField() throws Exception {
-    final Object klazz = compileAndMakeInstance("com.igormaznitsa.jbbp.test.CustomFieldParser", "threebyte one;<threebyte two; threebyte:2 [18] arrayone; <threebyte:3 [_] arraytwo;", new JBBPCustomFieldTypeProcessor() {
+    final Object klazz = compileAndMakeInstance("com.igormaznitsa.jbbp.test.CustomFieldParser", "threebyte one;<threebyte two; threebyte:2 [one+two] arrayone; <threebyte:3 [_] arraytwo;", new JBBPCustomFieldTypeProcessor() {
       private final String[] names = new String[]{"threebyte"};
 
       @Override
@@ -408,25 +410,28 @@ public class ParserToJavaClassConverterReadWriteTest extends AbstractJavaClassCo
         + " }"
         + "}"));
 
-    final byte[] etalonArray = new byte[1000 * 3];
-    int v = 1;
-    for (int i = 0; i < etalonArray.length; i++) {
-      etalonArray[i] = (byte) (v % 167);
-      v++;
-    }
+    final byte[] etalonArray = new byte[6 + (0x7B+0x1CB)*3 + 112*3];
+    RND.nextBytes(etalonArray);
+    etalonArray[0] = 0x00;
+    etalonArray[1] = 0x00;
+    etalonArray[2] = (byte)0x7B;
+    etalonArray[3] = (byte)0xCB;
+    etalonArray[4] = 0x01;
+    etalonArray[5] = 0x00;
 
     callRead(klazz, etalonArray.clone());
     final JBBPFieldInt one = getField(klazz, "one", JBBPFieldInt.class);
-    assertEquals(0x010203, one.getAsInt());
+    assertEquals(0x7B, one.getAsInt());
 
     final JBBPFieldInt two = getField(klazz, "two", JBBPFieldInt.class);
-    assertEquals(0x060504, two.getAsInt());
+    assertEquals(0x01CB, two.getAsInt());
 
     final JBBPFieldArrayInt arrayone = getField(klazz, "arrayone", JBBPFieldArrayInt.class);
-    assertEquals(18, arrayone.getArray().length);
+    assertEquals(0x7B+0x01CB, arrayone.getArray().length);
+
 
     final JBBPFieldArrayInt arraytwo = getField(klazz, "arraytwo", JBBPFieldArrayInt.class);
-    assertEquals(980, arraytwo.getArray().length);
+    assertEquals(112, arraytwo.getArray().length);
 
     assertArrayEquals(etalonArray, callWrite(klazz));
   }

@@ -15,17 +15,22 @@
  */
 package com.igormaznitsa.jbbp.it;
 
+import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.JBBPParser;
-import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
-import com.igormaznitsa.jbbp.io.JBBPBitNumber;
-import com.igormaznitsa.jbbp.io.JBBPBitOrder;
-import com.igormaznitsa.jbbp.io.JBBPOut;
+import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
+import com.igormaznitsa.jbbp.io.*;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.mapper.BinType;
-import com.igormaznitsa.jbbp.model.JBBPFieldArrayByte;
+import com.igormaznitsa.jbbp.model.*;
 import org.junit.Test;
 
+import java.io.EOFException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -203,5 +208,93 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
 
         assertEquals(threads.length * ITERATIONS, parsingCounter.get());
         assertEquals(0, errorCounter.get());
+    }
+
+    /**
+     * Case 10-aug-2017
+     * NullPointer exception when referencing a JBBPCustomFieldTypeProcessor parsed field.
+     * <p>
+     * <a href="https://github.com/raydac/java-binary-block-parser/issues/16">Issue #16, NullPointer exception when referencing a JBBPCustomFieldTypeProcessor parsed field</a>
+     *
+     * @throws Exception for any error
+     */
+    @Test
+    public void testNPEWhenReferencingCustomFieldProcessorAsArrayLength() throws Exception {
+        final class Uint32 implements JBBPCustomFieldTypeProcessor {
+
+            private final String[] TYPES = new String[]{"uint32"};
+
+            private long uint32_read(final JBBPBitInputStream in, final JBBPByteOrder byteOrder, final JBBPBitOrder bitOrder) throws IOException {
+                final int signedInt = in.readInt(byteOrder);
+                return signedInt & 0xffffffffL;
+            }
+
+            @Override
+            public String[] getCustomFieldTypes() {
+                return TYPES;
+            }
+
+            @Override
+            public boolean isAllowed(final JBBPFieldTypeParameterContainer fieldType, final String fieldName, final int extraData, final boolean isArray) {
+                return extraData == 0;
+            }
+
+            private long[] convertLongs(List<Long> longs) {
+                long[] ret = new long[longs.size()];
+                Iterator<Long> iterator = longs.iterator();
+                for (int i = 0; i < ret.length; i++) {
+                    ret[i] = iterator.next().longValue();
+                }
+                return ret;
+            }
+
+            @Override
+            public JBBPAbstractField readCustomFieldType(final JBBPBitInputStream in, final JBBPBitOrder bitOrder,
+                                                         final int parserFlags, final JBBPFieldTypeParameterContainer customTypeFieldInfo,
+                                                         final JBBPNamedFieldInfo fieldName, final int extraData,
+                                                         final boolean readWholeStream, final int arrayLength) throws IOException {
+                if (arrayLength < 0) {
+                    final long uint32_val = uint32_read(in, customTypeFieldInfo.getByteOrder(), bitOrder);
+                    return new JBBPFieldLong(fieldName, uint32_val);
+                } else {
+                    if (readWholeStream) {
+                        ArrayList<Long> laLaLaLaLong = new ArrayList<Long>();
+                        try {
+                            while (true) {
+                                laLaLaLaLong.add(uint32_read(in, customTypeFieldInfo.getByteOrder(), bitOrder));
+                            }
+                        } catch (EOFException e) {
+
+                        }
+
+                        long longs[] = convertLongs(laLaLaLaLong);
+
+                        return new JBBPFieldArrayLong(fieldName, longs);
+
+                    } else {
+                        final long[] array = new long[arrayLength];
+                        for (int i = 0; i < arrayLength; i++) {
+                            array[i] = uint32_read(in, customTypeFieldInfo.getByteOrder(), bitOrder);
+                        }
+                        return new JBBPFieldArrayLong(fieldName, array);
+                    }
+                }
+            }
+        }
+
+        final JBBPParser sasParser = JBBPParser.prepare(
+                ">uint32 keycount;" +
+                        "key [keycount] {" +
+                        "byte[1] contentId; " +
+                        "byte[1] keyData; " +
+                        "}"
+                , new Uint32()
+        );
+
+        JBBPFieldStruct result = sasParser.parse(new byte[]{0, 0, 0, 0, 0x01, (byte) 0xFC, 0x05});
+        assertEquals(0, ((JBBPNumericField)result.findFieldForName("keycount")).getAsInt());
+
+        result = sasParser.parse(new byte[]{0, 0, 0, 2, 1, 2, 3, 4});
+        assertEquals(2, ((JBBPNumericField)result.findFieldForName("keycount")).getAsInt());
     }
 }

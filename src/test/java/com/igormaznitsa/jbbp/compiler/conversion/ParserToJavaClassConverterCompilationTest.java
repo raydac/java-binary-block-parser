@@ -15,7 +15,6 @@
  */
 package com.igormaznitsa.jbbp.compiler.conversion;
 
-import static org.junit.Assert.assertNotNull;
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
@@ -27,6 +26,8 @@ import com.igormaznitsa.jbbp.testaux.AbstractJavaClassCompilerTest;
 import org.junit.Test;
 
 import java.io.IOException;
+
+import static org.junit.Assert.assertNotNull;
 
 public class ParserToJavaClassConverterCompilationTest extends AbstractJavaClassCompilerTest {
 

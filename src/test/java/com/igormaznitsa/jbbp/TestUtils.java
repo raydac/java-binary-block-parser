@@ -15,10 +15,11 @@
  */
 package com.igormaznitsa.jbbp;
 
-import static org.junit.Assert.assertEquals;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.zip.CRC32;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Different useful auxiliary test methods

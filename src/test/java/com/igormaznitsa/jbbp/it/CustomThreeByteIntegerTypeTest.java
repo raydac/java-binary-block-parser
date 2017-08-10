@@ -23,9 +23,7 @@ import com.igormaznitsa.jbbp.exceptions.JBBPParsingException;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
-import com.igormaznitsa.jbbp.model.JBBPAbstractField;
-import com.igormaznitsa.jbbp.model.JBBPFieldArrayInt;
-import com.igormaznitsa.jbbp.model.JBBPFieldInt;
+import com.igormaznitsa.jbbp.model.*;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -39,6 +37,32 @@ import static org.junit.Assert.assertEquals;
  * Example of three byte integer custom type processor to parse unsigned integer values represented by three bytes in data stream.
  */
 public class CustomThreeByteIntegerTypeTest extends AbstractParserIntegrationTest {
+
+    @Test
+    public void testCustomFieldAsAnonymousSingleField() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare("int24;", new Int24CustomTypeProcessor());
+        assertEquals(5,parser.parse(new byte[]{0,0,5}).findFieldForType(JBBPFieldInt.class).getAsInt());
+    }
+
+    @Test
+    public void testReadThreeByteInteger_AnonymousArray() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare("int24 [_];", new Int24CustomTypeProcessor());
+        assertArrayEquals(new int[]{0x010203, 0x040506, 0x070809}, parser.parse(new byte[]{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09}).findFieldForType(JBBPFieldArrayInt.class).getArray());    }
+
+    @Test
+    public void testReadThreeByte_NamedCustomFieldAsArrayLength() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare("int24 value; byte [value];", new Int24CustomTypeProcessor());
+        assertEquals(5,parser.parse(new byte[]{0,0,5,1,2,3,4,5}).findFieldForType(JBBPFieldArrayByte.class).size());
+    }
+
+    @Test
+    public void testReadThreeByteInteger_NamedCustomFieldInExpression() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare("int24 value1; int24 value2; byte [value1+value2];", new Int24CustomTypeProcessor());
+        final JBBPFieldStruct struct = parser.parse(new byte[]{0,0,2,0,0,3,1,2,3,4,5});
+        assertEquals(5,struct.findFieldForType(JBBPFieldArrayByte.class).size());
+        assertEquals(2,struct.findFieldForNameAndType("value1",JBBPFieldInt.class).getAsInt());
+        assertEquals(3,struct.findFieldForNameAndType("value2",JBBPFieldInt.class).getAsInt());
+    }
 
     @Test
     public void testReadThreeByteInteger_OneValue() throws Exception {

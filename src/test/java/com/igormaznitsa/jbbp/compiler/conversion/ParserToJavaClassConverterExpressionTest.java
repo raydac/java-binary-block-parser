@@ -15,14 +15,17 @@
  */
 package com.igormaznitsa.jbbp.compiler.conversion;
 
-import static org.junit.Assert.*;
-import java.io.IOException;
-import java.io.InputStream;
+import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.testaux.AbstractJavaClassCompilerTest;
-import static com.igormaznitsa.jbbp.TestUtils.*;
 import org.junit.Test;
-import com.igormaznitsa.jbbp.JBBPParser;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import static com.igormaznitsa.jbbp.TestUtils.getField;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ParserToJavaClassConverterExpressionTest extends AbstractJavaClassCompilerTest {
 
