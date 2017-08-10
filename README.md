@@ -18,6 +18,7 @@ For instance I have been very actively using the framework in [the ZX-Poly emula
 Change log
 ===========
 - **1.3.0-SNAPSHOT**
+  - __Fixed issue [#16 NullPointerException when referencing a JBBPCustomFieldTypeProcessor parsed field"](https://github.com/raydac/java-binary-block-parser/issues/16), many thanks to @use-sparingly for the bug report__ 
   - created [Maven plugin](https://github.com/raydac/jbbp-maven-plugin) to generate Java class sources (1.6+) from JBBP scripts
   - added extra byte array reading writing methods with byte order support into JBBPBitInputStream and JBBPBitOutputStream
   - added converter of compiled parser data into Java class sources (1.6+)

@@ -2,6 +2,7 @@ Change log
 --------------------------
 
 1.3.0
+ - fixed NPE when referencing a JBBPCustomFieldTypeProcessor parsed field
  - created [Maven plugin](https://github.com/raydac/jbbp-maven-plugin) to generate Java class sources (1.6+) from JBBP scripts
  - added extra byte array reading writing methods with byte order support into JBBPBitInputStream and JBBPBitOutputStream
  - added converter of compiled parser data into Java class sources (1.6+)
