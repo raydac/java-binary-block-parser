@@ -639,12 +639,13 @@ public final class JBBPParser {
      * @param classPackage               package for the new generated class, can be null
      * @param className                  class name of the new generated class, must not be null
      * @param nullableClassHeaderComment text to be added as comment into class header, it can be null
+     * @param makeGettersSetters         generate getters setters for fields if true
      * @return generated sources of class file
      * @since 1.3
      * @see JBBPToJava6Converter
      */
-    public String makeJavaSources(final String classPackage, final String className, final String nullableClassHeaderComment) {
-        return JBBPToJava6Converter.makeBuilder(this).setPackage(classPackage).setName(className).setClassHeadComments(nullableClassHeaderComment).build().convert();
+    public String makeJavaSources(final String classPackage, final String className, final String nullableClassHeaderComment, final boolean makeGettersSetters) {
+        return JBBPToJava6Converter.makeBuilder(this).setPackage(classPackage).setGenerateGettersSetters(makeGettersSetters).setName(className).setClassHeadComments(nullableClassHeaderComment).build().convert();
     }
 
     /**
@@ -652,10 +653,11 @@ public final class JBBPParser {
      *
      * @param classPackage package for the new generated class, must not be null
      * @param className    class name of the new generated class, must not be null
+     * @param makeGettersSetters generate getters setters for fields if true
      * @return generated sources of class file
      * @since 1.3
      */
-    public String makeJavaSources(final String classPackage, final String className) {
-        return this.makeJavaSources(classPackage, className, null);
+    public String makeJavaSources(final String classPackage, final String className, final boolean makeGettersSetters) {
+        return this.makeJavaSources(classPackage, className, null, makeGettersSetters);
     }
 }
