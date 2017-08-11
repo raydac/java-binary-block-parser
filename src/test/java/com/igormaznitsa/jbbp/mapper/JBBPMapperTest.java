@@ -399,7 +399,7 @@ public class JBBPMapperTest {
     @Test
     public void testMap_privateFieldInPackagelevelClass() throws Exception {
         final ClassWithPrivateFields fld = JBBPParser.prepare("int field;").parse(new byte[]{1, 2, 3, 4}).mapTo(ClassWithPrivateFields.class);
-        AccessController.doPrivileged(new PrivilegedAction<Void>() {
+        assertNull(AccessController.doPrivileged(new PrivilegedAction<Void>() {
 
             @Override
             public Void run() {
@@ -413,7 +413,7 @@ public class JBBPMapperTest {
                 return null;
             }
 
-        });
+        }));
 
     }
 

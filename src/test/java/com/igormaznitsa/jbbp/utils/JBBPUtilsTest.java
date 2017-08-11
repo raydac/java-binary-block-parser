@@ -113,13 +113,17 @@ public class JBBPUtilsTest {
     }
 
     @Test
-    public void testCloseQuetly() throws Exception {
-        JBBPUtils.closeQuietly(null);
-        JBBPUtils.closeQuietly(new ByteArrayInputStream(new byte[10]));
+    public void testCloseQuetly() {
+        try {
+            JBBPUtils.closeQuietly(null);
+            JBBPUtils.closeQuietly(new ByteArrayInputStream(new byte[10]));
 
-        final InputStream closed = new ByteArrayInputStream(new byte[10]);
-        closed.close();
-        JBBPUtils.closeQuietly(closed);
+            final InputStream closed = new ByteArrayInputStream(new byte[10]);
+            closed.close();
+            JBBPUtils.closeQuietly(closed);
+        } catch (Exception ex) {
+            fail("Must not throw any exception");
+        }
     }
 
     @Test

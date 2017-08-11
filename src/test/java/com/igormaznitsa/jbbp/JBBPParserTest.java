@@ -699,7 +699,7 @@ public class JBBPParserTest {
 
     @Test
     public void testParse_Align_Default_EmptyStream_NoErrors() throws Exception {
-        JBBPParser.prepare("byte; align;").parse(new byte[]{1});
+        assertNotNull(JBBPParser.prepare("byte; align;").parse(new byte[]{1}));
     }
 
     @Test(expected = EOFException.class)

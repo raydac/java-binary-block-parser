@@ -160,12 +160,12 @@ public class JBBPCompilerTest {
 
     @Test
     public void testCompile_ArraySize_ExpressionWithAllOperators_NoExceptions() throws Exception {
-        JBBPCompiler.compile("byte [(1+2-3)*4/(5<<6>>7)>>>3%1&89|22^34-~45] a;");
+        assertNotNull(JBBPCompiler.compile("byte [(1+2-3)*4/(5<<6>>7)>>>3%1&89|22^34-~45] a;"));
     }
 
     @Test
     public void testCompile_ExtraFieldData_ExpressionWithAllOperators_NoExceptions() throws Exception {
-        JBBPCompiler.compile("bit:((1+2-3)*4/(5<<6>>7)>>>3%1&89|22^34-~45) a;");
+        assertNotNull(JBBPCompiler.compile("bit:((1+2-3)*4/(5<<6>>7)>>>3%1&89|22^34-~45) a;"));
     }
 
     @Test
