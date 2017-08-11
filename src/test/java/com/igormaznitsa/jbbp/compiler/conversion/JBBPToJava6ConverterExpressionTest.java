@@ -27,7 +27,7 @@ import static com.igormaznitsa.jbbp.TestUtils.getField;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class ParserToJavaClassConverterExpressionTest extends AbstractJavaClassCompilerTest {
+public class JBBPToJava6ConverterExpressionTest extends AbstractJavaClassCompilerTest {
 
   private void assertExpression(final int etalonValue, final String expression) throws Exception {
     assertTrue("Etalon value must not be zero or egative one : " + etalonValue, etalonValue > 0);
@@ -45,7 +45,7 @@ public class ParserToJavaClassConverterExpressionTest extends AbstractJavaClassC
     final int detectedlength = getField(obj, "data", byte[].class).length;
 
     if (etalonValue != detectedlength) {
-      System.err.println(JBBPParser.prepare(String.format("byte [%s] data;", expression)).makeClassSrc(PACKAGE_NAME, CLASS_NAME));
+      System.err.println(JBBPParser.prepare(String.format("byte [%s] data;", expression)).makeJavaSources(PACKAGE_NAME, CLASS_NAME));
       fail(etalonValue + "!=" + detectedlength);
     }
   }

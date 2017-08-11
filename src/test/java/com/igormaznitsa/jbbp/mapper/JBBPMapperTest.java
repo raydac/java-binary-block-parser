@@ -433,9 +433,7 @@ public class JBBPMapperTest {
             public Object prepareObjectForMapping(final JBBPFieldStruct parsedBlock, final Bin annotation, final Field field) {
                 if ("b".equals(field.getName()) && "TEST_TEXT".equals(annotation.extra())) {
                     final int bvalue = parsedBlock.findFieldForNameAndType("b", JBBPFieldInt.class).getAsInt();
-                    final StringBuilder result = new StringBuilder();
-                    result.append((char) ((bvalue >>> 24) & 0xFF)).append((char) ((bvalue >>> 16) & 0xFF)).append((char) ((bvalue >>> 8) & 0xFF)).append((char) (bvalue & 0xFF));
-                    return result.toString();
+                    return String.valueOf((char) ((bvalue >>> 24) & 0xFF)) + (char) ((bvalue >>> 16) & 0xFF) + (char) ((bvalue >>> 8) & 0xFF) + (char) (bvalue & 0xFF);
                 } else {
                     fail("Unexpected state" + field);
                     return null;
@@ -467,9 +465,7 @@ public class JBBPMapperTest {
             public Object prepareObjectForMapping(final JBBPFieldStruct parsedBlock, final Bin annotation, final Field field) {
                 if ("b".equals(field.getName()) && "TEST_TEXT".equals(annotation.extra())) {
                     final int bvalue = parsedBlock.findFieldForNameAndType("b", JBBPFieldInt.class).getAsInt();
-                    final StringBuilder result = new StringBuilder();
-                    result.append((char) ((bvalue >>> 24) & 0xFF)).append((char) ((bvalue >>> 16) & 0xFF)).append((char) ((bvalue >>> 8) & 0xFF)).append((char) (bvalue & 0xFF));
-                    return result.toString();
+                    return String.valueOf((char) ((bvalue >>> 24) & 0xFF)) + (char) ((bvalue >>> 16) & 0xFF) + (char) ((bvalue >>> 8) & 0xFF) + (char) (bvalue & 0xFF);
                 } else {
                     fail("Unexpected state" + field);
                     return null;

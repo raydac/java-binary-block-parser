@@ -620,7 +620,7 @@ public abstract class AbstractMappedClassFieldObserver {
 
         @Override
         public boolean equals(final Object obj) {
-            return obj != null && (obj == this || (obj instanceof OrderedField ? this.field.equals(((OrderedField) obj).field) : false));
+            return obj != null && (obj == this || (obj instanceof OrderedField && this.field.equals(((OrderedField) obj).field)));
         }
 
         @Override

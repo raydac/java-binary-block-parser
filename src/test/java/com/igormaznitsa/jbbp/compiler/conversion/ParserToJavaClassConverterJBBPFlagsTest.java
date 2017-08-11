@@ -28,7 +28,7 @@ import static org.junit.Assert.fail;
 /**
  * Test parser flags for converted sources.
  */
-public class ParserToJavaClassConverterParserFlagsTest extends AbstractJavaClassCompilerTest {
+public class ParserToJavaClassConverterJBBPFlagsTest extends AbstractJavaClassCompilerTest {
 
     @Test
     public void testFlag_SkipRemainingFieldsIfEOF() throws Exception {

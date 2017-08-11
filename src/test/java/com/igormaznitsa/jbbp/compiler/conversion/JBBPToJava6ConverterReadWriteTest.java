@@ -39,7 +39,7 @@ import static org.junit.Assert.*;
 /**
  * Test reading writing with converted classes from parser.
  */
-public class ParserToJavaClassConverterReadWriteTest extends AbstractJavaClassCompilerTest {
+public class JBBPToJava6ConverterReadWriteTest extends AbstractJavaClassCompilerTest {
 
   private byte[] loadResource(final String name) throws Exception {
     final InputStream result = this.getClass().getClassLoader().getResourceAsStream("com/igormaznitsa/jbbp/it/" + name);

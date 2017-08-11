@@ -243,7 +243,7 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
                 long[] ret = new long[longs.size()];
                 Iterator<Long> iterator = longs.iterator();
                 for (int i = 0; i < ret.length; i++) {
-                    ret[i] = iterator.next().longValue();
+                    ret[i] = iterator.next();
                 }
                 return ret;
             }

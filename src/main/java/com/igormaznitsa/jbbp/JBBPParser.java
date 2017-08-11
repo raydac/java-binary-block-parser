@@ -18,7 +18,7 @@ package com.igormaznitsa.jbbp;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiler;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
-import com.igormaznitsa.jbbp.compiler.conversion.ParserToJavaClassConverter;
+import com.igormaznitsa.jbbp.compiler.conversion.JBBPToJava6Converter;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.compiler.varlen.JBBPIntegerValueEvaluator;
 import com.igormaznitsa.jbbp.exceptions.JBBPParsingException;
@@ -634,16 +634,17 @@ public final class JBBPParser {
     }
 
     /**
-     * Generate java class sources for the parser.
+     * Generate java class sources for the parser (Java 1.6+).
      *
-     * @param classPackage               package for the new generated class, must not be null
+     * @param classPackage               package for the new generated class, can be null
      * @param className                  class name of the new generated class, must not be null
      * @param nullableClassHeaderComment text to be added as comment into class header, it can be null
      * @return generated sources of class file
      * @since 1.3
+     * @see JBBPToJava6Converter
      */
-    public String makeClassSrc(final String classPackage, final String className, final String nullableClassHeaderComment) {
-        return ParserToJavaClassConverter.class.cast(new ParserToJavaClassConverter(classPackage, className, nullableClassHeaderComment, this).visit()).getResult();
+    public String makeJavaSources(final String classPackage, final String className, final String nullableClassHeaderComment) {
+        return JBBPToJava6Converter.makeBuilder(this).setPackage(classPackage).setName(className).setClassHeadComments(nullableClassHeaderComment).build().convert();
     }
 
     /**
@@ -654,7 +655,7 @@ public final class JBBPParser {
      * @return generated sources of class file
      * @since 1.3
      */
-    public String makeClassSrc(final String classPackage, final String className) {
-        return this.makeClassSrc(classPackage, className, null);
+    public String makeJavaSources(final String classPackage, final String className) {
+        return this.makeJavaSources(classPackage, className, null);
     }
 }
