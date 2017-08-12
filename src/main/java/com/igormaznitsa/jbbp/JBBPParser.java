@@ -645,7 +645,7 @@ public final class JBBPParser {
      * @see JBBPToJava6Converter
      */
     public String makeJavaSources(final String classPackage, final String className, final String nullableClassHeaderComment, final boolean makeGettersSetters) {
-        return JBBPToJava6Converter.makeBuilder(this).setPackage(classPackage).setGenerateGettersSetters(makeGettersSetters).setName(className).setClassHeadComments(nullableClassHeaderComment).build().convert();
+        return JBBPToJava6Converter.makeBuilder(this).setClassPackage(classPackage).setDoGettersSetters(makeGettersSetters).setClassName(className).setClassHeadComments(nullableClassHeaderComment).build().convert();
     }
 
     /**

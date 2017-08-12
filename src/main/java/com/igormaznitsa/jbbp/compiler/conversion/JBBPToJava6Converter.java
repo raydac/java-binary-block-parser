@@ -92,10 +92,6 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
      */
     private final TextBuffer specialMethods = new TextBuffer();
     /**
-     * Text buffer for getters and setters.
-     */
-    private final TextBuffer gettersSetters = new TextBuffer();
-    /**
      * The Builder instance to be used as the data source for the parser. It must
      * not be null.
      */
@@ -184,8 +180,8 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
             buffer.printCommentMultiLinesWithIndent(this.builder.classHeadComment);
         }
 
-        if (this.builder.packageName != null) {
-            buffer.print("package ").print(this.builder.packageName).println(";");
+        if (this.builder.classPackage != null && this.builder.classPackage.length() != 0) {
+            buffer.print("package ").print(this.builder.classPackage).println(";");
         }
 
         buffer.println();
@@ -245,9 +241,10 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
         this.structStack.get(0).write(buffer,
                 hasAbstractMethods ? "abstract" : null,
                 this.builder.extendsClass,
-                this.builder.implementsInterfaces,
+                this.builder.interfaces,
                 this.specialSection.toString(),
-                specialMethodsText.length() == 0 ? null : specialMethodsText
+                specialMethodsText.length() == 0 ? null : specialMethodsText,
+                this.builder.customText
         );
 
         this.result = buffer.toString();
@@ -288,7 +285,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
             }
         }
 
-        if (nullableNameFieldInfo != null && this.builder.generateGettersSetters) {
+        if (nullableNameFieldInfo != null && this.builder.doGettersSetters) {
             registerGetterSetter(structType, structName, false);
         }
 
@@ -337,7 +334,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
             }
         }
 
-        if (nullableNameFieldInfo != null && this.builder.generateGettersSetters) {
+        if (nullableNameFieldInfo != null && this.builder.doGettersSetters) {
             registerGetterSetter(textFieldType, fieldName, true);
         }
     }
@@ -400,7 +397,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
         final String fieldType = nullableArraySize == null ? "byte" : "byte []";
         getCurrentStruct().getFields().indent().printf("%s %s %s;%n", fieldModifier, fieldType, fieldName);
 
-        if (nullableNameFieldInfo != null && this.builder.generateGettersSetters) {
+        if (nullableNameFieldInfo != null && this.builder.doGettersSetters) {
             registerGetterSetter(fieldType, fieldName, true);
         }
     }
@@ -418,7 +415,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     }
 
     private String makeModifier(final JBBPNamedFieldInfo nullableNameFieldInfo) {
-        if (this.builder.generateGettersSetters) return "private";
+        if (this.builder.doGettersSetters) return "private";
         return nullableNameFieldInfo == null ? "protected" : "public";
     }
 
@@ -474,7 +471,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
                 )
         );
 
-        if (nullableNameFieldInfo != null && this.builder.generateGettersSetters) {
+        if (nullableNameFieldInfo != null && this.builder.doGettersSetters) {
             registerGetterSetter("JBBPAbstractField", fieldName, true);
         }
     }
@@ -547,7 +544,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
             );
         }
 
-        if (nullableNameFieldInfo != null && this.builder.generateGettersSetters) {
+        if (nullableNameFieldInfo != null && this.builder.doGettersSetters) {
             registerGetterSetter(fieldType, fieldName, true);
         }
     }
@@ -841,7 +838,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
         /**
          * Set of interfaces to be implemented by the result class.
          */
-        private final Set<String> implementsInterfaces = new HashSet<String>();
+        private final Set<String> interfaces = new HashSet<String>();
         /**
          * The Parser to provide compiled data.
          */
@@ -849,7 +846,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
         /**
          * The Package name.
          */
-        private String packageName;
+        private String classPackage;
         /**
          * The Result class name.
          */
@@ -877,7 +874,11 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
         /**
          * Generate getters and setters.
          */
-        private boolean generateGettersSetters;
+        private boolean doGettersSetters;
+        /**
+         * Text to be inserted into custom section of the resut class.
+         */
+        private String customText;
 
         private Builder(final JBBPParser parser) {
             this.parser = parser;
@@ -896,54 +897,119 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
             }
         }
 
-        public Builder setGenerateGettersSetters(final boolean value) {
+        /**
+         * Set custom text, the text will be added into the end of the result class.
+         *
+         * @param value text value, it can be null
+         * @return the builder instance, must not be null
+         */
+        public Builder setCustomText(final String value) {
             assertNonLocked();
-            this.generateGettersSetters = value;
+            this.customText = value;
             return this;
         }
 
+        /**
+         * Set flag to generate getters setters and all fields will be private ones.
+         *
+         * @param value flag, if true then generate getters setters, false otherwise
+         * @return the builder instance, must not be null
+         */
+        public Builder setDoGettersSetters(final boolean value) {
+            assertNonLocked();
+            this.doGettersSetters = value;
+            return this;
+        }
+
+        /**
+         * Set the parser flags for the generated class, by default the flags are imported from the base parser.
+         *
+         * @param value the parser flags.
+         * @return the builder instance, must not be null
+         */
         public Builder setParserFlags(final int value) {
             assertNonLocked();
             this.parserFlags = value;
             return this;
         }
 
-        public Builder setPackage(final String value) {
+        /**
+         * Set the package for the generated class.
+         *
+         * @param value name of the package, it can be empty or null in the case the class will be in the default package
+         * @return the builder instance, must not be null
+         */
+        public Builder setClassPackage(final String value) {
             assertNonLocked();
-            this.packageName = value;
+            this.classPackage = value;
             return this;
         }
 
+        /**
+         * Set flag to force abstract modifier for the generated class, by default the class is abstract one only if it contains abstract methods.
+         *
+         * @param value true if to force the abstract modifier, false otherwise
+         * @return the builder instance, must not be null
+         */
         public Builder setForceAbstract(final boolean value) {
             assertNonLocked();
             this.forceAbstract = value;
             return this;
         }
 
-        public Builder setName(final String value) {
+        /**
+         * The Name of the generated class. Must be provided.
+         *
+         * @param value the class name for the generated class, must not be null
+         * @return the builder instance, must not be null
+         */
+        public Builder setClassName(final String value) {
             assertNonLocked();
             this.className = value;
             return this;
         }
 
+        /**
+         * Set the superclass for the generated class.
+         *
+         * @param value the superclass name, it can be null
+         * @return the builder instance, must not be null
+         */
         public Builder setSuperclass(final String value) {
             assertNonLocked();
             this.extendsClass = value;
             return this;
         }
 
+        /**
+         * Set insterfaces to be added into 'implements' for the generated class.
+         *
+         * @param values interface names
+         * @return the builder instance, must not be null
+         */
         public Builder setInterfaces(final String... values) {
             assertNonLocked();
-            Collections.addAll(this.implementsInterfaces, values);
+            Collections.addAll(this.interfaces, values);
             return this;
         }
 
+        /**
+         * Set commentaries placed just before first package directive of the generated class.
+         *
+         * @param text text to be used as comment, it can be null
+         * @return the builder instance, must not be null
+         */
         public Builder setClassHeadComments(final String text) {
             assertNonLocked();
             this.classHeadComment = text;
             return this;
         }
 
+        /**
+         * Build converter with provided parameters. NB! It locks builder parameters and they can't be changed in future.
+         *
+         * @return a converter instance.
+         */
         public JBBPToJava6Converter build() {
             this.lock = true;
             assertNotNull("Class name must not be null", this.className);
@@ -999,7 +1065,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
             return this.parent.findRoot();
         }
 
-        public void write(final TextBuffer buffer, final String extraModifier, final String superClass, final Set<String> implementedInterfaces, final String commonSectionText, final String specialMethods) {
+        public void write(final TextBuffer buffer, final String extraModifier, final String superClass, final Set<String> implementedInterfaces, final String commonSectionText, final String specialMethods, final String customText) {
             buffer.indent().printf(
                     "%s%sclass %s%s%s {%n",
                     this.classModifiers,
@@ -1015,7 +1081,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
             }
 
             for (final Struct c : this.children) {
-                c.write(buffer, null, null, null, null, null);
+                c.write(buffer, null, null, null, null, null, null);
             }
             buffer.println();
 
@@ -1065,6 +1131,12 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
                 buffer.println();
                 buffer.printLinesWithIndent(this.gettersSetters.toString());
                 buffer.println();
+            }
+
+            if (customText != null && customText.length() != 0) {
+                buffer.printCommentLinesWithIndent("------ Custom section START");
+                buffer.printLinesWithIndent(customText);
+                buffer.printCommentLinesWithIndent("------ Custom section END");
             }
 
             buffer.decIndent();
