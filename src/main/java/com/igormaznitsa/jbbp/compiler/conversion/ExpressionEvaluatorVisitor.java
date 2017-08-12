@@ -20,7 +20,7 @@ import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 /**
  * Interface describes a visitor for compiled expressions.
  *
- * @since 1.3
+ * @since 1.3.0
  */
 public interface ExpressionEvaluatorVisitor {
 

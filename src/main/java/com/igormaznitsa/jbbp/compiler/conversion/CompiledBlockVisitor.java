@@ -28,7 +28,7 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 /**
  * Visitor implements Template pattern to visitSpecial all fields of compiled parser data block.
  *
- * @since 1.3
+ * @since 1.3.0
  */
 public class CompiledBlockVisitor {
 

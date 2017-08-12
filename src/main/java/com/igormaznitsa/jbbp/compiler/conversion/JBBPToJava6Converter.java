@@ -21,6 +21,7 @@ import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.compiler.varlen.JBBPIntegerValueEvaluator;
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
+import com.igormaznitsa.jbbp.utils.JavaSrcTextBuffer;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -33,7 +34,7 @@ import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.*;
  * values in expressions then the result class will be abstract one and its
  * abstract methods must be implemented in successor.
  *
- * @since 1.3
+ * @since 1.3.0
  */
 public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
@@ -86,11 +87,11 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     /**
      * Text buffer for the special section.
      */
-    private final TextBuffer specialSection = new TextBuffer();
+    private final JavaSrcTextBuffer specialSection = new JavaSrcTextBuffer();
     /**
      * Text buffer for the special methods.
      */
-    private final TextBuffer specialMethods = new TextBuffer();
+    private final JavaSrcTextBuffer specialMethods = new JavaSrcTextBuffer();
     /**
      * The Builder instance to be used as the data source for the parser. It must
      * not be null.
@@ -174,7 +175,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
     @Override
     public void visitEnd() {
-        final TextBuffer buffer = new TextBuffer();
+        final JavaSrcTextBuffer buffer = new JavaSrcTextBuffer();
 
         if (this.builder.classHeadComment != null) {
             buffer.printCommentMultiLinesWithIndent(this.builder.classHeadComment);
@@ -1023,10 +1024,10 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
         private final String className;
         private final Struct parent;
         private final List<Struct> children = new ArrayList<Struct>();
-        private final TextBuffer fields = new TextBuffer();
-        private final TextBuffer readFunc = new TextBuffer();
-        private final TextBuffer writeFunc = new TextBuffer();
-        private final TextBuffer gettersSetters = new TextBuffer();
+        private final JavaSrcTextBuffer fields = new JavaSrcTextBuffer();
+        private final JavaSrcTextBuffer readFunc = new JavaSrcTextBuffer();
+        private final JavaSrcTextBuffer writeFunc = new JavaSrcTextBuffer();
+        private final JavaSrcTextBuffer gettersSetters = new JavaSrcTextBuffer();
         private final String path;
 
         private Struct(final Struct parent, final String className, final String classModifiers) {
@@ -1065,7 +1066,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
             return this.parent.findRoot();
         }
 
-        public void write(final TextBuffer buffer, final String extraModifier, final String superClass, final Set<String> implementedInterfaces, final String commonSectionText, final String specialMethods, final String customText) {
+        public void write(final JavaSrcTextBuffer buffer, final String extraModifier, final String superClass, final Set<String> implementedInterfaces, final String commonSectionText, final String specialMethods, final String customText) {
             buffer.indent().printf(
                     "%s%sclass %s%s%s {%n",
                     this.classModifiers,
@@ -1144,19 +1145,19 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
         }
 
-        public TextBuffer getWriteFunc() {
+        public JavaSrcTextBuffer getWriteFunc() {
             return this.writeFunc;
         }
 
-        public TextBuffer getReadFunc() {
+        public JavaSrcTextBuffer getReadFunc() {
             return this.readFunc;
         }
 
-        public TextBuffer getFields() {
+        public JavaSrcTextBuffer getFields() {
             return this.fields;
         }
 
-        public TextBuffer getGettersSetters() {
+        public JavaSrcTextBuffer getGettersSetters() {
             return this.gettersSetters;
         }
     }

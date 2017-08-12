@@ -24,7 +24,7 @@ import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 /**
  * Auxiliary class to process expression with only integer constant.
  *
- * @since 1.3
+ * @since 1.3.0
  */
 final class IntConstValueEvaluator implements JBBPIntegerValueEvaluator {
 

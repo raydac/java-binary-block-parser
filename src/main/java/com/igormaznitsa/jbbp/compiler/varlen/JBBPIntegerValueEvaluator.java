@@ -45,7 +45,7 @@ public interface JBBPIntegerValueEvaluator extends Serializable {
      * @param block                      the compiled block contains value, must not be null
      * @param currentCompiledBlockOffset the offset of the data in the compiled block
      * @param visitor                    the visitor to visit items, must not be null
-     * @since 1.3
+     * @since 1.3.0
      */
     void visitItems(JBBPCompiledBlock block, int currentCompiledBlockOffset, ExpressionEvaluatorVisitor visitor);
 }
