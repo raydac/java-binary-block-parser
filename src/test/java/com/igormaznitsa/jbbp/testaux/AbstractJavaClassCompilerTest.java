@@ -49,11 +49,12 @@ public abstract class AbstractJavaClassCompilerTest {
     protected Object callRead(final Object instance, final byte[] array) throws Exception {
         try {
             return this.callRead(instance, new JBBPBitInputStream(new ByteArrayInputStream(array)));
-        } catch (Exception ex) {
-            if (ex instanceof InvocationTargetException) {
-                if (ex.getCause() != null) throw (Exception) ex.getCause();
+        } catch (InvocationTargetException ex) {
+            if (ex.getCause() != null) {
+                throw (Exception) ex.getCause();
+            } else {
+                throw ex;
             }
-            throw ex;
         }
     }
 
@@ -102,7 +103,7 @@ public abstract class AbstractJavaClassCompilerTest {
 
     protected Object compileAndMakeInstance(final String instanceClassName, final String script, final int parserFlags, final JBBPCustomFieldTypeProcessor customFieldProcessor, final JavaClassContent... extraClasses) throws Exception {
         final List<JavaClassContent> klazzes = new ArrayList<JavaClassContent>(Arrays.asList(extraClasses));
-        klazzes.add(0, new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, JBBPParser.prepare(script, JBBPBitOrder.LSB0, customFieldProcessor, parserFlags).makeJavaSources(PACKAGE_NAME, CLASS_NAME,false)));
+        klazzes.add(0, new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, JBBPParser.prepare(script, JBBPBitOrder.LSB0, customFieldProcessor, parserFlags).makeJavaSources(PACKAGE_NAME, CLASS_NAME, false)));
         final ClassLoader cloader = saveAndCompile(klazzes.toArray(new JavaClassContent[klazzes.size()]));
         return cloader.loadClass(instanceClassName).newInstance();
     }

@@ -19,7 +19,7 @@ import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.conversion.ExpressionEvaluatorVisitor;
-import com.igormaznitsa.jbbp.compiler.utils.JBBPCompilerUtils;
+import com.igormaznitsa.jbbp.compiler.JBBPCompilerUtils;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPEvalException;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;

@@ -24,7 +24,6 @@ import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.utils.JavaSrcTextBuffer;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.*;
@@ -37,6 +36,10 @@ import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.*;
  * @since 1.3.0
  */
 public final class JBBPToJava6Converter extends CompiledBlockVisitor {
+
+    private static final int FLAG_DETECTED_CUSTOM_FIELDS = 1;
+    private static final int FLAG_DETECTED_EXTERNAL_FIELDS = 2;
+    private static final int FLAG_DETECTED_VAR_FIELDS = 4;
 
     /**
      * Name of the field to be used as link to the root structure instance in
@@ -56,21 +59,14 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
      */
     private static final String NAME_OUTPUT_STREAM = "Out";
     /**
-     * Flag shows that there were detected custom fields during process.
+     * Detected flags.
      */
-    private final AtomicBoolean detectedCustomFields = new AtomicBoolean();
-    /**
-     * Flag shows that there were detected external fields during process.
-     */
-    private final AtomicBoolean detectedExternalFieldsInEvaluator = new AtomicBoolean();
-    /**
-     * Flag shows that there were detected variable fields during process.
-     */
-    private final AtomicBoolean detectedVarFields = new AtomicBoolean();
+    private final AtomicInteger flagSet = new AtomicInteger();
+
     /**
      * Map of detected named fields to their name field info object.
      */
-    private final Map<JBBPNamedFieldInfo, NamedFieldInfo> detectedNamedFields = new HashMap<JBBPNamedFieldInfo, NamedFieldInfo>();
+    private final Map<JBBPNamedFieldInfo, NamedFieldInfo> foundNamedFields = new HashMap<JBBPNamedFieldInfo, NamedFieldInfo>();
     /**
      * Counter of anonymous fields to generate unique names.
      */
@@ -135,11 +131,11 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     private NamedFieldInfo registerNamedField(final JBBPNamedFieldInfo fieldInfo, final FieldType fieldType) {
         NamedFieldInfo resultInfo = null;
         if (fieldInfo != null) {
-            if (this.detectedNamedFields.containsKey(fieldInfo)) {
+            if (this.foundNamedFields.containsKey(fieldInfo)) {
                 throw new Error("Detected duplication of named field : " + fieldInfo);
             }
             resultInfo = new NamedFieldInfo(fieldInfo, this.getCurrentStruct(), fieldType);
-            this.detectedNamedFields.put(fieldInfo, resultInfo);
+            this.foundNamedFields.put(fieldInfo, resultInfo);
         }
         return resultInfo;
     }
@@ -150,10 +146,8 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
     @Override
     public void visitStart() {
-        this.detectedCustomFields.set(false);
-        this.detectedExternalFieldsInEvaluator.set(false);
-        this.detectedVarFields.set(false);
-        this.detectedNamedFields.clear();
+        this.flagSet.set(0);
+        this.foundNamedFields.clear();
         this.anonymousFieldCounter.set(1234);
         this.specialFieldsCounter.set(1);
         this.specialSection.clean();
@@ -200,7 +194,9 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
         this.specialSection.printJavaDocLinesWithIndent("The Constant contains parser flags\n@see JBBPParser#FLAG_SKIP_REMAINING_FIELDS_IF_EOF");
         this.specialSection.indent().printf("protected static final int %s = %d;", NAME_PARSER_FLAGS, this.parserFlags);
 
-        if (this.detectedCustomFields.get()) {
+        final int detected = this.flagSet.get();
+
+        if ((detected & FLAG_DETECTED_CUSTOM_FIELDS) != 0) {
             this.specialMethods.printJavaDocLinesWithIndent("Reading of custom fields\n@param sourceStruct source structure holding the field, must not be null\n@param inStream the input stream, must not be null\n@param typeParameterContainer info about field type, must not be null\n@param nullableNamedFieldInfo info abut field name, it can be null\n@param extraValue value from extra field part, default value 0\n@param readWholeStream flag to read the stream as array till the stream end if true\n@param arraySize if array then it is zero or great\n@exception IOException if data can't be read\n@return read value as abstract field, must not be null");
             this.specialMethods.println("public abstract JBBPAbstractField readCustomFieldType(Object sourceStruct, JBBPBitInputStream inStream, JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean readWholeStream, int arraySize) throws IOException;");
             this.specialMethods.println();
@@ -208,7 +204,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
             this.specialMethods.println("public abstract void writeCustomFieldType(Object sourceStruct, JBBPBitOutputStream outStream, JBBPAbstractField fieldValue, JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean wholeArray, int arraySize) throws IOException;");
         }
 
-        if (this.detectedExternalFieldsInEvaluator.get()) {
+        if ((detected & FLAG_DETECTED_EXTERNAL_FIELDS) != 0) {
             if (!this.specialMethods.isEmpty()) {
                 this.specialMethods.println();
             }
@@ -216,7 +212,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
             this.specialMethods.println("public abstract int getNamedValue(Object sourceStruct, String valueName);");
         }
 
-        if (this.detectedVarFields.get()) {
+        if ((detected & FLAG_DETECTED_VAR_FIELDS) != 0) {
             if (!this.specialMethods.isEmpty()) {
                 this.specialMethods.println();
             }
@@ -235,7 +231,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
         final String specialMethodsText = this.specialMethods.toString();
 
-        final boolean hasAbstractMethods = this.detectedCustomFields.get() || this.detectedVarFields.get() || this.detectedExternalFieldsInEvaluator.get() || this.builder.forceAbstract;
+        final boolean hasAbstractMethods = (this.flagSet.get() & (FLAG_DETECTED_CUSTOM_FIELDS | FLAG_DETECTED_VAR_FIELDS | FLAG_DETECTED_EXTERNAL_FIELDS)) != 0 || this.builder.forceAbstract;
 
         buffer.printJavaDocLinesWithIndent("Generated from JBBP script by internal JBBP Class Source Generator");
 
@@ -255,8 +251,8 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     public void visitStructureStart(final int offsetInCompiledBlock, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPIntegerValueEvaluator nullableArraySize) {
         final String structName = (nullableNameFieldInfo == null ? makeAnonymousStructName() : nullableNameFieldInfo.getFieldName()).toLowerCase(Locale.ENGLISH);
         final String structBaseTypeName = structName.toUpperCase(Locale.ENGLISH);
-        final String arraySizeIn = nullableArraySize == null ? null : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.detectedExternalFieldsInEvaluator);
-        final String arraySizeOut = nullableArraySize == null ? null : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.detectedExternalFieldsInEvaluator);
+        final String arraySizeIn = nullableArraySize == null ? null : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.flagSet);
+        final String arraySizeOut = nullableArraySize == null ? null : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.flagSet);
         final Struct newStruct = new Struct(this.getCurrentStruct(), structBaseTypeName, "public static");
 
         final String fieldModifier = makeModifier(nullableNameFieldInfo);
@@ -311,8 +307,8 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
         registerNamedField(nullableNameFieldInfo, type);
 
-        final String arraySizeIn = nullableArraySize == null ? null : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.detectedExternalFieldsInEvaluator);
-        final String arraySizeOut = nullableArraySize == null ? null : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.detectedExternalFieldsInEvaluator);
+        final String arraySizeIn = nullableArraySize == null ? null : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.flagSet);
+        final String arraySizeOut = nullableArraySize == null ? null : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.flagSet);
 
         final String fieldModifier = makeModifier(nullableNameFieldInfo);
         processSkipRemainingFlag();
@@ -358,8 +354,8 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
         registerNamedField(nullableNameFieldInfo, FieldType.BIT);
 
-        String sizeOfFieldIn = evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, notNullFieldSize, this.detectedExternalFieldsInEvaluator);
-        String sizeOfFieldOut = evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, notNullFieldSize, this.detectedExternalFieldsInEvaluator);
+        String sizeOfFieldIn = evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, notNullFieldSize, this.flagSet);
+        String sizeOfFieldOut = evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, notNullFieldSize, this.flagSet);
         try {
             sizeOfFieldIn = "JBBPBitNumber." + JBBPBitNumber.decode(Integer.parseInt(sizeOfFieldIn)).name();
         } catch (NumberFormatException ex) {
@@ -372,8 +368,8 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
             sizeOfFieldOut = "JBBPBitNumber.decode(" + sizeOfFieldOut + ')';
         }
 
-        final String arraySizeIn = nullableArraySize == null ? null : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.detectedExternalFieldsInEvaluator);
-        final String arraySizeOut = nullableArraySize == null ? null : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.detectedExternalFieldsInEvaluator);
+        final String arraySizeIn = nullableArraySize == null ? null : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.flagSet);
+        final String arraySizeOut = nullableArraySize == null ? null : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.flagSet);
 
         final String fieldModifier = makeModifier(nullableNameFieldInfo);
 
@@ -422,7 +418,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
     @Override
     public void visitCustomField(final int offsetInCompiledBlock, final JBBPFieldTypeParameterContainer notNullfieldType, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPByteOrder byteOrder, final boolean readWholeStream, final JBBPIntegerValueEvaluator nullableArraySizeEvaluator, final JBBPIntegerValueEvaluator extraDataValueEvaluator) {
-        this.detectedCustomFields.set(true);
+        this.flagSet.set(this.flagSet.get() | FLAG_DETECTED_CUSTOM_FIELDS);
 
         registerNamedField(nullableNameFieldInfo, FieldType.CUSTOM);
 
@@ -454,9 +450,9 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
                         this.getCurrentStruct().isRoot() ? "this" : "this." + NAME_ROOT_STRUCT,
                         specialFieldName_typeParameterContainer,
                         nullableNameFieldInfo == null ? "null" : specialFieldName_fieldNameInfo,
-                        extraDataValueEvaluator == null ? "0" : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, extraDataValueEvaluator, this.detectedExternalFieldsInEvaluator),
+                        extraDataValueEvaluator == null ? "0" : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, extraDataValueEvaluator, this.flagSet),
                         readWholeStream,
-                        nullableArraySizeEvaluator == null ? "-1" : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArraySizeEvaluator, this.detectedExternalFieldsInEvaluator)
+                        nullableArraySizeEvaluator == null ? "-1" : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArraySizeEvaluator, this.flagSet)
                 )
         );
 
@@ -466,9 +462,9 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
                         "this." + fieldName,
                         specialFieldName_typeParameterContainer,
                         nullableNameFieldInfo == null ? "null" : specialFieldName_fieldNameInfo,
-                        extraDataValueEvaluator == null ? "0" : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, extraDataValueEvaluator, this.detectedExternalFieldsInEvaluator),
+                        extraDataValueEvaluator == null ? "0" : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, extraDataValueEvaluator, this.flagSet),
                         readWholeStream,
-                        nullableArraySizeEvaluator == null ? "-1" : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArraySizeEvaluator, this.detectedExternalFieldsInEvaluator)
+                        nullableArraySizeEvaluator == null ? "-1" : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArraySizeEvaluator, this.flagSet)
                 )
         );
 
@@ -479,7 +475,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
     @Override
     public void visitVarField(final int offsetInCompiledBlock, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPByteOrder byteOrder, final boolean readWholeStreamIntoArray, final JBBPIntegerValueEvaluator nullableArraySizeEvaluator, final JBBPIntegerValueEvaluator extraDataValueEvaluator) {
-        this.detectedVarFields.set(true);
+        this.flagSet.set(this.flagSet.get() | FLAG_DETECTED_VAR_FIELDS);
 
         registerNamedField(nullableNameFieldInfo, FieldType.VAR);
 
@@ -508,9 +504,9 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
                             this.getCurrentStruct().isRoot() ? "this" : "this." + NAME_ROOT_STRUCT,
                             "JBBPByteOrder." + byteOrder.name(),
                             nullableNameFieldInfo == null ? "null" : specialFieldName_fieldNameInfo,
-                            extraDataValueEvaluator == null ? "-1" : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, extraDataValueEvaluator, this.detectedExternalFieldsInEvaluator),
+                            extraDataValueEvaluator == null ? "-1" : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, extraDataValueEvaluator, this.flagSet),
                             readWholeStreamIntoArray,
-                            nullableArraySizeEvaluator == null ? "-1" : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArraySizeEvaluator, this.detectedExternalFieldsInEvaluator)
+                            nullableArraySizeEvaluator == null ? "-1" : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArraySizeEvaluator, this.flagSet)
                     )
             );
 
@@ -519,8 +515,8 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
                     fieldName,
                     "JBBPByteOrder." + byteOrder.name(),
                     nullableNameFieldInfo == null ? "null" : specialFieldName_fieldNameInfo,
-                    extraDataValueEvaluator == null ? "-1" : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, extraDataValueEvaluator, this.detectedExternalFieldsInEvaluator),
-                    nullableArraySizeEvaluator == null ? "-1" : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArraySizeEvaluator, this.detectedExternalFieldsInEvaluator)
+                    extraDataValueEvaluator == null ? "-1" : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, extraDataValueEvaluator, this.flagSet),
+                    nullableArraySizeEvaluator == null ? "-1" : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArraySizeEvaluator, this.flagSet)
             );
 
         } else {
@@ -533,7 +529,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
                             this.getCurrentStruct().isRoot() ? "this" : "this." + NAME_ROOT_STRUCT,
                             "JBBPByteOrder." + byteOrder.name(),
                             nullableNameFieldInfo == null ? "null" : specialFieldName_fieldNameInfo,
-                            extraDataValueEvaluator == null ? "-1" : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, extraDataValueEvaluator, this.detectedExternalFieldsInEvaluator))
+                            extraDataValueEvaluator == null ? "-1" : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, extraDataValueEvaluator, this.flagSet))
             );
 
             this.getCurrentStruct().getWriteFunc().printf("%s.writeVarField(this, this.%s, Out, %s, %s, %s);%n",
@@ -541,7 +537,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
                     fieldName,
                     "JBBPByteOrder." + byteOrder.name(),
                     nullableNameFieldInfo == null ? "null" : specialFieldName_fieldNameInfo,
-                    extraDataValueEvaluator == null ? "-1" : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, extraDataValueEvaluator, this.detectedExternalFieldsInEvaluator)
+                    extraDataValueEvaluator == null ? "-1" : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, extraDataValueEvaluator, this.flagSet)
             );
         }
 
@@ -553,14 +549,13 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     /**
      * Convert an evaluator into string representation
      *
-     * @param streamName            name of the stream in the case, must not be null
-     * @param offsetInBlock         offset of the data in the compiled block
-     * @param evaluator             the evaluator to be converted, must not be null
-     * @param detectedExternalField container of flag for detected external
-     *                              fields, must not be null
+     * @param streamName       name of the stream in the case, must not be null
+     * @param offsetInBlock    offset of the data in the compiled block
+     * @param evaluator        the evaluator to be converted, must not be null
+     * @param detectedFlagsSet container of detected flags, must not be null
      * @return the evaluator string representation, must not be null
      */
-    private String evaluatorToString(final String streamName, final int offsetInBlock, final JBBPIntegerValueEvaluator evaluator, final AtomicBoolean detectedExternalField) {
+    private String evaluatorToString(final String streamName, final int offsetInBlock, final JBBPIntegerValueEvaluator evaluator, final AtomicInteger detectedFlagsSet) {
         final StringBuilder buffer = new StringBuilder();
 
         final ExpressionEvaluatorVisitor visitor = new ExpressionEvaluatorVisitor() {
@@ -583,7 +578,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
                 if (nullableNameFieldInfo != null) {
                     this.stack.add(nullableNameFieldInfo);
                 } else if (nullableExternalFieldName != null) {
-                    detectedExternalField.set(true);
+                    detectedFlagsSet.set(detectedFlagsSet.get() | FLAG_DETECTED_EXTERNAL_FIELDS);
                     this.stack.add(nullableExternalFieldName);
                 }
                 return this;
@@ -616,7 +611,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
                 } else if (obj instanceof String) {
                     return String.format("%s.getNamedValue(this, \"%s\")", (getCurrentStruct().isRoot() ? "this" : "this." + NAME_ROOT_STRUCT), obj.toString());
                 } else if (obj instanceof JBBPNamedFieldInfo) {
-                    final NamedFieldInfo namedFieldInfo = detectedNamedFields.get(obj);
+                    final NamedFieldInfo namedFieldInfo = foundNamedFields.get(obj);
                     final String fieldPath = namedFieldInfo.makeSrcPath(getCurrentStruct());
 
                     String result;
@@ -720,8 +715,8 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
     @Override
     public void visitActionItem(final int offsetInCompiledBlock, final int actionType, final JBBPIntegerValueEvaluator nullableArgument) {
-        final String valueTxtIn = nullableArgument == null ? "1" : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArgument, this.detectedExternalFieldsInEvaluator);
-        final String valueTxtOut = nullableArgument == null ? "1" : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArgument, this.detectedExternalFieldsInEvaluator);
+        final String valueTxtIn = nullableArgument == null ? "1" : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArgument, this.flagSet);
+        final String valueTxtOut = nullableArgument == null ? "1" : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArgument, this.flagSet);
 
         switch (actionType) {
             case CODE_RESET_COUNTER: {
