@@ -987,7 +987,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
         }
 
         /**
-         * Set the superclass for the generated class.
+         * Set the superclass for the main generated class. <b>NB! Also it affects read and write methods of the main class, the class will be used as the return type.</b>
          *
          * @param value the superclass name, it can be null
          * @return the builder instance, must not be null
@@ -1124,7 +1124,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
             buffer.println();
 
-            buffer.indent().printf("public %s read(final JBBPBitInputStream In) throws IOException {%n", this.className);
+            buffer.indent().printf("public %s read(final JBBPBitInputStream In) throws IOException {%n", superClass == null ? this.className : superClass);
             buffer.incIndent();
             buffer.printLinesWithIndent(this.readFunc.toString());
             buffer.indent().println("return this;");
@@ -1133,7 +1133,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
             buffer.println();
 
-            buffer.indent().printf("public %s write(final JBBPBitOutputStream Out) throws IOException {%n", this.className);
+            buffer.indent().printf("public %s write(final JBBPBitOutputStream Out) throws IOException {%n", superClass == null ? this.className : superClass);
             buffer.incIndent();
             buffer.printLinesWithIndent(this.writeFunc.toString());
             buffer.indent().println("return this;");
