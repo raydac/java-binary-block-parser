@@ -64,7 +64,7 @@ public final class JBBPUtils {
             processor.setAccessibleObject(obj);
             AccessController.doPrivileged(processor);
             if (!PROCESSORS_QUEUE.offer(processor)) {
-              throw new Error("Can't place processor into queue");
+                throw new Error("Can't place processor into queue");
             }
         }
     }
@@ -777,6 +777,7 @@ public final class JBBPUtils {
                     result.append(ch);
                 }
             }
+            break;
         }
         return result.toString();
     }

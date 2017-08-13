@@ -31,9 +31,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class TAP_ParsingTest extends AbstractParserIntegrationTest {
-    public static JBBPParser HEADER_PARSER = JBBPParser.prepare("byte type; byte [10] name; <ushort length; <ushort param1; <ushort param2;");
-    public static JBBPParser DATA_PARSER = JBBPParser.prepare("byte [_] data;");
-    public static JBBPParser TAP_FILE_PARSER = JBBPParser.prepare("tapblocks [_]{ <ushort len; byte flag; byte [len-2] data; byte checksum;}");
+    public static final JBBPParser HEADER_PARSER = JBBPParser.prepare("byte type; byte [10] name; <ushort length; <ushort param1; <ushort param2;");
+    public static final JBBPParser DATA_PARSER = JBBPParser.prepare("byte [_] data;");
+    public static final JBBPParser TAP_FILE_PARSER = JBBPParser.prepare("tapblocks [_]{ <ushort len; byte flag; byte [len-2] data; byte checksum;}");
 
     private static void assertTapChecksum(final byte etalon, final byte initial, final byte[] data) {
         byte accum = initial;
@@ -76,6 +76,7 @@ public class TAP_ParsingTest extends AbstractParserIntegrationTest {
                         fail("Unexpected block type [0x" + Integer.toHexString(t.flag & 0xFF) + ']');
                         td = null;
                     }
+                    break;
                 }
                 parsedBlocks[i] = td;
             }

@@ -43,11 +43,11 @@ public abstract class AbstractJavaClassCompilerTest {
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
 
-    protected static Map<String,String> makeMap(final String ... mapvalue) {
-        final Map<String,String> result = new HashMap<String, String>();
-        int i=0;
-        while(i<mapvalue.length) {
-            result.put(mapvalue[i++],mapvalue[i++]);
+    protected static Map<String, String> makeMap(final String... mapvalue) {
+        final Map<String, String> result = new HashMap<String, String>();
+        int i = 0;
+        while (i < mapvalue.length) {
+            result.put(mapvalue[i++], mapvalue[i++]);
         }
         return result;
     }
@@ -68,11 +68,12 @@ public abstract class AbstractJavaClassCompilerTest {
         try {
             instance.getClass().getMethod("read", JBBPBitInputStream.class).invoke(instance, inStream);
             return instance;
-        } catch (Exception ex) {
-            if (ex instanceof InvocationTargetException) {
-                if (ex.getCause() != null) throw (Exception) ex.getCause();
+        } catch (InvocationTargetException ex) {
+            if (ex.getCause() != null) {
+                throw (Exception) ex.getCause();
+            } else {
+                throw ex;
             }
-            throw ex;
         }
     }
 
@@ -83,11 +84,12 @@ public abstract class AbstractJavaClassCompilerTest {
             instance.getClass().getMethod("write", JBBPBitOutputStream.class).invoke(instance, bitout);
             bitout.close();
             return bout.toByteArray();
-        } catch (Exception ex) {
-            if (ex instanceof InvocationTargetException) {
-                if (ex.getCause() != null) throw (Exception) ex.getCause();
+        } catch (InvocationTargetException ex) {
+            if (ex.getCause() != null) {
+                throw (Exception) ex.getCause();
+            } else {
+                throw ex;
             }
-            throw ex;
         }
     }
 
