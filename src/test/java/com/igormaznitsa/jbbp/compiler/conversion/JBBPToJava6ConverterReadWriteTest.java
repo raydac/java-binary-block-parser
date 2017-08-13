@@ -16,6 +16,7 @@
 package com.igormaznitsa.jbbp.compiler.conversion;
 
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
+import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
@@ -32,6 +33,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.igormaznitsa.jbbp.TestUtils.*;
 import static org.junit.Assert.*;
@@ -40,6 +43,10 @@ import static org.junit.Assert.*;
  * Test reading writing with converted classes from parser.
  */
 public class JBBPToJava6ConverterReadWriteTest extends AbstractJavaClassCompilerTest {
+
+    public interface ByteTestInterface {
+        byte getA();
+    }
 
     private byte[] loadResource(final String name) throws Exception {
         final InputStream result = this.getClass().getClassLoader().getResourceAsStream("com/igormaznitsa/jbbp/it/" + name);
@@ -50,6 +57,23 @@ public class JBBPToJava6ConverterReadWriteTest extends AbstractJavaClassCompiler
             return IOUtils.toByteArray(result);
         } finally {
             IOUtils.closeQuietly(result);
+        }
+    }
+
+    @Test
+    public void testReaWrite_StructMappedToInterface_GettersSettersOn() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare("z { x { y [_] { byte a;}}}");
+        final Map<String, String> interfaceMap = new HashMap<String, String>();
+        interfaceMap.put("z.x.y", ByteTestInterface.class.getCanonicalName());
+        final String text = JBBPToJava6Converter.makeBuilder(parser).setClassName(CLASS_NAME).setClassPackage(PACKAGE_NAME).setDoGettersSetters(true).setStructInterfaceMap(interfaceMap).build().convert();
+        final String fullClassName = PACKAGE_NAME + '.' + CLASS_NAME;
+        final ClassLoader classLoader = saveAndCompile(new JavaClassContent(fullClassName, text));
+
+        final Object instance = classLoader.loadClass(fullClassName).newInstance();
+        callRead(instance,new byte [] {0,1,2,3,4,5});
+        final ByteTestInterface[] data = getFieldThroughGetters(instance,"z.x.y",ByteTestInterface[].class);
+        for(int i=0;i<6;i++){
+            assertEquals(i,data[i].getA());
         }
     }
 

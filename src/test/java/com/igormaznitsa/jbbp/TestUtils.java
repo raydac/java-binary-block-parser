@@ -17,6 +17,7 @@ package com.igormaznitsa.jbbp;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Locale;
 import java.util.zip.CRC32;
 
 import static org.junit.Assert.assertEquals;
@@ -63,6 +64,26 @@ public enum TestUtils {
     Object result = instance;
     for (final String f : fields) {
       result = result.getClass().getField(f).get(result);
+    }
+    return klazz.cast(result);
+  }
+
+  /**
+   * Read field value through getters
+   *
+   * @param <T> expected type of value
+   * @param instance instance of object, must not be null
+   * @param fieldName field name, can be single name or dot-separated one, must
+   * not be null
+   * @param klazz expected value class, must not be null
+   * @return value, can be null
+   * @throws Exception it will be thrown if any error
+   */
+  public static <T> T getFieldThroughGetters(final Object instance, final String fieldName, final Class<T> klazz) throws Exception {
+    final String[] fields = fieldName.split("\\.");
+    Object result = instance;
+    for (final String f : fields) {
+      result = result.getClass().getMethod("get"+f.toUpperCase(Locale.ENGLISH)).invoke(result);
     }
     return klazz.cast(result);
   }

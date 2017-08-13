@@ -239,6 +239,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
                 hasAbstractMethods ? "abstract" : null,
                 this.builder.extendsClass,
                 this.builder.interfaces,
+                this.builder.mapStructureInterface,
                 this.specialSection.toString(),
                 specialMethodsText.length() == 0 ? null : specialMethodsText,
                 this.builder.customText
@@ -283,7 +284,8 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
         }
 
         if (nullableNameFieldInfo != null && this.builder.doGettersSetters) {
-            registerGetterSetter(structType, structName, false);
+            final String interfaceForGetter = this.builder.mapStructureInterface.get(newStruct.getPath());
+            registerGetterSetter(interfaceForGetter == null ? structType : interfaceForGetter + (nullableArraySize == null ? "" : " []"), structName, false);
         }
 
         this.structStack.add(0, newStruct);
@@ -875,6 +877,10 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
          * Text to be inserted into custom section of the resut class.
          */
         private String customText;
+        /**
+         * Interfaces to be used for getters setters for structure fields.
+         */
+        private final Map<String, String> mapStructureInterface = new HashMap<String, String>();
 
         private Builder(final JBBPParser parser) {
             this.parser = parser;
@@ -883,7 +889,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
         private void assertNonLocked() {
             if (this.lock) {
-                throw new IllegalStateException("the Bui8lder already locked for changes");
+                throw new IllegalStateException("the Builder already locked for changes");
             }
         }
 
@@ -891,6 +897,21 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
             if (value == null) {
                 throw new NullPointerException(message);
             }
+        }
+
+        /**
+         * Map structure to some interface, the structure object will implement the interface and getter of the strcuture object will be using the interface as the result type.
+         *
+         * @param map map with structure path as the key and the interface name as value, it can be null. <b>Names of structures should be in the lower case form amd dot separated for their hierarchy. (example: "a.b.c")</b>
+         * @return the builder instance, must not be null
+         */
+        public Builder setStructInterfaceMap(final Map<String, String> map) {
+            assertNonLocked();
+            this.mapStructureInterface.clear();
+            if (map != null) {
+                this.mapStructureInterface.putAll(map);
+            }
+            return this;
         }
 
         /**
@@ -1061,14 +1082,16 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
             return this.parent.findRoot();
         }
 
-        public void write(final JavaSrcTextBuffer buffer, final String extraModifier, final String superClass, final Set<String> implementedInterfaces, final String commonSectionText, final String specialMethods, final String customText) {
+        public void write(final JavaSrcTextBuffer buffer, final String extraModifier, final String superClass, final Set<String> implementedInterfaces, final Map<String, String> mapStructInterfaces, final String commonSectionText, final String specialMethods, final String customText) {
+            final String interfaceForGetSet = mapStructInterfaces == null ? null : mapStructInterfaces.get(this.getPath());
+
             buffer.indent().printf(
                     "%s%sclass %s%s%s {%n",
                     this.classModifiers,
                     extraModifier == null ? " " : ' ' + extraModifier + ' ',
                     this.className,
                     superClass != null ? " extends " + superClass + ' ' : "",
-                    implementedInterfaces != null && !implementedInterfaces.isEmpty() ? " implements " + interfaces2str(implementedInterfaces) + ' ' : ""
+                    interfaceForGetSet == null ? implementedInterfaces != null && !implementedInterfaces.isEmpty() ? " implements " + interfaces2str(implementedInterfaces) + ' ' : "" : " implements " + interfaceForGetSet
             );
             buffer.incIndent();
 
@@ -1077,7 +1100,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
             }
 
             for (final Struct c : this.children) {
-                c.write(buffer, null, null, null, null, null, null);
+                c.write(buffer, null, null, null, mapStructInterfaces, null, null, null);
             }
             buffer.println();
 

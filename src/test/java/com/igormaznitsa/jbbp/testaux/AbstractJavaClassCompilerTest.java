@@ -32,10 +32,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public abstract class AbstractJavaClassCompilerTest {
 
@@ -45,6 +42,15 @@ public abstract class AbstractJavaClassCompilerTest {
 
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
+
+    protected static Map<String,String> makeMap(final String ... mapvalue) {
+        final Map<String,String> result = new HashMap<String, String>();
+        int i=0;
+        while(i<mapvalue.length) {
+            result.put(mapvalue[i++],mapvalue[i++]);
+        }
+        return result;
+    }
 
     protected Object callRead(final Object instance, final byte[] array) throws Exception {
         try {
