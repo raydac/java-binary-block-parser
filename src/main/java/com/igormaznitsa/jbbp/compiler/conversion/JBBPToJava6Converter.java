@@ -842,6 +842,10 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
          */
         private final JBBPParser parser;
         /**
+         * Interfaces to be used for getters setters for structure fields.
+         */
+        private final Map<String, String> mapStructureInterface = new HashMap<String, String>();
+        /**
          * The Package name.
          */
         private String classPackage;
@@ -877,10 +881,6 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
          * Text to be inserted into custom section of the resut class.
          */
         private String customText;
-        /**
-         * Interfaces to be used for getters setters for structure fields.
-         */
-        private final Map<String, String> mapStructureInterface = new HashMap<String, String>();
 
         private Builder(final JBBPParser parser) {
             this.parser = parser;
@@ -900,16 +900,16 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
         }
 
         /**
-         * Map structure to some interface, the structure object will implement the interface and getter of the strcuture object will be using the interface as the result type.
+         * Map inside structures to interfaces, a structure class will implement mapped interface and getter of the structure object will return interface object as result.
          *
-         * @param map map with structure path as the key and the interface name as value, it can be null. <b>Names of structures should be in the lower case form amd dot separated for their hierarchy. (example: "a.b.c")</b>
+         * @param mapStructToInterface map with structure path as the key and the interface name as value, it can be null. <b>Names of structures should be in the lower case form amd dot separated for their hierarchy. (example: "a.b.c")</b>
          * @return the builder instance, must not be null
          */
-        public Builder setStructInterfaceMap(final Map<String, String> map) {
+        public Builder setStructInterfaceMap(final Map<String, String> mapStructToInterface) {
             assertNonLocked();
             this.mapStructureInterface.clear();
-            if (map != null) {
-                this.mapStructureInterface.putAll(map);
+            if (mapStructToInterface != null) {
+                this.mapStructureInterface.putAll(mapStructToInterface);
             }
             return this;
         }

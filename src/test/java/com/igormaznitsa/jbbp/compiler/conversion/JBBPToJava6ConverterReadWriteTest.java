@@ -61,7 +61,7 @@ public class JBBPToJava6ConverterReadWriteTest extends AbstractJavaClassCompiler
     }
 
     @Test
-    public void testReaWrite_StructMappedToInterface_GettersSettersOn() throws Exception {
+    public void testReaWrite_StructMappedToInterface_Array_GettersSettersOn() throws Exception {
         final JBBPParser parser = JBBPParser.prepare("z { x { y [_] { byte a;}}}");
         final Map<String, String> interfaceMap = new HashMap<String, String>();
         interfaceMap.put("z.x.y", ByteTestInterface.class.getCanonicalName());
@@ -70,11 +70,30 @@ public class JBBPToJava6ConverterReadWriteTest extends AbstractJavaClassCompiler
         final ClassLoader classLoader = saveAndCompile(new JavaClassContent(fullClassName, text));
 
         final Object instance = classLoader.loadClass(fullClassName).newInstance();
-        callRead(instance,new byte [] {0,1,2,3,4,5});
-        final ByteTestInterface[] data = getFieldThroughGetters(instance,"z.x.y",ByteTestInterface[].class);
-        for(int i=0;i<6;i++){
-            assertEquals(i,data[i].getA());
+        callRead(instance, new byte[]{0, 1, 2, 3, 4, 5});
+        final ByteTestInterface[] data = getFieldThroughGetters(instance, "z.x.y", ByteTestInterface[].class);
+        for (int i = 0; i < 6; i++) {
+            assertEquals(i, data[i].getA());
         }
+
+        assertArrayEquals(new byte[]{0, 1, 2, 3, 4, 5}, callWrite(instance));
+    }
+
+    @Test
+    public void testReaWrite_StructMappedToInterface_NotArray_GettersSettersOn() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare("z { x { y { byte a;}}}");
+        final Map<String, String> interfaceMap = new HashMap<String, String>();
+        interfaceMap.put("z.x.y", ByteTestInterface.class.getCanonicalName());
+        final String text = JBBPToJava6Converter.makeBuilder(parser).setClassName(CLASS_NAME).setClassPackage(PACKAGE_NAME).setDoGettersSetters(true).setStructInterfaceMap(interfaceMap).build().convert();
+        final String fullClassName = PACKAGE_NAME + '.' + CLASS_NAME;
+        final ClassLoader classLoader = saveAndCompile(new JavaClassContent(fullClassName, text));
+
+        final Object instance = classLoader.loadClass(fullClassName).newInstance();
+        callRead(instance, new byte[]{42});
+        final ByteTestInterface data = getFieldThroughGetters(instance, "z.x.y", ByteTestInterface.class);
+        assertEquals(42, data.getA());
+
+        assertArrayEquals(new byte[]{42}, callWrite(instance));
     }
 
     @Test
