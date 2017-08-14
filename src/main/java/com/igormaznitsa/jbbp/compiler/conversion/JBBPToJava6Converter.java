@@ -414,8 +414,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     }
 
     private String makeModifier(final JBBPNamedFieldInfo nullableNameFieldInfo) {
-        if (this.builder.doGettersSetters) return "private";
-        return nullableNameFieldInfo == null ? "protected" : "public";
+        return nullableNameFieldInfo == null || this.builder.doGettersSetters ? "protected" : "public";
     }
 
     @Override

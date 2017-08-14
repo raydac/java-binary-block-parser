@@ -98,7 +98,7 @@ public class JBBPToJava6ConverterCompilationTest extends AbstractJavaClassCompil
         text = JBBPToJava6Converter.makeBuilder(parser).setDoGettersSetters(true).setClassName(CLASS_NAME).build().convert();
 
         assertFalse(text.contains("public byte a;"));
-        assertTrue(text.contains("private byte a;"));
+        assertTrue(text.contains("protected byte a;"));
         assertTrue(text.contains("public void setA(byte value) {"));
         assertTrue(text.contains("public byte getA() {"));
     }
