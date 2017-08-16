@@ -23,6 +23,7 @@ import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.model.*;
 import com.igormaznitsa.jbbp.utils.JBBPIntCounter;
+import com.igormaznitsa.jbbp.utils.TargetSources;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -436,7 +437,7 @@ public class JBBPParserTest {
                 return null;
             }
         }, null);
-        
+
         assertNotNull(struct);
     }
 
@@ -457,7 +458,7 @@ public class JBBPParserTest {
                 return new JBBPFieldArrayByte(fieldName, new byte[]{1, 2, 3});
             }
         }, null);
-        
+
         assertNotNull(struct);
     }
 
@@ -479,7 +480,7 @@ public class JBBPParserTest {
                 return new JBBPFieldByte(new JBBPNamedFieldInfo("jskdjhsd", "dlkjsf", 0), (byte) 1);
             }
         }, null);
-        
+
         assertNotNull(struct);
     }
 
@@ -1701,6 +1702,12 @@ public class JBBPParserTest {
         assertEquals(1, result.getArray().length);
         assertEquals("a", result.getArray()[0].getFieldName());
         assertEquals(0x01020304, ((JBBPFieldInt) result.findFieldForName("a")).getAsInt());
+    }
+
+    @Test
+    public void testConvertToSrc_Java16() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare("byte a;");
+        assertTrue(parser.convertToSrc(TargetSources.JAVA_1_6, "someclass").length != 0);
     }
 
 }
