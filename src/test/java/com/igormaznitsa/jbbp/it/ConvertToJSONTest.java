@@ -24,6 +24,8 @@ import org.junit.Test;
 
 import java.io.InputStream;
 
+import static org.junit.Assert.assertTrue;
+
 public class ConvertToJSONTest extends AbstractParserIntegrationTest {
 
     public static JSONObject convertToJSon(final JSONObject jsn, final JBBPAbstractField field) {
@@ -126,8 +128,13 @@ public class ConvertToJSONTest extends AbstractParserIntegrationTest {
 
             final JSONObject json = convertToJSon(null, pngParser.parse(pngStream));
             final String jsonText = json.toJSONString(JSONStyle.MAX_COMPRESS);
-            System.out.println(jsonText);
-            assertFile("pnginjson.txt", jsonText);
+            assertTrue(jsonText.length() == 13917);
+            assertTrue(jsonText.contains("header:"));
+            assertTrue(jsonText.contains("chunk:{"));
+            assertTrue(jsonText.contains("length:"));
+            assertTrue(jsonText.contains("type:"));
+            assertTrue(jsonText.contains("data:"));
+            assertTrue(jsonText.contains("crc:"));
         } finally {
             pngStream.close();
         }
