@@ -29,6 +29,7 @@ import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.model.*;
 import com.igormaznitsa.jbbp.utils.JBBPIntCounter;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
+import com.igormaznitsa.jbbp.utils.TargetSources;
 
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
@@ -634,30 +635,42 @@ public final class JBBPParser {
     }
 
     /**
-     * Generate java class sources for the parser (Java 1.6+).
+     * Convert the prepared parser into sources. It doesn't provide way to define different flag for conversion, it uses default flags for converters and provided for short fast way.
      *
-     * @param classPackage               package for the new generated class, can be null
-     * @param className                  class name of the new generated class, must not be null
-     * @param nullableClassHeaderComment text to be added as comment into class header, it can be null
-     * @param makeGettersSetters         generate getters setters for fields if true
-     * @return generated sources of class file
-     * @since 1.3.0
+     * @param target target to generate sources, must not be null
+     * @param name   name of result, depends on target, must not be null, for instance class name (example 'com.test.jbbp.Parser')
+     * @return array of generated sources, must not be null
+     * @throws IllegalArgumentException if target is unsupported
      * @see JBBPToJava6Converter
-     */
-    public String makeJavaSources(final String classPackage, final String className, final String nullableClassHeaderComment, final boolean makeGettersSetters) {
-        return JBBPToJava6Converter.makeBuilder(this).setClassPackage(classPackage).setDoGettersSetters(makeGettersSetters).setClassName(className).setClassHeadComments(nullableClassHeaderComment).build().convert();
-    }
-
-    /**
-     * Generate java class sources for the parser.
-     *
-     * @param classPackage package for the new generated class, must not be null
-     * @param className    class name of the new generated class, must not be null
-     * @param makeGettersSetters generate getters setters for fields if true
-     * @return generated sources of class file
+     * @see JBBPToJava6Converter.Builder
      * @since 1.3.0
      */
-    public String makeJavaSources(final String classPackage, final String className, final boolean makeGettersSetters) {
-        return this.makeJavaSources(classPackage, className, null, makeGettersSetters);
+    public String[] convertToSrc(final TargetSources target, final String name) {
+        JBBPUtils.assertNotNull(name, "Name must not be null");
+        final String[] result;
+
+        switch (target) {
+            case JAVA_1_6: {
+                final int nameStart = name.lastIndexOf('.');
+                final String packageName;
+                final String className;
+                if (nameStart < 0) {
+                    packageName = null;
+                    className = name;
+                } else {
+                    packageName = name.substring(0, nameStart);
+                    className = name.substring(nameStart + 1);
+                }
+                result = new String[]{
+                        JBBPToJava6Converter.makeBuilder(this).setClassPackage(packageName).setClassName(className).build().convert()
+                };
+            }
+            break;
+            default: {
+                throw new IllegalArgumentException("Unsupported target : " + target);
+            }
+        }
+
+        return result;
     }
 }

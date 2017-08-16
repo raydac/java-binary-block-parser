@@ -17,7 +17,8 @@ package com.igormaznitsa.jbbp.compiler.conversion;
 
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
-import com.igormaznitsa.jbbp.testaux.AbstractJavaClassCompilerTest;
+import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJava6ConverterTest;
+import com.igormaznitsa.jbbp.utils.TargetSources;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -27,7 +28,7 @@ import static com.igormaznitsa.jbbp.TestUtils.getField;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class JBBPToJava6ConverterExpressionTest extends AbstractJavaClassCompilerTest {
+public class JBBPToJBBPToJava6ConverterExpressionTest extends AbstractJBBPToJava6ConverterTest {
 
     private void assertExpression(final int etalonValue, final String expression) throws Exception {
         assertTrue("Etalon value must not be zero or egative one : " + etalonValue, etalonValue > 0);
@@ -45,7 +46,7 @@ public class JBBPToJava6ConverterExpressionTest extends AbstractJavaClassCompile
         final int detectedlength = getField(obj, "data", byte[].class).length;
 
         if (etalonValue != detectedlength) {
-            System.err.println(JBBPParser.prepare(String.format("byte [%s] data;", expression)).makeJavaSources(PACKAGE_NAME, CLASS_NAME, false));
+            System.err.println(JBBPParser.prepare(String.format("byte [%s] data;", expression)).convertToSrc(TargetSources.JAVA_1_6,PACKAGE_NAME+"."+CLASS_NAME)[0]);
             fail(etalonValue + "!=" + detectedlength);
         }
     }

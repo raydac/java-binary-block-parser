@@ -103,17 +103,21 @@ public abstract class AbstractMappedClassFieldObserver {
                 listOfClassHierarchy.add(current);
                 current = current.getSuperclass();
             }
+
             for (int i = listOfClassHierarchy.size() - 1; i >= 0; i--) {
                 final Class<?> clazzToProcess = listOfClassHierarchy.get(i);
                 final Bin clazzAnno = clazzToProcess.getAnnotation(Bin.class);
+
                 for (final Field f : clazzToProcess.getDeclaredFields()) {
                     if (!f.isAccessible()) {
                         JBBPUtils.makeAccessible(f);
                     }
+
                     final int modifiers = f.getModifiers();
                     if (Modifier.isTransient(modifiers) || Modifier.isStatic(modifiers) || f.getName().indexOf('$') >= 0) {
                         continue;
                     }
+
                     Bin fieldAnno = f.getAnnotation(Bin.class);
                     fieldAnno = fieldAnno == null ? clazzAnno : fieldAnno;
                     if (fieldAnno == null) {
@@ -630,7 +634,13 @@ public abstract class AbstractMappedClassFieldObserver {
 
         @Override
         public int compareTo(final OrderedField o) {
-            return this.order < o.order ? -1 : 1;
+            final int result;
+            if (this.order == o.order) {
+                result = this.field.getName().compareTo(o.field.getName());
+            } else {
+                result = this.order < o.order ? -1 : 1;
+            }
+            return result;
         }
     }
 

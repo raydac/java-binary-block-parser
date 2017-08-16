@@ -20,6 +20,7 @@ import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.io.JBBPBitOutputStream;
+import com.igormaznitsa.jbbp.utils.TargetSources;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
@@ -34,7 +35,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 
-public abstract class AbstractJavaClassCompilerTest {
+public abstract class AbstractJBBPToJava6ConverterTest {
 
     protected static final String PACKAGE_NAME = "com.igormaznitsa.test";
     protected static final String CLASS_NAME = "TestClass";
@@ -111,7 +112,7 @@ public abstract class AbstractJavaClassCompilerTest {
 
     protected Object compileAndMakeInstance(final String instanceClassName, final String script, final int parserFlags, final JBBPCustomFieldTypeProcessor customFieldProcessor, final JavaClassContent... extraClasses) throws Exception {
         final List<JavaClassContent> klazzes = new ArrayList<JavaClassContent>(Arrays.asList(extraClasses));
-        klazzes.add(0, new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, JBBPParser.prepare(script, JBBPBitOrder.LSB0, customFieldProcessor, parserFlags).makeJavaSources(PACKAGE_NAME, CLASS_NAME, false)));
+        klazzes.add(0, new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, JBBPParser.prepare(script, JBBPBitOrder.LSB0, customFieldProcessor, parserFlags).convertToSrc(TargetSources.JAVA_1_6, PACKAGE_NAME+"."+CLASS_NAME)[0]));
         final ClassLoader cloader = saveAndCompile(klazzes.toArray(new JavaClassContent[klazzes.size()]));
         return cloader.loadClass(instanceClassName).newInstance();
     }

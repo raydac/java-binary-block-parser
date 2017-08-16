@@ -25,7 +25,7 @@ import com.igormaznitsa.jbbp.io.JBBPBitOutputStream;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
-import com.igormaznitsa.jbbp.testaux.AbstractJavaClassCompilerTest;
+import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJava6ConverterTest;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
@@ -42,7 +42,7 @@ import static org.junit.Assert.*;
 /**
  * Test reading writing with converted classes from parser.
  */
-public class JBBPToJava6ConverterReadWriteTest extends AbstractJavaClassCompilerTest {
+public class JBBPToJBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6ConverterTest {
 
     public interface ByteTestInterface {
         byte getA();

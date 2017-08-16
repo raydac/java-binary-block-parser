@@ -16,7 +16,7 @@
 package com.igormaznitsa.jbbp.compiler.conversion;
 
 import com.igormaznitsa.jbbp.JBBPParser;
-import com.igormaznitsa.jbbp.testaux.AbstractJavaClassCompilerTest;
+import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJava6ConverterTest;
 import org.junit.Test;
 
 import java.io.EOFException;
@@ -28,7 +28,7 @@ import static org.junit.Assert.fail;
 /**
  * Test parser flags for converted sources.
  */
-public class ParserToJavaClassConverterJBBPFlagsTest extends AbstractJavaClassCompilerTest {
+public class ParserToJBBPToJavaClassConverterJBBPFlagsTest extends AbstractJBBPToJava6ConverterTest {
 
     @Test
     public void testFlag_SkipRemainingFieldsIfEOF() throws Exception {
