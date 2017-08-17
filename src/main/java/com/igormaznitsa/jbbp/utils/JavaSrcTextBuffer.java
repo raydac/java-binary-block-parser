@@ -35,6 +35,7 @@ public class JavaSrcTextBuffer {
 
     /**
      * Constructor with capacity value.
+     *
      * @param capacity capacity of the created buffer
      */
     public JavaSrcTextBuffer(final int capacity) {
@@ -43,6 +44,7 @@ public class JavaSrcTextBuffer {
 
     /**
      * Increase indent
+     *
      * @return this instance
      */
     public JavaSrcTextBuffer incIndent() {
@@ -52,6 +54,7 @@ public class JavaSrcTextBuffer {
 
     /**
      * Decrease indent
+     *
      * @return this instance
      */
     public JavaSrcTextBuffer decIndent() {
@@ -61,6 +64,7 @@ public class JavaSrcTextBuffer {
 
     /**
      * Print integer value
+     *
      * @param value integer value
      * @return this instance
      */
@@ -71,6 +75,7 @@ public class JavaSrcTextBuffer {
 
     /**
      * Print boolean value
+     *
      * @param value boolean value
      * @return this instance
      */
@@ -81,6 +86,7 @@ public class JavaSrcTextBuffer {
 
     /**
      * Foratted print.
+     *
      * @param text format string
      * @param args arguments for formatted string
      * @return this instance
@@ -93,6 +99,7 @@ public class JavaSrcTextBuffer {
 
     /**
      * Print string
+     *
      * @param text string
      * @return this instance
      */
@@ -103,6 +110,7 @@ public class JavaSrcTextBuffer {
 
     /**
      * Clean buffer
+     *
      * @return this instance
      */
     public JavaSrcTextBuffer clean() {
@@ -113,6 +121,7 @@ public class JavaSrcTextBuffer {
 
     /**
      * Print tab char
+     *
      * @return this instance
      */
     public JavaSrcTextBuffer tab() {
@@ -122,6 +131,7 @@ public class JavaSrcTextBuffer {
 
     /**
      * Print tabs for current indent number
+     *
      * @return this instance
      */
     public JavaSrcTextBuffer indent() {
@@ -131,6 +141,7 @@ public class JavaSrcTextBuffer {
 
     /**
      * Print next line char
+     *
      * @return this instance
      */
     public JavaSrcTextBuffer println() {
@@ -140,6 +151,7 @@ public class JavaSrcTextBuffer {
 
     /**
      * Check that the buffer is empty
+     *
      * @return true if the buffer is empty, false otherwise
      */
     public boolean isEmpty() {
@@ -148,6 +160,7 @@ public class JavaSrcTextBuffer {
 
     /**
      * Print text and next line char in the end
+     *
      * @param text the text to be printed
      * @return this instance
      */
@@ -157,6 +170,7 @@ public class JavaSrcTextBuffer {
 
     /**
      * Parse string to lines and print each line with current indent
+     *
      * @param text the text to be printed
      * @return this instance
      */
@@ -172,6 +186,7 @@ public class JavaSrcTextBuffer {
 
     /**
      * Parse string to lines and print each line with '//' comment
+     *
      * @param text text to be printed
      * @return this instance
      */
@@ -187,6 +202,7 @@ public class JavaSrcTextBuffer {
 
     /**
      * Print string as multiline java comment started with '/*'
+     *
      * @param text text to be printed as multiline comment
      * @return this instance
      */
@@ -204,6 +220,7 @@ public class JavaSrcTextBuffer {
 
     /**
      * Print string as multiline java comment started with '/**'
+     *
      * @param text text to be printed as multiline comment
      * @return this instance
      */

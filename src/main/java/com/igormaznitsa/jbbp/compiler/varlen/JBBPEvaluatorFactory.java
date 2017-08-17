@@ -15,8 +15,8 @@
  */
 package com.igormaznitsa.jbbp.compiler.varlen;
 
-import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.JBBPCompilerUtils;
+import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 
 import java.util.List;
 

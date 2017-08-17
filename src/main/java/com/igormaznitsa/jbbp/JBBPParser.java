@@ -35,8 +35,7 @@ import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * the Main class allows a user to parse a binary stream or block for predefined
@@ -639,18 +638,23 @@ public final class JBBPParser {
      *
      * @param target target to generate sources, must not be null
      * @param name   name of result, depends on target, must not be null, for instance class name (example 'com.test.jbbp.Parser')
-     * @return array of generated sources, must not be null
+     * @return list of source items generated during operation, must not be null and must not be empty
      * @throws IllegalArgumentException if target is unsupported
      * @see JBBPToJava6Converter
      * @see JBBPToJava6Converter.Builder
      * @since 1.3.0
      */
-    public String[] convertToSrc(final TargetSources target, final String name) {
+    public List<ResultSrcItem> convertToSrc(final TargetSources target, final String name) {
         JBBPUtils.assertNotNull(name, "Name must not be null");
-        final String[] result;
 
         switch (target) {
             case JAVA_1_6: {
+                final Properties metadata = new Properties();
+                metadata.setProperty("source", this.compiledBlock.getSource());
+                metadata.setProperty("name", name);
+                metadata.setProperty("target", target.name());
+                metadata.setProperty("converter", JBBPToJava6Converter.class.getCanonicalName());
+
                 final int nameStart = name.lastIndexOf('.');
                 final String packageName;
                 final String className;
@@ -661,16 +665,26 @@ public final class JBBPParser {
                     packageName = name.substring(0, nameStart);
                     className = name.substring(nameStart + 1);
                 }
-                result = new String[]{
-                        JBBPToJava6Converter.makeBuilder(this).setClassPackage(packageName).setClassName(className).build().convert()
-                };
+
+                final String resultSources = JBBPToJava6Converter.makeBuilder(this).setClassPackage(packageName).setClassName(className).build().convert();
+
+                final Map<String, String> resultMap = Collections.<String, String>singletonMap(name, resultSources);
+
+                return Collections.<ResultSrcItem>singletonList(new ResultSrcItem() {
+                    @Override
+                    public Properties getMetadata() {
+                        return metadata;
+                    }
+
+                    @Override
+                    public Map<String, String> getResult() {
+                        return resultMap;
+                    }
+                });
             }
-            break;
             default: {
                 throw new IllegalArgumentException("Unsupported target : " + target);
             }
         }
-
-        return result;
     }
 }

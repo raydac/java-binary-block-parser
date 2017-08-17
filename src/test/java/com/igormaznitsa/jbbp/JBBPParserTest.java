@@ -1707,7 +1707,7 @@ public class JBBPParserTest {
     @Test
     public void testConvertToSrc_Java16() throws Exception {
         final JBBPParser parser = JBBPParser.prepare("byte a;");
-        assertTrue(parser.convertToSrc(TargetSources.JAVA_1_6, "someclass").length != 0);
+        assertTrue(parser.convertToSrc(TargetSources.JAVA_1_6, "someclass").get(0).getResult().values().iterator().next().length() > 128);
     }
 
 }

@@ -14,17 +14,28 @@
  * limitations under the License.
  */
 
-package com.igormaznitsa.jbbp.utils;
+package com.igormaznitsa.jbbp;
+
+import java.util.Map;
+import java.util.Properties;
 
 /**
- * Allowed sourcws for source generation in JBBPParser
+ * Contains result of conversion of JBBPParser into source.
  *
- * @see com.igormaznitsa.jbbp.JBBPParser#convertToSrc(TargetSources, String)
  * @since 1.3.0
  */
-public enum TargetSources {
+public interface ResultSrcItem {
     /**
-     * Java 1.6 sources.
+     * Get metadata generated during operation for the item, depends on converter.
+     *
+     * @return the metadata container as properties, must not be null
      */
-    JAVA_1_6
+    Properties getMetadata();
+
+    /**
+     * Get generated sources mapped by some key which defined by converter.
+     *
+     * @return map containing result of conversion, must not be null and can't be empty.
+     */
+    Map<String, String> getResult();
 }

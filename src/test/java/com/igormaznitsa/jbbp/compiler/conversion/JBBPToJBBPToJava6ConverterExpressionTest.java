@@ -46,7 +46,7 @@ public class JBBPToJBBPToJava6ConverterExpressionTest extends AbstractJBBPToJava
         final int detectedlength = getField(obj, "data", byte[].class).length;
 
         if (etalonValue != detectedlength) {
-            System.err.println(JBBPParser.prepare(String.format("byte [%s] data;", expression)).convertToSrc(TargetSources.JAVA_1_6,PACKAGE_NAME+"."+CLASS_NAME)[0]);
+            System.err.println(JBBPParser.prepare(String.format("byte [%s] data;", expression)).convertToSrc(TargetSources.JAVA_1_6,PACKAGE_NAME+"."+CLASS_NAME).get(0).getResult().values().iterator().next());
             fail(etalonValue + "!=" + detectedlength);
         }
     }
