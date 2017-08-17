@@ -650,7 +650,7 @@ public final class JBBPParser {
         switch (target) {
             case JAVA_1_6: {
                 final Properties metadata = new Properties();
-                metadata.setProperty("source", this.compiledBlock.getSource());
+                metadata.setProperty("script", this.compiledBlock.getSource());
                 metadata.setProperty("name", name);
                 metadata.setProperty("target", target.name());
                 metadata.setProperty("converter", JBBPToJava6Converter.class.getCanonicalName());
@@ -659,7 +659,7 @@ public final class JBBPParser {
                 final String packageName;
                 final String className;
                 if (nameStart < 0) {
-                    packageName = null;
+                    packageName = "";
                     className = name;
                 } else {
                     packageName = name.substring(0, nameStart);
@@ -667,8 +667,7 @@ public final class JBBPParser {
                 }
 
                 final String resultSources = JBBPToJava6Converter.makeBuilder(this).setClassPackage(packageName).setClassName(className).build().convert();
-
-                final Map<String, String> resultMap = Collections.<String, String>singletonMap(name, resultSources);
+                final Map<String, String> resultMap = Collections.<String, String>singletonMap(name.replace('.', '/') + ".java", resultSources);
 
                 return Collections.<ResultSrcItem>singletonList(new ResultSrcItem() {
                     @Override

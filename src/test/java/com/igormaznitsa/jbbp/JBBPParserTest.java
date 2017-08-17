@@ -29,6 +29,7 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.IOException;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -1705,9 +1706,25 @@ public class JBBPParserTest {
     }
 
     @Test
-    public void testConvertToSrc_Java16() throws Exception {
+    public void testConvertToSrc_Java16_NamedPackage() throws Exception {
         final JBBPParser parser = JBBPParser.prepare("byte a;");
-        assertTrue(parser.convertToSrc(TargetSources.JAVA_1_6, "someclass").get(0).getResult().values().iterator().next().length() > 128);
+
+        final List<ResultSrcItem> src = parser.convertToSrc(TargetSources.JAVA_1_6, "some.package.SomeClass");
+
+        assertEquals(1, src.size());
+        assertEquals("byte a;", src.get(0).getMetadata().getProperty("script"));
+        assertTrue(src.get(0).getResult().get("some/package/SomeClass.java").length() > 128);
+    }
+
+    @Test
+    public void testConvertToSrc_Java16_DefaultPackage() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare("byte a;");
+
+        final List<ResultSrcItem> src = parser.convertToSrc(TargetSources.JAVA_1_6, "SomeClass");
+
+        assertEquals(1, src.size());
+        assertEquals("byte a;", src.get(0).getMetadata().getProperty("script"));
+        assertTrue(src.get(0).getResult().get("SomeClass.java").length() > 128);
     }
 
 }
