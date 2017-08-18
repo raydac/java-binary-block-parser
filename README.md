@@ -24,6 +24,7 @@ Change log
   - added converter of compiled parser data into Java class sources (1.6+)
   - added method to read unsigned short values as char [] into JBBPBitInputStream
   - Class version target has been changed to Java 1.6
+  - fixed compatibiity of tests with Java 1.6
   - Minor refactoring
   
 - **1.2.1 (28-JUL-2016)**
