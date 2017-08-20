@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.igormaznitsa</groupId>
+  <artifactId>mvngolang-tests</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  
+  <packaging>jar</packaging>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.igormaznitsa</groupId>
+        <artifactId>jbbp-maven-plugin</artifactId>
+        <version>1.3.0-SNAPSHOT</version>
+        <goals>
+          <goal>jbbp</goal>
+        </goals>
+        <configuration>
+          <verbose>true</verbose>
+          <skip>true</skip>
+          <generateTestSources>true</generateTestSources>
+          <commonPackage>uber.package</commonPackage>
+          <outputEncoding>OUT-8</outputEncoding>
+          <inputEncoding>IN-8</inputEncoding>
+          <capCommentFile>/some/cap/file</capCommentFile>
+          <customTextFile>/some/custom/file</customTextFile>
+          <capCommentText>some cap text</capCommentText>
+          <customText>public void test(){}</customText>
+          <sourceDirectory>/some/source</sourceDirectory>
+          <outputDirectory>/some/output</outputDirectory>
+          <doGettersSetters>true</doGettersSetters>
+          <superClass>com.igormaznitsa.Super</superClass>
+          <forceAbstract>true</forceAbstract>
+          <mapStructToInterfaces>
+            <a.b.c>com.test.C</a.b.c>
+            <a.b.d>com.test.D</a.b.d>
+          </mapStructToInterfaces>
+          <customTypes>
+            <type>abc</type>
+            <type>def</type>
+          </customTypes>
+          <interfaces>
+            <interface>com.igormaznitsa.InterfaceA</interface>
+            <interface>com.igormaznitsa.InterfaceB</interface>
+          </interfaces>
+          <includes>
+            <include>path1/**/*.jbbp</include>
+            <include>path2/**/*.jbbp</include>
+          </includes>
+          <excludes>
+            <exclude>path3/**/*.jbbp</exclude>
+            <exclude>path4/**/*.jbbp</exclude>
+          </excludes>
+          <parserFlags>
+            <flag>SKIP_REMAINING_FIELDS_IF_EOF</flag>
+          </parserFlags>
+        </configuration>
+      </plugin>  
+    </plugins>
+  </build>
+
+</project>

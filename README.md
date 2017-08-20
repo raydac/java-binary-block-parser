@@ -18,15 +18,16 @@ For instance I have been very actively using the framework in [the ZX-Poly emula
 Change log
 ===========
 - **1.3.0-SNAPSHOT**
-  - __Fixed issue [#16 NullPointerException when referencing a JBBPCustomFieldTypeProcessor parsed field"](https://github.com/raydac/java-binary-block-parser/issues/16), many thanks to @use-sparingly for the bug report__ 
-  - created [Maven plugin](https://github.com/raydac/jbbp-maven-plugin) to generate Java class sources (1.6+) from JBBP scripts
+  - __Fixed issue [#16 NullPointerException when referencing a JBBPCustomFieldTypeProcessor parsed field"](https://github.com/raydac/java-binary-block-parser/issues/16), many thanks to @use-sparingly for the bug report__
+  - added Maven plugin to auto-generate Java classes (1.6+) from JBBP scripts
+  - added Gradle plugin to auto-generate Java classes (1.6+) from JBBP scripts
   - added extra byte array reading writing methods with byte order support into JBBPBitInputStream and JBBPBitOutputStream
   - added converter of compiled parser data into Java class sources (1.6+)
   - added method to read unsigned short values as char [] into JBBPBitInputStream
   - Class version target has been changed to Java 1.6
   - fixed compatibiity of tests with Java 1.6
   - Minor refactoring
-  
+
 - **1.2.1 (28-JUL-2016)**
   - __Fixed issue [#10 "assertArrayLength throws exception in multi-thread"](https://github.com/raydac/java-binary-block-parser/issues/10), many thanks to @sky4star for the bug report.__
   - minor refactoring
@@ -34,7 +35,7 @@ Change log
 - **1.2.0 (10-JUN-2015)**
   - Refactoring
   - Improved tree of JBBP exceptions
-  - Fixed NPE in JBBPTextWriter for String field mapped to byte array 
+  - Fixed NPE in JBBPTextWriter for String field mapped to byte array
   - Added support of custom field types through JBBPCustomFieldTypeProcessor
   - Added JBBPCustomFieldTypeProcessorAggregator, auxiliary class to join several JBBPCustomFieldTypeProcessors
   - Fixed JBBPTextWriter, added support of logging for JBBPAbstractField objects
@@ -50,11 +51,11 @@ Change log
   - Fixed static fields including in mapping processes if class has marked by default Bin annotation
   - Added flag JBBPParser#FLAG_SKIP_REMAINING_FIELDS_IF_EOF to ignore remaining fields during parsing if EOF without exception
   - Added flag JBBPMapper#FLAG_IGNORE_MISSING_VALUES to ignore mapping for values which are not found in parsed source
-  - Added new auxiliary methods in JBBPUtils 
+  - Added new auxiliary methods in JBBPUtils
 
 - **1.0 (08-AUG-2014)**
-  - The Initial version 
-  
+  - The Initial version
+
 # Maven dependency
 The Framework has been published in the Maven Central and can be easily added as a dependency
 ```
@@ -64,7 +65,7 @@ The Framework has been published in the Maven Central and can be easily added as
   <version>1.2.1</version>
 </dependency>
 ```
-the precompiled library jar, javadoc and sources also can be downloaded directly from [the Maven central.](http://search.maven.org/#browse|808871750) 
+the precompiled library jar, javadoc and sources also can be downloaded directly from [the Maven central.](http://search.maven.org/#browse|808871750)
 
 # Hello world
 The Framework is very easy in use because it has only two main classes for its functionality com.igormaznitsa.jbbp.JBBPParser (for data parsing) and com.igormaznitsa.jbbp.io.JBBPOut (for binary block writing), both of them work over low-level IO classes com.igormaznitsa.jbbp.io.JBBPBitInputStream and com.igormaznitsa.jbbp.io.JBBPBitOutputStream which are the core for the framework.   
@@ -81,7 +82,7 @@ Parsed parsedBits = JBBPParser.prepare("bit:1 [_] parsed;").parse(new byte[]{1,2
 ```
 
 # More compex example with features added as of 1.1.0
-The Example shows how to parse a byte written in non-standard MSB0 order (Java has LSB0 bit order) to bit fields, print its values and pack fields back 
+The Example shows how to parse a byte written in non-standard MSB0 order (Java has LSB0 bit order) to bit fields, print its values and pack fields back
 ```Java
 class Flags {
       @Bin(outOrder = 1, name = "f1", type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_1, comment = "It's flag one") byte flag1;
@@ -89,19 +90,19 @@ class Flags {
       @Bin(outOrder = 3, name = "f3", type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_1, comment = "It's 3th flag") byte flag3;
       @Bin(outOrder = 4, name = "f4", type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_4, comment = "It's 4th flag") byte flag4;
     }
-    
+
     final int data = 0b10101010;
     Flags parsed = JBBPParser.prepare("bit:1 f1; bit:2 f2; bit:1 f3; bit:4 f4;", JBBPBitOrder.MSB0).parse(new byte[]{(byte)data}).mapTo(Flags.class);
     assertEquals(1,parsed.flag1);
     assertEquals(2,parsed.flag2);
     assertEquals(0,parsed.flag3);
     assertEquals(5,parsed.flag4);
-    
+
     System.out.println(new JBBPTextWriter().Bin(parsed).Close().toString());
-    
+
     assertEquals(data, JBBPOut.BeginBin(JBBPBitOrder.MSB0).Bin(parsed).End().toByteArray()[0] & 0xFF);
 ```
-The Example will print in console the text below 
+The Example will print in console the text below
 ```
 ;--------------------------------------------------------------------------------
 ; START : Flags
@@ -136,7 +137,7 @@ The Framework provides support for arrays and structures. Just keep in mind that
 it is possible to define processors for own custom data types, for instance you can take a look at [case processing three byte unsigned integer types](https://github.com/raydac/java-binary-block-parser/blob/master/src/test/java/com/igormaznitsa/jbbp/it/CustomThreeByteIntegerTypeTest.java).   
 
 ### Float and Double types
-The Parser doesn't support Java float and double types out of the box. But it can be implemented through custom type processor. [there is written example and test and the code can be copy pasted](https://github.com/raydac/java-binary-block-parser/blob/master/src/test/java/com/igormaznitsa/jbbp/it/FloatAndDoubleTypesTest.java). 
+The Parser doesn't support Java float and double types out of the box. But it can be implemented through custom type processor. [there is written example and test and the code can be copy pasted](https://github.com/raydac/java-binary-block-parser/blob/master/src/test/java/com/igormaznitsa/jbbp/it/FloatAndDoubleTypesTest.java).
 
 ## Variable fields
 If you have some data which structure is variable then you can use the `var` type for defined field and process reading of the data manually with custom [JBBPVarFieldProcessor](https://github.com/raydac/java-binary-block-parser/blob/master/src/main/java/com/igormaznitsa/jbbp/JBBPVarFieldProcessor.java) instance.
@@ -170,7 +171,7 @@ Expressions are used for calculation of length of arrays and allow brackets and 
 - Arithmetic operators: +,-,%,*,/,%
 - Bit operators: &,|,^,~
 - Shift operators: <<,>>,>>>
-- Brackets: (, ) 
+- Brackets: (, )
 
 Inside expression you can use integer numbers and named field values through their names (if you use fields from the same structure) or paths. Keep in your mind that you can't use array fields or fields placed inside structure arrays.
 ```
@@ -182,7 +183,7 @@ int field1;
 ```
 
 # Commentaries
-You can use commentaries inside a parser script, the parser supports the only comment format and recognizes as commentaries all text after '//' till the end of line. 
+You can use commentaries inside a parser script, the parser supports the only comment format and recognizes as commentaries all text after '//' till the end of line.
 ```
  int;
     // hello commentaries
@@ -193,7 +194,7 @@ You can use commentaries inside a parser script, the parser supports the only co
 Inside expression you can use field names and field paths, also you can use the special macros '$$' which represents the current input stream byte counter, all fields started with '$' will be recognized by the parser as special user defined variables and it will be requesting them from special user defined provider. If the array size contains the only '_' symbol then the field or structure will not have defined size and whole stream will be read.
 
 # How to get result of parsing
-The Result of parsing is an instance of com.igormaznitsa.jbbp.model.JBBPFieldStruct class which represents the root invisible structure for the parsed data and you can use its inside methods to find desired fields for their names, paths or classes. All Fields are successors of com.igormaznitsa.jbbp.model.JBBPAbstractField class. To increase comfort, it is easier to use mapping to classes when the mapper automaticaly places values to fields of a Java class. 
+The Result of parsing is an instance of com.igormaznitsa.jbbp.model.JBBPFieldStruct class which represents the root invisible structure for the parsed data and you can use its inside methods to find desired fields for their names, paths or classes. All Fields are successors of com.igormaznitsa.jbbp.model.JBBPAbstractField class. To increase comfort, it is easier to use mapping to classes when the mapper automaticaly places values to fields of a Java class.
 
 # Example
 The Example below shows how to parse a PNG file with the JBBP parser (the example taken from tests)
@@ -213,17 +214,17 @@ final InputStream pngStream = getResourceAsInputStream("picture.png");
       );
 
       final JBBPFieldStruct result = pngParser.parse(pngStream);
-      
+
       assertEquals(0x89504E470D0A1A0AL,result.findFieldForNameAndType("header",JBBPFieldLong.class).getAsLong());
-      
+
       final JBBPFieldArrayStruct chunks = result.findFieldForNameAndType("chunk", JBBPFieldArrayStruct.class);
-      
-      
+
+
       final String [] chunkNames = new String[]{"IHDR","gAMA","bKGD","pHYs","tIME","tEXt","IDAT","IEND"};
       final int [] chunkSizes = new int[]{0x0D, 0x04, 0x06, 0x09, 0x07, 0x19, 0x0E5F, 0x00};
-      
+
       assertEquals(chunkNames.length,chunks.size());
-      
+
       for(int i=0;i<chunks.size();i++){
         assertChunk(chunkNames[i], chunkSizes[i], (JBBPFieldStruct)chunks.getElementAt(i));
       }
@@ -232,7 +233,7 @@ final InputStream pngStream = getResourceAsInputStream("picture.png");
       closeResource(pngStream);
     }
 ```
-Also it is possible to map parsed packet to class fields 
+Also it is possible to map parsed packet to class fields
 ```Java
 final JBBPParser pngParser = JBBPParser.prepare(
               "long header;"
@@ -256,10 +257,10 @@ final JBBPParser pngParser = JBBPParser.prepare(
         long header;
         Chunk [] chunk;
       }
-      
+
       final Png png = pngParser.parse(pngStream).mapTo(Png.class);
 ```
-The Example from tests shows how to parse a tcp frame wrapped in a network frame 
+The Example from tests shows how to parse a tcp frame wrapped in a network frame
 ```Java
 final JBBPParser tcpParser = JBBPParser.prepare(
               "skip:34; // skip bytes till the frame\n"
@@ -267,11 +268,11 @@ final JBBPParser tcpParser = JBBPParser.prepare(
               + "ushort DestinationPort;"
               + "int SequenceNumber;"
               + "int AcknowledgementNumber;"
-                      
+
               + "bit:1 NONCE;"
               + "bit:3 RESERVED;"
               + "bit:4 HLEN;"
-                      
+
               + "bit:1 FIN;"
               + "bit:1 SYN;"
               + "bit:1 RST;"
@@ -280,7 +281,7 @@ final JBBPParser tcpParser = JBBPParser.prepare(
               + "bit:1 URG;"
               + "bit:1 ECNECHO;"
               + "bit:1 CWR;"
-                      
+
               + "ushort WindowSize;"
               + "ushort TCPCheckSum;"
               + "ushort UrgentPointer;"
@@ -298,11 +299,11 @@ No, `@Bin` annotations in classes are used only for mapping and data writing, bu
 No problems! The Parser works over com.igormaznitsa.jbbp.io.BitInputStream class which can be used directly and allows read bits, bytes, count bytes and align data from a stream.
 
 ## I want to make a bin block instead of parsing!
-The Framework contains a special helper as the class com.igormaznitsa.jbbp.io.JBBPOut which allows to build bin blocks with some kind of DSL 
+The Framework contains a special helper as the class com.igormaznitsa.jbbp.io.JBBPOut which allows to build bin blocks with some kind of DSL
 ```Java
 import static com.igormaznitsa.jbbp.io.JBBPOut.*;
 ...
-final byte [] array = 
+final byte [] array =
           BeginBin().
             Bit(1, 2, 3, 0).
             Bit(true, false, true).
