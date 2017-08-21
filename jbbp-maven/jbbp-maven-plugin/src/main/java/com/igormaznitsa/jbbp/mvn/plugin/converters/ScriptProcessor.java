@@ -1,16 +1,17 @@
 package com.igormaznitsa.jbbp.mvn.plugin.converters;
 
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
-import com.igormaznitsa.jbbp.mvn.plugin.GenerateSourcesMojo;
+import com.igormaznitsa.jbbp.mvn.plugin.JBBPGenerateMojo;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 
 public interface ScriptProcessor {
     void processScript(
-            @Nonnull final GenerateSourcesMojo mojo,
+            @Nonnull final JBBPGenerateMojo mojo,
             @Nonnull File jbbpScript,
             @Nullable String classCapComment,
             @Nullable String customText,
@@ -19,4 +20,5 @@ public interface ScriptProcessor {
             @Nonnull JBBPCustomFieldTypeProcessor customFieldTypeProcessor
     ) throws IOException;
 
+    Set<File> makeTargetFiles(@Nullable File targetDir, @Nullable String classPackage, @Nonnull File jbbpScript);
 }

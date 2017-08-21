@@ -1,4 +1,4 @@
 /target/
 /nbproject/
 /.idea/
-jbbp.iml
+*.iml

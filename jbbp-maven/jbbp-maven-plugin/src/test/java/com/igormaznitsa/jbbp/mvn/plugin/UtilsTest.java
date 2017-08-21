@@ -16,6 +16,8 @@
 package com.igormaznitsa.jbbp.mvn.plugin;
 
 import static org.junit.Assert.*;
+
+import com.igormaznitsa.jbbp.mvn.plugin.utils.Utils;
 import org.junit.Test;
 
 public class UtilsTest {

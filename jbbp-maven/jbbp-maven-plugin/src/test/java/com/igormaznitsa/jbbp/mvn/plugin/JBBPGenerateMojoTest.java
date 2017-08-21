@@ -30,15 +30,15 @@ import java.util.Set;
 
 import static org.junit.Assert.assertArrayEquals;
 
-public class GenerateSourcesMojoTest extends AbstractMojoTestCase {
+public class JBBPGenerateMojoTest extends AbstractMojoTestCase {
 
-    private GenerateSourcesMojo findMojo(final String pomName, final String goal) throws Exception {
+    private JBBPGenerateMojo findMojo(final String pomName, final String goal) throws Exception {
         final File pomFile = new File(this.getClass().getResource(pomName).toURI());
         final MavenExecutionRequest executionRequest = new DefaultMavenExecutionRequest();
         final ProjectBuildingRequest buildingRequest = executionRequest.getProjectBuildingRequest();
         final ProjectBuilder projectBuilder = this.lookup(ProjectBuilder.class);
         final MavenProject project = projectBuilder.build(pomFile, buildingRequest).getProject();
-        return (GenerateSourcesMojo) this.lookupConfiguredMojo(project, goal);
+        return (JBBPGenerateMojo) this.lookupConfiguredMojo(project, goal);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class GenerateSourcesMojoTest extends AbstractMojoTestCase {
 
     @Test
     public void testConfig() throws Exception {
-        final GenerateSourcesMojo mojo = findMojo("mojoConfig.xml", "jbbp");
+        final JBBPGenerateMojo mojo = findMojo("mojoConfig.xml", "generate");
         assertNotNull(mojo);
 
         assertTrue(mojo.getGenerateTestSources());
@@ -75,6 +75,7 @@ public class GenerateSourcesMojoTest extends AbstractMojoTestCase {
         assertEquals("IN-8", mojo.getInputEncoding());
         assertEquals("OUT-8", mojo.getOutputEncoding());
         assertEquals("com.igormaznitsa.Super", mojo.getSuperClass());
+        assertEquals("SOME_TARGET", mojo.getTarget());
         assertTrue(mojo.getForceAbstract());
         assertTrue(mojo.getDoGettersSetters());
         assertArrayEquals(new String[]{"abc", "def"}, set2array(mojo.getCustomTypes()));

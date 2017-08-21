@@ -1,4 +1,4 @@
-package com.igormaznitsa.jbbp.mvn.plugin;
+package com.igormaznitsa.jbbp.mvn.plugin.converters;
 
 import com.igormaznitsa.jbbp.mvn.plugin.converters.Java16Converter;
 import com.igormaznitsa.jbbp.mvn.plugin.converters.ScriptProcessor;
