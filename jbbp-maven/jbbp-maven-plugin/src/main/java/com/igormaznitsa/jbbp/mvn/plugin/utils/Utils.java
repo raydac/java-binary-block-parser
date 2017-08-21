@@ -42,8 +42,8 @@ public final class Utils {
         final Charset defaultCharset = Charset.defaultCharset();
         try {
             return (charsetName == null) ? defaultCharset.name() : Charset.forName(charsetName.trim()).name();
-        }catch(IllegalCharsetNameException ex){
-            throw new IllegalArgumentException("Can't recognoze charset for name '"+charsetName+'\'');
+        } catch (IllegalCharsetNameException ex) {
+            throw new IllegalArgumentException("Can't recognoze charset for name '" + charsetName + '\'');
         }
     }
 
@@ -75,9 +75,10 @@ public final class Utils {
 
     /**
      * Convert script file into path to Java class file.
-     * @param targetDir the target dir for generated sources, it can be null
+     *
+     * @param targetDir    the target dir for generated sources, it can be null
      * @param classPackage class package to override extracted one from script name, it can be null
-     * @param scriptFile the script file, must not be null
+     * @param scriptFile   the script file, must not be null
      * @return java source file for the script file
      */
     @Nonnull
@@ -86,9 +87,9 @@ public final class Utils {
         final String className = Utils.extractClassName(rawFileName);
         final String packageName = classPackage == null ? Utils.extractPackageName(rawFileName) : classPackage;
 
-        String fullClassName = packageName.isEmpty() ? className : packageName +'.'+className;
-        fullClassName = fullClassName.replace('.',File.separatorChar)+".java";
+        String fullClassName = packageName.isEmpty() ? className : packageName + '.' + className;
+        fullClassName = fullClassName.replace('.', File.separatorChar) + ".java";
 
-        return new File(targetDir,fullClassName);
+        return new File(targetDir, fullClassName);
     }
 }

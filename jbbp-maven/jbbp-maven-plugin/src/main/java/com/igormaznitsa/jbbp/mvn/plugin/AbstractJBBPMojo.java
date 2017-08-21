@@ -19,26 +19,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public abstract class AbstractJBBPMojo extends AbstractMojo {
-    @Parameter(property = "project", required = true, readonly = true)
-    protected MavenProject project;
-
-    /**
-     * Specifies whether sources are added to the {@code compile} or {@code test}
-     * scope.
-     */
-    @Parameter(alias = "generateTestSources", defaultValue = "false")
-    protected boolean generateTestSources;
-    /**
-     * Package to override package name extracted from script file name, it will be
-     * common for all processed classes.
-     */
-    @Parameter(alias = "commonPackage")
-    protected String commonPackage;
-    /**
-     * Target for source generation.
-     */
-    @Parameter(alias = "target", defaultValue = "JAVA_1_6")
-    protected String target;
     /**
      * Provides an explicit list of all the JBBP scripts that should be included
      * in the generate phase of the plug-in.
@@ -57,6 +37,25 @@ public abstract class AbstractJBBPMojo extends AbstractMojo {
      */
     @Parameter(alias = "excludes")
     protected final Set<String> excludes = new HashSet<String>();
+    @Parameter(property = "project", required = true, readonly = true)
+    protected MavenProject project;
+    /**
+     * Specifies whether sources are added to the {@code compile} or {@code test}
+     * scope.
+     */
+    @Parameter(alias = "generateTestSources", defaultValue = "false")
+    protected boolean generateTestSources;
+    /**
+     * Package to override package name extracted from script file name, it will be
+     * common for all processed classes.
+     */
+    @Parameter(alias = "commonPackage")
+    protected String commonPackage;
+    /**
+     * Target for source generation.
+     */
+    @Parameter(alias = "target", defaultValue = "JAVA_1_6")
+    protected String target;
     /**
      * Flag to skip processing of the plug-in.
      */
@@ -141,12 +140,12 @@ public abstract class AbstractJBBPMojo extends AbstractMojo {
         this.verbose = flag;
     }
 
-    public void setGenerateTestSources(final boolean flag) {
-        this.generateTestSources = flag;
-    }
-
     public boolean getGenerateTestSources() {
         return this.generateTestSources;
+    }
+
+    public void setGenerateTestSources(final boolean flag) {
+        this.generateTestSources = flag;
     }
 
     protected void registerSourceRoot(@Nonnull final File outputDir) {

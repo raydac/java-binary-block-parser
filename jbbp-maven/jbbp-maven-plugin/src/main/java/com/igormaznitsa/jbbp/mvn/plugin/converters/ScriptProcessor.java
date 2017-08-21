@@ -20,5 +20,6 @@ public interface ScriptProcessor {
             @Nonnull JBBPCustomFieldTypeProcessor customFieldTypeProcessor
     ) throws IOException;
 
+    @Nonnull
     Set<File> makeTargetFiles(@Nullable File targetDir, @Nullable String classPackage, @Nonnull File jbbpScript);
 }

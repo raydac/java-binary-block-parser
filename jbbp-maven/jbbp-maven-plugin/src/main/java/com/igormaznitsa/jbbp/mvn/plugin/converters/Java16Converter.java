@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 
-public class Java16Converter  implements ScriptProcessor {
+public class Java16Converter implements ScriptProcessor {
     @Override
     public void processScript(
             @Nonnull final JBBPGenerateMojo mojo,
@@ -60,6 +60,7 @@ public class Java16Converter  implements ScriptProcessor {
     }
 
     @Override
+    @Nonnull
     public Set<File> makeTargetFiles(@Nullable File targetDir, @Nullable String classPackage, @Nonnull File jbbpScript) {
         return Collections.singleton(Utils.scriptFileToJavaFile(targetDir, classPackage, jbbpScript));
     }

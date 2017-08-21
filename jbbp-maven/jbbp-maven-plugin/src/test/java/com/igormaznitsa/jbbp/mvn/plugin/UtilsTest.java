@@ -15,30 +15,30 @@
  */
 package com.igormaznitsa.jbbp.mvn.plugin;
 
-import static org.junit.Assert.*;
-
 import com.igormaznitsa.jbbp.mvn.plugin.utils.Utils;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 public class UtilsTest {
 
-  @Test
-  public void testExtractClassName() {
-    assertEquals("", Utils.extractClassName(""));
-    assertEquals("", Utils.extractClassName("a.b.c."));
-    assertEquals("hello", Utils.extractClassName("hello"));
-    assertEquals("hello", Utils.extractClassName("a.b.c.hello"));
-    assertEquals("hello", Utils.extractClassName(".hello"));
-  }
+    @Test
+    public void testExtractClassName() {
+        assertEquals("", Utils.extractClassName(""));
+        assertEquals("", Utils.extractClassName("a.b.c."));
+        assertEquals("hello", Utils.extractClassName("hello"));
+        assertEquals("hello", Utils.extractClassName("a.b.c.hello"));
+        assertEquals("hello", Utils.extractClassName(".hello"));
+    }
 
-  @Test
-  public void testExtractPackageName() {
-    assertEquals("", Utils.extractPackageName(""));
-    assertEquals("", Utils.extractPackageName("hello"));
-    assertEquals("a", Utils.extractPackageName("a.hello"));
-    assertEquals("a.b.c", Utils.extractPackageName("a.b.c.hello"));
-    assertEquals("a.b.c", Utils.extractPackageName("a.b.c."));
-    assertEquals("", Utils.extractPackageName(".hello"));
-  }
+    @Test
+    public void testExtractPackageName() {
+        assertEquals("", Utils.extractPackageName(""));
+        assertEquals("", Utils.extractPackageName("hello"));
+        assertEquals("a", Utils.extractPackageName("a.hello"));
+        assertEquals("a.b.c", Utils.extractPackageName("a.b.c.hello"));
+        assertEquals("a.b.c", Utils.extractPackageName("a.b.c."));
+        assertEquals("", Utils.extractPackageName(".hello"));
+    }
 
 }
