@@ -12,7 +12,8 @@ public class JBBPPluginTest {
         Project project = ProjectBuilder.builder().build()
         project.getPlugins().apply 'com.igormaznitsa.gradle.jbbp'
 
-        assertTrue(project.tasks.jbbp instanceof JBBPTask)
+        assertTrue(project.tasks.jbbpGenerate instanceof JBBPGenerateTask)
+        assertTrue(project.tasks.jbbpClean instanceof JBBPCleanTask)
     }
 
 }
