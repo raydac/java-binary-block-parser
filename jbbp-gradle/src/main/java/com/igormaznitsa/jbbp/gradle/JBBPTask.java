@@ -15,8 +15,7 @@ import java.io.File;
 public class JBBPTask extends DefaultTask {
 
     @TaskAction
-    public void execute(){
-        this.getInputs()
+    public void convertJbbp(){
     }
 
 }
