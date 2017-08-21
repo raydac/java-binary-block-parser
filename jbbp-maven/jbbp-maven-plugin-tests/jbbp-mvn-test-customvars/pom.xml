@@ -20,7 +20,7 @@
         <executions>
           <execution>
             <goals>
-              <goal>jbbp</goal>
+              <goal>generate</goal>
             </goals>
           </execution>
         </executions>

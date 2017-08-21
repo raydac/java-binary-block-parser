@@ -14,16 +14,13 @@
   <build>
     <plugins>
       <plugin>
-        <!--        <groupId>${project.groupId}</groupId>
+        <groupId>${project.groupId}</groupId>
         <artifactId>jbbp-maven-plugin</artifactId>
-        <version>${project.version}</version>-->
-        <groupId>com.igormaznitsa</groupId>
-        <artifactId>jbbp-maven-plugin</artifactId>
-        <version>1.3.0-SNAPSHOT</version>
+        <version>${project.version}</version>
         <executions>
           <execution>
             <goals>
-              <goal>jbbp</goal>
+              <goal>generate</goal>
             </goals>
           </execution>
         </executions>
