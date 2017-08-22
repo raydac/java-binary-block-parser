@@ -1,0 +1,76 @@
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.igormaznitsa</groupId>
+        <artifactId>jbbp-main-pom</artifactId>
+        <version>1.3.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>jbbp-main-plugin-pom</artifactId>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>jbbp-plugin-common</module>
+        <module>jbbp-maven</module>
+        <module>jbbp-gradle</module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.igormaznitsa</groupId>
+            <artifactId>meta-annotations</artifactId>
+            <version>${meta.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.igormaznitsa</groupId>
+            <artifactId>meta-utils</artifactId>
+            <version>${meta.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.igormaznitsa</groupId>
+                <artifactId>meta-checker</artifactId>
+                <version>${meta.version}</version>
+                <configuration>
+                    <restrictClassFormat>6</restrictClassFormat>
+                    <checkNullable>true</checkNullable>
+                    <checkMayContainNull>true</checkMayContainNull>
+                    <restrictClassFormat><![CDATA[<=6]]></restrictClassFormat>
+                    <failForAnnotations>
+                        <param>risky</param>
+                    </failForAnnotations>
+                    <ignoreClasses>
+                        <class>*.HelpMojo</class>
+                        <class>com.igormaznitsa.mvn.test.*</class>
+                        <class>com.igormaznitsa.mvn.tst.*</class>
+                    </ignoreClasses>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
