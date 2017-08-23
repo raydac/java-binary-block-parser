@@ -1,4 +1,4 @@
-package com.igormaznitsa.jbbp.plugin.gradle
+
 
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder

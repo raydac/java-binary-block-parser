@@ -4,10 +4,6 @@ import com.igormaznitsa.jbbp.plugin.common.converters.ParserFlags;
 import com.igormaznitsa.jbbp.plugin.common.converters.Target;
 import org.gradle.api.Project;
 import org.gradle.api.file.ConfigurableFileTree;
-import org.gradle.api.file.FileTree;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Optional;
-import org.gradle.api.tasks.OutputDirectory;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -29,7 +25,7 @@ public class JBBPExtension {
     public String inEncoding = "UTF-8";
     public String outEncoding = "UTF-8";
     public File headCommentFile = null;
-    public String  headComment = null;
+    public String headComment = null;
     public File customTextFile = null;
     public String customText = null;
     public String superClass = null;
@@ -40,7 +36,7 @@ public class JBBPExtension {
     public JBBPExtension(@Nonnull final Project project) {
         this.source = project.fileTree("src/jbbp");
         this.source.include("**/*.jbbp");
-        this.output = new File(project.getBuildDir(),"generated-jbbp-dir");
+        this.output = new File(project.getBuildDir(), "generated-jbbp-dir");
     }
 
 }

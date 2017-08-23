@@ -1,14 +1,11 @@
 package com.igormaznitsa.jbbp.plugin.gradle;
 
 import com.igormaznitsa.jbbp.plugin.common.converters.JBBPScriptTranslator;
-import com.igormaznitsa.jbbp.plugin.common.converters.ParserFlags;
-import com.igormaznitsa.jbbp.plugin.common.utils.CommonUtils;
 import org.gradle.api.GradleException;
 
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
-import java.util.Set;
 
 public class JBBPCleanTask extends AbstractJBBPTask {
 
