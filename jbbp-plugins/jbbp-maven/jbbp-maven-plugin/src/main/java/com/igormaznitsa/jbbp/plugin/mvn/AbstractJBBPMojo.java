@@ -2,6 +2,7 @@ package com.igormaznitsa.jbbp.plugin.mvn;
 
 import com.igormaznitsa.jbbp.plugin.common.converters.Target;
 import com.igormaznitsa.meta.annotation.MustNotContainNull;
+import com.igormaznitsa.meta.common.utils.Assertions;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -56,6 +57,7 @@ public abstract class AbstractJBBPMojo extends AbstractMojo {
     protected String packageName;
     /**
      * Target for translation.
+     *
      * @see Target
      */
     @Parameter(alias = "target", defaultValue = "JAVA_1_6")
@@ -119,8 +121,7 @@ public abstract class AbstractJBBPMojo extends AbstractMojo {
     }
 
     public void setSource(@Nonnull final File file) {
-        if (file == null) throw new NullPointerException("File must not be null");
-        this.source = file;
+        this.source = Assertions.assertNotNull("Source must not be null", file);
     }
 
     public boolean getSkip() {
@@ -131,8 +132,7 @@ public abstract class AbstractJBBPMojo extends AbstractMojo {
         this.skip = value;
     }
 
-    public void setOutput(@Nonnull final File file) {
-        if (file == null) throw new NullPointerException("File must not be null");
+    public void setOutput(@Nullable final File file) {
         this.output = file;
     }
 
