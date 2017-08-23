@@ -5,14 +5,14 @@ import javax.annotation.Nonnull;
 public enum Target {
     JAVA_1_6(new Java16Converter());
 
-    private final ScriptProcessor scriptProcessor;
+    private final JBBPScriptTranslator JBBPScriptTranslator;
 
-    Target(@Nonnull final ScriptProcessor processor) {
-        this.scriptProcessor = processor;
+    Target(@Nonnull final JBBPScriptTranslator translator) {
+        this.JBBPScriptTranslator = translator;
     }
 
     @Nonnull
-    public ScriptProcessor getScriptProcessor() {
-        return this.scriptProcessor;
+    public JBBPScriptTranslator getTranslator() {
+        return this.JBBPScriptTranslator;
     }
 }

@@ -4,57 +4,53 @@ import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.compiler.conversion.JBBPToJava6Converter;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.plugin.common.utils.CommonUtils;
+import com.igormaznitsa.meta.common.utils.Assertions;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 
-public class Java16Converter implements ScriptProcessor {
+public class Java16Converter implements JBBPScriptTranslator {
     @Override
     @Nonnull
-    public Set<File> processScript(@Nonnull final ScriptProcessor.Parameters parameters) throws IOException {
+    public Set<File> translate(@Nonnull final JBBPScriptTranslator.Parameters parameters, final boolean dryRun) throws IOException {
+        final File scriptToProcess = Assertions.assertNotNull(parameters.getScriptFile());
 
-        final String text = FileUtils.readFileToString(parameters.scriptFile, parameters.inEncoding);
-        final String rawFileName = FilenameUtils.getBaseName(parameters.scriptFile.getName());
+        final String text = FileUtils.readFileToString(scriptToProcess, parameters.getEncodingIn());
+        final String rawFileName = FilenameUtils.getBaseName(scriptToProcess.getName());
         final String className = CommonUtils.extractClassName(rawFileName);
-        final String packageName = parameters.classPackageName == null ? CommonUtils.extractPackageName(rawFileName) : parameters.classPackageName;
+        final String packageName = parameters.getPackageName() == null ? CommonUtils.extractPackageName(rawFileName) : parameters.getPackageName();
 
-        final Set<File> resultFiles = makeTargetFiles(parameters.outputDir, parameters.classPackageName, parameters.scriptFile);
+        final Set<File> resultFiles = Collections.singleton(CommonUtils.scriptFileToJavaFile(parameters.getOutputDir(), parameters.getPackageName(), parameters.getScriptFile()));
+        if (!dryRun) {
 
-        final File resultJavaFile = resultFiles.iterator().next();
+            final File resultJavaFile = resultFiles.iterator().next();
 
-        final JBBPParser parser = JBBPParser.prepare(text, JBBPBitOrder.LSB0, parameters.customFieldTypeProcessor, parameters.parserFlags);
+            final JBBPParser parser = JBBPParser.prepare(text, JBBPBitOrder.LSB0, parameters.customFieldTypeProcessor, parameters.getParserFlags());
 
-        final String[] interfacesSorted = parameters.classInterfaces.toArray(new String[parameters.classInterfaces.size()]);
-        Arrays.sort(interfacesSorted);
+            final String[] implementsSorted = parameters.getClassImplements().toArray(new String[parameters.getClassImplements().size()]);
+            Arrays.sort(implementsSorted);
 
-        final JBBPToJava6Converter converter = JBBPToJava6Converter.makeBuilder(parser)
-                .setStructInterfaceMap(parameters.mapClassInterfaces)
-                .setClassName(className)
-                .setClassHeadComments(parameters.classCapComment)
-                .setClassPackage(packageName)
-                .setCustomText(parameters.customText)
-                .setDoGettersSetters(parameters.doGettersSetters)
-                .setForceAbstract(parameters.forceAbstract)
-                .setInterfaces(interfacesSorted)
-                .setParserFlags(parameters.parserFlags)
-                .setSuperclass(parameters.superClass).build();
+            final JBBPToJava6Converter converter = JBBPToJava6Converter.makeBuilder(parser)
+                    .setMapSubClassesInterfaces(parameters.getSubClassInterfaces())
+                    .setMainClassName(className)
+                    .setHeadComment(parameters.getHeadComment())
+                    .setMainClassPackage(packageName)
+                    .setMainClassSustomText(parameters.getCustomText())
+                    .setAddGettersSetters(parameters.isAddGettersSetters())
+                    .setDoMainClassAbstract(parameters.isDoAbstract())
+                    .setMainClassImplements(implementsSorted)
+                    .setParserFlags(parameters.getParserFlags())
+                    .setSuperClass(parameters.superClass).build();
 
-        FileUtils.write(resultJavaFile, converter.convert(), parameters.outEncoding);
-
+            FileUtils.write(resultJavaFile, converter.convert(), parameters.getEncodingOut());
+        }
         return resultFiles;
-    }
-
-    @Override
-    @Nonnull
-    public Set<File> makeTargetFiles(@Nullable File targetDir, @Nullable String classPackage, @Nonnull File jbbpScript) {
-        return Collections.singleton(CommonUtils.scriptFileToJavaFile(targetDir, classPackage, jbbpScript));
     }
 }
 

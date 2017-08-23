@@ -24,21 +24,23 @@ import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 
 /**
- * Auxiliary methods.
+ * Misc auxiliary methods.
+ *
+ * @since 1.3.0
  */
 public final class CommonUtils {
     private CommonUtils() {
     }
 
     /**
-     * Get charset name.
+     * Get charset name. If name is null then default charset name provided.
      *
      * @param charsetName name of charset, can be null
      * @return charset name, must not be null
      * @throws IllegalArgumentException if charset name can't be recognized
      */
     @Nonnull
-    public static String getEncoding(@Nullable final String charsetName) {
+    public static String ensureEncodingName(@Nullable final String charsetName) {
         final Charset defaultCharset = Charset.defaultCharset();
         try {
             return (charsetName == null) ? defaultCharset.name() : Charset.forName(charsetName.trim()).name();

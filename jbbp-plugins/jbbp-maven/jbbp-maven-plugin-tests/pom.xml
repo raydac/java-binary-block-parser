@@ -12,7 +12,6 @@
     <artifactId>jbbp-maven-plugin-tests</artifactId>
     <packaging>pom</packaging>
 
-    <name>JBBP Maven plugin integration tests</name>
     <description>Integration tests for JBBP Maven plugin</description>
 
     <modules>

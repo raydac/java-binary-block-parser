@@ -35,6 +35,7 @@ import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.*;
  *
  * @since 1.3.0
  */
+@SuppressWarnings("SpellCheckingInspection")
 public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
     private static final int FLAG_DETECTED_CUSTOM_FIELDS = 1;
@@ -104,14 +105,14 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
      * @param builder a builder instance, must not be null
      */
     private JBBPToJava6Converter(final Builder builder) {
-        super(builder.parserFlags, builder.parser.getCompiledBlock());
+        super(builder.parserFlags, builder.srcParser.getCompiledBlock());
         this.builder = builder;
     }
 
     /**
      * Make new builder.
      *
-     * @param parser parser to be used as the base for translation, must not be
+     * @param parser parser instance to be used as the base for translation, must not be
      *               null
      * @return the new builder instance, must not be null.
      */
@@ -128,16 +129,13 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
         return JBBPToJava6Converter.class.cast(this.visit()).getResult();
     }
 
-    private NamedFieldInfo registerNamedField(final JBBPNamedFieldInfo fieldInfo, final FieldType fieldType) {
-        NamedFieldInfo resultInfo = null;
+    private void registerNamedField(final JBBPNamedFieldInfo fieldInfo, final FieldType fieldType) {
         if (fieldInfo != null) {
             if (this.foundNamedFields.containsKey(fieldInfo)) {
                 throw new Error("Detected duplication of named field : " + fieldInfo);
             }
-            resultInfo = new NamedFieldInfo(fieldInfo, this.getCurrentStruct(), fieldType);
-            this.foundNamedFields.put(fieldInfo, resultInfo);
+            this.foundNamedFields.put(fieldInfo, new NamedFieldInfo(fieldInfo, this.getCurrentStruct(), fieldType));
         }
-        return resultInfo;
     }
 
     private Struct getCurrentStruct() {
@@ -154,7 +152,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
         this.structStack.clear();
         this.specialMethods.clean();
 
-        this.structStack.add(new Struct(null, this.builder.className, "public"));
+        this.structStack.add(new Struct(null, this.builder.mainClassName, "public"));
     }
 
     /**
@@ -171,12 +169,12 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     public void visitEnd() {
         final JavaSrcTextBuffer buffer = new JavaSrcTextBuffer();
 
-        if (this.builder.classHeadComment != null) {
-            buffer.printCommentMultiLinesWithIndent(this.builder.classHeadComment);
+        if (this.builder.headComment != null) {
+            buffer.printCommentMultiLinesWithIndent(this.builder.headComment);
         }
 
-        if (this.builder.classPackage != null && this.builder.classPackage.length() != 0) {
-            buffer.print("package ").print(this.builder.classPackage).println(";");
+        if (this.builder.mainClassPackage != null && this.builder.mainClassPackage.length() != 0) {
+            buffer.print("package ").print(this.builder.mainClassPackage).println(";");
         }
 
         buffer.println();
@@ -231,18 +229,18 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
         final String specialMethodsText = this.specialMethods.toString();
 
-        final boolean hasAbstractMethods = (this.flagSet.get() & (FLAG_DETECTED_CUSTOM_FIELDS | FLAG_DETECTED_VAR_FIELDS | FLAG_DETECTED_EXTERNAL_FIELDS)) != 0 || this.builder.forceAbstract;
+        final boolean hasAbstractMethods = (this.flagSet.get() & (FLAG_DETECTED_CUSTOM_FIELDS | FLAG_DETECTED_VAR_FIELDS | FLAG_DETECTED_EXTERNAL_FIELDS)) != 0 || this.builder.doMainClassAbstract;
 
         buffer.printJavaDocLinesWithIndent("Generated from JBBP script by internal JBBP Class Source Generator");
 
         this.structStack.get(0).write(buffer,
                 hasAbstractMethods ? "abstract" : null,
-                this.builder.extendsClass,
-                this.builder.interfaces,
-                this.builder.mapStructureInterface,
+                this.builder.superClass,
+                this.builder.mainClassImplements,
+                this.builder.mapSubClassesInterfaces,
                 this.specialSection.toString(),
                 specialMethodsText.length() == 0 ? null : specialMethodsText,
-                this.builder.customText
+                this.builder.mainClassSustomText
         );
 
         this.result = buffer.toString();
@@ -283,8 +281,8 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
             }
         }
 
-        if (nullableNameFieldInfo != null && this.builder.doGettersSetters) {
-            final String interfaceForGetter = this.builder.mapStructureInterface.get(newStruct.getPath());
+        if (nullableNameFieldInfo != null && this.builder.addGettersSetters) {
+            final String interfaceForGetter = this.builder.mapSubClassesInterfaces.get(newStruct.getPath());
             registerGetterSetter(interfaceForGetter == null ? structType : interfaceForGetter + (nullableArraySize == null ? "" : " []"), structName, false);
         }
 
@@ -333,7 +331,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
             }
         }
 
-        if (nullableNameFieldInfo != null && this.builder.doGettersSetters) {
+        if (nullableNameFieldInfo != null && this.builder.addGettersSetters) {
             registerGetterSetter(textFieldType, fieldName, true);
         }
     }
@@ -396,7 +394,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
         final String fieldType = nullableArraySize == null ? "byte" : "byte []";
         getCurrentStruct().getFields().indent().printf("%s %s %s;%n", fieldModifier, fieldType, fieldName);
 
-        if (nullableNameFieldInfo != null && this.builder.doGettersSetters) {
+        if (nullableNameFieldInfo != null && this.builder.addGettersSetters) {
             registerGetterSetter(fieldType, fieldName, true);
         }
     }
@@ -414,7 +412,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     }
 
     private String makeModifier(final JBBPNamedFieldInfo nullableNameFieldInfo) {
-        return nullableNameFieldInfo == null || this.builder.doGettersSetters ? "protected" : "public";
+        return nullableNameFieldInfo == null || this.builder.addGettersSetters ? "protected" : "public";
     }
 
     @Override
@@ -469,7 +467,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
                 )
         );
 
-        if (nullableNameFieldInfo != null && this.builder.doGettersSetters) {
+        if (nullableNameFieldInfo != null && this.builder.addGettersSetters) {
             registerGetterSetter("JBBPAbstractField", fieldName, true);
         }
     }
@@ -542,7 +540,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
             );
         }
 
-        if (nullableNameFieldInfo != null && this.builder.doGettersSetters) {
+        if (nullableNameFieldInfo != null && this.builder.addGettersSetters) {
             registerGetterSetter(fieldType, fieldName, true);
         }
     }
@@ -742,17 +740,17 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     }
 
     private enum FieldType {
-        BOOL(CODE_BOOL, false, "boolean", "boolean", "%s.readBoolean()", "%s.readBoolArray(%s)", "%s.write(%s ? 1 : 0)", "for(int I=0;I<%3$s;I++){%1$s.write(%2$s[I] ? 1 : 0);}", "for(int I=0;I<%2$s.length;I++){%1$s.write(%2$s[I] ? 1 : 0);}"),
-        BYTE(CODE_BYTE, false, "byte", "byte", "(byte)%s.readByte()", "%s.readByteArray(%s, %s)", "%s.write(%s)", "%1$s.writeBytes(%2$s, %3$s, %4$s)", "%1$s.writeBytes(%2$s, %2$s.length, %3$s)"),
-        UBYTE(CODE_UBYTE, false, "char", "byte", "(char)(%s.readByte() & 0xFF)", "%s.readByteArray(%s, %s)", "%s.write(%s)", "%1$s.writeBytes(%2$s, %3$s, %4$s)", "%1$s.writeBytes(%2$s, %2$s.length, %3$s)"),
-        SHORT(CODE_SHORT, true, "short", "short", "(short)%s.readUnsignedShort(%s)", "%s.readShortArray(%s,%s)", "%s.writeShort(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeShort(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeShort(%2$s[I],%3$s);}"),
-        USHORT(CODE_USHORT, true, "char", "char", "(char)%s.readUnsignedShort(%s)", "%s.readUShortArray(%s,%s)", "%s.writeShort(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeShort(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeShort(%2$s[I],%3$s);}"),
-        INT(CODE_INT, true, "int", "int", "%s.readInt(%s)", "%s.readIntArray(%s,%s)", "%s.writeInt(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeInt(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeInt(%2$s[I],%3$s);}"),
-        LONG(CODE_LONG, true, "long", "long", "%s.readLong(%s)", "%s.readLongArray(%s,%s)", "%s.writeLong(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeLong(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeLong(%2$s[I],%3$s);}"),
-        CUSTOM(-1, false, "", "", "", "", "", "", ""),
-        VAR(-2, false, "", "", "", "", "", "", ""),
-        BIT(-3, false, "", "", "", "", "", "", ""),
-        UNKNOWN(Integer.MIN_VALUE, false, "", "", "", "", "", "", "");
+        BOOL(CODE_BOOL, "boolean", "boolean", "%s.readBoolean()", "%s.readBoolArray(%s)", "%s.write(%s ? 1 : 0)", "for(int I=0;I<%3$s;I++){%1$s.write(%2$s[I] ? 1 : 0);}", "for(int I=0;I<%2$s.length;I++){%1$s.write(%2$s[I] ? 1 : 0);}"),
+        BYTE(CODE_BYTE, "byte", "byte", "(byte)%s.readByte()", "%s.readByteArray(%s, %s)", "%s.write(%s)", "%1$s.writeBytes(%2$s, %3$s, %4$s)", "%1$s.writeBytes(%2$s, %2$s.length, %3$s)"),
+        UBYTE(CODE_UBYTE, "char", "byte", "(char)(%s.readByte() & 0xFF)", "%s.readByteArray(%s, %s)", "%s.write(%s)", "%1$s.writeBytes(%2$s, %3$s, %4$s)", "%1$s.writeBytes(%2$s, %2$s.length, %3$s)"),
+        SHORT(CODE_SHORT, "short", "short", "(short)%s.readUnsignedShort(%s)", "%s.readShortArray(%s,%s)", "%s.writeShort(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeShort(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeShort(%2$s[I],%3$s);}"),
+        USHORT(CODE_USHORT, "char", "char", "(char)%s.readUnsignedShort(%s)", "%s.readUShortArray(%s,%s)", "%s.writeShort(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeShort(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeShort(%2$s[I],%3$s);}"),
+        INT(CODE_INT, "int", "int", "%s.readInt(%s)", "%s.readIntArray(%s,%s)", "%s.writeInt(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeInt(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeInt(%2$s[I],%3$s);}"),
+        LONG(CODE_LONG, "long", "long", "%s.readLong(%s)", "%s.readLongArray(%s,%s)", "%s.writeLong(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeLong(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeLong(%2$s[I],%3$s);}"),
+        CUSTOM(-1, "", "", "", "", "", "", ""),
+        VAR(-2, "", "", "", "", "", "", ""),
+        BIT(-3, "", "", "", "", "", "", ""),
+        UNKNOWN(Integer.MIN_VALUE, "", "", "", "", "", "", "");
 
         private final int code;
         private final String javaSingleType;
@@ -762,12 +760,10 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
         private final String methodWriteOne;
         private final String methodWriteArray;
         private final String methodWriteArrayWithUnknownSize;
-        private final boolean multiByte;
 
-        FieldType(final int code, final boolean multiByte, final String javaSingleType, final String javaArrayType, final String readOne, final String readArray, final String writeOne, final String writeArray, final String writeArrayWithUnknownSize) {
+        FieldType(final int code, final String javaSingleType, final String javaArrayType, final String readOne, final String readArray, final String writeOne, final String writeArray, final String writeArrayWithUnknownSize) {
             this.code = code;
             this.methodWriteArrayWithUnknownSize = writeArrayWithUnknownSize;
-            this.multiByte = multiByte;
             this.javaSingleType = javaSingleType;
             this.javaArrayType = javaArrayType;
             this.methodReadArray = readArray;
@@ -776,7 +772,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
             this.methodWriteOne = writeOne;
         }
 
-        public static FieldType findForCode(final int code) {
+        static FieldType findForCode(final int code) {
             for (final FieldType t : values()) {
                 if (t.code == code) {
                     return t;
@@ -785,43 +781,43 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
             return UNKNOWN;
         }
 
-        public void assertNotUnknown() {
+        void assertNotUnknown() {
             if (this == UNKNOWN) {
                 throw new Error("Call method for unknown type");
             }
         }
 
-        public String asJavaSingleFieldType() {
+        String asJavaSingleFieldType() {
             assertNotUnknown();
             return this.javaSingleType;
         }
 
-        public String asJavaArrayFieldType() {
+        String asJavaArrayFieldType() {
             assertNotUnknown();
             return this.javaArrayType;
         }
 
-        public String makeReaderForSingleField(final String streamName, final JBBPByteOrder byteOrder) {
+        String makeReaderForSingleField(final String streamName, final JBBPByteOrder byteOrder) {
             assertNotUnknown();
             return String.format(this.methodReadOne, streamName, "JBBPByteOrder." + byteOrder.name());
         }
 
-        public String makeWriterForSingleField(final String streamName, final String fieldName, final JBBPByteOrder byteOrder) {
+        String makeWriterForSingleField(final String streamName, final String fieldName, final JBBPByteOrder byteOrder) {
             assertNotUnknown();
             return String.format(this.methodWriteOne, streamName, fieldName, "JBBPByteOrder." + byteOrder.name());
         }
 
-        public String makeReaderForArray(final String streamName, final String arraySize, final JBBPByteOrder byteOrder) {
+        String makeReaderForArray(final String streamName, final String arraySize, final JBBPByteOrder byteOrder) {
             assertNotUnknown();
             return String.format(this.methodReadArray, streamName, arraySize, "JBBPByteOrder." + byteOrder.name());
         }
 
-        public String makeWriterForArray(final String streamName, final String fieldName, final String arraySize, final JBBPByteOrder byteOrder) {
+        String makeWriterForArray(final String streamName, final String fieldName, final String arraySize, final JBBPByteOrder byteOrder) {
             assertNotUnknown();
             return String.format(this.methodWriteArray, streamName, fieldName, arraySize, "JBBPByteOrder." + byteOrder.name());
         }
 
-        public String makeWriterForArrayWithUnknownSize(final String streamName, final String fieldName, final JBBPByteOrder byteOrder) {
+        String makeWriterForArrayWithUnknownSize(final String streamName, final String fieldName, final JBBPByteOrder byteOrder) {
             assertNotUnknown();
             return String.format(this.methodWriteArrayWithUnknownSize, streamName, fieldName, "JBBPByteOrder." + byteOrder.name());
         }
@@ -833,41 +829,41 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     public static final class Builder {
 
         /**
-         * Set of interfaces to be implemented by the result class.
+         * Set of interfaces to be implemented by the main result class.
          */
-        private final Set<String> interfaces = new HashSet<String>();
+        private final Set<String> mainClassImplements = new HashSet<String>();
         /**
          * The Parser to provide compiled data.
          */
-        private final JBBPParser parser;
+        private final JBBPParser srcParser;
         /**
-         * Interfaces to be used for getters setters for structure fields.
+         * Interfaces to be implemented by generated subclasses, also getters return the interface type.
          */
-        private final Map<String, String> mapStructureInterface = new HashMap<String, String>();
+        private final Map<String, String> mapSubClassesInterfaces = new HashMap<String, String>();
         /**
-         * The Package name.
+         * The Package name for the result class.
          */
-        private String classPackage;
+        private String mainClassPackage;
         /**
-         * The Result class name.
+         * The Result class name for the result class.
          */
-        private String className;
+        private String mainClassName;
         /**
          * The Flag to force the result class as abstract one.
          */
-        private boolean forceAbstract;
+        private boolean doMainClassAbstract;
         /**
          * The Name of class to be extended by the result class.
          */
-        private String extendsClass;
+        private String superClass;
         /**
          * The Comment to be placed before package info.
          */
-        private String classHeadComment;
+        private String headComment;
         /**
-         * Flag to lock the builder.
+         * Flag to lockBuilder the builder.
          */
-        private boolean lock;
+        private boolean lockBuilder;
         /**
          * Parser flags.
          */
@@ -875,40 +871,34 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
         /**
          * Generate getters and setters.
          */
-        private boolean doGettersSetters;
+        private boolean addGettersSetters;
         /**
          * Text to be inserted into custom section of the resut class.
          */
-        private String customText;
+        private String mainClassSustomText;
 
         private Builder(final JBBPParser parser) {
-            this.parser = parser;
+            this.srcParser = parser;
             this.parserFlags = parser.getFlags();
         }
 
         private void assertNonLocked() {
-            if (this.lock) {
-                throw new IllegalStateException("the Builder already locked for changes");
-            }
-        }
-
-        private void assertNotNull(final String message, final Object value) {
-            if (value == null) {
-                throw new NullPointerException(message);
+            if (this.lockBuilder) {
+                throw new IllegalStateException("Builder already locked");
             }
         }
 
         /**
-         * Map inside structures to interfaces, a structure class will implement mapped interface and getter of the structure object will return interface object as result.
+         * Map inside structures to mainClassImplements, a structure class will implement mapped interface and getter of the structure object will return interface object as result.
          *
-         * @param mapStructToInterface map with structure path as the key and the interface name as value, it can be null. <b>Names of structures should be in the lower case form amd dot separated for their hierarchy. (example: "a.b.c")</b>
+         * @param mapClassNameToInterface map with structure path as the key and the interface name as value, it can be null. <b>Names of structures should be in the lower case form amd dot separated for their hierarchy. (example: "a.b.c")</b>
          * @return the builder instance, must not be null
          */
-        public Builder setStructInterfaceMap(final Map<String, String> mapStructToInterface) {
+        public Builder setMapSubClassesInterfaces(final Map<String, String> mapClassNameToInterface) {
             assertNonLocked();
-            this.mapStructureInterface.clear();
-            if (mapStructToInterface != null) {
-                this.mapStructureInterface.putAll(mapStructToInterface);
+            this.mapSubClassesInterfaces.clear();
+            if (mapClassNameToInterface != null) {
+                this.mapSubClassesInterfaces.putAll(mapClassNameToInterface);
             }
             return this;
         }
@@ -919,28 +909,28 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
          * @param value text value, it can be null
          * @return the builder instance, must not be null
          */
-        public Builder setCustomText(final String value) {
+        public Builder setMainClassSustomText(final String value) {
             assertNonLocked();
-            this.customText = value;
+            this.mainClassSustomText = value;
             return this;
         }
 
         /**
-         * Set flag to generate getters setters and all fields will be private ones.
+         * Set flag to generate getters setters. <b>NB! All fields will be private ones in the case.</b>
          *
          * @param value flag, if true then generate getters setters, false otherwise
          * @return the builder instance, must not be null
          */
-        public Builder setDoGettersSetters(final boolean value) {
+        public Builder setAddGettersSetters(final boolean value) {
             assertNonLocked();
-            this.doGettersSetters = value;
+            this.addGettersSetters = value;
             return this;
         }
 
         /**
          * Set the parser flags for the generated class, by default the flags are imported from the base parser.
          *
-         * @param value the parser flags.
+         * @param value parser flags.
          * @return the builder instance, must not be null
          */
         public Builder setParserFlags(final int value) {
@@ -955,9 +945,9 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
          * @param value name of the package, it can be empty or null in the case the class will be in the default package
          * @return the builder instance, must not be null
          */
-        public Builder setClassPackage(final String value) {
+        public Builder setMainClassPackage(final String value) {
             assertNonLocked();
-            this.classPackage = value;
+            this.mainClassPackage = value;
             return this;
         }
 
@@ -967,9 +957,9 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
          * @param value true if to force the abstract modifier, false otherwise
          * @return the builder instance, must not be null
          */
-        public Builder setForceAbstract(final boolean value) {
+        public Builder setDoMainClassAbstract(final boolean value) {
             assertNonLocked();
-            this.forceAbstract = value;
+            this.doMainClassAbstract = value;
             return this;
         }
 
@@ -979,9 +969,9 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
          * @param value the class name for the generated class, must not be null
          * @return the builder instance, must not be null
          */
-        public Builder setClassName(final String value) {
+        public Builder setMainClassName(final String value) {
             assertNonLocked();
-            this.className = value;
+            this.mainClassName = value;
             return this;
         }
 
@@ -991,21 +981,21 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
          * @param value the superclass name, it can be null
          * @return the builder instance, must not be null
          */
-        public Builder setSuperclass(final String value) {
+        public Builder setSuperClass(final String value) {
             assertNonLocked();
-            this.extendsClass = value;
+            this.superClass = value;
             return this;
         }
 
         /**
-         * Set insterfaces to be added into 'implements' for the generated class.
+         * Set interfaces to be added into 'implements' for the generated class.
          *
          * @param values interface names
          * @return the builder instance, must not be null
          */
-        public Builder setInterfaces(final String... values) {
+        public Builder setMainClassImplements(final String... values) {
             assertNonLocked();
-            Collections.addAll(this.interfaces, values);
+            Collections.addAll(this.mainClassImplements, values);
             return this;
         }
 
@@ -1015,9 +1005,9 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
          * @param text text to be used as comment, it can be null
          * @return the builder instance, must not be null
          */
-        public Builder setClassHeadComments(final String text) {
+        public Builder setHeadComment(final String text) {
             assertNonLocked();
-            this.classHeadComment = text;
+            this.headComment = text;
             return this;
         }
 
@@ -1027,8 +1017,8 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
          * @return a converter instance.
          */
         public JBBPToJava6Converter build() {
-            this.lock = true;
-            assertNotNull("Class name must not be null", this.className);
+            this.lockBuilder = true;
+            if (this.mainClassName == null) throw new NullPointerException("Class name must not be null");
             return new JBBPToJava6Converter(this);
         }
     }
@@ -1066,22 +1056,22 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
             return buffer.toString();
         }
 
-        public boolean isRoot() {
+        boolean isRoot() {
             return this.parent == null;
         }
 
-        public String getPath() {
+        String getPath() {
             return this.path;
         }
 
-        public Struct findRoot() {
+        Struct findRoot() {
             if (this.parent == null) {
                 return this;
             }
             return this.parent.findRoot();
         }
 
-        public void write(final JavaSrcTextBuffer buffer, final String extraModifier, final String superClass, final Set<String> implementedInterfaces, final Map<String, String> mapStructInterfaces, final String commonSectionText, final String specialMethods, final String customText) {
+        void write(final JavaSrcTextBuffer buffer, final String extraModifier, final String superClass, final Set<String> implementedInterfaces, final Map<String, String> mapStructInterfaces, final String commonSectionText, final String specialMethods, final String customText) {
             final String interfaceForGetSet = mapStructInterfaces == null ? null : mapStructInterfaces.get(this.getPath());
 
             buffer.indent().printf(
@@ -1162,19 +1152,19 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
         }
 
-        public JavaSrcTextBuffer getWriteFunc() {
+        JavaSrcTextBuffer getWriteFunc() {
             return this.writeFunc;
         }
 
-        public JavaSrcTextBuffer getReadFunc() {
+        JavaSrcTextBuffer getReadFunc() {
             return this.readFunc;
         }
 
-        public JavaSrcTextBuffer getFields() {
+        JavaSrcTextBuffer getFields() {
             return this.fields;
         }
 
-        public JavaSrcTextBuffer getGettersSetters() {
+        JavaSrcTextBuffer getGettersSetters() {
             return this.gettersSetters;
         }
     }
@@ -1191,7 +1181,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
             this.fieldType = fieldType;
         }
 
-        public String makeSrcPath(final Struct currentStruct) {
+        String makeSrcPath(final Struct currentStruct) {
             if (this.struct == currentStruct) {
                 return "this." + info.getFieldName();
             } else {

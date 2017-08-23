@@ -43,6 +43,7 @@ import java.util.*;
  *
  * @since 1.0
  */
+@SuppressWarnings({"WeakerAccess", "ConstantConditions"})
 public final class JBBPParser {
 
     /**
@@ -105,7 +106,7 @@ public final class JBBPParser {
      */
     private static void assertArrayLength(final int length, final JBBPNamedFieldInfo name) {
         if (length < 0) {
-            throw new JBBPParsingException("Detected negative calculated array length for field '" + (name == null ? "<NONAMED>" : name.getFieldPath()) + "\' [" + JBBPUtils.int2msg(length) + ']');
+            throw new JBBPParsingException("Detected negative calculated array length for field '" + (name == null ? "<NO NAME>" : name.getFieldPath()) + "\' [" + JBBPUtils.int2msg(length) + ']');
         }
     }
 
@@ -215,6 +216,7 @@ public final class JBBPParser {
      * @return list of read fields for the structure
      * @throws IOException it will be thrown for transport errors
      */
+    @SuppressWarnings("ConstantConditions")
     private List<JBBPAbstractField> parseStruct(final JBBPBitInputStream inStream, final JBBPIntCounter positionAtCompiledBlock, final JBBPVarFieldProcessor varFieldProcessor, final JBBPNamedNumericFieldMap namedNumericFieldMap, final JBBPIntCounter positionAtNamedFieldList, final JBBPIntCounter positionAtVarLengthProcessors, final boolean skipStructureFields) throws IOException {
         final List<JBBPAbstractField> structureFields = skipStructureFields ? null : new ArrayList<JBBPAbstractField>();
         final byte[] compiled = this.compiledBlock.getCompiledData();
@@ -666,8 +668,8 @@ public final class JBBPParser {
                     className = name.substring(nameStart + 1);
                 }
 
-                final String resultSources = JBBPToJava6Converter.makeBuilder(this).setClassPackage(packageName).setClassName(className).build().convert();
-                final Map<String, String> resultMap = Collections.<String, String>singletonMap(name.replace('.', '/') + ".java", resultSources);
+                final String resultSources = JBBPToJava6Converter.makeBuilder(this).setMainClassPackage(packageName).setMainClassName(className).build().convert();
+                final Map<String, String> resultMap = Collections.singletonMap(name.replace('.', '/') + ".java", resultSources);
 
                 return Collections.<ResultSrcItem>singletonList(new ResultSrcItem() {
                     @Override

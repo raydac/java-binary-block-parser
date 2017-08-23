@@ -30,8 +30,8 @@
                         <interface>java.lang.Runnable</interface>
                         <interface>java.lang.Cloneable</interface>
                     </interfaces>
-                    <doGettersSetters>true</doGettersSetters>
-                    <capCommentText>Parser for custom and var fields</capCommentText>
+                    <addGettersSetters>true</addGettersSetters>
+                    <headComment>Parser for custom and var fields</headComment>
                     <customTypes>
                         <type>some</type>
                     </customTypes>

@@ -22,18 +22,18 @@
                     <verbose>true</verbose>
                     <skip>true</skip>
                     <generateTestSources>true</generateTestSources>
-                    <commonPackage>uber.package</commonPackage>
+                    <packageName>uber.package</packageName>
                     <outputEncoding>OUT-8</outputEncoding>
                     <inputEncoding>IN-8</inputEncoding>
-                    <capCommentFile>/some/cap/file</capCommentFile>
+                    <headCommentFile>/some/cap/file</headCommentFile>
                     <customTextFile>/some/custom/file</customTextFile>
-                    <capCommentText>some cap text</capCommentText>
+                    <headComment>some cap text</headComment>
                     <customText>public void test(){}</customText>
-                    <sourceDirectory>/some/source</sourceDirectory>
-                    <outputDirectory>/some/output</outputDirectory>
-                    <doGettersSetters>true</doGettersSetters>
+                    <source>/some/source</source>
+                    <output>/some/output</output>
+                    <addGettersSetters>true</addGettersSetters>
                     <superClass>com.igormaznitsa.Super</superClass>
-                    <forceAbstract>true</forceAbstract>
+                    <doAbstract>true</doAbstract>
                     <target>SOME_TARGET</target>
                     <mapStructToInterfaces>
                         <a.b.c>com.test.C</a.b.c>

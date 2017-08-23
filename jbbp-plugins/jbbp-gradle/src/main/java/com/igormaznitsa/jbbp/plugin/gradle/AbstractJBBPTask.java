@@ -1,54 +1,56 @@
 package com.igormaznitsa.jbbp.plugin.gradle;
 
-import com.igormaznitsa.jbbp.plugin.common.converters.Target;
+import com.igormaznitsa.jbbp.plugin.common.converters.ParserFlags;
+import com.igormaznitsa.meta.common.utils.GetUtils;
+import org.apache.commons.io.FileUtils;
+import org.gradle.api.DefaultTask;
+import org.gradle.api.GradleException;
 import org.gradle.api.file.FileVisitDetails;
 import org.gradle.api.file.FileVisitor;
 import org.gradle.api.tasks.*;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class AbstractJBBPTask extends SourceTask {
-
-    @Input
-    @Optional
-    protected Target target = Target.JAVA_1_6;
-
-    @OutputDirectory
-    @Optional
-    protected File output = new File(getProject().getBuildDir(), "generated-src");
+public abstract class AbstractJBBPTask extends DefaultTask {
 
     public AbstractJBBPTask() {
-        this.source.add(getProject().fileTree("src/jbbp"));
-        this.include("**/*.jbbp");
+        super();
     }
 
-    public File getOutput() {
-        return this.output;
-    }
-
-    public void setOutput(final File file) {
-        this.output = file;
-    }
-
-    public Target getTarget() {
-        return this.target;
-    }
-
-    public void setTarget(final Target value) {
-        this.target = value;
+    @Nullable
+    public static String getTextOrFileContent(@Nonnull final JBBPExtension extension, @Nullable final String text, @Nullable final File file) {
+        String result = null;
+        if (text!=null) {
+            result = text;
+        } else if (file != null) {
+            try {
+                result = FileUtils.readFileToString(file, GetUtils.ensureNonNull(extension.inEncoding,"UTF-8"));
+            }catch(IOException ex){
+                throw new GradleException("Can't read file "+file,ex);
+            }
+        }
+        return result;
     }
 
     @TaskAction
     public final void doAction() {
-        doTaskAction();
+        JBBPExtension ext = getProject().getExtensions().findByType(JBBPExtension.class);
+        if (ext == null) {
+            ext = new JBBPExtension(getProject());
+        }
+        doTaskAction(ext);
     }
 
-    protected Set<File> findScripts() {
+    @Nonnull
+    protected static Set<File> findScripts(@Nonnull final JBBPExtension ext) {
         final Set<File> result = new HashSet<File>();
 
-        this.getSource().visit(new FileVisitor() {
+        ext.source.visit(new FileVisitor() {
             @Override
             public void visitDir(final FileVisitDetails fileVisitDetails) {
 
@@ -62,6 +64,6 @@ public abstract class AbstractJBBPTask extends SourceTask {
         return result;
     }
 
-    protected abstract void doTaskAction();
+    protected abstract void doTaskAction(@Nonnull JBBPExtension extension);
 
 }

@@ -6,12 +6,18 @@ version = jbbpVersion
 
 apply plugin: 'groovy'
 apply plugin: 'maven'
+apply plugin: "com.gradle.plugin-publish"
 
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
 dependencies {
     compile gradleApi()
+
+    compile "commons-io:commons-io:2.5"
+    compile "com.igormaznitsa:jbbp:" + jbbpVersion
+    compile "com.igormaznitsa:meta-annotations:" + metalibVersion
+    compile "com.igormaznitsa:meta-utils:" + metalibVersion
 
     testCompile 'junit:junit:4.12'
 }
@@ -21,11 +27,15 @@ repositories {
     mavenLocal()
 }
 
-dependencies {
-    compile "commons-io:commons-io:2.5"
-    compile "com.igormaznitsa:jbbp:" + jbbpVersion
-    compile "com.igormaznitsa:meta-annotations:" + metalibVersion
-    compile "com.igormaznitsa:meta-utils:" + metalibVersion
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "com.gradle.publish:plugin-publish-plugin:0.9.7"
+    }
 }
 
 sourceSets {
@@ -33,6 +43,20 @@ sourceSets {
         java {
             srcDirs 'src/main/java'
             srcDirs '../jbbp-plugin-common/src/main/java'
+        }
+    }
+}
+
+pluginBundle {
+    website = 'http://www.igormaznitsa.com/'
+    vcsUrl = 'https://github.com/raydac/java-binary-block-parser'
+    description = 'JBBP translator!'
+    tags = ['jbbp','converter']
+
+    plugins {
+        JBBPPlugin {
+            id = 'com.igormaznitsa.jbbp'
+            displayName = 'Translator of JBBPscripts into executable sources'
         }
     }
 }

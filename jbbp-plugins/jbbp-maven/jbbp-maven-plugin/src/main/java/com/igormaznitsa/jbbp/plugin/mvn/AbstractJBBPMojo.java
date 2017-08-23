@@ -52,10 +52,11 @@ public abstract class AbstractJBBPMojo extends AbstractMojo {
      * Package to override package name extracted from script file name, it will be
      * common for all processed classes.
      */
-    @Parameter(alias = "commonPackage")
-    protected String commonPackage;
+    @Parameter(alias = "packageName")
+    protected String packageName;
     /**
-     * Target for source generation.
+     * Target for translation.
+     * @see Target
      */
     @Parameter(alias = "target", defaultValue = "JAVA_1_6")
     protected String target;
@@ -68,8 +69,8 @@ public abstract class AbstractJBBPMojo extends AbstractMojo {
      * Destination directory for generated Java classes, the default value is
      * "${project.build.directory}/generated-sources/jbbp"
      */
-    @Parameter(alias = "outputDirectory", defaultValue = "${project.build.directory}/generated-sources/jbbp")
-    protected File outputDirectory;
+    @Parameter(alias = "output", defaultValue = "${project.build.directory}/generated-sources/jbbp")
+    protected File output;
     /**
      * Flag to make plugin verbose.
      */
@@ -79,8 +80,8 @@ public abstract class AbstractJBBPMojo extends AbstractMojo {
      * Source directory for JBBP scripts, the default value is
      * "${project.basedir}/src/jbbp"
      */
-    @Parameter(alias = "sourceDirectory", defaultValue = "${project.basedir}/src/jbbp")
-    protected File sourceDirectory;
+    @Parameter(alias = "source", defaultValue = "${project.basedir}/src/jbbp")
+    protected File source;
 
     @Nullable
     public String getTarget() {
@@ -98,12 +99,12 @@ public abstract class AbstractJBBPMojo extends AbstractMojo {
     }
 
     @Nullable
-    public String getCommonPackage() {
-        return this.commonPackage;
+    public String getPackageName() {
+        return this.packageName;
     }
 
-    public void setCommonPackage(@Nullable final String text) {
-        this.commonPackage = text;
+    public void setPackageName(@Nullable final String text) {
+        this.packageName = text;
     }
 
     @MustNotContainNull
@@ -113,13 +114,13 @@ public abstract class AbstractJBBPMojo extends AbstractMojo {
     }
 
     @Nonnull
-    public File getSourceDirectory() {
-        return this.sourceDirectory;
+    public File getSource() {
+        return this.source;
     }
 
-    public void setSourceDirectory(@Nonnull final File file) {
+    public void setSource(@Nonnull final File file) {
         if (file == null) throw new NullPointerException("File must not be null");
-        this.sourceDirectory = file;
+        this.source = file;
     }
 
     public boolean getSkip() {
@@ -130,9 +131,14 @@ public abstract class AbstractJBBPMojo extends AbstractMojo {
         this.skip = value;
     }
 
+    public void setOutput(@Nonnull final File file) {
+        if (file == null) throw new NullPointerException("File must not be null");
+        this.output = file;
+    }
+
     @Nonnull
-    public File getOutputDirectory() {
-        return this.outputDirectory;
+    public File getOutput() {
+        return this.output;
     }
 
     public boolean getVerbose() {
@@ -166,7 +172,7 @@ public abstract class AbstractJBBPMojo extends AbstractMojo {
         try {
             final SourceInclusionScanner scanner = new SimpleSourceInclusionScanner(this.includes, this.excludes);
             scanner.addSourceMapping(new SuffixMapping("JBBP", "jbbp"));
-            return scanner.getIncludedSources(this.sourceDirectory, targetDirectory);
+            return scanner.getIncludedSources(this.source, targetDirectory);
         } catch (InclusionScanException ex) {
             throw new MojoExecutionException("Error during sources scanning", ex);
         }

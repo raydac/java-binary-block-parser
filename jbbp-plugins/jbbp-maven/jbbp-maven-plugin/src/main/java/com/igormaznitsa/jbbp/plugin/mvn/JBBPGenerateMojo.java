@@ -21,8 +21,8 @@ import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
+import com.igormaznitsa.jbbp.plugin.common.converters.JBBPScriptTranslator;
 import com.igormaznitsa.jbbp.plugin.common.converters.ParserFlags;
-import com.igormaznitsa.jbbp.plugin.common.converters.ScriptProcessor;
 import com.igormaznitsa.jbbp.plugin.common.converters.Target;
 import com.igormaznitsa.meta.annotation.MustNotContainNull;
 import org.apache.commons.io.FileUtils;
@@ -38,7 +38,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import static com.igormaznitsa.jbbp.plugin.common.utils.CommonUtils.getEncoding;
+import static com.igormaznitsa.jbbp.plugin.common.utils.CommonUtils.ensureEncodingName;
 
 /**
  * The Mojo looks for all JBBP scripts in source and generate sources.
@@ -60,7 +60,7 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
      * </ul>
      */
     @Parameter(alias = "parserFlags")
-    private final List<ParserFlags> parserFlags = new ArrayList<ParserFlags>();
+    private final Set<ParserFlags> parserFlags = new HashSet<ParserFlags>();
     /**
      * List of names of allowed custom value types.
      */
@@ -86,15 +86,15 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
      * text will be placed before package name and usually it can be used to
      * provide license information.
      */
-    @Parameter(alias = "capCommentFile")
-    private File capCommentFile;
+    @Parameter(alias = "headCommentFile")
+    private File headCommentFile;
     /**
      * Plain text of cap comment for each generated class file. The Cap text will
      * be placed before package name and usually it can be used to provide license
      * information.
      */
-    @Parameter(alias = "capCommentText")
-    private String capCommentText;
+    @Parameter(alias = "headComment")
+    private String headComment;
     /**
      * File contains text of custom section to be added into class body.
      */
@@ -109,8 +109,8 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
      * Generate getters and setters for class fields (class fields will be private
      * ones).
      */
-    @Parameter(alias = "doGettersSetters")
-    private boolean doGettersSetters;
+    @Parameter(alias = "addGettersSetters")
+    private boolean addGettersSetters;
     /**
      * Super class for generated classes.
      */
@@ -119,16 +119,16 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
     /**
      * Force abstract modifier for generated classes even if they don't have abstract methods.
      */
-    @Parameter(alias = "forceAbstract")
-    private boolean forceAbstract;
+    @Parameter(alias = "doAbstract")
+    private boolean doAbstract;
 
     @Nullable
     public String getSuperClass() {
         return this.superClass;
     }
 
-    public boolean getForceAbstract() {
-        return this.forceAbstract;
+    public boolean getDoAbstract() {
+        return this.doAbstract;
     }
 
     @Nonnull
@@ -148,8 +148,8 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
         return this.customTypes;
     }
 
-    public boolean getDoGettersSetters() {
-        return this.doGettersSetters;
+    public boolean getAddGettersSetters() {
+        return this.addGettersSetters;
     }
 
     @Nullable
@@ -163,13 +163,13 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
     }
 
     @Nullable
-    public File getCapCommentFile() {
-        return this.capCommentFile;
+    public File getHeadCommentFile() {
+        return this.headCommentFile;
     }
 
     @Nullable
-    public String getCapCommentText() {
-        return this.capCommentText;
+    public String getHeadComment() {
+        return this.headComment;
     }
 
     @Nullable
@@ -184,18 +184,18 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
 
     @MustNotContainNull
     @Nonnull
-    public List<ParserFlags> getParserFlags() {
+    public Set<ParserFlags> getParserFlags() {
         return this.parserFlags;
     }
 
     @Nullable
     private String makeCapText(@Nonnull final String inEncoding) throws IOException {
         String result = null;
-        if (this.capCommentText != null) {
-            result = this.capCommentText;
-        } else if (this.capCommentFile != null) {
-            getLog().debug("Provided CAP comment file: " + this.capCommentFile.getPath());
-            result = FileUtils.readFileToString(this.capCommentFile, inEncoding);
+        if (this.headComment != null) {
+            result = this.headComment;
+        } else if (this.headCommentFile != null) {
+            getLog().debug("Provided CAP comment file: " + this.headCommentFile.getPath());
+            result = FileUtils.readFileToString(this.headCommentFile, inEncoding);
         }
         return result;
     }
@@ -212,19 +212,10 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
         return result;
     }
 
-    public int makeParserFlags() {
-        int result = 0;
-        for (final ParserFlags s : this.parserFlags) {
-            result |= s.getFlag();
-        }
-        return result;
-    }
-
-
     @Override
     protected void executeMojo() throws MojoExecutionException, MojoFailureException {
-        final String inEncoding = getEncoding(this.inputEncoding);
-        final String outEncoding = getEncoding(this.outputEncoding);
+        final String inEncoding = ensureEncodingName(this.inputEncoding);
+        final String outEncoding = ensureEncodingName(this.outputEncoding);
 
         getLog().debug("Encoding In: " + inEncoding);
         getLog().debug("Encoding Out: " + outEncoding);
@@ -284,29 +275,31 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
             }
         };
 
-        final Set<File> foundJBBPScripts = findSources(this.sourceDirectory);
+        final Set<File> foundJBBPScripts = findSources(this.source);
 
         if (checkSetNonEmptyWithLogging(foundJBBPScripts)) {
             final Target theTarget = findTarget();
-            final ScriptProcessor.Parameters parameters = new ScriptProcessor.Parameters();
+            final JBBPScriptTranslator.Parameters parameters = new JBBPScriptTranslator.Parameters();
             parameters
-                    .setOutputDir(this.outputDirectory)
-                    .setClassCapComment(capText)
+                    .setPackageName(this.packageName)
+                    .setParserFlags(ParserFlags.makeFromSet(this.parserFlags))
+                    .setOutputDir(this.output)
+                    .setHeadComment(capText)
                     .setCustomText(customTextForClass)
                     .setEncodingIn(inEncoding)
                     .setEncodingOut(outEncoding)
                     .setCustomFieldTypeProcessor(customFieldProcessor)
                     .setSuperClass(this.superClass)
-                    .setClassInterfaces(this.interfaces)
-                    .setMapClassInterfaces(this.mapStructToInterfaces)
-                    .setDoGettersSetters(this.doGettersSetters)
-                    .setForceAbstract(this.forceAbstract);
+                    .setClassImplements(this.interfaces)
+                    .setSubClassInterfaces(this.mapStructToInterfaces)
+                    .setAddGettersSetters(this.addGettersSetters)
+                    .setDoAbstract(this.doAbstract);
 
             for (final File aScript : foundJBBPScripts) {
                 parameters.setScriptFile(aScript).assertAllOk();
                 getLog().debug("Processing JBBP script file : " + aScript);
                 try {
-                    final Set<File> files = theTarget.getScriptProcessor().processScript(parameters);
+                    final Set<File> files = theTarget.getTranslator().translate(parameters, false);
                     getLog().debug("Converted " + aScript + " into " + files);
                     for (final File f : files) {
                         logInfo(String.format("JBBP script '%s' has been converted into '%s'", aScript.getName(), f.getName()), false);
@@ -317,7 +310,7 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
             }
         }
 
-        registerSourceRoot(this.outputDirectory);
+        registerSourceRoot(this.output);
     }
 
 }

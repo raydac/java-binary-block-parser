@@ -32,7 +32,7 @@ import static org.junit.Assert.*;
 public class JBBPToJBBPToJava6ConverterCompilationTest extends AbstractJBBPToJava6ConverterTest {
 
     private static String makeSources(final JBBPParser parser, final String classComment, final boolean useSetterGetter) {
-        return JBBPToJava6Converter.makeBuilder(parser).setClassPackage(PACKAGE_NAME).setClassName(CLASS_NAME).setClassHeadComments(classComment).setDoGettersSetters(useSetterGetter).build().convert();
+        return JBBPToJava6Converter.makeBuilder(parser).setMainClassPackage(PACKAGE_NAME).setMainClassName(CLASS_NAME).setHeadComment(classComment).setAddGettersSetters(useSetterGetter).build().convert();
     }
 
     private void assertCompilation(final String classSrc) throws Exception {
@@ -50,14 +50,14 @@ public class JBBPToJBBPToJava6ConverterCompilationTest extends AbstractJBBPToJav
     @Test
     public void testForceAbstract() throws Exception {
         final JBBPParser parser = JBBPParser.prepare("byte a;");
-        assertFalse(JBBPToJava6Converter.makeBuilder(parser).setClassName(CLASS_NAME).setForceAbstract(false).build().convert().contains("abstract"));
-        assertTrue(JBBPToJava6Converter.makeBuilder(parser).setClassName(CLASS_NAME).setForceAbstract(true).build().convert().contains("abstract"));
+        assertFalse(JBBPToJava6Converter.makeBuilder(parser).setMainClassName(CLASS_NAME).setDoMainClassAbstract(false).build().convert().contains("abstract"));
+        assertTrue(JBBPToJava6Converter.makeBuilder(parser).setMainClassName(CLASS_NAME).setDoMainClassAbstract(true).build().convert().contains("abstract"));
     }
 
     @Test
     public void testMapSubstructToInterface() throws Exception {
         final JBBPParser parser = JBBPParser.prepare("a { b { c [_] { byte d;}} }");
-        final String text = JBBPToJava6Converter.makeBuilder(parser).setClassName(CLASS_NAME).setDoGettersSetters(true).setStructInterfaceMap(makeMap("a.b", "com.igormaznitsa.Impl", "a.b.c", "com.igormaznitsa.Impl2")).build().convert();
+        final String text = JBBPToJava6Converter.makeBuilder(parser).setMainClassName(CLASS_NAME).setAddGettersSetters(true).setMapSubClassesInterfaces(makeMap("a.b", "com.igormaznitsa.Impl", "a.b.c", "com.igormaznitsa.Impl2")).build().convert();
         assertTrue(text.contains("public static class B implements com.igormaznitsa.Impl"));
         assertTrue(text.contains("public static class C implements com.igormaznitsa.Impl2"));
         assertTrue(text.contains("public com.igormaznitsa.Impl getB() { return this.b;}"));
@@ -68,38 +68,38 @@ public class JBBPToJBBPToJava6ConverterCompilationTest extends AbstractJBBPToJav
     @Test
     public void testCustomText() throws Exception {
         final JBBPParser parser = JBBPParser.prepare("byte a;");
-        assertTrue(JBBPToJava6Converter.makeBuilder(parser).setClassName(CLASS_NAME).setCustomText("public void test(){}").build().convert().contains("public void test(){}"));
+        assertTrue(JBBPToJava6Converter.makeBuilder(parser).setMainClassName(CLASS_NAME).setMainClassSustomText("public void test(){}").build().convert().contains("public void test(){}"));
     }
 
     @Test
     public void testSuperclass() throws Exception {
         final JBBPParser parser = JBBPParser.prepare("byte a;");
-        assertTrue(JBBPToJava6Converter.makeBuilder(parser).setClassName(CLASS_NAME).setSuperclass("com.igormaznitsa.Super").build().convert().contains("extends com.igormaznitsa.Super "));
+        assertTrue(JBBPToJava6Converter.makeBuilder(parser).setMainClassName(CLASS_NAME).setSuperClass("com.igormaznitsa.Super").build().convert().contains("extends com.igormaznitsa.Super "));
     }
 
     @Test
     public void testInterfaces() throws Exception {
         final JBBPParser parser = JBBPParser.prepare("byte a;");
-        assertTrue(JBBPToJava6Converter.makeBuilder(parser).setClassName(CLASS_NAME).setInterfaces("com.igormaznitsa.InterfaceA", "com.igormaznitsa.InterfaceB").build().convert().contains("implements com.igormaznitsa.InterfaceA,com.igormaznitsa.InterfaceB "));
+        assertTrue(JBBPToJava6Converter.makeBuilder(parser).setMainClassName(CLASS_NAME).setMainClassImplements("com.igormaznitsa.InterfaceA", "com.igormaznitsa.InterfaceB").build().convert().contains("implements com.igormaznitsa.InterfaceA,com.igormaznitsa.InterfaceB "));
     }
 
     @Test
     public void testClassPackage() throws Exception {
         final JBBPParser parser = JBBPParser.prepare("byte a;");
-        assertFalse(JBBPToJava6Converter.makeBuilder(parser).setClassName(CLASS_NAME).build().convert().contains("package "));
-        assertFalse(JBBPToJava6Converter.makeBuilder(parser).setClassName(CLASS_NAME).setClassPackage("").build().convert().contains("package "));
-        assertTrue(JBBPToJava6Converter.makeBuilder(parser).setClassName(CLASS_NAME).setClassPackage("hello.world").build().convert().contains("package hello.world;"));
+        assertFalse(JBBPToJava6Converter.makeBuilder(parser).setMainClassName(CLASS_NAME).build().convert().contains("package "));
+        assertFalse(JBBPToJava6Converter.makeBuilder(parser).setMainClassName(CLASS_NAME).setMainClassPackage("").build().convert().contains("package "));
+        assertTrue(JBBPToJava6Converter.makeBuilder(parser).setMainClassName(CLASS_NAME).setMainClassPackage("hello.world").build().convert().contains("package hello.world;"));
     }
 
     @Test
     public void testGettersSetters() throws Exception {
         final JBBPParser parser = JBBPParser.prepare("byte a;");
-        String text = JBBPToJava6Converter.makeBuilder(parser).setClassName(CLASS_NAME).build().convert();
+        String text = JBBPToJava6Converter.makeBuilder(parser).setMainClassName(CLASS_NAME).build().convert();
         assertTrue(text.contains("public byte a;"));
         assertFalse(text.contains("public void setA(byte value) {"));
         assertFalse(text.contains("public byte getA() {"));
 
-        text = JBBPToJava6Converter.makeBuilder(parser).setDoGettersSetters(true).setClassName(CLASS_NAME).build().convert();
+        text = JBBPToJava6Converter.makeBuilder(parser).setAddGettersSetters(true).setMainClassName(CLASS_NAME).build().convert();
 
         assertFalse(text.contains("public byte a;"));
         assertTrue(text.contains("protected byte a;"));
