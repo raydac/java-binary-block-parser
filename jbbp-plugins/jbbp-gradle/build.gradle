@@ -1,5 +1,5 @@
 def jbbpVersion = project.hasProperty('jbbp_version') ? project.getProperty('jbbp_version') : "1.3.0-SNAPSHOT"
-def metalibVersion = project.hasProperty('meta_lib_version') ? project.getProperty('meta_lib_version') : "1.1.2"
+def metaLibVersion = project.hasProperty('meta_lib_version') ? project.getProperty('meta_lib_version') : "1.1.2"
 
 group = 'com.igormaznitsa'
 version = jbbpVersion
@@ -16,8 +16,8 @@ dependencies {
 
     compile "commons-io:commons-io:2.5"
     compile "com.igormaznitsa:jbbp:" + jbbpVersion
-    compile "com.igormaznitsa:meta-annotations:" + metalibVersion
-    compile "com.igormaznitsa:meta-utils:" + metalibVersion
+    compile "com.igormaznitsa:meta-annotations:" + metaLibVersion
+    compile "com.igormaznitsa:meta-utils:" + metaLibVersion
 
     testCompile 'junit:junit:4.12'
 }
@@ -50,13 +50,13 @@ sourceSets {
 pluginBundle {
     website = 'http://www.igormaznitsa.com/'
     vcsUrl = 'https://github.com/raydac/java-binary-block-parser'
-    description = 'JBBP translator!'
-    tags = ['jbbp','converter']
+    description = 'JBBP script translator!'
+    tags = ['jbbp', 'converter']
 
     plugins {
         JBBPPlugin {
-            id = 'com.igormaznitsa.jbbp'
-            displayName = 'Translator of JBBPscripts into executable sources'
+            id = 'com.igormaznitsa.gradle.jbbp'
+            displayName = 'Translator of JBBP scripts into executable sources'
         }
     }
 }

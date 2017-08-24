@@ -60,6 +60,7 @@ public abstract class AbstractJBBPTask extends DefaultTask {
         if (ext == null) {
             ext = new JBBPExtension(getProject());
         }
+        ext.prepare(getProject());
         doTaskAction(ext);
     }
 

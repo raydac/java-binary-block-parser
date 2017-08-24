@@ -24,20 +24,30 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
 
+/**
+ * Task to translate found JBBP scripts in source files.
+ *
+ * @since 1.3.0
+ */
 public class JBBPGenerateTask extends AbstractJBBPTask {
 
+    /**
+     * Flag to register the output folder in Java source folders at the end of process.
+     */
     @Input
     @Optional
     protected boolean addSource = true;
 
     @Override
     protected void doTaskAction(@Nonnull final JBBPExtension ext) {
-        final Target target = GetUtils.ensureNonNull(ext.target,Target.JAVA_1_6);
+        final Target target = GetUtils.ensureNonNull(ext.target, Target.JAVA_1_6);
 
         final Set<String> normalizedCustomTypeNames = new HashSet<String>();
-        if (ext.customTypes!=null) {
+        if (ext.customTypes != null) {
             for (final String s : ext.customTypes) {
                 final String trimmed = s.trim();
                 final String normalized = trimmed.toLowerCase(Locale.ENGLISH);
@@ -97,7 +107,7 @@ public class JBBPGenerateTask extends AbstractJBBPTask {
             parameters.setScriptFile(aScript).assertAllOk();
             getLogger().info("Detected JBBP script file : " + aScript);
             try {
-                final Set<File> files = target.getTranslator().translate(parameters,false);
+                final Set<File> files = target.getTranslator().translate(parameters, false);
                 getLogger().debug("Converted " + aScript + " into " + files);
                 for (final File f : files) {
                     getLogger().info(String.format("JBBP script '%s' has been converted into '%s'", aScript.getName(), f.getName()));
@@ -109,7 +119,7 @@ public class JBBPGenerateTask extends AbstractJBBPTask {
 
 
         if (this.addSource) {
-            getLogger().debug("Registering path to java sources : " + Assertions.assertNotNull("Output must not be null",ext.output));
+            getLogger().debug("Registering path to java sources : " + Assertions.assertNotNull("Output must not be null", ext.output));
             if (getProject().getPlugins().hasPlugin(JavaPlugin.class)) {
                 final JavaPluginConvention javaPluginConvention = getProject().getConvention().getPlugin(JavaPluginConvention.class);
                 final SourceSet main = javaPluginConvention.getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
