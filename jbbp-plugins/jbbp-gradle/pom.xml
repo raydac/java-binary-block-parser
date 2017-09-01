@@ -22,6 +22,19 @@
         </dependency>
     </dependencies>
 
+    <properties>
+        <gradleGoal>install</gradleGoal>
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>publishGradle</id>
+            <properties>
+                <gradleGoal>publishPlugins</gradleGoal>
+            </properties>
+        </profile>
+    </profiles>
+
     <build>
         <plugins>
             <plugin>
@@ -88,7 +101,7 @@
                     <gradleVersion>4.1</gradleVersion>
                     <tasks>
                         <task>clean</task>
-                        <task>install</task>
+                        <task>${gradleGoal}</task>
                     </tasks>
                 </configuration>
                 <executions>

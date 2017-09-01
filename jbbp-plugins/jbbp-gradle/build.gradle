@@ -13,6 +13,7 @@ targetCompatibility = 1.6
 
 dependencies {
     compile gradleApi()
+    compile localGroovy()
 
     compile "commons-io:commons-io:2.5"
     compile "com.igormaznitsa:jbbp:" + jbbpVersion
@@ -48,7 +49,7 @@ sourceSets {
 }
 
 pluginBundle {
-    website = 'http://www.igormaznitsa.com/'
+    website = 'http://www.igormaznitsa.com'
     vcsUrl = 'https://github.com/raydac/java-binary-block-parser'
     description = 'JBBP script translator!'
     tags = ['jbbp', 'converter']
