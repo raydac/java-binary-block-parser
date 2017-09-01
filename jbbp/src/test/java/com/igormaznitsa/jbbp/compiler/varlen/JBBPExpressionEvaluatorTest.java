@@ -494,6 +494,12 @@ public class JBBPExpressionEvaluatorTest {
     }
 
     @Test
+    public void testExpression_NotAfterMinus() throws Exception {
+        JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator("60|7-~17%1", null, null);
+        assertEquals(60|7-~17%1, expr.eval(null, 0, null, null));
+    }
+
+    @Test
     public void testExpression_CheckExternalFieldAndStreamOffset() throws Exception {
         final int value = 1234;
         final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap(new JBBPExternalValueProvider() {

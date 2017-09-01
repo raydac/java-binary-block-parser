@@ -17,6 +17,7 @@ package com.igormaznitsa.jbbp.testaux;
 
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.JBBPParser;
+import com.igormaznitsa.jbbp.compiler.conversion.JBBPToJava6Converter;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.io.JBBPBitOutputStream;
@@ -96,6 +97,15 @@ public abstract class AbstractJBBPToJava6ConverterTest {
 
     protected void callWrite(final Object instance, final JBBPBitOutputStream outStream) throws Exception {
         instance.getClass().getMethod("write", JBBPBitOutputStream.class).invoke(instance, outStream);
+    }
+
+    protected Object compileAndMakeInstanceSrc(final String script, final String classCustomText, final StringBuilder srcBuffer) throws Exception {
+        final String classBody = JBBPToJava6Converter.makeBuilder(JBBPParser.prepare(script)).setMainClassName(CLASS_NAME).setMainClassPackage(PACKAGE_NAME).setMainClassCustomText(classCustomText).build().convert();
+        if (srcBuffer!=null) {
+            srcBuffer.append(classBody);
+        }
+        final ClassLoader cloader = saveAndCompile(new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, classBody));
+        return cloader.loadClass(PACKAGE_NAME + '.' + CLASS_NAME).newInstance();
     }
 
     protected Object compileAndMakeInstance(final String script) throws Exception {

@@ -68,7 +68,7 @@ public class JBBPToJBBPToJava6ConverterCompilationTest extends AbstractJBBPToJav
     @Test
     public void testCustomText() throws Exception {
         final JBBPParser parser = JBBPParser.prepare("byte a;");
-        assertTrue(JBBPToJava6Converter.makeBuilder(parser).setMainClassName(CLASS_NAME).setMainClassSustomText("public void test(){}").build().convert().contains("public void test(){}"));
+        assertTrue(JBBPToJava6Converter.makeBuilder(parser).setMainClassName(CLASS_NAME).setMainClassCustomText("public void test(){}").build().convert().contains("public void test(){}"));
     }
 
     @Test

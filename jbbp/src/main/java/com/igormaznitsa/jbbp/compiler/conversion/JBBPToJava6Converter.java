@@ -240,7 +240,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
                 this.builder.mapSubClassesInterfaces,
                 this.specialSection.toString(),
                 specialMethodsText.length() == 0 ? null : specialMethodsText,
-                this.builder.mainClassSustomText
+                this.builder.mainClassCustomText
         );
 
         this.result = buffer.toString();
@@ -606,7 +606,11 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
                             throw new Error("Unexpected special");
                     }
                 } else if (obj instanceof Integer) {
-                    return obj.toString();
+                    if (((Integer) obj).intValue() < 0) {
+                        return '(' + obj.toString() + ')';
+                    } else {
+                        return obj.toString();
+                    }
                 } else if (obj instanceof String) {
                     return String.format("%s.getNamedValue(this, \"%s\")", (getCurrentStruct().isRoot() ? "this" : "this." + NAME_ROOT_STRUCT), obj.toString());
                 } else if (obj instanceof JBBPNamedFieldInfo) {
@@ -689,7 +693,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
                     }
                     final ExprTreeItem that = (ExprTreeItem) obj;
 
-                    return that.op.getPriority() < this.op.getPriority() || ((that.op == Operator.LSHIFT || that.op == Operator.RSHIFT || that.op == Operator.URSHIFT) && (this.op == Operator.LSHIFT || this.op == Operator.RSHIFT || this.op == Operator.URSHIFT));
+                    return that.op.getPriority() <= this.op.getPriority() || ((that.op == Operator.LSHIFT || that.op == Operator.RSHIFT || that.op == Operator.URSHIFT) && (this.op == Operator.LSHIFT || this.op == Operator.RSHIFT || this.op == Operator.URSHIFT));
                 }
 
                 @Override
@@ -709,7 +713,15 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
         evaluator.visitItems(this.compiledBlock, offsetInBlock, visitor);
 
-        return buffer.toString();
+        String result = buffer.toString();
+        if (result.startsWith("(") && result.endsWith(")")) {
+            try{
+                result = Integer.toString(Integer.parseInt(result.substring(1,result.length()-1).trim()));
+            }catch(NumberFormatException ex){
+                // ignore the excepton because it is checking exception
+            }
+        }
+        return result;
     }
 
     @Override
@@ -875,7 +887,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
         /**
          * Text to be inserted into custom section of the resut class.
          */
-        private String mainClassSustomText;
+        private String mainClassCustomText;
 
         private Builder(final JBBPParser parser) {
             this.srcParser = parser;
@@ -909,9 +921,9 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
          * @param value text value, it can be null
          * @return the builder instance, must not be null
          */
-        public Builder setMainClassSustomText(final String value) {
+        public Builder setMainClassCustomText(final String value) {
             assertNonLocked();
-            this.mainClassSustomText = value;
+            this.mainClassCustomText = value;
             return this;
         }
 

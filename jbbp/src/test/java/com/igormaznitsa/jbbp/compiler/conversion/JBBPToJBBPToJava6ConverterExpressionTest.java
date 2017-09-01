@@ -23,25 +23,27 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Random;
 
 import static com.igormaznitsa.jbbp.TestUtils.getField;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class JBBPToJBBPToJava6ConverterExpressionTest extends AbstractJBBPToJava6ConverterTest {
 
+    private final JBBPBitInputStream UNLIMITED_STREAM = new JBBPBitInputStream(new InputStream() {
+        @Override
+        public int read() throws IOException {
+            return RND.nextInt();
+        }
+    });
+
+
     private void assertExpression(final int etalonValue, final String expression) throws Exception {
-        assertTrue("Etalon value must not be zero or egative one : " + etalonValue, etalonValue > 0);
+        assertTrue("Etalon value must not be zero or negative one : " + etalonValue, etalonValue > 0);
         final Object obj = compileAndMakeInstance(String.format("byte [%s] data;", expression));
 
-        final JBBPBitInputStream in = new JBBPBitInputStream(new InputStream() {
-            @Override
-            public int read() throws IOException {
-                return RND.nextInt();
-            }
-        });
-
-        callRead(obj, in);
+        callRead(obj, UNLIMITED_STREAM);
 
         final int detectedlength = getField(obj, "data", byte[].class).length;
 
@@ -77,10 +79,86 @@ public class JBBPToJBBPToJava6ConverterExpressionTest extends AbstractJBBPToJava
     }
 
     @Test
+    public void testBrackets() throws Exception {
+        assertExpression(3*(9/2), "3*(9/2)");
+    }
+
+    @Test
     public void testComplex() throws Exception {
         assertExpression(3 * 2 + 8 << 4 - 3, "3*2+8<<4-3");
         assertExpression(3 * 2 + 8 << 4 - 3 & 7, "3*2+8<<4-3&7");
+        assertExpression(60|7-~17%1, "60|7-~17%1");
         assertExpression((11 * (8 - 7)) % 13 + (1234 >> 3 << 2) >>> 1 + (13 - 1) / 2 + ((11 + 22) * 33 / 44 % 55) - (123 & 345 | 234 ^ ~123) & 255, "(11 * (8 - 7)) % 13 + ( 1234>>3<<2)>>>1 + (13 - 1) / 2 + ((11 + 22) * 33 / 44 % 55) - (123 & 345 | 234 ^ ~123) & 255");
+    }
+
+    @Test
+    public void testSynthesidExpression() throws Exception {
+        final Random rnd = new Random(5111975);
+        final String [] operatorsTwo = new String [] {"-","+","*","/","%",">>",">>>","<<","^","|","&"};
+        final String [] operatorsOne = new String [] {"-","+","~"};
+
+        int rightCounter = 0;
+
+        for(int i=0;i<1000;i++){
+            final StringBuilder buffer = new StringBuilder();
+            if (rnd.nextInt(100)>60) {
+                buffer.append(operatorsOne[rnd.nextInt(operatorsOne.length)]);
+            }
+            buffer.append(1+rnd.nextInt(100));
+
+            buffer.append(operatorsTwo[rnd.nextInt(operatorsTwo.length)]);
+
+            final int totalItems = rnd.nextInt(100)+1;
+            int brakeCounter = 0;
+
+            for(int j=0;j<totalItems;j++){
+                if (rnd.nextInt(100)>80) {
+                    buffer.append(operatorsOne[rnd.nextInt(operatorsOne.length)]);
+                }
+                buffer.append(1+rnd.nextInt(100));
+                buffer.append(operatorsTwo[rnd.nextInt(operatorsTwo.length)]);
+
+                if (rnd.nextInt(100)>80) {
+                    buffer.append('(');
+                    brakeCounter++;
+                }
+            }
+
+            buffer.append(1+rnd.nextInt(100));
+
+            while(brakeCounter>0){
+                buffer.append(')');
+                brakeCounter--;
+            }
+
+            String expression = buffer.toString().replace("--","-").replace("++","+");
+
+            Object theInstance;
+            final StringBuilder src = new StringBuilder();
+            try {
+                theInstance = compileAndMakeInstanceSrc("byte [" + expression + "] array;", " public static int makeExpressionResult(){ return " + expression + ";}",src);
+            } catch(Exception ex){
+                fail("Can't compile : "+expression);
+                return;
+            }
+
+            try {
+                final int etalon = (Integer) theInstance.getClass().getMethod("makeExpressionResult").invoke(null);
+                if (etalon > 0 && etalon < 100000) {
+                    System.out.println("Testing expression : " + expression);
+                    assertEquals(src.toString(),etalon,getField(callRead(theInstance,new JBBPBitInputStream(UNLIMITED_STREAM)),"array", byte[].class).length);
+                    rightCounter ++;
+                }
+            }catch (InvocationTargetException ex){
+                if (!(ex.getCause() instanceof ArithmeticException)) {
+                    ex.printStackTrace();
+                    fail("Unexpected exception : "+ex.getCause());
+                    return;
+                }
+            }
+        }
+
+        System.out.println("Totally generated right expressions : "+rightCounter);
     }
 
 }
