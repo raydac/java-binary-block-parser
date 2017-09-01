@@ -81,6 +81,8 @@ public class JBBPToJBBPToJava6ConverterExpressionTest extends AbstractJBBPToJava
     @Test
     public void testBrackets() throws Exception {
         assertExpression(3*(9/2), "3*(9/2)");
+        assertExpression(3*9/2, "3*9/2");
+        assertExpression(3*9/2, "(3*9)/2");
     }
 
     @Test
@@ -99,12 +101,12 @@ public class JBBPToJBBPToJava6ConverterExpressionTest extends AbstractJBBPToJava
 
         int rightCounter = 0;
 
-        for(int i=0;i<1000;i++){
+        for(int i=0;i<1500;i++){
             final StringBuilder buffer = new StringBuilder();
             if (rnd.nextInt(100)>60) {
                 buffer.append(operatorsOne[rnd.nextInt(operatorsOne.length)]);
             }
-            buffer.append(1+rnd.nextInt(100));
+            buffer.append(1+rnd.nextInt(200));
 
             buffer.append(operatorsTwo[rnd.nextInt(operatorsTwo.length)]);
 
