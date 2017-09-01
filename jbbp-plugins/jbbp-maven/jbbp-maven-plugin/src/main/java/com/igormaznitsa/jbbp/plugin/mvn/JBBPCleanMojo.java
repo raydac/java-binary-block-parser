@@ -2,10 +2,12 @@ package com.igormaznitsa.jbbp.plugin.mvn;
 
 import com.igormaznitsa.jbbp.plugin.common.converters.JBBPScriptTranslator;
 import com.igormaznitsa.jbbp.plugin.common.converters.Target;
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,8 +21,29 @@ import java.util.Set;
 @Mojo(name = "clean", defaultPhase = LifecyclePhase.CLEAN, threadSafe = true)
 public class JBBPCleanMojo extends AbstractJBBPMojo {
 
+    /**
+     * Clean whole target folder.
+     */
+    @Parameter(alias = "cleanAll", defaultValue = "false")
+    private boolean cleanAll;
+
+
     @Override
     public void executeMojo() throws MojoExecutionException, MojoFailureException {
+        if (this.cleanAll) {
+            getLog().debug("Clean whole folder : " + this.output);
+            if (this.output.isDirectory()) {
+                try {
+                    FileUtils.cleanDirectory(this.output);
+                } catch (IOException ex) {
+                    throw new MojoExecutionException("Can't clean folder : " + this.output, ex);
+                }
+            } else {
+                getLog().info("Can't find output folder : " + this.output);
+            }
+            return;
+        }
+
         final Set<File> scripts = findSources(this.output);
         if (checkSetNonEmptyWithLogging(scripts)) {
             int counter = 0;
@@ -36,8 +59,8 @@ public class JBBPCleanMojo extends AbstractJBBPMojo {
                 final Set<File> files;
                 try {
                     files = target.getTranslator().translate(parameters, true);
-                }catch (IOException ex){
-                    throw new MojoExecutionException("Error during form file set",ex);
+                } catch (IOException ex) {
+                    throw new MojoExecutionException("Error during form file set", ex);
                 }
 
                 for (final File f : files) {
