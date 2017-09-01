@@ -57,7 +57,7 @@ pluginBundle {
     plugins {
         JBBPPlugin {
             id = 'com.igormaznitsa.gradle.jbbp'
-            displayName = 'Translator of JBBP scripts into executable sources'
+            displayName = 'JBBP Sources Generator plugin'
         }
     }
 }

@@ -91,37 +91,14 @@ public interface ExpressionEvaluatorVisitor {
         UNARY_PLUS("+", 1, 500),
         UNARY_MINUS("-", 1, 500);
 
-        private final int priority;
-        private final int args;
-        private final String text;
+        public final int priority;
+        public final int argsNumber;
+        public final String text;
 
-        Operator(final String text, final int args, final int priority) {
-            this.args = args;
+        Operator(final String text, final int argsNumber, final int priority) {
+            this.argsNumber = argsNumber;
             this.priority = priority;
             this.text = text;
-        }
-
-        public static Operator findForText(final String text) {
-            Operator result = null;
-            for (final Operator p : values()) {
-                if (p.getText().equals(text)) {
-                    result = p;
-                    break;
-                }
-            }
-            return result;
-        }
-
-        public int getArgsNumber() {
-            return this.args;
-        }
-
-        public String getText() {
-            return this.text;
-        }
-
-        public int getPriority() {
-            return this.priority;
         }
     }
 }

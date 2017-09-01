@@ -649,7 +649,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
                         final Operator op = (Operator) this.stack.remove(i);
                         i--;
                         ExprTreeItem newItem = new ExprTreeItem(op);
-                        for (int j = 0; j < op.getArgsNumber(); j++) {
+                        for (int j = 0; j < op.argsNumber; j++) {
                             final Object val = this.stack.remove(i);
                             i--;
                             if (newItem.right == null) {
@@ -693,7 +693,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
                     }
                     final ExprTreeItem that = (ExprTreeItem) obj;
 
-                    return that.op.getPriority() <= this.op.getPriority() || ((that.op == Operator.LSHIFT || that.op == Operator.RSHIFT || that.op == Operator.URSHIFT) && (this.op == Operator.LSHIFT || this.op == Operator.RSHIFT || this.op == Operator.URSHIFT));
+                    return that.op.priority <= this.op.priority || ((that.op == Operator.LSHIFT || that.op == Operator.RSHIFT || that.op == Operator.URSHIFT) && (this.op == Operator.LSHIFT || this.op == Operator.RSHIFT || this.op == Operator.URSHIFT));
                 }
 
                 @Override
@@ -706,7 +706,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
                     if (doesNeedBrackets(this.right)) {
                         rightStr = '(' + rightStr + ')';
                     }
-                    return (leftStr == null ? "" : leftStr) + this.op.getText() + (rightStr == null ? "" : rightStr);
+                    return (leftStr == null ? "" : leftStr) + this.op.text + (rightStr == null ? "" : rightStr);
                 }
             }
         };

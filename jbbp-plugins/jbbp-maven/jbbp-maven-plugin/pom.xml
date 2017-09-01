@@ -13,7 +13,7 @@
     <packaging>maven-plugin</packaging>
 
     <name>JBBP Maven plugin</name>
-    <description>Tool to generate static Java classes (1.6+) from JBBP scripts</description>
+    <description>Generator of sources from JBBP scripts</description>
 
     <profiles>
         <profile>
