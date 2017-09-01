@@ -606,7 +606,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
                             throw new Error("Unexpected special");
                     }
                 } else if (obj instanceof Integer) {
-                    if (((Integer) obj).intValue() < 0) {
+                    if ((Integer) obj < 0) {
                         return '(' + obj.toString() + ')';
                     } else {
                         return obj.toString();

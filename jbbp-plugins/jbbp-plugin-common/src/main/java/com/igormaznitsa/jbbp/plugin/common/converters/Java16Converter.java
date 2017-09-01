@@ -41,7 +41,7 @@ public class Java16Converter implements JBBPScriptTranslator {
                     .setMainClassName(className)
                     .setHeadComment(parameters.getHeadComment())
                     .setMainClassPackage(packageName)
-                    .setMainClassSustomText(parameters.getCustomText())
+                    .setMainClassCustomText(parameters.getCustomText())
                     .setAddGettersSetters(parameters.isAddGettersSetters())
                     .setDoMainClassAbstract(parameters.isDoAbstract())
                     .setMainClassImplements(implementsSorted)
