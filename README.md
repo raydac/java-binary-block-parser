@@ -19,8 +19,8 @@ Change log
 ===========
 - **1.3.0-SNAPSHOT**
   - __Fixed issue [#16 NullPointerException when referencing a JBBPCustomFieldTypeProcessor parsed field"](https://github.com/raydac/java-binary-block-parser/issues/16), many thanks to @use-sparingly for the bug report__
-  - added Maven plugin to auto-generate Java classes (1.6+) from JBBP scripts
-  - added Gradle plugin to auto-generate Java classes (1.6+) from JBBP scripts
+  - added Maven plugin to generate sources from JBBP scripts
+  - added Gradle plugin to generate sources from JBBP scripts
   - added extra byte array reading writing methods with byte order support into JBBPBitInputStream and JBBPBitOutputStream
   - added converter of compiled parser data into Java class sources (1.6+)
   - added method to read unsigned short values as char [] into JBBPBitInputStream
