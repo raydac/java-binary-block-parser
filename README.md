@@ -59,6 +59,38 @@ class Parsed {@Bin(type = BinType.BIT_ARRAY)byte[] parsed;}
 Parsed parsedBits = JBBPParser.prepare("bit:1 [_] parsed;").parse(new byte[]{1,2,3,4,5}).mapTo(Parsed.class);
 ```
 
+# Generate sources from JBBP scripts
+Since 1.3.0 version, the framework can convert JBBP scripts into sources __(the sources anyway need JBBP framework for work)__.
+For instance you can use such simple snippet to generate Java classes from JBBP script, potentially it can generate many classes but usually only one class
+```Java
+  JBBPParser parser = JBBPParser.prepare("byte a; byte b; byte c;");
+  List<ResultSrcItem> generated = parser.convertToSrc(TargetSources.JAVA_1_6,"com.test.jbbp.gen.SomeClazz");
+  for(ResultSrcItem i : generated) {
+     for(Map.Entry<String,String> j :i.getResult().entrySet()) {
+        System.out.println("Class file name "+j.getKey());                
+        System.out.println("Class file content "+j.getValue());                
+     }
+  }
+```
+also there are special plugins for Maven and Gradle to generate sources from JBBP scripts during source generate phase   
+in Maven you should just add such plugin execution
+```xml
+ <plugin>
+   <groupId>com.igormaznitsa</groupId>
+   <artifactId>jbbp-maven-plugin</artifactId>
+   <version>1.3.0</version>
+   <executions>
+     <execution>
+       <id>gen-jbbp-src</id>
+       <goals>
+         <goal>generate</goal>
+       </goals>
+     </execution>
+   </executions>
+</plugin>
+```
+By default the maven plugin looks for files with `jbbp` extension in `src/jbbp` folder of project (it can be changed in options) and produces result java classes in `target/generated-sources/jbbp` folder. [I use such approach in ZX-Poly emulator](https://github.com/raydac/zxpoly/tree/master/zxpoly-emul/src/jbbp).
+
 # More complex example with features added as of 1.1.0
 The Example shows how to parse a byte written in non-standard MSB0 order (Java has LSB0 bit order) to bit fields, print its values and pack fields back
 ```Java
