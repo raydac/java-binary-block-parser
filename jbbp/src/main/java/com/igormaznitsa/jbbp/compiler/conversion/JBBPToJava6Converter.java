@@ -416,7 +416,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     }
 
     @Override
-    public void visitCustomField(final int offsetInCompiledBlock, final JBBPFieldTypeParameterContainer notNullfieldType, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPByteOrder byteOrder, final boolean readWholeStream, final JBBPIntegerValueEvaluator nullableArraySizeEvaluator, final JBBPIntegerValueEvaluator extraDataValueEvaluator) {
+    public void visitCustomField(final int offsetInCompiledBlock, final JBBPFieldTypeParameterContainer notNullFieldType, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPByteOrder byteOrder, final boolean readWholeStream, final JBBPIntegerValueEvaluator nullableArraySizeEvaluator, final JBBPIntegerValueEvaluator extraDataValueEvaluator) {
         this.flagSet.set(this.flagSet.get() | FLAG_DETECTED_CUSTOM_FIELDS);
 
         registerNamedField(nullableNameFieldInfo, FieldType.CUSTOM);
@@ -439,7 +439,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
         this.specialSection.printf("private static final JBBPFieldTypeParameterContainer %s = %s;%n",
                 specialFieldName_typeParameterContainer,
-                "new JBBPFieldTypeParameterContainer(JBBPByteOrder." + notNullfieldType.getByteOrder().name() + ",\"" + notNullfieldType.getTypeName() + "\"," + (notNullfieldType.getExtraData() == null ? "null" : "\"" + notNullfieldType.getExtraData() + "\"") + ")"
+                "new JBBPFieldTypeParameterContainer(JBBPByteOrder." + notNullFieldType.getByteOrder().name() + ",\"" + notNullFieldType.getTypeName() + "\"," + (notNullFieldType.getExtraData() == null ? "null" : "\"" + notNullFieldType.getExtraData() + "\"") + ")"
         );
 
         processSkipRemainingFlag();

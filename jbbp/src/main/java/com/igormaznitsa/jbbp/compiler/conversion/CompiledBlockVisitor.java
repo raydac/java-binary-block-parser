@@ -63,7 +63,7 @@ public class CompiledBlockVisitor {
     }
 
     /**
-     * The Main method of the class, it processes copiled block and make calls to template methods.
+     * The Main method of the class, it processes compiled block and make calls to template methods.
      *
      * @return the instance of the visitor, must not be null
      */
@@ -232,7 +232,7 @@ public class CompiledBlockVisitor {
     public void visitVarField(int offsetInCompiledBlock, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPByteOrder byteOrder, boolean readWholeStreamIntoArray, JBBPIntegerValueEvaluator nullableArraySize, JBBPIntegerValueEvaluator extraDataValueEvaluator) {
     }
 
-    public void visitCustomField(int offsetInCompiledBlock, JBBPFieldTypeParameterContainer notNullfieldType, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPByteOrder byteOrder, boolean readWholeStream, JBBPIntegerValueEvaluator nullableArraySizeEvaluator, JBBPIntegerValueEvaluator extraDataValueEvaluator) {
+    public void visitCustomField(int offsetInCompiledBlock, JBBPFieldTypeParameterContainer notNullFieldType, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPByteOrder byteOrder, boolean readWholeStream, JBBPIntegerValueEvaluator nullableArraySizeEvaluator, JBBPIntegerValueEvaluator extraDataValueEvaluator) {
     }
 
     public void visitBitField(int offsetInCompiledBlock, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPIntegerValueEvaluator notNullFieldSize, JBBPIntegerValueEvaluator nullableArraySize) {

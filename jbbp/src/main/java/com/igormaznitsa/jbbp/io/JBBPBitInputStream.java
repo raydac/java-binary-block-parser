@@ -216,7 +216,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
      * @param items     number of items to be read, if less than zero then read whole
      *                  stream till the end
      * @param byteOrder desired order of bytes
-     * @return read byte items as a byte array, if byte order is LITTLE_ENDIAN then the result array will be revesed one
+     * @return read byte items as a byte array, if byte order is LITTLE_ENDIAN then the result array will be reversed one
      * @throws IOException it will be thrown for any transport problem during the
      *                     operation
      * @see JBBPByteOrder#LITTLE_ENDIAN

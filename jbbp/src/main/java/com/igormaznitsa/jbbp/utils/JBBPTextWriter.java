@@ -79,7 +79,7 @@ public class JBBPTextWriter extends FilterWriter {
     /**
      * The Default char to draw horizontal rule.
      */
-    private static final char DEFAUTL_HR_CHAR = '-';
+    private static final char DEFAULT_HR_CHAR = '-';
     /**
      * The Mode shows that the start line.
      */
@@ -126,7 +126,7 @@ public class JBBPTextWriter extends FilterWriter {
     /**
      * The Current horizontal rule char.
      */
-    private char hrChar = DEFAUTL_HR_CHAR;
+    private char hrChar = DEFAULT_HR_CHAR;
 
     /**
      * The Current radix.

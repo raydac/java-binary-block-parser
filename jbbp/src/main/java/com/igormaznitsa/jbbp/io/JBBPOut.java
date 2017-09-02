@@ -833,7 +833,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
 
     /**
      * Reset the byte counter and the inside bit buffer of the output stream. it
-     * is usefule for the Align command because the command makes alignment for
+     * is useful to align command because the command makes alignment for
      * the counter.
      *
      * @return the DSL context

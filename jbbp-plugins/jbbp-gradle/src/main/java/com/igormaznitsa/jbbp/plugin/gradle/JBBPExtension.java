@@ -64,7 +64,7 @@ public class JBBPExtension {
     public String inEncoding = "UTF-8";
 
     /**
-     * Encoding for text ouptut.
+     * Encoding for text output.
      */
     public String outEncoding = "UTF-8";
 

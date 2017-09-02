@@ -75,7 +75,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
      * The Field contains deferred error.
      */
     private JBBPTokenizerException detectedException;
-    private int lastCharSubstingFound = -1;
+    private int lastCharSubstringFound = -1;
 
     /**
      * Constructor.
@@ -135,9 +135,9 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
             final String groupName = this.matcher.group(4);
             final String groupEnder = this.matcher.group(5);
 
-            final String skipString = this.processingString.substring(Math.max(this.lastCharSubstingFound, 0), matcher.start()).trim();
+            final String skipString = this.processingString.substring(Math.max(this.lastCharSubstringFound, 0), matcher.start()).trim();
             if (skipString.length() != 0 && !skipString.startsWith("//")) {
-                this.detectedException = new JBBPTokenizerException(skipString, Math.max(this.lastCharSubstingFound, 0));
+                this.detectedException = new JBBPTokenizerException(skipString, Math.max(this.lastCharSubstringFound, 0));
             } else {
                 JBBPTokenType type = JBBPTokenType.ATOM;
 
@@ -221,15 +221,15 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
                 }
 
                 this.nextItem = new JBBPToken(type, position, parsedType, groupArrayLength, fieldName);
-                lastCharSubstingFound = matcher.end();
+                lastCharSubstringFound = matcher.end();
             }
         } else {
-            if (this.lastCharSubstingFound < 0) {
+            if (this.lastCharSubstringFound < 0) {
                 this.detectedException = new JBBPTokenizerException("Wrong format of whole string", 0);
             } else {
-                final String restOfString = this.processingString.substring(this.lastCharSubstingFound);
+                final String restOfString = this.processingString.substring(this.lastCharSubstringFound);
                 if (restOfString.trim().length() != 0) {
-                    throw new JBBPTokenizerException("Can't recognize a part of script [" + restOfString + ']', this.lastCharSubstingFound);
+                    throw new JBBPTokenizerException("Can't recognize a part of script [" + restOfString + ']', this.lastCharSubstringFound);
                 }
             }
             this.nextItem = null;

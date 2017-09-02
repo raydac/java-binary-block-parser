@@ -17,7 +17,7 @@
 package com.igormaznitsa.jbbp.utils;
 
 /**
- * Allowed sourcws for source generation in JBBPParser
+ * Allowed sources for source generation in JBBPParser
  *
  * @see com.igormaznitsa.jbbp.JBBPParser#convertToSrc(TargetSources, String)
  * @since 1.3.0

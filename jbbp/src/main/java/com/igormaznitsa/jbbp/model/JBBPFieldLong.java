@@ -31,7 +31,7 @@ public final class JBBPFieldLong extends JBBPAbstractField implements JBBPNumeri
     private final long value;
 
     /**
-     * The COnstructor.
+     * The Constructor.
      *
      * @param name  a field name info, it can be null
      * @param value the field value

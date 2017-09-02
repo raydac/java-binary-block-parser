@@ -45,7 +45,7 @@ public final class CommonUtils {
         try {
             return (charsetName == null) ? defaultCharset.name() : Charset.forName(charsetName.trim()).name();
         } catch (IllegalCharsetNameException ex) {
-            throw new IllegalArgumentException("Can't recognoze charset for name '" + charsetName + '\'');
+            throw new IllegalArgumentException("Can't recognize charset for name '" + charsetName + '\'');
         }
     }
 

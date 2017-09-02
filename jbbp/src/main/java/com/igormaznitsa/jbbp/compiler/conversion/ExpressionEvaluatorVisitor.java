@@ -57,7 +57,7 @@ public interface ExpressionEvaluatorVisitor {
     ExpressionEvaluatorVisitor visitOperator(Operator operator);
 
     /**
-     * Visit integer costant
+     * Visit integer constant
      *
      * @param value integer constant
      * @return the visitor instance, must not be null

@@ -272,7 +272,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
                 } else if (">>>".equals(operator)) {
                     code = CODE_RSIGNSHIFT;
                 } else {
-                    throw new Error("Detected unsupported operator, cotact developer [" + operator + ']');
+                    throw new Error("Detected unsupported operator, contact developer [" + operator + ']');
                 }
 
                 if (theFirstInTheSubExpression) {

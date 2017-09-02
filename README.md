@@ -81,7 +81,7 @@ class Parsed {@Bin(type = BinType.BIT_ARRAY)byte[] parsed;}
 Parsed parsedBits = JBBPParser.prepare("bit:1 [_] parsed;").parse(new byte[]{1,2,3,4,5}).mapTo(Parsed.class);
 ```
 
-# More compex example with features added as of 1.1.0
+# More complex example with features added as of 1.1.0
 The Example shows how to parse a byte written in non-standard MSB0 order (Java has LSB0 bit order) to bit fields, print its values and pack fields back
 ```Java
 class Flags {
@@ -116,7 +116,7 @@ The Example will print in console the text below
 ;--------------------------------------------------------------------------------
 ```
 # Fields
-Every field can have case insensitive name which should not contain '.' (because it is reserved for links to structure field values) and '#'(because it is also reserver for inside usage).
+Every field can have case insensitive name which should not contain '.' (because it is reserved for links to structure field values) and '#'(because it is also reserved for inside usage).
 Field name must not be started by a number or chars '$' and '_'. *Field names are case insensitive!*
 ```
 int someNamedField;
@@ -137,7 +137,7 @@ The Framework provides support for arrays and structures. Just keep in mind that
 it is possible to define processors for own custom data types, for instance you can take a look at [case processing three byte unsigned integer types](https://github.com/raydac/java-binary-block-parser/blob/master/src/test/java/com/igormaznitsa/jbbp/it/CustomThreeByteIntegerTypeTest.java).   
 
 ### Float and Double types
-The Parser doesn't support Java float and double types out of the box. But it can be implemented through custom type processor. [there is written example and test and the code can be copy pasted](https://github.com/raydac/java-binary-block-parser/blob/master/src/test/java/com/igormaznitsa/jbbp/it/FloatAndDoubleTypesTest.java).
+The Parser does not support Java float and double types out of the box. But it can be implemented through custom type processor. [there is written example and test and the code can be copy pasted](https://github.com/raydac/java-binary-block-parser/blob/master/src/test/java/com/igormaznitsa/jbbp/it/FloatAndDoubleTypesTest.java).
 
 ## Variable fields
 If you have some data which structure is variable then you can use the `var` type for defined field and process reading of the data manually with custom [JBBPVarFieldProcessor](https://github.com/raydac/java-binary-block-parser/blob/master/src/main/java/com/igormaznitsa/jbbp/JBBPVarFieldProcessor.java) instance.
@@ -194,7 +194,7 @@ You can use commentaries inside a parser script, the parser supports the only co
 Inside expression you can use field names and field paths, also you can use the special macros '$$' which represents the current input stream byte counter, all fields started with '$' will be recognized by the parser as special user defined variables and it will be requesting them from special user defined provider. If the array size contains the only '_' symbol then the field or structure will not have defined size and whole stream will be read.
 
 # How to get result of parsing
-The Result of parsing is an instance of com.igormaznitsa.jbbp.model.JBBPFieldStruct class which represents the root invisible structure for the parsed data and you can use its inside methods to find desired fields for their names, paths or classes. All Fields are successors of com.igormaznitsa.jbbp.model.JBBPAbstractField class. To increase comfort, it is easier to use mapping to classes when the mapper automaticaly places values to fields of a Java class.
+The Result of parsing is an instance of com.igormaznitsa.jbbp.model.JBBPFieldStruct class which represents the root invisible structure for the parsed data and you can use its inside methods to find desired fields for their names, paths or classes. All Fields are successors of com.igormaznitsa.jbbp.model.JBBPAbstractField class. To increase comfort, it is easier to use mapping to classes when the mapper automatically places values to fields of a Java class.
 
 # Example
 The Example below shows how to parse a PNG file with the JBBP parser (the example taken from tests)
