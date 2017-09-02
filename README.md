@@ -1,7 +1,7 @@
 [![License Apache 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-green.svg)](http://www.apache.org/licenses/LICENSE-2.0)
-[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.igormaznitsa/jbbp/badge.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|jbbp|1.2.1|jar)
+[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.igormaznitsa/jbbp/badge.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|jbbp|1.3.0|jar)
 [![Codacy Badge](https://api.codacy.com/project/badge/grade/50b0281430a94eb6abe417409f99ed58)](https://www.codacy.com/app/rrg4400/java-binary-block-parser)
-[![Java 5.0+](https://img.shields.io/badge/java-5.0%2b-green.svg)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+[![Java 6.0+](https://img.shields.io/badge/java-6.0%2b-green.svg)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 [![Android 2.0+](https://img.shields.io/badge/android-2.0%2b-green.svg)](http://developer.android.com/sdk/index.html)
 [![PayPal donation](https://img.shields.io/badge/donation-PayPal-red.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=AHWJHJFBAWGL2)
 [![Yandex.Money donation](https://img.shields.io/badge/donation-Я.деньги-yellow.svg)](http://yasobe.ru/na/iamoss)
@@ -17,7 +17,7 @@ For instance I have been very actively using the framework in [the ZX-Poly emula
 
 Change log
 ===========
-- **1.3.0-SNAPSHOT**
+- **1.3.0 (02-sep-2017)**
   - __Fixed issue [#16 NullPointerException when referencing a JBBPCustomFieldTypeProcessor parsed field"](https://github.com/raydac/java-binary-block-parser/issues/16), many thanks to @use-sparingly for the bug report__
   - added Maven plugin to generate sources from JBBP scripts
   - added Gradle plugin to generate sources from JBBP scripts
