@@ -32,29 +32,7 @@ Change log
   - __Fixed issue [#10 "assertArrayLength throws exception in multi-thread"](https://github.com/raydac/java-binary-block-parser/issues/10), many thanks to @sky4star for the bug report.__
   - minor refactoring
 
-- **1.2.0 (10-JUN-2015)**
-  - Refactoring
-  - Improved tree of JBBP exceptions
-  - Fixed NPE in JBBPTextWriter for String field mapped to byte array
-  - Added support of custom field types through JBBPCustomFieldTypeProcessor
-  - Added JBBPCustomFieldTypeProcessorAggregator, auxiliary class to join several JBBPCustomFieldTypeProcessors
-  - Fixed JBBPTextWriter, added support of logging for JBBPAbstractField objects
-  - Added support of payload objects in JBBPAbstractField
-  - Improved inside script compiler and interpreter to support future extensions.
-  - Fixed expression evaluator to support single char field names in expressions.
-  - Added support of expressions in extra field numeric data part (example bit:(field*2))
-
-- **1.1.0 (03-FEB-2015)**
-  - Added support for mapped classes output into JBBPOut
-  - Added JBBPTextWriter to log binary data as text with commentaries,tabs and separators
-  - Fixed read byte counter, now it counts only fully processed bytes, if only several bits have been read from byte then the byte will not be counted until whole read
-  - Fixed static fields including in mapping processes if class has marked by default Bin annotation
-  - Added flag JBBPParser#FLAG_SKIP_REMAINING_FIELDS_IF_EOF to ignore remaining fields during parsing if EOF without exception
-  - Added flag JBBPMapper#FLAG_IGNORE_MISSING_VALUES to ignore mapping for values which are not found in parsed source
-  - Added new auxiliary methods in JBBPUtils
-
-- **1.0 (08-AUG-2014)**
-  - The Initial version
+[Full changelog](https://github.com/raydac/java-binary-block-parser/blob/master/changelog.txt)   
 
 # Maven dependency
 The Framework has been published in the Maven Central and can be easily added as a dependency
