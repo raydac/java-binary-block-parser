@@ -306,7 +306,7 @@ final JBBPParser tcpParser = JBBPParser.prepare(
 No, `@Bin` annotations in classes are used only for mapping and data writing, but there is [the code snippet](https://gist.github.com/raydac/28d770307bd33683aa17ea3c39d5e2c4) allows to generate JBBP DSL based on detected @Bin annotations in class.
 
 ## My Binary data format is too complex one to be decoded by a JBBP script
-No problems! The Parser works over com.igormaznitsa.jbbp.io.BitInputStream class which can be used directly and allows read bits, bytes, count bytes and align data from a stream.
+No problems! The Parser works over [com.igormaznitsa.jbbp.io.JBBPBitInputStream](https://github.com/raydac/java-binary-block-parser/blob/master/jbbp/src/main/java/com/igormaznitsa/jbbp/io/JBBPBitInputStream.java) class which can be used directly and allows read bits, bytes, count bytes and align data from a stream (for output there is similar class [JBBPBitOutputStream](https://github.com/raydac/java-binary-block-parser/blob/master/jbbp/src/main/java/com/igormaznitsa/jbbp/io/JBBPBitOutputStream.java))
 
 ## I want to make a bin block instead of parsing!
 The Framework contains a special helper as the class com.igormaznitsa.jbbp.io.JBBPOut which allows to build bin blocks with some kind of DSL
