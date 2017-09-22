@@ -3,3 +3,4 @@
 /nbproject/
 /.idea/
 *.iml
+/jbbp-plugins/jbbp-gradle/.gradle/

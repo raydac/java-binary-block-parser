@@ -7,7 +7,7 @@ def getProp(name,dflt) {
     }
 }
 
-def jbbpVersion = getProp('jbbp_plugin_version','1.3.0-SNAPSHOT')
+def jbbpVersion = getProp('jbbp_plugin_version','1.3.1-SNAPSHOT')
 def metaLibVersion = getProp('meta_lib_version','1.1.2')
 
 group = 'com.igormaznitsa'
@@ -58,7 +58,7 @@ sourceSets {
 }
 
 pluginBundle {
-    website = 'http://www.igormaznitsa.com'
+    website = 'https://github.com/raydac/java-binary-block-parser'
     vcsUrl = 'https://github.com/raydac/java-binary-block-parser'
     description = 'JBBP script translator!'
     tags = ['jbbp', 'converter']
