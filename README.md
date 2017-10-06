@@ -59,11 +59,11 @@ Parsed parsedBits = JBBPParser.prepare("bit:1 [_] parsed;").parse(new byte[]{1,2
 
 # Relative speed of different approaches in parsing
 On the start the framework was created to provide comfortable way to parse data, it was not developed for hight speed. But since 1.3.0 version there has been added way to generate Java class sources from JBBP parsers and it allows to increase parsing speed dramatically (keep in mind that JBBP generates Java class sources but not compile it automaticaly). I have made some microbenchmark testing of all parsing approaches to show relative productivity of each one
-![JMH results](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jmh_results.png)
+![JMH results](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jmh_results.png)   
 The Chart shows three standard ways to parse data with JBBP
 * __Dynamic__ - parsing into inside structures through interpretation of script written in DSL. It is not very fast way but you can generate parsers on fly even from dynamically formed strings.
 * __Dynamic + map to class__ = Parsing into inside structures through interpretation of script and mapping parsed fields to a class instance for easy access to fields. the way is very slow (because it uses reflections to fill fields) and recommended only if comfortable parsing is much more preffered than speed.
-* __Static__ - parsing with Java sources generated from a JBBP parser. It is the fastest way because Java compiler and JIT can make optimizations. The Approach can be used in High-Load systems. It is possible to compile generated Java sources on fly, [you can take a look at auxiliary class which I use in tests](https://github.com/raydac/java-binary-block-parser/blob/master/jbbp/src/test/java/com/igormaznitsa/jbbp/testaux/AbstractJBBPToJava6ConverterTest.java).
+* __Static class__ - parsing with Java sources generated from a JBBP parser. It is the fastest way because Java compiler and JIT can make optimizations. The Approach can be used in High-Load systems. It is possible to compile generated Java sources on fly, [you can take a look at auxiliary class which I use in tests](https://github.com/raydac/java-binary-block-parser/blob/master/jbbp/src/test/java/com/igormaznitsa/jbbp/testaux/AbstractJBBPToJava6ConverterTest.java).
 
 
 # Generate sources from JBBP scripts
