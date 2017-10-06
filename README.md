@@ -8,15 +8,13 @@
 
 ![JBBP Logo](https://github.com/raydac/java-binary-block-parser/blob/master/logo.png)
 
-Introduction
-============
+# Introduction
 Java has some embedded features to parse binary data (for instance ByteBuffer), but I wanted to work with separated bits and describe binary structure in some strong DSL(domain specific language). I was very impressed by the [the Python Struct package](https://docs.python.org/2/library/struct.html) package so that I decided to make something like that. So JBBP was born.<br>
 p.s.<br>
 For instance I have been very actively using the framework in [the ZX-Poly emulator](https://github.com/raydac/zxpoly) to parse snapshot files and save results.   
 ![Use cases](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_mm.png)
 
-Change log
-===========
+# Change log
 - **1.3.0 (02-sep-2017)**
   - __Fixed issue [#16 NullPointerException when referencing a JBBPCustomFieldTypeProcessor parsed field"](https://github.com/raydac/java-binary-block-parser/issues/16), many thanks to @use-sparingly for the bug report__
   - [added Maven plugin to generate sources from JBBP scripts](https://search.maven.org/#artifactdetails%7Ccom.igormaznitsa%7Cjbbp-maven-plugin%7C1.3.0%7Cmaven-plugin)
@@ -58,6 +56,15 @@ Of course sometime it is not a comfortable way to look for parsed fields in the 
 class Parsed {@Bin(type = BinType.BIT_ARRAY)byte[] parsed;}
 Parsed parsedBits = JBBPParser.prepare("bit:1 [_] parsed;").parse(new byte[]{1,2,3,4,5}).mapTo(Parsed.class);
 ```
+
+# Relative speed of different approaches in parsing
+On the start the framework was created to provide comfortable way to parse data, it was not developed for hight speed. But since 1.3.0 version there has been added way to generate Java class sources from JBBP parsers and it allows to increase parsing speed dramatically (keep in mind that JBBP generates Java class sources but not compile it automaticaly). I have made some microbenchmark testing of all parsing approaches to show relative productivity of each one
+![JMH results](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jmh_results.png)
+The Chart shows three standard ways to parse data with JBBP
+* __Dynamic__ - parsing into inside structures through interpretation of script written in DSL. It is not very fast way but you can generate parsers on fly even from dynamically formed strings.
+* __Dynamic + map to class__ = Parsing into inside structures through interpretation of script and mapping parsed fields to a class instance for easy access to fields. the way is very slow (because it uses reflections to fill fields) and recommended only if comfortable parsing is much more preffered than speed.
+* __Static__ - parsing with Java sources generated from a JBBP parser. It is the fastest way because Java compiler and JIT can make optimizations. The Approach can be used in High-Load systems. It is possible to compile generated Java sources on fly, [you can take a look at auxiliary class which I use in tests](https://github.com/raydac/java-binary-block-parser/blob/master/jbbp/src/test/java/com/igormaznitsa/jbbp/testaux/AbstractJBBPToJava6ConverterTest.java).
+
 
 # Generate sources from JBBP scripts
 Since 1.3.0 version, the framework can convert JBBP scripts into sources __(the sources anyway need JBBP framework for work)__.
