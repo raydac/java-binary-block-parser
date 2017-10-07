@@ -62,7 +62,7 @@ On the start the framework was created to provide comfortable way to parse data,
 ![JMH results](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jmh_results.png)   
 The Chart shows three standard ways to parse data with JBBP
 * __Dynamic__ - parsing into inside structures through interpretation of script written in DSL. It is not very fast way but you can generate parsers on fly even from dynamically formed strings.
-* __Dynamic + map to class__ = Parsing into inside structures through interpretation of script and mapping parsed fields to a class instance for easy access to fields. the way is very slow (because it uses reflections to fill fields) and recommended only if comfortable parsing is much more preffered than speed.
+* __Dynamic + map to class__ - Parsing into inside structures through interpretation of script and mapping parsed data into class instance fields. the way is very slow (because it uses reflections to fill fields) and recommended only if comfortable parsing is much more preffered than speed.
 * __Static class__ - parsing with Java sources generated from a JBBP parser. It is the fastest way because Java compiler and JIT can make optimizations. The Approach can be used in High-Load systems. It is possible to compile generated Java sources on fly, [you can take a look at auxiliary class which I use in tests](https://github.com/raydac/java-binary-block-parser/blob/master/jbbp/src/test/java/com/igormaznitsa/jbbp/testaux/AbstractJBBPToJava6ConverterTest.java).
 
 
