@@ -24,6 +24,8 @@ import com.igormaznitsa.jbbp.compiler.varlen.JBBPIntegerValueEvaluator;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPException;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
+import com.igormaznitsa.jbbp.model.JBBPFieldDouble;
+import com.igormaznitsa.jbbp.model.JBBPFieldFloat;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -124,17 +126,25 @@ public final class JBBPCompiler {
      * next position of compiled block.
      */
     public static final int FLAG_WIDE = 0x80;
+
     /**
      * The flag (placed only in the second byte of wide codes) shows that the
      * field is an array which calculated size or unlimited and must be read till
      * the end of a stream.
      */
     public static final int EXT_FLAG_EXPRESSION_OR_WHOLESTREAM = 0x01;
+
     /**
      * The flag shows that the extra numeric value for field should be recognized
      * not as number but as expression.
      */
     public static final int EXT_FLAG_EXTRA_AS_EXPRESSION = 0x02;
+
+    /**
+     * The Flag shows that the type of data should be recognized as float (if int) or as double (if long).
+     * @since 1.3.1
+     */
+    public static final int EXT_FLAG_EXTRA_AS_FLOAT_OR_DOUBLE = 0x04;
 
     public static JBBPCompiledBlock compile(final String script) throws IOException {
         return compile(script, null);
@@ -199,6 +209,7 @@ public final class JBBPCompiler {
             }
 
             final boolean extraFieldNumericDataAsExpression = ((code >>> 8) & EXT_FLAG_EXTRA_AS_EXPRESSION) != 0;
+            final boolean fieldIsFloatOrDouble = ((code >>> 8) & EXT_FLAG_EXTRA_AS_FLOAT_OR_DOUBLE) != 0;
 
             switch (code & 0xF) {
                 case CODE_BOOL:
@@ -505,6 +516,7 @@ public final class JBBPCompiler {
 
                 result |= token.getArraySizeAsString() == null ? 0 : (token.isVarArrayLength() ? FLAG_ARRAY | FLAG_WIDE | (EXT_FLAG_EXPRESSION_OR_WHOLESTREAM << 8) : FLAG_ARRAY);
                 result |= hasExpressionAsExtraNumber ? FLAG_WIDE | (EXT_FLAG_EXTRA_AS_EXPRESSION << 8) : 0;
+                result |= token.getFieldTypeParameters().isFloatOrDouble() ? FLAG_WIDE | (EXT_FLAG_EXTRA_AS_FLOAT_OR_DOUBLE << 8) : 0;
                 result |= token.getFieldName() == null ? 0 : FLAG_NAMED;
 
                 final String name = descriptor.getTypeName().toLowerCase(Locale.ENGLISH);
@@ -526,9 +538,9 @@ public final class JBBPCompiler {
                     result |= CODE_USHORT;
                 } else if ("short".equals(name)) {
                     result |= CODE_SHORT;
-                } else if ("int".equals(name)) {
+                } else if ("int".equals(name) || JBBPFieldFloat.TYPE_NAME.equals(name)) {
                     result |= CODE_INT;
-                } else if ("long".equals(name)) {
+                } else if ("long".equals(name) || JBBPFieldDouble.TYPE_NAME.equals(name)) {
                     result |= CODE_LONG;
                 } else if ("reset$$".equals(name)) {
                     result |= CODE_RESET_COUNTER;

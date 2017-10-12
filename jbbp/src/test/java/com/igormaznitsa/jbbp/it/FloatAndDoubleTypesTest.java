@@ -205,8 +205,14 @@ public strictfp class FloatAndDoubleTypesTest {
             return (long) ((b0 << 24) | (b1 << 16) | (b2 << 8) | b3);
         }
 
+        @Override
         public float getAsFloat() {
             return Float.intBitsToFloat(this.value);
+        }
+
+        @Override
+        public double getAsDouble() {
+            return this.getAsFloat();
         }
 
         @Override
@@ -332,6 +338,12 @@ public strictfp class FloatAndDoubleTypesTest {
             return (b0 << 56) | (b1 << 48) | (b2 << 40) | (b3 << 32) | (b4 << 24) | (b5 << 16) | (b6 << 8) | b7;
         }
 
+        @Override
+        public float getAsFloat() {
+            return (float) this.getAsDouble();
+        }
+
+        @Override
         public double getAsDouble() {
             return Double.longBitsToDouble(this.value);
         }

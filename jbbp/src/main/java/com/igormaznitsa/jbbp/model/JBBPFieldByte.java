@@ -52,6 +52,16 @@ public final class JBBPFieldByte extends JBBPAbstractField implements JBBPNumeri
     }
 
     @Override
+    public double getAsDouble() {
+        return (double)this.value;
+    }
+
+    @Override
+    public float getAsFloat() {
+        return (float)this.value;
+    }
+
+    @Override
     public int getAsInt() {
         return this.value;
     }

@@ -794,6 +794,70 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     /**
+     * Print float value.
+     *
+     * @param value float value to be printed
+     * @return the context
+     * @throws IOException it will be thrown for transport errors
+     * @since 1.3.1
+     */
+    public JBBPTextWriter Float(final float value) throws IOException {
+        ensureValueMode();
+        String convertedByExtras = null;
+        for (final Extra e : this.extras) {
+            convertedByExtras = e.doConvertFloatToStr(this, value);
+            if (convertedByExtras != null) {
+                break;
+            }
+        }
+
+        if (convertedByExtras == null) {
+            final float valueToWrite;
+            if (this.byteOrder == JBBPByteOrder.LITTLE_ENDIAN) {
+                valueToWrite = Float.intBitsToFloat((int)JBBPFieldInt.reverseBits(Float.floatToIntBits(value)));
+            } else {
+                valueToWrite = value;
+            }
+            printValueString(JBBPUtils.ensureMinTextLength(JBBPUtils.float2str(valueToWrite, this.radix), this.maxCharsRadixForShort, '0', 0));
+        } else {
+            printValueString(convertedByExtras);
+        }
+        return this;
+    }
+
+    /**
+     * Print double value.
+     *
+     * @param value double value to be printed
+     * @return the context
+     * @throws IOException it will be thrown for transport errors
+     * @since 1.3.1
+     */
+    public JBBPTextWriter Double(final double value) throws IOException {
+        ensureValueMode();
+        String convertedByExtras = null;
+        for (final Extra e : this.extras) {
+            convertedByExtras = e.doConvertDoubleToStr(this, value);
+            if (convertedByExtras != null) {
+                break;
+            }
+        }
+
+        if (convertedByExtras == null) {
+            final double valueToWrite;
+            if (this.byteOrder == JBBPByteOrder.LITTLE_ENDIAN) {
+                valueToWrite = Double.longBitsToDouble(JBBPFieldLong.reverseBits(Double.doubleToLongBits(value)));
+            } else {
+                valueToWrite = value;
+            }
+            printValueString(JBBPUtils.ensureMinTextLength(JBBPUtils.double2str(valueToWrite, this.radix), this.maxCharsRadixForShort, '0', 0));
+        } else {
+            printValueString(convertedByExtras);
+        }
+        return this;
+    }
+
+    /**
      * Print char codes of string as short array.
      *
      * @param value string which codes should be printed, must not be null
@@ -819,6 +883,30 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     /**
+     * Print array of float values.
+     *
+     * @param values array of float values, must not be null
+     * @return the context
+     * @throws IOException it will be thrown for transport errors
+     * @since 1.3.1
+     */
+    public JBBPTextWriter Float(final float [] values) throws IOException {
+        return this.Float(values, 0, values.length);
+    }
+
+    /**
+     * Print array of double values.
+     *
+     * @param values array of double values, must not be null
+     * @return the context
+     * @throws IOException it will be thrown for transport errors
+     * @since 1.3.1
+     */
+    public JBBPTextWriter Double(final double [] values) throws IOException {
+        return this.Double(values, 0, values.length);
+    }
+
+    /**
      * Print values from short array/
      *
      * @param values short value array, must not be null
@@ -830,6 +918,40 @@ public class JBBPTextWriter extends FilterWriter {
     public JBBPTextWriter Short(final short[] values, int off, int len) throws IOException {
         while (len-- > 0) {
             this.Short(values[off++]);
+        }
+        return this;
+    }
+
+    /**
+     * Print values from float array/
+     *
+     * @param values short value array, must not be null
+     * @param off    offset to the first element
+     * @param len    number of elements to print
+     * @return the context
+     * @throws IOException it will be thrown for transport error
+     * @since 1.3.1
+     */
+    public JBBPTextWriter Float(final float [] values, int off, int len) throws IOException {
+        while (len-- > 0) {
+            this.Float(values[off++]);
+        }
+        return this;
+    }
+
+    /**
+     * Print values from double array/
+     *
+     * @param values double value array, must not be null
+     * @param off    offset to the first element
+     * @param len    number of elements to print
+     * @return the context
+     * @throws IOException it will be thrown for transport error
+     * @since 1.3.1
+     */
+    public JBBPTextWriter Double(final double [] values, int off, int len) throws IOException {
+        while (len-- > 0) {
+            this.Double(values[off++]);
         }
         return this;
     }
@@ -1496,6 +1618,28 @@ public class JBBPTextWriter extends FilterWriter {
          * @throws IOException it can be thrown for transport error
          */
         String doConvertIntToStr(JBBPTextWriter context, int value) throws IOException;
+
+        /**
+         * Convert float value to string representation.
+         *
+         * @param context the context, must not be null
+         * @param value   the float value to be converted
+         * @return string representation of the float value, must not return null
+         * @throws IOException it can be thrown for transport error
+         * @since 1.3.1
+         */
+        String doConvertFloatToStr(JBBPTextWriter context, float value) throws IOException;
+
+        /**
+         * Convert double value to string representation.
+         *
+         * @param context the context, must not be null
+         * @param value   the double value to be converted
+         * @return string representation of the double value, must not return null
+         * @throws IOException it can be thrown for transport error
+         * @since 1.3.1
+         */
+        String doConvertDoubleToStr(JBBPTextWriter context, double value) throws IOException;
 
         /**
          * Convert long value to string representation.

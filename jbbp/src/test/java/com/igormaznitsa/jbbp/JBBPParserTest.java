@@ -239,6 +239,33 @@ public class JBBPParserTest {
     }
 
     @Test(expected = EOFException.class)
+    public void testParse_Float_ErrorForEOF() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare("floatj;");
+        parser.parse(new byte[0]);
+    }
+
+    @Test
+    public void testParse_SingleDefaultNonamedFloat_Default() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare("floatj;");
+        final JBBPFieldStruct result = parser.parse(new byte[]{1, 2, 3, 4});
+        assertEquals(2.3879393E-38f, result.findFieldForType(JBBPFieldFloat.class).getAsFloat (), 0.0f);
+    }
+
+    @Test
+    public void testParse_SingleDefaultNonamedFloat_BigEndian() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare(">floatj;");
+        final JBBPFieldStruct result = parser.parse(new byte[]{1, 2, 3, 4});
+        assertEquals(2.3879393E-38f, result.findFieldForType(JBBPFieldFloat.class).getAsFloat(), 0.0f);
+    }
+
+    @Test
+    public void testParse_SingleDefaultNonamedFloat_LittleEndian() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare("<floatj;");
+        final JBBPFieldStruct result = parser.parse(new byte[]{1, 2, 3, 4});
+        assertEquals(1.5399896E-36f, result.findFieldForType(JBBPFieldFloat.class).getAsFloat(), 0.0f);
+    }
+
+    @Test(expected = EOFException.class)
     public void testParse_Long_ErrorForEOF() throws Exception {
         final JBBPParser parser = JBBPParser.prepare("long;");
         parser.parse(new byte[0]);
@@ -263,6 +290,33 @@ public class JBBPParserTest {
         final JBBPParser parser = JBBPParser.prepare("<long;");
         final JBBPFieldStruct result = parser.parse(new byte[]{1, 2, 3, 4, 5, 6, 7, 8});
         assertEquals(0x0807060504030201L, result.findFieldForType(JBBPFieldLong.class).getAsLong());
+    }
+
+    @Test(expected = EOFException.class)
+    public void testParse_Double_ErrorForEOF() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare("doublej;");
+        parser.parse(new byte[0]);
+    }
+
+    @Test
+    public void testParse_SingleDefaultNonamedDouble_Default() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare("doublej;");
+        final JBBPFieldStruct result = parser.parse(new byte[]{1, 2, 3, 4, 5, 6, 7, 8});
+        assertEquals(8.20788039913184E-304d, result.findFieldForType(JBBPFieldDouble.class).getAsDouble(), 0.0d);
+    }
+
+    @Test
+    public void testParse_SingleDefaultNonamedDouble_BigEndian() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare(">doublej;");
+        final JBBPFieldStruct result = parser.parse(new byte[]{1, 2, 3, 4, 5, 6, 7, 8});
+        assertEquals(8.20788039913184E-304d, result.findFieldForType(JBBPFieldDouble.class).getAsDouble(), 0.0d);
+    }
+
+    @Test
+    public void testParse_SingleDefaultNonamedDouble_LittleEndian() throws Exception {
+        final JBBPParser parser = JBBPParser.prepare("<doublej;");
+        final JBBPFieldStruct result = parser.parse(new byte[]{1, 2, 3, 4, 5, 6, 7, 8});
+        assertEquals(5.447603722011605E-270d, result.findFieldForType(JBBPFieldDouble.class).getAsDouble(), 0.0d);
     }
 
     @Test
@@ -1268,6 +1322,65 @@ public class JBBPParserTest {
     }
 
     @Test(expected = EOFException.class)
+    public void testParse_FixedFloatArray_EOFException() throws Exception {
+        JBBPParser.prepare("byte; floatj[1];").parse(new byte[]{1});
+    }
+
+    @Test
+    public void testParse_NonFixedFloatArray_ParsedAsEmptyArray() throws Exception {
+        final JBBPFieldStruct parsed = JBBPParser.prepare("byte; floatj[_] array;").parse(new byte[]{1});
+        assertEquals(0, parsed.findFieldForNameAndType("array", JBBPFieldArrayFloat.class).size());
+    }
+
+    @Test
+    public void testParse_FixedFloatArray_Default() throws Exception {
+        final JBBPFieldArrayFloat ints = JBBPParser.prepare("floatj[2];").parse(new byte[]{(byte) 0xF7, 0x43, 0x65, 0x10, 0x35, 0x23, 0x67, (byte) 0xA0}).findFieldForType(JBBPFieldArrayFloat.class);
+        assertEquals(2, ints.size());
+        assertEquals(-3.963077E33f, ints.getAsFloat(0),0.0f);
+        assertEquals(6.0873026E-7f, ints.getAsFloat(1),0.0f);
+    }
+
+    @Test
+    public void testParse_FixedFloatArray_BigEndian() throws Exception {
+        final JBBPFieldArrayFloat ints = JBBPParser.prepare(">floatj[2];").parse(new byte[]{(byte) 0xF7, 0x43, 0x65, 0x10, 0x35, 0x23, 0x67, (byte) 0xA0}).findFieldForType(JBBPFieldArrayFloat.class);
+        assertEquals(2, ints.size());
+        assertEquals(-3.963077E33f, ints.getAsFloat(0), 0.0f);
+        assertEquals(6.0873026E-7f, ints.getAsFloat(1), 0.0f);
+    }
+
+    @Test
+    public void testParse_FixedFloatArray_LittleEndian() throws Exception {
+        final JBBPFieldArrayFloat ints = JBBPParser.prepare("<floatj[2];").parse(new byte[]{(byte) 0xF7, 0x43, 0x65, 0x10, 0x35, 0x23, 0x67, (byte) 0xA0}).findFieldForType(JBBPFieldArrayFloat.class);
+        assertEquals(2, ints.size());
+        assertEquals(4.5214645E-29f, ints.getAsFloat(0), 0.0f);
+        assertEquals(-1.957811E-19f, ints.getAsFloat(1), 0.0f);
+    }
+
+    @Test
+    public void testParse_NonFixedFloatArray_Default() throws Exception {
+        final JBBPFieldArrayFloat ints = JBBPParser.prepare("floatj[_];").parse(new byte[]{(byte) 0xF7, 0x43, 0x65, 0x10, 0x35, 0x23, 0x67, (byte) 0xA0}).findFieldForType(JBBPFieldArrayFloat.class);
+        assertEquals(2, ints.size());
+        assertEquals(-3.963077E33f, ints.getAsFloat(0), 0.0f);
+        assertEquals(6.0873026E-7f, ints.getAsFloat(1), 0.0f);
+    }
+
+    @Test
+    public void testParse_NonFixedFloatArray_BigEndian() throws Exception {
+        final JBBPFieldArrayFloat ints = JBBPParser.prepare(">floatj[_];").parse(new byte[]{(byte) 0xF7, 0x43, 0x65, 0x10, 0x35, 0x23, 0x67, (byte) 0xA0}).findFieldForType(JBBPFieldArrayFloat.class);
+        assertEquals(2, ints.size());
+        assertEquals(-3.963077E33f, ints.getAsFloat(0), 0.0f);
+        assertEquals(6.0873026E-7f, ints.getAsFloat(1), 0.0f);
+    }
+
+    @Test
+    public void testParse_NonFixedFloatArray_LittleEndian() throws Exception {
+        final JBBPFieldArrayFloat ints = JBBPParser.prepare("<floatj[_];").parse(new byte[]{(byte) 0xF7, 0x43, 0x65, 0x10, 0x35, 0x23, 0x67, (byte) 0xA0}).findFieldForType(JBBPFieldArrayFloat.class);
+        assertEquals(2, ints.size());
+        assertEquals(4.5214645E-29f, ints.getAsFloat(0),0.0f);
+        assertEquals(-1.957811E-19f, ints.getAsFloat(1),0.0f);
+    }
+
+    @Test(expected = EOFException.class)
     public void testParse_FixedLongArray_EOFException() throws Exception {
         JBBPParser.prepare("byte; long[1];").parse(new byte[]{1});
     }
@@ -1324,6 +1437,65 @@ public class JBBPParserTest {
         assertEquals(2, longs.size());
         assertEquals(0xA0672335106543F7L, longs.getAsLong(0));
         assertEquals(0x301222BECA613332L, longs.getAsLong(1));
+    }
+
+    @Test(expected = EOFException.class)
+    public void testParse_FixedDoubleArray_EOFException() throws Exception {
+        JBBPParser.prepare("byte; doublej[1];").parse(new byte[]{1});
+    }
+
+    @Test
+    public void testParse_NonFixedDoubleArray_ParsedAsEmptyArray() throws Exception {
+        final JBBPFieldStruct parsed = JBBPParser.prepare("byte; doublej[_] array;").parse(new byte[]{1});
+        assertEquals(0, parsed.findFieldForNameAndType("array", JBBPFieldArrayDouble.class).size());
+    }
+
+    @Test
+    public void testParse_FixedDoubleArray_Default() throws Exception {
+        final JBBPFieldArrayDouble longs = JBBPParser.prepare("doublej[2];").parse(new byte[]{(byte) 0xF7, 0x43, 0x65, 0x10, 0x35, 0x23, 0x67, (byte) 0xA0, 0x32, 0x33, 0x61, (byte) 0xCA, (byte) 0xBE, 0x22, 0x12, 0x30}).findFieldForType(JBBPFieldArrayDouble.class);
+        assertEquals(2, longs.size());
+        assertEquals(-3.126878492655484E266d, longs.getAsDouble(0), 0.0d);
+        assertEquals(7.189183308668011E-67d, longs.getAsDouble(1), 0.0d);
+    }
+
+    @Test
+    public void testParse_FixedDoubleArray_BigEndian() throws Exception {
+        final JBBPFieldArrayDouble longs = JBBPParser.prepare(">doublej[2];").parse(new byte[]{(byte) 0xF7, 0x43, 0x65, 0x10, 0x35, 0x23, 0x67, (byte) 0xA0, 0x32, 0x33, 0x61, (byte) 0xCA, (byte) 0xBE, 0x22, 0x12, 0x30}).findFieldForType(JBBPFieldArrayDouble.class);
+        assertEquals(2, longs.size());
+        assertEquals(-3.126878492655484E266d, longs.getAsDouble(0), 0.0d);
+        assertEquals(7.189183308668011E-67d, longs.getAsDouble(1), 0.0d);
+    }
+
+    @Test
+    public void testParse_FixedDoubleArray_LittleEndian() throws Exception {
+        final JBBPFieldArrayDouble longs = JBBPParser.prepare("<doublej[2];").parse(new byte[]{(byte) 0xF7, 0x43, 0x65, 0x10, 0x35, 0x23, 0x67, (byte) 0xA0, 0x32, 0x33, 0x61, (byte) 0xCA, (byte) 0xBE, 0x22, 0x12, 0x30}).findFieldForType(JBBPFieldArrayDouble.class);
+        assertEquals(2, longs.size());
+        assertEquals(-1.3805405664501578E-152d, longs.getAsDouble(0),0.0d);
+        assertEquals(3.915579175603706E-77d, longs.getAsDouble(1),0.0d);
+    }
+
+    @Test
+    public void testParse_NonFixedDoubleArray_Default() throws Exception {
+        final JBBPFieldArrayDouble longs = JBBPParser.prepare("doublej[_];").parse(new byte[]{(byte) 0xF7, 0x43, 0x65, 0x10, 0x35, 0x23, 0x67, (byte) 0xA0, 0x32, 0x33, 0x61, (byte) 0xCA, (byte) 0xBE, 0x22, 0x12, 0x30}).findFieldForType(JBBPFieldArrayDouble.class);
+        assertEquals(2, longs.size());
+        assertEquals(-3.126878492655484E266d, longs.getAsDouble(0),0.0d);
+        assertEquals(7.189183308668011E-67d, longs.getAsDouble(1),0.0d);
+    }
+
+    @Test
+    public void testParse_NonFixedDoubleArray_BigEndian() throws Exception {
+        final JBBPFieldArrayDouble longs = JBBPParser.prepare(">doublej[_];").parse(new byte[]{(byte) 0xF7, 0x43, 0x65, 0x10, 0x35, 0x23, 0x67, (byte) 0xA0, 0x32, 0x33, 0x61, (byte) 0xCA, (byte) 0xBE, 0x22, 0x12, 0x30}).findFieldForType(JBBPFieldArrayDouble.class);
+        assertEquals(2, longs.size());
+        assertEquals(-3.126878492655484E266d, longs.getAsDouble(0),0.0d);
+        assertEquals(7.189183308668011E-67d, longs.getAsDouble(1),0.0d);
+    }
+
+    @Test
+    public void testParse_NonFixedDoubleArray_LittleEndian() throws Exception {
+        final JBBPFieldArrayDouble longs = JBBPParser.prepare("<doublej[_];").parse(new byte[]{(byte) 0xF7, 0x43, 0x65, 0x10, 0x35, 0x23, 0x67, (byte) 0xA0, 0x32, 0x33, 0x61, (byte) 0xCA, (byte) 0xBE, 0x22, 0x12, 0x30}).findFieldForType(JBBPFieldArrayDouble.class);
+        assertEquals(2, longs.size());
+        assertEquals(-1.3805405664501578E-152, longs.getAsDouble(0), 0.0d);
+        assertEquals(3.915579175603706E-77, longs.getAsDouble(1), 0.0d);
     }
 
     @Test

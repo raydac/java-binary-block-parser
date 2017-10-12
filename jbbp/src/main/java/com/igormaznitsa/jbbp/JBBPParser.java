@@ -234,6 +234,7 @@ public final class JBBPParser {
             final int ec = wideCode ? compiled[positionAtCompiledBlock.getAndIncrement()] & 0xFF : 0;
             final boolean extraFieldNumAsExpr = (ec & JBBPCompiler.EXT_FLAG_EXTRA_AS_EXPRESSION) != 0;
             final int code = (ec << 8) | c;
+            final boolean fieldIsFloatOrDouble = wideCode ? (ec & JBBPCompiler.EXT_FLAG_EXTRA_AS_FLOAT_OR_DOUBLE) != 0 : false;
 
             final JBBPNamedFieldInfo name = (code & JBBPCompiler.FLAG_NAMED) == 0 ? null : compiledBlock.getNamedFields()[positionAtNamedFieldList.getAndIncrement()];
             final JBBPByteOrder byteOrder = (code & JBBPCompiler.FLAG_LITTLE_ENDIAN) == 0 ? JBBPByteOrder.BIG_ENDIAN : JBBPByteOrder.LITTLE_ENDIAN;
@@ -392,10 +393,12 @@ public final class JBBPParser {
                     case JBBPCompiler.CODE_INT: {
                         if (resultNotIgnored) {
                             if (arrayLength < 0) {
-                                final int value = inStream.readInt(byteOrder);
-                                singleAtomicField = new JBBPFieldInt(name, value);
+                                singleAtomicField = fieldIsFloatOrDouble ? new JBBPFieldFloat(name, inStream.readFloat(byteOrder)) : new JBBPFieldInt(name, inStream.readInt(byteOrder));
                             } else {
-                                structureFields.add(new JBBPFieldArrayInt(name, inStream.readIntArray(wholeStreamArray ? -1 : arrayLength, byteOrder)));
+                                structureFields.add(fieldIsFloatOrDouble ?
+                                        new JBBPFieldArrayFloat(name, inStream.readFloatArray(wholeStreamArray ? -1 : arrayLength, byteOrder)) :
+                                        new JBBPFieldArrayInt(name, inStream.readIntArray(wholeStreamArray ? -1 : arrayLength, byteOrder))
+                                );
                             }
                         }
                     }
@@ -403,10 +406,12 @@ public final class JBBPParser {
                     case JBBPCompiler.CODE_LONG: {
                         if (resultNotIgnored) {
                             if (arrayLength < 0) {
-                                final long value = inStream.readLong(byteOrder);
-                                singleAtomicField = new JBBPFieldLong(name, value);
+                                singleAtomicField = fieldIsFloatOrDouble ? new JBBPFieldDouble(name, inStream.readDouble(byteOrder)) : new JBBPFieldLong(name, inStream.readLong(byteOrder));
                             } else {
-                                structureFields.add(new JBBPFieldArrayLong(name, inStream.readLongArray(wholeStreamArray ? -1 : arrayLength, byteOrder)));
+                                structureFields.add(fieldIsFloatOrDouble ?
+                                        new JBBPFieldArrayDouble(name, inStream.readDoubleArray(wholeStreamArray ? -1 : arrayLength, byteOrder)) :
+                                        new JBBPFieldArrayLong(name, inStream.readLongArray(wholeStreamArray ? -1 : arrayLength, byteOrder))
+                                );
                             }
                         }
                     }

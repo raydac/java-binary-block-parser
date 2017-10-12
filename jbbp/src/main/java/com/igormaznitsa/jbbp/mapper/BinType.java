@@ -59,6 +59,16 @@ public enum BinType {
      */
     INT(JBBPFieldInt.class, false),
     /**
+     * A Mapping field will be mapped to a parsed double field.
+     * @since 1.3.1
+     */
+    DOUBLE(JBBPFieldDouble.class, false),
+    /**
+     * A Mapping field will be mapped to a parsed float field.
+     * @since 1.3.1
+     */
+    FLOAT(JBBPFieldFloat.class, false),
+    /**
      * A Mapping field will be mapped to a parsed long field.
      */
     LONG(JBBPFieldLong.class, false),
@@ -94,6 +104,16 @@ public enum BinType {
      * A Mapping field will be mapped to a parsed long array field.
      */
     LONG_ARRAY(JBBPFieldArrayLong.class, true),
+    /**
+     * A Mapping field will be mapped to a parsed float array field.
+     * @since 1.3.1
+     */
+    FLOAT_ARRAY(JBBPFieldArrayFloat.class, true),
+    /**
+     * A Mapping field will be mapped to a parsed double array field.
+     * @since 1.3.1
+     */
+    DOUBLE_ARRAY(JBBPFieldArrayDouble.class, true),
     /**
      * A Mapping field will be mapped to a parsed structure field.
      */
@@ -144,10 +164,14 @@ public enum BinType {
                     result = BOOL_ARRAY;
                 } else if (type == short.class) {
                     result = SHORT_ARRAY;
-                } else if (type == int.class || type == float.class) {
+                } else if (type == int.class) {
                     result = INT_ARRAY;
-                } else if (type == long.class || type == double.class) {
+                } else if (type == long.class) {
                     result = LONG_ARRAY;
+                } else if (type == float.class) {
+                    result = FLOAT_ARRAY;
+                } else if (type == double.class) {
+                    result = DOUBLE_ARRAY;
                 } else {
                     result = null;
                 }
@@ -163,10 +187,14 @@ public enum BinType {
                 result = BOOL;
             } else if (fieldClazz == short.class) {
                 result = SHORT;
-            } else if (fieldClazz == int.class || fieldClazz == float.class) {
+            } else if (fieldClazz == int.class) {
                 result = INT;
-            } else if (fieldClazz == long.class || fieldClazz == double.class) {
+            } else if (fieldClazz == long.class) {
                 result = LONG;
+            } else if (fieldClazz == float.class) {
+                result = FLOAT;
+            } else if (fieldClazz == double.class) {
+                result = DOUBLE;
             } else {
                 result = null;
             }

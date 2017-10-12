@@ -19,59 +19,49 @@ import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
- * Describes a short value field.
+ * Describes a double value field.
  *
- * @since 1.0
+ * @since 1.3.1
  */
-public final class JBBPFieldShort extends JBBPAbstractField implements JBBPNumericField {
-    private static final long serialVersionUID = -6245423766682842050L;
+public final class JBBPFieldDouble extends JBBPAbstractField implements JBBPNumericField {
+    private static final long serialVersionUID = -7106473415348171461L;
+
+    public static final String TYPE_NAME = "doublej";
+
     /**
      * Inside value storage.
      */
-    private final short value;
+    private final double value;
 
     /**
      * The Constructor.
      *
-     * @param name  a field name info. it can be null
+     * @param name  a field name info, it can be null
      * @param value the field value
      */
-    public JBBPFieldShort(final JBBPNamedFieldInfo name, final short value) {
+    public JBBPFieldDouble(final JBBPNamedFieldInfo name, final double value) {
         super(name);
         this.value = value;
     }
 
-    /**
-     * Get the reversed bit representation of the value.
-     *
-     * @param value the value to be reversed
-     * @return the reversed value
-     */
-    public static long reverseBits(final short value) {
-        final int b0 = JBBPUtils.reverseBitsInByte((byte) value) & 0xFF;
-        final int b1 = JBBPUtils.reverseBitsInByte((byte) (value >> 8)) & 0xFF;
-
-        return (long) ((short) (b0 << 8) | (short) b1);
-    }
-
     @Override
     public double getAsDouble() {
-        return (double) this.value;
-    }
-
-    @Override
-    public float getAsFloat() {
-        return (float) this.value;
-    }
-
-    @Override
-    public int getAsInt() {
         return this.value;
     }
 
     @Override
+    public float getAsFloat() {
+        return (float)this.value;
+    }
+
+    @Override
+    public int getAsInt() {
+        return (int) Math.round(this.value);
+    }
+
+    @Override
     public long getAsLong() {
-        return this.getAsInt();
+        return Math.round(this.value);
     }
 
     @Override
@@ -81,11 +71,12 @@ public final class JBBPFieldShort extends JBBPAbstractField implements JBBPNumer
 
     @Override
     public long getAsInvertedBitOrder() {
-        return reverseBits(this.value);
+        return JBBPFieldLong.reverseBits(Double.doubleToLongBits(this.value));
     }
 
     @Override
     public String getTypeAsString() {
-        return "short";
+        return TYPE_NAME;
     }
+
 }

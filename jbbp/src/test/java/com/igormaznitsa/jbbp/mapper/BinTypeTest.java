@@ -36,8 +36,8 @@ public class BinTypeTest {
         assertEquals(BinType.INT_ARRAY, BinType.findCompatible(int[].class));
         assertEquals(BinType.LONG_ARRAY, BinType.findCompatible(long[].class));
         assertEquals(BinType.STRUCT_ARRAY, BinType.findCompatible(String[].class));
-        assertEquals(BinType.INT_ARRAY, BinType.findCompatible(float[].class));
-        assertEquals(BinType.LONG_ARRAY, BinType.findCompatible(double[].class));
+        assertEquals(BinType.FLOAT_ARRAY, BinType.findCompatible(float[].class));
+        assertEquals(BinType.DOUBLE_ARRAY, BinType.findCompatible(double[].class));
     }
 
     @Test
@@ -49,8 +49,8 @@ public class BinTypeTest {
         assertEquals(BinType.INT, BinType.findCompatible(int.class));
         assertEquals(BinType.LONG, BinType.findCompatible(long.class));
         assertEquals(BinType.BYTE_ARRAY, BinType.findCompatible(String.class));
-        assertEquals(BinType.INT, BinType.findCompatible(float.class));
-        assertEquals(BinType.LONG, BinType.findCompatible(double.class));
+        assertEquals(BinType.FLOAT, BinType.findCompatible(float.class));
+        assertEquals(BinType.DOUBLE, BinType.findCompatible(double.class));
     }
 
 }

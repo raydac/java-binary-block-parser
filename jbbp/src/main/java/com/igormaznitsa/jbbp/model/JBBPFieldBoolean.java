@@ -40,6 +40,16 @@ public final class JBBPFieldBoolean extends JBBPAbstractField implements JBBPNum
         this.value = value;
     }
 
+    @Override
+    public double getAsDouble() {
+        return value ? 1.0d : 0.0d;
+    }
+
+    @Override
+    public float getAsFloat() {
+        return value ? 1.0f : 0.0f;
+    }
+
     /**
      * Get the reversed bit representation of the value. But for boolean it doesn't work and made for compatibility
      *

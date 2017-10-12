@@ -333,13 +333,13 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
             int[] buffer = new int[INITIAL_ARRAY_BUFFER_SIZE];
             // till end
             while (hasAvailableData()) {
-                final long next = readInt(byteOrder);
+                final int next = readInt(byteOrder);
                 if (buffer.length == pos) {
                     final int[] newbuffer = new int[buffer.length << 1];
                     System.arraycopy(buffer, 0, newbuffer, 0, buffer.length);
                     buffer = newbuffer;
                 }
-                buffer[pos++] = (int) next;
+                buffer[pos++] = next;
             }
             if (buffer.length == pos) {
                 return buffer;
@@ -352,6 +352,49 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
             final int[] buffer = new int[items];
             for (int i = 0; i < items; i++) {
                 buffer[i] = readInt(byteOrder);
+            }
+            return buffer;
+        }
+    }
+
+    /**
+     * Read number of float items from the input stream.
+     *
+     * @param items     number of items to be read from the input stream, if less than
+     *                  zero then all stream till the end will be read
+     * @param byteOrder the order of bytes to be used to decode values
+     * @return read items as float array
+     * @throws IOException it will be thrown for any transport problem during the
+     *                     operation
+     * @see JBBPByteOrder#BIG_ENDIAN
+     * @see JBBPByteOrder#LITTLE_ENDIAN
+     * @since 1.3.1
+     */
+    public float[] readFloatArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
+        int pos = 0;
+        if (items < 0) {
+            float[] buffer = new float[INITIAL_ARRAY_BUFFER_SIZE];
+            // till end
+            while (hasAvailableData()) {
+                final float next = readFloat(byteOrder);
+                if (buffer.length == pos) {
+                    final float[] newbuffer = new float[buffer.length << 1];
+                    System.arraycopy(buffer, 0, newbuffer, 0, buffer.length);
+                    buffer = newbuffer;
+                }
+                buffer[pos++] = next;
+            }
+            if (buffer.length == pos) {
+                return buffer;
+            }
+            final float[] result = new float[pos];
+            System.arraycopy(buffer, 0, result, 0, pos);
+            return result;
+        } else {
+            // number
+            final float[] buffer = new float[items];
+            for (int i = 0; i < items; i++) {
+                buffer[i] = readFloat(byteOrder);
             }
             return buffer;
         }
@@ -400,6 +443,49 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     }
 
     /**
+     * Read number of double items from the input stream.
+     *
+     * @param items     number of items to be read from the input stream, if less than
+     *                  zero then all stream till the end will be read
+     * @param byteOrder the order of bytes to be used to decode values
+     * @return read items as a double array
+     * @throws IOException it will be thrown for any transport problem during the
+     *                     operation
+     * @see JBBPByteOrder#BIG_ENDIAN
+     * @see JBBPByteOrder#LITTLE_ENDIAN
+     * @since 1.3.1
+     */
+    public double[] readDoubleArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
+        int pos = 0;
+        if (items < 0) {
+            double[] buffer = new double[INITIAL_ARRAY_BUFFER_SIZE];
+            // till end
+            while (hasAvailableData()) {
+                final long next = readLong(byteOrder);
+                if (buffer.length == pos) {
+                    final double[] newbuffer = new double[buffer.length << 1];
+                    System.arraycopy(buffer, 0, newbuffer, 0, buffer.length);
+                    buffer = newbuffer;
+                }
+                buffer[pos++] = Double.longBitsToDouble(next);
+            }
+            if (buffer.length == pos) {
+                return buffer;
+            }
+            final double[] result = new double[pos];
+            System.arraycopy(buffer, 0, result, 0, pos);
+            return result;
+        } else {
+            // number
+            final double[] buffer = new double[items];
+            for (int i = 0; i < items; i++) {
+                buffer[i] = readDouble(byteOrder);
+            }
+            return buffer;
+        }
+    }
+
+    /**
      * Read a unsigned short value from the stream.
      *
      * @param byteOrder he order of bytes to be used to decode the read value
@@ -425,9 +511,8 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     /**
      * Read an integer value from the stream.
      *
-     * @param byteOrder he order of bytes to be used to decode the read value
-     * @return the unsigned short value read from stream or -1 if the end of
-     * stream has been reached
+     * @param byteOrder the order of bytes to be used to decode the read value
+     * @return the integer value from the stream
      * @throws IOException  it will be thrown for any transport problem during the
      *                      operation
      * @throws EOFException if the end of the stream has been reached
@@ -443,11 +528,32 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     }
 
     /**
+     * Read a float value from the stream.
+     *
+     * @param byteOrder the order of bytes to be used to decode the read value
+     * @return the float value from the stream
+     * @throws IOException  it will be thrown for any transport problem during the
+     *                      operation
+     * @throws EOFException if the end of the stream has been reached
+     * @see JBBPByteOrder#BIG_ENDIAN
+     * @see JBBPByteOrder#LITTLE_ENDIAN
+     * @since 1.3.1
+     */
+    public float readFloat(final JBBPByteOrder byteOrder) throws IOException {
+        final int value;
+        if (byteOrder == JBBPByteOrder.BIG_ENDIAN) {
+            value = (readUnsignedShort(byteOrder) << 16) | readUnsignedShort(byteOrder);
+        } else {
+            value = readUnsignedShort(byteOrder) | (readUnsignedShort(byteOrder) << 16);
+        }
+        return Float.intBitsToFloat(value);
+    }
+
+    /**
      * Read a long value from the stream.
      *
-     * @param byteOrder he order of bytes to be used to decode the read value
-     * @return the unsigned short value read from stream or -1 if the end of
-     * stream has been reached
+     * @param byteOrder the order of bytes to be used to decode the read value
+     * @return the long value from stream
      * @throws IOException  it will be thrown for any transport problem during the
      *                      operation
      * @throws EOFException if the end of the stream has been reached
@@ -460,6 +566,28 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
         } else {
             return ((long) readInt(byteOrder) & 0xFFFFFFFFL) | (((long) readInt(byteOrder) & 0xFFFFFFFFL) << 32);
         }
+    }
+
+    /**
+     * Read a double value from the stream.
+     *
+     * @param byteOrder the order of bytes to be used to decode the read value
+     * @return the double value from stream
+     * @throws IOException  it will be thrown for any transport problem during the
+     *                      operation
+     * @throws EOFException if the end of the stream has been reached
+     * @see JBBPByteOrder#BIG_ENDIAN
+     * @see JBBPByteOrder#LITTLE_ENDIAN
+     * @since 1.3.1
+     */
+    public double readDouble(final JBBPByteOrder byteOrder) throws IOException {
+        final long value;
+        if (byteOrder == JBBPByteOrder.BIG_ENDIAN) {
+            value = (((long) readInt(byteOrder) & 0xFFFFFFFFL) << 32) | ((long) readInt(byteOrder) & 0xFFFFFFFFL);
+        } else {
+            value = ((long) readInt(byteOrder) & 0xFFFFFFFFL) | (((long) readInt(byteOrder) & 0xFFFFFFFFL) << 32);
+        }
+        return Double.longBitsToDouble(value);
     }
 
     /**

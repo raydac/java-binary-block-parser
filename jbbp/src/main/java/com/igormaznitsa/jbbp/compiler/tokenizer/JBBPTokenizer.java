@@ -18,6 +18,8 @@ package com.igormaznitsa.jbbp.compiler.tokenizer;
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.exceptions.JBBPTokenizerException;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
+import com.igormaznitsa.jbbp.model.JBBPFieldDouble;
+import com.igormaznitsa.jbbp.model.JBBPFieldFloat;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 import java.util.HashSet;
@@ -51,6 +53,8 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
 
     static {
         GLOBAL_RESERVED_TYPE_NAMES = new HashSet<String>();
+        GLOBAL_RESERVED_TYPE_NAMES.add(JBBPFieldFloat.TYPE_NAME);
+        GLOBAL_RESERVED_TYPE_NAMES.add(JBBPFieldDouble.TYPE_NAME);
         GLOBAL_RESERVED_TYPE_NAMES.add("bit");
         GLOBAL_RESERVED_TYPE_NAMES.add("bool");
         GLOBAL_RESERVED_TYPE_NAMES.add("byte");

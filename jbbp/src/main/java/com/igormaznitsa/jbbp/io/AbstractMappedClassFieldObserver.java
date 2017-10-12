@@ -240,31 +240,48 @@ public abstract class AbstractMappedClassFieldObserver {
                 break;
                 case INT: {
                     int value;
-                    if (float.class == fieldType) {
-                        value = Float.floatToIntBits((Float) readFieldValue(obj, field));
-                    } else {
-                        value = ((Number) readFieldValue(obj, field)).intValue();
-                    }
+                    value = ((Number) readFieldValue(obj, field)).intValue();
                     if (reverseBits) {
                         value = (int) JBBPFieldInt.reverseBits(value);
                     }
                     this.onFieldInt(obj, field, annotation, value);
                 }
                 break;
-                case LONG: {
-                    long value;
+                case FLOAT: {
+                    float value;
                     if (float.class == fieldType) {
-                        value = Float.floatToIntBits((Float) readFieldValue(obj, field));
-                    } else if (double.class == fieldType) {
-                        value = Double.doubleToLongBits((Double) readFieldValue(obj, field));
+                        value = (Float) readFieldValue(obj, field);
                     } else {
-                        value = ((Number) readFieldValue(obj, field)).longValue();
+                        value = ((Number) readFieldValue(obj, field)).floatValue();
                     }
-
+                    if (reverseBits) {
+                        value = Float.intBitsToFloat((int)JBBPFieldInt.reverseBits(Float.floatToIntBits(value)));
+                    }
+                    this.onFieldFloat(obj, field, annotation, value);
+                }
+                break;
+                case LONG: {
+                    long value = ((Number) readFieldValue(obj, field)).longValue();
                     if (reverseBits) {
                         value = JBBPFieldLong.reverseBits(value);
                     }
                     this.onFieldLong(obj, field, annotation, value);
+                }
+                break;
+                case DOUBLE: {
+                    double value;
+                    if (float.class == fieldType) {
+                        value = (Float) readFieldValue(obj, field);
+                    } else if (double.class == fieldType) {
+                        value = (Double) readFieldValue(obj, field);
+                    } else {
+                        value = ((Number) readFieldValue(obj, field)).doubleValue();
+                    }
+
+                    if (reverseBits) {
+                        value = Double.longBitsToDouble(JBBPFieldLong.reverseBits(Double.doubleToLongBits(value)));
+                    }
+                    this.onFieldDouble(obj, field, annotation, value);
                 }
                 break;
                 case STRUCT: {
@@ -386,26 +403,30 @@ public abstract class AbstractMappedClassFieldObserver {
                             }
                         }
                         break;
+                        case FLOAT_ARRAY: {
+                            assertFieldArray(field);
+                            final int len = Array.getLength(array);
+                            this.onArrayStart(obj, field, annotation, len);
+                            for (int i = 0; i < len; i++) {
+                                float value = Array.getFloat(array, i);
+                                if (reverseBits) {
+                                    value = Float.intBitsToFloat((int) JBBPFieldInt.reverseBits(Float.floatToIntBits(value)));
+                                }
+                                this.onFieldFloat(obj, field, annotation, value);
+                            }
+                            this.onArrayEnd(obj, field, annotation);
+                        }
+                        break;
                         case INT_ARRAY: {
                             assertFieldArray(field);
                             final int len = Array.getLength(array);
                             this.onArrayStart(obj, field, annotation, len);
-                            if (fieldType.getComponentType() == float.class) {
-                                for (int i = 0; i < len; i++) {
-                                    int value = Float.floatToIntBits(Array.getFloat(array, i));
-                                    if (reverseBits) {
-                                        value = (int) JBBPFieldInt.reverseBits(value);
-                                    }
-                                    this.onFieldInt(obj, field, annotation, value);
+                            for (int i = 0; i < len; i++) {
+                                int value = ((Number) Array.get(array, i)).intValue();
+                                if (reverseBits) {
+                                    value = (int) JBBPFieldInt.reverseBits(value);
                                 }
-                            } else {
-                                for (int i = 0; i < len; i++) {
-                                    int value = ((Number) Array.get(array, i)).intValue();
-                                    if (reverseBits) {
-                                        value = (int) JBBPFieldInt.reverseBits(value);
-                                    }
-                                    this.onFieldInt(obj, field, annotation, value);
-                                }
+                                this.onFieldInt(obj, field, annotation, value);
                             }
 
                             this.onArrayEnd(obj, field, annotation);
@@ -415,30 +436,26 @@ public abstract class AbstractMappedClassFieldObserver {
                             assertFieldArray(field);
                             final int len = Array.getLength(array);
                             this.onArrayStart(obj, field, annotation, len);
-                            if (fieldType.getComponentType() == float.class) {
-                                for (int i = 0; i < len; i++) {
-                                    long value = Float.floatToIntBits(Array.getFloat(array, i));
-                                    if (reverseBits) {
-                                        value = JBBPFieldLong.reverseBits(value);
-                                    }
-                                    this.onFieldLong(obj, field, annotation, value);
+                            for (int i = 0; i < len; i++) {
+                                long value = ((Number) Array.get(array, i)).longValue();
+                                if (reverseBits) {
+                                    value = JBBPFieldLong.reverseBits(value);
                                 }
-                            } else if (fieldType.getComponentType() == double.class) {
-                                for (int i = 0; i < len; i++) {
-                                    long value = Double.doubleToLongBits(Array.getDouble(array, i));
-                                    if (reverseBits) {
-                                        value = JBBPFieldLong.reverseBits(value);
-                                    }
-                                    this.onFieldLong(obj, field, annotation, value);
+                                this.onFieldLong(obj, field, annotation, value);
+                            }
+                            this.onArrayEnd(obj, field, annotation);
+                        }
+                        break;
+                        case DOUBLE_ARRAY: {
+                            assertFieldArray(field);
+                            final int len = Array.getLength(array);
+                            this.onArrayStart(obj, field, annotation, len);
+                            for (int i = 0; i < len; i++) {
+                                double value = ((Number) Array.get(array, i)).doubleValue();
+                                if (reverseBits) {
+                                    value = Double.longBitsToDouble(JBBPFieldLong.reverseBits(Double.doubleToLongBits(value)));
                                 }
-                            } else {
-                                for (int i = 0; i < len; i++) {
-                                    long value = ((Number) Array.get(array, i)).longValue();
-                                    if (reverseBits) {
-                                        value = JBBPFieldLong.reverseBits(value);
-                                    }
-                                    this.onFieldLong(obj, field, annotation, value);
-                                }
+                                this.onFieldDouble(obj, field, annotation, value);
                             }
                             this.onArrayEnd(obj, field, annotation);
                         }
@@ -536,6 +553,32 @@ public abstract class AbstractMappedClassFieldObserver {
      * @param value      the value of the field
      */
     protected void onFieldInt(final Object obj, final Field field, final Bin annotation, final int value) {
+
+    }
+
+    /**
+     * Notification about float field.
+     *
+     * @param obj        the object instance, must not be null
+     * @param field      the field, must not be null
+     * @param annotation the annotation for field, must not be null
+     * @param value      the value of the field
+     * @since 1.3.1
+     */
+    protected void onFieldFloat(final Object obj, final Field field, final Bin annotation, final float value) {
+
+    }
+
+    /**
+     * Notification about double field.
+     *
+     * @param obj        the object instance, must not be null
+     * @param field      the field, must not be null
+     * @param annotation the annotation for field, must not be null
+     * @param value      the value of the field
+     * @since 1.3.1
+     */
+    protected void onFieldDouble(final Object obj, final Field field, final Bin annotation, final double value) {
 
     }
 

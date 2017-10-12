@@ -690,6 +690,43 @@ public final class JBBPUtils {
         return result;
     }
 
+
+    /**
+     * Convert double value into string representation with defined radix
+     * base.
+     *
+     * @param doubleValue value to be converted in string
+     * @param radix      radix base to be used for conversion, must be 10 or 16
+     * @return converted value as upper case string
+     * @throws IllegalArgumentException for wrong radix base
+     * @since 1.3.1
+     */
+    public static String double2str(final double doubleValue, final int radix) {
+        if (radix != 10 && radix != 16) {
+            throw new IllegalArgumentException("Illegal radix [" + radix + ']');
+        }
+        return radix == 10 ? Double.toString(doubleValue) : Double.toHexString(doubleValue);
+    }
+
+    /**
+     * Convert float value into string representation with defined radix
+     * base.
+     *
+     * @param floatValue value to be converted in string
+     * @param radix      radix base to be used for conversion, must be 10 or 16
+     * @return converted value as upper case string
+     * @throws IllegalArgumentException for wrong radix base
+     * @since 1.3.1
+     */
+    public static String float2str(final float floatValue, final int radix) {
+        if (radix != 10 && radix != 16) {
+            throw new IllegalArgumentException("Illegal radix [" + radix + ']');
+        }
+        return radix == 10 ? Float.toString(floatValue) : Float.toHexString(floatValue);
+    }
+
+
+
     /**
      * Convert unsigned long value into string representation with defined radix
      * base.

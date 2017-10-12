@@ -148,39 +148,12 @@ public class JBBPMapperTest {
     }
 
     @Test
-    public void testMap_MapIntToFloat() throws Exception {
-        class Mapped {
-
-            @Bin
-            float a;
-        }
-
-        final byte[] max = JBBPOut.BeginBin().Int(Float.floatToIntBits(Float.MAX_VALUE)).End().toByteArray();
-        assertEquals(Float.MAX_VALUE, JBBPParser.prepare("int a;").parse(max).mapTo(Mapped.class).a, 0.005d);
-        final byte[] min = JBBPOut.BeginBin().Int(Float.floatToIntBits(Float.MIN_VALUE)).End().toByteArray();
-        assertEquals(Float.MIN_VALUE, JBBPParser.prepare("int a;").parse(min).mapTo(Mapped.class).a, 0.005d);
-    }
-
-    @Test
     public void testMap_Long() throws Exception {
         class Mapped {
             @Bin
             long a;
         }
         assertEquals(0x0102030405060708L, JBBPParser.prepare("long a;").parse(new byte[]{1, 2, 3, 4, 5, 6, 7, 8}).mapTo(Mapped.class).a);
-    }
-
-    @Test
-    public void testMap_MapLongToDouble() throws Exception {
-        class Mapped {
-            @Bin
-            double a;
-        }
-
-        final byte[] max = JBBPOut.BeginBin().Long(Double.doubleToLongBits(Double.MAX_VALUE)).End().toByteArray();
-        assertEquals(Double.MAX_VALUE, JBBPParser.prepare("long a;").parse(max).mapTo(Mapped.class).a, 0.005d);
-        final byte[] min = JBBPOut.BeginBin().Long(Double.doubleToLongBits(Double.MIN_VALUE)).End().toByteArray();
-        assertEquals(Double.MIN_VALUE, JBBPParser.prepare("long a;").parse(min).mapTo(Mapped.class).a, 0.005d);
     }
 
     @Test

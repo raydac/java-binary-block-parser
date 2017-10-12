@@ -31,6 +31,22 @@ public interface JBBPNumericField {
     int getAsInt();
 
     /**
+     * Get the field value as double.
+     *
+     * @return the field value as double
+     * @since 1.3.1
+     */
+    double getAsDouble();
+
+    /**
+     * Get the field value as float.
+     *
+     * @return the field value as float
+     * @since 1.3.1
+     */
+    float getAsFloat();
+
+    /**
      * Get the field value as long
      *
      * @return the field value as long

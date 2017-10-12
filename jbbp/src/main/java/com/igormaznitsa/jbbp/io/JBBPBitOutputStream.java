@@ -118,6 +118,27 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
     }
 
     /**
+     * Write an float value into the output stream.
+     *
+     * @param value     a value to be written into the output stream.
+     * @param byteOrder the byte order of the value bytes to be used for writing.
+     * @throws IOException it will be thrown for transport errors
+     * @see JBBPByteOrder#BIG_ENDIAN
+     * @see JBBPByteOrder#LITTLE_ENDIAN
+     * @since 1.3.1
+     */
+    public void writeFloat(final float value, final JBBPByteOrder byteOrder) throws IOException {
+        final int intValue = Float.floatToIntBits(value);
+        if (byteOrder == JBBPByteOrder.BIG_ENDIAN) {
+            this.writeShort(intValue >>> 16, byteOrder);
+            this.writeShort(intValue, byteOrder);
+        } else {
+            this.writeShort(intValue, byteOrder);
+            this.writeShort(intValue >>> 16, byteOrder);
+        }
+    }
+
+    /**
      * Write a long value into the output stream.
      *
      * @param value     a value to be written into the output stream.
@@ -133,6 +154,27 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
         } else {
             this.writeInt((int) value, byteOrder);
             this.writeInt((int) (value >>> 32), byteOrder);
+        }
+    }
+
+    /**
+     * Write a double value into the output stream.
+     *
+     * @param value     a value to be written into the output stream.
+     * @param byteOrder the byte order of the value bytes to be used for writing.
+     * @throws IOException it will be thrown for transport errors
+     * @see JBBPByteOrder#BIG_ENDIAN
+     * @see JBBPByteOrder#LITTLE_ENDIAN
+     * @since 1.3.1
+     */
+    public void writeDouble(final double value, final JBBPByteOrder byteOrder) throws IOException {
+        final long longValue = Double.doubleToLongBits(value);
+        if (byteOrder == JBBPByteOrder.BIG_ENDIAN) {
+            this.writeInt((int) (longValue >>> 32), byteOrder);
+            this.writeInt((int) longValue, byteOrder);
+        } else {
+            this.writeInt((int) longValue, byteOrder);
+            this.writeInt((int) (longValue >>> 32), byteOrder);
         }
     }
 

@@ -72,6 +72,16 @@ public final class JBBPFieldBit extends JBBPAbstractField implements JBBPNumeric
     }
 
     @Override
+    public double getAsDouble() {
+        return (double)(this.value & 0xFF);
+    }
+
+    @Override
+    public float getAsFloat() {
+        return (float)(this.value & 0xFF);
+    }
+
+    @Override
     public int getAsInt() {
         return this.value & 0xFF;
     }

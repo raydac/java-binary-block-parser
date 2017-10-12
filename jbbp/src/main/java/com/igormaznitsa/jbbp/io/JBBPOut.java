@@ -780,7 +780,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
         assertArrayNotNull(value);
         if (this.processCommands) {
             for (final float f : value) {
-                _writeInt(Float.floatToIntBits(f));
+                _writeFloat(f);
             }
         }
         return this;
@@ -795,6 +795,30 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
      */
     private void _writeLong(final long value) throws IOException {
         this.outStream.writeLong(value, this.byteOrder);
+    }
+
+    /**
+     * Inside auxiliary method to write a double value into the session stream
+     * without checking.
+     *
+     * @param value a double value to be written into
+     * @throws IOException it will be thrown for transport errors
+     * @since 1.3.1
+     */
+    private void _writeDouble(final double value) throws IOException {
+        this.outStream.writeDouble(value, this.byteOrder);
+    }
+
+    /**
+     * Inside auxiliary method to write a float value into the session stream
+     * without checking.
+     *
+     * @param value a float value to be written into
+     * @throws IOException it will be thrown for transport errors
+     * @since 1.3.1
+     */
+    private void _writeFloat(final float value) throws IOException {
+        this.outStream.writeFloat(value, this.byteOrder);
     }
 
     /**
@@ -825,7 +849,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
         assertArrayNotNull(value);
         if (this.processCommands) {
             for (final double d : value) {
-                _writeLong(Double.doubleToLongBits(d));
+                _writeDouble(d);
             }
         }
         return this;
@@ -973,6 +997,24 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
         }
 
         return this;
+    }
+
+    @Override
+    protected void onFieldFloat(final Object obj, final Field field, final Bin annotation, final float value) {
+        try {
+            this.Float(value);
+        } catch (IOException ex) {
+            throw new JBBPIOException("Can't write float value", ex);
+        }
+    }
+
+    @Override
+    protected void onFieldDouble(final Object obj, final Field field, final Bin annotation, final double value) {
+        try {
+            this.Double(value);
+        } catch (IOException ex) {
+            throw new JBBPIOException("Can't write double value", ex);
+        }
     }
 
     @Override

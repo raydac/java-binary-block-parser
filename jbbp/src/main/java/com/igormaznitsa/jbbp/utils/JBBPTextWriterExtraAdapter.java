@@ -52,6 +52,16 @@ public abstract class JBBPTextWriterExtraAdapter implements JBBPTextWriter.Extra
     }
 
     @Override
+    public String doConvertFloatToStr(JBBPTextWriter context, float value) throws IOException {
+        return null;
+    }
+
+    @Override
+    public String doConvertDoubleToStr(JBBPTextWriter context, double value) throws IOException {
+        return null;
+    }
+
+    @Override
     public String doConvertIntToStr(final JBBPTextWriter context, final int value) throws IOException {
         return null;
     }
