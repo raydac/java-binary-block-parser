@@ -234,7 +234,7 @@ public final class JBBPParser {
             final int ec = wideCode ? compiled[positionAtCompiledBlock.getAndIncrement()] & 0xFF : 0;
             final boolean extraFieldNumAsExpr = (ec & JBBPCompiler.EXT_FLAG_EXTRA_AS_EXPRESSION) != 0;
             final int code = (ec << 8) | c;
-            final boolean fieldIsFloatOrDouble = wideCode ? (ec & JBBPCompiler.EXT_FLAG_EXTRA_AS_FLOAT_OR_DOUBLE) != 0 : false;
+            final boolean fieldIsFloatOrDouble = (ec & JBBPCompiler.EXT_FLAG_EXTRA_AS_FLOAT_OR_DOUBLE) != 0;
 
             final JBBPNamedFieldInfo name = (code & JBBPCompiler.FLAG_NAMED) == 0 ? null : compiledBlock.getNamedFields()[positionAtNamedFieldList.getAndIncrement()];
             final JBBPByteOrder byteOrder = (code & JBBPCompiler.FLAG_LITTLE_ENDIAN) == 0 ? JBBPByteOrder.BIG_ENDIAN : JBBPByteOrder.LITTLE_ENDIAN;
