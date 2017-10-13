@@ -535,7 +535,21 @@ public final class JBBPMapper {
      */
     private static void mapArrayField(final Object mappingClassInstance, final Field mappingField, final JBBPAbstractArrayField<?> arrayField, final boolean invertBitOrder) {
         try {
-            if (arrayField instanceof JBBPFieldArrayUShort && mappingField.getType().getComponentType() == char.class) {
+            if (arrayField instanceof JBBPFieldArrayLong && mappingField.getType().getComponentType() == double.class) {
+                final long[] longarray = (long[]) arrayField.getValueArrayAsObject(invertBitOrder);
+                final double[] doublearray = new double[longarray.length];
+                for (int i = 0; i < longarray.length; i++) {
+                    doublearray[i] = Double.longBitsToDouble(longarray[i]);
+                }
+                mappingField.set(mappingClassInstance, doublearray);
+            } else if (arrayField instanceof JBBPFieldArrayInt && mappingField.getType().getComponentType() == float.class) {
+                final int[] intarray = (int[]) arrayField.getValueArrayAsObject(invertBitOrder);
+                final float[] floatarray = new float[intarray.length];
+                for (int i = 0; i < intarray.length; i++) {
+                    floatarray[i] = Float.intBitsToFloat(intarray[i]);
+                }
+                mappingField.set(mappingClassInstance, floatarray);
+            } else if (arrayField instanceof JBBPFieldArrayUShort && mappingField.getType().getComponentType() == char.class) {
                 final short[] shortarray = (short[]) arrayField.getValueArrayAsObject(invertBitOrder);
                 final char[] chararray = new char[shortarray.length];
                 for (int i = 0; i < shortarray.length; i++) {
