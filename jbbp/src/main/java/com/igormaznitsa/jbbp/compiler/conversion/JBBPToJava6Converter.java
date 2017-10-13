@@ -301,9 +301,22 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     }
 
     @Override
-    public void visitPrimitiveField(final int offsetInCompiledBlock, final int primitiveType, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPByteOrder byteOrder, final boolean readWholeStreamAsArray, final JBBPIntegerValueEvaluator nullableArraySize) {
+    public void visitPrimitiveField(final int offsetInCompiledBlock, final int primitiveType, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPByteOrder byteOrder, final boolean readWholeStreamAsArray, final boolean isFloatOrDouble, final JBBPIntegerValueEvaluator nullableArraySize) {
         final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() : nullableNameFieldInfo.getFieldName();
-        final FieldType type = FieldType.findForCode(primitiveType);
+        FieldType type = FieldType.findForCode(primitiveType);
+
+        if (isFloatOrDouble) {
+            switch (type) {
+                case INT:
+                    type = FieldType.FLOAT;
+                    break;
+                case LONG:
+                    type = FieldType.DOUBLE;
+                    break;
+                default:
+                    throw new Error("Unexpected type : " + type);
+            }
+        }
 
         registerNamedField(nullableNameFieldInfo, type);
 
@@ -715,9 +728,9 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
         String result = buffer.toString();
         if (result.startsWith("(") && result.endsWith(")")) {
-            try{
-                result = Integer.toString(Integer.parseInt(result.substring(1,result.length()-1).trim()));
-            }catch(NumberFormatException ex){
+            try {
+                result = Integer.toString(Integer.parseInt(result.substring(1, result.length() - 1).trim()));
+            } catch (NumberFormatException ex) {
                 // ignore the excepton because it is checking exception
             }
         }
@@ -762,6 +775,8 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
         CUSTOM(-1, "", "", "", "", "", "", ""),
         VAR(-2, "", "", "", "", "", "", ""),
         BIT(-3, "", "", "", "", "", "", ""),
+        FLOAT(-4, "float", "float", "%s.readFloat(%s)", "%s.readFloatArray(%s,%s)", "%s.writeFloat(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeFloat(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeFloat(%2$s[I],%3$s);}"),
+        DOUBLE(-5, "double", "double", "%s.readDouble(%s)", "%s.readDoubleArray(%s,%s)", "%s.writeDouble(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeDouble(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeDouble(%2$s[I],%3$s);}"),
         UNKNOWN(Integer.MIN_VALUE, "", "", "", "", "", "", "");
 
         private final int code;
