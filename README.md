@@ -15,6 +15,9 @@ For instance I have been very actively using the framework in [the ZX-Poly emula
 ![Use cases](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_mm.png)
 
 # Change log
+- **1.3.1 (under development)**
+  - added support of float and double java types, as `floatj` and `doublej`
+  
 - **1.3.0 (02-sep-2017)**
   - __Fixed issue [#16 NullPointerException when referencing a JBBPCustomFieldTypeProcessor parsed field"](https://github.com/raydac/java-binary-block-parser/issues/16), many thanks to @use-sparingly for the bug report__
   - [added Maven plugin to generate sources from JBBP scripts](https://search.maven.org/#artifactdetails%7Ccom.igormaznitsa%7Cjbbp-maven-plugin%7C1.3.0%7Cmaven-plugin)
