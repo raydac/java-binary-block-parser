@@ -120,6 +120,54 @@ public class JBBPToJBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6
     }
 
     @Test
+    public void testReadWite_Float_SingleValue() throws Exception {
+        final Object instance = compileAndMakeInstance("floatj value;");
+        final byte[] etalon = new byte[]{1, 2, 3, 4};
+
+        callRead(instance, etalon.clone());
+
+        assertEquals(2.3879393E-38f, getField(instance, "value", Float.class).floatValue(), 0.0f);
+        assertArrayEquals(etalon, callWrite(instance));
+    }
+
+    @Test
+    public void testReadWite_FloatArrayWholeStream() throws Exception {
+        final Object instance = compileAndMakeInstance("floatj [_] floatArray;");
+        assertNull("by default must be null", getField(instance, "floatarray", float[].class));
+
+        final byte[] etalon = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 22, 33, 44, 55, 66, 77};
+
+        callRead(instance, etalon.clone());
+
+        assertArrayEquals(new float[]{2.3879393E-38f, 6.301941E-36f, 1.5417845E-33f, 2.6042668E-12f}, getField(instance, "floatarray", float[].class), 0.0f);
+        assertArrayEquals(etalon, callWrite(instance));
+    }
+
+    @Test
+    public void testReadWite_Double_SingleValue() throws Exception {
+        final Object instance = compileAndMakeInstance("doublej value;");
+        final byte[] etalon = new byte[]{1, 2, 3, 4, 5, 6, 7, 8};
+
+        callRead(instance, etalon.clone());
+
+        assertEquals(8.20788039913184E-304d, getField(instance, "value", Double.class).doubleValue(), 0.0f);
+        assertArrayEquals(etalon, callWrite(instance));
+    }
+
+    @Test
+    public void testReadWite_DoubleArrayWholeStream() throws Exception {
+        final Object instance = compileAndMakeInstance("doublej [_] doubleArray;");
+        assertNull("by default must be null", getField(instance, "doublearray", double[].class));
+
+        final byte[] etalon = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 22, 33, 44, 55, 66, 77, 3, 5, 9, 11, 33, 12, 10, 45};
+
+        callRead(instance, etalon.clone());
+
+        assertArrayEquals(new double[]{8.20788039913184E-304d, 2.494444648262547E-265d, 4.117024896955411E-294d}, getField(instance, "doublearray", double[].class), 0.0d);
+        assertArrayEquals(etalon, callWrite(instance));
+    }
+
+    @Test
     public void testReadWite_BitArrayWholeStream() throws Exception {
         final Object instance = compileAndMakeInstance("bit [_] bitArray;");
         assertNull("by default must be null", getField(instance, "bitarray", byte[].class));
