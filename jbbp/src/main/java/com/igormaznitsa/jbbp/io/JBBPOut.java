@@ -774,6 +774,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
      * @return the DSL session
      * @throws IOException it will be thrown for transport errors
      * @see Float#floatToIntBits(float)
+     * @since 1.3.1
      */
     public JBBPOut Float(final float... value) throws IOException {
         assertNotEnded();
@@ -843,6 +844,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
      * @return the DSL session
      * @throws IOException it will be thrown for transport errors
      * @see Double#doubleToLongBits(double)
+     * @since 1.3.1
      */
     public JBBPOut Double(final double... value) throws IOException {
         assertNotEnded();
