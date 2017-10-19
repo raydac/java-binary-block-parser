@@ -1341,6 +1341,10 @@ public class JBBPTextWriter extends FilterWriter {
                         Byte(((JBBPFieldArrayUByte) array).getArray());
                     } else if (array instanceof JBBPFieldArrayUShort) {
                         Short(((JBBPFieldArrayUShort) array).getArray());
+                    } else if (array instanceof JBBPFieldArrayFloat) {
+                        Float(((JBBPFieldArrayFloat) array).getArray());
+                    } else if (array instanceof JBBPFieldArrayDouble) {
+                        Double(((JBBPFieldArrayDouble) array).getArray());
                     } else {
                         throw new Error("Unexpected field [" + field.getClass() + ']');
                     }
@@ -1374,6 +1378,10 @@ public class JBBPTextWriter extends FilterWriter {
                     Byte(numeric.getAsInt());
                 } else if (numeric instanceof JBBPFieldUShort) {
                     Short(numeric.getAsInt());
+                } else if (numeric instanceof JBBPFieldFloat) {
+                    Float(numeric.getAsFloat());
+                } else if (numeric instanceof JBBPFieldDouble) {
+                    Double(numeric.getAsDouble());
                 } else {
                     throw new Error("Unexpected field [" + field.getClass() + ']');
                 }
@@ -1827,6 +1835,30 @@ public class JBBPTextWriter extends FilterWriter {
                 }
             } catch (IOException ex) {
                 throw new JBBPIOException("Can't log int field", ex);
+            }
+        }
+
+        @Override
+        protected void onFieldFloat(final Object obj, final Field field, final Bin annotation, final float value) {
+            try {
+                Float(value);
+                if (this.arrayCounter == 0) {
+                    Comment(makeFieldDescription(field, annotation));
+                }
+            } catch (IOException ex) {
+                throw new JBBPIOException("Can't log float field", ex);
+            }
+        }
+
+        @Override
+        protected void onFieldDouble(final Object obj, final Field field, final Bin annotation, final double value) {
+            try {
+                Double(value);
+                if (this.arrayCounter == 0) {
+                    Comment(makeFieldDescription(field, annotation));
+                }
+            } catch (IOException ex) {
+                throw new JBBPIOException("Can't log double field", ex);
             }
         }
 

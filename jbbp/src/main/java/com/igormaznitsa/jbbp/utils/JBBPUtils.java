@@ -705,7 +705,22 @@ public final class JBBPUtils {
         if (radix != 10 && radix != 16) {
             throw new IllegalArgumentException("Illegal radix [" + radix + ']');
         }
-        return radix == 10 ? Double.toString(doubleValue) : Double.toHexString(doubleValue);
+
+        final String result;
+        if (radix == 16) {
+            String converted = Double.toHexString(doubleValue);
+            boolean minus = converted.startsWith("-");
+            if (minus){
+                converted = converted.substring(1);
+            }
+            if (converted.startsWith("0x")){
+                converted = converted.substring(2);
+            }
+            result = (minus ? '-' + converted : converted).toUpperCase(Locale.ENGLISH);
+        } else {
+            result = Double.toString(doubleValue);
+        }
+        return result;
     }
 
     /**
@@ -722,7 +737,21 @@ public final class JBBPUtils {
         if (radix != 10 && radix != 16) {
             throw new IllegalArgumentException("Illegal radix [" + radix + ']');
         }
-        return radix == 10 ? Float.toString(floatValue) : Float.toHexString(floatValue);
+        final String result;
+        if (radix == 16) {
+            String converted = Double.toHexString(floatValue);
+            boolean minus = converted.startsWith("-");
+            if (minus){
+                converted = converted.substring(1);
+            }
+            if (converted.startsWith("0x")){
+                converted = converted.substring(2);
+            }
+            result = (minus ? '-' + converted : converted).toUpperCase(Locale.ENGLISH);
+        } else {
+            result = Double.toString(floatValue);
+        }
+        return result;
     }
 
 

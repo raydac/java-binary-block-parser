@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.*;
@@ -88,6 +89,36 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
     @Test
     public void testComment_DisableEnable() throws Exception {
         assertEquals(";Hrum\n.0x01,0x00000001,0x0000000000000001", writer.DisableComments().Comment("Hello World").EnableComments().Comment("Hrum").Byte(1).Int(1).Long(1).Close().toString());
+    }
+
+    @Test
+    public void testDouble_Max_radix10() throws Exception {
+        assertEquals(".1.7976931348623157E308", writer.SetValuePrefix("").Radix(10).Double(Double.MAX_VALUE).Close().toString());
+    }
+
+    @Test
+    public void testDouble_Max_radix16() throws Exception {
+        assertEquals(".1.FFFFFFFFFFFFFP1023", writer.SetValuePrefix("").Radix(16).Double(Double.MAX_VALUE).Close().toString());
+    }
+
+    @Test
+    public void testFloat_Max_radix10() throws Exception {
+        assertEquals(".3.4028234663852886E38", writer.SetValuePrefix("").Radix(10).Float(Float.MAX_VALUE).Close().toString());
+    }
+
+    @Test
+    public void testFloat_Min_radix10() throws Exception {
+        assertEquals(".-1.401298464324817E-45", writer.SetValuePrefix("").Radix(10).Float(-Float.MIN_VALUE).Close().toString());
+    }
+
+    @Test
+    public void testFloat_Max_radix16() throws Exception {
+        assertEquals(".1.FFFFFEP127", writer.SetValuePrefix("").Radix(16).Float(Float.MAX_VALUE).Close().toString());
+    }
+
+    @Test
+    public void testFloat_Min_radix16() throws Exception {
+        assertEquals(".-1.0P-149", writer.SetValuePrefix("").Radix(16).Float(-Float.MIN_VALUE).Close().toString());
     }
 
     @Test
@@ -577,15 +608,25 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
             }
 
             @Override
+            public String doConvertFloatToStr(JBBPTextWriter context, float value) throws IOException {
+                return "float" + value;
+            }
+
+            @Override
+            public String doConvertDoubleToStr(JBBPTextWriter context, double value) throws IOException {
+                return "double" + value;
+            }
+
+            @Override
             public String doConvertByteToStr(JBBPTextWriter context, int value) throws IOException {
                 return "byte" + value;
             }
 
         });
 
-        writer.SetValuePrefix("").Byte(1).Short(2).Int(3).Long(4).Obj(234, "Str");
+        writer.SetValuePrefix("").Byte(1).Short(2).Int(3).Long(4).Obj(234, "Str").Float(Float.MIN_VALUE).Double(Double.MAX_VALUE);
 
-        assertEquals(".byte1,short2,int3,long4,objStr", writer.Close().toString());
+        assertEquals(".byte1,short2,int3,long4,objStr,float1.4E-45,double1.7976931348623157E308", writer.Close().toString());
     }
 
     @Test
@@ -664,6 +705,34 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
         } finally {
             JBBPUtils.closeQuietly(pngStream);
         }
+    }
+
+    @Test
+    public void testBin_ParsedDoubleFloat() throws Exception {
+        final InputStream pngStream = getResourceAsInputStream("picture.png");
+            final JBBPParser parser = JBBPParser.prepare("floatj f; doublej d; floatj [2] fa; doublej [2] da;");
+
+            class Klazz {
+
+                @Bin
+                float f;
+                @Bin
+                float [] fa;
+                @Bin
+                double d;
+                @Bin
+                double [] da;
+            }
+
+            final byte [] data = new byte[4+8+4*2+8*2];
+            new Random(111222).nextBytes(data);
+
+            final Klazz parsed = parser.parse(data).mapTo(Klazz.class);
+
+            final String text = writer.SetMaxValuesPerLine(16).Bin(parsed).Close().toString();
+
+            System.out.println(text);
+            assertFile("testwriterbinfloatdouble.txt", text);
     }
 
     @Test
