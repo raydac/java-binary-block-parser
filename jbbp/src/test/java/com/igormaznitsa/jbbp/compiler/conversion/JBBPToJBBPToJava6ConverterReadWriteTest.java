@@ -22,6 +22,7 @@ import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.io.JBBPBitOutputStream;
+import com.igormaznitsa.jbbp.io.JBBPOut;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
@@ -179,6 +180,34 @@ public class JBBPToJBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6
 
         assertEquals(etalon.length * 8, getField(instance, "bitarray", byte[].class).length);
         assertArrayEquals(etalon, callWrite(instance));
+    }
+
+    @Test
+    public void testReadWite_FloatFieldAsCounter() throws Exception {
+        final Object instance = compileAndMakeInstance("floatj len; byte [len] data;");
+        assertNull("by default must be null", getField(instance, "data", byte[].class));
+
+        final byte [] data = JBBPOut.BeginBin().Float(3.3f).Byte(1,2,3).End().toByteArray();
+
+        callRead(instance, data.clone());
+
+        assertEquals(3.3f, getField(instance, "len", Float.class).floatValue(),0.0f);
+        assertArrayEquals(new byte []{1,2,3}, getField(instance, "data", byte[].class));
+        assertArrayEquals(data, callWrite(instance));
+    }
+
+    @Test
+    public void testReadWite_DoubleFloatFieldAsCounter() throws Exception {
+        final Object instance = compileAndMakeInstance("doublej len; byte [len] data;");
+        assertNull("by default must be null", getField(instance, "data", byte[].class));
+
+        final byte [] data = JBBPOut.BeginBin().Double(3.3d).Byte(1,2,3).End().toByteArray();
+
+        callRead(instance, data.clone());
+
+        assertEquals(3.3d, getField(instance, "len", Double.class).doubleValue(),0.0f);
+        assertArrayEquals(new byte []{1,2,3}, getField(instance, "data", byte[].class));
+        assertArrayEquals(data, callWrite(instance));
     }
 
     @Test
