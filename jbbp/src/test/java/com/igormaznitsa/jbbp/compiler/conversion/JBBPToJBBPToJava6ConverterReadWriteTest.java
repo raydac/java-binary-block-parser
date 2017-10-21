@@ -197,6 +197,20 @@ public class JBBPToJBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6
     }
 
     @Test
+    public void testReadWite_FloatFieldAsCounter_Expression() throws Exception {
+        final Object instance = compileAndMakeInstance("floatj len; byte [len/2] data;");
+        assertNull("by default must be null", getField(instance, "data", byte[].class));
+
+        final byte [] data = JBBPOut.BeginBin().Float(4.3f).Byte(1,2).End().toByteArray();
+
+        callRead(instance, data.clone());
+
+        assertEquals(4.3f, getField(instance, "len", Float.class).floatValue(),0.0f);
+        assertArrayEquals(new byte []{1,2}, getField(instance, "data", byte[].class));
+        assertArrayEquals(data, callWrite(instance));
+    }
+
+    @Test
     public void testReadWite_DoubleFloatFieldAsCounter() throws Exception {
         final Object instance = compileAndMakeInstance("doublej len; byte [len] data;");
         assertNull("by default must be null", getField(instance, "data", byte[].class));
@@ -207,6 +221,20 @@ public class JBBPToJBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6
 
         assertEquals(3.3d, getField(instance, "len", Double.class).doubleValue(),0.0f);
         assertArrayEquals(new byte []{1,2,3}, getField(instance, "data", byte[].class));
+        assertArrayEquals(data, callWrite(instance));
+    }
+
+    @Test
+    public void testReadWite_DoubleFloatFieldAsCounter_Expression() throws Exception {
+        final Object instance = compileAndMakeInstance("doublej len; byte [len/2] data;");
+        assertNull("by default must be null", getField(instance, "data", byte[].class));
+
+        final byte [] data = JBBPOut.BeginBin().Double(4.3d).Byte(1,2).End().toByteArray();
+
+        callRead(instance, data.clone());
+
+        assertEquals(4.3d, getField(instance, "len", Double.class).doubleValue(),0.0f);
+        assertArrayEquals(new byte []{1,2}, getField(instance, "data", byte[].class));
         assertArrayEquals(data, callWrite(instance));
     }
 
