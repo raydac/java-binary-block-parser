@@ -16,6 +16,7 @@ For instance I have been very actively using the framework in [the ZX-Poly emula
 
 # Change log
 - **1.3.1 (under development)**
+  - added stable automatic module name `igormaznitsa.jbbp` into manifest file 
   - added support of float and double java types, as `floatj` and `doublej`
   
 - **1.3.0 (02-sep-2017)**

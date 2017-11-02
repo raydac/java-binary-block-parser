@@ -1,6 +1,7 @@
 Change log
 --------------------------
 - 1.3.1
+ - added stable automatic module name `igormaznitsa.jbbp` into manifest file
  - added support of float and double java types, as `floatj` and `doublej`
 
 1.3.0
