@@ -16,6 +16,7 @@ For instance I have been very actively using the framework in [the ZX-Poly emula
 
 # Change log
 - **1.3.1 (under development)**
+  - improved Java 6 class source generator to process FLAG_SKIP_REMAINING_FIELDS_IF_EOF for structure fields
   - added stable automatic module name `igormaznitsa.jbbp` into manifest file 
   - added support of float and double java types, as `floatj` and `doublej`
   

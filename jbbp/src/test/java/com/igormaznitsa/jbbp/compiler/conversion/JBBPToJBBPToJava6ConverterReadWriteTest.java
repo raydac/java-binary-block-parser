@@ -239,6 +239,28 @@ public class JBBPToJBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6
     }
 
     @Test
+    public void testReadWriteWithOptionallyIgnoredStructure() throws Exception {
+        final Object instance = compileAndMakeInstance(PACKAGE_NAME + '.' + CLASS_NAME,"byte a; optional { byte b; }",JBBPParser.FLAG_SKIP_REMAINING_FIELDS_IF_EOF,null);
+
+        callRead(instance,new byte[]{1});
+        assertEquals(1, getField(instance, "a", Byte.class).byteValue());
+        assertNull(getField(instance, "optional", Object.class));
+
+        assertArrayEquals(new byte[]{1},callWrite(instance));
+    }
+
+    @Test
+    public void testReadWriteWithOptionallyIgnoredStructureArray() throws Exception {
+        final Object instance = compileAndMakeInstance(PACKAGE_NAME + '.' + CLASS_NAME,"byte a; optional [_] { byte b; }",JBBPParser.FLAG_SKIP_REMAINING_FIELDS_IF_EOF,null);
+
+        callRead(instance,new byte[]{1});
+        assertEquals(1, getField(instance, "a", Byte.class).byteValue());
+        assertNull(getField(instance, "optional", Object[].class));
+
+        assertArrayEquals(new byte[]{1},callWrite(instance));
+    }
+
+    @Test
     public void testReadWite_PNG() throws Exception {
         final Object instance = compileAndMakeInstance("long header;"
                 + "// chunks\n"

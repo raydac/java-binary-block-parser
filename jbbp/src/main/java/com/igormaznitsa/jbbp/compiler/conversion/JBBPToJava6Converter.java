@@ -261,6 +261,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
             structType = structBaseTypeName;
             this.getCurrentStruct().getFields().indent().print(fieldModifier).printf(" %s %s;", structType, structName).println();
             processSkipRemainingFlag();
+            processSkipRemainingFlagForWriting("this."+structName);
             this.getCurrentStruct().getReadFunc().indent()
                     .printf("if ( this.%1$s == null) { this.%1$s = new %2$s(%3$s);}", structName, structType, this.structStack.size() == 1 ? "this" : "this." + NAME_ROOT_STRUCT)
                     .printf(" this.%s.read(%s);%n", structName, NAME_INPUT_STREAM);
@@ -269,6 +270,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
             structType = structBaseTypeName + " []";
             this.getCurrentStruct().getFields().indent().print(fieldModifier).printf(" %s %s;", structType, structName).println();
             processSkipRemainingFlag();
+            processSkipRemainingFlagForWriting("this."+structName);
             if ("-1".equals(arraySizeIn)) {
                 this.getCurrentStruct().getReadFunc().indent()
                         .printf("List<%3$s> __%1$s_tmplst__ = new ArrayList<%3$s>(); while (%5$s.hasAvailableData()){ __%1$s_tmplst__.add(new %3$s(%4$s).read(%5$s));} this.%1$s = __%1$s_tmplst__.toArray(new %3$s[__%1$s_tmplst__.size()]);__%1$s_tmplst__ = null;%n", structName, arraySizeIn, structBaseTypeName, (this.structStack.size() == 1 ? "this" : NAME_ROOT_STRUCT), NAME_INPUT_STREAM);
@@ -292,6 +294,12 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     private void processSkipRemainingFlag() {
         if (this.isFlagSkipRemainingFieldsIfEOF()) {
             this.getCurrentStruct().getReadFunc().indent().println(String.format("if (!%s.hasAvailableData()) return this;", NAME_INPUT_STREAM));
+        }
+    }
+
+    private void processSkipRemainingFlagForWriting(final String structFieldName) {
+        if (this.isFlagSkipRemainingFieldsIfEOF()) {
+            this.getCurrentStruct().getWriteFunc().indent().println(String.format("if (%s == null) return this;", structFieldName));
         }
     }
 
