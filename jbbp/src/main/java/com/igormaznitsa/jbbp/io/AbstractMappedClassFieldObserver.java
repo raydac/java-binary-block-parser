@@ -23,6 +23,7 @@ import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldShort;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
+import com.igormaznitsa.jbbp.utils.ReflectUtils;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -77,7 +78,7 @@ public abstract class AbstractMappedClassFieldObserver {
      * @param field                a field where the object has been found, it can be null for first call
      * @param customFieldProcessor a processor for custom fields, it can be null
      */
-    protected void processObject(final Object obj, final Field field, final Object customFieldProcessor) {
+    protected void processObject(final Object obj, Field field, final Object customFieldProcessor) {
         JBBPUtils.assertNotNull(obj, "Object must not be null");
 
         Field[] orderedFields = null;
@@ -108,10 +109,8 @@ public abstract class AbstractMappedClassFieldObserver {
                 final Class<?> clazzToProcess = listOfClassHierarchy.get(i);
                 final Bin clazzAnno = clazzToProcess.getAnnotation(Bin.class);
 
-                for (final Field f : clazzToProcess.getDeclaredFields()) {
-                    if (!f.isAccessible()) {
-                        JBBPUtils.makeAccessible(f);
-                    }
+                for (Field f : clazzToProcess.getDeclaredFields()) {
+                    f = ReflectUtils.makeAccessible(f);
 
                     final int modifiers = f.getModifiers();
                     if (Modifier.isTransient(modifiers) || Modifier.isStatic(modifiers) || f.getName().indexOf('$') >= 0) {
@@ -140,9 +139,7 @@ public abstract class AbstractMappedClassFieldObserver {
             }
         }
 
-        if (field != null && !field.isAccessible()) {
-            JBBPUtils.makeAccessible(field);
-        }
+        field = ReflectUtils.makeAccessible(field);
 
         final Bin clazzAnno = obj.getClass().getAnnotation(Bin.class);
         final Bin fieldAnno = field == null ? null : field.getAnnotation(Bin.class);

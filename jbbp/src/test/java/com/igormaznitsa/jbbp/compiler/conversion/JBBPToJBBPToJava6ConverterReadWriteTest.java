@@ -27,6 +27,7 @@ import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJava6ConverterTest;
+import com.igormaznitsa.jbbp.utils.ReflectUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
@@ -70,7 +71,7 @@ public class JBBPToJBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6
         final String fullClassName = PACKAGE_NAME + '.' + CLASS_NAME;
         final ClassLoader classLoader = saveAndCompile(new JavaClassContent(fullClassName, text));
 
-        final Object instance = classLoader.loadClass(fullClassName).newInstance();
+        final Object instance = ReflectUtils.newInstance(classLoader.loadClass(fullClassName));
         callRead(instance, new byte[]{0, 1, 2, 3, 4, 5});
         final ByteTestInterface[] data = getFieldThroughGetters(instance, "z.x.y", ByteTestInterface[].class);
         for (int i = 0; i < 6; i++) {
@@ -89,7 +90,7 @@ public class JBBPToJBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6
         final String fullClassName = PACKAGE_NAME + '.' + CLASS_NAME;
         final ClassLoader classLoader = saveAndCompile(new JavaClassContent(fullClassName, text));
 
-        final Object instance = classLoader.loadClass(fullClassName).newInstance();
+        final Object instance = ReflectUtils.newInstance(classLoader.loadClass(fullClassName));
         callRead(instance, new byte[]{42});
         final ByteTestInterface data = getFieldThroughGetters(instance, "z.x.y", ByteTestInterface.class);
         assertEquals(42, data.getA());

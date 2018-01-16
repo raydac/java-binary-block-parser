@@ -17,6 +17,7 @@ package com.igormaznitsa.jbbp.mapper.instantiators;
 
 import com.igormaznitsa.jbbp.utils.JBBPSystemProperty;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
+import com.igormaznitsa.jbbp.utils.ReflectUtils;
 
 /**
  * The Factory produces a class instantiator which is compatible with the
@@ -103,16 +104,6 @@ public final class JBBPClassInstantiatorFactory {
                 throw new Error("Unexpected type, contact developer! [" + type + ']');
         }
 
-        try {
-            final Class<?> klazz = Class.forName(className);
-            return JBBPClassInstantiator.class.cast(klazz.newInstance());
-        } catch (ClassNotFoundException ex) {
-            throw new Error("Can't make instantiator because can't find class '" + className + "', may be the class is obfuscated or wrong defined", ex);
-        } catch (IllegalAccessException ex) {
-            throw new Error("Can't make instantiator from '" + className + "'for access exception ", ex);
-        } catch (InstantiationException ex) {
-            throw new Error("Can't make instantiator from '" + className + "'for inside exception", ex);
-        }
-
+        return JBBPClassInstantiator.class.cast(ReflectUtils.newInstanceForClassName(className));
     }
 }

@@ -5,3 +5,5 @@
 *.iml
 /jbbp-plugins/jbbp-gradle/.gradle/
 /jbbp-plugins/jbbp-gradle/build/
+/jbbp/BenchmarkList
+/jbbp/CompilerHints

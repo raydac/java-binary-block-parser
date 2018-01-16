@@ -16,6 +16,7 @@
 package com.igormaznitsa.jbbp.mapper.instantiators;
 
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
+import com.igormaznitsa.jbbp.utils.ReflectUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -44,11 +45,9 @@ public final class JBBPUnsafeInstantiator implements JBBPClassInstantiator {
     static {
         try {
             final Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
-            final Field singleoneInstanceField = unsafeClass.getDeclaredField("theUnsafe");
-            JBBPUtils.makeAccessible(singleoneInstanceField);
+            final Field singleoneInstanceField = ReflectUtils.makeAccessible(unsafeClass.getDeclaredField("theUnsafe"));
             SUN_MISC_UNSAFE = singleoneInstanceField.get(null);
-            ALLOCATE_INSTANCE_METHOD = unsafeClass.getMethod("allocateInstance", Class.class);
-            JBBPUtils.makeAccessible(ALLOCATE_INSTANCE_METHOD);
+            ALLOCATE_INSTANCE_METHOD = ReflectUtils.makeAccessible(unsafeClass.getMethod("allocateInstance", Class.class));
         } catch (ClassNotFoundException e) {
             throw new Error("Can't find 'sun.misc.Unsafe' class", e);
         } catch (IllegalAccessException e) {

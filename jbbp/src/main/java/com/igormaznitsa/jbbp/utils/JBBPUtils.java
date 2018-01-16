@@ -23,11 +23,10 @@ import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
-import java.lang.reflect.AccessibleObject;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Misc auxiliary methods to be used in the framework.
@@ -36,37 +35,7 @@ import java.util.concurrent.ArrayBlockingQueue;
  */
 public final class JBBPUtils {
 
-    /**
-     * Inside auxiliary queue for privileged processors to avoid mass creation of
-     * processors.
-     *
-     * @since 1.1
-     */
-    private static final Queue<PrivilegedProcessor> PROCESSORS_QUEUE = new ArrayBlockingQueue<PrivilegedProcessor>(32);
-
     private JBBPUtils() {
-    }
-
-    /**
-     * Make accessible an accessible object, AccessController.doPrivileged will be
-     * called.
-     *
-     * @param obj an object to make accessible, it can be null.
-     * @see AccessController#doPrivileged(java.security.PrivilegedAction)
-     * @since 1.1
-     */
-    public static void makeAccessible(final AccessibleObject obj) {
-        if (obj != null) {
-            PrivilegedProcessor processor = PROCESSORS_QUEUE.poll();
-            if (processor == null) {
-                processor = new PrivilegedProcessor();
-            }
-            processor.setAccessibleObject(obj);
-            AccessController.doPrivileged(processor);
-            if (!PROCESSORS_QUEUE.offer(processor)) {
-                throw new Error("Can't place processor into queue");
-            }
-        }
     }
 
     /**
@@ -973,30 +942,6 @@ public final class JBBPUtils {
         }
         while (msk <= value);
         return msk - 1;
-    }
-
-    /**
-     * Inside auxiliary class to make makeAccessible as a privileged action.
-     *
-     * @since 1.1
-     */
-    private static final class PrivilegedProcessor implements PrivilegedAction<AccessibleObject> {
-
-        private AccessibleObject theObject;
-
-        public void setAccessibleObject(final AccessibleObject obj) {
-            this.theObject = obj;
-        }
-
-        @Override
-        public AccessibleObject run() {
-            final AccessibleObject objectToProcess = this.theObject;
-            this.theObject = null;
-            if (objectToProcess != null) {
-                objectToProcess.setAccessible(true);
-            }
-            return objectToProcess;
-        }
     }
 
 }

@@ -21,6 +21,7 @@ import com.igormaznitsa.jbbp.compiler.conversion.JBBPToJava6Converter;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.io.JBBPBitOutputStream;
+import com.igormaznitsa.jbbp.utils.ReflectUtils;
 import com.igormaznitsa.jbbp.utils.TargetSources;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
@@ -105,7 +106,7 @@ public abstract class AbstractJBBPToJava6ConverterTest {
             srcBuffer.append(classBody);
         }
         final ClassLoader cloader = saveAndCompile(new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, classBody));
-        return cloader.loadClass(PACKAGE_NAME + '.' + CLASS_NAME).newInstance();
+        return ReflectUtils.newInstance(cloader.loadClass(PACKAGE_NAME + '.' + CLASS_NAME));
     }
 
     protected Object compileAndMakeInstance(final String script) throws Exception {
@@ -124,7 +125,7 @@ public abstract class AbstractJBBPToJava6ConverterTest {
         final List<JavaClassContent> klazzes = new ArrayList<JavaClassContent>(Arrays.asList(extraClasses));
         klazzes.add(0, new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, JBBPParser.prepare(script, JBBPBitOrder.LSB0, customFieldProcessor, parserFlags).convertToSrc(TargetSources.JAVA_1_6, PACKAGE_NAME+"."+CLASS_NAME).get(0).getResult().values().iterator().next()));
         final ClassLoader cloader = saveAndCompile(klazzes.toArray(new JavaClassContent[klazzes.size()]));
-        return cloader.loadClass(instanceClassName).newInstance();
+        return ReflectUtils.newInstance(cloader.loadClass(instanceClassName));
     }
 
     public ClassLoader saveAndCompile(final JavaClassContent... klasses) throws IOException {

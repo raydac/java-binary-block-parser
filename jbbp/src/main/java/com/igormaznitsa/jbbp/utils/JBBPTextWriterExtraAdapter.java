@@ -96,10 +96,7 @@ public abstract class JBBPTextWriterExtraAdapter implements JBBPTextWriter.Extra
     public Object extractFieldValue(final Object instance, final Field field) {
         JBBPUtils.assertNotNull(field, "Field must not be null");
         try {
-            if (!field.isAccessible()) {
-                JBBPUtils.makeAccessible(field);
-            }
-            return field.get(instance);
+            return ReflectUtils.makeAccessible(field).get(instance);
         } catch (Exception ex) {
             throw new JBBPException("Can't extract value from field for exception", ex);
         }

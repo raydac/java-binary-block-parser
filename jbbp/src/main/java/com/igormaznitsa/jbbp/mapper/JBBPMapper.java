@@ -22,6 +22,7 @@ import com.igormaznitsa.jbbp.mapper.instantiators.JBBPClassInstantiator;
 import com.igormaznitsa.jbbp.mapper.instantiators.JBBPClassInstantiatorFactory;
 import com.igormaznitsa.jbbp.model.*;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
+import com.igormaznitsa.jbbp.utils.ReflectUtils;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -266,15 +267,13 @@ public final class JBBPMapper {
         }
 
         for (final Class<?> processingClazz : listOfClassHierarchy) {
-            for (final Field mappingField : processingClazz.getDeclaredFields()) {
+            for (Field mappingField : processingClazz.getDeclaredFields()) {
                 final int modifiers = mappingField.getModifiers();
                 if (Modifier.isTransient(modifiers) || Modifier.isStatic(modifiers)) {
                     continue;
                 }
 
-                if (!mappingField.isAccessible()) {
-                    JBBPUtils.makeAccessible(mappingField);
-                }
+                mappingField = ReflectUtils.makeAccessible(mappingField);
 
                 final Bin fieldAnno = mappingField.getAnnotation(Bin.class);
                 final Bin mappedAnno;
