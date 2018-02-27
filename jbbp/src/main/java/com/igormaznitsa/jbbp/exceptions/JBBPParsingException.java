@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.exceptions;
 
 /**
@@ -21,25 +22,25 @@ package com.igormaznitsa.jbbp.exceptions;
  * @since 1.0
  */
 public class JBBPParsingException extends JBBPCompilationException {
-    private static final long serialVersionUID = 3397335881291955769L;
+  private static final long serialVersionUID = 3397335881291955769L;
 
-    /**
-     * A Constructor.
-     *
-     * @param message the exception error message
-     */
-    public JBBPParsingException(final String message) {
-        this(message, null);
-    }
+  /**
+   * A Constructor.
+   *
+   * @param message the exception error message
+   */
+  public JBBPParsingException(final String message) {
+    this(message, null);
+  }
 
-    /**
-     * A Constructor.
-     *
-     * @param message the exception error message
-     * @param cause   the root cause for the exception
-     */
-    public JBBPParsingException(final String message, final Throwable cause) {
-        super(message, null, cause);
-    }
+  /**
+   * A Constructor.
+   *
+   * @param message the exception error message
+   * @param cause   the root cause for the exception
+   */
+  public JBBPParsingException(final String message, final Throwable cause) {
+    super(message, null, cause);
+  }
 
 }

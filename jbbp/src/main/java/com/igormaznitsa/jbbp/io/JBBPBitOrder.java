@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.io;
 
 /**
@@ -21,13 +22,13 @@ package com.igormaznitsa.jbbp.io;
  * @since 1.0
  */
 public enum JBBPBitOrder {
-    /**
-     * Most Significant Bit First means that the most significant bit will arrive first, the 7th bit will be read as the first one.
-     */
-    MSB0,
-    /**
-     * Least Significant Bit First means that the least significant bit will arrive first, the 0th bit will be read as the first one.
-     * It is default order for Java.
-     */
-    LSB0
+  /**
+   * Most Significant Bit First means that the most significant bit will arrive first, the 7th bit will be read as the first one.
+   */
+  MSB0,
+  /**
+   * Least Significant Bit First means that the least significant bit will arrive first, the 0th bit will be read as the first one.
+   * It is default order for Java.
+   */
+  LSB0
 }

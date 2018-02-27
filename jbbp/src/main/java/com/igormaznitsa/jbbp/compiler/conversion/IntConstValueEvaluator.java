@@ -28,27 +28,27 @@ import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
  */
 final class IntConstValueEvaluator implements JBBPIntegerValueEvaluator {
 
-    private static final long serialVersionUID = 4640385518512384490L;
+  private static final long serialVersionUID = 4640385518512384490L;
 
-    /**
-     * The Field contains integer constant.
-     */
-    private final int value;
+  /**
+   * The Field contains integer constant.
+   */
+  private final int value;
 
-    IntConstValueEvaluator(final int value) {
-        this.value = value;
-    }
+  IntConstValueEvaluator(final int value) {
+    this.value = value;
+  }
 
-    @Override
-    public int eval(final JBBPBitInputStream inStream, final int currentCompiledBlockOffset, final JBBPCompiledBlock block, final JBBPNamedNumericFieldMap fieldMap) {
-        return this.value;
-    }
+  @Override
+  public int eval(final JBBPBitInputStream inStream, final int currentCompiledBlockOffset, final JBBPCompiledBlock block, final JBBPNamedNumericFieldMap fieldMap) {
+    return this.value;
+  }
 
-    @Override
-    public void visitItems(JBBPCompiledBlock block, int currentCompiledBlockOffset, ExpressionEvaluatorVisitor visitor) {
-        visitor.visitStart();
-        visitor.visitConstant(this.value);
-        visitor.visitEnd();
-    }
+  @Override
+  public void visitItems(JBBPCompiledBlock block, int currentCompiledBlockOffset, ExpressionEvaluatorVisitor visitor) {
+    visitor.visitStart();
+    visitor.visitConstant(this.value);
+    visitor.visitEnd();
+  }
 
 }

@@ -24,10 +24,10 @@ import com.igormaznitsa.jbbp.io.JBBPBitNumber;
  * @since 1.0
  */
 public interface BitEntity {
-    /**
-     * Get the width of the field.
-     *
-     * @return the width of the field, must not be null
-     */
-    JBBPBitNumber getBitWidth();
+  /**
+   * Get the width of the field.
+   *
+   * @return the width of the field, must not be null
+   */
+  JBBPBitNumber getBitWidth();
 }

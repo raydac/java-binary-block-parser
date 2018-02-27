@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
@@ -23,65 +24,65 @@ import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
  * @since 1.0
  */
 public final class JBBPFieldBoolean extends JBBPAbstractField implements JBBPNumericField {
-    private static final long serialVersionUID = 4165558936928450699L;
-    /**
-     * Inside value storage.
-     */
-    private final boolean value;
+  private static final long serialVersionUID = 4165558936928450699L;
+  /**
+   * Inside value storage.
+   */
+  private final boolean value;
 
-    /**
-     * The Constructor.
-     *
-     * @param name  a field name info, it can be null.
-     * @param value the field value
-     */
-    public JBBPFieldBoolean(final JBBPNamedFieldInfo name, final boolean value) {
-        super(name);
-        this.value = value;
-    }
+  /**
+   * The Constructor.
+   *
+   * @param name  a field name info, it can be null.
+   * @param value the field value
+   */
+  public JBBPFieldBoolean(final JBBPNamedFieldInfo name, final boolean value) {
+    super(name);
+    this.value = value;
+  }
 
-    @Override
-    public double getAsDouble() {
-        return value ? 1.0d : 0.0d;
-    }
+  /**
+   * Get the reversed bit representation of the value. But for boolean it doesn't work and made for compatibility
+   *
+   * @param value the value to be reversed
+   * @return the reversed value
+   */
+  public static long reverseBits(final boolean value) {
+    return value ? 1 : 0;
+  }
 
-    @Override
-    public float getAsFloat() {
-        return value ? 1.0f : 0.0f;
-    }
+  @Override
+  public double getAsDouble() {
+    return value ? 1.0d : 0.0d;
+  }
 
-    /**
-     * Get the reversed bit representation of the value. But for boolean it doesn't work and made for compatibility
-     *
-     * @param value the value to be reversed
-     * @return the reversed value
-     */
-    public static long reverseBits(final boolean value) {
-        return value ? 1 : 0;
-    }
+  @Override
+  public float getAsFloat() {
+    return value ? 1.0f : 0.0f;
+  }
 
-    @Override
-    public int getAsInt() {
-        return this.value ? 1 : 0;
-    }
+  @Override
+  public int getAsInt() {
+    return this.value ? 1 : 0;
+  }
 
-    @Override
-    public long getAsLong() {
-        return this.getAsInt();
-    }
+  @Override
+  public long getAsLong() {
+    return this.getAsInt();
+  }
 
-    @Override
-    public boolean getAsBool() {
-        return this.value;
-    }
+  @Override
+  public boolean getAsBool() {
+    return this.value;
+  }
 
-    @Override
-    public long getAsInvertedBitOrder() {
-        return reverseBits(this.value);
-    }
+  @Override
+  public long getAsInvertedBitOrder() {
+    return reverseBits(this.value);
+  }
 
-    @Override
-    public String getTypeAsString() {
-        return "bool";
-    }
+  @Override
+  public String getTypeAsString() {
+    return "bool";
+  }
 }

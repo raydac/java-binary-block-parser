@@ -23,8 +23,8 @@ package com.igormaznitsa.jbbp.utils;
  * @since 1.3.0
  */
 public enum TargetSources {
-    /**
-     * Java 1.6 sources.
-     */
-    JAVA_1_6
+  /**
+   * Java 1.6 sources.
+   */
+  JAVA_1_6
 }

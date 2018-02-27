@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.benchmarks;
 
 import com.igormaznitsa.jbbp.JBBPParser;
@@ -32,55 +33,54 @@ import java.util.Random;
  */
 public class JBBP_Benchmark {
 
-    private static final JBBPParser parser = JBBPParser.prepare("ubyte val; data [(val>>1)*(val+3)]{ bit:3 a; bit:3 b; bit:2 c; skip:1; }");
+  private static final JBBPParser parser = JBBPParser.prepare("ubyte val; data [(val>>1)*(val+3)]{ bit:3 a; bit:3 b; bit:2 c; skip:1; }");
 
-    private static final Random RND = new Random(12345);
+  private static final Random RND = new Random(12345);
 
-    private static final byte[] DATA;
+  private static final byte[] DATA;
 
-    static {
-        final int val = 201;
-        DATA = new byte[1 + ((val >> 1) * (val + 3)) * 2];
-        RND.nextBytes(DATA);
-        DATA[0] = (byte) val;
-    }
+  static {
+    final int val = 201;
+    DATA = new byte[1 + ((val >> 1) * (val + 3)) * 2];
+    RND.nextBytes(DATA);
+    DATA[0] = (byte) val;
+  }
 
-    public static class InData {
-        @Bin(name = "a", type = BinType.BIT)
-        public byte a;
-        @Bin(name = "b", type = BinType.BIT)
-        public byte b;
-        @Bin(name = "c", type = BinType.BIT)
-        public byte c;
-    }
+  public static void main(String... args) {
+    System.out.println("-------------");
+    System.out.println(parser.convertToSrc(TargetSources.JAVA_1_6, "com.igormaznitsa.jbbp.benchmarks.JBBP_Benchmark_Parser").get(0).getResult().values().iterator().next());
+    System.out.println("-------------");
+  }
 
-    public static class Data {
-        @Bin(name = "val", type = BinType.UBYTE)
-        public int val;
+  @Benchmark
+  public void measureParse_DynamicAndMapping() throws IOException {
+    parser.parse(DATA).mapTo(Data.class);
+  }
 
-        @Bin(name = "data")
-        public InData [] data;
-    }
+  @Benchmark
+  public void measureParse_Dynamic() throws IOException {
+    parser.parse(DATA);
+  }
 
-    public static void main(String... args) {
-        System.out.println("-------------");
-        System.out.println(parser.convertToSrc(TargetSources.JAVA_1_6, "com.igormaznitsa.jbbp.benchmarks.JBBP_Benchmark_Parser").get(0).getResult().values().iterator().next());
-        System.out.println("-------------");
-    }
+  @Benchmark
+  public void measureParse_Static() throws IOException {
+    new JBBP_Benchmark_Parser().read(new JBBPBitInputStream(new ByteArrayInputStream(DATA)));
+  }
 
+  public static class InData {
+    @Bin(name = "a", type = BinType.BIT)
+    public byte a;
+    @Bin(name = "b", type = BinType.BIT)
+    public byte b;
+    @Bin(name = "c", type = BinType.BIT)
+    public byte c;
+  }
 
-    @Benchmark
-    public void measureParse_DynamicAndMapping() throws IOException {
-        parser.parse(DATA).mapTo(Data.class);
-    }
+  public static class Data {
+    @Bin(name = "val", type = BinType.UBYTE)
+    public int val;
 
-    @Benchmark
-    public void measureParse_Dynamic() throws IOException {
-        parser.parse(DATA);
-    }
-
-    @Benchmark
-    public void measureParse_Static() throws IOException {
-        new JBBP_Benchmark_Parser().read(new JBBPBitInputStream(new ByteArrayInputStream(DATA)));
-    }
+    @Bin(name = "data")
+    public InData[] data;
+  }
 }

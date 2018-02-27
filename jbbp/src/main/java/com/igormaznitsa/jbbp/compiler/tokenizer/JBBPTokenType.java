@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.compiler.tokenizer;
 
 /**
@@ -21,20 +22,20 @@ package com.igormaznitsa.jbbp.compiler.tokenizer;
  * @since 1.0
  */
 public enum JBBPTokenType {
-    /**
-     * A Commentaries.
-     */
-    COMMENT,
-    /**
-     * A Structure opening token.
-     */
-    STRUCT_START,
-    /**
-     * A Regular field or field array.
-     */
-    ATOM,
-    /**
-     * A Structure closing token.
-     */
-    STRUCT_END
+  /**
+   * A Commentaries.
+   */
+  COMMENT,
+  /**
+   * A Structure opening token.
+   */
+  STRUCT_START,
+  /**
+   * A Regular field or field array.
+   */
+  ATOM,
+  /**
+   * A Structure closing token.
+   */
+  STRUCT_END
 }

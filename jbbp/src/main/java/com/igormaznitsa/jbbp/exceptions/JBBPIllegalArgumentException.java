@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.exceptions;
 
 /**
@@ -21,14 +22,14 @@ package com.igormaznitsa.jbbp.exceptions;
  * @since 1.1.1
  */
 public class JBBPIllegalArgumentException extends JBBPIOException {
-    private static final long serialVersionUID = 2811626713945893782L;
+  private static final long serialVersionUID = 2811626713945893782L;
 
-    public JBBPIllegalArgumentException(String message) {
-        super(message);
-    }
+  public JBBPIllegalArgumentException(String message) {
+    super(message);
+  }
 
-    public JBBPIllegalArgumentException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public JBBPIllegalArgumentException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
 }

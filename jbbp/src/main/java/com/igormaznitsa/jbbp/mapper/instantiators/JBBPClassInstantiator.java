@@ -22,13 +22,13 @@ package com.igormaznitsa.jbbp.mapper.instantiators;
  * @since 1.0
  */
 public interface JBBPClassInstantiator {
-    /**
-     * Allocate memory area for a class.
-     *
-     * @param <T>   the class type
-     * @param klazz the class which should be instantiated, must not be null
-     * @return an instance of the class
-     * @throws InstantiationException it will be thrown if the class can;t be instantiated
-     */
-    <T> T makeClassInstance(Class<T> klazz) throws InstantiationException;
+  /**
+   * Allocate memory area for a class.
+   *
+   * @param <T>   the class type
+   * @param klazz the class which should be instantiated, must not be null
+   * @return an instance of the class
+   * @throws InstantiationException it will be thrown if the class can;t be instantiated
+   */
+  <T> T makeClassInstance(Class<T> klazz) throws InstantiationException;
 }

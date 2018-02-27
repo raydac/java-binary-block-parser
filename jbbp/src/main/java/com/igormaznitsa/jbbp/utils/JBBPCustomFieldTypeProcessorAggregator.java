@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.utils;
 
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
@@ -32,39 +33,40 @@ import java.util.Map;
  * @since 1.2.0
  */
 public class JBBPCustomFieldTypeProcessorAggregator implements JBBPCustomFieldTypeProcessor {
-    private final Map<String, JBBPCustomFieldTypeProcessor> customTypeMap;
-    private final String[] types;
+  private final Map<String, JBBPCustomFieldTypeProcessor> customTypeMap;
+  private final String[] types;
 
-    /**
-     * Constructor.
-     *
-     * @param processors processors which should be joined.
-     */
-    public JBBPCustomFieldTypeProcessorAggregator(final JBBPCustomFieldTypeProcessor... processors) {
-        this.customTypeMap = new HashMap<String, JBBPCustomFieldTypeProcessor>();
-        for (final JBBPCustomFieldTypeProcessor p : processors) {
-            for (final String s : p.getCustomFieldTypes()) {
-                JBBPUtils.assertNotNull(s, "Type must not be null");
-                if (this.customTypeMap.containsKey(s))
-                    throw new IllegalArgumentException("Detected duplicated field type [" + s + ']');
-                this.customTypeMap.put(s, p);
-            }
+  /**
+   * Constructor.
+   *
+   * @param processors processors which should be joined.
+   */
+  public JBBPCustomFieldTypeProcessorAggregator(final JBBPCustomFieldTypeProcessor... processors) {
+    this.customTypeMap = new HashMap<String, JBBPCustomFieldTypeProcessor>();
+    for (final JBBPCustomFieldTypeProcessor p : processors) {
+      for (final String s : p.getCustomFieldTypes()) {
+        JBBPUtils.assertNotNull(s, "Type must not be null");
+        if (this.customTypeMap.containsKey(s)) {
+          throw new IllegalArgumentException("Detected duplicated field type [" + s + ']');
         }
-        this.types = this.customTypeMap.keySet().toArray(new String[this.customTypeMap.size()]);
+        this.customTypeMap.put(s, p);
+      }
     }
+    this.types = this.customTypeMap.keySet().toArray(new String[this.customTypeMap.size()]);
+  }
 
-    @Override
-    public String[] getCustomFieldTypes() {
-        return this.types;
-    }
+  @Override
+  public String[] getCustomFieldTypes() {
+    return this.types;
+  }
 
-    @Override
-    public boolean isAllowed(final JBBPFieldTypeParameterContainer fieldType, final String fieldName, final int extraData, final boolean isArray) {
-        return this.customTypeMap.get(fieldType.getTypeName()).isAllowed(fieldType, fieldName, extraData, isArray);
-    }
+  @Override
+  public boolean isAllowed(final JBBPFieldTypeParameterContainer fieldType, final String fieldName, final int extraData, final boolean isArray) {
+    return this.customTypeMap.get(fieldType.getTypeName()).isAllowed(fieldType, fieldName, extraData, isArray);
+  }
 
-    @Override
-    public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer fieldType, JBBPNamedFieldInfo fieldName, int extraData, boolean readWholeStream, int arrayLength) throws IOException {
-        return this.customTypeMap.get(fieldType.getTypeName()).readCustomFieldType(in, bitOrder, parserFlags, fieldType, fieldName, extraData, readWholeStream, arrayLength);
-    }
+  @Override
+  public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer fieldType, JBBPNamedFieldInfo fieldName, int extraData, boolean readWholeStream, int arrayLength) throws IOException {
+    return this.customTypeMap.get(fieldType.getTypeName()).readCustomFieldType(in, bitOrder, parserFlags, fieldType, fieldName, extraData, readWholeStream, arrayLength);
+  }
 }

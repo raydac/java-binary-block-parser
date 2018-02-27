@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
@@ -27,92 +28,92 @@ import java.util.NoSuchElementException;
  * @since 1.0
  */
 public abstract class JBBPAbstractArrayField<T extends JBBPAbstractField> extends JBBPAbstractField implements Iterable<T> {
-    private static final long serialVersionUID = -9007994400543951290L;
+  private static final long serialVersionUID = -9007994400543951290L;
 
-    /**
-     * The Constructor.
-     *
-     * @param name the name descriptor for the array field, it can be null.
-     */
-    public JBBPAbstractArrayField(final JBBPNamedFieldInfo name) {
-        super(name);
-    }
+  /**
+   * The Constructor.
+   *
+   * @param name the name descriptor for the array field, it can be null.
+   */
+  public JBBPAbstractArrayField(final JBBPNamedFieldInfo name) {
+    super(name);
+  }
 
-    /**
-     * Get number of elements in the array.
-     *
-     * @return the array size
-     */
-    public abstract int size();
+  /**
+   * Get number of elements in the array.
+   *
+   * @return the array size
+   */
+  public abstract int size();
 
-    /**
-     * Get element from the array for its index.
-     *
-     * @param index the array index
-     * @return the array element for its index
-     */
-    public abstract T getElementAt(int index);
+  /**
+   * Get element from the array for its index.
+   *
+   * @param index the array index
+   * @return the array element for its index
+   */
+  public abstract T getElementAt(int index);
 
-    /**
-     * Get an array element for its index as integer value
-     *
-     * @param index the array index
-     * @return the array element as integer
-     */
-    public abstract int getAsInt(int index);
+  /**
+   * Get an array element for its index as integer value
+   *
+   * @param index the array index
+   * @return the array element as integer
+   */
+  public abstract int getAsInt(int index);
 
-    /**
-     * Get an array element for its index as long value
-     *
-     * @param index the array index
-     * @return the array element as long
-     */
-    public abstract long getAsLong(int index);
+  /**
+   * Get an array element for its index as long value
+   *
+   * @param index the array index
+   * @return the array element as long
+   */
+  public abstract long getAsLong(int index);
 
-    /**
-     * Get an array element for its index as boolean value
-     *
-     * @param index the array index
-     * @return the array element as boolean
-     */
-    public abstract boolean getAsBool(int index);
+  /**
+   * Get an array element for its index as boolean value
+   *
+   * @param index the array index
+   * @return the array element as boolean
+   */
+  public abstract boolean getAsBool(int index);
 
-    /**
-     * Get the value array as an object.
-     *
-     * @param reverseBits reverse bit order in values
-     * @return the value array as an object
-     */
-    public abstract Object getValueArrayAsObject(boolean reverseBits);
+  /**
+   * Get the value array as an object.
+   *
+   * @param reverseBits reverse bit order in values
+   * @return the value array as an object
+   */
+  public abstract Object getValueArrayAsObject(boolean reverseBits);
 
-    /**
-     * Generates an iterator to allow the array processing in loops.
-     *
-     * @return an iterator for the array
-     */
-    @Override
-    public Iterator<T> iterator() {
-        return new Iterator<T>() {
-            private int index = 0;
+  /**
+   * Generates an iterator to allow the array processing in loops.
+   *
+   * @return an iterator for the array
+   */
+  @Override
+  public Iterator<T> iterator() {
+    return new Iterator<T>() {
+      private int index = 0;
 
-            @Override
-            public boolean hasNext() {
-                return this.index < size();
-            }
+      @Override
+      public boolean hasNext() {
+        return this.index < size();
+      }
 
-            @Override
-            public T next() {
-                if (this.index >= size()) {
-                    throw new NoSuchElementException(this.index + ">=" + size());
-                }
-                return getElementAt(this.index++);
-            }
+      @Override
+      public T next() {
+        if (this.index >= size()) {
+          throw new NoSuchElementException(this.index + ">=" + size());
+        }
+        return getElementAt(this.index++);
+      }
 
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException("Removing is unsupported here");
-            }
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException("Removing is unsupported here");
+      }
 
-        };
-    }
+    };
+  }
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.exceptions;
 
 /**
@@ -21,24 +22,24 @@ package com.igormaznitsa.jbbp.exceptions;
  * @since 1.0
  */
 public class JBBPException extends RuntimeException {
-    private static final long serialVersionUID = -3311082983804835019L;
+  private static final long serialVersionUID = -3311082983804835019L;
 
-    /**
-     * A Constructor.
-     *
-     * @param message the message for the exception
-     */
-    public JBBPException(final String message) {
-        super(message);
-    }
+  /**
+   * A Constructor.
+   *
+   * @param message the message for the exception
+   */
+  public JBBPException(final String message) {
+    super(message);
+  }
 
-    /**
-     * A Constructor.
-     *
-     * @param message the message for the exception
-     * @param cause   the root cause for the exception
-     */
-    public JBBPException(final String message, final Throwable cause) {
-        super(message, cause);
-    }
+  /**
+   * A Constructor.
+   *
+   * @param message the message for the exception
+   * @param cause   the root cause for the exception
+   */
+  public JBBPException(final String message, final Throwable cause) {
+    super(message, cause);
+  }
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.mapper.instantiators;
 
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
@@ -33,53 +34,53 @@ import java.lang.reflect.Method;
 @SuppressWarnings("LiteralClassName")
 public final class JBBPUnsafeInstantiator implements JBBPClassInstantiator {
 
-    /**
-     * The sun,misc.Unsafe object.
-     */
-    private static final Object SUN_MISC_UNSAFE;
-    /**
-     * The sun,misc.Unsafe.allocateInstance method.
-     */
-    private static final Method ALLOCATE_INSTANCE_METHOD;
+  /**
+   * The sun,misc.Unsafe object.
+   */
+  private static final Object SUN_MISC_UNSAFE;
+  /**
+   * The sun,misc.Unsafe.allocateInstance method.
+   */
+  private static final Method ALLOCATE_INSTANCE_METHOD;
 
-    static {
-        try {
-            final Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
-            final Field singleoneInstanceField = ReflectUtils.makeAccessible(unsafeClass.getDeclaredField("theUnsafe"));
-            SUN_MISC_UNSAFE = singleoneInstanceField.get(null);
-            ALLOCATE_INSTANCE_METHOD = ReflectUtils.makeAccessible(unsafeClass.getMethod("allocateInstance", Class.class));
-        } catch (ClassNotFoundException e) {
-            throw new Error("Can't find 'sun.misc.Unsafe' class", e);
-        } catch (IllegalAccessException e) {
-            throw new Error("Can't get sun.misc.Unsafe for illegal access", e);
-        } catch (IllegalArgumentException e) {
-            throw new Error("Can't get sun.misc.Unsafe for wrong argument", e);
-        } catch (NoSuchFieldException e) {
-            throw new Error("Can't get sun.misc.Unsafe because it doesn't exist", e);
-        } catch (SecurityException e) {
-            throw new Error("Can't get sun.misc.Unsafe for security exception", e);
-        } catch (NoSuchMethodException e) {
-            throw new Error("Can't get the 'allocateInstance' method in sun.misc.Unsafe", e);
-        }
+  static {
+    try {
+      final Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
+      final Field singleoneInstanceField = ReflectUtils.makeAccessible(unsafeClass.getDeclaredField("theUnsafe"));
+      SUN_MISC_UNSAFE = singleoneInstanceField.get(null);
+      ALLOCATE_INSTANCE_METHOD = ReflectUtils.makeAccessible(unsafeClass.getMethod("allocateInstance", Class.class));
+    } catch (ClassNotFoundException e) {
+      throw new Error("Can't find 'sun.misc.Unsafe' class", e);
+    } catch (IllegalAccessException e) {
+      throw new Error("Can't get sun.misc.Unsafe for illegal access", e);
+    } catch (IllegalArgumentException e) {
+      throw new Error("Can't get sun.misc.Unsafe for wrong argument", e);
+    } catch (NoSuchFieldException e) {
+      throw new Error("Can't get sun.misc.Unsafe because it doesn't exist", e);
+    } catch (SecurityException e) {
+      throw new Error("Can't get sun.misc.Unsafe for security exception", e);
+    } catch (NoSuchMethodException e) {
+      throw new Error("Can't get the 'allocateInstance' method in sun.misc.Unsafe", e);
     }
+  }
 
-    @Override
-    public <T> T makeClassInstance(final Class<T> klazz) throws InstantiationException {
-        JBBPUtils.assertNotNull(klazz, "Class must not be null");
-        try {
-            return klazz.cast(ALLOCATE_INSTANCE_METHOD.invoke(SUN_MISC_UNSAFE, klazz));
-        } catch (InvocationTargetException ex) {
-            final Throwable cause = ex.getTargetException();
-            if (cause instanceof InstantiationException) {
-                throw (InstantiationException) cause;
-            } else {
-                throw new InstantiationException("Can't instantiate class for exception [" + ex + ']');
-            }
-        } catch (IllegalAccessException ex) {
-            throw new InstantiationException("Can't instantiate class for exception [" + ex + ']');
-        } catch (IllegalArgumentException ex) {
-            throw new InstantiationException("Can't instantiate class for exception [" + ex + ']');
-        }
+  @Override
+  public <T> T makeClassInstance(final Class<T> klazz) throws InstantiationException {
+    JBBPUtils.assertNotNull(klazz, "Class must not be null");
+    try {
+      return klazz.cast(ALLOCATE_INSTANCE_METHOD.invoke(SUN_MISC_UNSAFE, klazz));
+    } catch (InvocationTargetException ex) {
+      final Throwable cause = ex.getTargetException();
+      if (cause instanceof InstantiationException) {
+        throw (InstantiationException) cause;
+      } else {
+        throw new InstantiationException("Can't instantiate class for exception [" + ex + ']');
+      }
+    } catch (IllegalAccessException ex) {
+      throw new InstantiationException("Can't instantiate class for exception [" + ex + ']');
+    } catch (IllegalArgumentException ex) {
+      throw new InstantiationException("Can't instantiate class for exception [" + ex + ']');
     }
+  }
 
 }

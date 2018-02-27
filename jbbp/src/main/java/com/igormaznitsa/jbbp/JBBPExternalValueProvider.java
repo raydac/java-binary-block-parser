@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp;
 
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
@@ -23,13 +24,13 @@ import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
  * @since 1.0
  */
 public interface JBBPExternalValueProvider {
-    /**
-     * Get an array size.
-     *
-     * @param fieldName       the field name of the array
-     * @param numericFieldMap the numeric field map contains information about already read fields
-     * @param compiledBlock   the compiled block for the script to provide extra information
-     * @return the size of an array
-     */
-    int provideArraySize(final String fieldName, final JBBPNamedNumericFieldMap numericFieldMap, final JBBPCompiledBlock compiledBlock);
+  /**
+   * Get an array size.
+   *
+   * @param fieldName       the field name of the array
+   * @param numericFieldMap the numeric field map contains information about already read fields
+   * @param compiledBlock   the compiled block for the script to provide extra information
+   * @return the size of an array
+   */
+  int provideArraySize(final String fieldName, final JBBPNamedNumericFieldMap numericFieldMap, final JBBPCompiledBlock compiledBlock);
 }

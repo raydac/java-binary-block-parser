@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.testaux;
 
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
@@ -24,6 +25,8 @@ import com.igormaznitsa.jbbp.io.JBBPBitOutputStream;
 import com.igormaznitsa.jbbp.utils.ReflectUtils;
 import com.igormaznitsa.jbbp.utils.TargetSources;
 import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 import javax.tools.*;
 import java.io.ByteArrayInputStream;
@@ -37,221 +40,218 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 
 public abstract class AbstractJBBPToJava6ConverterTest {
 
-    protected static final String PACKAGE_NAME = "com.igormaznitsa.test";
-    protected static final String CLASS_NAME = "TestClass";
-    protected final Random RND = new Random(123456);
+  protected static final String PACKAGE_NAME = "com.igormaznitsa.test";
+  protected static final String CLASS_NAME = "TestClass";
+  protected static TemporaryFolder tempFolder = new TemporaryFolder();
+  protected final Random RND = new Random(123456);
 
-    protected static class TemporaryFolder {
+  @BeforeAll
+  public static void beforeAll() {
+    tempFolder = new TemporaryFolder();
+  }
 
-        private final File folder;
-        private final AtomicBoolean disposed = new AtomicBoolean(false);
+  @AfterAll
+  public static void afterAll() {
+    if (tempFolder != null) {
+      tempFolder.dispose();
+    }
+  }
 
-        public TemporaryFolder() {
-            final String localTmpFolderPath = System.getProperty("jbbp.target.folder", null);
-            if (localTmpFolderPath == null) {
-                throw new Error("Temp folder is not defined among system prperties");
-            }
-            final File localTmpFolderAsFile = new File(localTmpFolderPath);
+  protected static Map<String, String> makeMap(final String... mapvalue) {
+    final Map<String, String> result = new HashMap<String, String>();
+    int i = 0;
+    while (i < mapvalue.length) {
+      result.put(mapvalue[i++], mapvalue[i++]);
+    }
+    return result;
+  }
 
-            if (!localTmpFolderAsFile.isDirectory() && !localTmpFolderAsFile.mkdirs()) {
-                throw new Error("Can't create main temp folder : " + localTmpFolderAsFile);
-            }
+  protected Object callRead(final Object instance, final byte[] array) throws Exception {
+    try {
+      return this.callRead(instance, new JBBPBitInputStream(new ByteArrayInputStream(array)));
+    } catch (InvocationTargetException ex) {
+      if (ex.getCause() != null) {
+        throw (Exception) ex.getCause();
+      } else {
+        throw ex;
+      }
+    }
+  }
 
-            try {
-                final Path path = Files.createTempDirectory(localTmpFolderAsFile.toPath(), "jbbp2j6");
-                this.folder = path.toFile();
-                this.folder.deleteOnExit();
-            } catch (IOException ex) {
-                throw new Error("Can't create tem directory", ex);
-            }
-        }
+  protected Object callRead(final Object instance, final JBBPBitInputStream inStream) throws Exception {
+    try {
+      instance.getClass().getMethod("read", JBBPBitInputStream.class).invoke(instance, inStream);
+      return instance;
+    } catch (InvocationTargetException ex) {
+      if (ex.getCause() != null) {
+        throw (Exception) ex.getCause();
+      } else {
+        throw ex;
+      }
+    }
+  }
 
-        public File newFolder() {
-            if (this.disposed.get()) {
-                throw new IllegalStateException("Already disposed");
-            }
-            try {
-                final File result = Files.createTempDirectory(this.folder.toPath(), "_jbbp").toFile();
-                result.deleteOnExit();
-                return result;
-            } catch (IOException ex) {
-                throw new Error("Can't make new subfolder in temp folder : " + this.folder.getAbsolutePath(), ex);
-            }
-        }
+  protected byte[] callWrite(final Object instance) throws Exception {
+    try {
+      final ByteArrayOutputStream bout = new ByteArrayOutputStream();
+      final JBBPBitOutputStream bitout = new JBBPBitOutputStream(bout);
+      instance.getClass().getMethod("write", JBBPBitOutputStream.class).invoke(instance, bitout);
+      bitout.close();
+      return bout.toByteArray();
+    } catch (InvocationTargetException ex) {
+      if (ex.getCause() != null) {
+        throw (Exception) ex.getCause();
+      } else {
+        throw ex;
+      }
+    }
+  }
 
-        public void dispose() {
-            if (this.disposed.compareAndSet(false, true)) {
-                try {
-                    FileUtils.deleteDirectory(this.folder);
-                } catch (IOException ex) {
-                    throw new Error("Can't delete emp directory : " + this.folder.getAbsolutePath(), ex);
-                }
-            } else {
-                throw new Error("Already disposed");
-            }
-        }
+  protected void callWrite(final Object instance, final JBBPBitOutputStream outStream) throws Exception {
+    instance.getClass().getMethod("write", JBBPBitOutputStream.class).invoke(instance, outStream);
+  }
+
+  protected Object compileAndMakeInstanceSrc(final String script, final String classCustomText, final StringBuilder srcBuffer) throws Exception {
+    final String classBody = JBBPToJava6Converter.makeBuilder(JBBPParser.prepare(script)).setMainClassName(CLASS_NAME).setMainClassPackage(PACKAGE_NAME).setMainClassCustomText(classCustomText).build().convert();
+    if (srcBuffer != null) {
+      srcBuffer.append(classBody);
+    }
+    final ClassLoader cloader = saveAndCompile(new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, classBody));
+    return ReflectUtils.newInstance(cloader.loadClass(PACKAGE_NAME + '.' + CLASS_NAME));
+  }
+
+  protected Object compileAndMakeInstance(final String script) throws Exception {
+    return this.compileAndMakeInstance(PACKAGE_NAME + '.' + CLASS_NAME, script, null);
+  }
+
+  protected Object compileAndMakeInstance(final String script, final int parserFlags) throws Exception {
+    return this.compileAndMakeInstance(PACKAGE_NAME + '.' + CLASS_NAME, script, parserFlags, null);
+  }
+
+  protected Object compileAndMakeInstance(final String instanceClassName, final String script, final JBBPCustomFieldTypeProcessor customFieldProcessor, final JavaClassContent... extraClasses) throws Exception {
+    return this.compileAndMakeInstance(instanceClassName, script, 0, customFieldProcessor, extraClasses);
+  }
+
+  protected Object compileAndMakeInstance(final String instanceClassName, final String script, final int parserFlags, final JBBPCustomFieldTypeProcessor customFieldProcessor, final JavaClassContent... extraClasses) throws Exception {
+    final List<JavaClassContent> klazzes = new ArrayList<JavaClassContent>(Arrays.asList(extraClasses));
+    klazzes.add(0, new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, JBBPParser.prepare(script, JBBPBitOrder.LSB0, customFieldProcessor, parserFlags).convertToSrc(TargetSources.JAVA_1_6, PACKAGE_NAME + "." + CLASS_NAME).get(0).getResult().values().iterator().next()));
+    final ClassLoader cloader = saveAndCompile(klazzes.toArray(new JavaClassContent[klazzes.size()]));
+    return ReflectUtils.newInstance(cloader.loadClass(instanceClassName));
+  }
+
+  public ClassLoader saveAndCompile(final JavaClassContent... klasses) throws IOException {
+    return this.saveAndCompile(null, klasses);
+  }
+
+  public ClassLoader saveAndCompile(final ClassLoader classLoader, final JavaClassContent... klasses) throws IOException {
+    final File folder = tempFolder.newFolder();
+
+    final List<File> classFiles = new ArrayList<File>();
+
+    for (final JavaClassContent c : klasses) {
+      final File classFile = c.makeFile(folder);
+      final File pack = classFile.getParentFile();
+      if (!pack.isDirectory() && !pack.mkdirs()) {
+        throw new IOException("Can't create folder : " + pack);
+      }
+
+      FileUtils.writeStringToFile(classFile, c.getText(), "UTF-8");
+      classFiles.add(classFile);
     }
 
-    protected static TemporaryFolder tempFolder = new TemporaryFolder();
+    final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+    final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
+    final StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
+    final Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(classFiles);
 
-    @BeforeAll
-    public static void beforeAll() {
-        tempFolder = new TemporaryFolder();
+    if (!compiler.getTask(null, fileManager, null, null, null, compilationUnits).call()) {
+      for (final Diagnostic<?> diagnostic : diagnostics.getDiagnostics()) {
+        System.err.format("Error on line %d in %s%n", diagnostic.getLineNumber(), diagnostic.getSource());
+      }
+
+      for (final File f : classFiles) {
+        System.err.println("File '" + f.getName() + '\'');
+        System.err.println("-------------------------------------------");
+        System.err.println(FileUtils.readFileToString(f));
+      }
+
+      throw new IOException("Error during compilation");
     }
 
-    @AfterAll
-    public static void afterAll() {
-        if (tempFolder != null) {
-            tempFolder.dispose();
-        }
+    return classLoader == null ? new URLClassLoader(new URL[] {folder.toURI().toURL()}) : classLoader;
+  }
+
+  protected static class TemporaryFolder {
+
+    private final File folder;
+    private final AtomicBoolean disposed = new AtomicBoolean(false);
+
+    public TemporaryFolder() {
+      final String localTmpFolderPath = System.getProperty("jbbp.target.folder", null);
+      if (localTmpFolderPath == null) {
+        throw new Error("Temp folder is not defined among system prperties");
+      }
+      final File localTmpFolderAsFile = new File(localTmpFolderPath);
+
+      if (!localTmpFolderAsFile.isDirectory() && !localTmpFolderAsFile.mkdirs()) {
+        throw new Error("Can't create main temp folder : " + localTmpFolderAsFile);
+      }
+
+      try {
+        final Path path = Files.createTempDirectory(localTmpFolderAsFile.toPath(), "jbbp2j6");
+        this.folder = path.toFile();
+        this.folder.deleteOnExit();
+      } catch (IOException ex) {
+        throw new Error("Can't create tem directory", ex);
+      }
     }
 
-    protected static Map<String, String> makeMap(final String... mapvalue) {
-        final Map<String, String> result = new HashMap<String, String>();
-        int i = 0;
-        while (i < mapvalue.length) {
-            result.put(mapvalue[i++], mapvalue[i++]);
-        }
+    public File newFolder() {
+      if (this.disposed.get()) {
+        throw new IllegalStateException("Already disposed");
+      }
+      try {
+        final File result = Files.createTempDirectory(this.folder.toPath(), "_jbbp").toFile();
+        result.deleteOnExit();
         return result;
+      } catch (IOException ex) {
+        throw new Error("Can't make new subfolder in temp folder : " + this.folder.getAbsolutePath(), ex);
+      }
     }
 
-    protected Object callRead(final Object instance, final byte[] array) throws Exception {
+    public void dispose() {
+      if (this.disposed.compareAndSet(false, true)) {
         try {
-            return this.callRead(instance, new JBBPBitInputStream(new ByteArrayInputStream(array)));
-        } catch (InvocationTargetException ex) {
-            if (ex.getCause() != null) {
-                throw (Exception) ex.getCause();
-            } else {
-                throw ex;
-            }
+          FileUtils.deleteDirectory(this.folder);
+        } catch (IOException ex) {
+          throw new Error("Can't delete emp directory : " + this.folder.getAbsolutePath(), ex);
         }
+      } else {
+        throw new Error("Already disposed");
+      }
+    }
+  }
+
+  public final static class JavaClassContent {
+
+    private final String className;
+    private final String classText;
+
+    public JavaClassContent(final String className, final String classText) {
+      this.className = className;
+      this.classText = classText;
     }
 
-    protected Object callRead(final Object instance, final JBBPBitInputStream inStream) throws Exception {
-        try {
-            instance.getClass().getMethod("read", JBBPBitInputStream.class).invoke(instance, inStream);
-            return instance;
-        } catch (InvocationTargetException ex) {
-            if (ex.getCause() != null) {
-                throw (Exception) ex.getCause();
-            } else {
-                throw ex;
-            }
-        }
+    public File makeFile(final File folder) {
+      return new File(folder, this.className.replace('.', '/') + ".java");
     }
 
-    protected byte[] callWrite(final Object instance) throws Exception {
-        try {
-            final ByteArrayOutputStream bout = new ByteArrayOutputStream();
-            final JBBPBitOutputStream bitout = new JBBPBitOutputStream(bout);
-            instance.getClass().getMethod("write", JBBPBitOutputStream.class).invoke(instance, bitout);
-            bitout.close();
-            return bout.toByteArray();
-        } catch (InvocationTargetException ex) {
-            if (ex.getCause() != null) {
-                throw (Exception) ex.getCause();
-            } else {
-                throw ex;
-            }
-        }
+    public String getText() {
+      return this.classText;
     }
-
-    protected void callWrite(final Object instance, final JBBPBitOutputStream outStream) throws Exception {
-        instance.getClass().getMethod("write", JBBPBitOutputStream.class).invoke(instance, outStream);
-    }
-
-    protected Object compileAndMakeInstanceSrc(final String script, final String classCustomText, final StringBuilder srcBuffer) throws Exception {
-        final String classBody = JBBPToJava6Converter.makeBuilder(JBBPParser.prepare(script)).setMainClassName(CLASS_NAME).setMainClassPackage(PACKAGE_NAME).setMainClassCustomText(classCustomText).build().convert();
-        if (srcBuffer != null) {
-            srcBuffer.append(classBody);
-        }
-        final ClassLoader cloader = saveAndCompile(new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, classBody));
-        return ReflectUtils.newInstance(cloader.loadClass(PACKAGE_NAME + '.' + CLASS_NAME));
-    }
-
-    protected Object compileAndMakeInstance(final String script) throws Exception {
-        return this.compileAndMakeInstance(PACKAGE_NAME + '.' + CLASS_NAME, script, null);
-    }
-
-    protected Object compileAndMakeInstance(final String script, final int parserFlags) throws Exception {
-        return this.compileAndMakeInstance(PACKAGE_NAME + '.' + CLASS_NAME, script, parserFlags, null);
-    }
-
-    protected Object compileAndMakeInstance(final String instanceClassName, final String script, final JBBPCustomFieldTypeProcessor customFieldProcessor, final JavaClassContent... extraClasses) throws Exception {
-        return this.compileAndMakeInstance(instanceClassName, script, 0, customFieldProcessor, extraClasses);
-    }
-
-    protected Object compileAndMakeInstance(final String instanceClassName, final String script, final int parserFlags, final JBBPCustomFieldTypeProcessor customFieldProcessor, final JavaClassContent... extraClasses) throws Exception {
-        final List<JavaClassContent> klazzes = new ArrayList<JavaClassContent>(Arrays.asList(extraClasses));
-        klazzes.add(0, new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, JBBPParser.prepare(script, JBBPBitOrder.LSB0, customFieldProcessor, parserFlags).convertToSrc(TargetSources.JAVA_1_6, PACKAGE_NAME + "." + CLASS_NAME).get(0).getResult().values().iterator().next()));
-        final ClassLoader cloader = saveAndCompile(klazzes.toArray(new JavaClassContent[klazzes.size()]));
-        return ReflectUtils.newInstance(cloader.loadClass(instanceClassName));
-    }
-
-    public ClassLoader saveAndCompile(final JavaClassContent... klasses) throws IOException {
-        return this.saveAndCompile(null, klasses);
-    }
-
-    public ClassLoader saveAndCompile(final ClassLoader classLoader, final JavaClassContent... klasses) throws IOException {
-        final File folder = tempFolder.newFolder();
-
-        final List<File> classFiles = new ArrayList<File>();
-
-        for (final JavaClassContent c : klasses) {
-            final File classFile = c.makeFile(folder);
-            final File pack = classFile.getParentFile();
-            if (!pack.isDirectory() && !pack.mkdirs()) {
-                throw new IOException("Can't create folder : " + pack);
-            }
-
-            FileUtils.writeStringToFile(classFile, c.getText(), "UTF-8");
-            classFiles.add(classFile);
-        }
-
-        final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
-        final StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
-        final Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(classFiles);
-
-        if (!compiler.getTask(null, fileManager, null, null, null, compilationUnits).call()) {
-            for (final Diagnostic<?> diagnostic : diagnostics.getDiagnostics()) {
-                System.err.format("Error on line %d in %s%n", diagnostic.getLineNumber(), diagnostic.getSource());
-            }
-
-            for (final File f : classFiles) {
-                System.err.println("File '" + f.getName() + '\'');
-                System.err.println("-------------------------------------------");
-                System.err.println(FileUtils.readFileToString(f));
-            }
-
-            throw new IOException("Error during compilation");
-        }
-
-        return classLoader == null ? new URLClassLoader(new URL[]{folder.toURI().toURL()}) : classLoader;
-    }
-
-    public final static class JavaClassContent {
-
-        private final String className;
-        private final String classText;
-
-        public JavaClassContent(final String className, final String classText) {
-            this.className = className;
-            this.classText = classText;
-        }
-
-        public File makeFile(final File folder) {
-            return new File(folder, this.className.replace('.', '/') + ".java");
-        }
-
-        public String getText() {
-            return this.classText;
-        }
-    }
+  }
 
 }

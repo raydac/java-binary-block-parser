@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
@@ -24,75 +25,75 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
  * @since 1.0
  */
 public final class JBBPFieldLong extends JBBPAbstractField implements JBBPNumericField {
-    private static final long serialVersionUID = -7006473435241171461L;
-    /**
-     * Inside value storage.
-     */
-    private final long value;
+  private static final long serialVersionUID = -7006473435241171461L;
+  /**
+   * Inside value storage.
+   */
+  private final long value;
 
-    /**
-     * The Constructor.
-     *
-     * @param name  a field name info, it can be null
-     * @param value the field value
-     */
-    public JBBPFieldLong(final JBBPNamedFieldInfo name, final long value) {
-        super(name);
-        this.value = value;
-    }
+  /**
+   * The Constructor.
+   *
+   * @param name  a field name info, it can be null
+   * @param value the field value
+   */
+  public JBBPFieldLong(final JBBPNamedFieldInfo name, final long value) {
+    super(name);
+    this.value = value;
+  }
 
-    /**
-     * Get the reversed bit representation of the value.
-     *
-     * @param value the value to be reversed
-     * @return the reversed value
-     */
-    public static long reverseBits(final long value) {
-        final long b0 = JBBPUtils.reverseBitsInByte((byte) value) & 0xFFL;
-        final long b1 = JBBPUtils.reverseBitsInByte((byte) (value >> 8)) & 0xFFL;
-        final long b2 = JBBPUtils.reverseBitsInByte((byte) (value >> 16)) & 0xFFL;
-        final long b3 = JBBPUtils.reverseBitsInByte((byte) (value >> 24)) & 0xFFL;
-        final long b4 = JBBPUtils.reverseBitsInByte((byte) (value >> 32)) & 0xFFL;
-        final long b5 = JBBPUtils.reverseBitsInByte((byte) (value >> 40)) & 0xFFL;
-        final long b6 = JBBPUtils.reverseBitsInByte((byte) (value >> 48)) & 0xFFL;
-        final long b7 = JBBPUtils.reverseBitsInByte((byte) (value >> 56)) & 0xFFL;
+  /**
+   * Get the reversed bit representation of the value.
+   *
+   * @param value the value to be reversed
+   * @return the reversed value
+   */
+  public static long reverseBits(final long value) {
+    final long b0 = JBBPUtils.reverseBitsInByte((byte) value) & 0xFFL;
+    final long b1 = JBBPUtils.reverseBitsInByte((byte) (value >> 8)) & 0xFFL;
+    final long b2 = JBBPUtils.reverseBitsInByte((byte) (value >> 16)) & 0xFFL;
+    final long b3 = JBBPUtils.reverseBitsInByte((byte) (value >> 24)) & 0xFFL;
+    final long b4 = JBBPUtils.reverseBitsInByte((byte) (value >> 32)) & 0xFFL;
+    final long b5 = JBBPUtils.reverseBitsInByte((byte) (value >> 40)) & 0xFFL;
+    final long b6 = JBBPUtils.reverseBitsInByte((byte) (value >> 48)) & 0xFFL;
+    final long b7 = JBBPUtils.reverseBitsInByte((byte) (value >> 56)) & 0xFFL;
 
-        return (b0 << 56) | (b1 << 48) | (b2 << 40) | (b3 << 32) | (b4 << 24) | (b5 << 16) | (b6 << 8) | b7;
-    }
+    return (b0 << 56) | (b1 << 48) | (b2 << 40) | (b3 << 32) | (b4 << 24) | (b5 << 16) | (b6 << 8) | b7;
+  }
 
-    @Override
-    public double getAsDouble() {
-        return (double)this.value;
-    }
+  @Override
+  public double getAsDouble() {
+    return (double) this.value;
+  }
 
-    @Override
-    public float getAsFloat() {
-        return (float)this.value;
-    }
+  @Override
+  public float getAsFloat() {
+    return (float) this.value;
+  }
 
-    @Override
-    public int getAsInt() {
-        return (int) this.value;
-    }
+  @Override
+  public int getAsInt() {
+    return (int) this.value;
+  }
 
-    @Override
-    public long getAsLong() {
-        return this.value;
-    }
+  @Override
+  public long getAsLong() {
+    return this.value;
+  }
 
-    @Override
-    public boolean getAsBool() {
-        return this.value != 0;
-    }
+  @Override
+  public boolean getAsBool() {
+    return this.value != 0;
+  }
 
-    @Override
-    public long getAsInvertedBitOrder() {
-        return reverseBits(this.value);
-    }
+  @Override
+  public long getAsInvertedBitOrder() {
+    return reverseBits(this.value);
+  }
 
-    @Override
-    public String getTypeAsString() {
-        return "long";
-    }
+  @Override
+  public String getTypeAsString() {
+    return "long";
+  }
 
 }

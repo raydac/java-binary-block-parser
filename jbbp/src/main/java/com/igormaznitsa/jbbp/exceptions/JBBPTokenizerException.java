@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.exceptions;
 
 /**
@@ -21,30 +22,30 @@ package com.igormaznitsa.jbbp.exceptions;
  * @since 1.0
  */
 public class JBBPTokenizerException extends JBBPCompilationException {
-    private static final long serialVersionUID = -1132154077305894146L;
+  private static final long serialVersionUID = -1132154077305894146L;
 
-    /**
-     * The Token position.
-     */
-    private final int position;
+  /**
+   * The Token position.
+   */
+  private final int position;
 
-    /**
-     * The Constructor.
-     *
-     * @param message the exception message.
-     * @param pos     the position of a problematic token inside sources.
-     */
-    public JBBPTokenizerException(final String message, final int pos) {
-        super(message);
-        this.position = pos;
-    }
+  /**
+   * The Constructor.
+   *
+   * @param message the exception message.
+   * @param pos     the position of a problematic token inside sources.
+   */
+  public JBBPTokenizerException(final String message, final int pos) {
+    super(message);
+    this.position = pos;
+  }
 
-    /**
-     * get the position in sources of the problematic token.
-     *
-     * @return the position or -1 if the position is unknown.
-     */
-    public int getPosition() {
-        return this.position;
-    }
+  /**
+   * get the position in sources of the problematic token.
+   *
+   * @return the position or -1 if the position is unknown.
+   */
+  public int getPosition() {
+    return this.position;
+  }
 }

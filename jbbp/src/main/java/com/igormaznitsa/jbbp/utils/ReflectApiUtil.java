@@ -13,37 +13,13 @@ import java.util.concurrent.ArrayBlockingQueue;
  * @since 1.3.1
  */
 public final class ReflectApiUtil {
-  private ReflectApiUtil() {
-  }
-
-  /**
-   * Inside auxiliary class to make makeAccessible as a privileged action.
-   */
-  private static final class PrivilegedProcessor implements PrivilegedAction<AccessibleObject> {
-
-    private AccessibleObject theObject;
-
-    public void setAccessibleObject(final AccessibleObject obj) {
-      this.theObject = obj;
-    }
-
-    @Override
-    public AccessibleObject run() {
-      final AccessibleObject objectToProcess = this.theObject;
-      this.theObject = null;
-      if (objectToProcess != null) {
-        objectToProcess.setAccessible(true);
-      }
-      return objectToProcess;
-    }
-  }
-
-
   /**
    * Inside auxiliary cache of privilege processors organized as a queue.
    */
   private static final Queue<PrivilegedProcessor> PROCESSORS_QUEUE = new ArrayBlockingQueue<PrivilegedProcessor>(32);
 
+  private ReflectApiUtil() {
+  }
 
   /**
    * Make accessible an accessible object (if it is not a null), AccessController.doPrivileged will be
@@ -66,7 +42,6 @@ public final class ReflectApiUtil {
     }
     return obj;
   }
-
 
   /**
    * Create class instance through default constructor call
@@ -95,6 +70,28 @@ public final class ReflectApiUtil {
       return newInstance(Class.forName(className));
     } catch (Exception ex) {
       throw new Error(String.format("Can't create instance of %s for error %s", className, ex.getMessage()), ex);
+    }
+  }
+
+  /**
+   * Inside auxiliary class to make makeAccessible as a privileged action.
+   */
+  private static final class PrivilegedProcessor implements PrivilegedAction<AccessibleObject> {
+
+    private AccessibleObject theObject;
+
+    public void setAccessibleObject(final AccessibleObject obj) {
+      this.theObject = obj;
+    }
+
+    @Override
+    public AccessibleObject run() {
+      final AccessibleObject objectToProcess = this.theObject;
+      this.theObject = null;
+      if (objectToProcess != null) {
+        objectToProcess.setAccessible(true);
+      }
+      return objectToProcess;
     }
   }
 

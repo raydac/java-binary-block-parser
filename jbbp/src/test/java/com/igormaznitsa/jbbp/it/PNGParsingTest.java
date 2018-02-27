@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.it;
 
 import com.igormaznitsa.jbbp.JBBPExternalValueProvider;
@@ -23,216 +24,217 @@ import com.igormaznitsa.jbbp.io.JBBPOut;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.model.*;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
+import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 import java.util.zip.CRC32;
 
 import static com.igormaznitsa.jbbp.TestUtils.assertPngChunk;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class PNGParsingTest extends AbstractParserIntegrationTest {
 
-    private static void assertChunk(final String name, final int length, final JBBPFieldStruct chunk) {
-        final int chunkName = (name.charAt(0) << 24) | (name.charAt(1) << 16) | (name.charAt(2) << 8) | name.charAt(3);
+  private static void assertChunk(final String name, final int length, final JBBPFieldStruct chunk) {
+    final int chunkName = (name.charAt(0) << 24) | (name.charAt(1) << 16) | (name.charAt(2) << 8) | name.charAt(3);
 
-        assertEquals(chunkName, chunk.findFieldForNameAndType("type", JBBPFieldInt.class).getAsInt(),"Chunk must be " + name);
-        assertEquals(length, chunk.findFieldForNameAndType("length", JBBPFieldInt.class).getAsInt(), "Chunk length must be " + length);
+    assertEquals(chunkName, chunk.findFieldForNameAndType("type", JBBPFieldInt.class).getAsInt(), "Chunk must be " + name);
+    assertEquals(length, chunk.findFieldForNameAndType("length", JBBPFieldInt.class).getAsInt(), "Chunk length must be " + length);
 
-        final CRC32 crc32 = new CRC32();
-        crc32.update(name.charAt(0));
-        crc32.update(name.charAt(1));
-        crc32.update(name.charAt(2));
-        crc32.update(name.charAt(3));
+    final CRC32 crc32 = new CRC32();
+    crc32.update(name.charAt(0));
+    crc32.update(name.charAt(1));
+    crc32.update(name.charAt(2));
+    crc32.update(name.charAt(3));
 
-        if (length != 0) {
-            final byte[] array = chunk.findFieldForType(JBBPFieldArrayByte.class).getArray();
-            assertEquals(length, array.length, "Data array " + name + " must be " + length);
-            crc32.update(array);
-        }
-
-        final int crc = (int) crc32.getValue();
-        assertEquals(crc, chunk.findLastFieldForType(JBBPFieldInt.class).getAsInt(), "CRC32 for " + name + " must be " + crc);
-
+    if (length != 0) {
+      final byte[] array = chunk.findFieldForType(JBBPFieldArrayByte.class).getArray();
+      assertEquals(length, array.length, "Data array " + name + " must be " + length);
+      crc32.update(array);
     }
 
-    @Test
-    public void testPngParsing_Mapping() throws Exception {
-        final InputStream pngStream = getResourceAsInputStream("picture.png");
-        try {
+    final int crc = (int) crc32.getValue();
+    assertEquals(crc, chunk.findLastFieldForType(JBBPFieldInt.class).getAsInt(), "CRC32 for " + name + " must be " + crc);
 
-            final JBBPParser pngParser = JBBPParser.prepare(
-                    "long header;"
-                            + "// chunks\n"
-                            + "chunk [_]{"
-                            + "   int length; "
-                            + "   int type; "
-                            + "   byte[length] data; "
-                            + "   int crc;"
-                            + "}"
-            );
+  }
 
-            @Bin
-            class Chunk {
+  @Test
+  public void testPngParsing_Mapping() throws Exception {
+    final InputStream pngStream = getResourceAsInputStream("picture.png");
+    try {
 
-                int length;
-                int type;
-                byte[] data;
-                int crc;
-            }
-            @Bin
-            class Png {
+      final JBBPParser pngParser = JBBPParser.prepare(
+          "long header;"
+              + "// chunks\n"
+              + "chunk [_]{"
+              + "   int length; "
+              + "   int type; "
+              + "   byte[length] data; "
+              + "   int crc;"
+              + "}"
+      );
 
-                long hEAder;
-                Chunk[] chuNK;
-            }
+      @Bin
+      class Chunk {
 
-            final Png png = pngParser.parse(pngStream).mapTo(Png.class);
+        int length;
+        int type;
+        byte[] data;
+        int crc;
+      }
+      @Bin
+      class Png {
 
-            assertEquals(0x89504E470D0A1A0AL, png.hEAder);
+        long hEAder;
+        Chunk[] chuNK;
+      }
 
-            final String[] chunkNames = new String[]{"IHDR", "gAMA", "bKGD", "pHYs", "tIME", "tEXt", "IDAT", "IEND"};
-            final int[] chunkSizes = new int[]{0x0D, 0x04, 0x06, 0x09, 0x07, 0x19, 0x0E5F, 0x00};
+      final Png png = pngParser.parse(pngStream).mapTo(Png.class);
 
-            assertEquals(chunkNames.length, png.chuNK.length);
+      assertEquals(0x89504E470D0A1A0AL, png.hEAder);
 
-            for (int i = 0; i < png.chuNK.length; i++) {
-                assertPngChunk(chunkNames[i], chunkSizes[i], png.chuNK[i].type, png.chuNK[i].length, png.chuNK[i].crc, png.chuNK[i].data);
-            }
+      final String[] chunkNames = new String[] {"IHDR", "gAMA", "bKGD", "pHYs", "tIME", "tEXt", "IDAT", "IEND"};
+      final int[] chunkSizes = new int[] {0x0D, 0x04, 0x06, 0x09, 0x07, 0x19, 0x0E5F, 0x00};
 
-            assertEquals(3847, pngParser.getFinalStreamByteCounter());
+      assertEquals(chunkNames.length, png.chuNK.length);
 
-        } finally {
-            JBBPUtils.closeQuietly(pngStream);
-        }
+      for (int i = 0; i < png.chuNK.length; i++) {
+        assertPngChunk(chunkNames[i], chunkSizes[i], png.chuNK[i].type, png.chuNK[i].length, png.chuNK[i].crc, png.chuNK[i].data);
+      }
+
+      assertEquals(3847, pngParser.getFinalStreamByteCounter());
+
+    } finally {
+      JBBPUtils.closeQuietly(pngStream);
     }
+  }
 
-    @Test
-    public void testPngParsing() throws Exception {
-        final InputStream pngStream = getResourceAsInputStream("picture.png");
-        try {
+  @Test
+  public void testPngParsing() throws Exception {
+    final InputStream pngStream = getResourceAsInputStream("picture.png");
+    try {
 
-            final JBBPParser pngParser = JBBPParser.prepare(
-                    "long header;"
-                            + "// chunks\n"
-                            + "chunk [_]{"
-                            + "   int length; "
-                            + "   int type; "
-                            + "   byte[length] data; "
-                            + "   int crc;"
-                            + "}"
-            );
+      final JBBPParser pngParser = JBBPParser.prepare(
+          "long header;"
+              + "// chunks\n"
+              + "chunk [_]{"
+              + "   int length; "
+              + "   int type; "
+              + "   byte[length] data; "
+              + "   int crc;"
+              + "}"
+      );
 
-            final JBBPFieldStruct result = pngParser.parse(pngStream);
+      final JBBPFieldStruct result = pngParser.parse(pngStream);
 
-            assertEquals(0x89504E470D0A1A0AL, result.findFieldForNameAndType("header", JBBPFieldLong.class).getAsLong());
+      assertEquals(0x89504E470D0A1A0AL, result.findFieldForNameAndType("header", JBBPFieldLong.class).getAsLong());
 
-            final JBBPFieldArrayStruct chunks = result.findFieldForNameAndType("chunk", JBBPFieldArrayStruct.class);
+      final JBBPFieldArrayStruct chunks = result.findFieldForNameAndType("chunk", JBBPFieldArrayStruct.class);
 
-            final String[] chunkNames = new String[]{"IHDR", "gAMA", "bKGD", "pHYs", "tIME", "tEXt", "IDAT", "IEND"};
-            final int[] chunkSizes = new int[]{0x0D, 0x04, 0x06, 0x09, 0x07, 0x19, 0x0E5F, 0x00};
+      final String[] chunkNames = new String[] {"IHDR", "gAMA", "bKGD", "pHYs", "tIME", "tEXt", "IDAT", "IEND"};
+      final int[] chunkSizes = new int[] {0x0D, 0x04, 0x06, 0x09, 0x07, 0x19, 0x0E5F, 0x00};
 
-            assertEquals(chunkNames.length, chunks.size());
+      assertEquals(chunkNames.length, chunks.size());
 
-            for (int i = 0; i < chunks.size(); i++) {
-                assertChunk(chunkNames[i], chunkSizes[i], chunks.getElementAt(i));
-            }
+      for (int i = 0; i < chunks.size(); i++) {
+        assertChunk(chunkNames[i], chunkSizes[i], chunks.getElementAt(i));
+      }
 
-            assertEquals(3847, pngParser.getFinalStreamByteCounter());
-        } finally {
-            JBBPUtils.closeQuietly(pngStream);
-        }
+      assertEquals(3847, pngParser.getFinalStreamByteCounter());
+    } finally {
+      JBBPUtils.closeQuietly(pngStream);
     }
+  }
 
-    @Test
-    public void testPngParsing_WithExternalValue() throws Exception {
-        final InputStream pngStream = getResourceAsInputStream("picture.png");
-        try {
+  @Test
+  public void testPngParsing_WithExternalValue() throws Exception {
+    final InputStream pngStream = getResourceAsInputStream("picture.png");
+    try {
 
-            final JBBPParser pngParser = JBBPParser.prepare(
-                    "long header;"
-                            + "// chunks\n"
-                            + "chunk [_]{"
-                            + "   int length; "
-                            + "   int type; "
-                            + "   byte[$value] data; "
-                            + "   int crc;"
-                            + "}"
-            );
+      final JBBPParser pngParser = JBBPParser.prepare(
+          "long header;"
+              + "// chunks\n"
+              + "chunk [_]{"
+              + "   int length; "
+              + "   int type; "
+              + "   byte[$value] data; "
+              + "   int crc;"
+              + "}"
+      );
 
-            final JBBPFieldStruct result = pngParser.parse(pngStream, null, new JBBPExternalValueProvider() {
+      final JBBPFieldStruct result = pngParser.parse(pngStream, null, new JBBPExternalValueProvider() {
 
-                @Override
-                public int provideArraySize(final String fieldName, final JBBPNamedNumericFieldMap numericFieldMap, final JBBPCompiledBlock compiledBlock) {
-                    if ("value".equals(fieldName)) {
-                        return numericFieldMap.findFieldForPathAndType("chunk.length", JBBPFieldInt.class).getAsInt();
-                    }
-                    fail("Unexpected variable '" + fieldName + '\'');
-                    return -1;
-                }
-            });
-
-            assertEquals(0x89504E470D0A1A0AL, result.findFieldForNameAndType("header", JBBPFieldLong.class).getAsLong());
-
-            final JBBPFieldArrayStruct chunks = result.findFieldForNameAndType("chunk", JBBPFieldArrayStruct.class);
-
-            final String[] chunkNames = new String[]{"IHDR", "gAMA", "bKGD", "pHYs", "tIME", "tEXt", "IDAT", "IEND"};
-            final int[] chunkSizes = new int[]{0x0D, 0x04, 0x06, 0x09, 0x07, 0x19, 0x0E5F, 0x00};
-
-            assertEquals(chunkNames.length, chunks.size());
-
-            for (int i = 0; i < chunks.size(); i++) {
-                assertChunk(chunkNames[i], chunkSizes[i], chunks.getElementAt(i));
-            }
-
-            assertEquals(3847, pngParser.getFinalStreamByteCounter());
-        } finally {
-            JBBPUtils.closeQuietly(pngStream);
+        @Override
+        public int provideArraySize(final String fieldName, final JBBPNamedNumericFieldMap numericFieldMap, final JBBPCompiledBlock compiledBlock) {
+          if ("value".equals(fieldName)) {
+            return numericFieldMap.findFieldForPathAndType("chunk.length", JBBPFieldInt.class).getAsInt();
+          }
+          fail("Unexpected variable '" + fieldName + '\'');
+          return -1;
         }
+      });
+
+      assertEquals(0x89504E470D0A1A0AL, result.findFieldForNameAndType("header", JBBPFieldLong.class).getAsLong());
+
+      final JBBPFieldArrayStruct chunks = result.findFieldForNameAndType("chunk", JBBPFieldArrayStruct.class);
+
+      final String[] chunkNames = new String[] {"IHDR", "gAMA", "bKGD", "pHYs", "tIME", "tEXt", "IDAT", "IEND"};
+      final int[] chunkSizes = new int[] {0x0D, 0x04, 0x06, 0x09, 0x07, 0x19, 0x0E5F, 0x00};
+
+      assertEquals(chunkNames.length, chunks.size());
+
+      for (int i = 0; i < chunks.size(); i++) {
+        assertChunk(chunkNames[i], chunkSizes[i], chunks.getElementAt(i));
+      }
+
+      assertEquals(3847, pngParser.getFinalStreamByteCounter());
+    } finally {
+      JBBPUtils.closeQuietly(pngStream);
     }
+  }
 
-    @Test
-    public void testPngParsingAndSynthesisThroughMapping() throws Exception {
-        final InputStream pngStream = getResourceAsInputStream("picture.png");
-        try {
+  @Test
+  public void testPngParsingAndSynthesisThroughMapping() throws Exception {
+    final InputStream pngStream = getResourceAsInputStream("picture.png");
+    try {
 
-            final JBBPParser pngParser = JBBPParser.prepare(
-                    "long header;"
-                            + "// chunks\n"
-                            + "chunk [_]{"
-                            + "   int length; "
-                            + "   int type; "
-                            + "   byte[length] data; "
-                            + "   int crc;"
-                            + "}"
-            );
+      final JBBPParser pngParser = JBBPParser.prepare(
+          "long header;"
+              + "// chunks\n"
+              + "chunk [_]{"
+              + "   int length; "
+              + "   int type; "
+              + "   byte[length] data; "
+              + "   int crc;"
+              + "}"
+      );
 
-            class Chunk {
+      class Chunk {
 
-                @Bin(outOrder = 1)
-                int length;
-                @Bin(outOrder = 2)
-                int type;
-                @Bin(outOrder = 3)
-                byte[] data;
-                @Bin(outOrder = 4)
-                int crc;
-            }
-            class Png {
+        @Bin(outOrder = 1)
+        int length;
+        @Bin(outOrder = 2)
+        int type;
+        @Bin(outOrder = 3)
+        byte[] data;
+        @Bin(outOrder = 4)
+        int crc;
+      }
+      class Png {
 
-                @Bin(outOrder = 1)
-                long hEAder;
-                @Bin(outOrder = 2)
-                Chunk[] chuNK;
-            }
+        @Bin(outOrder = 1)
+        long hEAder;
+        @Bin(outOrder = 2)
+        Chunk[] chuNK;
+      }
 
-            final Png parsedAndMapped = pngParser.parse(pngStream).mapTo(Png.class);
-            final byte[] saved = JBBPOut.BeginBin().Bin(parsedAndMapped).End().toByteArray();
+      final Png parsedAndMapped = pngParser.parse(pngStream).mapTo(Png.class);
+      final byte[] saved = JBBPOut.BeginBin().Bin(parsedAndMapped).End().toByteArray();
 
-            assertResource("picture.png", saved);
-        } finally {
-            JBBPUtils.closeQuietly(pngStream);
-        }
+      assertResource("picture.png", saved);
+    } finally {
+      JBBPUtils.closeQuietly(pngStream);
     }
+  }
 
 }

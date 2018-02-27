@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
@@ -23,59 +24,57 @@ import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
  * @since 1.3.1
  */
 public final class JBBPFieldFloat extends JBBPAbstractField implements JBBPNumericField {
-    private static final long serialVersionUID = 5493764792942829316L;
+  public static final String TYPE_NAME = "floatj";
+  private static final long serialVersionUID = 5493764792942829316L;
+  /**
+   * Inside value storage.
+   */
+  private final float value;
 
-    public static final String TYPE_NAME = "floatj";
+  /**
+   * The Constructor.
+   *
+   * @param name  a field name info, it can be null.
+   * @param value the field value
+   */
+  public JBBPFieldFloat(final JBBPNamedFieldInfo name, final float value) {
+    super(name);
+    this.value = value;
+  }
 
-    /**
-     * Inside value storage.
-     */
-    private final float value;
+  @Override
+  public float getAsFloat() {
+    return this.value;
+  }
 
-    /**
-     * The Constructor.
-     *
-     * @param name  a field name info, it can be null.
-     * @param value the field value
-     */
-    public JBBPFieldFloat(final JBBPNamedFieldInfo name, final float value) {
-        super(name);
-        this.value = value;
-    }
+  @Override
+  public double getAsDouble() {
+    return (double) this.value;
+  }
 
-    @Override
-    public float getAsFloat() {
-        return this.value;
-    }
+  @Override
+  public int getAsInt() {
+    return Math.round(this.value);
+  }
 
-    @Override
-    public double getAsDouble() {
-        return (double)this.value;
-    }
+  @Override
+  public long getAsLong() {
+    return this.getAsInt();
+  }
 
-    @Override
-    public int getAsInt() {
-        return Math.round(this.value);
-    }
+  @Override
+  public boolean getAsBool() {
+    return this.value != 0;
+  }
 
-    @Override
-    public long getAsLong() {
-        return this.getAsInt();
-    }
+  @Override
+  public long getAsInvertedBitOrder() {
+    return JBBPFieldInt.reverseBits(Float.floatToIntBits(this.value));
+  }
 
-    @Override
-    public boolean getAsBool() {
-        return this.value != 0;
-    }
-
-    @Override
-    public long getAsInvertedBitOrder() {
-        return JBBPFieldInt.reverseBits(Float.floatToIntBits(this.value));
-    }
-
-    @Override
-    public String getTypeAsString() {
-        return TYPE_NAME;
-    }
+  @Override
+  public String getTypeAsString() {
+    return TYPE_NAME;
+  }
 
 }

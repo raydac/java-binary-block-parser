@@ -26,68 +26,68 @@ import java.lang.reflect.Field;
  * @since 1.0
  */
 public class JBBPMapperException extends JBBPException {
-    private static final long serialVersionUID = -5643926527601318948L;
+  private static final long serialVersionUID = -5643926527601318948L;
 
-    /**
-     * The JBBP field which mapping generates the exception.
-     */
-    private final JBBPAbstractField field;
-    /**
-     * The Class field which processing generates the exception.
-     */
-    private final transient Field mappingClassField;
+  /**
+   * The JBBP field which mapping generates the exception.
+   */
+  private final JBBPAbstractField field;
+  /**
+   * The Class field which processing generates the exception.
+   */
+  private final transient Field mappingClassField;
 
-    /**
-     * The class which mapping generates the exception.
-     */
-    private final Class<?> mappingClass;
+  /**
+   * The class which mapping generates the exception.
+   */
+  private final Class<?> mappingClass;
 
-    /**
-     * The Constructor.
-     *
-     * @param message           the text message describes the exception
-     * @param field             the JBBP field which processing generates the exception
-     * @param mappingClass      the class which mapping generates the exception
-     * @param mappingClassField the class field which mapping is wrong
-     * @param cause             the root cause for the exception, it can be null
-     */
-    public JBBPMapperException(final String message, final JBBPAbstractField field, final Class<?> mappingClass, final Field mappingClassField, final Throwable cause) {
-        super(message, cause);
-        this.field = field;
-        this.mappingClassField = mappingClassField;
-        this.mappingClass = mappingClass;
-    }
+  /**
+   * The Constructor.
+   *
+   * @param message           the text message describes the exception
+   * @param field             the JBBP field which processing generates the exception
+   * @param mappingClass      the class which mapping generates the exception
+   * @param mappingClassField the class field which mapping is wrong
+   * @param cause             the root cause for the exception, it can be null
+   */
+  public JBBPMapperException(final String message, final JBBPAbstractField field, final Class<?> mappingClass, final Field mappingClassField, final Throwable cause) {
+    super(message, cause);
+    this.field = field;
+    this.mappingClassField = mappingClassField;
+    this.mappingClass = mappingClass;
+  }
 
-    /**
-     * Get the JBBP field related to the exception.
-     *
-     * @return the JBBP filed which mapping generates the exception, it can be null
-     */
-    public JBBPAbstractField getField() {
-        return this.field;
-    }
+  /**
+   * Get the JBBP field related to the exception.
+   *
+   * @return the JBBP filed which mapping generates the exception, it can be null
+   */
+  public JBBPAbstractField getField() {
+    return this.field;
+  }
 
-    /**
-     * Get a class which mapping generates the exception.
-     *
-     * @return the class which mapping generates the exception, it can be null
-     */
-    public Class<?> getMappingClass() {
-        return this.mappingClass;
-    }
+  /**
+   * Get a class which mapping generates the exception.
+   *
+   * @return the class which mapping generates the exception, it can be null
+   */
+  public Class<?> getMappingClass() {
+    return this.mappingClass;
+  }
 
-    /**
-     * Get a class field related to the exception.
-     *
-     * @return a class field which was processing as exception thrown, it can be null
-     */
-    public Field getMappingClassField() {
-        return this.mappingClassField;
-    }
+  /**
+   * Get a class field related to the exception.
+   *
+   * @return a class field which was processing as exception thrown, it can be null
+   */
+  public Field getMappingClassField() {
+    return this.mappingClassField;
+  }
 
-    @Override
-    public String toString() {
-        return this.getMessage() + " [ " + this.getMappingClassField() + " -> " + this.getField() + ']';
-    }
+  @Override
+  public String toString() {
+    return this.getMessage() + " [ " + this.getMappingClassField() + " -> " + this.getField() + ']';
+  }
 
 }

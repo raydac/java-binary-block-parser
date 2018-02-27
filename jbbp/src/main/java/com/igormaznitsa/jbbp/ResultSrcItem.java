@@ -25,17 +25,17 @@ import java.util.Properties;
  * @since 1.3.0
  */
 public interface ResultSrcItem {
-    /**
-     * Get metadata generated during operation for the item, depends on converter.
-     *
-     * @return the metadata container as properties, must not be null
-     */
-    Properties getMetadata();
+  /**
+   * Get metadata generated during operation for the item, depends on converter.
+   *
+   * @return the metadata container as properties, must not be null
+   */
+  Properties getMetadata();
 
-    /**
-     * Get generated sources mapped by some key which defined by converter.
-     *
-     * @return map containing result of conversion, must not be null and can't be empty.
-     */
-    Map<String, String> getResult();
+  /**
+   * Get generated sources mapped by some key which defined by converter.
+   *
+   * @return map containing result of conversion, must not be null and can't be empty.
+   */
+  Map<String, String> getResult();
 }

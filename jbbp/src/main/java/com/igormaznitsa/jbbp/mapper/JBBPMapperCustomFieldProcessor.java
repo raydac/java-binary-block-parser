@@ -26,13 +26,13 @@ import java.lang.reflect.Field;
  * @since 1.0
  */
 public interface JBBPMapperCustomFieldProcessor {
-    /**
-     * Prepare an object to be set to a custom mapping field.
-     *
-     * @param parsedBlock the structure root of parsed binary packet, must not be null
-     * @param annotation  the annotation for mapping field, must not be null
-     * @param field       the mapping field in a mapping class, must not be null
-     * @return an object which will be set to the field in a mapping class instance, it can be null for non-primitive fields
-     */
-    Object prepareObjectForMapping(final JBBPFieldStruct parsedBlock, final Bin annotation, final Field field);
+  /**
+   * Prepare an object to be set to a custom mapping field.
+   *
+   * @param parsedBlock the structure root of parsed binary packet, must not be null
+   * @param annotation  the annotation for mapping field, must not be null
+   * @param field       the mapping field in a mapping class, must not be null
+   * @return an object which will be set to the field in a mapping class instance, it can be null for non-primitive fields
+   */
+  Object prepareObjectForMapping(final JBBPFieldStruct parsedBlock, final Bin annotation, final Field field);
 }

@@ -13,41 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.compiler.conversion;
 
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJava6ConverterTest;
+import org.junit.jupiter.api.Test;
 
 import java.io.EOFException;
 
 import static com.igormaznitsa.jbbp.TestUtils.getField;
-
-import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Test parser flags for converted sources.
  */
 public class ParserToJBBPToJavaClassConverterJBBPFlagsTest extends AbstractJBBPToJava6ConverterTest {
 
-    @Test
-    public void testFlag_SkipRemainingFieldsIfEOF() throws Exception {
-        Object instance = compileAndMakeInstance("byte a; byte b;", 0);
-        callRead(instance, new byte[]{1, 2});
-        try {
-            callRead(instance, new byte[]{1});
-            fail("Must throw EOF");
-        } catch (EOFException ex) {
-        }
-
-        instance = compileAndMakeInstance("byte a; byte b;", JBBPParser.FLAG_SKIP_REMAINING_FIELDS_IF_EOF);
-        try {
-            callRead(instance, new byte[]{11});
-            assertEquals(11, getField(instance, "a", Byte.class).intValue());
-            assertEquals(0, getField(instance, "b", Byte.class).intValue());
-        } catch (EOFException ex) {
-            fail("Must not throw EOF");
-        }
+  @Test
+  public void testFlag_SkipRemainingFieldsIfEOF() throws Exception {
+    Object instance = compileAndMakeInstance("byte a; byte b;", 0);
+    callRead(instance, new byte[] {1, 2});
+    try {
+      callRead(instance, new byte[] {1});
+      fail("Must throw EOF");
+    } catch (EOFException ex) {
     }
+
+    instance = compileAndMakeInstance("byte a; byte b;", JBBPParser.FLAG_SKIP_REMAINING_FIELDS_IF_EOF);
+    try {
+      callRead(instance, new byte[] {11});
+      assertEquals(11, getField(instance, "a", Byte.class).intValue());
+      assertEquals(0, getField(instance, "b", Byte.class).intValue());
+    } catch (EOFException ex) {
+      fail("Must not throw EOF");
+    }
+  }
 
 }

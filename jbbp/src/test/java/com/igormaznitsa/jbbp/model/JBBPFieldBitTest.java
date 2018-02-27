@@ -13,66 +13,67 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
-
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class JBBPFieldBitTest {
 
-    @Test
-    public void testConstructor_NPEForNullBitNumber() {
-        assertThrows(NullPointerException.class, new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 123, null);
-            }
-        });
-    }
+  @Test
+  public void testConstructor_NPEForNullBitNumber() {
+    assertThrows(NullPointerException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 123, null);
+      }
+    });
+  }
 
-    @Test
-    public void testNameField() {
-        final JBBPFieldBit field = new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 123, JBBPBitNumber.BITS_4);
-        final JBBPNamedFieldInfo namedField = field.getNameInfo();
-        assertEquals("test.field", namedField.getFieldPath());
-        assertEquals("field", namedField.getFieldName());
-        assertEquals(123, namedField.getFieldOffsetInCompiledBlock());
-        assertEquals(JBBPBitNumber.BITS_4, field.getBitWidth());
-    }
+  @Test
+  public void testNameField() {
+    final JBBPFieldBit field = new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 123, JBBPBitNumber.BITS_4);
+    final JBBPNamedFieldInfo namedField = field.getNameInfo();
+    assertEquals("test.field", namedField.getFieldPath());
+    assertEquals("field", namedField.getFieldName());
+    assertEquals(123, namedField.getFieldOffsetInCompiledBlock());
+    assertEquals(JBBPBitNumber.BITS_4, field.getBitWidth());
+  }
 
-    @Test
-    public void testgetAsBool_True() {
-        assertTrue(new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 123, JBBPBitNumber.BITS_1).getAsBool());
-    }
+  @Test
+  public void testgetAsBool_True() {
+    assertTrue(new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 123, JBBPBitNumber.BITS_1).getAsBool());
+  }
 
-    @Test
-    public void testgetAsBool_False() {
-        assertFalse(new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 0, JBBPBitNumber.BITS_1).getAsBool());
-    }
+  @Test
+  public void testgetAsBool_False() {
+    assertFalse(new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 0, JBBPBitNumber.BITS_1).getAsBool());
+  }
 
-    @Test
-    public void testgetAsInt() {
-        assertEquals(12, new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 12, JBBPBitNumber.BITS_3).getAsInt());
-        assertEquals(-12 & 0xFF, new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), -12, JBBPBitNumber.BITS_4).getAsInt());
-    }
+  @Test
+  public void testgetAsInt() {
+    assertEquals(12, new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 12, JBBPBitNumber.BITS_3).getAsInt());
+    assertEquals(-12 & 0xFF, new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), -12, JBBPBitNumber.BITS_4).getAsInt());
+  }
 
-    @Test
-    public void testgetAsLong() {
-        assertEquals(12L, new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 12, JBBPBitNumber.BITS_6).getAsLong());
-        assertEquals(-12L & 0xFFL, new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), -12, JBBPBitNumber.BITS_5).getAsLong());
-    }
+  @Test
+  public void testgetAsLong() {
+    assertEquals(12L, new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 12, JBBPBitNumber.BITS_6).getAsLong());
+    assertEquals(-12L & 0xFFL, new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), -12, JBBPBitNumber.BITS_5).getAsLong());
+  }
 
-    @Test
-    public void testGetAsInvertedBitOrder() {
-        assertEquals(1L, new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 7, JBBPBitNumber.BITS_1).getAsInvertedBitOrder());
-        assertEquals(4L, new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 1, JBBPBitNumber.BITS_3).getAsInvertedBitOrder());
-        assertEquals(0xF0L, new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 0xF, JBBPBitNumber.BITS_8).getAsInvertedBitOrder());
-        assertEquals(0x8FL, new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 0xFF1, JBBPBitNumber.BITS_8).getAsInvertedBitOrder());
-        assertEquals(0x8L, new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 0xFF1, JBBPBitNumber.BITS_4).getAsInvertedBitOrder());
-    }
+  @Test
+  public void testGetAsInvertedBitOrder() {
+    assertEquals(1L, new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 7, JBBPBitNumber.BITS_1).getAsInvertedBitOrder());
+    assertEquals(4L, new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 1, JBBPBitNumber.BITS_3).getAsInvertedBitOrder());
+    assertEquals(0xF0L, new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 0xF, JBBPBitNumber.BITS_8).getAsInvertedBitOrder());
+    assertEquals(0x8FL, new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 0xFF1, JBBPBitNumber.BITS_8).getAsInvertedBitOrder());
+    assertEquals(0x8L, new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 0xFF1, JBBPBitNumber.BITS_4).getAsInvertedBitOrder());
+  }
 
 }

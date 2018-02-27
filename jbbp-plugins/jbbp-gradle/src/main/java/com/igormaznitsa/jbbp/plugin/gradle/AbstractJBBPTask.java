@@ -17,53 +17,53 @@ import java.util.Set;
 
 public abstract class AbstractJBBPTask extends DefaultTask {
 
-    public AbstractJBBPTask() {
-        super();
+  public AbstractJBBPTask() {
+    super();
+  }
+
+  @Nullable
+  public static String getTextOrFileContent(@Nonnull final JBBPExtension extension, @Nullable final String text, @Nullable final File file) {
+    String result = null;
+    if (text != null) {
+      result = text;
+    } else if (file != null) {
+      try {
+        result = FileUtils.readFileToString(file, GetUtils.ensureNonNull(extension.inEncoding, "UTF-8"));
+      } catch (IOException ex) {
+        throw new GradleException("Can't read file " + file, ex);
+      }
     }
+    return result;
+  }
 
-    @Nullable
-    public static String getTextOrFileContent(@Nonnull final JBBPExtension extension, @Nullable final String text, @Nullable final File file) {
-        String result = null;
-        if (text != null) {
-            result = text;
-        } else if (file != null) {
-            try {
-                result = FileUtils.readFileToString(file, GetUtils.ensureNonNull(extension.inEncoding, "UTF-8"));
-            } catch (IOException ex) {
-                throw new GradleException("Can't read file " + file, ex);
-            }
-        }
-        return result;
+  @Nonnull
+  protected static Set<File> findScripts(@Nonnull final JBBPExtension ext) {
+    final Set<File> result = new HashSet<File>();
+
+    ext.source.visit(new FileVisitor() {
+      @Override
+      public void visitDir(final FileVisitDetails fileVisitDetails) {
+
+      }
+
+      @Override
+      public void visitFile(final FileVisitDetails fileVisitDetails) {
+        result.add(fileVisitDetails.getFile());
+      }
+    });
+    return result;
+  }
+
+  @TaskAction
+  public final void doAction() {
+    JBBPExtension ext = getProject().getExtensions().findByType(JBBPExtension.class);
+    if (ext == null) {
+      ext = new JBBPExtension(getProject());
     }
+    ext.prepare(getProject());
+    doTaskAction(ext);
+  }
 
-    @Nonnull
-    protected static Set<File> findScripts(@Nonnull final JBBPExtension ext) {
-        final Set<File> result = new HashSet<File>();
-
-        ext.source.visit(new FileVisitor() {
-            @Override
-            public void visitDir(final FileVisitDetails fileVisitDetails) {
-
-            }
-
-            @Override
-            public void visitFile(final FileVisitDetails fileVisitDetails) {
-                result.add(fileVisitDetails.getFile());
-            }
-        });
-        return result;
-    }
-
-    @TaskAction
-    public final void doAction() {
-        JBBPExtension ext = getProject().getExtensions().findByType(JBBPExtension.class);
-        if (ext == null) {
-            ext = new JBBPExtension(getProject());
-        }
-        ext.prepare(getProject());
-        doTaskAction(ext);
-    }
-
-    protected abstract void doTaskAction(@Nonnull JBBPExtension extension);
+  protected abstract void doTaskAction(@Nonnull JBBPExtension extension);
 
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.io;
 
 /**
@@ -21,15 +22,15 @@ package com.igormaznitsa.jbbp.io;
  * @since 1.0
  */
 public enum JBBPByteOrder {
-    /**
-     * The Big-Endian order. Big-endian systems store the most significant byte of
-     * a word in the smallest address and the least significant byte is stored in
-     * the largest address. The Default order for Java and Network.
-     */
-    BIG_ENDIAN,
-    /**
-     * The Little-Endian order. Little-endian systems store the
-     * least significant byte in the smallest address.
-     */
-    LITTLE_ENDIAN
+  /**
+   * The Big-Endian order. Big-endian systems store the most significant byte of
+   * a word in the smallest address and the least significant byte is stored in
+   * the largest address. The Default order for Java and Network.
+   */
+  BIG_ENDIAN,
+  /**
+   * The Little-Endian order. Little-endian systems store the
+   * least significant byte in the smallest address.
+   */
+  LITTLE_ENDIAN
 }

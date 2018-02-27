@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.compiler.varlen;
 
 import com.igormaznitsa.jbbp.compiler.JBBPCompilerUtils;
@@ -27,60 +28,60 @@ import java.util.List;
  * @since 1.0
  */
 public final class JBBPEvaluatorFactory {
-    private static final JBBPEvaluatorFactory INSTANCE = new JBBPEvaluatorFactory();
+  private static final JBBPEvaluatorFactory INSTANCE = new JBBPEvaluatorFactory();
 
-    private JBBPEvaluatorFactory() {
+  private JBBPEvaluatorFactory() {
 
-    }
+  }
 
-    /**
-     * Get an Instance of the factory.
-     *
-     * @return the factory INSTANCE.
-     */
-    public static JBBPEvaluatorFactory getInstance() {
-        return INSTANCE;
-    }
+  /**
+   * Get an Instance of the factory.
+   *
+   * @return the factory INSTANCE.
+   */
+  public static JBBPEvaluatorFactory getInstance() {
+    return INSTANCE;
+  }
 
-    /**
-     * Make an appropriate evaluator for an expression text.
-     *
-     * @param expression     an expression text, must not be null
-     * @param namedFields    a named field list
-     * @param compiledScript a compiled script block
-     * @return a generated evaluator, it will not be null in any case
-     * @see JBBPExpressionEvaluator
-     * @see JBBPOnlyFieldEvaluator
-     */
-    public JBBPIntegerValueEvaluator make(final String expression, final List<JBBPNamedFieldInfo> namedFields, final byte[] compiledScript) {
-        final JBBPIntegerValueEvaluator result;
+  /**
+   * Make an appropriate evaluator for an expression text.
+   *
+   * @param expression     an expression text, must not be null
+   * @param namedFields    a named field list
+   * @param compiledScript a compiled script block
+   * @return a generated evaluator, it will not be null in any case
+   * @see JBBPExpressionEvaluator
+   * @see JBBPOnlyFieldEvaluator
+   */
+  public JBBPIntegerValueEvaluator make(final String expression, final List<JBBPNamedFieldInfo> namedFields, final byte[] compiledScript) {
+    final JBBPIntegerValueEvaluator result;
 
-        if (JBBPExpressionEvaluator.hasExpressionOperators(expression)) {
-            // expression
-            result = new JBBPExpressionEvaluator(expression, namedFields, compiledScript);
-        } else {
-            // only field
-            int index = -1;
-            if (expression.startsWith("$")) {
-                result = new JBBPOnlyFieldEvaluator(expression.substring(1), index);
-            } else {
-                for (int i = namedFields.size() - 1; i >= 0; i--) {
-                    final JBBPNamedFieldInfo field = namedFields.get(i);
-                    if (expression.equals(field.getFieldPath())) {
-                        index = i;
-                        break;
-                    }
-                }
-                if (index < 0) {
-                    result = new JBBPExpressionEvaluator(expression, namedFields, compiledScript);
-                } else {
-                    JBBPCompilerUtils.assertFieldIsNotArrayOrInArray(namedFields.get(index), namedFields, compiledScript);
-                    result = new JBBPOnlyFieldEvaluator(null, index);
-                }
-            }
+    if (JBBPExpressionEvaluator.hasExpressionOperators(expression)) {
+      // expression
+      result = new JBBPExpressionEvaluator(expression, namedFields, compiledScript);
+    } else {
+      // only field
+      int index = -1;
+      if (expression.startsWith("$")) {
+        result = new JBBPOnlyFieldEvaluator(expression.substring(1), index);
+      } else {
+        for (int i = namedFields.size() - 1; i >= 0; i--) {
+          final JBBPNamedFieldInfo field = namedFields.get(i);
+          if (expression.equals(field.getFieldPath())) {
+            index = i;
+            break;
+          }
         }
-        return result;
+        if (index < 0) {
+          result = new JBBPExpressionEvaluator(expression, namedFields, compiledScript);
+        } else {
+          JBBPCompilerUtils.assertFieldIsNotArrayOrInArray(namedFields.get(index), namedFields, compiledScript);
+          result = new JBBPOnlyFieldEvaluator(null, index);
+        }
+      }
     }
+    return result;
+  }
 
 
 }

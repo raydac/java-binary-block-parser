@@ -22,16 +22,16 @@ package com.igormaznitsa.jbbp.mapper.instantiators;
  * @since 1.0
  */
 public enum JBBPClassInstantiatorType {
-    /**
-     * Auto recognition of the platform features and choice of appropriate one.
-     */
-    AUTO,
-    /**
-     * A Safe version which use standard Java approach but can be non-working in some cases.
-     */
-    SAFE,
-    /**
-     * A Version using sun.misc.Unsafe to allocate memory for objects without constructor calls.
-     */
-    UNSAFE
+  /**
+   * Auto recognition of the platform features and choice of appropriate one.
+   */
+  AUTO,
+  /**
+   * A Safe version which use standard Java approach but can be non-working in some cases.
+   */
+  SAFE,
+  /**
+   * A Version using sun.misc.Unsafe to allocate memory for objects without constructor calls.
+   */
+  UNSAFE
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.plugin.common.utils;
 
 import org.junit.Test;
@@ -21,23 +22,23 @@ import static org.junit.Assert.assertEquals;
 
 public class CommonUtilsTest {
 
-    @Test
-    public void testExtractClassName() {
-        assertEquals("", CommonUtils.extractClassName(""));
-        assertEquals("", CommonUtils.extractClassName("a.b.c."));
-        assertEquals("hello", CommonUtils.extractClassName("hello"));
-        assertEquals("hello", CommonUtils.extractClassName("a.b.c.hello"));
-        assertEquals("hello", CommonUtils.extractClassName(".hello"));
-    }
+  @Test
+  public void testExtractClassName() {
+    assertEquals("", CommonUtils.extractClassName(""));
+    assertEquals("", CommonUtils.extractClassName("a.b.c."));
+    assertEquals("hello", CommonUtils.extractClassName("hello"));
+    assertEquals("hello", CommonUtils.extractClassName("a.b.c.hello"));
+    assertEquals("hello", CommonUtils.extractClassName(".hello"));
+  }
 
-    @Test
-    public void testExtractPackageName() {
-        assertEquals("", CommonUtils.extractPackageName(""));
-        assertEquals("", CommonUtils.extractPackageName("hello"));
-        assertEquals("a", CommonUtils.extractPackageName("a.hello"));
-        assertEquals("a.b.c", CommonUtils.extractPackageName("a.b.c.hello"));
-        assertEquals("a.b.c", CommonUtils.extractPackageName("a.b.c."));
-        assertEquals("", CommonUtils.extractPackageName(".hello"));
-    }
+  @Test
+  public void testExtractPackageName() {
+    assertEquals("", CommonUtils.extractPackageName(""));
+    assertEquals("", CommonUtils.extractPackageName("hello"));
+    assertEquals("a", CommonUtils.extractPackageName("a.hello"));
+    assertEquals("a.b.c", CommonUtils.extractPackageName("a.b.c.hello"));
+    assertEquals("a.b.c", CommonUtils.extractPackageName("a.b.c."));
+    assertEquals("", CommonUtils.extractPackageName(".hello"));
+  }
 
 }

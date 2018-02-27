@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.mvn.test.jbbp;
 
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
@@ -28,21 +29,21 @@ import static org.junit.Assert.assertArrayEquals;
 
 public class VarCustomTest {
 
-    private static final Random RND = new Random(12345);
+  private static final Random RND = new Random(12345);
 
-    @Test
-    public void testReadWrite() throws Exception {
-        final VarCustomImpl impl = new VarCustomImpl();
+  @Test
+  public void testReadWrite() throws Exception {
+    final VarCustomImpl impl = new VarCustomImpl();
 
-        final byte[] etalonArray = new byte[319040];
-        RND.nextBytes(etalonArray);
-        impl.read(new JBBPBitInputStream(new ByteArrayInputStream(etalonArray)));
+    final byte[] etalonArray = new byte[319040];
+    RND.nextBytes(etalonArray);
+    impl.read(new JBBPBitInputStream(new ByteArrayInputStream(etalonArray)));
 
-        final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        final JBBPBitOutputStream bios = new JBBPBitOutputStream(bos);
-        impl.write(bios);
-        bios.close();
+    final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    final JBBPBitOutputStream bios = new JBBPBitOutputStream(bos);
+    impl.write(bios);
+    bios.close();
 
-        assertArrayEquals(etalonArray, bos.toByteArray());
-    }
+    assertArrayEquals(etalonArray, bos.toByteArray());
+  }
 }

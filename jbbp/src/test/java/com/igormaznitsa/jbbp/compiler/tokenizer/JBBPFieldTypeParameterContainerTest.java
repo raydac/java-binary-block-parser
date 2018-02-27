@@ -13,31 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.compiler.tokenizer;
 
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
-
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class JBBPFieldTypeParameterContainerTest {
 
-    @Test
-    public void testConstructorAndGetters() {
-        final String name = "name";
-        final String extra = "extra";
-        final JBBPFieldTypeParameterContainer params = new JBBPFieldTypeParameterContainer(JBBPByteOrder.BIG_ENDIAN, name, extra);
-        assertSame(name, params.getTypeName());
-        assertSame(extra, params.getExtraData());
-        assertEquals(JBBPByteOrder.BIG_ENDIAN, params.getByteOrder());
-    }
+  @Test
+  public void testConstructorAndGetters() {
+    final String name = "name";
+    final String extra = "extra";
+    final JBBPFieldTypeParameterContainer params = new JBBPFieldTypeParameterContainer(JBBPByteOrder.BIG_ENDIAN, name, extra);
+    assertSame(name, params.getTypeName());
+    assertSame(extra, params.getExtraData());
+    assertEquals(JBBPByteOrder.BIG_ENDIAN, params.getByteOrder());
+  }
 
-    @Test
-    public void testToString() {
-        assertEquals("int hello", new JBBPFieldTypeParameterContainer(JBBPByteOrder.BIG_ENDIAN, "int hello", null).toString());
-        assertEquals("<int hello", new JBBPFieldTypeParameterContainer(JBBPByteOrder.LITTLE_ENDIAN, "int hello", null).toString());
-        assertEquals("<bit:8 hello", new JBBPFieldTypeParameterContainer(JBBPByteOrder.LITTLE_ENDIAN, "bit hello", "8").toString());
-        assertEquals("<bit:8", new JBBPFieldTypeParameterContainer(JBBPByteOrder.LITTLE_ENDIAN, "bit", "8").toString());
-    }
+  @Test
+  public void testToString() {
+    assertEquals("int hello", new JBBPFieldTypeParameterContainer(JBBPByteOrder.BIG_ENDIAN, "int hello", null).toString());
+    assertEquals("<int hello", new JBBPFieldTypeParameterContainer(JBBPByteOrder.LITTLE_ENDIAN, "int hello", null).toString());
+    assertEquals("<bit:8 hello", new JBBPFieldTypeParameterContainer(JBBPByteOrder.LITTLE_ENDIAN, "bit hello", "8").toString());
+    assertEquals("<bit:8", new JBBPFieldTypeParameterContainer(JBBPByteOrder.LITTLE_ENDIAN, "bit", "8").toString());
+  }
 
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.compiler.varlen;
 
 import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
@@ -26,57 +27,57 @@ import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
  * @since 1.0
  */
 public final class JBBPOnlyFieldEvaluator implements JBBPIntegerValueEvaluator {
-    private static final long serialVersionUID = -1031131501937541693L;
+  private static final long serialVersionUID = -1031131501937541693L;
 
-    /**
-     * The Index in named field area for the field which is used by the evaluator.
-     */
-    private final int namedFieldIndex;
-    /**
-     * An External field name which value will be requested by the evaluator. It
-     * can be null.
-     */
-    private final String externalFieldName;
+  /**
+   * The Index in named field area for the field which is used by the evaluator.
+   */
+  private final int namedFieldIndex;
+  /**
+   * An External field name which value will be requested by the evaluator. It
+   * can be null.
+   */
+  private final String externalFieldName;
 
-    /**
-     * The Constructor.
-     *
-     * @param externalFieldName the external field name, it can be null.
-     * @param namedFieldIndex   the index of a named field in named field area.
-     */
-    public JBBPOnlyFieldEvaluator(final String externalFieldName, final int namedFieldIndex) {
-        this.externalFieldName = externalFieldName;
-        this.namedFieldIndex = namedFieldIndex;
+  /**
+   * The Constructor.
+   *
+   * @param externalFieldName the external field name, it can be null.
+   * @param namedFieldIndex   the index of a named field in named field area.
+   */
+  public JBBPOnlyFieldEvaluator(final String externalFieldName, final int namedFieldIndex) {
+    this.externalFieldName = externalFieldName;
+    this.namedFieldIndex = namedFieldIndex;
+  }
+
+  @Override
+  public int eval(final JBBPBitInputStream inStream, final int currentCompiledBlockOffset, final JBBPCompiledBlock block, final JBBPNamedNumericFieldMap fieldMap) {
+    return externalFieldName == null
+        ? fieldMap.get(block.getNamedFields()[this.namedFieldIndex]).getAsInt()
+        : this.externalFieldName.equals("$")
+        ? (int) inStream.getCounter()
+        : fieldMap.getExternalFieldValue(this.externalFieldName, block, this);
+  }
+
+  @Override
+  public String toString() {
+    return this.externalFieldName == null ? "NamedFieldIndex=" + this.namedFieldIndex : this.externalFieldName;
+  }
+
+  @Override
+  public void visitItems(final JBBPCompiledBlock block, final int currentCompiledBlockOffset, final ExpressionEvaluatorVisitor visitor) {
+    visitor.visitStart();
+
+    if (this.externalFieldName == null) {
+      visitor.visitField(block.getNamedFields()[this.namedFieldIndex], null);
+    } else {
+      if (this.externalFieldName.equals("$")) {
+        visitor.visitSpecial(ExpressionEvaluatorVisitor.Special.STREAM_COUNTER);
+      } else {
+        visitor.visitField(null, this.externalFieldName);
+      }
     }
 
-    @Override
-    public int eval(final JBBPBitInputStream inStream, final int currentCompiledBlockOffset, final JBBPCompiledBlock block, final JBBPNamedNumericFieldMap fieldMap) {
-        return externalFieldName == null
-                ? fieldMap.get(block.getNamedFields()[this.namedFieldIndex]).getAsInt()
-                : this.externalFieldName.equals("$")
-                ? (int) inStream.getCounter()
-                : fieldMap.getExternalFieldValue(this.externalFieldName, block, this);
-    }
-
-    @Override
-    public String toString() {
-        return this.externalFieldName == null ? "NamedFieldIndex=" + this.namedFieldIndex : this.externalFieldName;
-    }
-
-    @Override
-    public void visitItems(final JBBPCompiledBlock block, final int currentCompiledBlockOffset, final ExpressionEvaluatorVisitor visitor) {
-        visitor.visitStart();
-
-        if (this.externalFieldName == null) {
-            visitor.visitField(block.getNamedFields()[this.namedFieldIndex], null);
-        } else {
-            if (this.externalFieldName.equals("$")) {
-                visitor.visitSpecial(ExpressionEvaluatorVisitor.Special.STREAM_COUNTER);
-            } else {
-                visitor.visitField(null, this.externalFieldName);
-            }
-        }
-
-        visitor.visitEnd();
-    }
+    visitor.visitEnd();
+  }
 }

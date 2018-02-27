@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.mapper.instantiators;
 
 import com.igormaznitsa.jbbp.utils.JBBPSystemProperty;
@@ -28,82 +29,82 @@ import com.igormaznitsa.jbbp.utils.ReflectUtils;
 @SuppressWarnings("LiteralClassName")
 public final class JBBPClassInstantiatorFactory {
 
-    /**
-     * The Factory INSTANCE.
-     */
-    private static final JBBPClassInstantiatorFactory INSTANCE = new JBBPClassInstantiatorFactory();
+  /**
+   * The Factory INSTANCE.
+   */
+  private static final JBBPClassInstantiatorFactory INSTANCE = new JBBPClassInstantiatorFactory();
 
-    /**
-     * The Hidden constructor.
-     */
-    private JBBPClassInstantiatorFactory() {
+  /**
+   * The Hidden constructor.
+   */
+  private JBBPClassInstantiatorFactory() {
 
-    }
+  }
 
-    /**
-     * Get the factory INSTANCE.
-     *
-     * @return the factory INSTANCE, must not be null
-     */
-    public static JBBPClassInstantiatorFactory getInstance() {
-        return INSTANCE;
-    }
+  /**
+   * Get the factory INSTANCE.
+   *
+   * @return the factory INSTANCE, must not be null
+   */
+  public static JBBPClassInstantiatorFactory getInstance() {
+    return INSTANCE;
+  }
 
-    /**
-     * Make an instantiator automatically for the current platform.
-     *
-     * @return the class instantiator INSTANCE which is compatible with the
-     * current platform
-     * @see JBBPClassInstantiator
-     */
-    public JBBPClassInstantiator make() {
-        return this.make(JBBPClassInstantiatorType.AUTO);
-    }
+  /**
+   * Make an instantiator automatically for the current platform.
+   *
+   * @return the class instantiator INSTANCE which is compatible with the
+   * current platform
+   * @see JBBPClassInstantiator
+   */
+  public JBBPClassInstantiator make() {
+    return this.make(JBBPClassInstantiatorType.AUTO);
+  }
 
-    /**
-     * Make an instantiator for defined type.
-     *
-     * @param type the type of needed instantiator, must not be null
-     * @return the class instantiator INSTANCE which is compatible with the
-     * current platform
-     */
-    public JBBPClassInstantiator make(final JBBPClassInstantiatorType type) {
-        JBBPUtils.assertNotNull(type, "Type must not be null");
+  /**
+   * Make an instantiator for defined type.
+   *
+   * @param type the type of needed instantiator, must not be null
+   * @return the class instantiator INSTANCE which is compatible with the
+   * current platform
+   */
+  public JBBPClassInstantiator make(final JBBPClassInstantiatorType type) {
+    JBBPUtils.assertNotNull(type, "Type must not be null");
 
-        String className = "com.igormaznitsa.jbbp.mapper.instantiators.JBBPSafeInstantiator";
+    String className = "com.igormaznitsa.jbbp.mapper.instantiators.JBBPSafeInstantiator";
 
-        switch (type) {
-            case AUTO: {
-                final String customClassName = JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getAsString(null);
-                if (customClassName == null) {
-                    try {
-                        final Class<?> unsafeclazz = Class.forName("sun.misc.Unsafe");
-                        unsafeclazz.getDeclaredField("theUnsafe");
-                        className = "com.igormaznitsa.jbbp.mapper.instantiators.JBBPUnsafeInstantiator";
-                    } catch (ClassNotFoundException ex) {
-                        // do nothing
-                    } catch (NoSuchFieldException ex) {
-                        // do nothing
-                    } catch (SecurityException ex) {
-                        // do nothing
-                    }
-                } else {
-                    className = customClassName;
-                }
-            }
-            break;
-            case SAFE: {
-                className = "com.igormaznitsa.jbbp.mapper.instantiators.JBBPSafeInstantiator";
-            }
-            break;
-            case UNSAFE: {
-                className = "com.igormaznitsa.jbbp.mapper.instantiators.JBBPUnsafeInstantiator";
-            }
-            break;
-            default:
-                throw new Error("Unexpected type, contact developer! [" + type + ']');
+    switch (type) {
+      case AUTO: {
+        final String customClassName = JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getAsString(null);
+        if (customClassName == null) {
+          try {
+            final Class<?> unsafeclazz = Class.forName("sun.misc.Unsafe");
+            unsafeclazz.getDeclaredField("theUnsafe");
+            className = "com.igormaznitsa.jbbp.mapper.instantiators.JBBPUnsafeInstantiator";
+          } catch (ClassNotFoundException ex) {
+            // do nothing
+          } catch (NoSuchFieldException ex) {
+            // do nothing
+          } catch (SecurityException ex) {
+            // do nothing
+          }
+        } else {
+          className = customClassName;
         }
-
-        return JBBPClassInstantiator.class.cast(ReflectUtils.newInstanceForClassName(className));
+      }
+      break;
+      case SAFE: {
+        className = "com.igormaznitsa.jbbp.mapper.instantiators.JBBPSafeInstantiator";
+      }
+      break;
+      case UNSAFE: {
+        className = "com.igormaznitsa.jbbp.mapper.instantiators.JBBPUnsafeInstantiator";
+      }
+      break;
+      default:
+        throw new Error("Unexpected type, contact developer! [" + type + ']');
     }
+
+    return JBBPClassInstantiator.class.cast(ReflectUtils.newInstanceForClassName(className));
+  }
 }

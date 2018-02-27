@@ -18,51 +18,53 @@ package com.igormaznitsa.jbbp.mapper.instantiators;
 
 import com.igormaznitsa.jbbp.utils.JBBPSystemProperty;
 import org.junit.jupiter.api.AfterEach;
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 public class JBBPClassInstantiatorFactoryTest {
 
-    @AfterEach
-    public void afterTest() {
-        System.clearProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName());
-    }
+  @AfterEach
+  public void afterTest() {
+    System.clearProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName());
+  }
 
-    @Test
-    public void testMake_Default() {
-        assertEquals(JBBPUnsafeInstantiator.class, JBBPClassInstantiatorFactory.getInstance().make().getClass());
-    }
+  @Test
+  public void testMake_Default() {
+    assertEquals(JBBPUnsafeInstantiator.class, JBBPClassInstantiatorFactory.getInstance().make().getClass());
+  }
 
-    @Test
-    public void testMake_WithArgument_NPEForNuill() {
-        assertThrows(NullPointerException.class, new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                JBBPClassInstantiatorFactory.getInstance().make(null);
-            }
-        });
-    }
+  @Test
+  public void testMake_WithArgument_NPEForNuill() {
+    assertThrows(NullPointerException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        JBBPClassInstantiatorFactory.getInstance().make(null);
+      }
+    });
+  }
 
-    @Test
-    public void testMake_WithArgument() {
-        assertEquals(JBBPSafeInstantiator.class, JBBPClassInstantiatorFactory.getInstance().make(JBBPClassInstantiatorType.SAFE).getClass());
-        assertEquals(JBBPUnsafeInstantiator.class, JBBPClassInstantiatorFactory.getInstance().make(JBBPClassInstantiatorType.UNSAFE).getClass());
-        assertEquals(JBBPUnsafeInstantiator.class, JBBPClassInstantiatorFactory.getInstance().make(JBBPClassInstantiatorType.AUTO).getClass());
+  @Test
+  public void testMake_WithArgument() {
+    assertEquals(JBBPSafeInstantiator.class, JBBPClassInstantiatorFactory.getInstance().make(JBBPClassInstantiatorType.SAFE).getClass());
+    assertEquals(JBBPUnsafeInstantiator.class, JBBPClassInstantiatorFactory.getInstance().make(JBBPClassInstantiatorType.UNSAFE).getClass());
+    assertEquals(JBBPUnsafeInstantiator.class, JBBPClassInstantiatorFactory.getInstance().make(JBBPClassInstantiatorType.AUTO).getClass());
 
-    }
+  }
 
-    @Test
-    public void testMake_CustomClass() {
-        System.setProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName(), FakeInstantiator.class.getName());
-        assertEquals(FakeInstantiator.class, JBBPClassInstantiatorFactory.getInstance().make(JBBPClassInstantiatorType.AUTO).getClass());
-    }
+  @Test
+  public void testMake_CustomClass() {
+    System.setProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName(), FakeInstantiator.class.getName());
+    assertEquals(FakeInstantiator.class, JBBPClassInstantiatorFactory.getInstance().make(JBBPClassInstantiatorType.AUTO).getClass());
+  }
 
-    public static class FakeInstantiator implements JBBPClassInstantiator {
-        @Override
-        public <T> T makeClassInstance(Class<T> klazz) throws InstantiationException {
-            return null;
-        }
+  public static class FakeInstantiator implements JBBPClassInstantiator {
+    @Override
+    public <T> T makeClassInstance(Class<T> klazz) throws InstantiationException {
+      return null;
     }
+  }
 
 }

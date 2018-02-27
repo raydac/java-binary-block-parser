@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.compiler.tokenizer;
 
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
@@ -28,113 +29,114 @@ import java.io.Serializable;
  */
 public final class JBBPFieldTypeParameterContainer implements Serializable {
 
-    private static final long serialVersionUID = 1557492283811982431L;
+  private static final long serialVersionUID = 1557492283811982431L;
 
-    /**
-     * The Byte order for the field.
-     */
-    private final JBBPByteOrder byteOrder;
-    /**
-     * The field type.
-     */
-    private final String typeName;
-    /**
-     * Extra data for the field (for instance number of bits for a bit field).
-     */
-    private final String extraData;
+  /**
+   * The Byte order for the field.
+   */
+  private final JBBPByteOrder byteOrder;
+  /**
+   * The field type.
+   */
+  private final String typeName;
+  /**
+   * Extra data for the field (for instance number of bits for a bit field).
+   */
+  private final String extraData;
 
-    /**
-     * The Constructor
-     *
-     * @param byteOrder the byte order for the field, must not be null
-     * @param typeName  the type of the field, can be null
-     * @param extraData the extra data placed after ':' char, can be null
-     */
-    public JBBPFieldTypeParameterContainer(final JBBPByteOrder byteOrder, final String typeName, final String extraData) {
-        this.byteOrder = byteOrder;
-        this.typeName = typeName;
-        this.extraData = extraData;
+  /**
+   * The Constructor
+   *
+   * @param byteOrder the byte order for the field, must not be null
+   * @param typeName  the type of the field, can be null
+   * @param extraData the extra data placed after ':' char, can be null
+   */
+  public JBBPFieldTypeParameterContainer(final JBBPByteOrder byteOrder, final String typeName, final String extraData) {
+    this.byteOrder = byteOrder;
+    this.typeName = typeName;
+    this.extraData = extraData;
+  }
+
+  /**
+   * Get the byte order for the field. It can be null.
+   *
+   * @return the defined byte order for the field.
+   */
+  public JBBPByteOrder getByteOrder() {
+    return this.byteOrder;
+  }
+
+  /**
+   * Get the type name of the field.
+   *
+   * @return the type name as String.
+   */
+  public String getTypeName() {
+    return this.typeName;
+  }
+
+  /**
+   * Get the extra data for the field.
+   *
+   * @return the extra data as string or null.
+   */
+  public String getExtraData() {
+    return this.extraData;
+  }
+
+  /**
+   * Extract expression for extra data.
+   *
+   * @return extracted expression from extra data, null if it is not extra data
+   */
+  public String getExtraDataExpression() {
+    String result = null;
+    if (hasExpressionAsExtraData()) {
+      result = this.extraData.substring(1, this.extraData.length() - 1);
+    }
+    return result;
+  }
+
+  /**
+   * Check that the extra data is expression.
+   *
+   * @return true if the extra data is expression, false otherwise
+   */
+  public boolean hasExpressionAsExtraData() {
+    return this.extraData != null && this.extraData.startsWith("(") && this.extraData.endsWith(")");
+  }
+
+  /**
+   * Check that the type is float or double.
+   *
+   * @return true if the type is either float or double
+   * @see JBBPFieldFloat#TYPE_NAME
+   * @see JBBPFieldDouble#TYPE_NAME
+   * @since 1.3.1
+   */
+  public boolean isFloatOrDouble() {
+    return this.typeName.equals(JBBPFieldFloat.TYPE_NAME) || this.typeName.equals(JBBPFieldDouble.TYPE_NAME);
+  }
+
+  @Override
+  public String toString() {
+    final StringBuilder result = new StringBuilder();
+
+    if (byteOrder == JBBPByteOrder.LITTLE_ENDIAN) {
+      result.append('<');
+    }
+    result.append(this.typeName);
+    if (extraData != null) {
+      int insertIndex = typeName.indexOf(' ');
+      if (insertIndex < 0) {
+        insertIndex = result.length();
+      } else {
+        insertIndex++;
+      }
+      result.insert(insertIndex, ':' + extraData);
+
     }
 
-    /**
-     * Get the byte order for the field. It can be null.
-     *
-     * @return the defined byte order for the field.
-     */
-    public JBBPByteOrder getByteOrder() {
-        return this.byteOrder;
-    }
-
-    /**
-     * Get the type name of the field.
-     *
-     * @return the type name as String.
-     */
-    public String getTypeName() {
-        return this.typeName;
-    }
-
-    /**
-     * Get the extra data for the field.
-     *
-     * @return the extra data as string or null.
-     */
-    public String getExtraData() {
-        return this.extraData;
-    }
-
-    /**
-     * Extract expression for extra data.
-     *
-     * @return extracted expression from extra data, null if it is not extra data
-     */
-    public String getExtraDataExpression() {
-        String result = null;
-        if (hasExpressionAsExtraData()) {
-            result = this.extraData.substring(1, this.extraData.length() - 1);
-        }
-        return result;
-    }
-
-    /**
-     * Check that the extra data is expression.
-     *
-     * @return true if the extra data is expression, false otherwise
-     */
-    public boolean hasExpressionAsExtraData() {
-        return this.extraData != null && this.extraData.startsWith("(") && this.extraData.endsWith(")");
-    }
-
-    /**
-     * Check that the type is float or double.
-     * @return true if the type is either float or double
-     * @see JBBPFieldFloat#TYPE_NAME
-     * @see JBBPFieldDouble#TYPE_NAME
-     * @since 1.3.1
-     */
-    public boolean isFloatOrDouble() {
-        return this.typeName.equals(JBBPFieldFloat.TYPE_NAME) || this.typeName.equals(JBBPFieldDouble.TYPE_NAME);
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder result = new StringBuilder();
-
-        if (byteOrder == JBBPByteOrder.LITTLE_ENDIAN) {
-            result.append('<');
-        }
-        result.append(this.typeName);
-        if (extraData != null) {
-            int insertIndex = typeName.indexOf(' ');
-            if (insertIndex < 0) {
-                insertIndex = result.length();
-            } else {
-                insertIndex++;
-            }
-            result.insert(insertIndex, ':' + extraData);
-
-        }
-
-        return result.toString();
-    }
+    return result.toString();
+  }
 }

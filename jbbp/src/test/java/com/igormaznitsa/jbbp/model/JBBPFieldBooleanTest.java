@@ -13,49 +13,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class JBBPFieldBooleanTest {
 
-    @Test
-    public void testNameField() {
-        final JBBPFieldBoolean field = new JBBPFieldBoolean(new JBBPNamedFieldInfo("test.field", "field", 123), true);
-        final JBBPNamedFieldInfo namedField = field.getNameInfo();
-        assertEquals("test.field", namedField.getFieldPath());
-        assertEquals("field", namedField.getFieldName());
-        assertEquals(123, namedField.getFieldOffsetInCompiledBlock());
-    }
+  @Test
+  public void testNameField() {
+    final JBBPFieldBoolean field = new JBBPFieldBoolean(new JBBPNamedFieldInfo("test.field", "field", 123), true);
+    final JBBPNamedFieldInfo namedField = field.getNameInfo();
+    assertEquals("test.field", namedField.getFieldPath());
+    assertEquals("field", namedField.getFieldName());
+    assertEquals(123, namedField.getFieldOffsetInCompiledBlock());
+  }
 
-    @Test
-    public void testgetAsBool_True() {
-        assertTrue(new JBBPFieldBoolean(new JBBPNamedFieldInfo("test.field", "field", 123), true).getAsBool());
-    }
+  @Test
+  public void testgetAsBool_True() {
+    assertTrue(new JBBPFieldBoolean(new JBBPNamedFieldInfo("test.field", "field", 123), true).getAsBool());
+  }
 
-    @Test
-    public void testgetAsBool_False() {
-        assertFalse(new JBBPFieldBoolean(new JBBPNamedFieldInfo("test.field", "field", 123), false).getAsBool());
-    }
+  @Test
+  public void testgetAsBool_False() {
+    assertFalse(new JBBPFieldBoolean(new JBBPNamedFieldInfo("test.field", "field", 123), false).getAsBool());
+  }
 
-    @Test
-    public void testgetAsInt() {
-        assertEquals(1, new JBBPFieldBoolean(new JBBPNamedFieldInfo("test.field", "field", 123), true).getAsInt());
-        assertEquals(0, new JBBPFieldBoolean(new JBBPNamedFieldInfo("test.field", "field", 123), false).getAsInt());
-    }
+  @Test
+  public void testgetAsInt() {
+    assertEquals(1, new JBBPFieldBoolean(new JBBPNamedFieldInfo("test.field", "field", 123), true).getAsInt());
+    assertEquals(0, new JBBPFieldBoolean(new JBBPNamedFieldInfo("test.field", "field", 123), false).getAsInt());
+  }
 
-    @Test
-    public void testgetAsLong() {
-        assertEquals(1L, new JBBPFieldBoolean(new JBBPNamedFieldInfo("test.field", "field", 123), true).getAsLong());
-        assertEquals(0L, new JBBPFieldBoolean(new JBBPNamedFieldInfo("test.field", "field", 123), false).getAsLong());
-    }
+  @Test
+  public void testgetAsLong() {
+    assertEquals(1L, new JBBPFieldBoolean(new JBBPNamedFieldInfo("test.field", "field", 123), true).getAsLong());
+    assertEquals(0L, new JBBPFieldBoolean(new JBBPNamedFieldInfo("test.field", "field", 123), false).getAsLong());
+  }
 
-    @Test
-    public void testGetAsInvertedBitOrder() {
-        assertEquals(0L, new JBBPFieldBoolean(new JBBPNamedFieldInfo("test.field", "field", 123), false).getAsInvertedBitOrder());
-        assertEquals(1L, new JBBPFieldBoolean(new JBBPNamedFieldInfo("test.field", "field", 123), true).getAsInvertedBitOrder());
-    }
+  @Test
+  public void testGetAsInvertedBitOrder() {
+    assertEquals(0L, new JBBPFieldBoolean(new JBBPNamedFieldInfo("test.field", "field", 123), false).getAsInvertedBitOrder());
+    assertEquals(1L, new JBBPFieldBoolean(new JBBPNamedFieldInfo("test.field", "field", 123), true).getAsInvertedBitOrder());
+  }
 
 }

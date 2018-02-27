@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.jbbp.utils;
 
 public final class SpecialTestUtils {
 
-    private SpecialTestUtils() {
+  private SpecialTestUtils() {
 
-    }
+  }
 
-    public static byte[] copyOfRange(final byte[] array, final int startIndex, final int endIndex) {
-        int len = endIndex - startIndex;
-        if (len <= 0) {
-            return new byte[0];
-        }
-        final byte[] result = new byte[len];
-        System.arraycopy(array, startIndex, result, 0, len);
-        return result;
+  public static byte[] copyOfRange(final byte[] array, final int startIndex, final int endIndex) {
+    int len = endIndex - startIndex;
+    if (len <= 0) {
+      return new byte[0];
     }
+    final byte[] result = new byte[len];
+    System.arraycopy(array, startIndex, result, 0, len);
+    return result;
+  }
 }

@@ -19,38 +19,38 @@ package com.igormaznitsa.jbbp.exceptions;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.model.JBBPFieldByte;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 
 import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.Test;
 
 public class JBBPMapperExceptionTest {
-    private final JBBPAbstractField field = new JBBPFieldByte(new JBBPNamedFieldInfo("test.test", "test", 0), (byte) 1);
-    private final Exception cause = new Exception();
-    private final String message = "Message";
+  private final JBBPAbstractField field = new JBBPFieldByte(new JBBPNamedFieldInfo("test.test", "test", 0), (byte) 1);
+  private final Exception cause = new Exception();
+  private final String message = "Message";
 
-    @Test
-    public void testConstructorAndGetters() throws Exception {
-        final Class<?> clazz = Integer.class;
-        final Field clazzField = Integer.class.getDeclaredFields()[0];
+  @Test
+  public void testConstructorAndGetters() throws Exception {
+    final Class<?> clazz = Integer.class;
+    final Field clazzField = Integer.class.getDeclaredFields()[0];
 
-        assertNotNull(clazzField);
+    assertNotNull(clazzField);
 
-        final JBBPMapperException ex = new JBBPMapperException(this.message, this.field, clazz, clazzField, this.cause);
-        assertSame(this.message, ex.getMessage());
-        assertSame(this.field, ex.getField());
-        assertSame(clazz, ex.getMappingClass());
-        assertSame(clazzField, ex.getMappingClassField());
-    }
+    final JBBPMapperException ex = new JBBPMapperException(this.message, this.field, clazz, clazzField, this.cause);
+    assertSame(this.message, ex.getMessage());
+    assertSame(this.field, ex.getField());
+    assertSame(clazz, ex.getMappingClass());
+    assertSame(clazzField, ex.getMappingClassField());
+  }
 
-    @Test
-    public void testToString() throws Exception {
-        final Class<?> clazz = Integer.class;
-        final Field clazzField = Integer.class.getDeclaredFields()[0];
-        assertNotNull(clazzField);
-        final JBBPMapperException ex = new JBBPMapperException(this.message, this.field, clazz, clazzField, this.cause);
-        assertTrue(ex.toString().contains(clazzField.toString()));
-    }
+  @Test
+  public void testToString() throws Exception {
+    final Class<?> clazz = Integer.class;
+    final Field clazzField = Integer.class.getDeclaredFields()[0];
+    assertNotNull(clazzField);
+    final JBBPMapperException ex = new JBBPMapperException(this.message, this.field, clazz, clazzField, this.cause);
+    assertTrue(ex.toString().contains(clazzField.toString()));
+  }
 
 }
