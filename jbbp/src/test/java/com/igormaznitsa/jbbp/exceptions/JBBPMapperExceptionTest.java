@@ -19,11 +19,11 @@ package com.igormaznitsa.jbbp.exceptions;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.model.JBBPFieldByte;
-import org.junit.Test;
 
 import java.lang.reflect.Field;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class JBBPMapperExceptionTest {
     private final JBBPAbstractField field = new JBBPFieldByte(new JBBPNamedFieldInfo("test.test", "test", 0), (byte) 1);

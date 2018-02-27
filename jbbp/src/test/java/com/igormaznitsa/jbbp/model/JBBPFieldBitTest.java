@@ -17,15 +17,21 @@ package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
-import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 public class JBBPFieldBitTest {
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testConstructor_NPEForNullBitNumber() {
-        new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 123, null);
+        assertThrows(NullPointerException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 123, null);
+            }
+        });
     }
 
     @Test

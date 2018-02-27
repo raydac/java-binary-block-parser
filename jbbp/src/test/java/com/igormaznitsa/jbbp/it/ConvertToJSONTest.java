@@ -20,11 +20,11 @@ import com.igormaznitsa.jbbp.model.*;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONStyle;
-import org.junit.Test;
 
 import java.io.InputStream;
 
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ConvertToJSONTest extends AbstractParserIntegrationTest {
 

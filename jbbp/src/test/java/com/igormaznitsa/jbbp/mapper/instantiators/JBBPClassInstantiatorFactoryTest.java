@@ -17,14 +17,14 @@
 package com.igormaznitsa.jbbp.mapper.instantiators;
 
 import com.igormaznitsa.jbbp.utils.JBBPSystemProperty;
-import org.junit.After;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.AfterEach;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 public class JBBPClassInstantiatorFactoryTest {
 
-    @After
+    @AfterEach
     public void afterTest() {
         System.clearProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName());
     }
@@ -34,9 +34,14 @@ public class JBBPClassInstantiatorFactoryTest {
         assertEquals(JBBPUnsafeInstantiator.class, JBBPClassInstantiatorFactory.getInstance().make().getClass());
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testMake_WithArgument_NPEForNuill() {
-        JBBPClassInstantiatorFactory.getInstance().make(null);
+        assertThrows(NullPointerException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                JBBPClassInstantiatorFactory.getInstance().make(null);
+            }
+        });
     }
 
     @Test

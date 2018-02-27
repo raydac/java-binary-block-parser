@@ -16,16 +16,17 @@
 
 package com.igormaznitsa.jbbp.utils;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 public class JBBPSystemPropertyTest {
 
-    @Before
-    public void before() {
+    @BeforeEach
+    public void beforeEach() {
+        System.out.println("BEEEFOOORREEEE");
+
         for (final JBBPSystemProperty p : JBBPSystemProperty.values()) {
             System.clearProperty(p.getPropertyName());
         }
@@ -67,10 +68,15 @@ public class JBBPSystemPropertyTest {
         assertEquals(5678, JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getAsInteger(12345));
     }
 
-    @Test(expected = Error.class)
+    @Test
     public void testGetAsInteger_ErrorForNonIntegerValue() {
-        System.setProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName(), "abcd");
-        JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getAsInteger(12345);
+        assertThrows(Error.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                System.setProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName(), "abcd");
+                JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getAsInteger(12345);
+            }
+        });
     }
 
 }

@@ -24,11 +24,11 @@ import com.igormaznitsa.jbbp.mapper.BinType;
 import com.igormaznitsa.jbbp.model.*;
 import com.igormaznitsa.jbbp.utils.JBBPTextWriter;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-import org.junit.Test;
 
 import java.io.StringWriter;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class NetPacketParsingTest extends AbstractParserIntegrationTest {
 
@@ -87,11 +87,11 @@ public class NetPacketParsingTest extends AbstractParserIntegrationTest {
 
             // Check Ethernet header
             final JBBPFieldStruct parsedEthernetHeader = ethernetParserHeaderWithout802_1QTag.parse(netPacketStream);
-            assertArrayEquals("Destination MAC", new byte[]{(byte) 0x60, (byte) 0x67, (byte) 0x20, (byte) 0xE1, (byte) 0xF9, (byte) 0xF8}, parsedEthernetHeader.findFieldForNameAndType("MacDestination", JBBPFieldArrayByte.class).getArray());
-            assertArrayEquals("Source MAC", new byte[]{(byte) 0x00, (byte) 0x26, (byte) 0x44, (byte) 0x74, (byte) 0xFE, (byte) 0x66}, parsedEthernetHeader.findFieldForNameAndType("MacSource", JBBPFieldArrayByte.class).getArray());
+            assertArrayEquals(new byte[]{(byte) 0x60, (byte) 0x67, (byte) 0x20, (byte) 0xE1, (byte) 0xF9, (byte) 0xF8}, parsedEthernetHeader.findFieldForNameAndType("MacDestination", JBBPFieldArrayByte.class).getArray(),"Destination MAC");
+            assertArrayEquals(new byte[]{(byte) 0x00, (byte) 0x26, (byte) 0x44, (byte) 0x74, (byte) 0xFE, (byte) 0x66}, parsedEthernetHeader.findFieldForNameAndType("MacSource", JBBPFieldArrayByte.class).getArray(),"Source MAC");
 
             final int etherTypeOrLength = parsedEthernetHeader.findFieldForNameAndType("EtherTypeOrLength", JBBPFieldUShort.class).getAsInt();
-            assertEquals("Ethernet type or length", 0x800, etherTypeOrLength);
+            assertEquals(0x800, etherTypeOrLength,"Ethernet type or length");
 
             if (etherTypeOrLength > 1500) {
                 // list of protocols http://standards-oui.ieee.org/ethertype/eth.txt
@@ -105,28 +105,28 @@ public class NetPacketParsingTest extends AbstractParserIntegrationTest {
             netPacketStream.resetCounter();
             final JBBPFieldStruct parsedIPHeader = ipParserHeaderWithoutOptions.parse(netPacketStream);
 
-            assertEquals("IP Version", 4, parsedIPHeader.findFieldForNameAndType("Version", JBBPFieldBit.class).getAsInt());
+            assertEquals(4, parsedIPHeader.findFieldForNameAndType("Version", JBBPFieldBit.class).getAsInt(),"IP Version");
 
             final int internetHeaderLength = parsedIPHeader.findFieldForNameAndType("InternetHeaderLength", JBBPFieldBit.class).getAsInt();
-            assertEquals("Length of the IP header (in 4 byte items)", 5, internetHeaderLength);
-            assertEquals("Differentiated Services Code Point", 0, parsedIPHeader.findFieldForNameAndType("DSCP", JBBPFieldBit.class).getAsInt());
-            assertEquals("Explicit Congestion Notification", 0, parsedIPHeader.findFieldForNameAndType("ECN", JBBPFieldBit.class).getAsInt());
+            assertEquals(5, internetHeaderLength, "Length of the IP header (in 4 byte items)");
+            assertEquals(0, parsedIPHeader.findFieldForNameAndType("DSCP", JBBPFieldBit.class).getAsInt(),"Differentiated Services Code Point");
+            assertEquals(0, parsedIPHeader.findFieldForNameAndType("ECN", JBBPFieldBit.class).getAsInt(),"Explicit Congestion Notification");
 
             final int ipTotalPacketLength = parsedIPHeader.findFieldForNameAndType("TotalPacketLength", JBBPFieldUShort.class).getAsInt();
 
-            assertEquals("Entire IP packet size, including header and data, in bytes", 159, ipTotalPacketLength);
-            assertEquals("Identification", 30810, parsedIPHeader.findFieldForNameAndType("Identification", JBBPFieldUShort.class).getAsInt());
+            assertEquals(159, ipTotalPacketLength,"Entire IP packet size, including header and data, in bytes");
+            assertEquals(30810, parsedIPHeader.findFieldForNameAndType("Identification", JBBPFieldUShort.class).getAsInt(),"Identification");
 
             final int ipFlagsAndFragmentOffset = parsedIPHeader.findFieldForNameAndType("IPFlagsAndFragmentOffset", JBBPFieldUShort.class).getAsInt();
 
-            assertEquals("Extracted IP flags", 0x2, ipFlagsAndFragmentOffset >>> 13);
-            assertEquals("Extracted Fragment offset", 0x00, ipFlagsAndFragmentOffset & 0x1FFF);
+            assertEquals(0x2, ipFlagsAndFragmentOffset >>> 13, "Extracted IP flags");
+            assertEquals(0x00, ipFlagsAndFragmentOffset & 0x1FFF, "Extracted Fragment offset");
 
-            assertEquals("Time To Live", 0x39, parsedIPHeader.findFieldForNameAndType("TTL", JBBPFieldUByte.class).getAsInt());
-            assertEquals("Protocol (RFC-790)", 0x06, parsedIPHeader.findFieldForNameAndType("Protocol", JBBPFieldUByte.class).getAsInt());
-            assertEquals("IPv4 Header Checksum", 0x7DB6, parsedIPHeader.findFieldForNameAndType("HeaderChecksum", JBBPFieldUShort.class).getAsInt());
-            assertEquals("Source IP address", 0xD5C7B393, parsedIPHeader.findFieldForNameAndType("SourceAddress", JBBPFieldInt.class).getAsInt());
-            assertEquals("Destination IP address", 0xC0A80145, parsedIPHeader.findFieldForNameAndType("DestinationAddress", JBBPFieldInt.class).getAsInt());
+            assertEquals(0x39, parsedIPHeader.findFieldForNameAndType("TTL", JBBPFieldUByte.class).getAsInt(), "Time To Live");
+            assertEquals(0x06, parsedIPHeader.findFieldForNameAndType("Protocol", JBBPFieldUByte.class).getAsInt(),"Protocol (RFC-790)");
+            assertEquals(0x7DB6, parsedIPHeader.findFieldForNameAndType("HeaderChecksum", JBBPFieldUShort.class).getAsInt(), "IPv4 Header Checksum");
+            assertEquals(0xD5C7B393, parsedIPHeader.findFieldForNameAndType("SourceAddress", JBBPFieldInt.class).getAsInt(), "Source IP address");
+            assertEquals(0xC0A80145, parsedIPHeader.findFieldForNameAndType("DestinationAddress", JBBPFieldInt.class).getAsInt(), "Destination IP address");
 
             assertEquals(0, parsedIPHeader.findFieldForNameAndType("Options", JBBPFieldArrayByte.class).getArray().length);
 

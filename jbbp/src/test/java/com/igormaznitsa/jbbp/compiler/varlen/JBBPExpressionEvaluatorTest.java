@@ -25,115 +25,215 @@ import com.igormaznitsa.jbbp.exceptions.JBBPEvalException;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 public class JBBPExpressionEvaluatorTest {
 
-    @Test(expected = JBBPCompilationException.class)
+    @Test
     public void testExpression_Error_ConstantsWithoutOperators() {
-        new JBBPExpressionEvaluator(" 1   334", null, null);
+        assertThrows(JBBPCompilationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPExpressionEvaluator(" 1   334", null, null);
+            }
+        });
     }
 
-    @Test(expected = JBBPCompilationException.class)
+    @Test
     public void testExpression_Error_OnlyBrackets() {
-        new JBBPExpressionEvaluator(" ( ( ( ( ) )) )  ", null, null);
+        assertThrows(JBBPCompilationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPExpressionEvaluator(" ( ( ( ( ) )) )  ", null, null);
+            }
+        });
     }
 
-    @Test(expected = JBBPCompilationException.class)
+    @Test
     public void testExpression_Error_NonClosedBracket() {
-        new JBBPExpressionEvaluator("(34+45  ", null, null);
+        assertThrows(JBBPCompilationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPExpressionEvaluator("(34+45  ", null, null);
+            }
+        });
     }
 
-    @Test(expected = JBBPCompilationException.class)
+    @Test
     public void testExpression_Error_NonOpenedBracket() {
-        new JBBPExpressionEvaluator("34+45)  ", null, null);
+        assertThrows(JBBPCompilationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPExpressionEvaluator("34+45)  ", null, null);
+            }
+        });
     }
 
-    @Test(expected = JBBPCompilationException.class)
+    @Test
     public void testExpression_Error_Spaces() {
-        new JBBPExpressionEvaluator("  ", null, null);
+        assertThrows(JBBPCompilationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPExpressionEvaluator("  ", null, null);
+            }
+        });
     }
 
-    @Test(expected = JBBPCompilationException.class)
+    @Test
     public void testExpression_Error_Empty() {
-        new JBBPExpressionEvaluator("", null, null);
+        assertThrows(JBBPCompilationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPExpressionEvaluator("", null, null);
+            }
+        });
     }
 
-    @Test(expected = JBBPCompilationException.class)
+    @Test
     public void testExpression_Error_OnlyUnaryPlus() {
-        new JBBPExpressionEvaluator("+", null, null);
+        assertThrows(JBBPCompilationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPExpressionEvaluator("+", null, null);
+            }
+        });
     }
 
-    @Test(expected = JBBPCompilationException.class)
+    @Test
     public void testExpression_Error_OnlyUnaryMinus() {
-        new JBBPExpressionEvaluator("-", null, null);
+        assertThrows(JBBPCompilationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPExpressionEvaluator("-", null, null);
+            }
+        });
     }
 
-    @Test(expected = JBBPCompilationException.class)
+    @Test
     public void testExpression_Error_OnlyNot() {
-        new JBBPExpressionEvaluator("~", null, null);
+        assertThrows(JBBPCompilationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPExpressionEvaluator("~", null, null);
+            }
+        });
     }
 
-    @Test(expected = JBBPCompilationException.class)
+    @Test
     public void testExpression_Error_WrongFirstUnaryOperator() {
-        new JBBPExpressionEvaluator("%345", null, null);
+        assertThrows(JBBPCompilationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPExpressionEvaluator("%345", null, null);
+            }
+        });
     }
 
-    @Test(expected = JBBPCompilationException.class)
+    @Test
     public void testExpression_Error_WrongUnaryOperator() {
-        new JBBPExpressionEvaluator("222%%345", null, null);
+        assertThrows(JBBPCompilationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPExpressionEvaluator("222%%345", null, null);            }
+        });
     }
 
-    @Test(expected = JBBPCompilationException.class)
+    @Test
     public void testExpression_Error_OnlyNonUnaryOperator() {
-        new JBBPExpressionEvaluator("*", null, null);
+        assertThrows(JBBPCompilationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPExpressionEvaluator("*", null, null);
+            }
+        });
     }
 
-    @Test(expected = JBBPEvalException.class)
+    @Test
     public void testExpression_Error_MulWithoutSecondArgument() {
-        new JBBPExpressionEvaluator("123*", null, null).eval(null, 0, null, null);
+        assertThrows(JBBPEvalException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPExpressionEvaluator("123*", null, null).eval(null, 0, null, null);
+            }
+        });
     }
 
-    @Test(expected = JBBPEvalException.class)
+    @Test
     public void testExpression_Error_SubWithoutSecondArgument() {
-        new JBBPExpressionEvaluator("123-", null, null).eval(null, 0, null, null);
+        assertThrows(JBBPEvalException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPExpressionEvaluator("123-", null, null).eval(null, 0, null, null);
+            }
+        });
     }
 
-    @Test(expected = JBBPEvalException.class)
+    @Test
     public void testExpression_Error_AddWithoutSecondArgument() {
-        new JBBPExpressionEvaluator("123+", null, null).eval(null, 0, null, null);
+        assertThrows(JBBPEvalException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPExpressionEvaluator("123+", null, null).eval(null, 0, null, null);
+            }
+        });
     }
 
-    @Test(expected = JBBPEvalException.class)
+    @Test
     public void testExpression_Error_ModWithoutSecondArgument() {
-        new JBBPExpressionEvaluator("123%", null, null).eval(null, 0, null, null);
+        assertThrows(JBBPEvalException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPExpressionEvaluator("123%", null, null).eval(null, 0, null, null);
+            }
+        });
     }
 
-    @Test(expected = JBBPEvalException.class)
+    @Test
     public void testExpression_Error_DivWithoutSecondArgument() {
-        new JBBPExpressionEvaluator("123/", null, null).eval(null, 0, null, null);
+        assertThrows(JBBPEvalException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPExpressionEvaluator("123/", null, null).eval(null, 0, null, null);
+            }
+        });
     }
 
-    @Test(expected = JBBPEvalException.class)
+    @Test
     public void testExpression_Error_AndWithoutSecondArgument() {
-        new JBBPExpressionEvaluator("123&", null, null).eval(null, 0, null, null);
+        assertThrows(JBBPEvalException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPExpressionEvaluator("123&", null, null).eval(null, 0, null, null);
+            }
+        });
     }
 
-    @Test(expected = JBBPEvalException.class)
+    @Test
     public void testExpression_Error_OrWithoutSecondArgument() {
-        new JBBPExpressionEvaluator("123|", null, null).eval(null, 0, null, null);
+        assertThrows(JBBPEvalException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPExpressionEvaluator("123|", null, null).eval(null, 0, null, null);
+            }
+        });
     }
 
-    @Test(expected = JBBPEvalException.class)
+    @Test
     public void testExpression_Error_XorWithoutSecondArgument() {
-        new JBBPExpressionEvaluator("123^", null, null).eval(null, 0, null, null);
+       assertThrows(JBBPEvalException.class, new Executable() {
+           @Override
+           public void execute() throws Throwable {
+               new JBBPExpressionEvaluator("123^", null, null).eval(null, 0, null, null);
+           }
+       });
     }
 
     @Test
@@ -412,9 +512,14 @@ public class JBBPExpressionEvaluatorTest {
         assertEquals(1234 << 3, expr.eval(null, 0, null, null));
     }
 
-    @Test(expected = JBBPEvalException.class)
+    @Test
     public void testExpression_LeftShift_ErrorWithoutSecondArgument() {
-        new JBBPExpressionEvaluator("1234<<", null, null).eval(null, 0, null, null);
+        assertThrows(JBBPEvalException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPExpressionEvaluator("1234<<", null, null).eval(null, 0, null, null);
+            }
+        });
     }
 
     @Test
@@ -424,9 +529,14 @@ public class JBBPExpressionEvaluatorTest {
         assertEquals(1234 >> 3, expr.eval(null, 0, null, null));
     }
 
-    @Test(expected = JBBPEvalException.class)
+    @Test
     public void testExpression_RightShift_ErrorWithoutSecondArgument() {
-        new JBBPExpressionEvaluator("1234 >>", null, null).eval(null, 0, null, null);
+        assertThrows(JBBPEvalException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPExpressionEvaluator("1234 >>", null, null).eval(null, 0, null, null);
+            }
+        });
     }
 
     @Test
@@ -443,9 +553,14 @@ public class JBBPExpressionEvaluatorTest {
         assertEquals(-1 >>> ~3 & 7, expr.eval(null, 0, null, null));
     }
 
-    @Test(expected = JBBPEvalException.class)
+    @Test
     public void testExpression_RightSignShift_ErrorWithoutSecondArgument() {
-        new JBBPExpressionEvaluator("1234 >>>", null, null).eval(null, 0, null, null);
+        assertThrows(JBBPEvalException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPExpressionEvaluator("1234 >>>", null, null).eval(null, 0, null, null);
+            }
+        });
     }
 
     @Test

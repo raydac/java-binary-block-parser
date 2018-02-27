@@ -17,13 +17,13 @@ package com.igormaznitsa.jbbp.compiler.conversion;
 
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJava6ConverterTest;
-import org.junit.Test;
 
 import java.io.EOFException;
 
 import static com.igormaznitsa.jbbp.TestUtils.getField;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test parser flags for converted sources.

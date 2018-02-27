@@ -22,13 +22,12 @@ import com.igormaznitsa.jbbp.io.JBBPOut;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.mapper.BinType;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TAP_ParsingTest extends AbstractParserIntegrationTest {
     public static final JBBPParser HEADER_PARSER = JBBPParser.prepare("byte type; byte [10] name; <ushort length; <ushort param1; <ushort param2;");
@@ -40,7 +39,7 @@ public class TAP_ParsingTest extends AbstractParserIntegrationTest {
         for (byte b : data) {
             accum ^= b;
         }
-        assertEquals("Checkcode must be the same", etalon, accum);
+        assertEquals(etalon, accum, "Checkcode must be the same");
     }
 
     @Test

@@ -17,19 +17,25 @@ package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
-import org.junit.Test;
 
 import java.io.Serializable;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 public class JBBPFieldArrayBitTest {
     private final byte[] array = new byte[]{(byte) -1, 0, 1, 2, 3};
     private final JBBPFieldArrayBit test = new JBBPFieldArrayBit(new JBBPNamedFieldInfo("test.field", "field", 999), array, JBBPBitNumber.BITS_1);
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testConstructor_NPEForNullBitNumber() {
-        new JBBPFieldArrayBit(new JBBPNamedFieldInfo("test.field", "field", 999), new byte[]{(byte) -1, 0, 1, 2, 3}, null);
+        assertThrows(NullPointerException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPFieldArrayBit(new JBBPNamedFieldInfo("test.field", "field", 999), new byte[]{(byte) -1, 0, 1, 2, 3}, null);
+            }
+        });
     }
 
     @Test

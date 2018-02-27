@@ -23,22 +23,21 @@ import com.igormaznitsa.jbbp.io.JBBPOut;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.model.*;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-import org.junit.Test;
 
 import java.io.InputStream;
 import java.util.zip.CRC32;
 
 import static com.igormaznitsa.jbbp.TestUtils.assertPngChunk;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PNGParsingTest extends AbstractParserIntegrationTest {
 
     private static void assertChunk(final String name, final int length, final JBBPFieldStruct chunk) {
         final int chunkName = (name.charAt(0) << 24) | (name.charAt(1) << 16) | (name.charAt(2) << 8) | name.charAt(3);
 
-        assertEquals("Chunk must be " + name, chunkName, chunk.findFieldForNameAndType("type", JBBPFieldInt.class).getAsInt());
-        assertEquals("Chunk length must be " + length, length, chunk.findFieldForNameAndType("length", JBBPFieldInt.class).getAsInt());
+        assertEquals(chunkName, chunk.findFieldForNameAndType("type", JBBPFieldInt.class).getAsInt(),"Chunk must be " + name);
+        assertEquals(length, chunk.findFieldForNameAndType("length", JBBPFieldInt.class).getAsInt(), "Chunk length must be " + length);
 
         final CRC32 crc32 = new CRC32();
         crc32.update(name.charAt(0));
@@ -48,12 +47,12 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
 
         if (length != 0) {
             final byte[] array = chunk.findFieldForType(JBBPFieldArrayByte.class).getArray();
-            assertEquals("Data array " + name + " must be " + length, length, array.length);
+            assertEquals(length, array.length, "Data array " + name + " must be " + length);
             crc32.update(array);
         }
 
         final int crc = (int) crc32.getValue();
-        assertEquals("CRC32 for " + name + " must be " + crc, crc, chunk.findLastFieldForType(JBBPFieldInt.class).getAsInt());
+        assertEquals(crc, chunk.findLastFieldForType(JBBPFieldInt.class).getAsInt(), "CRC32 for " + name + " must be " + crc);
 
     }
 

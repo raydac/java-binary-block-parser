@@ -23,13 +23,13 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class AbstractParserIntegrationTest {
 
     public void assertFile(final String fileName, final String text) throws Exception {
         final InputStream in = this.getClass().getResourceAsStream(fileName);
-        assertNotNull("Can't find file [" + fileName + "]", in);
+        assertNotNull(in, "Can't find file [" + fileName + "]");
         Reader reader = null;
         String fileText;
         try {
@@ -51,7 +51,7 @@ public abstract class AbstractParserIntegrationTest {
             }
         }
 
-        assertEquals("File content must be equals", fileText, text);
+        assertEquals(fileText, text, "File content must be equals");
     }
 
     public InputStream getResourceAsInputStream(final String resourceName) throws Exception {
@@ -66,7 +66,7 @@ public abstract class AbstractParserIntegrationTest {
         final InputStream in = getResourceAsInputStream(resourceName);
         try {
             final byte[] fileContent = new JBBPBitInputStream(in).readByteArray(-1);
-            assertArrayEquals("Content of '" + resourceName + "'", fileContent, content);
+            assertArrayEquals(fileContent, content,"Content of '" + resourceName + "'");
         } finally {
             JBBPUtils.closeQuietly(in);
         }

@@ -49,7 +49,9 @@ public final class ReflectUtils {
    * Make accessible an accessible object, AccessController.doPrivileged will be
    * called.
    *
+   * @param <T> type of object
    * @param obj an object to make accessible, it can be null.
+   * @return the same object
    * @see AccessController#doPrivileged(java.security.PrivilegedAction)
    */
   public static <T extends AccessibleObject> T makeAccessible(final T obj) {

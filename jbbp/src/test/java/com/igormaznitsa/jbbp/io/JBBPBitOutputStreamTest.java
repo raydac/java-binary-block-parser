@@ -17,13 +17,14 @@ package com.igormaznitsa.jbbp.io;
 
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import com.igormaznitsa.jbbp.utils.SpecialTestUtils;
-import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Random;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 public class JBBPBitOutputStreamTest {
 
@@ -389,19 +390,34 @@ public class JBBPBitOutputStreamTest {
         assertEquals(0, out.getCounter());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testWriteBit_ErrorForZeroSize() throws Exception {
-        new JBBPBitOutputStream(new ByteArrayOutputStream()).writeBits(4, JBBPBitNumber.decode(0));
+        assertThrows(IllegalArgumentException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPBitOutputStream(new ByteArrayOutputStream()).writeBits(4, JBBPBitNumber.decode(0));
+            }
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testWriteBit_ErrorForNegativeSize() throws Exception {
-        new JBBPBitOutputStream(new ByteArrayOutputStream()).writeBits(4, JBBPBitNumber.decode(-1));
+        assertThrows(IllegalArgumentException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPBitOutputStream(new ByteArrayOutputStream()).writeBits(4, JBBPBitNumber.decode(-1));
+            }
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testWriteBit_ErrorForTooBigSize() throws Exception {
-        new JBBPBitOutputStream(new ByteArrayOutputStream()).writeBits(4, JBBPBitNumber.decode(9));
+        assertThrows(IllegalArgumentException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPBitOutputStream(new ByteArrayOutputStream()).writeBits(4, JBBPBitNumber.decode(9));
+            }
+        });
     }
 
     @Test
@@ -483,7 +499,7 @@ public class JBBPBitOutputStreamTest {
         assertEquals(256, written.length);
 
         for (int i = 0; i < 256; i++) {
-            assertEquals("Pos " + i, i, written[i] & 0xFF);
+            assertEquals(i, written[i] & 0xFF, "Pos " + i);
         }
     }
 

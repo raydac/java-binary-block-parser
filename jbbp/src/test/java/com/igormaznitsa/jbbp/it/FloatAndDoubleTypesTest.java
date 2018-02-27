@@ -17,20 +17,20 @@ package com.igormaznitsa.jbbp.it;
 
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.JBBPParser;
+import com.igormaznitsa.jbbp.TestUtils;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.model.*;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test and example how to organize work with Float and Double values in JBBP (the formats are not supported out of the box)
@@ -88,7 +88,7 @@ public strictfp class FloatAndDoubleTypesTest {
         final JBBPParser parser = JBBPParser.prepare("float a;", new JBBPFloatAndDoubleTypeProcessor());
         final float etalon = 1.2345f;
         final JBBPFieldFloat value = parser.parse(floatToBytes(etalon, false)).findFieldForType(JBBPFieldFloat.class);
-        assertEquals(etalon, value.getAsFloat(), 0.0f);
+        assertEquals(etalon, value.getAsFloat(), TestUtils.FLOAT_DELTA);
     }
 
     @Test
@@ -99,7 +99,7 @@ public strictfp class FloatAndDoubleTypesTest {
         final byte[] arrayparse = floatToBytes(etalon, true);
         final JBBPFieldFloat value = parser.parse(arrayparse).findFieldForType(JBBPFieldFloat.class);
 
-        assertEquals(etalon, value.getAsFloat(), 0.0f);
+        assertEquals(etalon, value.getAsFloat(), TestUtils.FLOAT_DELTA);
     }
 
     @Test
@@ -107,7 +107,7 @@ public strictfp class FloatAndDoubleTypesTest {
         final JBBPParser parser = JBBPParser.prepare("float [_] a;", new JBBPFloatAndDoubleTypeProcessor());
         final float[] etalon = new float[]{1.2345f, -734.334f};
         final JBBPFieldArrayFloat value = parser.parse(floatsAsArray(false, etalon)).findFieldForType(JBBPFieldArrayFloat.class);
-        assertArrayEquals(etalon, value.getArray(), 0.0f);
+        assertArrayEquals(etalon, value.getArray(), TestUtils.FLOAT_DELTA);
     }
 
     @Test
@@ -115,7 +115,7 @@ public strictfp class FloatAndDoubleTypesTest {
         final JBBPParser parser = JBBPParser.prepare("<float [_] a;", JBBPBitOrder.MSB0, new JBBPFloatAndDoubleTypeProcessor(), 0);
         final float[] etalon = new float[]{1.2345f, -734.334f};
         final JBBPFieldArrayFloat value = parser.parse(floatsAsArray(true, etalon)).findFieldForType(JBBPFieldArrayFloat.class);
-        assertArrayEquals(etalon, value.getArray(), 0.0f);
+        assertArrayEquals(etalon, value.getArray(), TestUtils.FLOAT_DELTA);
     }
 
     @Test
@@ -123,7 +123,7 @@ public strictfp class FloatAndDoubleTypesTest {
         final JBBPParser parser = JBBPParser.prepare("float [2] a;", new JBBPFloatAndDoubleTypeProcessor());
         final float[] etalon = new float[]{1.2345f, -734.334f};
         final JBBPFieldArrayFloat value = parser.parse(floatsAsArray(false, Arrays.copyOf(etalon, 334))).findFieldForType(JBBPFieldArrayFloat.class);
-        assertArrayEquals(etalon, value.getArray(), 0.0f);
+        assertArrayEquals(etalon, value.getArray(), TestUtils.FLOAT_DELTA);
     }
 
     @Test
@@ -131,7 +131,7 @@ public strictfp class FloatAndDoubleTypesTest {
         final JBBPParser parser = JBBPParser.prepare("<float [2] a;", JBBPBitOrder.MSB0, new JBBPFloatAndDoubleTypeProcessor(), 0);
         final float[] etalon = new float[]{1.2345f, -734.334f};
         final JBBPFieldArrayFloat value = parser.parse(floatsAsArray(true, Arrays.copyOf(etalon, 334))).findFieldForType(JBBPFieldArrayFloat.class);
-        assertArrayEquals(etalon, value.getArray(), 0.0f);
+        assertArrayEquals(etalon, value.getArray(), TestUtils.FLOAT_DELTA);
     }
 
     @Test
@@ -139,7 +139,7 @@ public strictfp class FloatAndDoubleTypesTest {
         final JBBPParser parser = JBBPParser.prepare("double a;", new JBBPFloatAndDoubleTypeProcessor());
         final double etalon = 1.234524324324d;
         final JBBPFieldDouble value = parser.parse(doubleToBytes(etalon, false)).findFieldForType(JBBPFieldDouble.class);
-        assertEquals(etalon, value.getAsDouble(), 0.0d);
+        assertEquals(etalon, value.getAsDouble(), TestUtils.FLOAT_DELTA);
     }
 
     @Test
@@ -150,7 +150,7 @@ public strictfp class FloatAndDoubleTypesTest {
         final byte[] arrayparse = doubleToBytes(etalon, true);
         final JBBPFieldDouble value = parser.parse(arrayparse).findFieldForType(JBBPFieldDouble.class);
 
-        assertEquals(etalon, value.getAsDouble(), 0.0d);
+        assertEquals(etalon, value.getAsDouble(), TestUtils.FLOAT_DELTA);
     }
 
     @Test
@@ -158,7 +158,7 @@ public strictfp class FloatAndDoubleTypesTest {
         final JBBPParser parser = JBBPParser.prepare("double [_] a;", new JBBPFloatAndDoubleTypeProcessor());
         final double[] etalon = new double[]{1.2432324345d, -23432734.334d};
         final JBBPFieldArrayDouble value = parser.parse(doublesAsArray(false, etalon)).findFieldForType(JBBPFieldArrayDouble.class);
-        assertArrayEquals(etalon, value.getArray(), 0.0d);
+        assertArrayEquals(etalon, value.getArray(), TestUtils.FLOAT_DELTA);
     }
 
     @Test
@@ -166,7 +166,7 @@ public strictfp class FloatAndDoubleTypesTest {
         final JBBPParser parser = JBBPParser.prepare("<double [_] a;", JBBPBitOrder.MSB0, new JBBPFloatAndDoubleTypeProcessor(), 0);
         final double[] etalon = new double[]{1.2345324234324f, -234324734.334f};
         final JBBPFieldArrayDouble value = parser.parse(doublesAsArray(true, etalon)).findFieldForType(JBBPFieldArrayDouble.class);
-        assertArrayEquals(etalon, value.getArray(), 0.0d);
+        assertArrayEquals(etalon, value.getArray(), TestUtils.FLOAT_DELTA);
     }
 
     @Test
@@ -174,7 +174,7 @@ public strictfp class FloatAndDoubleTypesTest {
         final JBBPParser parser = JBBPParser.prepare("double [2] a;", new JBBPFloatAndDoubleTypeProcessor());
         final double[] etalon = new double[]{1.234523424234d, -232432734.234324334d};
         final JBBPFieldArrayDouble value = parser.parse(doublesAsArray(false, Arrays.copyOf(etalon, 334))).findFieldForType(JBBPFieldArrayDouble.class);
-        assertArrayEquals(etalon, value.getArray(), 0.0d);
+        assertArrayEquals(etalon, value.getArray(), TestUtils.FLOAT_DELTA);
     }
 
     @Test
@@ -182,7 +182,7 @@ public strictfp class FloatAndDoubleTypesTest {
         final JBBPParser parser = JBBPParser.prepare("<double [2] a;", JBBPBitOrder.MSB0, new JBBPFloatAndDoubleTypeProcessor(), 0);
         final double[] etalon = new double[]{1.2342432345d, -32432324734.32432334d};
         final JBBPFieldArrayDouble value = parser.parse(doublesAsArray(true, Arrays.copyOf(etalon, 334))).findFieldForType(JBBPFieldArrayDouble.class);
-        assertArrayEquals(etalon, value.getArray(), 0.0d);
+        assertArrayEquals(etalon, value.getArray(), TestUtils.FLOAT_DELTA);
     }
 
     public static final class JBBPFieldFloat extends JBBPAbstractField implements JBBPNumericField {

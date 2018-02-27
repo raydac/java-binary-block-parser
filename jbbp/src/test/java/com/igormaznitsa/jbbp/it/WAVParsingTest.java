@@ -21,11 +21,11 @@ import com.igormaznitsa.jbbp.model.JBBPFieldArrayStruct;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-import org.junit.Test;
 
 import java.io.InputStream;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class WAVParsingTest extends AbstractParserIntegrationTest {
 
@@ -53,11 +53,11 @@ public class WAVParsingTest extends AbstractParserIntegrationTest {
 
         int index = 0;
 
-        assertEquals("Number of parsed subchunks must be [" + chunks.length + ']', chunks.length, parsedWav.findFieldForNameAndType("SubChunks", JBBPFieldArrayStruct.class).size());
+        assertEquals(chunks.length, parsedWav.findFieldForNameAndType("SubChunks", JBBPFieldArrayStruct.class).size(),"Number of parsed subchunks must be [" + chunks.length + ']');
 
         for (final JBBPFieldStruct subchunk : parsedWav.findFieldForNameAndType("SubChunks", JBBPFieldArrayStruct.class)) {
             final String strChunkId = chunks[index++];
-            assertEquals("WAV subchunk must have 4 char length [" + strChunkId + ']', 4, strChunkId.length());
+            assertEquals(4, strChunkId.length(),"WAV subchunk must have 4 char length [" + strChunkId + ']');
             assertEquals(strChunkId, wavInt2Str(subchunk.findFieldForNameAndType("SubChunkID", JBBPFieldInt.class).getAsInt()));
             final int subChunkSize = subchunk.findFieldForNameAndType("SubChunkSize", JBBPFieldInt.class).getAsInt();
             assertEquals(subChunkSize, subchunk.findFieldForNameAndType("data", JBBPFieldArrayByte.class).size());

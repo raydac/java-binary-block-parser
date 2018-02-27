@@ -19,7 +19,6 @@ import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJava6ConverterTest;
 import com.igormaznitsa.jbbp.utils.TargetSources;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +26,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Random;
 
 import static com.igormaznitsa.jbbp.TestUtils.getField;
-import static org.junit.Assert.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class JBBPToJBBPToJava6ConverterExpressionTest extends AbstractJBBPToJava6ConverterTest {
 
@@ -40,7 +41,7 @@ public class JBBPToJBBPToJava6ConverterExpressionTest extends AbstractJBBPToJava
 
 
     private void assertExpression(final int etalonValue, final String expression) throws Exception {
-        assertTrue("Etalon value must not be zero or negative one : " + etalonValue, etalonValue > 0);
+        assertTrue(etalonValue > 0, "Etalon value must not be zero or negative one : " + etalonValue);
         final Object obj = compileAndMakeInstance(String.format("byte [%s] data;", expression));
 
         callRead(obj, UNLIMITED_STREAM);
@@ -148,7 +149,7 @@ public class JBBPToJBBPToJava6ConverterExpressionTest extends AbstractJBBPToJava
                 final int etalon = (Integer) theInstance.getClass().getMethod("makeExpressionResult").invoke(null);
                 if (etalon > 0 && etalon < 100000) {
                     System.out.println("Testing expression : " + expression);
-                    assertEquals(src.toString(),etalon,getField(callRead(theInstance,new JBBPBitInputStream(UNLIMITED_STREAM)),"array", byte[].class).length);
+                    assertEquals(etalon,getField(callRead(theInstance,new JBBPBitInputStream(UNLIMITED_STREAM)),"array", byte[].class).length, src.toString());
                     rightCounter ++;
                 }
             }catch (InvocationTargetException ex){

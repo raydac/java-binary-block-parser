@@ -17,13 +17,14 @@ package com.igormaznitsa.jbbp.utils;
 
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
-import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Random;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.function.Executable;
 
 public class JBBPUtilsTest {
 
@@ -136,14 +137,24 @@ public class JBBPUtilsTest {
         assertTrue(JBBPUtils.isNumber("-12837921739821739203928103802198383742984732"));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testUnpackInt_NPEForArrayIsNull() {
-        JBBPUtils.unpackInt(null, new JBBPIntCounter());
+        assertThrows(NullPointerException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                JBBPUtils.unpackInt(null, new JBBPIntCounter());
+            }
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testUnpackInt_IAEForWrongPrefix() {
-        JBBPUtils.unpackInt(new byte[]{(byte) 0xAA, 0, 0, 0, 0, 0}, new JBBPIntCounter());
+        assertThrows(IllegalArgumentException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                JBBPUtils.unpackInt(new byte[]{(byte) 0xAA, 0, 0, 0, 0, 0}, new JBBPIntCounter());
+            }
+        });
     }
 
     @Test
@@ -213,7 +224,7 @@ public class JBBPUtilsTest {
                 a >>= 1;
             }
 
-            assertEquals("Value is " + i, (byte) etalon, JBBPUtils.reverseBitsInByte((byte) i));
+            assertEquals((byte) etalon, JBBPUtils.reverseBitsInByte((byte) i),"Value is " + i);
         }
     }
 
@@ -404,14 +415,24 @@ public class JBBPUtilsTest {
         assertArrayEquals(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, JBBPUtils.concat(new byte[]{1, 2, 3, 4}, new byte[]{5}, new byte[]{6, 7, 8, 9}, new byte[0], new byte[]{10}));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testReverdeByteOrder_ErrorForZeroByteNumber() {
-        JBBPUtils.reverseByteOrder(1234, 0);
+        assertThrows(IllegalArgumentException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                JBBPUtils.reverseByteOrder(1234, 0);
+            }
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testReverdeByteOrder_ErrorForTooBigByteNumber() {
-        JBBPUtils.reverseByteOrder(1234, 9);
+        assertThrows(IllegalArgumentException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                JBBPUtils.reverseByteOrder(1234, 9);
+            }
+        });
     }
 
     @Test

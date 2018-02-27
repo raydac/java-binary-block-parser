@@ -24,14 +24,14 @@ import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.model.*;
-import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.function.Executable;
 
 /**
  * Example of three byte integer custom type processor to parse unsigned integer values represented by three bytes in data stream.
@@ -74,10 +74,15 @@ public class CustomThreeByteIntegerTypeTest extends AbstractParserIntegrationTes
         assertEquals(0xC04080, inverseparser.parse(new JBBPBitInputStream(new ByteArrayInputStream(new byte[]{0x01, 0x02, 0x03}), JBBPBitOrder.MSB0)).findFieldForType(JBBPFieldInt.class).getAsInt());
     }
 
-    @Test(expected = JBBPParsingException.class)
+    @Test
     public void testReadThreeByteInteger_ErrorForEOF() throws Exception {
         final JBBPParser parser = JBBPParser.prepare("int24 value;", new Int24CustomTypeProcessor());
-        parser.parse(new byte[]{0x01, 0x02});
+        assertThrows(JBBPParsingException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                parser.parse(new byte[]{0x01, 0x02});
+            }
+        });
     }
 
     @Test

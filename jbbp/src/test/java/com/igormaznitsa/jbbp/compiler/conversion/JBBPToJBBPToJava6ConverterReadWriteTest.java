@@ -17,6 +17,7 @@ package com.igormaznitsa.jbbp.compiler.conversion;
 
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.JBBPParser;
+import com.igormaznitsa.jbbp.TestUtils;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
@@ -29,7 +30,6 @@ import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJava6ConverterTest;
 import com.igormaznitsa.jbbp.utils.ReflectUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -39,7 +39,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.igormaznitsa.jbbp.TestUtils.*;
-import static org.junit.Assert.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test reading writing with converted classes from parser.
@@ -101,7 +103,7 @@ public class JBBPToJBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6
     @Test
     public void testReadWrite_BooleanArrayWholeStream() throws Exception {
         final Object instance = compileAndMakeInstance("bool [_] boolArray;");
-        assertNull("by default must be null", getField(instance, "boolarray", boolean[].class));
+        assertNull(getField(instance, "boolarray", boolean[].class), "by default must be null");
         final byte[] etalon = new byte[]{1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1};
         callRead(instance, etalon.clone());
         assertArrayEquals(new boolean[]{true, false, true, true, false, true, true, true, false, false, false, true, true, true, true}, getField(instance, "boolarray", boolean[].class));
@@ -111,7 +113,7 @@ public class JBBPToJBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6
     @Test
     public void testReadWite_ByteArrayWholeStream() throws Exception {
         final Object instance = compileAndMakeInstance("byte [_] byteArray;");
-        assertNull("by default must be null", getField(instance, "bytearray", byte[].class));
+        assertNull(getField(instance, "bytearray", byte[].class), "by default must be null");
 
         final byte[] etalon = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 22, 33, 44, 55, 66};
 
@@ -128,20 +130,20 @@ public class JBBPToJBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6
 
         callRead(instance, etalon.clone());
 
-        assertEquals(2.3879393E-38f, getField(instance, "value", Float.class).floatValue(), 0.0f);
+        assertEquals(2.3879393E-38f, getField(instance, "value", Float.class).floatValue(), TestUtils.FLOAT_DELTA);
         assertArrayEquals(etalon, callWrite(instance));
     }
 
     @Test
     public void testReadWite_FloatArrayWholeStream() throws Exception {
         final Object instance = compileAndMakeInstance("floatj [_] floatArray;");
-        assertNull("by default must be null", getField(instance, "floatarray", float[].class));
+        assertNull(getField(instance, "floatarray", float[].class), "by default must be null");
 
         final byte[] etalon = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 22, 33, 44, 55, 66, 77};
 
         callRead(instance, etalon.clone());
 
-        assertArrayEquals(new float[]{2.3879393E-38f, 6.301941E-36f, 1.5417845E-33f, 2.6042668E-12f}, getField(instance, "floatarray", float[].class), 0.0f);
+        assertArrayEquals(new float[]{2.3879393E-38f, 6.301941E-36f, 1.5417845E-33f, 2.6042668E-12f}, getField(instance, "floatarray", float[].class), TestUtils.FLOAT_DELTA);
         assertArrayEquals(etalon, callWrite(instance));
     }
 
@@ -152,27 +154,27 @@ public class JBBPToJBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6
 
         callRead(instance, etalon.clone());
 
-        assertEquals(8.20788039913184E-304d, getField(instance, "value", Double.class).doubleValue(), 0.0f);
+        assertEquals(8.20788039913184E-304d, getField(instance, "value", Double.class).doubleValue(), TestUtils.FLOAT_DELTA);
         assertArrayEquals(etalon, callWrite(instance));
     }
 
     @Test
     public void testReadWite_DoubleArrayWholeStream() throws Exception {
         final Object instance = compileAndMakeInstance("doublej [_] doubleArray;");
-        assertNull("by default must be null", getField(instance, "doublearray", double[].class));
+        assertNull(getField(instance, "doublearray", double[].class), "by default must be null");
 
         final byte[] etalon = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 22, 33, 44, 55, 66, 77, 3, 5, 9, 11, 33, 12, 10, 45};
 
         callRead(instance, etalon.clone());
 
-        assertArrayEquals(new double[]{8.20788039913184E-304d, 2.494444648262547E-265d, 4.117024896955411E-294d}, getField(instance, "doublearray", double[].class), 0.0d);
+        assertArrayEquals(new double[]{8.20788039913184E-304d, 2.494444648262547E-265d, 4.117024896955411E-294d}, getField(instance, "doublearray", double[].class), TestUtils.FLOAT_DELTA);
         assertArrayEquals(etalon, callWrite(instance));
     }
 
     @Test
     public void testReadWite_BitArrayWholeStream() throws Exception {
         final Object instance = compileAndMakeInstance("bit [_] bitArray;");
-        assertNull("by default must be null", getField(instance, "bitarray", byte[].class));
+        assertNull(getField(instance, "bitarray", byte[].class), "by default must be null");
 
         final byte[] etalon = new byte[1024];
         RND.nextBytes(etalon);
@@ -186,13 +188,13 @@ public class JBBPToJBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6
     @Test
     public void testReadWite_FloatFieldAsCounter() throws Exception {
         final Object instance = compileAndMakeInstance("floatj len; byte [len] data;");
-        assertNull("by default must be null", getField(instance, "data", byte[].class));
+        assertNull(getField(instance, "data", byte[].class), "by default must be null");
 
         final byte [] data = JBBPOut.BeginBin().Float(3.3f).Byte(1,2,3).End().toByteArray();
 
         callRead(instance, data.clone());
 
-        assertEquals(3.3f, getField(instance, "len", Float.class).floatValue(),0.0f);
+        assertEquals(3.3f, getField(instance, "len", Float.class).floatValue(),TestUtils.FLOAT_DELTA);
         assertArrayEquals(new byte []{1,2,3}, getField(instance, "data", byte[].class));
         assertArrayEquals(data, callWrite(instance));
     }
@@ -200,13 +202,13 @@ public class JBBPToJBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6
     @Test
     public void testReadWite_FloatFieldAsCounter_Expression() throws Exception {
         final Object instance = compileAndMakeInstance("floatj len; byte [len/2] data;");
-        assertNull("by default must be null", getField(instance, "data", byte[].class));
+        assertNull(getField(instance, "data", byte[].class), "by default must be null");
 
         final byte [] data = JBBPOut.BeginBin().Float(4.3f).Byte(1,2).End().toByteArray();
 
         callRead(instance, data.clone());
 
-        assertEquals(4.3f, getField(instance, "len", Float.class).floatValue(),0.0f);
+        assertEquals(4.3f, getField(instance, "len", Float.class).floatValue(),TestUtils.FLOAT_DELTA);
         assertArrayEquals(new byte []{1,2}, getField(instance, "data", byte[].class));
         assertArrayEquals(data, callWrite(instance));
     }
@@ -214,13 +216,13 @@ public class JBBPToJBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6
     @Test
     public void testReadWite_DoubleFloatFieldAsCounter() throws Exception {
         final Object instance = compileAndMakeInstance("doublej len; byte [len] data;");
-        assertNull("by default must be null", getField(instance, "data", byte[].class));
+        assertNull(getField(instance, "data", byte[].class), "by default must be null");
 
         final byte [] data = JBBPOut.BeginBin().Double(3.3d).Byte(1,2,3).End().toByteArray();
 
         callRead(instance, data.clone());
 
-        assertEquals(3.3d, getField(instance, "len", Double.class).doubleValue(),0.0f);
+        assertEquals(3.3d, getField(instance, "len", Double.class).doubleValue(),TestUtils.FLOAT_DELTA);
         assertArrayEquals(new byte []{1,2,3}, getField(instance, "data", byte[].class));
         assertArrayEquals(data, callWrite(instance));
     }
@@ -228,13 +230,13 @@ public class JBBPToJBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6
     @Test
     public void testReadWite_DoubleFloatFieldAsCounter_Expression() throws Exception {
         final Object instance = compileAndMakeInstance("doublej len; byte [len/2] data;");
-        assertNull("by default must be null", getField(instance, "data", byte[].class));
+        assertNull(getField(instance, "data", byte[].class), "by default must be null");
 
         final byte [] data = JBBPOut.BeginBin().Double(4.3d).Byte(1,2).End().toByteArray();
 
         callRead(instance, data.clone());
 
-        assertEquals(4.3d, getField(instance, "len", Double.class).doubleValue(),0.0f);
+        assertEquals(4.3d, getField(instance, "len", Double.class).doubleValue(),TestUtils.FLOAT_DELTA);
         assertArrayEquals(new byte []{1,2}, getField(instance, "data", byte[].class));
         assertArrayEquals(data, callWrite(instance));
     }
@@ -310,16 +312,16 @@ public class JBBPToJBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6
         assertEquals(0x45564157, getField(instance, "format", Integer.class).intValue());
 
         final Object[] subchunks = getField(instance, "subchunks", Object[].class);
-        assertEquals("Number of parsed subchunks must be [" + subchunkNames.length + ']', subchunkNames.length, subchunks.length);
+        assertEquals(subchunkNames.length, subchunks.length, "Number of parsed subchunks must be [" + subchunkNames.length + ']');
 
         int calculatedSize = 4;
         int index = 0;
         for (final Object subchunk : subchunks) {
             final String strChunkId = subchunkNames[index++];
-            assertEquals("WAV subchunk must have 4 char length [" + strChunkId + ']', 4, strChunkId.length());
+            assertEquals(4, strChunkId.length(), "WAV subchunk must have 4 char length [" + strChunkId + ']');
             assertEquals(strChunkId, wavInt2Str(getField(subchunk, "subchunkid", Integer.class)));
             final int subChunkSize = getField(subchunk, "subchunksize", Integer.class);
-            assertEquals("Data array must have the same size as described in sub-chunk size field", subChunkSize, getField(subchunk, "data", byte[].class).length);
+            assertEquals(subChunkSize, getField(subchunk, "data", byte[].class).length, "Data array must have the same size as described in sub-chunk size field");
             calculatedSize += subChunkSize + 8 + (subChunkSize & 1);
         }
 
@@ -760,36 +762,36 @@ public class JBBPToJBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6
         final JBBPBitInputStream inStream = new JBBPBitInputStream(new ByteArrayInputStream(netPacketEtalon));
 
         callRead(ethernetHeader, inStream);
-        assertArrayEquals("Destination MAC", new byte[]{(byte) 0x60, (byte) 0x67, (byte) 0x20, (byte) 0xE1, (byte) 0xF9, (byte) 0xF8}, getField(ethernetHeader, "macdestination", byte[].class));
-        assertArrayEquals("Source MAC", new byte[]{(byte) 0x00, (byte) 0x26, (byte) 0x44, (byte) 0x74, (byte) 0xFE, (byte) 0x66}, getField(ethernetHeader, "macsource", byte[].class));
+        assertArrayEquals(new byte[]{(byte) 0x60, (byte) 0x67, (byte) 0x20, (byte) 0xE1, (byte) 0xF9, (byte) 0xF8}, getField(ethernetHeader, "macdestination", byte[].class), "Destination MAC");
+        assertArrayEquals(new byte[]{(byte) 0x00, (byte) 0x26, (byte) 0x44, (byte) 0x74, (byte) 0xFE, (byte) 0x66}, getField(ethernetHeader, "macsource", byte[].class), "Source MAC");
         final int etherTypeOrLength = getField(ethernetHeader, "ethertypeorlength", Character.class);
-        assertEquals("Ethernet type or length", 0x800, etherTypeOrLength);
+        assertEquals(0x800, etherTypeOrLength, "Ethernet type or length");
 
         inStream.resetCounter();
         callRead(ipHeader, inStream);
 
-        assertEquals("IP Version", 4, getField(ipHeader, "version", Byte.class).intValue());
+        assertEquals(4, getField(ipHeader, "version", Byte.class).intValue(), "IP Version");
 
         final int internetHeaderLength = getField(ipHeader, "internetheaderlength", Byte.class).intValue();
-        assertEquals("Length of the IP header (in 4 byte items)", 5, internetHeaderLength);
-        assertEquals("Differentiated Services Code Point", 0, getField(ipHeader, "dscp", Byte.class).intValue());
-        assertEquals("Explicit Congestion Notification", 0, getField(ipHeader, "ecn", Byte.class).intValue());
+        assertEquals(5, internetHeaderLength, "Length of the IP header (in 4 byte items)");
+        assertEquals(0, getField(ipHeader, "dscp", Byte.class).intValue(), "Differentiated Services Code Point");
+        assertEquals(0, getField(ipHeader, "ecn", Byte.class).intValue(), "Explicit Congestion Notification");
 
         final int ipTotalPacketLength = getField(ipHeader, "totalpacketlength", Character.class);
 
-        assertEquals("Entire IP packet size, including header and data, in bytes", 159, ipTotalPacketLength);
-        assertEquals("Identification", 30810, getField(ipHeader, "identification", Character.class).charValue());
+        assertEquals(159, ipTotalPacketLength, "Entire IP packet size, including header and data, in bytes");
+        assertEquals(30810, getField(ipHeader, "identification", Character.class).charValue(), "Identification");
 
         final int ipFlagsAndFragmentOffset = getField(ipHeader, "ipflagsandfragmentoffset", Character.class);
 
-        assertEquals("Extracted IP flags", 0x2, ipFlagsAndFragmentOffset >>> 13);
-        assertEquals("Extracted Fragment offset", 0x00, ipFlagsAndFragmentOffset & 0x1FFF);
+        assertEquals(0x2, ipFlagsAndFragmentOffset >>> 13, "Extracted IP flags");
+        assertEquals(0x00, ipFlagsAndFragmentOffset & 0x1FFF, "Extracted Fragment offset");
 
-        assertEquals("Time To Live", 0x39, getField(ipHeader, "ttl", Character.class).charValue());
-        assertEquals("Protocol (RFC-790)", 0x06, getField(ipHeader, "protocol", Character.class).charValue());
-        assertEquals("IPv4 Header Checksum", 0x7DB6, getField(ipHeader, "headerchecksum", Character.class).charValue());
-        assertEquals("Source IP address", 0xD5C7B393, getField(ipHeader, "sourceaddress", Integer.class).intValue());
-        assertEquals("Destination IP address", 0xC0A80145, getField(ipHeader, "destinationaddress", Integer.class).intValue());
+        assertEquals(0x39, getField(ipHeader, "ttl", Character.class).charValue(), "Time To Live");
+        assertEquals(0x06, getField(ipHeader, "protocol", Character.class).charValue(), "Protocol (RFC-790)");
+        assertEquals(0x7DB6, getField(ipHeader, "headerchecksum", Character.class).charValue(), "IPv4 Header Checksum");
+        assertEquals(0xD5C7B393, getField(ipHeader, "sourceaddress", Integer.class).intValue(), "Source IP address");
+        assertEquals(0xC0A80145, getField(ipHeader, "destinationaddress", Integer.class).intValue(), "Destination IP address");
 
         assertEquals(0, getField(ipHeader, "options", byte[].class).length);
 

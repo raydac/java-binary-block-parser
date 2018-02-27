@@ -21,7 +21,7 @@ import com.igormaznitsa.jbbp.mapper.BinType;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -29,7 +29,8 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 
 import static com.igormaznitsa.jbbp.io.JBBPOut.BeginBin;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.function.Executable;
 
 public class JBBPOutTest {
 
@@ -56,9 +57,14 @@ public class JBBPOutTest {
         assertArrayEquals(new byte[]{(byte) 0x01, 0x00, 0x00, (byte) 0xFF}, BeginBin().Bit(1).Skip(2).Byte(0xFF).End().toByteArray());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testSkip_ErrorForNegativeValue() throws Exception {
-        BeginBin().Skip(-1);
+        assertThrows(IllegalArgumentException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                BeginBin().Skip(-1);
+            }
+        });
     }
 
     @Test
@@ -213,9 +219,14 @@ public class JBBPOutTest {
         assertArrayEquals(new byte[]{0x01, 02}, BeginBin().ByteOrder(JBBPByteOrder.BIG_ENDIAN).Short(0x0102).End().toByteArray());
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testShort_String_NPEForNullString() throws Exception {
-        BeginBin().Short((String) null).End();
+        assertThrows(NullPointerException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                BeginBin().Short((String) null).End();
+            }
+        });
     }
 
     @Test
@@ -515,12 +526,17 @@ public class JBBPOutTest {
         assertArrayEquals(new byte[]{1, 2, 3}, buffer.toByteArray());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testExceptionForBitOrderConfilctInCaseOfUsageBitOutputStream() throws Exception {
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         final JBBPBitOutputStream bitstream = new JBBPBitOutputStream(buffer, JBBPBitOrder.LSB0);
 
-        BeginBin(bitstream, JBBPByteOrder.BIG_ENDIAN, JBBPBitOrder.MSB0);
+        assertThrows(IllegalArgumentException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                BeginBin(bitstream, JBBPByteOrder.BIG_ENDIAN, JBBPBitOrder.MSB0);
+            }
+        });
     }
 
     @Test
@@ -549,9 +565,14 @@ public class JBBPOutTest {
         }, array);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testVar_NPEForNullProcessor() throws Exception {
-        BeginBin().Var(null).End();
+        assertThrows(NullPointerException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                BeginBin().Var(null).End();
+            }
+        });
     }
 
     @Test
@@ -1168,7 +1189,7 @@ public class JBBPOutTest {
         assertEquals(2, BeginBin().Bin(new Test((byte) 12, (byte) 24)).End().toByteArray().length);
     }
 
-    @Test(expected = JBBPIllegalArgumentException.class)
+    @Test
     public void testBin_CustomField_ErrorBecauseNoCustomWriter() throws Exception {
         class Test {
 
@@ -1183,7 +1204,13 @@ public class JBBPOutTest {
             }
         }
 
-        BeginBin().Bin(new Test((byte) 12, (byte) 24));
+        assertThrows(JBBPIllegalArgumentException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                BeginBin().Bin(new Test((byte) 12, (byte) 24));
+            }
+        });
+        
     }
 
     @Test

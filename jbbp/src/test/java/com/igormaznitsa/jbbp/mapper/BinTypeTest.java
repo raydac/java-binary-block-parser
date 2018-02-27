@@ -16,15 +16,20 @@
 
 package com.igormaznitsa.jbbp.mapper;
 
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.function.Executable;
 
 public class BinTypeTest {
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testNPEInFindCompatibleForNull() {
-        BinType.findCompatible(null);
+        assertThrows(NullPointerException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                BinType.findCompatible(null);
+            }
+        });
     }
 
     @Test

@@ -15,13 +15,12 @@
  */
 package com.igormaznitsa.jbbp.io;
 
-import org.junit.Test;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Random;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class BitIOCommonTest {
 
@@ -57,7 +56,7 @@ public class BitIOCommonTest {
 
         final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(buff.toByteArray()));
         for (int i = 0; i < LEN; i++) {
-            assertEquals("Index i=" + i, array[i] & 0xFF, in.readBits(JBBPBitNumber.decode(len[i])));
+            assertEquals(array[i] & 0xFF, in.readBits(JBBPBitNumber.decode(len[i])), "Index i=" + i);
         }
 
         if (writenBits % 8 == 0) {
@@ -96,7 +95,7 @@ public class BitIOCommonTest {
 
         final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(buff.toByteArray()), JBBPBitOrder.MSB0);
         for (int i = 0; i < LEN; i++) {
-            assertEquals("Index i=" + i, array[i] & 0xFF, in.readBits(JBBPBitNumber.decode(len[i])));
+            assertEquals(array[i] & 0xFF, in.readBits(JBBPBitNumber.decode(len[i])), "Index i=" + i);
         }
 
         if (writtenBits % 8 == 0) {
@@ -162,7 +161,7 @@ public class BitIOCommonTest {
 
         final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(buff.toByteArray()), JBBPBitOrder.LSB0);
         for (int i = 0; i < LEN; i++) {
-            assertEquals("Index i=" + i, array[i] & 0xFF, in.readBits(JBBPBitNumber.decode(len[i])));
+            assertEquals(array[i] & 0xFF, in.readBits(JBBPBitNumber.decode(len[i])), "Index i=" + i);
         }
 
         if (writtenBits % 8 == 0) {

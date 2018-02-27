@@ -20,7 +20,7 @@ import java.lang.reflect.Modifier;
 import java.util.Locale;
 import java.util.zip.CRC32;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Different useful auxiliary test methods
@@ -28,6 +28,12 @@ import static org.junit.Assert.assertEquals;
 public enum TestUtils {
   ;
 
+    /**
+     * Delta to be used for double and float compare.
+     */
+    public static final float FLOAT_DELTA = Float.MIN_VALUE;
+        
+        
     /**
      * Inject new value into final field
      *
@@ -100,8 +106,8 @@ public enum TestUtils {
   public static void assertPngChunk(final String etalonName, final int etalonLength, final int chunkType, final int chunkLength, final int chunkCrc, final byte[] chunkData) {
     final int chunkEtalonName = (etalonName.charAt(0) << 24) | (etalonName.charAt(1) << 16) | (etalonName.charAt(2) << 8) | etalonName.charAt(3);
 
-    assertEquals("Chunk must be " + etalonName, chunkEtalonName, chunkType);
-    assertEquals("Chunk length must be " + etalonLength, etalonLength, chunkLength);
+    assertEquals(chunkEtalonName, chunkType, "Chunk must be " + etalonName);
+    assertEquals(etalonLength, chunkLength, "Chunk length must be " + etalonLength);
 
     final CRC32 crc32 = new CRC32();
     crc32.update(etalonName.charAt(0));
@@ -110,12 +116,12 @@ public enum TestUtils {
     crc32.update(etalonName.charAt(3));
 
     if (etalonLength != 0) {
-      assertEquals("Data array " + etalonName + " must be " + etalonLength, etalonLength, chunkData.length);
+      assertEquals(etalonLength, chunkData.length, "Data array " + etalonName + " must be " + etalonLength);
       crc32.update(chunkData);
     }
 
     final int crc = (int) crc32.getValue();
-    assertEquals("CRC32 for " + etalonName + " must be " + crc, crc, chunkCrc);
+    assertEquals(crc, chunkCrc, "CRC32 for " + etalonName + " must be " + crc);
   }
 
   public static String wavInt2Str(final int value) {

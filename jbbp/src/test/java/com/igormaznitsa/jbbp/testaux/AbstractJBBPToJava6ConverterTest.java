@@ -24,8 +24,6 @@ import com.igormaznitsa.jbbp.io.JBBPBitOutputStream;
 import com.igormaznitsa.jbbp.utils.ReflectUtils;
 import com.igormaznitsa.jbbp.utils.TargetSources;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
 
 import javax.tools.*;
 import java.io.ByteArrayInputStream;
@@ -35,7 +33,12 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 public abstract class AbstractJBBPToJava6ConverterTest {
 
@@ -43,8 +46,70 @@ public abstract class AbstractJBBPToJava6ConverterTest {
     protected static final String CLASS_NAME = "TestClass";
     protected final Random RND = new Random(123456);
 
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
+    protected static class TemporaryFolder {
+
+        private final File folder;
+        private final AtomicBoolean disposed = new AtomicBoolean(false);
+
+        public TemporaryFolder() {
+            final String localTmpFolderPath = System.getProperty("jbbp.target.folder", null);
+            if (localTmpFolderPath == null) {
+                throw new Error("Temp folder is not defined among system prperties");
+            }
+            final File localTmpFolderAsFile = new File(localTmpFolderPath);
+
+            if (!localTmpFolderAsFile.isDirectory() && !localTmpFolderAsFile.mkdirs()) {
+                throw new Error("Can't create main temp folder : " + localTmpFolderAsFile);
+            }
+
+            try {
+                final Path path = Files.createTempDirectory(localTmpFolderAsFile.toPath(), "jbbp2j6");
+                this.folder = path.toFile();
+                this.folder.deleteOnExit();
+            } catch (IOException ex) {
+                throw new Error("Can't create tem directory", ex);
+            }
+        }
+
+        public File newFolder() {
+            if (this.disposed.get()) {
+                throw new IllegalStateException("Already disposed");
+            }
+            try {
+                final File result = Files.createTempDirectory(this.folder.toPath(), "_jbbp").toFile();
+                result.deleteOnExit();
+                return result;
+            } catch (IOException ex) {
+                throw new Error("Can't make new subfolder in temp folder : " + this.folder.getAbsolutePath(), ex);
+            }
+        }
+
+        public void dispose() {
+            if (this.disposed.compareAndSet(false, true)) {
+                try {
+                    FileUtils.deleteDirectory(this.folder);
+                } catch (IOException ex) {
+                    throw new Error("Can't delete emp directory : " + this.folder.getAbsolutePath(), ex);
+                }
+            } else {
+                throw new Error("Already disposed");
+            }
+        }
+    }
+
+    protected static TemporaryFolder tempFolder = new TemporaryFolder();
+
+    @BeforeAll
+    public static void beforeAll() {
+        tempFolder = new TemporaryFolder();
+    }
+
+    @AfterAll
+    public static void afterAll() {
+        if (tempFolder != null) {
+            tempFolder.dispose();
+        }
+    }
 
     protected static Map<String, String> makeMap(final String... mapvalue) {
         final Map<String, String> result = new HashMap<String, String>();
@@ -102,7 +167,7 @@ public abstract class AbstractJBBPToJava6ConverterTest {
 
     protected Object compileAndMakeInstanceSrc(final String script, final String classCustomText, final StringBuilder srcBuffer) throws Exception {
         final String classBody = JBBPToJava6Converter.makeBuilder(JBBPParser.prepare(script)).setMainClassName(CLASS_NAME).setMainClassPackage(PACKAGE_NAME).setMainClassCustomText(classCustomText).build().convert();
-        if (srcBuffer!=null) {
+        if (srcBuffer != null) {
             srcBuffer.append(classBody);
         }
         final ClassLoader cloader = saveAndCompile(new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, classBody));
@@ -123,7 +188,7 @@ public abstract class AbstractJBBPToJava6ConverterTest {
 
     protected Object compileAndMakeInstance(final String instanceClassName, final String script, final int parserFlags, final JBBPCustomFieldTypeProcessor customFieldProcessor, final JavaClassContent... extraClasses) throws Exception {
         final List<JavaClassContent> klazzes = new ArrayList<JavaClassContent>(Arrays.asList(extraClasses));
-        klazzes.add(0, new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, JBBPParser.prepare(script, JBBPBitOrder.LSB0, customFieldProcessor, parserFlags).convertToSrc(TargetSources.JAVA_1_6, PACKAGE_NAME+"."+CLASS_NAME).get(0).getResult().values().iterator().next()));
+        klazzes.add(0, new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, JBBPParser.prepare(script, JBBPBitOrder.LSB0, customFieldProcessor, parserFlags).convertToSrc(TargetSources.JAVA_1_6, PACKAGE_NAME + "." + CLASS_NAME).get(0).getResult().values().iterator().next()));
         final ClassLoader cloader = saveAndCompile(klazzes.toArray(new JavaClassContent[klazzes.size()]));
         return ReflectUtils.newInstance(cloader.loadClass(instanceClassName));
     }
@@ -133,7 +198,7 @@ public abstract class AbstractJBBPToJava6ConverterTest {
     }
 
     public ClassLoader saveAndCompile(final ClassLoader classLoader, final JavaClassContent... klasses) throws IOException {
-        final File folder = this.tempFolder.newFolder();
+        final File folder = tempFolder.newFolder();
 
         final List<File> classFiles = new ArrayList<File>();
 

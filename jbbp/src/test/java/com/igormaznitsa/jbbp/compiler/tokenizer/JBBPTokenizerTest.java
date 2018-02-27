@@ -16,12 +16,13 @@
 package com.igormaznitsa.jbbp.compiler.tokenizer;
 
 import com.igormaznitsa.jbbp.exceptions.JBBPTokenizerException;
-import org.junit.Test;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 public class JBBPTokenizerTest {
 
@@ -214,9 +215,14 @@ public class JBBPTokenizerTest {
         }
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testErrorForIteratorRemove() {
-        new JBBPTokenizer("int a;").remove();
+        assertThrows(UnsupportedOperationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                new JBBPTokenizer("int a;").remove();
+            }
+        });
     }
 
     @Test

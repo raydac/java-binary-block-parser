@@ -27,12 +27,12 @@ import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
-import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.function.Executable;
 
 public class PackedBCDCustomFieldTest implements JBBPCustomFieldTypeProcessor {
 
@@ -108,9 +108,15 @@ public class PackedBCDCustomFieldTest implements JBBPCustomFieldTypeProcessor {
         assertEquals(1234567L, result.findFieldForType(JBBPFieldLong.class).getAsLong());
     }
 
-    @Test(expected = JBBPCompilationException.class)
+    @Test
     public void testParse_SingleDefaultNonamedPackedDecimal_LittleEndian_Exception() throws Exception {
-        assertNotNull(JBBPParser.prepare("<bcd:4;", this));
+        final PackedBCDCustomFieldTest theInstance = this;
+        assertThrows(JBBPCompilationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                JBBPParser.prepare("<bcd:4;", theInstance);
+            }
+        });
     }
 
 }
