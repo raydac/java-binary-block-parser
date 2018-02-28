@@ -26,8 +26,6 @@ public class JBBPSystemPropertyTest {
 
   @BeforeEach
   public void beforeEach() {
-    System.out.println("BEEEFOOORREEEE");
-
     for (final JBBPSystemProperty p : JBBPSystemProperty.values()) {
       System.clearProperty(p.getPropertyName());
     }
