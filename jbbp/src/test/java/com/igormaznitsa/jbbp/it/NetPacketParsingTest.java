@@ -59,7 +59,7 @@ public class NetPacketParsingTest extends AbstractParserIntegrationTest {
               + "ushort HeaderChecksum;"
               + "int SourceAddress;"
               + "int DestinationAddress;"
-              + "byte [(InternetHeaderLength-5)*4] Options;"
+              + "byte [((InternetHeaderLength-5)*4)*((((InternetHeaderLength-5)&16)^16)>>4)] Options;"
       );
 
       // TCP header
