@@ -48,6 +48,8 @@ public abstract class AbstractJBBPToJava6ConverterTest {
   protected static TemporaryFolder tempFolder = new TemporaryFolder();
   protected final Random RND = new Random(123456);
 
+  protected boolean printGeneratedClassText = false;
+
   @BeforeAll
   public static void beforeAll() {
     tempFolder = new TemporaryFolder();
@@ -137,7 +139,11 @@ public abstract class AbstractJBBPToJava6ConverterTest {
 
   protected Object compileAndMakeInstance(final String instanceClassName, final String script, final int parserFlags, final JBBPCustomFieldTypeProcessor customFieldProcessor, final JavaClassContent... extraClasses) throws Exception {
     final List<JavaClassContent> klazzes = new ArrayList<JavaClassContent>(Arrays.asList(extraClasses));
-    klazzes.add(0, new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, JBBPParser.prepare(script, JBBPBitOrder.LSB0, customFieldProcessor, parserFlags).convertToSrc(TargetSources.JAVA_1_6, PACKAGE_NAME + "." + CLASS_NAME).get(0).getResult().values().iterator().next()));
+    final JavaClassContent klazzContent = new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, JBBPParser.prepare(script, JBBPBitOrder.LSB0, customFieldProcessor, parserFlags).convertToSrc(TargetSources.JAVA_1_6, PACKAGE_NAME + "." + CLASS_NAME).get(0).getResult().values().iterator().next());
+    if (this.printGeneratedClassText) {
+      System.out.println(klazzContent.classText);
+    }
+    klazzes.add(0, klazzContent);
     final ClassLoader cloader = saveAndCompile(klazzes.toArray(new JavaClassContent[klazzes.size()]));
     return ReflectUtils.newInstance(cloader.loadClass(instanceClassName));
   }

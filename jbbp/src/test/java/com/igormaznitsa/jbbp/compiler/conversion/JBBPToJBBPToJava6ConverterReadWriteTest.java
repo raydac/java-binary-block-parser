@@ -32,6 +32,7 @@ import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJava6ConverterTest;
 import com.igormaznitsa.jbbp.utils.ReflectUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -711,6 +712,48 @@ public class JBBPToJBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6
     assertEquals(77, getField(klazz, "data", byte[].class).length);
 
     assertArrayEquals(array, callWrite(klazz));
+  }
+
+  @Test
+  public void testRead_ExpressionResult_OnlyField_NegativeResultNotAllowed() throws Exception {
+    final Object instance = compileAndMakeInstance("byte len; byte [len] arr;");
+    final byte[] etalon = new byte[] {(byte) 0xFE, 1, 2, 3, 4};
+    assertThrows(IllegalArgumentException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        callRead(instance, etalon.clone());
+      }
+    });
+  }
+
+  @Test
+  public void testRead_ExpressionResult_OnlyField_NegativeResultAsZero() throws Exception {
+    final Object instance = compileAndMakeInstance("byte len; byte [len] arr;", JBBPParser.FLAG_NEGATIVE_EXPRESSION_RESULT_AS_ZERO);
+    final byte[] etalon = new byte[] {(byte) 0xFE, 1, 2, 3, 4};
+    callRead(instance, etalon.clone());
+    assertEquals((byte) 0xFE, getField(instance, "len", Byte.class).byteValue());
+    assertEquals(0, getField(instance, "arr", byte[].class).length);
+  }
+
+  @Test
+  public void testRead_ExpressionResult_NegativeExpression_NegativeResultNotAllowed() throws Exception {
+    final Object instance = compileAndMakeInstance("byte len; byte [len-9] arr;");
+    final byte[] etalon = new byte[] {8, 1, 2, 3, 4};
+    assertThrows(IllegalArgumentException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        callRead(instance, etalon.clone());
+      }
+    });
+  }
+
+  @Test
+  public void testRead_ExpressionResult_NegativeExpression_NegativeResultAsZero() throws Exception {
+    final Object instance = compileAndMakeInstance("byte len; byte [len-9] arr;", JBBPParser.FLAG_NEGATIVE_EXPRESSION_RESULT_AS_ZERO);
+    final byte[] etalon = new byte[] {8, 1, 2, 3, 4};
+    callRead(instance, etalon.clone());
+    assertEquals(8, getField(instance, "len", Byte.class).byteValue());
+    assertEquals(0, getField(instance, "arr", byte[].class).length);
   }
 
   @Test

@@ -42,6 +42,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
   private static final int FLAG_DETECTED_CUSTOM_FIELDS = 1;
   private static final int FLAG_DETECTED_EXTERNAL_FIELDS = 2;
   private static final int FLAG_DETECTED_VAR_FIELDS = 4;
+  private static final int FLAG_ADD_ASSERT_NOT_NEGATIVE_EXPR = 8;
 
   /**
    * Name of the field to be used as link to the root structure instance in
@@ -190,7 +191,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     buffer.println();
 
     this.specialSection.println();
-    this.specialSection.printJavaDocLinesWithIndent("The Constant contains parser flags\n@see JBBPParser#FLAG_SKIP_REMAINING_FIELDS_IF_EOF");
+    this.specialSection.printJavaDocLinesWithIndent("The Constant contains parser flags\n@see JBBPParser#FLAG_SKIP_REMAINING_FIELDS_IF_EOF\n@see JBBPParser#FLAG_NEGATIVE_EXPRESSION_RESULT_AS_ZERO");
     this.specialSection.indent().printf("protected static final int %s = %d;", NAME_PARSER_FLAGS, this.parserFlags);
 
     final int detected = this.flagSet.get();
@@ -226,6 +227,13 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
       this.specialMethods.println();
       this.specialMethods.printJavaDocLinesWithIndent("Write variable array\n@param sourceStruct source structure holding the field, must not be null\n@param array array value to be written, must not be null\n@param outStream the output stream, must not be null\n@param byteOrder byte order to be used for reading, must not be null\n@param nullableNamedFieldInfo info abut field name, it can be null\n@param extraValue value from extra field part, -1 if not defined\n@param arraySizeToWrite\n@exception IOException it is thrown if any transport error during operation");
       this.specialMethods.println("public abstract void writeVarArray(Object sourceStruct, JBBPAbstractArrayField<? extends JBBPAbstractField> array, JBBPBitOutputStream outStream, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, int arraySizeToWrite) throws IOException;");
+    }
+
+    if ((detected & FLAG_ADD_ASSERT_NOT_NEGATIVE_EXPR) != 0) {
+      if (!this.specialMethods.isEmpty()) {
+        this.specialMethods.println();
+      }
+      this.specialMethods.println("private static int assrtExprNotNeg(final int value) { if (value<0) throw new IllegalArgumentException(\"Negative value in expression\"); return value; }");
     }
 
     final String specialMethodsText = this.specialMethods.toString();
@@ -743,6 +751,16 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
         // ignore the excepton because it is checking exception
       }
     }
+
+    if (!(evaluator instanceof IntConstValueEvaluator)) {
+      if ((this.parserFlags & JBBPParser.FLAG_NEGATIVE_EXPRESSION_RESULT_AS_ZERO) != 0) {
+        result = "java.lang.Math.max(0," + result + ')';
+      } else {
+        detectedFlagsSet.set(detectedFlagsSet.get() | FLAG_ADD_ASSERT_NOT_NEGATIVE_EXPR);
+        result = "assrtExprNotNeg(" + result + ')';
+      }
+    }
+
     return result;
   }
 
