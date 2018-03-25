@@ -2036,6 +2036,50 @@ public class JBBPParserTest {
   }
 
   @Test
+  public void testParse_NegativeExpressonResult_OneFieldAsExpression_FlagOff() throws Exception {
+    final JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {(byte)0xEF, 1, 2, 3}));
+    final JBBPParser parser = JBBPParser.prepare("byte len; byte [len] arr;");
+
+    assertThrows(JBBPParsingException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        parser.parse(stream);
+      }
+    });
+  }
+
+  @Test
+  public void testParse_NegativeExpressonResult_ExpressionWithNegativeResult_FlagOff() throws Exception {
+    final JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {2, 1, 2, 3}));
+    final JBBPParser parser = JBBPParser.prepare("byte len; byte [len - 8] arr;");
+
+    assertThrows(JBBPParsingException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        parser.parse(stream);
+      }
+    });
+  }
+
+  @Test
+  public void testParse_NegativeExpressonResult_OneFieldAsExpression_FlagOn() throws Exception {
+    final JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {(byte) 0xEF, 1, 2, 3}));
+    final JBBPParser parser = JBBPParser.prepare("byte len; byte [len] arr;", JBBPParser.FLAG_NEGATIVE_EXPRESSION_RESULT_AS_ZERO);
+    final JBBPFieldStruct result = parser.parse(stream);
+    assertEquals((byte) 0xEF, result.findFieldForType(JBBPFieldByte.class).getAsInt());
+    assertEquals(0, result.findFieldForType(JBBPFieldArrayByte.class).getArray().length);
+  }
+
+  @Test
+  public void testParse_NegativeExpressonResult_ExpressionWithNegativResult_FlagOn() throws Exception {
+    final JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {4, 1, 2, 3}));
+    final JBBPParser parser = JBBPParser.prepare("byte len; byte [len-8] arr;", JBBPParser.FLAG_NEGATIVE_EXPRESSION_RESULT_AS_ZERO);
+    final JBBPFieldStruct result = parser.parse(stream);
+    assertEquals(4, result.findFieldForType(JBBPFieldByte.class).getAsInt());
+    assertEquals(0, result.findFieldForType(JBBPFieldArrayByte.class).getArray().length);
+  }
+
+  @Test
   public void testParse_NoErrorForIgnoreRemainingFieldsFlag() throws Exception {
     final JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {1, 2, 3, 4}));
     final JBBPParser parser = JBBPParser.prepare("int a; int b;", JBBPParser.FLAG_SKIP_REMAINING_FIELDS_IF_EOF);

@@ -52,6 +52,11 @@ public final class JBBPParser {
    */
   public static final int FLAG_SKIP_REMAINING_FIELDS_IF_EOF = 1;
   /**
+   * Flag to recognize negative expression results by zero.
+   * @since 1.3.1
+   */
+  public static final int FLAG_NEGATIVE_EXPRESSION_RESULT_AS_ZERO = 2;
+  /**
    * Empty structure array
    */
   private static final JBBPFieldStruct[] EMPTY_STRUCT_ARRAY = new JBBPFieldStruct[0];
@@ -245,7 +250,16 @@ public final class JBBPParser {
       final int extraFieldNumExprResult;
       if (extraFieldNumAsExpr) {
         final JBBPIntegerValueEvaluator evaluator = this.compiledBlock.getArraySizeEvaluators()[positionAtVarLengthProcessors.getAndIncrement()];
-        extraFieldNumExprResult = resultNotIgnored ? evaluator.eval(inStream, positionAtCompiledBlock.get(), this.compiledBlock, namedNumericFieldMap) : 0;
+        int resultOfExpression;
+        if (resultNotIgnored) {
+          resultOfExpression = evaluator.eval(inStream, positionAtCompiledBlock.get(), this.compiledBlock, namedNumericFieldMap);
+          if ((this.flags & FLAG_NEGATIVE_EXPRESSION_RESULT_AS_ZERO) != 0) {
+            resultOfExpression = Math.max(resultOfExpression, 0);
+          }
+        } else {
+          resultOfExpression = 0;
+        }
+        extraFieldNumExprResult = resultOfExpression;
       } else {
         extraFieldNumExprResult = 0;
       }
@@ -269,7 +283,16 @@ public final class JBBPParser {
         break;
         case JBBPCompiler.FLAG_ARRAY | (JBBPCompiler.EXT_FLAG_EXPRESSION_OR_WHOLESTREAM << 8): {
           final JBBPIntegerValueEvaluator evaluator = this.compiledBlock.getArraySizeEvaluators()[positionAtVarLengthProcessors.getAndIncrement()];
-          arrayLength = resultNotIgnored ? evaluator.eval(inStream, positionAtCompiledBlock.get(), this.compiledBlock, namedNumericFieldMap) : 0;
+          int resultOfExpression;
+          if (resultNotIgnored) {
+            resultOfExpression = evaluator.eval(inStream, positionAtCompiledBlock.get(), this.compiledBlock, namedNumericFieldMap);
+            if ((this.flags & FLAG_NEGATIVE_EXPRESSION_RESULT_AS_ZERO) != 0) {
+              resultOfExpression = Math.max(resultOfExpression, 0);
+            }
+          } else {
+            resultOfExpression = 0;
+          }
+          arrayLength = resultOfExpression;
           packedArraySizeOffset = 0;
           assertArrayLength(arrayLength, name);
           wholeStreamArray = false;
