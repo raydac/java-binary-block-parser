@@ -35,7 +35,7 @@ public interface JBBPNumericField {
    * Get the field value as double.
    *
    * @return the field value as double
-   * @since 1.3.1
+   * @since 1.4.0
    */
   double getAsDouble();
 
@@ -43,7 +43,7 @@ public interface JBBPNumericField {
    * Get the field value as float.
    *
    * @return the field value as float
-   * @since 1.3.1
+   * @since 1.4.0
    */
   float getAsFloat();
 

@@ -775,7 +775,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    * @see Float#floatToIntBits(float)
-   * @since 1.3.1
+   * @since 1.4.0
    */
   public JBBPOut Float(final float... value) throws IOException {
     assertNotEnded();
@@ -805,7 +805,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    *
    * @param value a double value to be written into
    * @throws IOException it will be thrown for transport errors
-   * @since 1.3.1
+   * @since 1.4.0
    */
   private void _writeDouble(final double value) throws IOException {
     this.outStream.writeDouble(value, this.byteOrder);
@@ -817,7 +817,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    *
    * @param value a float value to be written into
    * @throws IOException it will be thrown for transport errors
-   * @since 1.3.1
+   * @since 1.4.0
    */
   private void _writeFloat(final float value) throws IOException {
     this.outStream.writeFloat(value, this.byteOrder);
@@ -845,7 +845,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    * @see Double#doubleToLongBits(double)
-   * @since 1.3.1
+   * @since 1.4.0
    */
   public JBBPOut Double(final double... value) throws IOException {
     assertNotEnded();

@@ -82,7 +82,7 @@ public final class JBBPParser {
   /**
    * Flag to recognize negative expression results by zero.
    *
-   * @since 1.3.1
+   * @since 1.4.0
    */
   public static final int FLAG_NEGATIVE_EXPRESSION_RESULT_AS_ZERO = 2;
   /**

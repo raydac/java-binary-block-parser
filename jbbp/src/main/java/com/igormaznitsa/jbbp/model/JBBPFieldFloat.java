@@ -21,7 +21,7 @@ import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 /**
  * Describes a float field.
  *
- * @since 1.3.1
+ * @since 1.4.0
  */
 public final class JBBPFieldFloat extends JBBPAbstractField implements JBBPNumericField {
   public static final String TYPE_NAME = "floatj";

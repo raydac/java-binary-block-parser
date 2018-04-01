@@ -22,7 +22,7 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 /**
  * Describes a double array.
  *
- * @since 1.3.1
+ * @since 1.4.0
  */
 public final class JBBPFieldArrayDouble extends JBBPAbstractArrayField<JBBPFieldDouble> {
   private static final long serialVersionUID = -2146959311724853264L;

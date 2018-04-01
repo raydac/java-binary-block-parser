@@ -9,7 +9,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 /**
  * Auxiliary class collects methods for work with reflection.
  *
- * @since 1.3.1
+ * @since 1.4.0
  */
 public final class ReflectUtils {
   /**

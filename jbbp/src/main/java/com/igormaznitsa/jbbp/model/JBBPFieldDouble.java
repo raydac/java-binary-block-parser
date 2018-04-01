@@ -21,7 +21,7 @@ import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 /**
  * Describes a double value field.
  *
- * @since 1.3.1
+ * @since 1.4.0
  */
 public final class JBBPFieldDouble extends JBBPAbstractField implements JBBPNumericField {
   public static final String TYPE_NAME = "doublej";

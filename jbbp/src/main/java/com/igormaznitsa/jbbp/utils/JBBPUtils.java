@@ -669,7 +669,7 @@ public final class JBBPUtils {
    * @param radix       radix base to be used for conversion, must be 10 or 16
    * @return converted value as upper case string
    * @throws IllegalArgumentException for wrong radix base
-   * @since 1.3.1
+   * @since 1.4.0
    */
   public static String double2str(final double doubleValue, final int radix) {
     if (radix != 10 && radix != 16) {
@@ -701,7 +701,7 @@ public final class JBBPUtils {
    * @param radix      radix base to be used for conversion, must be 10 or 16
    * @return converted value as upper case string
    * @throws IllegalArgumentException for wrong radix base
-   * @since 1.3.1
+   * @since 1.4.0
    */
   public static String float2str(final float floatValue, final int radix) {
     if (radix != 10 && radix != 16) {

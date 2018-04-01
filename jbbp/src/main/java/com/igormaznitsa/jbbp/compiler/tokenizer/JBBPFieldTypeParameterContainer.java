@@ -112,7 +112,7 @@ public final class JBBPFieldTypeParameterContainer implements Serializable {
    * @return true if the type is either float or double
    * @see JBBPFieldFloat#TYPE_NAME
    * @see JBBPFieldDouble#TYPE_NAME
-   * @since 1.3.1
+   * @since 1.4.0
    */
   public boolean isFloatOrDouble() {
     return this.typeName.equals(JBBPFieldFloat.TYPE_NAME) || this.typeName.equals(JBBPFieldDouble.TYPE_NAME);

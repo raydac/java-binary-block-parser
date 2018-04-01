@@ -22,7 +22,7 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 /**
  * Describes an array of floats.
  *
- * @since 1.3.1
+ * @since 1.4.0
  */
 public final class JBBPFieldArrayFloat extends JBBPAbstractArrayField<JBBPFieldFloat> {
   private static final long serialVersionUID = 6839868800303265190L;

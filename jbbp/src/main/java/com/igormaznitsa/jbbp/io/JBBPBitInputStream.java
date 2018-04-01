@@ -369,7 +369,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    *                     operation
    * @see JBBPByteOrder#BIG_ENDIAN
    * @see JBBPByteOrder#LITTLE_ENDIAN
-   * @since 1.3.1
+   * @since 1.4.0
    */
   public float[] readFloatArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
     int pos = 0;
@@ -454,7 +454,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    *                     operation
    * @see JBBPByteOrder#BIG_ENDIAN
    * @see JBBPByteOrder#LITTLE_ENDIAN
-   * @since 1.3.1
+   * @since 1.4.0
    */
   public double[] readDoubleArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
     int pos = 0;
@@ -538,7 +538,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * @throws EOFException if the end of the stream has been reached
    * @see JBBPByteOrder#BIG_ENDIAN
    * @see JBBPByteOrder#LITTLE_ENDIAN
-   * @since 1.3.1
+   * @since 1.4.0
    */
   public float readFloat(final JBBPByteOrder byteOrder) throws IOException {
     final int value;
@@ -579,7 +579,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * @throws EOFException if the end of the stream has been reached
    * @see JBBPByteOrder#BIG_ENDIAN
    * @see JBBPByteOrder#LITTLE_ENDIAN
-   * @since 1.3.1
+   * @since 1.4.0
    */
   public double readDouble(final JBBPByteOrder byteOrder) throws IOException {
     final long value;

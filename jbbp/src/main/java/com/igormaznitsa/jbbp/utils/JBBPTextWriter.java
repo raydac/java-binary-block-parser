@@ -824,7 +824,7 @@ public class JBBPTextWriter extends FilterWriter {
    * @param value float value to be printed
    * @return the context
    * @throws IOException it will be thrown for transport errors
-   * @since 1.3.1
+   * @since 1.4.0
    */
   public JBBPTextWriter Float(final float value) throws IOException {
     ensureValueMode();
@@ -856,7 +856,7 @@ public class JBBPTextWriter extends FilterWriter {
    * @param value double value to be printed
    * @return the context
    * @throws IOException it will be thrown for transport errors
-   * @since 1.3.1
+   * @since 1.4.0
    */
   public JBBPTextWriter Double(final double value) throws IOException {
     ensureValueMode();
@@ -913,7 +913,7 @@ public class JBBPTextWriter extends FilterWriter {
    * @param values array of float values, must not be null
    * @return the context
    * @throws IOException it will be thrown for transport errors
-   * @since 1.3.1
+   * @since 1.4.0
    */
   public JBBPTextWriter Float(final float[] values) throws IOException {
     return this.Float(values, 0, values.length);
@@ -925,7 +925,7 @@ public class JBBPTextWriter extends FilterWriter {
    * @param values array of double values, must not be null
    * @return the context
    * @throws IOException it will be thrown for transport errors
-   * @since 1.3.1
+   * @since 1.4.0
    */
   public JBBPTextWriter Double(final double[] values) throws IOException {
     return this.Double(values, 0, values.length);
@@ -955,7 +955,7 @@ public class JBBPTextWriter extends FilterWriter {
    * @param len    number of elements to print
    * @return the context
    * @throws IOException it will be thrown for transport error
-   * @since 1.3.1
+   * @since 1.4.0
    */
   public JBBPTextWriter Float(final float[] values, int off, int len) throws IOException {
     while (len-- > 0) {
@@ -972,7 +972,7 @@ public class JBBPTextWriter extends FilterWriter {
    * @param len    number of elements to print
    * @return the context
    * @throws IOException it will be thrown for transport error
-   * @since 1.3.1
+   * @since 1.4.0
    */
   public JBBPTextWriter Double(final double[] values, int off, int len) throws IOException {
     while (len-- > 0) {
@@ -1659,7 +1659,7 @@ public class JBBPTextWriter extends FilterWriter {
      * @param value   the float value to be converted
      * @return string representation of the float value, must not return null
      * @throws IOException it can be thrown for transport error
-     * @since 1.3.1
+     * @since 1.4.0
      */
     String doConvertFloatToStr(JBBPTextWriter context, float value) throws IOException;
 
@@ -1670,7 +1670,7 @@ public class JBBPTextWriter extends FilterWriter {
      * @param value   the double value to be converted
      * @return string representation of the double value, must not return null
      * @throws IOException it can be thrown for transport error
-     * @since 1.3.1
+     * @since 1.4.0
      */
     String doConvertDoubleToStr(JBBPTextWriter context, double value) throws IOException;
 

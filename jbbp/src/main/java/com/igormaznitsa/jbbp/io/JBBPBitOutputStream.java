@@ -126,7 +126,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
    * @throws IOException it will be thrown for transport errors
    * @see JBBPByteOrder#BIG_ENDIAN
    * @see JBBPByteOrder#LITTLE_ENDIAN
-   * @since 1.3.1
+   * @since 1.4.0
    */
   public void writeFloat(final float value, final JBBPByteOrder byteOrder) throws IOException {
     final int intValue = Float.floatToIntBits(value);
@@ -166,7 +166,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
    * @throws IOException it will be thrown for transport errors
    * @see JBBPByteOrder#BIG_ENDIAN
    * @see JBBPByteOrder#LITTLE_ENDIAN
-   * @since 1.3.1
+   * @since 1.4.0
    */
   public void writeDouble(final double value, final JBBPByteOrder byteOrder) throws IOException {
     final long longValue = Double.doubleToLongBits(value);

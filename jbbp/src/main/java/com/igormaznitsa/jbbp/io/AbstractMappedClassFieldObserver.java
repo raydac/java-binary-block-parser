@@ -565,7 +565,7 @@ public abstract class AbstractMappedClassFieldObserver {
    * @param field      the field, must not be null
    * @param annotation the annotation for field, must not be null
    * @param value      the value of the field
-   * @since 1.3.1
+   * @since 1.4.0
    */
   protected void onFieldFloat(final Object obj, final Field field, final Bin annotation, final float value) {
 
@@ -578,7 +578,7 @@ public abstract class AbstractMappedClassFieldObserver {
    * @param field      the field, must not be null
    * @param annotation the annotation for field, must not be null
    * @param value      the value of the field
-   * @since 1.3.1
+   * @since 1.4.0
    */
   protected void onFieldDouble(final Object obj, final Field field, final Bin annotation, final double value) {
 

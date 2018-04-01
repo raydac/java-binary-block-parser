@@ -10,7 +10,7 @@ import java.util.concurrent.ArrayBlockingQueue;
  * Auxiliary class collects methods for work with reflection.
  * <b>It is internal auxiliary class! Its method will be changed, don't use them in your developments!</b>
  *
- * @since 1.3.1
+ * @since 1.4.0
  */
 public final class ReflectApiUtil {
   /**

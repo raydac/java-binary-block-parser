@@ -84,13 +84,13 @@ public enum BinType {
   /**
    * A Mapping field will be mapped to a parsed double field.
    *
-   * @since 1.3.1
+   * @since 1.4.0
    */
   DOUBLE(JBBPFieldDouble.class, false),
   /**
    * A Mapping field will be mapped to a parsed float field.
    *
-   * @since 1.3.1
+   * @since 1.4.0
    */
   FLOAT(JBBPFieldFloat.class, false),
   /**
@@ -132,13 +132,13 @@ public enum BinType {
   /**
    * A Mapping field will be mapped to a parsed float array field.
    *
-   * @since 1.3.1
+   * @since 1.4.0
    */
   FLOAT_ARRAY(JBBPFieldArrayFloat.class, true),
   /**
    * A Mapping field will be mapped to a parsed double array field.
    *
-   * @since 1.3.1
+   * @since 1.4.0
    */
   DOUBLE_ARRAY(JBBPFieldArrayDouble.class, true),
   /**

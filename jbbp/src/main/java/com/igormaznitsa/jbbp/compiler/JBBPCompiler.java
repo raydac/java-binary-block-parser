@@ -144,7 +144,7 @@ public final class JBBPCompiler {
   /**
    * The Flag shows that the type of data should be recognized as float (if int) or as double (if long).
    *
-   * @since 1.3.1
+   * @since 1.4.0
    */
   public static final int EXT_FLAG_EXTRA_AS_FLOAT_OR_DOUBLE = 0x04;
 
