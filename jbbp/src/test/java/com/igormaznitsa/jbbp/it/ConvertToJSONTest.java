@@ -17,7 +17,26 @@
 package com.igormaznitsa.jbbp.it;
 
 import com.igormaznitsa.jbbp.JBBPParser;
-import com.igormaznitsa.jbbp.model.*;
+import com.igormaznitsa.jbbp.model.JBBPAbstractArrayField;
+import com.igormaznitsa.jbbp.model.JBBPAbstractField;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayBit;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayBoolean;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayByte;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayInt;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayLong;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayShort;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayStruct;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayUByte;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayUShort;
+import com.igormaznitsa.jbbp.model.JBBPFieldBit;
+import com.igormaznitsa.jbbp.model.JBBPFieldBoolean;
+import com.igormaznitsa.jbbp.model.JBBPFieldByte;
+import com.igormaznitsa.jbbp.model.JBBPFieldInt;
+import com.igormaznitsa.jbbp.model.JBBPFieldLong;
+import com.igormaznitsa.jbbp.model.JBBPFieldShort;
+import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
+import com.igormaznitsa.jbbp.model.JBBPFieldUByte;
+import com.igormaznitsa.jbbp.model.JBBPFieldUShort;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONStyle;

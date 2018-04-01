@@ -17,7 +17,12 @@
 package com.igormaznitsa.jbbp.it;
 
 import com.igormaznitsa.jbbp.JBBPParser;
-import com.igormaznitsa.jbbp.model.*;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayByte;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayStruct;
+import com.igormaznitsa.jbbp.model.JBBPFieldShort;
+import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
+import com.igormaznitsa.jbbp.model.JBBPFieldUByte;
+import com.igormaznitsa.jbbp.model.JBBPFieldUShort;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import org.junit.jupiter.api.Test;
 

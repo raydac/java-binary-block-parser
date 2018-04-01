@@ -22,7 +22,30 @@ import com.igormaznitsa.jbbp.exceptions.JBBPParsingException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTooManyFieldsFoundException;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
-import com.igormaznitsa.jbbp.model.*;
+import com.igormaznitsa.jbbp.model.JBBPAbstractArrayField;
+import com.igormaznitsa.jbbp.model.JBBPAbstractField;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayBit;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayBoolean;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayByte;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayDouble;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayFloat;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayInt;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayLong;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayShort;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayStruct;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayUByte;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayUShort;
+import com.igormaznitsa.jbbp.model.JBBPFieldBit;
+import com.igormaznitsa.jbbp.model.JBBPFieldBoolean;
+import com.igormaznitsa.jbbp.model.JBBPFieldByte;
+import com.igormaznitsa.jbbp.model.JBBPFieldDouble;
+import com.igormaznitsa.jbbp.model.JBBPFieldFloat;
+import com.igormaznitsa.jbbp.model.JBBPFieldInt;
+import com.igormaznitsa.jbbp.model.JBBPFieldLong;
+import com.igormaznitsa.jbbp.model.JBBPFieldShort;
+import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
+import com.igormaznitsa.jbbp.model.JBBPFieldUByte;
+import com.igormaznitsa.jbbp.model.JBBPFieldUShort;
 import com.igormaznitsa.jbbp.utils.JBBPIntCounter;
 import com.igormaznitsa.jbbp.utils.TargetSources;
 import org.junit.jupiter.api.Test;
@@ -2037,7 +2060,7 @@ public class JBBPParserTest {
 
   @Test
   public void testParse_NegativeExpressonResult_OneFieldAsExpression_FlagOff() throws Exception {
-    final JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {(byte)0xEF, 1, 2, 3}));
+    final JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {(byte) 0xEF, 1, 2, 3}));
     final JBBPParser parser = JBBPParser.prepare("byte len; byte [len] arr;");
 
     assertThrows(JBBPParsingException.class, new Executable() {

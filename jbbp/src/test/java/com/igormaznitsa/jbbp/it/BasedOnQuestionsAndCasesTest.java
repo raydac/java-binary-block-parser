@@ -20,10 +20,19 @@ import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
-import com.igormaznitsa.jbbp.io.*;
+import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
+import com.igormaznitsa.jbbp.io.JBBPBitNumber;
+import com.igormaznitsa.jbbp.io.JBBPBitOrder;
+import com.igormaznitsa.jbbp.io.JBBPByteOrder;
+import com.igormaznitsa.jbbp.io.JBBPOut;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.mapper.BinType;
-import com.igormaznitsa.jbbp.model.*;
+import com.igormaznitsa.jbbp.model.JBBPAbstractField;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayByte;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayLong;
+import com.igormaznitsa.jbbp.model.JBBPFieldLong;
+import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
+import com.igormaznitsa.jbbp.model.JBBPNumericField;
 import org.junit.jupiter.api.Test;
 
 import java.io.EOFException;
@@ -113,7 +122,7 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
   /**
    * Case 28-jul-2016
    * Simultaneous usage of expression evaluator from multiple threads.
-   * <p>
+   *
    * <a href="https://github.com/raydac/java-binary-block-parser/issues/10">Issue #10, assertArrayLength throws exception in multi-thread</a>
    *
    * @throws Exception for any error
@@ -216,7 +225,7 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
   /**
    * Case 10-aug-2017
    * NullPointer exception when referencing a JBBPCustomFieldTypeProcessor parsed field.
-   * <p>
+   *
    * <a href="https://github.com/raydac/java-binary-block-parser/issues/16">Issue #16, NullPointer exception when referencing a JBBPCustomFieldTypeProcessor parsed field</a>
    *
    * @throws Exception for any error
