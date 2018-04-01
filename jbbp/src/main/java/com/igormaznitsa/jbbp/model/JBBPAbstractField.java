@@ -25,9 +25,9 @@ import java.io.Serializable;
  *
  * @since 1.0
  */
-public abstract class JBBPAbstractField implements Serializable {
+public abstract class JBBPAbstractField implements Serializable, JBBPNamedField {
 
-  private static final long serialVersionUID = 6072321795839048728L;
+  private static final long serialVersionUID = 6072321705839048728L;
 
   /**
    * The Field contains the field name info
@@ -76,6 +76,7 @@ public abstract class JBBPAbstractField implements Serializable {
    *
    * @return the field name info if it is presented, otherwise null
    */
+  @Override
   public JBBPNamedFieldInfo getNameInfo() {
     return this.fieldNameInfo;
   }

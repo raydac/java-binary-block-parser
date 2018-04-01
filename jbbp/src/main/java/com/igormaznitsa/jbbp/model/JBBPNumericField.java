@@ -16,14 +16,12 @@
 
 package com.igormaznitsa.jbbp.model;
 
-import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
-
 /**
  * The Interface describes a field which content can be represented as a numeric value.
  *
  * @since 1.0
  */
-public interface JBBPNumericField {
+public interface JBBPNumericField extends JBBPInvertableBitOrder, JBBPNamedField {
   /**
    * Get the field value as integer.
    *
@@ -61,17 +59,4 @@ public interface JBBPNumericField {
    */
   boolean getAsBool();
 
-  /**
-   * Get field name info for the field.
-   *
-   * @return the field name info, it can be null for anonymous fields
-   */
-  JBBPNamedFieldInfo getNameInfo();
-
-  /**
-   * Get the value in inverted bit order.
-   *
-   * @return the value in inverted bit order
-   */
-  long getAsInvertedBitOrder();
 }
