@@ -51,36 +51,6 @@ public class JBBPFieldArrayStructTest {
   }
 
   @Test
-  public void testGetAsBool() {
-    try {
-      test.getAsBool(0);
-      fail("Must throw UOE");
-    } catch (UnsupportedOperationException ex) {
-
-    }
-  }
-
-  @Test
-  public void testGetAsInt() {
-    try {
-      test.getAsInt(0);
-      fail("Must throw UOE");
-    } catch (UnsupportedOperationException ex) {
-
-    }
-  }
-
-  @Test
-  public void testGetAsLong() {
-    try {
-      test.getAsLong(0);
-      fail("Must throw UOE");
-    } catch (UnsupportedOperationException ex) {
-
-    }
-  }
-
-  @Test
   public void testIterable() {
     int counter = 0;
     for (final JBBPFieldStruct f : test) {

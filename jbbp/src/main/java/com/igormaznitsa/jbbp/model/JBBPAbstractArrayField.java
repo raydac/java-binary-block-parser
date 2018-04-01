@@ -55,30 +55,6 @@ public abstract class JBBPAbstractArrayField<T extends JBBPAbstractField> extend
   public abstract T getElementAt(int index);
 
   /**
-   * Get an array element for its index as integer value
-   *
-   * @param index the array index
-   * @return the array element as integer
-   */
-  public abstract int getAsInt(int index);
-
-  /**
-   * Get an array element for its index as long value
-   *
-   * @param index the array index
-   * @return the array element as long
-   */
-  public abstract long getAsLong(int index);
-
-  /**
-   * Get an array element for its index as boolean value
-   *
-   * @param index the array index
-   * @return the array element as boolean
-   */
-  public abstract boolean getAsBool(int index);
-
-  /**
    * Get the value array as an object.
    *
    * @param reverseBits reverse bit order in values

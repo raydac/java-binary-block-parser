@@ -25,8 +25,8 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
  * @param <T> type of array item.
  * @since 1.1.1
  */
-abstract class AbstractFieldByteArray<T extends JBBPAbstractField> extends JBBPAbstractArrayField<T> {
-  private static final long serialVersionUID = -884448637983315507L;
+abstract class AbstractFieldByteArray<T extends JBBPAbstractField> extends JBBPAbstractArrayField<T> implements JBBPNumericArray {
+  private static final long serialVersionUID = -884448637983315505L;
 
   protected final byte[] array;
 

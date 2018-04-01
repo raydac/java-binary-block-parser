@@ -25,7 +25,7 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
  *
  * @since 1.0
  */
-public final class JBBPFieldArrayBit extends JBBPAbstractArrayField<JBBPFieldBit> implements BitEntity {
+public final class JBBPFieldArrayBit extends JBBPAbstractArrayField<JBBPFieldBit> implements BitEntity, JBBPNumericArray {
   private static final long serialVersionUID = -4589044511663149591L;
 
   /**

@@ -24,7 +24,7 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
  *
  * @since 1.4.0
  */
-public final class JBBPFieldArrayDouble extends JBBPAbstractArrayField<JBBPFieldDouble> {
+public final class JBBPFieldArrayDouble extends JBBPAbstractArrayField<JBBPFieldDouble> implements JBBPNumericArray {
   private static final long serialVersionUID = -2146959311724853264L;
   /**
    * Inside value storage.

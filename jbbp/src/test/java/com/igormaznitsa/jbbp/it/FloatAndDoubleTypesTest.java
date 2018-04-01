@@ -27,6 +27,7 @@ import com.igormaznitsa.jbbp.model.JBBPAbstractArrayField;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
+import com.igormaznitsa.jbbp.model.JBBPNumericArray;
 import com.igormaznitsa.jbbp.model.JBBPNumericField;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import org.junit.jupiter.api.Test;
@@ -248,7 +249,7 @@ public strictfp class FloatAndDoubleTypesTest {
 
   }
 
-  public static final class JBBPFieldArrayFloat extends JBBPAbstractArrayField<JBBPFieldFloat> {
+  public static final class JBBPFieldArrayFloat extends JBBPAbstractArrayField<JBBPFieldFloat> implements JBBPNumericArray {
 
     private static final long serialVersionUID = 9088456752092618676L;
 
@@ -381,7 +382,7 @@ public strictfp class FloatAndDoubleTypesTest {
 
   }
 
-  public static final class JBBPFieldArrayDouble extends JBBPAbstractArrayField<JBBPFieldDouble> {
+  public static final class JBBPFieldArrayDouble extends JBBPAbstractArrayField<JBBPFieldDouble> implements JBBPNumericArray {
 
     private static final long serialVersionUID = 5143347696236941029L;
 

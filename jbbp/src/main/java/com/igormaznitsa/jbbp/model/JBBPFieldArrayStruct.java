@@ -63,21 +63,6 @@ public final class JBBPFieldArrayStruct extends JBBPAbstractArrayField<JBBPField
   }
 
   @Override
-  public int getAsInt(final int index) {
-    throw new UnsupportedOperationException("Structure can't be mapped to integer");
-  }
-
-  @Override
-  public long getAsLong(final int index) {
-    throw new UnsupportedOperationException("Structure can't be mapped to long");
-  }
-
-  @Override
-  public boolean getAsBool(final int index) {
-    throw new UnsupportedOperationException("Structure can't be mapped to boolean");
-  }
-
-  @Override
   public Object getValueArrayAsObject(final boolean reverseBits) {
     return this.structs.clone();
   }
