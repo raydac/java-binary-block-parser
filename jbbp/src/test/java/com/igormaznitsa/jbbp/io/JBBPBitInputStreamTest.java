@@ -133,6 +133,106 @@ public class JBBPBitInputStreamTest {
   }
 
   @Test
+  public void testReadStringArray_BigEndan_FixedSize() throws Exception {
+    assertArrayEquals(new String[] {null, "", "ABC"}, asInputStream(0xFF, 0x00, 3, 65, 66, 67, 0, 0).readStringArray(3, JBBPByteOrder.BIG_ENDIAN));
+  }
+
+  @Test
+  public void testReadStringArray_ErrorForEOF() {
+    assertThrows(IOException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        asInputStream(0xFF, 0x00, 3, 65, 66, 67, 0, 0).readStringArray(8, JBBPByteOrder.BIG_ENDIAN);
+      }
+    });
+    assertThrows(IOException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        asInputStream().readStringArray(8, JBBPByteOrder.BIG_ENDIAN);
+      }
+    });
+    assertThrows(IOException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        asInputStream().readStringArray(8, JBBPByteOrder.LITTLE_ENDIAN);
+      }
+    });
+    assertThrows(IOException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        asInputStream(0xFF, 0x00, 3, 65, 66, 67, 0, 0).readStringArray(8, JBBPByteOrder.LITTLE_ENDIAN);
+      }
+    });
+  }
+
+  @Test
+  public void testReadStringArray_ErrorForWrongPrefix() {
+    assertThrows(IOException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        asInputStream(0x80, 0x00, 3, 65, 66, 67, 0, 0).readStringArray(3, JBBPByteOrder.BIG_ENDIAN);
+      }
+    });
+    assertThrows(IOException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        asInputStream(0x91, 0x00, 3, 65, 66, 67, 0, 0).readStringArray(3, JBBPByteOrder.LITTLE_ENDIAN);
+      }
+    });
+  }
+
+  @Test
+  public void testReadStringArray_LittleEndan_FixedSize() throws Exception {
+    assertArrayEquals(new String[] {null, "", "ABC"}, asInputStream(0xFF, 0x00, 3, 65, 66, 67, 0, 0).readStringArray(3, JBBPByteOrder.LITTLE_ENDIAN));
+  }
+
+  @Test
+  public void testReadStringArray_WholeStream_ResultEmptyArray() throws Exception {
+    assertArrayEquals(new String[0], asInputStream().readStringArray(-1, JBBPByteOrder.LITTLE_ENDIAN));
+    assertArrayEquals(new String[0], asInputStream().readStringArray(-1, JBBPByteOrder.BIG_ENDIAN));
+  }
+
+  @Test
+  public void testReadStringArray_BigEndan_WholeStream() throws Exception {
+    assertArrayEquals(new String[] {null, "", "ABC", "", ""}, asInputStream(0xFF, 0x00, 3, 65, 66, 67, 0, 0).readStringArray(-1, JBBPByteOrder.BIG_ENDIAN));
+  }
+
+  @Test
+  public void testReadStringArray_LittleEndan_WholeStream() throws Exception {
+    assertArrayEquals(new String[] {null, "", "ABC", "", ""}, asInputStream(0xFF, 0x00, 3, 65, 66, 67, 0, 0).readStringArray(-1, JBBPByteOrder.LITTLE_ENDIAN));
+  }
+
+  @Test
+  public void testReadString_BigEndan_Null() throws Exception {
+    assertEquals(null, asInputStream(0xFF).readString(JBBPByteOrder.BIG_ENDIAN));
+  }
+
+  @Test
+  public void testReadString_BigEndan_Empty() throws Exception {
+    assertEquals("", asInputStream(0x00).readString(JBBPByteOrder.BIG_ENDIAN));
+  }
+
+  @Test
+  public void testReadString_BigEndan_ShortString() throws Exception {
+    assertEquals("ABC", asInputStream(0x03, 65, 66, 67).readString(JBBPByteOrder.BIG_ENDIAN));
+  }
+
+  @Test
+  public void testReadString_LittleEndan_Null() throws Exception {
+    assertEquals(null, asInputStream(0xFF).readString(JBBPByteOrder.LITTLE_ENDIAN));
+  }
+
+  @Test
+  public void testReadString_LittleEndian_Empty() throws Exception {
+    assertEquals("", asInputStream(0x00).readString(JBBPByteOrder.LITTLE_ENDIAN));
+  }
+
+  @Test
+  public void testReadString_LittleEndian_ShortString() throws Exception {
+    assertEquals("ABC", asInputStream(0x03, 65, 66, 67).readString(JBBPByteOrder.LITTLE_ENDIAN));
+  }
+
+  @Test
   public void testReadFloat_BigEndian_MSB0() throws Exception {
     assertEquals(176552.47f, asInputStreamMSB0(0x12, 0x34, 0x56, 0x78).readFloat(JBBPByteOrder.BIG_ENDIAN), TestUtils.FLOAT_DELTA);
   }

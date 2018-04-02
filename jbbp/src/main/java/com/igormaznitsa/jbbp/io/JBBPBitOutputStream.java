@@ -366,4 +366,62 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
     this.byteCounter = 0L;
   }
 
+  /**
+   * Write string in UTF8 format into stream.
+   * Format: PREFIX(FF=null | 0=empty | 0x8packedLength) LENGTH[packedLength] DATA_ARRY[LENGTH]
+   *
+   * @param value string to be written, can be null
+   * @param order order of bytes in written data (it doesn't affect encoded UTF8 array)
+   * @throws IOException i twill be thrown if transport error
+   * @since 1.4.0
+   */
+  public void writeString(final String value, final JBBPByteOrder order) throws IOException {
+    if (value == null) {
+      this.write(0xFF);
+    } else if (value.isEmpty()) {
+      this.write(0);
+    } else {
+      final byte[] array = JBBPUtils.strToUtf8(value);
+      final int len = array.length;
+      if (len < 0x80) {
+        this.write(len);
+      } else if ((len & 0xFFFFFF00) == 0) {
+        this.write(0x81);
+        this.write(len);
+      } else if ((len & 0xFFFF0000) == 0) {
+        this.write(0x82);
+        this.writeShort(len, order);
+      } else if ((len & 0xFF000000) == 0) {
+        this.write(0x83);
+        if (order == JBBPByteOrder.BIG_ENDIAN) {
+          this.write(len >>> 16);
+          this.write(len >>> 8);
+          this.write(len);
+        } else {
+          this.write(len);
+          this.write(len >>> 8);
+          this.write(len >>> 16);
+        }
+      } else {
+        this.write(0x84);
+        this.writeInt(len, order);
+      }
+      this.write(array);
+    }
+  }
+
+  /**
+   * Write array of strings in stream in UTF8 format
+   *
+   * @param value array to be written, must not be null but can contain null values
+   * @throws IOException it will be thrown for transport errors
+   * @see #writeString(String, JBBPByteOrder)
+   * @since 1.4.0
+   */
+  public void writeString(final String[] value, final JBBPByteOrder order) throws IOException {
+    for (final String s : value) {
+      this.writeString(s, order);
+    }
+  }
+
 }

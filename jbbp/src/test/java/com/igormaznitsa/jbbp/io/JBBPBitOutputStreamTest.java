@@ -29,6 +29,22 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class JBBPBitOutputStreamTest {
 
+  private static byte[] writeString(final JBBPByteOrder order, final String str) throws IOException {
+    final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    final JBBPBitOutputStream out = new JBBPBitOutputStream(bos);
+    out.writeString(str, order);
+    out.close();
+    return bos.toByteArray();
+  }
+
+  private static byte[] writeStrings(final JBBPByteOrder order, final String... array) throws IOException {
+    final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    final JBBPBitOutputStream out = new JBBPBitOutputStream(bos);
+    out.writeString(array, order);
+    out.close();
+    return bos.toByteArray();
+  }
+
   @Test
   public void testResetCounter_BitBufferEmpty() throws Exception {
     final ByteArrayOutputStream buff = new ByteArrayOutputStream();
@@ -264,6 +280,46 @@ public class JBBPBitOutputStreamTest {
     out.flush();
     assertEquals(4, out.getCounter());
     assertArrayEquals(new byte[] {(byte) -125, (byte) -64, (byte) 19, (byte) 65}, outBiuffer.toByteArray());
+  }
+
+  @Test
+  public void testWriteStringArray_BigEndian() throws Exception {
+    assertArrayEquals(new byte[] {(byte) 0xFF, 0, 0x03, 65, 66, 67}, writeStrings(JBBPByteOrder.BIG_ENDIAN, null, "", "ABC"));
+  }
+
+  @Test
+  public void testWriteStringArray_LittleEndian() throws Exception {
+    assertArrayEquals(new byte[] {(byte) 0xFF, 0, 0x03, 65, 66, 67}, writeStrings(JBBPByteOrder.LITTLE_ENDIAN, null, "", "ABC"));
+  }
+
+  @Test
+  public void testWriteString_BigEndian_Null() throws Exception {
+    assertArrayEquals(new byte[] {(byte) 0xFF}, writeString(JBBPByteOrder.BIG_ENDIAN, null));
+  }
+
+  @Test
+  public void testWriteString_BigEndian_Empty() throws Exception {
+    assertArrayEquals(new byte[] {0}, writeString(JBBPByteOrder.BIG_ENDIAN, ""));
+  }
+
+  @Test
+  public void testWriteString_BigEndian_ShortString() throws Exception {
+    assertArrayEquals(new byte[] {0x03, 65, 66, 67}, writeString(JBBPByteOrder.BIG_ENDIAN, "ABC"));
+  }
+
+  @Test
+  public void testWriteString_LittleEndian_Null() throws Exception {
+    assertArrayEquals(new byte[] {(byte) 0xFF}, writeString(JBBPByteOrder.LITTLE_ENDIAN, null));
+  }
+
+  @Test
+  public void testWriteString_LittleEndian_Empty() throws Exception {
+    assertArrayEquals(new byte[] {0}, writeString(JBBPByteOrder.LITTLE_ENDIAN, ""));
+  }
+
+  @Test
+  public void testWriteString_LittleEndian_ShortString() throws Exception {
+    assertArrayEquals(new byte[] {0x03, 65, 66, 67}, writeString(JBBPByteOrder.LITTLE_ENDIAN, "ABC"));
   }
 
   @Test

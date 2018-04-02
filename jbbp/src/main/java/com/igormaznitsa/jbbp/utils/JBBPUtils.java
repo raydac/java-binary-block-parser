@@ -24,6 +24,7 @@ import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +37,31 @@ import java.util.Locale;
  */
 public final class JBBPUtils {
 
+  private static final Charset CHARSET_UTF8 = Charset.forName("UTF-8");
+
   private JBBPUtils() {
+  }
+
+  /**
+   * Convert a string into its UTF8 representation.
+   *
+   * @param str string to be converted, must not be null
+   * @return array of chars from the string in utf8 format, must not be null
+   * @since 1.4.0
+   */
+  public static byte[] strToUtf8(final String str) {
+    return str.getBytes(CHARSET_UTF8);
+  }
+
+  /**
+   * Convert UTF8 byte array into string.
+   *
+   * @param array array to be converted, must not be null
+   * @return result string, must not be nulls
+   * @since 1.4.0
+   */
+  public static String utf8ToStr(final byte[] array) {
+    return new String(array, CHARSET_UTF8);
   }
 
   /**

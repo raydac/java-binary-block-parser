@@ -30,6 +30,40 @@ public class BitIOCommonTest {
   private final int[] BYTE_MASK = new int[] {0, 1, 3, 7, 15, 31, 63, 127, 255};
 
   @Test
+  public void testWriteReadString() throws Exception {
+    final StringBuilder buffer = new StringBuilder("ФgЯ");
+    final Random rnd = new Random(112233);
+
+    for (int i = 0; i < 18231; i++) {
+      final ByteArrayOutputStream buffBig = new ByteArrayOutputStream(16384);
+      final JBBPBitOutputStream outBig = new JBBPBitOutputStream(buffBig);
+      final ByteArrayOutputStream buffLittl = new ByteArrayOutputStream(16384);
+      final JBBPBitOutputStream outLittl = new JBBPBitOutputStream(buffLittl);
+
+      final String text = buffer.toString();
+
+      outBig.writeString(text, JBBPByteOrder.BIG_ENDIAN);
+      outLittl.writeString(text, JBBPByteOrder.LITTLE_ENDIAN);
+
+      outBig.close();
+      outLittl.close();
+
+      final byte[] writtenBig = buffBig.toByteArray();
+      final byte[] writtenLittl = buffLittl.toByteArray();
+
+      final String restoredBig = new JBBPBitInputStream(new ByteArrayInputStream(writtenBig)).readString(JBBPByteOrder.BIG_ENDIAN);
+      final String restoredLittl = new JBBPBitInputStream(new ByteArrayInputStream(writtenLittl)).readString(JBBPByteOrder.LITTLE_ENDIAN);
+
+
+      assertEquals(text, restoredBig, "Iteration#" + i);
+      assertEquals(text, restoredLittl, "Iteration#" + i);
+
+      buffer.append((char)('A' + rnd.nextInt(11)));
+      buffer.append((char)('Б' + rnd.nextInt(22)));
+    }
+  }
+
+  @Test
   public void testWriteRead() throws Exception {
     final int LEN = 10000;
 

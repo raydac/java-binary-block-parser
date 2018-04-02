@@ -30,6 +30,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class JBBPUtilsTest {
 
   @Test
+  public void testUtf8EncdeDecode() {
+    assertEquals("78634двлфодйукйДЛОД wdf", JBBPUtils.utf8ToStr(JBBPUtils.strToUtf8("78634двлфодйукйДЛОД wdf")));
+  }
+
+  @Test
   public void testRemoveTrailingZeros() throws Exception {
     assertNull(JBBPUtils.removeTrailingZeros(null));
     assertEquals("", JBBPUtils.removeTrailingZeros(""));

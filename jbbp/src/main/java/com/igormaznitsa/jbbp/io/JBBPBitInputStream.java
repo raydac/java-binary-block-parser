@@ -948,4 +948,112 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     }
   }
 
+  private final IOException makeIOExceptionForWrongPrefix(final int prefix) {
+    return new IOException("Wrong string prefix:" + prefix);
+  }
+
+  /**
+   * Read string in UTF8 format.
+   *
+   * @param byteOrder byte order, must not be null
+   * @return read string, can be null
+   * @throws IOException it will be thrown for transport error or wrong format
+   * @see JBBPBitOutputStream#writeString(String, JBBPByteOrder)
+   * @since 1.4.0
+   */
+  public String readString(final JBBPByteOrder byteOrder) throws IOException {
+    final int prefix = this.readByte();
+    final int len;
+    if (prefix == 0) {
+      len = 0;
+    } else if (prefix == 0xFF) {
+      len = -1;
+    } else if (prefix < 0x80) {
+      len = prefix;
+    } else if ((prefix & 0xF0) == 0x80) {
+      switch (prefix & 0x0F) {
+        case 1: {
+          len = this.readByte();
+        }
+        break;
+        case 2: {
+          len = this.readUnsignedShort(byteOrder);
+        }
+        break;
+        case 3: {
+          int buffer = 0;
+          if (byteOrder == JBBPByteOrder.BIG_ENDIAN) {
+            buffer = (this.readByte() << 16) | (this.readByte() << 8) | this.readByte();
+          } else {
+            buffer = this.readByte() | (this.readByte() << 8) | (this.readByte() << 16);
+          }
+          len = buffer;
+        }
+        break;
+        case 4: {
+          len = this.readInt(byteOrder);
+        }
+        break;
+        default: {
+          throw makeIOExceptionForWrongPrefix(prefix);
+        }
+      }
+    } else {
+      throw makeIOExceptionForWrongPrefix(prefix);
+    }
+
+    final String result;
+    if (len < 0) {
+      result = null;
+    } else if (len == 0) {
+      result = "";
+    } else {
+      result = JBBPUtils.utf8ToStr(this.readByteArray(len));
+    }
+
+    return result;
+  }
+
+
+  /**
+   * Read array of srings from stream.
+   *
+   * @param items     number of items, or -1 if read whole stream
+   * @param byteOrder order of bytes in structure, must not be null
+   * @return array, it can contain null among values, must not be null
+   * @throws IOException
+   * @see JBBPBitOutputStream#writeString(String[], JBBPByteOrder)
+   * @since 1.4.0
+   */
+  public String[] readStringArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
+    int pos = 0;
+    if (items < 0) {
+      String[] buffer = new String[INITIAL_ARRAY_BUFFER_SIZE];
+      // till end
+      while (hasAvailableData()) {
+        final String next = readString(byteOrder);
+        if (buffer.length == pos) {
+          final String[] newbuffer = new String[buffer.length << 1];
+          System.arraycopy(buffer, 0, newbuffer, 0, buffer.length);
+          buffer = newbuffer;
+        }
+        buffer[pos++] = next;
+      }
+      if (buffer.length == pos) {
+        return buffer;
+      }
+      final String[] result = new String[pos];
+      System.arraycopy(buffer, 0, result, 0, pos);
+      return result;
+    } else {
+      // number
+      final String[] buffer = new String[items];
+      for (int i = 0; i < items; i++) {
+        buffer[i] = readString(byteOrder);
+      }
+      return buffer;
+    }
+
+  }
+
 }
