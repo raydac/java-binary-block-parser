@@ -24,6 +24,7 @@ import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,7 +51,10 @@ public final class JBBPUtils {
    * @since 1.4.0
    */
   public static byte[] strToUtf8(final String str) {
-    return str.getBytes(CHARSET_UTF8);
+    final ByteBuffer buffer = CHARSET_UTF8.encode(str);
+    final byte[] bytesArray = new byte[buffer.remaining()];
+    buffer.get(bytesArray, 0, bytesArray.length);
+    return bytesArray;
   }
 
   /**
@@ -61,7 +65,7 @@ public final class JBBPUtils {
    * @since 1.4.0
    */
   public static String utf8ToStr(final byte[] array) {
-    return new String(array, CHARSET_UTF8);
+    return CHARSET_UTF8.decode(ByteBuffer.wrap(array)).toString();
   }
 
   /**
