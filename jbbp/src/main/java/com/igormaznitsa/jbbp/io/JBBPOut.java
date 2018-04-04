@@ -533,7 +533,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   /**
    * Write chars of a String as encoded Utf8 byte array.
    *
-   * @param str a String which bytes should be written as Utf8
+   * @param str a String which bytes should be written as Utf8, must not be null
    * @return the DSL session
    * @throws IOException it will be thrown for transport errors
    */
@@ -541,7 +541,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
     assertNotEnded();
     assertStringNotNull(str);
     if (this.processCommands) {
-      this.outStream.write(str.getBytes("UTF-8"));
+      this.outStream.write(JBBPUtils.strToUtf8(str));
     }
     return this;
   }
