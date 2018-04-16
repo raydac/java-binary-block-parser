@@ -23,7 +23,7 @@ import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
  *
  * @since 1.4.0
  */
-public final class JBBPFieldDouble extends JBBPAbstractField implements JBBPNumericField {
+public final strictfp class JBBPFieldDouble extends JBBPAbstractField implements JBBPNumericField {
   public static final String TYPE_NAME = "doublej";
   private static final long serialVersionUID = -7106473415348171461L;
   /**

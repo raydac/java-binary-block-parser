@@ -23,7 +23,7 @@ import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
  *
  * @since 1.4.0
  */
-public final class JBBPFieldFloat extends JBBPAbstractField implements JBBPNumericField {
+public final strictfp class JBBPFieldFloat extends JBBPAbstractField implements JBBPNumericField {
   public static final String TYPE_NAME = "floatj";
   private static final long serialVersionUID = 5493764792942829316L;
   /**
