@@ -24,6 +24,7 @@ import com.igormaznitsa.jbbp.compiler.conversion.ExpressionEvaluatorVisitor;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPEvalException;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
+import com.igormaznitsa.jbbp.model.JBBPNumericField;
 import com.igormaznitsa.jbbp.utils.JBBPIntCounter;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
@@ -592,9 +593,19 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
         case CODE_VAR: {
           final int index = JBBPUtils.unpackInt(this.compiledExpression, counter);
 
-          stack[stackDepth++] = code == CODE_EXTVAR
-              ? "$".equals(this.externalValueNames[index]) ? (int) inStream.getCounter() : fieldMap.getExternalFieldValue(this.externalValueNames[index], compiledBlockData, this)
-              : fieldMap.get(compiledBlockData.getNamedFields()[index]).getAsInt();
+          final int value;
+          if (code == CODE_EXTVAR) {
+            value = "$".equals(this.externalValueNames[index]) ? (int) inStream.getCounter() : fieldMap.getExternalFieldValue(this.externalValueNames[index], compiledBlockData, this);
+          } else {
+            final JBBPNamedFieldInfo namedField = compiledBlockData.getNamedFields()[index];
+            final JBBPNumericField numericField = fieldMap.get(namedField);
+            if (numericField == null) {
+              throw new java.lang.ArithmeticException("Can't find field '" + namedField.getFieldName() + "' among numeric fiels");
+            } else {
+              value = fieldMap.get(namedField).getAsInt();
+            }
+          }
+          stack[stackDepth++] = value;
         }
         break;
         case CODE_CONST: {

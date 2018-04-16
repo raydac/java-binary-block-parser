@@ -43,6 +43,7 @@ import com.igormaznitsa.jbbp.model.JBBPFieldFloat;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldShort;
+import com.igormaznitsa.jbbp.model.JBBPFieldString;
 import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import com.igormaznitsa.jbbp.model.JBBPFieldUByte;
 import com.igormaznitsa.jbbp.model.JBBPFieldUShort;
@@ -168,6 +169,38 @@ public class JBBPParserTest {
     final JBBPParser parser = JBBPParser.prepare("<byte;");
     final JBBPFieldStruct result = parser.parse(new byte[] {(byte) -42});
     assertEquals(-42, result.findFieldForType(JBBPFieldByte.class).getAsInt());
+  }
+
+  @Test
+  public void testParse_String_ErrorForEOF() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("stringj;");
+    assertThrows(EOFException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        parser.parse(new byte[0]);
+      }
+    });
+  }
+
+  @Test
+  public void testParse_String_Default() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("stringj;");
+    final JBBPFieldStruct result = parser.parse(new byte[] {3, 65, 66, 67});
+    assertEquals("ABC", result.findFieldForType(JBBPFieldString.class).getAsString());
+  }
+
+  @Test
+  public void testParse_String_BigEndian() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare(">stringj;");
+    final JBBPFieldStruct result = parser.parse(new byte[] {3, 65, 66, 67});
+    assertEquals("ABC", result.findFieldForType(JBBPFieldString.class).getAsString());
+  }
+
+  @Test
+  public void testParse_String_LittleEndian() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("<stringj;");
+    final JBBPFieldStruct result = parser.parse(new byte[] {3, 65, 66, 67});
+    assertEquals("ABC", result.findFieldForType(JBBPFieldString.class).getAsString());
   }
 
   @Test
@@ -548,6 +581,33 @@ public class JBBPParserTest {
 
     assertEquals(33, struct.findFieldForNameAndType("some", JBBPFieldByte.class).getAsInt());
     assertEquals(1, counter.get());
+  }
+
+  @Test
+  public void testParse_StringFieldInExpression_NoError() throws Exception {
+    JBBPParser.prepare("byte a; stringj b; byte[a+b];");
+  }
+
+  @Test
+  public void testParse_StringFieldInArihmeticExpression_ArihmeticException() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("byte a; stringj b; byte[a+b];");
+    assertThrows(ArithmeticException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        parser.parse(new byte[]{1,3,65,66,67,0,1,2,3});
+      }
+    });
+  }
+
+  @Test
+  public void testParse_StringFieldAsSingleVariableInExpression_ArihmeticException() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("stringj b; byte[b];");
+    assertThrows(ArithmeticException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        parser.parse(new byte[]{3,65,66,67,0,1,2,3});
+      }
+    });
   }
 
   @Test

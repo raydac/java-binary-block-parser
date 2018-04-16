@@ -19,6 +19,7 @@ package com.igormaznitsa.jbbp.compiler.tokenizer;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.model.JBBPFieldDouble;
 import com.igormaznitsa.jbbp.model.JBBPFieldFloat;
+import com.igormaznitsa.jbbp.model.JBBPFieldString;
 
 import java.io.Serializable;
 
@@ -107,15 +108,16 @@ public final class JBBPFieldTypeParameterContainer implements Serializable {
   }
 
   /**
-   * Check that the type is float or double.
+   * Check that the type is float, double or string.
    *
-   * @return true if the type is either float or double
+   * @return true if the type is either float, double or string
    * @see JBBPFieldFloat#TYPE_NAME
    * @see JBBPFieldDouble#TYPE_NAME
+   * @see JBBPFieldString#TYPE_NAME
    * @since 1.4.0
    */
-  public boolean isFloatOrDouble() {
-    return this.typeName.equals(JBBPFieldFloat.TYPE_NAME) || this.typeName.equals(JBBPFieldDouble.TYPE_NAME);
+  public boolean isFloatDoubleOrString() {
+    return this.typeName.equals(JBBPFieldFloat.TYPE_NAME) || this.typeName.equals(JBBPFieldDouble.TYPE_NAME) || this.typeName.equals(JBBPFieldString.TYPE_NAME);
   }
 
   @Override

@@ -27,6 +27,7 @@ import com.igormaznitsa.jbbp.exceptions.JBBPException;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.model.JBBPFieldDouble;
 import com.igormaznitsa.jbbp.model.JBBPFieldFloat;
+import com.igormaznitsa.jbbp.model.JBBPFieldString;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -146,7 +147,7 @@ public final class JBBPCompiler {
    *
    * @since 1.4.0
    */
-  public static final int EXT_FLAG_EXTRA_AS_FLOAT_OR_DOUBLE = 0x04;
+  public static final int EXT_FLAG_EXTRA_AS_FLOAT_DOUBLE_OR_STRING = 0x04;
 
   public static JBBPCompiledBlock compile(final String script) throws IOException {
     return compile(script, null);
@@ -211,7 +212,7 @@ public final class JBBPCompiler {
       }
 
       final boolean extraFieldNumericDataAsExpression = ((code >>> 8) & EXT_FLAG_EXTRA_AS_EXPRESSION) != 0;
-      final boolean fieldIsFloatOrDouble = ((code >>> 8) & EXT_FLAG_EXTRA_AS_FLOAT_OR_DOUBLE) != 0;
+      final boolean fieldIsFloatOrDouble = ((code >>> 8) & EXT_FLAG_EXTRA_AS_FLOAT_DOUBLE_OR_STRING) != 0;
 
       switch (code & 0xF) {
         case CODE_BOOL:
@@ -518,7 +519,7 @@ public final class JBBPCompiler {
 
         result |= token.getArraySizeAsString() == null ? 0 : (token.isVarArrayLength() ? FLAG_ARRAY | FLAG_WIDE | (EXT_FLAG_EXPRESSION_OR_WHOLESTREAM << 8) : FLAG_ARRAY);
         result |= hasExpressionAsExtraNumber ? FLAG_WIDE | (EXT_FLAG_EXTRA_AS_EXPRESSION << 8) : 0;
-        result |= token.getFieldTypeParameters().isFloatOrDouble() ? FLAG_WIDE | (EXT_FLAG_EXTRA_AS_FLOAT_OR_DOUBLE << 8) : 0;
+        result |= token.getFieldTypeParameters().isFloatDoubleOrString() ? FLAG_WIDE | (EXT_FLAG_EXTRA_AS_FLOAT_DOUBLE_OR_STRING << 8) : 0;
         result |= token.getFieldName() == null ? 0 : FLAG_NAMED;
 
         final String name = descriptor.getTypeName().toLowerCase(Locale.ENGLISH);
@@ -530,7 +531,7 @@ public final class JBBPCompiler {
           result |= CODE_BIT;
         } else if ("var".equals(name)) {
           result |= CODE_VAR;
-        } else if ("bool".equals(name)) {
+        } else if ("bool".equals(name) || JBBPFieldString.TYPE_NAME.equals(name)) {
           result |= CODE_BOOL;
         } else if ("ubyte".equals(name)) {
           result |= CODE_UBYTE;

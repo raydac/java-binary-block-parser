@@ -85,7 +85,7 @@ public class CompiledBlockVisitor {
       final int c = compiledData[positionAtCompiledBlock.getAndIncrement()] & 0xFF;
       final boolean wideCode = (c & JBBPCompiler.FLAG_WIDE) != 0;
       final int ec = wideCode ? compiledData[positionAtCompiledBlock.getAndIncrement()] & 0xFF : 0;
-      final boolean isFloatOrDoubleField = (ec & JBBPCompiler.EXT_FLAG_EXTRA_AS_FLOAT_OR_DOUBLE) != 0;
+      final boolean isFloatDoubleOrStringField = (ec & JBBPCompiler.EXT_FLAG_EXTRA_AS_FLOAT_DOUBLE_OR_STRING) != 0;
       final boolean extraFieldNumAsExpr = (ec & JBBPCompiler.EXT_FLAG_EXTRA_AS_EXPRESSION) != 0;
       final int code = (ec << 8) | c;
 
@@ -151,7 +151,7 @@ public class CompiledBlockVisitor {
         case JBBPCompiler.CODE_USHORT:
         case JBBPCompiler.CODE_INT:
         case JBBPCompiler.CODE_LONG: {
-          visitPrimitiveField(theOffset, theCode, name, byteOrder, readWholeStream, isFloatOrDoubleField, arraySizeEvaluator);
+          visitPrimitiveField(theOffset, theCode, name, byteOrder, readWholeStream, isFloatDoubleOrStringField, arraySizeEvaluator);
         }
         break;
 
@@ -209,7 +209,7 @@ public class CompiledBlockVisitor {
    * @param nullableNameFieldInfo  field info, null if the field is anonymous one
    * @param byteOrder              byte order for the field, must not be null
    * @param readWholeStreamAsArray if true then it is array with unknown size till the stream end
-   * @param isFloatOrDoubleField   flag shows that INT should be recognized as FLOAT and LONG as DOUBLE
+   * @param isFloatDoubleOrStringField   flag shows that INT should be recognized as FLOAT and LONG as DOUBLE and BOOL as STRING
    * @param nullableArraySize      array size if the field is array, null if the field is not array or variable length array
    * @see JBBPCompiler#CODE_BYTE
    * @see JBBPCompiler#CODE_UBYTE
@@ -219,7 +219,7 @@ public class CompiledBlockVisitor {
    * @see JBBPCompiler#CODE_INT
    * @see JBBPCompiler#CODE_LONG
    */
-  public void visitPrimitiveField(int offsetInCompiledBlock, int primitiveType, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPByteOrder byteOrder, boolean readWholeStreamAsArray, boolean isFloatOrDoubleField, JBBPIntegerValueEvaluator nullableArraySize) {
+  public void visitPrimitiveField(int offsetInCompiledBlock, int primitiveType, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPByteOrder byteOrder, boolean readWholeStreamAsArray, boolean isFloatDoubleOrStringField, JBBPIntegerValueEvaluator nullableArraySize) {
   }
 
   /**

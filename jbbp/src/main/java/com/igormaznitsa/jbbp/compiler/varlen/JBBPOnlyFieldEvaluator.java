@@ -18,8 +18,10 @@ package com.igormaznitsa.jbbp.compiler.varlen;
 
 import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
+import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.conversion.ExpressionEvaluatorVisitor;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
+import com.igormaznitsa.jbbp.model.JBBPNumericField;
 
 /**
  * Class implements an evaluator which works with only field.
@@ -52,11 +54,21 @@ public final class JBBPOnlyFieldEvaluator implements JBBPIntegerValueEvaluator {
 
   @Override
   public int eval(final JBBPBitInputStream inStream, final int currentCompiledBlockOffset, final JBBPCompiledBlock block, final JBBPNamedNumericFieldMap fieldMap) {
-    return externalFieldName == null
-        ? fieldMap.get(block.getNamedFields()[this.namedFieldIndex]).getAsInt()
-        : this.externalFieldName.equals("$")
-        ? (int) inStream.getCounter()
-        : fieldMap.getExternalFieldValue(this.externalFieldName, block, this);
+    final int result;
+    if (this.externalFieldName == null) {
+      final JBBPNamedFieldInfo namedField = block.getNamedFields()[this.namedFieldIndex];
+      final JBBPNumericField numericField = fieldMap.get(namedField);
+      if (numericField == null) {
+        throw new java.lang.ArithmeticException("Can't find field '" + namedField.getFieldName() + "' among numeric fiels");
+      } else {
+        result = numericField.getAsInt();
+      }
+    } else {
+      result = this.externalFieldName.equals("$")
+          ? (int) inStream.getCounter()
+          : fieldMap.getExternalFieldValue(this.externalFieldName, block, this);
+    }
+    return result;
   }
 
   @Override
