@@ -19,7 +19,7 @@ For instance I have been very actively using the framework in [the ZX-Poly emula
   - added flag `JBBPParser#FLAG_NEGATIVE_EXPRESSION_RESULT_AS_ZERO` to recognize negative expression result as zero
   - improved Java 6 class source generator to process FLAG_SKIP_REMAINING_FIELDS_IF_EOF for structure fields
   - added stable automatic module name `igormaznitsa.jbbp` into manifest file 
-  - added support of float and double java types, as `floatj` and `doublej`
+  - added support of float, double and string java types, as `floatj`,`doublej` and `stringj`
   
 - **1.3.0 (02-sep-2017)**
   - __Fixed issue [#16 NullPointerException when referencing a JBBPCustomFieldTypeProcessor parsed field"](https://github.com/raydac/java-binary-block-parser/issues/16), many thanks to @use-sparingly for the bug report__
