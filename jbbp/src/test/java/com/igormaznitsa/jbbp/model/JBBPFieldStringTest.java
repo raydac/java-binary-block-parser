@@ -24,6 +24,7 @@ public class JBBPFieldStringTest {
   @Test
   public void testReverseBits_Text() {
     assertEquals("\u0C00谀䰀", JBBPFieldString.reverseBits("012"));
+    assertEquals("012", JBBPFieldString.reverseBits(JBBPFieldString.reverseBits("012")));
   }
 
   @Test
