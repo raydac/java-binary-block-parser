@@ -368,6 +368,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
 
   /**
    * Write string in UTF8 format into stream.
+   * <b>the byte order in saved char data will be BIG_ENDIAN</b>
    * Format: PREFIX(FF=null | 0=empty | 0x8packedLength) LENGTH[packedLength] DATA_ARRY[LENGTH]
    *
    * @param value string to be written, can be null
@@ -412,6 +413,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
 
   /**
    * Write array of strings in stream in UTF8 format
+   * <b>the byte order in saved char data will be BIG_ENDIAN</b>
    *
    * @param value array to be written, must not be null but can contain null values
    * @throws IOException it will be thrown for transport errors
