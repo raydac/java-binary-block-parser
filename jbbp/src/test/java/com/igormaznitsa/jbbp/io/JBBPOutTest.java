@@ -36,6 +36,36 @@ import static org.junit.jupiter.api.Assertions.*;
 public class JBBPOutTest {
 
   @Test
+  public void testString() throws Exception {
+    assertArrayEquals(new byte[] {(byte) 0xFF}, BeginBin().String(null).End().toByteArray());
+    assertArrayEquals(new byte[] {0}, BeginBin().String("").End().toByteArray());
+    assertArrayEquals(new byte[] {3, 65, 66, 67}, BeginBin().String("ABC").End().toByteArray());
+
+    assertArrayEquals(new byte[] {(byte) 0xFF}, BeginBin(JBBPBitOrder.LSB0).String(null).End().toByteArray());
+    assertArrayEquals(new byte[] {0}, BeginBin(JBBPBitOrder.LSB0).String("").End().toByteArray());
+    assertArrayEquals(new byte[] {3, 65, 66, 67}, BeginBin(JBBPBitOrder.LSB0).String("ABC").End().toByteArray());
+
+    assertArrayEquals(new byte[] {(byte) 0xFF}, BeginBin(JBBPBitOrder.MSB0).String(null).End().toByteArray());
+    assertArrayEquals(new byte[] {0}, BeginBin(JBBPBitOrder.MSB0).String("").End().toByteArray());
+    assertArrayEquals(new byte[] {(byte) 0xc0, (byte) 0x41, (byte) 0x42, (byte) 0x43}, BeginBin(JBBPBitOrder.MSB0).String("ABC").End().toByteArray());
+
+    assertArrayEquals(new byte[] {(byte) 0xFF}, BeginBin().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).String(null).End().toByteArray());
+    assertArrayEquals(new byte[] {0}, BeginBin().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).String("").End().toByteArray());
+    assertArrayEquals(new byte[] {3, 65, 66, 67}, BeginBin().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).String("ABC").End().toByteArray());
+
+    assertArrayEquals(new byte[] {(byte) 0xFF}, BeginBin().ByteOrder(JBBPByteOrder.BIG_ENDIAN).String(null).End().toByteArray());
+    assertArrayEquals(new byte[] {0}, BeginBin().ByteOrder(JBBPByteOrder.BIG_ENDIAN).String("").End().toByteArray());
+    assertArrayEquals(new byte[] {3, 65, 66, 67}, BeginBin().ByteOrder(JBBPByteOrder.BIG_ENDIAN).String("ABC").End().toByteArray());
+  }
+
+  @Test
+  public void testStrings() throws Exception {
+    assertArrayEquals(new byte[] {(byte)0x03, 65, 66, 67, (byte)0x00, (byte)0xFF, 3, 48, 49, 50}, BeginBin().Strings("ABC", "", null, "012").End().toByteArray());
+    assertArrayEquals(new byte[] {(byte)0x03, 65, 66, 67, (byte)0x00, (byte)0xFF, 3, 48, 49, 50}, BeginBin().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).Strings("ABC", "", null, "012").End().toByteArray());
+    assertArrayEquals(new byte[] {(byte)0x03, 65, 66, 67, (byte)0x00, (byte)0xFF, 3, 48, 49, 50}, BeginBin().ByteOrder(JBBPByteOrder.BIG_ENDIAN).Strings("ABC", "", null, "012").End().toByteArray());
+  }
+
+  @Test
   public void testBeginBin() throws Exception {
     assertArrayEquals(new byte[] {1}, BeginBin().Byte(1).End().toByteArray());
     assertArrayEquals(new byte[] {0x02, 0x01}, BeginBin(JBBPByteOrder.LITTLE_ENDIAN).Short(0x0102).End().toByteArray());

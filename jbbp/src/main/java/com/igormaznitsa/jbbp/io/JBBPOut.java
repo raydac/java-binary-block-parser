@@ -531,7 +531,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   }
 
   /**
-   * Write chars of a String as encoded Utf8 byte array.
+   * Write chars of a String as encoded Utf8 byte array. There will not be aby information about string length.
    *
    * @param str a String which bytes should be written as Utf8, must not be null
    * @return the DSL session
@@ -542,6 +542,38 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
     assertStringNotNull(str);
     if (this.processCommands) {
       this.outStream.write(JBBPUtils.strToUtf8(str));
+    }
+    return this;
+  }
+
+  /**
+   * Write string into output stream with length information.
+   * <b>the byte order in saved char data will be BIG_ENDIAN</b>
+   *
+   * @param str string to be written, it can be null
+   * @return the DSL session
+   * @throws IOException it will be thrown for transport errors
+   * @see JBBPBitOutputStream#writeString(String, JBBPByteOrder)
+   * @since 1.4.0
+   */
+  public JBBPOut String(String str) throws IOException {
+    this.outStream.writeString(str, this.byteOrder);
+    return this;
+  }
+
+  /**
+   * Write string array as sequence of strings with information about string length.
+   * <b>the byte order in saved char data will be BIG_ENDIAN</b>
+   *
+   * @param strings array of strings, must not be null but can contain null
+   * @return the DSL session
+   * @throws IOException it will be thrown for transport errors
+   * @see JBBPBitOutputStream#writeString(String, JBBPByteOrder)
+   * @since 1.4.0
+   */
+  public JBBPOut Strings(final String... strings) throws IOException {
+    for (final String s : strings) {
+      this.String(s);
     }
     return this;
   }
