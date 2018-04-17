@@ -40,7 +40,7 @@ public class JBBPBitOutputStreamTest {
   private static byte[] writeStrings(final JBBPByteOrder order, final String... array) throws IOException {
     final ByteArrayOutputStream bos = new ByteArrayOutputStream();
     final JBBPBitOutputStream out = new JBBPBitOutputStream(bos);
-    out.writeString(array, order);
+    out.writeStringArray(array, order);
     out.close();
     return bos.toByteArray();
   }

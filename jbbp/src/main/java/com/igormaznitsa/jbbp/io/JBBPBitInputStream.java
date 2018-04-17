@@ -1022,7 +1022,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * @param byteOrder order of bytes in structure, must not be null
    * @return array, it can contain null among values, must not be null
    * @throws IOException
-   * @see JBBPBitOutputStream#writeString(String[], JBBPByteOrder)
+   * @see JBBPBitOutputStream#writeStringArray(String[], JBBPByteOrder)
    * @since 1.4.0
    */
   public String[] readStringArray(final int items, final JBBPByteOrder byteOrder) throws IOException {

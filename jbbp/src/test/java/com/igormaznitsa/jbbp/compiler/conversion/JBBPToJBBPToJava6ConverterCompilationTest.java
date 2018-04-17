@@ -25,6 +25,7 @@ import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJava6ConverterTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.io.IOException;
 
@@ -206,6 +207,47 @@ public class JBBPToJBBPToJava6ConverterCompilationTest extends AbstractJBBPToJav
         + "struct1 { byte someByte; struct2 {bit:3 [34*someByte<<1+$ext] data;} }");
     assertCompilation(makeSources(parser, null, false));
     assertCompilation(makeSources(parser, null, true));
+  }
+
+  @Test
+  public void testStringFields() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("stringj str; stringj [5] strarr; stringj [_] all;");
+    assertCompilation(makeSources(parser, null, false));
+    assertCompilation(makeSources(parser, null, true));
+  }
+
+  @Test
+  public void testStringFieldAsLength_CompilationErrorForStringFieldInArithmeticException() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("stringj str; stringj [str] strarr; stringj [_] all;");
+    assertThrows(Exception.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        assertCompilation(makeSources(parser, null, false));
+      }
+    });
+    assertThrows(Exception.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        assertCompilation(makeSources(parser, null, true));
+      }
+    });
+  }
+
+  @Test
+  public void testStringFieldInExpression_CompilationErrorForStringFieldInArithmeticException() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("stringj str; byte a; stringj [str+a] strarr; stringj [_] all;");
+    assertThrows(Exception.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        assertCompilation(makeSources(parser, null, false));
+      }
+    });
+    assertThrows(Exception.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        assertCompilation(makeSources(parser, null, true));
+      }
+    });
   }
 
   @Test

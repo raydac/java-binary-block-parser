@@ -418,7 +418,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
    * @see #writeString(String, JBBPByteOrder)
    * @since 1.4.0
    */
-  public void writeString(final String[] value, final JBBPByteOrder order) throws IOException {
+  public void writeStringArray(final String[] value, final JBBPByteOrder order) throws IOException {
     for (final String s : value) {
       this.writeString(s, order);
     }

@@ -145,6 +145,30 @@ public class JBBPToJBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6
   }
 
   @Test
+  public void testReadWite_String_SingleValue() throws Exception {
+    final Object instance = compileAndMakeInstance("stringj value;");
+    final byte[] etalon = new byte[] {3, 65, 66, 67};
+
+    callRead(instance, etalon.clone());
+
+    assertEquals("ABC", getField(instance, "value", String.class));
+    assertArrayEquals(etalon, callWrite(instance));
+  }
+
+  @Test
+  public void testReadWite_StringArrayWholeStream() throws Exception {
+    final Object instance = compileAndMakeInstance("stringj [_] strArray;");
+    assertNull(getField(instance, "strarray", String[].class), "by default must be null");
+
+    final byte[] etalon = new byte[] {3, 65, 66, 67, (byte) 0xFF, 3, 49, 50, 51};
+
+    callRead(instance, etalon.clone());
+
+    assertArrayEquals(new String[] {"ABC", null, "123"}, getField(instance, "strarray", String[].class));
+    assertArrayEquals(etalon, callWrite(instance));
+  }
+
+  @Test
   public void testReadWite_Double_SingleValue() throws Exception {
     final Object instance = compileAndMakeInstance("doublej value;");
     final byte[] etalon = new byte[] {1, 2, 3, 4, 5, 6, 7, 8};

@@ -584,8 +584,9 @@ public class JBBPParserTest {
   }
 
   @Test
-  public void testParse_StringFieldInExpression_NoError() throws Exception {
+  public void testParse_StringFieldInExpression_NoErrorDuringCompilation() throws Exception {
     JBBPParser.prepare("byte a; stringj b; byte[a+b];");
+    JBBPParser.prepare("stringj b; byte[b];");
   }
 
   @Test
