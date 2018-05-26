@@ -29,6 +29,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 
 import static com.igormaznitsa.jbbp.io.JBBPOut.BeginBin;
 import static org.junit.jupiter.api.Assertions.*;
@@ -1057,6 +1058,24 @@ public class JBBPOutTest {
   public void testBin_UndefinedType_Array_Bytes_String() throws Exception {
     class Test {
 
+      @Bin(outOrder = 2, bitOrder = JBBPBitOrder.MSB0, type = BinType.BYTE_ARRAY)
+      String lsbarray;
+      @Bin(outOrder = 1, type = BinType.BYTE_ARRAY)
+      String array;
+
+      Test(String array, String lsbarray) {
+        this.array = array;
+        this.lsbarray = lsbarray;
+      }
+    }
+    assertArrayEquals(new byte[] {(byte) 'H', (byte) 'A', (byte) 'L', (byte) 0x32, (byte) 0xF2},
+        BeginBin().Bin(new Test("HAL", "LO")).End().toByteArray());
+  }
+
+  @Test
+  public void testBin_UndefinedType_Array_String_String() throws Exception {
+    class Test {
+
       @Bin(outOrder = 2, bitOrder = JBBPBitOrder.MSB0)
       String lsbarray;
       @Bin(outOrder = 1)
@@ -1067,7 +1086,8 @@ public class JBBPOutTest {
         this.lsbarray = lsbarray;
       }
     }
-    assertArrayEquals(new byte[] {(byte) 'H', (byte) 'A', (byte) 'L', (byte) 0x32, (byte) 0xF2},
+
+    assertArrayEquals(new byte[] {3, 'H', 'A', 'L', 6, -29, -120, -128, -17, -120, -128},
         BeginBin().Bin(new Test("HAL", "LO")).End().toByteArray());
   }
 

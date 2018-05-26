@@ -19,6 +19,9 @@ package com.igormaznitsa.jbbp.mapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
+import java.math.BigInteger;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -35,29 +38,31 @@ public class BinTypeTest {
   }
 
   @Test
-  public void testFindCompatiblePrimitiveArray() {
+  public void testFindCompatibleArray() {
     assertEquals(BinType.BYTE_ARRAY, BinType.findCompatible(byte[].class));
     assertEquals(BinType.USHORT_ARRAY, BinType.findCompatible(char[].class));
     assertEquals(BinType.SHORT_ARRAY, BinType.findCompatible(short[].class));
     assertEquals(BinType.BOOL_ARRAY, BinType.findCompatible(boolean[].class));
     assertEquals(BinType.INT_ARRAY, BinType.findCompatible(int[].class));
     assertEquals(BinType.LONG_ARRAY, BinType.findCompatible(long[].class));
-    assertEquals(BinType.STRUCT_ARRAY, BinType.findCompatible(String[].class));
+    assertEquals(BinType.STRUCT_ARRAY, BinType.findCompatible(List[].class));
     assertEquals(BinType.FLOAT_ARRAY, BinType.findCompatible(float[].class));
     assertEquals(BinType.DOUBLE_ARRAY, BinType.findCompatible(double[].class));
+    assertEquals(BinType.STRING_ARRAY, BinType.findCompatible(String[].class));
   }
 
   @Test
-  public void testFindCompatiblePrimitive() {
+  public void testFindCompatible() {
     assertEquals(BinType.BYTE, BinType.findCompatible(byte.class));
     assertEquals(BinType.USHORT, BinType.findCompatible(char.class));
     assertEquals(BinType.SHORT, BinType.findCompatible(short.class));
     assertEquals(BinType.BOOL, BinType.findCompatible(boolean.class));
     assertEquals(BinType.INT, BinType.findCompatible(int.class));
     assertEquals(BinType.LONG, BinType.findCompatible(long.class));
-    assertEquals(BinType.BYTE_ARRAY, BinType.findCompatible(String.class));
+    assertEquals(BinType.STRUCT, BinType.findCompatible(BigInteger.class));
     assertEquals(BinType.FLOAT, BinType.findCompatible(float.class));
     assertEquals(BinType.DOUBLE, BinType.findCompatible(double.class));
+    assertEquals(BinType.STRING, BinType.findCompatible(String.class));
   }
 
 }

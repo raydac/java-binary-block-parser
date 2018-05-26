@@ -118,6 +118,33 @@ public class JBBPMapperTest {
 
   @TestTemplate
   @ExtendWith(MapperTestProvider.class)
+  public void testMap_String() throws Exception {
+    class Mapped {
+
+      @Bin
+      String a;
+      @Bin
+      String b;
+    }
+    final Mapped mapped = JBBPParser.prepare("stringj a; stringj b;").parse(new byte[] {3, 65, 66, 67, 2, 68, 69}).mapTo(Mapped.class);
+    assertEquals("ABC", mapped.a);
+    assertEquals("DE", mapped.b);
+  }
+
+  @TestTemplate
+  @ExtendWith(MapperTestProvider.class)
+  public void testMap_StringArrayToStringArray() throws Exception {
+    class Mapped {
+
+      @Bin
+      String[] a;
+    }
+    final Mapped mapped = JBBPParser.prepare("stringj [_] a;").parse(new byte[] {3, 65, 66, 67, 2, 68, 69}).mapTo(Mapped.class);
+    assertArrayEquals(new String[] {"ABC", "DE"}, mapped.a);
+  }
+
+  @TestTemplate
+  @ExtendWith(MapperTestProvider.class)
   public void testMap_IgnoreStaticField() throws Exception {
     final MappedWithStaticField mapped = JBBPParser.prepare("int a;").parse(new byte[] {1, 2, 3, 4}).mapTo(MappedWithStaticField.class);
     assertEquals(0x01020304, mapped.a);
@@ -215,6 +242,19 @@ public class JBBPMapperTest {
 
   @TestTemplate
   @ExtendWith(MapperTestProvider.class)
+  public void testMap_MapFloatArrayToFloatArray() throws Exception {
+    class Mapped {
+
+      @Bin
+      float[] a;
+    }
+
+    final byte[] max = JBBPOut.BeginBin().Float(-1.234567f, 1.234567f).End().toByteArray();
+    assertArrayEquals(new float[] {-1.234567f, 1.234567f}, JBBPParser.prepare("floatj [_] a;").parse(max).mapTo(Mapped.class).a, TestUtils.FLOAT_DELTA);
+  }
+
+  @TestTemplate
+  @ExtendWith(MapperTestProvider.class)
   public void testMap_MapLongToDouble() throws Exception {
     class Mapped {
 
@@ -239,6 +279,19 @@ public class JBBPMapperTest {
 
     final byte[] max = JBBPOut.BeginBin().Double(-1.2345678912345d).End().toByteArray();
     assertEquals(-1.2345678912345d, JBBPParser.prepare("doublej a;").parse(max).mapTo(Mapped.class).a, TestUtils.FLOAT_DELTA);
+  }
+
+  @TestTemplate
+  @ExtendWith(MapperTestProvider.class)
+  public void testMap_MapDoubleArrayToDoubleArray() throws Exception {
+    class Mapped {
+
+      @Bin
+      double[] a;
+    }
+
+    final byte[] max = JBBPOut.BeginBin().Double(-1.2345678912345d, 45.3334d).End().toByteArray();
+    assertArrayEquals(new double[] {-1.2345678912345d, 45.3334d}, JBBPParser.prepare("doublej [_] a;").parse(max).mapTo(Mapped.class).a, TestUtils.FLOAT_DELTA);
   }
 
   @TestTemplate

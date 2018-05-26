@@ -34,6 +34,7 @@ import com.igormaznitsa.jbbp.model.JBBPFieldArrayUByte;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayUShort;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
+import com.igormaznitsa.jbbp.model.JBBPFieldString;
 import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import com.igormaznitsa.jbbp.model.JBBPNumericField;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
@@ -375,6 +376,12 @@ public final class JBBPMapper {
           } else {
             if (binField instanceof JBBPNumericField) {
               mapNumericField(mappingClassInstance, mappingField, (JBBPNumericField) binField, mappedAnno.bitOrder() == JBBPBitOrder.MSB0);
+            } else if (binField instanceof JBBPFieldString) {
+              if (mappingField.getType().isPrimitive()) {
+                throw new JBBPMapperException("Can't map a string to a primitive mapping field", binField, mappingClass, mappingField, null);
+              } else {
+                setFieldValue(mappingClassInstance, mappingField, binField, ((JBBPFieldString)binField).getAsString());
+              }
             } else if (binField instanceof JBBPFieldStruct) {
               if (mappingField.getType().isPrimitive()) {
                 throw new JBBPMapperException("Can't map a structure to a primitive mapping field", binField, mappingClass, mappingField, null);

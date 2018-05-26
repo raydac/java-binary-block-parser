@@ -25,6 +25,7 @@ import com.igormaznitsa.jbbp.model.JBBPFieldArrayFloat;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayShort;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayString;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayStruct;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayUByte;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayUShort;
@@ -36,6 +37,7 @@ import com.igormaznitsa.jbbp.model.JBBPFieldFloat;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldShort;
+import com.igormaznitsa.jbbp.model.JBBPFieldString;
 import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import com.igormaznitsa.jbbp.model.JBBPFieldUByte;
 import com.igormaznitsa.jbbp.model.JBBPFieldUShort;
@@ -94,6 +96,12 @@ public enum BinType {
    */
   FLOAT(JBBPFieldFloat.class, false),
   /**
+   * A Mapping field will be mapped to a parsed String field.
+   *
+   * @since 1.4.0
+   */
+  STRING(JBBPFieldString.class, false),
+  /**
    * A Mapping field will be mapped to a parsed long field.
    */
   LONG(JBBPFieldLong.class, false),
@@ -135,6 +143,12 @@ public enum BinType {
    * @since 1.4.0
    */
   FLOAT_ARRAY(JBBPFieldArrayFloat.class, true),
+  /**
+   * A Mapping field will be mapped to a parsed String array field.
+   *
+   * @since 1.4.0
+   */
+  STRING_ARRAY(JBBPFieldArrayString.class, true),
   /**
    * A Mapping field will be mapped to a parsed double array field.
    *
@@ -203,7 +217,7 @@ public enum BinType {
           result = null;
         }
       } else {
-        result = STRUCT_ARRAY;
+        result = type == String.class ? STRING_ARRAY : STRUCT_ARRAY;
       }
     } else if (fieldClazz.isPrimitive()) {
       if (fieldClazz == byte.class) {
@@ -226,7 +240,11 @@ public enum BinType {
         result = null;
       }
     } else {
-      result = fieldClazz == String.class ? BYTE_ARRAY : STRUCT;
+      if (fieldClazz == String.class) {
+        result = STRING;
+      } else {
+        result = STRUCT;
+      }
     }
     return result;
   }

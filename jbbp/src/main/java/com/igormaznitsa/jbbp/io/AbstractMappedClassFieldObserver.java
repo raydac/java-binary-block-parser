@@ -23,6 +23,7 @@ import com.igormaznitsa.jbbp.mapper.BinType;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldShort;
+import com.igormaznitsa.jbbp.model.JBBPFieldString;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import com.igormaznitsa.jbbp.utils.ReflectUtils;
 
@@ -260,6 +261,20 @@ public abstract class AbstractMappedClassFieldObserver {
             value = Float.intBitsToFloat((int) JBBPFieldInt.reverseBits(Float.floatToIntBits(value)));
           }
           this.onFieldFloat(obj, field, annotation, value);
+        }
+        break;
+        case STRING: {
+          String value;
+          final Object valueAsObject = readFieldValue(obj, field);
+          if (valueAsObject != null) {
+            value = String.valueOf(valueAsObject);
+            if (reverseBits) {
+              value = JBBPFieldString.reverseBits(value);
+            }
+          } else {
+            value = null;
+          }
+          this.onFieldString(obj, field, annotation, value);
         }
         break;
         case LONG: {
@@ -568,6 +583,19 @@ public abstract class AbstractMappedClassFieldObserver {
    * @since 1.4.0
    */
   protected void onFieldFloat(final Object obj, final Field field, final Bin annotation, final float value) {
+
+  }
+
+  /**
+   * Notification about string field.
+   *
+   * @param obj        the object instance, must not be null
+   * @param field      the field, must not be null
+   * @param annotation the annotation for field, must not be null
+   * @param value      the value of the field
+   * @since 1.4.0
+   */
+  protected void onFieldString(final Object obj, final Field field, final Bin annotation, final String value) {
 
   }
 

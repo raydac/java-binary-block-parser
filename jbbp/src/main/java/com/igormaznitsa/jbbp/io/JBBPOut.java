@@ -1044,6 +1044,15 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   }
 
   @Override
+  protected void onFieldString(final Object obj, final Field field, final Bin annotation, final String value) {
+    try {
+      this.String(value);
+    } catch (IOException ex) {
+      throw new JBBPIOException("Can't write string value", ex);
+    }
+  }
+
+  @Override
   protected void onFieldDouble(final Object obj, final Field field, final Bin annotation, final double value) {
     try {
       this.Double(value);
