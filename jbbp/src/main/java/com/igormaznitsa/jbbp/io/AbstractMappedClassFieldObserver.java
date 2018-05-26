@@ -463,6 +463,21 @@ public abstract class AbstractMappedClassFieldObserver {
               this.onArrayEnd(obj, field, annotation);
             }
             break;
+            case STRING_ARRAY: {
+              assertFieldArray(field);
+              final int len = Array.getLength(array);
+              this.onArrayStart(obj, field, annotation, len);
+              for (int i = 0; i < len; i++) {
+                final Object value = Array.get(array, i);
+                String nullableStrValue = value == null ? null : String.valueOf (value);
+                if (nullableStrValue != null && reverseBits) {
+                  nullableStrValue = JBBPFieldString.reverseBits(nullableStrValue);
+                }
+                this.onFieldString(obj, field, annotation, nullableStrValue);
+              }
+              this.onArrayEnd(obj, field, annotation);
+            }
+            break;
             case DOUBLE_ARRAY: {
               assertFieldArray(field);
               final int len = Array.getLength(array);

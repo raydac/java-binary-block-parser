@@ -31,6 +31,7 @@ import com.igormaznitsa.jbbp.model.JBBPFieldArrayFloat;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayShort;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayString;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayStruct;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayUByte;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayUShort;
@@ -42,6 +43,7 @@ import com.igormaznitsa.jbbp.model.JBBPFieldFloat;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldShort;
+import com.igormaznitsa.jbbp.model.JBBPFieldString;
 import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import com.igormaznitsa.jbbp.model.JBBPFieldUByte;
 import com.igormaznitsa.jbbp.model.JBBPFieldUShort;
@@ -932,7 +934,7 @@ public class JBBPTextWriter extends FilterWriter {
   }
 
   /**
-   * Print values from short array/
+   * Print values from short array
    *
    * @param values short value array, must not be null
    * @param off    offset to the first element
@@ -948,9 +950,9 @@ public class JBBPTextWriter extends FilterWriter {
   }
 
   /**
-   * Print values from float array/
+   * Print values from float array
    *
-   * @param values short value array, must not be null
+   * @param values float value array, must not be null
    * @param off    offset to the first element
    * @param len    number of elements to print
    * @return the context
@@ -965,7 +967,7 @@ public class JBBPTextWriter extends FilterWriter {
   }
 
   /**
-   * Print values from double array/
+   * Print values from double array
    *
    * @param values double value array, must not be null
    * @param off    offset to the first element
@@ -1370,6 +1372,13 @@ public class JBBPTextWriter extends FilterWriter {
             Float(((JBBPFieldArrayFloat) array).getArray());
           } else if (array instanceof JBBPFieldArrayDouble) {
             Double(((JBBPFieldArrayDouble) array).getArray());
+          } else if (array instanceof JBBPFieldArrayString) {
+            final String[] strArray = ((JBBPFieldArrayString) array).getArray();
+            final String[] arrayToPrint = new String[strArray.length];
+            for (int i = 0; i < strArray.length; i++) {
+              arrayToPrint[i] = strArray[i] == null ? "<NULL>" : '\"' + strArray[i] + '\"';
+            }
+            Str(arrayToPrint);
           } else {
             throw new Error("Unexpected field [" + field.getClass() + ']');
           }
@@ -1411,6 +1420,12 @@ public class JBBPTextWriter extends FilterWriter {
           throw new Error("Unexpected field [" + field.getClass() + ']');
         }
         Comment(" " + makeFieldComment(field) + postfix);
+      } else if (field instanceof JBBPFieldString) {
+        final String value = ((JBBPFieldString)field).getAsString();
+        Str(value == null ? "<NULL>" : '\"'+value+'\"');
+        Comment(" " + makeFieldComment(field) + postfix);
+      }  else {
+        throw new Error("Unexpected field [" + field.getClass() + ']');
       }
     }
   }
@@ -1872,6 +1887,19 @@ public class JBBPTextWriter extends FilterWriter {
         }
       } catch (IOException ex) {
         throw new JBBPIOException("Can't log float field", ex);
+      }
+    }
+
+    @Override
+    protected void onFieldString(final Object obj, final Field field, final Bin annotation, final String value) {
+      try {
+        ensureValueMode();
+        printValueString(value == null ? "<NULL>" : '\"'+value+'\"');
+        if (this.arrayCounter == 0) {
+          Comment(makeFieldDescription(field, annotation));
+        }
+      } catch (IOException ex) {
+        throw new JBBPIOException("Can't log string field", ex);
       }
     }
 

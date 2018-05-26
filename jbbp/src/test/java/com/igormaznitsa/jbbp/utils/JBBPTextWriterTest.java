@@ -858,12 +858,32 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
 
   @Test
   public void testBin_AllEasyTypes_Anonymous_NonMappedRawStruct() throws Exception {
-    final JBBPParser parser = JBBPParser.prepare("bit:2; bit:6; byte; ubyte; short; ushort; int; long; bool;");
-    final byte[] testArray = new byte[] {(byte) 0xDE, (byte) 0x12, (byte) 0xFE, (byte) 0x23, (byte) 0x11, (byte) 0x45, (byte) 0xDA, (byte) 0x82, (byte) 0xA0, (byte) 0x33, (byte) 0x7F, (byte) 0x99, (byte) 0x04, (byte) 0x10, (byte) 0x45, (byte) 0xBD, (byte) 0xCA, (byte) 0xFE, (byte) 0x12, (byte) 0x11, (byte) 0xBA, (byte) 0xBE};
+    final JBBPParser parser = JBBPParser.prepare("bit:2; bit:6; byte; ubyte; short; ushort; int; long; bool; stringj;");
+    final byte[] testArray = new byte[] {
+        (byte) 0xDE, (byte) 0x12, (byte) 0xFE, (byte) 0x23, (byte) 0x11,
+        (byte) 0x45, (byte) 0xDA, (byte) 0x82, (byte) 0xA0, (byte) 0x33,
+        (byte) 0x7F, (byte) 0x99, (byte) 0x04, (byte) 0x10, (byte) 0x45,
+        (byte) 0xBD, (byte) 0xCA, (byte) 0xFE, (byte) 0x12, (byte) 0x11,
+        3, 65, 66, 67
+    };
 
     final String text = makeWriter().SetMaxValuesPerLine(16).Bin(parser.parse(testArray)).Close().toString();
     System.out.println(text);
     assertFile("txtwrtrjbbpobj2.txt", text);
+  }
+
+  @Test
+  public void testBin_StringFieldAndStringArray() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("stringj[2];stringj;");
+    final byte[] testArray = new byte[] {
+        3, 65, 66, 67,
+        3, 68, 69, 70,
+        3, 71, 72, 73
+    };
+
+    final String text = makeWriter().SetMaxValuesPerLine(16).Bin(parser.parse(testArray)).Close().toString();
+    System.out.println(text);
+    assertFile("txtwrtrjbbpobj3.txt", text);
   }
 
   @Test
