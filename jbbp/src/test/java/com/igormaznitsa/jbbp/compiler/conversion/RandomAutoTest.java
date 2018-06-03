@@ -3,7 +3,7 @@ package com.igormaznitsa.jbbp.compiler.conversion;
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJava6ConverterTest;
-import com.igormaznitsa.jbbp.utils.JBBPScriptBuilder;
+import com.igormaznitsa.jbbp.utils.JBBPDslBuilder;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -90,7 +90,7 @@ public class RandomAutoTest extends AbstractJBBPToJava6ConverterTest {
   }
 
   Result generate(final int items, final boolean generateNames) {
-    final JBBPScriptBuilder builder = JBBPScriptBuilder.Begin();
+    final JBBPDslBuilder builder = JBBPDslBuilder.Begin();
 
     final List<StructLen> counterStack = new ArrayList<StructLen>();
     counterStack.add(new StructLen());
@@ -134,7 +134,7 @@ public class RandomAutoTest extends AbstractJBBPToJava6ConverterTest {
           break;
           case 2: { // BIT
             final JBBPBitNumber bits = makeRndBitNumber();
-            builder.Bit(generateNames ? makeRndName() : null, bits);
+            builder.Bits(generateNames ? makeRndName() : null, bits);
             counterStack.get(0).add(bits.getBitNumber());
             fieldsTotal++;
           }
