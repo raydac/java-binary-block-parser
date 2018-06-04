@@ -24,7 +24,7 @@
         <jbbp.version>${project.version}</jbbp.version>
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
-        <junit5.version>5.1.0</junit5.version>
+        <junit5.version>5.2.0</junit5.version>
     </properties>
 
     <issueManagement>
