@@ -40,6 +40,21 @@ public class JBBPDslBuilder {
     return new JBBPDslBuilder();
   }
 
+  protected static String assertStringNotNull(final String str) {
+    if (str == null) throw new NullPointerException("String is null");
+    return str;
+  }
+
+  protected static int assertNotNegativeAndZero(final int value) {
+    if (value == 0) {
+      throw new IllegalArgumentException("must not be 0");
+    }
+    if (value < 0) {
+      throw new IllegalArgumentException("must not be negative");
+    }
+    return value;
+  }
+
   /**
    * Auxiliary method to convert numeric value into array size expression.
    *
@@ -78,7 +93,7 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder Align(final String sizeExpression) {
-    this.items.add(new ItemAlign(sizeExpression));
+    this.items.add(new ItemAlign(assertStringNotNull(sizeExpression)));
     return this;
   }
 
@@ -88,7 +103,7 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder Skip() {
-    return this.Skip(null);
+    return this.Skip(1);
   }
 
   /**
@@ -110,7 +125,7 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder Skip(final String sizeExpression) {
-    this.items.add(new ItemSkip(sizeExpression));
+    this.items.add(new ItemSkip(assertStringNotNull(sizeExpression)));
     return this;
   }
 
@@ -142,7 +157,7 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder StructArray(final String sizeExpression) {
-    return this.StructArray(null, sizeExpression);
+    return this.StructArray(null, assertStringNotNull(sizeExpression));
   }
 
   /**
@@ -152,7 +167,7 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder StructArray(final int size) {
-    return this.StructArray(null, size);
+    return this.StructArray(null, arraySizeToString(size));
   }
 
   /**
@@ -175,7 +190,7 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder StructArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.STRUCT_ARRAY, name, this.byteOrder);
-    item.sizeExpression = sizeExpression;
+    item.sizeExpression = assertStringNotNull(sizeExpression);
     this.items.add(item);
     return this;
   }
@@ -210,7 +225,7 @@ public class JBBPDslBuilder {
   }
 
   /**
-   * Add anonymous fixed sized bit field.
+   * Add anonymous fixed size bit field.
    *
    * @param bits, number of bits 1..7
    * @return the builder instance, must not be null
@@ -220,7 +235,7 @@ public class JBBPDslBuilder {
   }
 
   /**
-   * Add anonymous fixed sized bit field.
+   * Add anonymous fixed size bit field.
    *
    * @param bits, number of bits
    * @return the builder instance, must not be null
@@ -271,7 +286,7 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder BitArray(final JBBPBitNumber bits, final String sizeExpression) {
-    return this.BitArray(null, bits, sizeExpression);
+    return this.BitArray(null, bits, assertStringNotNull(sizeExpression));
   }
 
   /**
@@ -284,7 +299,7 @@ public class JBBPDslBuilder {
   public JBBPDslBuilder BitArray(final String name, final JBBPBitNumber bits, final String sizeExpression) {
     final Item item = new Item(BinType.BIT_ARRAY, name, this.byteOrder);
     item.bitNumber = bits;
-    item.sizeExpression = sizeExpression;
+    item.sizeExpression = assertStringNotNull(sizeExpression);
     this.items.add(item);
     return this;
   }
@@ -295,7 +310,7 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder BoolArray(final String sizeExpression) {
-    return this.BoolArray(null, sizeExpression);
+    return this.BoolArray(null, assertStringNotNull(sizeExpression));
   }
 
   /**
@@ -325,7 +340,7 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder BoolArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.BOOL_ARRAY, name, this.byteOrder);
-    item.sizeExpression = sizeExpression;
+    item.sizeExpression = assertStringNotNull(sizeExpression);
     this.items.add(item);
     return this;
   }
@@ -374,7 +389,7 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder ByteArray(final String sizeExpression) {
-    return this.ByteArray(null, sizeExpression);
+    return this.ByteArray(null, assertStringNotNull(sizeExpression));
   }
 
   /**
@@ -404,7 +419,7 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder ByteArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.BYTE_ARRAY, name, this.byteOrder);
-    item.sizeExpression = sizeExpression;
+    item.sizeExpression = assertStringNotNull(sizeExpression);
     this.items.add(item);
     return this;
   }
@@ -418,7 +433,7 @@ public class JBBPDslBuilder {
   }
 
   /**
-   * Added named unsigned byte field.
+   * Add named unsigned byte field.
    * @param name name of the field, can be null for anonymous one
    * @return the builder instance, must not be null
    */
@@ -434,11 +449,11 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder UByteArray(final String sizeExpression) {
-    return this.UByteArray(null, sizeExpression);
+    return this.UByteArray(null, assertStringNotNull(sizeExpression));
   }
 
   /**
-   * Added anonymous fixed size unsigned byte array.
+   * Add anonymous fixed size unsigned byte array.
    * @param size size of the array, if negative then read stream till the end.
    * @return the builder instance, must not be null
    */
@@ -447,7 +462,7 @@ public class JBBPDslBuilder {
   }
 
   /**
-   * Added named fixed size unsigned byte array.
+   * Add named fixed size unsigned byte array.
    * @param name name of the field, it can be null for anonymous one
    * @param size size of the array, if negative then read stream till the end.
    * @return the builder instance, must not be null
@@ -457,231 +472,446 @@ public class JBBPDslBuilder {
   }
 
   /**
-   * Added named unsigned byte array which size calculated through expression.
+   * Add named unsigned byte array which size calculated through expression.
    * @param name name of the field, it can be null for anonymous one
    * @param sizeExpression expression to calculate array size, must ot be null or empty.
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder UByteArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.UBYTE_ARRAY, name, this.byteOrder);
-    item.sizeExpression = sizeExpression;
+    item.sizeExpression = assertStringNotNull(sizeExpression);
     this.items.add(item);
     return this;
   }
 
+  /**
+   * Added anonymous signed short field.
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder Short() {
     return this.Short(null);
   }
 
+  /**
+   * Add named signed short field.
+   * @param name name of the field, can be null for anonymous one
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder Short(final String name) {
     final Item item = new Item(BinType.SHORT, name, this.byteOrder);
     this.items.add(item);
     return this;
   }
 
+  /**
+   * Add anonymous signed short array which size calculated through expression.
+   * @param sizeExpression expression to be used for calculation, must not be null
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder ShortArray(final String sizeExpression) {
-    return this.ShortArray(null, sizeExpression);
+    return this.ShortArray(null, assertStringNotNull(sizeExpression));
   }
 
+  /**
+   * Add anonymous fixed size signed short array.
+   * @param size size of the array, if negative then stream will be read till end
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder ShortArray(final int size) {
     return this.ShortArray(null, arraySizeToString(size));
   }
 
+  /**
+   * Add named fixed size signed short array.
+   * @param name name of the field, if null then anonymous
+   * @param size size of the array, if negative then stream will be read till end
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder ShortArray(final String name, final int size) {
     return this.ShortArray(name, arraySizeToString(size));
   }
 
+  /**
+   * Add named fixed signed short array which size calculated through expression.
+   * @param name name of the field, if null then anonymous
+   * @param sizeExpression expression to be used to calculate size, must not be null
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder ShortArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.SHORT_ARRAY, name, this.byteOrder);
-    item.sizeExpression = sizeExpression;
+    item.sizeExpression = assertStringNotNull(sizeExpression);
     this.items.add(item);
     return this;
   }
 
+  /**
+   * Add anonymous unsigned short field.
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder UShort() {
     return this.UShort(null);
   }
 
+  /**
+   * Add named unsigned short field.
+   * @param name name of the field, can be null for anonymous
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder UShort(final String name) {
     final Item item = new Item(BinType.USHORT, name, this.byteOrder);
     this.items.add(item);
     return this;
   }
 
+  /**
+   * Add anonymous unsigned short array which size calculated through expression.
+   * @param sizeExpression expression to be used for calculation, must not be null
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder UShortArray(final String sizeExpression) {
-    return this.UShortArray(null, sizeExpression);
+    return this.UShortArray(null, assertStringNotNull(sizeExpression));
   }
 
+  /**
+   * Add named fixed unsigned short array which size calculated through expression.
+   * @param name name of the field, if null then anonymous
+   * @param sizeExpression expression to be used to calculate size, must not be null
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder UShortArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.USHORT_ARRAY, name, this.byteOrder);
-    item.sizeExpression = sizeExpression;
+    item.sizeExpression = assertStringNotNull(sizeExpression);
     this.items.add(item);
     return this;
   }
 
+  /**
+   * Add named fixed size unsigned short array.
+   * @param name name of the field, if null then anonymous
+   * @param size size of the array, if negative then stream will be read till end
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder UShortArray(final String name, final int size) {
+    return this.UShortArray(name, arraySizeToString(size));
+  }
+
+  /**
+   * Add anonymous integer field.
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder Int() {
     return this.Int(null);
   }
 
+  /**
+   * Add named integer field.
+   * @param name name of the field, can be null for anonymous
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder Int(final String name) {
     final Item item = new Item(BinType.INT, name, this.byteOrder);
     this.items.add(item);
     return this;
   }
 
+  /**
+   * Add anonymous integer array with size calculated through expression.
+   * @param sizeExpression expression to be used to calculate size, must not be null
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder IntArray(final String sizeExpression) {
-    return this.IntArray(null, sizeExpression);
+    return this.IntArray(null, assertStringNotNull(sizeExpression));
   }
 
+  /**
+   * Add anonymous fixed size integer array.
+   * @param size size of the array, if negative then read stream till the end
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder IntArray(final int size) {
     return this.IntArray(null, arraySizeToString(size));
   }
 
+  /**
+   * Add named fixed size integer array.
+   * @param name name of field, it can be null for anonymous
+   * @param size size of the array, if negative then read stream till the end
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder IntArray(final String name, final int size) {
     return this.IntArray(name, arraySizeToString(size));
   }
 
+  /**
+   * Add named integer array with size calculated through expression.
+   * @param name name of field, can be nul for anonymous
+   * @param sizeExpression expression to be used to calculate size, must not be null
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder IntArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.INT_ARRAY, name, this.byteOrder);
-    item.sizeExpression = sizeExpression;
+    item.sizeExpression = assertStringNotNull(sizeExpression);
     this.items.add(item);
     return this;
   }
 
+  /**
+   * Add anonymous long field.
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder Long() {
     return this.Long(null);
   }
 
+  /**
+   * Add named long field.
+   * @param name name of the field, can be null for anonymous
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder Long(final String name) {
     final Item item = new Item(BinType.LONG, name, this.byteOrder);
     this.items.add(item);
     return this;
   }
 
+  /**
+   * Add anonymous long array which size calculated through expression.
+   * @param sizeExpression expression to be used to calculate size, must not be null
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder LongArray(final String sizeExpression) {
-    return this.LongArray(null, sizeExpression);
+    return this.LongArray(null, assertStringNotNull(sizeExpression));
   }
 
+  /**
+   * Add anonymous fixed size long array.
+   * @param size size of array, if negative then read till stream end
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder LongArray(final int size) {
     return this.LongArray(null, arraySizeToString(size));
   }
 
+  /**
+   * Add named fixed size long array field.
+   * @param name name of field, can be null for anonymous
+   * @param size size of array, if negative then read till stream end
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder LongArray(final String name, final int size) {
     return this.LongArray(name, arraySizeToString(size));
   }
 
+  /**
+   * Add named long array which size calculated through expression.
+   * @param name name of the field, can be null for anonymous
+   * @param sizeExpression expression to be used to calculate size, must not be null
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder LongArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.LONG_ARRAY, name, this.byteOrder);
-    item.sizeExpression = sizeExpression;
+    item.sizeExpression = assertStringNotNull(sizeExpression);
     this.items.add(item);
     return this;
   }
 
+  /**
+   * Add anonymous float field.
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder Float() {
     return this.Float(null);
   }
 
+  /**
+   * Add named float field
+   * @param name name of the field, can be null for anonymous
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder Float(final String name) {
     final Item item = new Item(BinType.FLOAT, name, this.byteOrder);
     this.items.add(item);
     return this;
   }
 
+  /**
+   * Add anonymous float array which size calculated through expression.
+   * @param sizeExpression expression to be used to calculate size, must not be null
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder FloatArray(final String sizeExpression) {
-    return this.FloatArray(null, sizeExpression);
+    return this.FloatArray(null, assertStringNotNull(sizeExpression));
   }
 
+  /**
+   * Add anonymous fixed size float array.
+   * @param size size of array, if negative then read till stream end
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder FloatArray(final int size) {
     return this.FloatArray(null, arraySizeToString(size));
   }
 
+  /**
+   * Add named fixed size float array.
+   * @param name name of field, null for anonymous
+   * @param size size of array, read till stream end if negative
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder FloatArray(final String name, final int size) {
     return this.FloatArray(name, arraySizeToString(size));
   }
 
+  /**
+   * Add named float array which size calculated through expression.
+   * @param name name of the field, can be null for anonymous
+   * @param sizeExpression expression to be used to calculate size, must not be null
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder FloatArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.FLOAT_ARRAY, name, this.byteOrder);
-    item.sizeExpression = sizeExpression;
+    item.sizeExpression = assertStringNotNull(sizeExpression);
     this.items.add(item);
     return this;
   }
 
+  /**
+   * Add anonymous double field.
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder Double() {
     return this.Double(null);
   }
 
+  /**
+   * Add named double field.
+   * @param name name of the field, can be null for anonymous
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder Double(final String name) {
     final Item item = new Item(BinType.DOUBLE, name, this.byteOrder);
     this.items.add(item);
     return this;
   }
 
+  /**
+   * Add comment.
+   * @param text text of comment, can be null
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder Comment(final String text) {
     this.items.add(new ItemComment(text == null ? "" : text));
     return this;
   }
 
+  /**
+   * Add anonymous double array field which size calculated trough expression.
+   * @param sizeExpression expression to be used to calculate array size, must not be null
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder DoubleArray(final String sizeExpression) {
-    return this.DoubleArray(null, sizeExpression);
+    return this.DoubleArray(null, assertStringNotNull(sizeExpression));
   }
 
+  /**
+   * Add anonymous fixed size double array field.
+   * @param size size of the array, if negative then read till end of stream
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder DoubleArray(final int size) {
     return this.DoubleArray(null, arraySizeToString(size));
   }
 
+  /**
+   * Add named fixed size double array field.
+   * @param name ame of the field, can be null for anonymous
+   * @param size size of the array, if negative then read till end of stream
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder DoubleArray(final String name, final int size) {
     return this.DoubleArray(name, arraySizeToString(size));
   }
 
+  /**
+   * Add named double array field which size calculated trough expression.
+   * @param name name of the field, can be null for anonymous
+   * @param sizeExpression expression to be used to calculate array size, must not be null
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder DoubleArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.DOUBLE_ARRAY, name, this.byteOrder);
-    item.sizeExpression = sizeExpression;
+    item.sizeExpression = assertStringNotNull(sizeExpression);
     this.items.add(item);
     return this;
   }
 
+  /**
+   * Add anonymous string field.
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder String() {
     return this.String(null);
   }
 
+  /**
+   * Add named string field.
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder String(final String name) {
     final Item item = new Item(BinType.STRING, name, this.byteOrder);
     this.items.add(item);
     return this;
   }
 
+  /**
+   * Add anonymous string array which size calculated through expression.
+   * @param sizeExpression expression to calculate size, must not be null
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder StringArray(final String sizeExpression) {
-    return this.StringArray(null, sizeExpression);
+    return this.StringArray(null, assertStringNotNull(sizeExpression));
   }
 
+  /**
+   * Add anonymous fixed size string array.
+   * @param size size of array, if negative then read till stream end
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder StringArray(final int size) {
     return this.StringArray(null, arraySizeToString(size));
   }
 
+  /**
+   * Add named fixed size string array.
+   * @param name name of field, can be null for anonymous
+   * @param size size of array, if negative then read till stream end
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder StringArray(final String name, final int size) {
     return this.StringArray(name, arraySizeToString(size));
   }
 
+  /**
+   * Add named string array which size calculated through expression.
+   * @param name name of field, can be null for anonymous
+   * @param sizeExpression expression to calculate size, must not be null
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder StringArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.STRING_ARRAY, name, this.byteOrder);
-    item.sizeExpression = sizeExpression;
+    item.sizeExpression = assertStringNotNull(sizeExpression);
     this.items.add(item);
     return this;
   }
 
+  /**
+   * Set byte order for next fields
+   * @param order order, if null then BIG_ENDIAN
+   * @return the builder instance, must not be null
+   */
   public JBBPDslBuilder ByteOrder(final JBBPByteOrder order) {
     this.byteOrder = order == null ? JBBPByteOrder.BIG_ENDIAN : order;
     return this;
-  }
-
-  protected int assertNotNegativeAndZero(final int value) {
-    if (value == 0) {
-      throw new IllegalArgumentException("must not be 0");
-    }
-    if (value < 0) {
-      throw new IllegalArgumentException("must not be negative");
-    }
-    return value;
   }
 
   public String build() {

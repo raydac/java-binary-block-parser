@@ -151,7 +151,7 @@ public class RandomAutoTest extends AbstractJBBPToJava6ConverterTest {
             final int arrayLen = makeArrayLengthNumber();
             final int bitlen;
             if (RND.nextBoolean()) {
-              builder.Skip(null);
+              builder.Skip();
               bitlen = 8;
             } else {
               final int len = makeArrayLengthNumber();
