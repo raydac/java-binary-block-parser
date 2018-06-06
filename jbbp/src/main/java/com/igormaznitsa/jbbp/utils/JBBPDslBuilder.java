@@ -9,8 +9,10 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Auxiliary builder to build DSL script through sequent method call.
+ * Auxiliary builder to build string JBBP script through sequent method call.
+ * <b>NB! The Builder generaes JBBP string script which can be compiled by parser!</b>
  *
+ * @see com.igormaznitsa.jbbp.JBBPParser
  * @since 1.4.0
  */
 public class JBBPDslBuilder {
@@ -41,7 +43,9 @@ public class JBBPDslBuilder {
   }
 
   protected static String assertStringNotNull(final String str) {
-    if (str == null) throw new NullPointerException("String is null");
+    if (str == null) {
+      throw new NullPointerException("String is null");
+    }
     return str;
   }
 
@@ -53,6 +57,16 @@ public class JBBPDslBuilder {
       throw new IllegalArgumentException("must not be negative");
     }
     return value;
+  }
+
+  protected static StringBuilder doTabs(final boolean enable, final StringBuilder buffer, int tabs) {
+    if (enable) {
+      while (tabs > 0) {
+        buffer.append('\t');
+        tabs--;
+      }
+    }
+    return buffer;
   }
 
   /**
@@ -71,7 +85,7 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder Align() {
-    return this.Align(null);
+    return this.Align(1);
   }
 
   /**
@@ -225,6 +239,15 @@ public class JBBPDslBuilder {
   }
 
   /**
+   * Add named single bit field.
+   * @param name name of the field, can be null for anonymous one
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder Bit(final String name) {
+    return this.Bits(name, JBBPBitNumber.BITS_1);
+  }
+
+  /**
    * Add anonymous fixed size bit field.
    *
    * @param bits, number of bits 1..7
@@ -260,6 +283,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous fixed length bit array.
+   *
    * @param bits length of the field, must not be null
    * @param size number of elements in array, if negative then till the end of stream
    * @return the builder instance, must not be null
@@ -270,6 +294,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add named fixed length bit array.
+   *
    * @param name name of the array, if null then anonymous one
    * @param bits length of the field, must not be null
    * @param size number of elements in array, if negative then till the end of stream
@@ -281,7 +306,8 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous bit array with size calculated through expression.
-   * @param bits length of the field, must not be null
+   *
+   * @param bits           length of the field, must not be null
    * @param sizeExpression expression to be used to calculate array size, must not be null
    * @return the builder instance, must not be null
    */
@@ -291,8 +317,9 @@ public class JBBPDslBuilder {
 
   /**
    * Add named bit array with size calculated through expression.
-   * @param name name of the array, if null then anonymous one
-   * @param bits length of the field, must not be null
+   *
+   * @param name           name of the array, if null then anonymous one
+   * @param bits           length of the field, must not be null
    * @param sizeExpression expression to be used to calculate array size, must not be null
    * @return the builder instance, must not be null
    */
@@ -306,6 +333,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous boolean array with size calculated through expression.
+   *
    * @param sizeExpression expression to be used to calculate array size, must not be null
    * @return the builder instance, must not be null
    */
@@ -315,6 +343,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add named fixed size boolean array.
+   *
    * @param name name of the array, it can be null for anonymous one
    * @param size number of elements in array, if negative then till the end of stream
    * @return the builder instance, must not be null
@@ -325,6 +354,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous fixed size boolean array.
+   *
    * @param size number of elements in array, if negative then till the end of stream
    * @return the builder instance, must not be null
    */
@@ -334,7 +364,8 @@ public class JBBPDslBuilder {
 
   /**
    * Add named boolean array which length calculated through expression.
-   * @param name name of the array, it can be null for anonymous one
+   *
+   * @param name           name of the array, it can be null for anonymous one
    * @param sizeExpression expression to calculate number of elements, must not be null
    * @return the builder instance, must not be null
    */
@@ -347,6 +378,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add an anonymous boolean field.
+   *
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder Bool() {
@@ -355,6 +387,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add named boolean field.
+   *
    * @param name name of the field, can be null for anonymous one
    * @return the builder instance, must not be null
    */
@@ -366,6 +399,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous signed byte field.
+   *
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder Byte() {
@@ -374,6 +408,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add named signed byte field.
+   *
    * @param name name of the field, can be null for anonymous one
    * @return the builder instance, must not be null
    */
@@ -385,6 +420,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous byte array which size calculated through expression.
+   *
    * @param sizeExpression expression to be used to calculate array length, must not be null or empty.
    * @return the builder instance, must not be null
    */
@@ -394,6 +430,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous fixed size byte array.
+   *
    * @param size size of the array, if negative then read stream till the end.
    * @return the builder instance, must not be null
    */
@@ -403,6 +440,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add named fixed size byte array.
+   *
    * @param name name of the array, it can be null fo anonymous fields
    * @param size size of the array, if negative then read stream till the end.
    * @return the builder instance, must not be null
@@ -413,7 +451,8 @@ public class JBBPDslBuilder {
 
   /**
    * Add named byte array which size calculated through expression.
-   * @param name name of the array, it can be null for anonymous fields
+   *
+   * @param name           name of the array, it can be null for anonymous fields
    * @param sizeExpression expression to be used to calculate array length, must not be null or empty.
    * @return the builder instance, must not be null
    */
@@ -426,6 +465,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous unsigned byte field.
+   *
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder UByte() {
@@ -434,6 +474,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add named unsigned byte field.
+   *
    * @param name name of the field, can be null for anonymous one
    * @return the builder instance, must not be null
    */
@@ -445,6 +486,7 @@ public class JBBPDslBuilder {
 
   /**
    * Added anonymous unsigned byte array which size calculated through expression.
+   *
    * @param sizeExpression expression to be used to calculate size, must not be null or empty
    * @return the builder instance, must not be null
    */
@@ -454,6 +496,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous fixed size unsigned byte array.
+   *
    * @param size size of the array, if negative then read stream till the end.
    * @return the builder instance, must not be null
    */
@@ -463,6 +506,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add named fixed size unsigned byte array.
+   *
    * @param name name of the field, it can be null for anonymous one
    * @param size size of the array, if negative then read stream till the end.
    * @return the builder instance, must not be null
@@ -473,7 +517,8 @@ public class JBBPDslBuilder {
 
   /**
    * Add named unsigned byte array which size calculated through expression.
-   * @param name name of the field, it can be null for anonymous one
+   *
+   * @param name           name of the field, it can be null for anonymous one
    * @param sizeExpression expression to calculate array size, must ot be null or empty.
    * @return the builder instance, must not be null
    */
@@ -486,6 +531,7 @@ public class JBBPDslBuilder {
 
   /**
    * Added anonymous signed short field.
+   *
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder Short() {
@@ -494,6 +540,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add named signed short field.
+   *
    * @param name name of the field, can be null for anonymous one
    * @return the builder instance, must not be null
    */
@@ -505,6 +552,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous signed short array which size calculated through expression.
+   *
    * @param sizeExpression expression to be used for calculation, must not be null
    * @return the builder instance, must not be null
    */
@@ -514,6 +562,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous fixed size signed short array.
+   *
    * @param size size of the array, if negative then stream will be read till end
    * @return the builder instance, must not be null
    */
@@ -523,6 +572,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add named fixed size signed short array.
+   *
    * @param name name of the field, if null then anonymous
    * @param size size of the array, if negative then stream will be read till end
    * @return the builder instance, must not be null
@@ -533,7 +583,8 @@ public class JBBPDslBuilder {
 
   /**
    * Add named fixed signed short array which size calculated through expression.
-   * @param name name of the field, if null then anonymous
+   *
+   * @param name           name of the field, if null then anonymous
    * @param sizeExpression expression to be used to calculate size, must not be null
    * @return the builder instance, must not be null
    */
@@ -546,6 +597,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous unsigned short field.
+   *
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder UShort() {
@@ -554,6 +606,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add named unsigned short field.
+   *
    * @param name name of the field, can be null for anonymous
    * @return the builder instance, must not be null
    */
@@ -565,6 +618,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous unsigned short array which size calculated through expression.
+   *
    * @param sizeExpression expression to be used for calculation, must not be null
    * @return the builder instance, must not be null
    */
@@ -574,7 +628,8 @@ public class JBBPDslBuilder {
 
   /**
    * Add named fixed unsigned short array which size calculated through expression.
-   * @param name name of the field, if null then anonymous
+   *
+   * @param name           name of the field, if null then anonymous
    * @param sizeExpression expression to be used to calculate size, must not be null
    * @return the builder instance, must not be null
    */
@@ -587,6 +642,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add named fixed size unsigned short array.
+   *
    * @param name name of the field, if null then anonymous
    * @param size size of the array, if negative then stream will be read till end
    * @return the builder instance, must not be null
@@ -597,6 +653,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous integer field.
+   *
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder Int() {
@@ -605,6 +662,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add named integer field.
+   *
    * @param name name of the field, can be null for anonymous
    * @return the builder instance, must not be null
    */
@@ -616,6 +674,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous integer array with size calculated through expression.
+   *
    * @param sizeExpression expression to be used to calculate size, must not be null
    * @return the builder instance, must not be null
    */
@@ -625,6 +684,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous fixed size integer array.
+   *
    * @param size size of the array, if negative then read stream till the end
    * @return the builder instance, must not be null
    */
@@ -634,6 +694,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add named fixed size integer array.
+   *
    * @param name name of field, it can be null for anonymous
    * @param size size of the array, if negative then read stream till the end
    * @return the builder instance, must not be null
@@ -644,7 +705,8 @@ public class JBBPDslBuilder {
 
   /**
    * Add named integer array with size calculated through expression.
-   * @param name name of field, can be nul for anonymous
+   *
+   * @param name           name of field, can be nul for anonymous
    * @param sizeExpression expression to be used to calculate size, must not be null
    * @return the builder instance, must not be null
    */
@@ -657,6 +719,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous long field.
+   *
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder Long() {
@@ -665,6 +728,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add named long field.
+   *
    * @param name name of the field, can be null for anonymous
    * @return the builder instance, must not be null
    */
@@ -676,6 +740,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous long array which size calculated through expression.
+   *
    * @param sizeExpression expression to be used to calculate size, must not be null
    * @return the builder instance, must not be null
    */
@@ -685,6 +750,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous fixed size long array.
+   *
    * @param size size of array, if negative then read till stream end
    * @return the builder instance, must not be null
    */
@@ -694,6 +760,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add named fixed size long array field.
+   *
    * @param name name of field, can be null for anonymous
    * @param size size of array, if negative then read till stream end
    * @return the builder instance, must not be null
@@ -704,7 +771,8 @@ public class JBBPDslBuilder {
 
   /**
    * Add named long array which size calculated through expression.
-   * @param name name of the field, can be null for anonymous
+   *
+   * @param name           name of the field, can be null for anonymous
    * @param sizeExpression expression to be used to calculate size, must not be null
    * @return the builder instance, must not be null
    */
@@ -717,6 +785,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous float field.
+   *
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder Float() {
@@ -725,6 +794,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add named float field
+   *
    * @param name name of the field, can be null for anonymous
    * @return the builder instance, must not be null
    */
@@ -736,6 +806,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous float array which size calculated through expression.
+   *
    * @param sizeExpression expression to be used to calculate size, must not be null
    * @return the builder instance, must not be null
    */
@@ -745,6 +816,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous fixed size float array.
+   *
    * @param size size of array, if negative then read till stream end
    * @return the builder instance, must not be null
    */
@@ -754,6 +826,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add named fixed size float array.
+   *
    * @param name name of field, null for anonymous
    * @param size size of array, read till stream end if negative
    * @return the builder instance, must not be null
@@ -764,7 +837,8 @@ public class JBBPDslBuilder {
 
   /**
    * Add named float array which size calculated through expression.
-   * @param name name of the field, can be null for anonymous
+   *
+   * @param name           name of the field, can be null for anonymous
    * @param sizeExpression expression to be used to calculate size, must not be null
    * @return the builder instance, must not be null
    */
@@ -777,6 +851,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous double field.
+   *
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder Double() {
@@ -785,6 +860,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add named double field.
+   *
    * @param name name of the field, can be null for anonymous
    * @return the builder instance, must not be null
    */
@@ -796,6 +872,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add comment.
+   *
    * @param text text of comment, can be null
    * @return the builder instance, must not be null
    */
@@ -806,6 +883,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous double array field which size calculated trough expression.
+   *
    * @param sizeExpression expression to be used to calculate array size, must not be null
    * @return the builder instance, must not be null
    */
@@ -815,6 +893,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous fixed size double array field.
+   *
    * @param size size of the array, if negative then read till end of stream
    * @return the builder instance, must not be null
    */
@@ -824,6 +903,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add named fixed size double array field.
+   *
    * @param name ame of the field, can be null for anonymous
    * @param size size of the array, if negative then read till end of stream
    * @return the builder instance, must not be null
@@ -834,7 +914,8 @@ public class JBBPDslBuilder {
 
   /**
    * Add named double array field which size calculated trough expression.
-   * @param name name of the field, can be null for anonymous
+   *
+   * @param name           name of the field, can be null for anonymous
    * @param sizeExpression expression to be used to calculate array size, must not be null
    * @return the builder instance, must not be null
    */
@@ -847,6 +928,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous string field.
+   *
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder String() {
@@ -855,6 +937,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add named string field.
+   *
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder String(final String name) {
@@ -865,6 +948,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous string array which size calculated through expression.
+   *
    * @param sizeExpression expression to calculate size, must not be null
    * @return the builder instance, must not be null
    */
@@ -874,6 +958,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add anonymous fixed size string array.
+   *
    * @param size size of array, if negative then read till stream end
    * @return the builder instance, must not be null
    */
@@ -883,6 +968,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add named fixed size string array.
+   *
    * @param name name of field, can be null for anonymous
    * @param size size of array, if negative then read till stream end
    * @return the builder instance, must not be null
@@ -893,7 +979,8 @@ public class JBBPDslBuilder {
 
   /**
    * Add named string array which size calculated through expression.
-   * @param name name of field, can be null for anonymous
+   *
+   * @param name           name of field, can be null for anonymous
    * @param sizeExpression expression to calculate size, must not be null
    * @return the builder instance, must not be null
    */
@@ -906,6 +993,7 @@ public class JBBPDslBuilder {
 
   /**
    * Set byte order for next fields
+   *
    * @param order order, if null then BIG_ENDIAN
    * @return the builder instance, must not be null
    */
@@ -914,7 +1002,21 @@ public class JBBPDslBuilder {
     return this;
   }
 
+  /**
+   * Build non-formatted script.
+   *
+   * @return script in non-formatted form, must not be null
+   */
   public String build() {
+    return this.build(false);
+  }
+
+  /**
+   * Build a formatted script.
+   *
+   * @return script in formatted form, must not be null
+   */
+  public String build(final boolean format) {
     final StringBuilder buffer = new StringBuilder(128);
 
     int structCounter = 0;
@@ -922,13 +1024,13 @@ public class JBBPDslBuilder {
     for (final Item item : this.items) {
       switch (item.type) {
         case STRUCT: {
+          doTabs(format, buffer, structCounter).append(item.name == null ? "" : item.name).append('{');
           structCounter++;
-          buffer.append(item.name == null ? "" : item.name).append('{');
         }
         break;
         case STRUCT_ARRAY: {
+          doTabs(format, buffer, structCounter).append(item.name == null ? "" : item.name).append('[').append(item.sizeExpression).append(']').append('{');
           structCounter++;
-          buffer.append(item.name == null ? "" : item.name).append('[').append(item.sizeExpression).append(']').append('{');
         }
         break;
         case UNDEFINED: {
@@ -937,32 +1039,33 @@ public class JBBPDslBuilder {
             if (structEnd.endAll) {
               while (structCounter > 0) {
                 structCounter--;
-                buffer.append('}');
+                doTabs(format, buffer, structCounter).append('}');
               }
             } else {
               if (structCounter == 0) {
                 throw new IllegalStateException("Unexpected structure close");
               }
               structCounter--;
-              buffer.append('}');
+              doTabs(format, buffer, structCounter).append('}');
             }
           } else if (item instanceof ItemAlign) {
-            buffer.append("align").append(item.sizeExpression == null ? "" : ':' + item.makeExpressionForExtraField(item.sizeExpression));
-            buffer.append(';');
+            doTabs(format, buffer, structCounter).append("align").append(item.sizeExpression == null ? "" : ':' + item.makeExpressionForExtraField(item.sizeExpression)).append(';');
           } else if (item instanceof ItemSkip) {
-            buffer.append("skip").append(item.sizeExpression == null ? "" : ':' + item.makeExpressionForExtraField(item.sizeExpression));
-            buffer.append(';');
+            doTabs(format, buffer, structCounter).append("skip").append(item.sizeExpression == null ? "" : ':' + item.makeExpressionForExtraField(item.sizeExpression)).append(';');
           } else if (item instanceof ItemComment) {
-            buffer.append("// ").append(item.name.replace("\n", " ")).append('\n');
+            doTabs(format, buffer, structCounter).append("// ").append(item.name.replace("\n", " "));
           } else {
             throw new IllegalArgumentException("Unexpected item : " + item.getClass().getName());
           }
         }
         break;
         default: {
-          buffer.append(item.toString());
+          doTabs(format, buffer, structCounter).append(item.toString());
         }
         break;
+      }
+      if (format || item instanceof ItemComment) {
+        buffer.append('\n');
       }
     }
 
@@ -1016,7 +1119,7 @@ public class JBBPDslBuilder {
       }
 
       if (isArray) {
-        result.append('[').append(this.sizeExpression).append(']').append(' ');
+        result.append('[').append(this.sizeExpression).append(']');
       }
 
       if (this.name != null && !this.name.isEmpty()) {
