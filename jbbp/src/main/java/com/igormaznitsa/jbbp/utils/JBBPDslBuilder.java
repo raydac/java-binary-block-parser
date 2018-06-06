@@ -627,6 +627,16 @@ public class JBBPDslBuilder {
   }
 
   /**
+   * Add anonymous fixed size unsigned short array.
+   *
+   * @param size sizeof the array, if negative then read till the end of stream
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder UShortArray(final int size) {
+    return this.UShortArray(null, arraySizeToString(size));
+  }
+
+  /**
    * Add named fixed unsigned short array which size calculated through expression.
    *
    * @param name           name of the field, if null then anonymous

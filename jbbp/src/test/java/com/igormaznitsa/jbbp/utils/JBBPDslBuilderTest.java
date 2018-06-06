@@ -137,4 +137,94 @@ class JBBPDslBuilderTest {
     assertEquals("bit:3[a+b] some;", Begin().BitArray("some", JBBPBitNumber.BITS_3, "a+b").build());
     assertEquals("bit:3[a+b];", Begin().BitArray(JBBPBitNumber.BITS_3, "a+b").build());
   }
+
+  @Test
+  public void testType_BoolArray() {
+    assertEquals("bool[a+b];", Begin().BoolArray("a+b").build());
+    assertEquals("bool[2334] abc;", Begin().BoolArray("abc",2334).build());
+    assertEquals("bool[_];", Begin().BoolArray(-5).build());
+    assertEquals("bool[_] abc;", Begin().BoolArray("abc",-5).build());
+    assertEquals("bool[a+b] abc;", Begin().BoolArray("abc","a+b").build());
+  }
+
+  @Test
+  public void testType_ByteArray() {
+    assertEquals("byte[a+b];", Begin().ByteArray("a+b").build());
+    assertEquals("byte[2334] abc;", Begin().ByteArray("abc",2334).build());
+    assertEquals("byte[_];", Begin().ByteArray(-5).build());
+    assertEquals("byte[_] abc;", Begin().ByteArray("abc",-5).build());
+    assertEquals("byte[a+b] abc;", Begin().ByteArray("abc","a+b").build());
+  }
+
+  @Test
+  public void testType_UByteArray() {
+    assertEquals("ubyte[a+b];", Begin().UByteArray("a+b").build());
+    assertEquals("ubyte[2334] abc;", Begin().UByteArray("abc",2334).build());
+    assertEquals("ubyte[_];", Begin().UByteArray(-5).build());
+    assertEquals("ubyte[_] abc;", Begin().UByteArray("abc",-5).build());
+    assertEquals("ubyte[a+b] abc;", Begin().UByteArray("abc","a+b").build());
+  }
+
+  @Test
+  public void testType_ShortArray() {
+    assertEquals("short[a+b];", Begin().ShortArray("a+b").build());
+    assertEquals("short[2334] abc;", Begin().ShortArray("abc",2334).build());
+    assertEquals("short[_];", Begin().ShortArray(-5).build());
+    assertEquals("short[_] abc;", Begin().ShortArray("abc",-5).build());
+    assertEquals("short[a+b] abc;", Begin().ShortArray("abc","a+b").build());
+  }
+
+  @Test
+  public void testType_UShortArray() {
+    assertEquals("ushort[a+b];", Begin().UShortArray("a+b").build());
+    assertEquals("ushort[2334] abc;", Begin().UShortArray("abc",2334).build());
+    assertEquals("ushort[_];", Begin().UShortArray(-5).build());
+    assertEquals("ushort[_] abc;", Begin().UShortArray("abc",-5).build());
+    assertEquals("ushort[a+b] abc;", Begin().UShortArray("abc","a+b").build());
+  }
+
+  @Test
+  public void testType_IntArray() {
+    assertEquals("int[a+b];", Begin().IntArray("a+b").build());
+    assertEquals("int[2334] abc;", Begin().IntArray("abc",2334).build());
+    assertEquals("int[_];", Begin().IntArray(-5).build());
+    assertEquals("int[_] abc;", Begin().IntArray("abc",-5).build());
+    assertEquals("int[a+b] abc;", Begin().IntArray("abc","a+b").build());
+  }
+
+  @Test
+  public void testType_LongArray() {
+    assertEquals("long[a+b];", Begin().LongArray("a+b").build());
+    assertEquals("long[2334] abc;", Begin().LongArray("abc",2334).build());
+    assertEquals("long[_];", Begin().LongArray(-5).build());
+    assertEquals("long[_] abc;", Begin().LongArray("abc",-5).build());
+    assertEquals("long[a+b] abc;", Begin().LongArray("abc","a+b").build());
+  }
+
+  @Test
+  public void testType_FloatArray() {
+    assertEquals("floatj[a+b];", Begin().FloatArray("a+b").build());
+    assertEquals("floatj[2334] abc;", Begin().FloatArray("abc",2334).build());
+    assertEquals("floatj[_];", Begin().FloatArray(-5).build());
+    assertEquals("floatj[_] abc;", Begin().FloatArray("abc",-5).build());
+    assertEquals("floatj[a+b] abc;", Begin().FloatArray("abc","a+b").build());
+  }
+
+  @Test
+  public void testType_DoubleArray() {
+    assertEquals("doublej[a+b];", Begin().DoubleArray("a+b").build());
+    assertEquals("doublej[2334] abc;", Begin().DoubleArray("abc",2334).build());
+    assertEquals("doublej[_];", Begin().DoubleArray(-5).build());
+    assertEquals("doublej[_] abc;", Begin().DoubleArray("abc",-5).build());
+    assertEquals("doublej[a+b] abc;", Begin().DoubleArray("abc","a+b").build());
+  }
+
+  @Test
+  public void testType_StringArray() {
+    assertEquals("stringj[a+b];", Begin().StringArray("a+b").build());
+    assertEquals("stringj[2334] abc;", Begin().StringArray("abc",2334).build());
+    assertEquals("stringj[_];", Begin().StringArray(-5).build());
+    assertEquals("stringj[_] abc;", Begin().StringArray("abc",-5).build());
+    assertEquals("stringj[a+b] abc;", Begin().StringArray("abc","a+b").build());
+  }
 }
