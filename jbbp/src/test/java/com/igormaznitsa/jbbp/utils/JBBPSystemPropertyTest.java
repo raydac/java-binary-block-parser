@@ -16,6 +16,7 @@
 
 package com.igormaznitsa.jbbp.utils;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -25,9 +26,10 @@ import static org.junit.jupiter.api.Assertions.*;
 public class JBBPSystemPropertyTest {
 
   @BeforeEach
+  @AfterEach
   public void beforeEach() {
     for (final JBBPSystemProperty p : JBBPSystemProperty.values()) {
-      System.clearProperty(p.getPropertyName());
+      p.remove();
     }
   }
 
@@ -47,6 +49,7 @@ public class JBBPSystemPropertyTest {
 
   @Test
   public void testGetAsString_Default() {
+    JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.remove();
     assertEquals("12345", JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getAsString("12345"));
   }
 
@@ -58,6 +61,7 @@ public class JBBPSystemPropertyTest {
 
   @Test
   public void testGetAsInteger_Default() {
+    JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.remove();
     assertEquals(12345, JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getAsInteger(12345));
   }
 
@@ -72,6 +76,7 @@ public class JBBPSystemPropertyTest {
     assertThrows(Error.class, new Executable() {
       @Override
       public void execute() throws Throwable {
+        JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.remove();
         System.setProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName(), "abcd");
         JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getAsInteger(12345);
       }
