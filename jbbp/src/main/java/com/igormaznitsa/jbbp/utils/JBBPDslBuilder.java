@@ -1132,7 +1132,7 @@ public class JBBPDslBuilder {
         result.append('[').append(this.sizeExpression).append(']');
       }
 
-      if (this.name != null && !this.name.isEmpty()) {
+      if (this.name != null && this.name.length() != 0) {
         result.append(' ').append(this.name);
       }
 
