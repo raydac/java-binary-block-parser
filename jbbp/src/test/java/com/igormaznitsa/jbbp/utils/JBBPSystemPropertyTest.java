@@ -49,7 +49,6 @@ public class JBBPSystemPropertyTest {
 
   @Test
   public void testGetAsString_Default() {
-    JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.remove();
     assertEquals("12345", JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getAsString("12345"));
   }
 
@@ -61,7 +60,6 @@ public class JBBPSystemPropertyTest {
 
   @Test
   public void testGetAsInteger_Default() {
-    JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.remove();
     assertEquals(12345, JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getAsInteger(12345));
   }
 
