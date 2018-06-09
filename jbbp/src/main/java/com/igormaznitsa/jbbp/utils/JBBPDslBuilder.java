@@ -10,7 +10,7 @@ import java.util.Locale;
 
 /**
  * Auxiliary builder to build string JBBP script through sequent method call.
- * <b>NB! The Builder generaes JBBP string script which can be compiled by parser!</b>
+ * <b>NB! The Builder generates JBBP string script which can be compiled by parser!</b>
  *
  * @see com.igormaznitsa.jbbp.JBBPParser
  * @since 1.4.0
@@ -28,6 +28,11 @@ public class JBBPDslBuilder {
   protected JBBPByteOrder byteOrder = JBBPByteOrder.BIG_ENDIAN;
 
   /**
+   * Value contains number of currently opened structures.
+   */
+  protected int openedStructCounter;
+
+  /**
    * Constructor is private one because can't be called directly.
    */
   protected JBBPDslBuilder() {
@@ -42,11 +47,29 @@ public class JBBPDslBuilder {
     return new JBBPDslBuilder();
   }
 
-  protected static String assertStringNotNull(final String str) {
-    if (str == null) {
-      throw new NullPointerException("String is null");
+  protected static String assertExpressionChars(final String expression) {
+    if (expression == null) {
+      throw new NullPointerException("Expression is null");
     }
-    return str;
+
+    if (expression.trim().length() == 0) {
+      throw new IllegalArgumentException("Expression is empty");
+    }
+
+    for (final char c : expression.toCharArray()) {
+      switch (c) {
+        case ':':
+        case ';':
+        case '{':
+        case '}':
+        case '[':
+        case ']':
+          throw new IllegalArgumentException("Char is not allowed: " + c);
+      }
+    }
+
+
+    return expression;
   }
 
   protected static int assertNotNegativeAndZero(final int value) {
@@ -107,7 +130,7 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder Align(final String sizeExpression) {
-    this.items.add(new ItemAlign(assertStringNotNull(sizeExpression)));
+    this.items.add(new ItemAlign(assertExpressionChars(sizeExpression)));
     return this;
   }
 
@@ -139,7 +162,7 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder Skip(final String sizeExpression) {
-    this.items.add(new ItemSkip(assertStringNotNull(sizeExpression)));
+    this.items.add(new ItemSkip(assertExpressionChars(sizeExpression)));
     return this;
   }
 
@@ -161,6 +184,7 @@ public class JBBPDslBuilder {
   public JBBPDslBuilder Struct(final String name) {
     final Item item = new Item(BinType.STRUCT, name, this.byteOrder);
     this.items.add(item);
+    this.openedStructCounter++;
     return this;
   }
 
@@ -171,7 +195,7 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder StructArray(final String sizeExpression) {
-    return this.StructArray(null, assertStringNotNull(sizeExpression));
+    return this.StructArray(null, assertExpressionChars(sizeExpression));
   }
 
   /**
@@ -204,29 +228,45 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder StructArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.STRUCT_ARRAY, name, this.byteOrder);
-    item.sizeExpression = assertStringNotNull(sizeExpression);
+    item.sizeExpression = assertExpressionChars(sizeExpression);
     this.items.add(item);
+    this.openedStructCounter++;
     return this;
   }
 
   /**
-   * Add directive to end currently opened structure or a structure array.
+   * Add directive to close currently opened structure or a structure array.
    *
    * @return the builder instance, must not be null
+   * @throws IllegalStateException if there is not any opened struct
    */
-  public JBBPDslBuilder EndStruct() {
-    this.items.add(new ItemStructEnd(false));
+  public JBBPDslBuilder CloseStruct() {
+    return this.CloseStruct(false);
+  }
+
+  /**
+   * Add directive to close currently opened structure or all opened structures.
+   *
+   * @param closeAllOpened flag to close all opened structures if true, false if close only last opened structure
+   * @return the builder instance, must not be null
+   * @throws IllegalStateException if there is not any opened struct
+   */
+  public JBBPDslBuilder CloseStruct(final boolean closeAllOpened) {
+    if (this.openedStructCounter == 0) {
+      throw new IllegalStateException("There is not any opened struct");
+    }
+    this.items.add(new ItemStructEnd(closeAllOpened));
+    this.openedStructCounter = closeAllOpened ? 0 : this.openedStructCounter - 1;
     return this;
   }
 
   /**
-   * Add directive to end all currently opened structures or structure arrays if they presented.
+   * Allows to check that there is an opened structure.
    *
-   * @return the builder instance, must not be null
+   * @return true if there is any opened structure, false otherwise.
    */
-  public JBBPDslBuilder EndAllStructs() {
-    this.items.add(new ItemStructEnd(true));
-    return this;
+  public boolean hasOpenedStructs() {
+    return this.openedStructCounter > 0;
   }
 
   /**
@@ -240,6 +280,7 @@ public class JBBPDslBuilder {
 
   /**
    * Add named single bit field.
+   *
    * @param name name of the field, can be null for anonymous one
    * @return the builder instance, must not be null
    */
@@ -282,6 +323,20 @@ public class JBBPDslBuilder {
   }
 
   /**
+   * Add named bit field which length calculated by expression.
+   *
+   * @param name             name of the field, if null then anonymous one
+   * @param bitLenExpression expression to calculate number of bits, must not be null
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder Bits(final String name, final String bitLenExpression) {
+    final Item item = new Item(BinType.BIT, name, this.byteOrder);
+    item.bitLenExpression = assertExpressionChars(bitLenExpression);
+    this.items.add(item);
+    return this;
+  }
+
+  /**
    * Add anonymous fixed length bit array.
    *
    * @param bits length of the field, must not be null
@@ -305,6 +360,18 @@ public class JBBPDslBuilder {
   }
 
   /**
+   * Add named fixed length bit array, size of one bit field is calculated by expression.
+   *
+   * @param name             name of the array, if null then anonymous one
+   * @param bitLenExpression expression to calculate length of the bit field, must not be null
+   * @param size             number of elements in array, if negative then till the end of stream
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder BitArray(final String name, final String bitLenExpression, final int size) {
+    return this.BitArray(name, bitLenExpression, arraySizeToString(size));
+  }
+
+  /**
    * Add anonymous bit array with size calculated through expression.
    *
    * @param bits           length of the field, must not be null
@@ -312,7 +379,18 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder BitArray(final JBBPBitNumber bits, final String sizeExpression) {
-    return this.BitArray(null, bits, assertStringNotNull(sizeExpression));
+    return this.BitArray(null, bits, assertExpressionChars(sizeExpression));
+  }
+
+  /**
+   * Add anonymous bit array with size calculated through expression.
+   *
+   * @param bitLenExpression expression to calculate length of the bit field, must not be null
+   * @param sizeExpression   expression to be used to calculate array size, must not be null
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder BitArray(final String bitLenExpression, final String sizeExpression) {
+    return this.BitArray(null, bitLenExpression, assertExpressionChars(sizeExpression));
   }
 
   /**
@@ -326,7 +404,23 @@ public class JBBPDslBuilder {
   public JBBPDslBuilder BitArray(final String name, final JBBPBitNumber bits, final String sizeExpression) {
     final Item item = new Item(BinType.BIT_ARRAY, name, this.byteOrder);
     item.bitNumber = bits;
-    item.sizeExpression = assertStringNotNull(sizeExpression);
+    item.sizeExpression = assertExpressionChars(sizeExpression);
+    this.items.add(item);
+    return this;
+  }
+
+  /**
+   * Add named bit array where each bit length is calculated through expression.
+   *
+   * @param name             name of the array, if null then anonymous one
+   * @param bitLenExpression expression to calculate length of the bit field, must not be null
+   * @param sizeExpression   expression to be used to calculate array size, must not be null
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder BitArray(final String name, final String bitLenExpression, final String sizeExpression) {
+    final Item item = new Item(BinType.BIT_ARRAY, name, this.byteOrder);
+    item.bitLenExpression = assertExpressionChars(bitLenExpression);
+    item.sizeExpression = assertExpressionChars(sizeExpression);
     this.items.add(item);
     return this;
   }
@@ -338,7 +432,7 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder BoolArray(final String sizeExpression) {
-    return this.BoolArray(null, assertStringNotNull(sizeExpression));
+    return this.BoolArray(null, assertExpressionChars(sizeExpression));
   }
 
   /**
@@ -371,7 +465,7 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder BoolArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.BOOL_ARRAY, name, this.byteOrder);
-    item.sizeExpression = assertStringNotNull(sizeExpression);
+    item.sizeExpression = assertExpressionChars(sizeExpression);
     this.items.add(item);
     return this;
   }
@@ -425,7 +519,7 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder ByteArray(final String sizeExpression) {
-    return this.ByteArray(null, assertStringNotNull(sizeExpression));
+    return this.ByteArray(null, assertExpressionChars(sizeExpression));
   }
 
   /**
@@ -458,7 +552,7 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder ByteArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.BYTE_ARRAY, name, this.byteOrder);
-    item.sizeExpression = assertStringNotNull(sizeExpression);
+    item.sizeExpression = assertExpressionChars(sizeExpression);
     this.items.add(item);
     return this;
   }
@@ -491,7 +585,7 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder UByteArray(final String sizeExpression) {
-    return this.UByteArray(null, assertStringNotNull(sizeExpression));
+    return this.UByteArray(null, assertExpressionChars(sizeExpression));
   }
 
   /**
@@ -524,7 +618,7 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder UByteArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.UBYTE_ARRAY, name, this.byteOrder);
-    item.sizeExpression = assertStringNotNull(sizeExpression);
+    item.sizeExpression = assertExpressionChars(sizeExpression);
     this.items.add(item);
     return this;
   }
@@ -557,7 +651,7 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder ShortArray(final String sizeExpression) {
-    return this.ShortArray(null, assertStringNotNull(sizeExpression));
+    return this.ShortArray(null, assertExpressionChars(sizeExpression));
   }
 
   /**
@@ -590,7 +684,7 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder ShortArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.SHORT_ARRAY, name, this.byteOrder);
-    item.sizeExpression = assertStringNotNull(sizeExpression);
+    item.sizeExpression = assertExpressionChars(sizeExpression);
     this.items.add(item);
     return this;
   }
@@ -623,7 +717,7 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder UShortArray(final String sizeExpression) {
-    return this.UShortArray(null, assertStringNotNull(sizeExpression));
+    return this.UShortArray(null, assertExpressionChars(sizeExpression));
   }
 
   /**
@@ -645,7 +739,7 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder UShortArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.USHORT_ARRAY, name, this.byteOrder);
-    item.sizeExpression = assertStringNotNull(sizeExpression);
+    item.sizeExpression = assertExpressionChars(sizeExpression);
     this.items.add(item);
     return this;
   }
@@ -689,7 +783,7 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder IntArray(final String sizeExpression) {
-    return this.IntArray(null, assertStringNotNull(sizeExpression));
+    return this.IntArray(null, assertExpressionChars(sizeExpression));
   }
 
   /**
@@ -722,7 +816,7 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder IntArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.INT_ARRAY, name, this.byteOrder);
-    item.sizeExpression = assertStringNotNull(sizeExpression);
+    item.sizeExpression = assertExpressionChars(sizeExpression);
     this.items.add(item);
     return this;
   }
@@ -755,7 +849,7 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder LongArray(final String sizeExpression) {
-    return this.LongArray(null, assertStringNotNull(sizeExpression));
+    return this.LongArray(null, assertExpressionChars(sizeExpression));
   }
 
   /**
@@ -788,7 +882,7 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder LongArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.LONG_ARRAY, name, this.byteOrder);
-    item.sizeExpression = assertStringNotNull(sizeExpression);
+    item.sizeExpression = assertExpressionChars(sizeExpression);
     this.items.add(item);
     return this;
   }
@@ -821,7 +915,7 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder FloatArray(final String sizeExpression) {
-    return this.FloatArray(null, assertStringNotNull(sizeExpression));
+    return this.FloatArray(null, assertExpressionChars(sizeExpression));
   }
 
   /**
@@ -854,7 +948,7 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder FloatArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.FLOAT_ARRAY, name, this.byteOrder);
-    item.sizeExpression = assertStringNotNull(sizeExpression);
+    item.sizeExpression = assertExpressionChars(sizeExpression);
     this.items.add(item);
     return this;
   }
@@ -898,7 +992,7 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder DoubleArray(final String sizeExpression) {
-    return this.DoubleArray(null, assertStringNotNull(sizeExpression));
+    return this.DoubleArray(null, assertExpressionChars(sizeExpression));
   }
 
   /**
@@ -931,7 +1025,7 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder DoubleArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.DOUBLE_ARRAY, name, this.byteOrder);
-    item.sizeExpression = assertStringNotNull(sizeExpression);
+    item.sizeExpression = assertExpressionChars(sizeExpression);
     this.items.add(item);
     return this;
   }
@@ -963,7 +1057,7 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder StringArray(final String sizeExpression) {
-    return this.StringArray(null, assertStringNotNull(sizeExpression));
+    return this.StringArray(null, assertExpressionChars(sizeExpression));
   }
 
   /**
@@ -996,7 +1090,7 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder StringArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.STRING_ARRAY, name, this.byteOrder);
-    item.sizeExpression = assertStringNotNull(sizeExpression);
+    item.sizeExpression = assertExpressionChars(sizeExpression);
     this.items.add(item);
     return this;
   }
@@ -1016,17 +1110,24 @@ public class JBBPDslBuilder {
    * Build non-formatted script.
    *
    * @return script in non-formatted form, must not be null
+   * @throws IllegalStateException if there is an unclosed struct
    */
-  public String build() {
-    return this.build(false);
+  public String End() {
+    return this.End(false);
   }
 
   /**
    * Build a formatted script.
    *
+   * @param format if true then make some formatting of result, false if unformatted version allowed
    * @return script in formatted form, must not be null
+   * @throws IllegalStateException if there is an unclosed struct
    */
-  public String build(final boolean format) {
+  public String End(final boolean format) {
+    if (this.openedStructCounter != 0) {
+      throw new IllegalStateException("Detected unclosed structs: " + this.openedStructCounter);
+    }
+
     final StringBuilder buffer = new StringBuilder(128);
 
     int structCounter = 0;
@@ -1050,11 +1151,11 @@ public class JBBPDslBuilder {
               while (structCounter > 0) {
                 structCounter--;
                 doTabs(format, buffer, structCounter).append('}');
+                if (structCounter > 0 && format) {
+                  buffer.append('\n');
+                }
               }
             } else {
-              if (structCounter == 0) {
-                throw new IllegalStateException("Unexpected structure close");
-              }
               structCounter--;
               doTabs(format, buffer, structCounter).append('}');
             }
@@ -1079,10 +1180,6 @@ public class JBBPDslBuilder {
       }
     }
 
-    if (structCounter != 0) {
-      throw new IllegalStateException("Detected unclosed structures : " + structCounter);
-    }
-
     return buffer.toString();
   }
 
@@ -1092,6 +1189,7 @@ public class JBBPDslBuilder {
     final JBBPByteOrder byteOrder;
     String sizeExpression;
     JBBPBitNumber bitNumber;
+    String bitLenExpression;
 
     Item(final BinType type, final String name, final JBBPByteOrder byteOrder) {
       this.type = type;
@@ -1121,10 +1219,15 @@ public class JBBPDslBuilder {
       result.append(type);
 
       if (this.type == BinType.BIT || this.type == BinType.BIT_ARRAY) {
-        if (this.bitNumber != null) {
-          result.append(':').append(this.bitNumber.getBitNumber());
-        } else if (this.sizeExpression != null) {
-          result.append(':').append(makeExpressionForExtraField(this.sizeExpression));
+        result.append(':');
+        if (bitLenExpression == null) {
+          if (this.bitNumber == null) {
+            result.append('1');
+          } else {
+            result.append(this.bitNumber.getBitNumber());
+          }
+        } else {
+          result.append(makeExpressionForExtraField(this.bitLenExpression));
         }
       }
 

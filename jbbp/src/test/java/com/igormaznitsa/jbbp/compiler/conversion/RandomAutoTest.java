@@ -112,7 +112,7 @@ public class RandomAutoTest extends AbstractJBBPToJava6ConverterTest {
       if (activeStructCounter > 0 && RND.nextInt(100) > 90) {
         i--;
         activeStructCounter--;
-        builder.EndStruct();
+        builder.CloseStruct();
         final StructLen len = counterStack.remove(0);
         counterStack.get(0).add(len.make());
       } else {
@@ -288,7 +288,7 @@ public class RandomAutoTest extends AbstractJBBPToJava6ConverterTest {
             if (activeStructCounter > 0) {
               i--;
               activeStructCounter--;
-              builder.EndStruct();
+              builder.CloseStruct();
               final StructLen len = counterStack.remove(0);
               counterStack.get(0).add(len.make());
             }
@@ -300,12 +300,12 @@ public class RandomAutoTest extends AbstractJBBPToJava6ConverterTest {
 
     while (activeStructCounter > 0) {
       activeStructCounter--;
-      builder.EndStruct();
+      builder.CloseStruct();
       final StructLen len = counterStack.remove(0);
       counterStack.get(0).add(len.make());
     }
 
-    return new Result(builder.build(), counterStack.get(0).make(), fieldsTotal, structsTotal, booleanDataItems);
+    return new Result(builder.End(), counterStack.get(0).make(), fieldsTotal, structsTotal, booleanDataItems);
   }
 
   private byte[] makeRandomDataArray(final int bitLength) {
