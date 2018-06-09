@@ -879,6 +879,7 @@ public class JBBPParserTest {
   @Test
   public void testParse_BitFields_SizeProvidedThroughExpression() throws Exception {
     assertEquals(4, JBBPParser.prepare("ubyte a; ubyte b; bit:(a+b) c;").parse(new byte[]{1,2,(byte)0xB4}).findFieldForType(JBBPFieldBit.class).getAsInt());
+    assertEquals(20, JBBPParser.prepare("ubyte a; ubyte b; bit:(a+b) c;").parse(new byte[]{3,2,(byte)0xB4}).findFieldForType(JBBPFieldBit.class).getAsInt());
   }
 
   @Test
@@ -887,6 +888,12 @@ public class JBBPParserTest {
       @Override
       public void execute() throws Throwable {
         JBBPParser.prepare("ubyte a; ubyte b; bit:(a+b) c;").parse(new byte[]{11,2,(byte)0xB4});
+      }
+    });
+    assertThrows(IllegalArgumentException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        JBBPParser.prepare("ubyte a; ubyte b; bit:(a-b) c;").parse(new byte[]{2,2,(byte)0xB4});
       }
     });
   }
