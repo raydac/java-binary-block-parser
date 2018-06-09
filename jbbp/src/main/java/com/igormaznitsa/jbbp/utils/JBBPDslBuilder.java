@@ -56,8 +56,13 @@ public class JBBPDslBuilder {
       throw new IllegalArgumentException("Expression is empty");
     }
 
+    if (expression.contains("//")) {
+      throw new IllegalArgumentException("Comment is not allowed");
+    }
+
     for (final char c : expression.toCharArray()) {
       switch (c) {
+        case '\"':
         case ':':
         case ';':
         case '{':
