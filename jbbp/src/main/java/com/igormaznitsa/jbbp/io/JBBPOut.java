@@ -1036,55 +1036,79 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
 
   @Override
   protected void onFieldFloat(final Object obj, final Field field, final Bin annotation, final float value) {
+    final JBBPByteOrder old = this.byteOrder;
     try {
+      this.byteOrder = annotation.outByteOrder();
       this.Float(value);
     } catch (IOException ex) {
       throw new JBBPIOException("Can't write float value", ex);
+    } finally {
+      this.byteOrder = old;
     }
   }
 
   @Override
   protected void onFieldString(final Object obj, final Field field, final Bin annotation, final String value) {
+    final JBBPByteOrder old = this.byteOrder;
     try {
+      this.byteOrder = annotation.outByteOrder();
       this.String(value);
     } catch (IOException ex) {
       throw new JBBPIOException("Can't write string value", ex);
+    } finally {
+      this.byteOrder = old;
     }
   }
 
   @Override
   protected void onFieldDouble(final Object obj, final Field field, final Bin annotation, final double value) {
+    final JBBPByteOrder old = this.byteOrder;
     try {
+      this.byteOrder = annotation.outByteOrder();
       this.Double(value);
     } catch (IOException ex) {
       throw new JBBPIOException("Can't write double value", ex);
+    } finally {
+      this.byteOrder = old;
     }
   }
 
   @Override
   protected void onFieldLong(final Object obj, final Field field, final Bin annotation, final long value) {
+    final JBBPByteOrder old = this.byteOrder;
     try {
+      this.byteOrder = annotation.outByteOrder();
       this.Long(value);
     } catch (IOException ex) {
       throw new JBBPIOException("Can't write long value", ex);
+    } finally {
+      this.byteOrder = old;
     }
   }
 
   @Override
   protected void onFieldInt(final Object obj, final Field field, final Bin annotation, final int value) {
+    final JBBPByteOrder old = this.byteOrder;
     try {
+      this.byteOrder = annotation.outByteOrder();
       this.Int(value);
     } catch (IOException ex) {
       throw new JBBPIOException("Can't write int value", ex);
+    } finally {
+      this.byteOrder = old;
     }
   }
 
   @Override
   protected void onFieldShort(final Object obj, final Field field, final Bin annotation, final boolean signed, final int value) {
+    final JBBPByteOrder old = this.byteOrder;
     try {
+      this.byteOrder = annotation.outByteOrder();
       this.Short(value);
     } catch (IOException ex) {
       throw new JBBPIOException("Can't write short value", ex);
+    } finally {
+      this.byteOrder = old;
     }
   }
 
