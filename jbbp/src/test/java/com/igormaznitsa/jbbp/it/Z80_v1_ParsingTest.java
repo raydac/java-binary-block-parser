@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 
+import static com.igormaznitsa.jbbp.io.JBBPByteOrder.LITTLE_ENDIAN;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -76,7 +77,7 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
     }
 
     // form the same from parsed
-    final JBBPOut out = JBBPOut.BeginBin(JBBPByteOrder.LITTLE_ENDIAN, JBBPBitOrder.LSB0);
+    final JBBPOut out = JBBPOut.BeginBin(LITTLE_ENDIAN, JBBPBitOrder.LSB0);
     assertEquals(0, out.getByteCounter());
     final byte[] packed = out.
         Byte(z80sn.reg_a, z80sn.reg_f).
@@ -114,7 +115,7 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
   public void testParseAndWriteTestZ80WithCheckOfFields() throws Exception {
     final Z80Snapshot z80sn = assertParseAndPackBack("test.z80", 12429);
 
-    final String text = new JBBPTextWriter().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).SetMaxValuesPerLine(32).AddExtras(new JBBPTextWriterExtraAdapter() {
+    final String text = new JBBPTextWriter().ByteOrder(LITTLE_ENDIAN).SetMaxValuesPerLine(32).AddExtras(new JBBPTextWriterExtraAdapter() {
 
       @Override
       public String doConvertCustomField(JBBPTextWriter context, Object obj, Field field, Bin annotation) throws IOException {
@@ -179,7 +180,7 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
       JBBPUtils.closeQuietly(in);
     }
 
-    final byte[] saved = JBBPOut.BeginBin(JBBPByteOrder.LITTLE_ENDIAN).Bin(parsed, new DataProcessor()).End().toByteArray();
+    final byte[] saved = JBBPOut.BeginBin(LITTLE_ENDIAN).Bin(parsed, new DataProcessor()).End().toByteArray();
 
     assertResource("test.z80", saved);
   }
@@ -308,71 +309,71 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
   }
 
   class EmulFlags {
-    @Bin(outOrder = 1, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_2)
+    @Bin(outOrder = 1, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_2, outByteOrder = LITTLE_ENDIAN)
     byte interruptmode;
-    @Bin(outOrder = 2, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_1)
+    @Bin(outOrder = 2, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_1, outByteOrder = LITTLE_ENDIAN)
     byte issue2emulation;
-    @Bin(outOrder = 3, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_1)
+    @Bin(outOrder = 3, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_1, outByteOrder = LITTLE_ENDIAN)
     byte doubleintfreq;
-    @Bin(outOrder = 4, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_2)
+    @Bin(outOrder = 4, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_2, outByteOrder = LITTLE_ENDIAN)
     byte videosync;
-    @Bin(outOrder = 5, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_2)
+    @Bin(outOrder = 5, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_2, outByteOrder = LITTLE_ENDIAN)
     byte inputdevice;
   }
 
   class Flags {
-    @Bin(outOrder = 1, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_1)
+    @Bin(outOrder = 1, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_1, outByteOrder = LITTLE_ENDIAN)
     byte reg_r_bit7;
-    @Bin(outOrder = 2, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_3)
+    @Bin(outOrder = 2, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_3, outByteOrder = LITTLE_ENDIAN)
     byte bordercolor;
-    @Bin(outOrder = 3, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_1)
+    @Bin(outOrder = 3, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_1, outByteOrder = LITTLE_ENDIAN)
     byte basic_samrom;
-    @Bin(outOrder = 4, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_1)
+    @Bin(outOrder = 4, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_1, outByteOrder = LITTLE_ENDIAN)
     byte compressed;
-    @Bin(outOrder = 5, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_2)
+    @Bin(outOrder = 5, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_2, outByteOrder = LITTLE_ENDIAN)
     byte nomeaning;
   }
 
   class Z80Snapshot {
-    @Bin(outOrder = 1)
+    @Bin(outOrder = 1, outByteOrder = LITTLE_ENDIAN)
     byte reg_a;
-    @Bin(outOrder = 2)
+    @Bin(outOrder = 2, outByteOrder = LITTLE_ENDIAN)
     byte reg_f;
-    @Bin(outOrder = 3)
+    @Bin(outOrder = 3, outByteOrder = LITTLE_ENDIAN)
     short reg_bc;
-    @Bin(outOrder = 4)
+    @Bin(outOrder = 4, outByteOrder = LITTLE_ENDIAN)
     short reg_hl;
-    @Bin(outOrder = 5)
+    @Bin(outOrder = 5, outByteOrder = LITTLE_ENDIAN)
     short reg_pc;
-    @Bin(outOrder = 6)
+    @Bin(outOrder = 6, outByteOrder = LITTLE_ENDIAN)
     short reg_sp;
-    @Bin(outOrder = 7)
+    @Bin(outOrder = 7, outByteOrder = LITTLE_ENDIAN)
     byte reg_ir;
-    @Bin(outOrder = 8)
+    @Bin(outOrder = 8, outByteOrder = LITTLE_ENDIAN)
     byte reg_r;
 
-    @Bin(outOrder = 9)
+    @Bin(outOrder = 9, outByteOrder = LITTLE_ENDIAN)
     Flags flags;
 
-    @Bin(outOrder = 10)
+    @Bin(outOrder = 10, outByteOrder = LITTLE_ENDIAN)
     short reg_de;
-    @Bin(outOrder = 11)
+    @Bin(outOrder = 11, outByteOrder = LITTLE_ENDIAN)
     short reg_bc_alt;
-    @Bin(outOrder = 12)
+    @Bin(outOrder = 12, outByteOrder = LITTLE_ENDIAN)
     short reg_de_alt;
-    @Bin(outOrder = 13)
+    @Bin(outOrder = 13, outByteOrder = LITTLE_ENDIAN)
     short reg_hl_alt;
-    @Bin(outOrder = 14)
+    @Bin(outOrder = 14, outByteOrder = LITTLE_ENDIAN)
     byte reg_a_alt;
-    @Bin(outOrder = 15)
+    @Bin(outOrder = 15, outByteOrder = LITTLE_ENDIAN)
     byte reg_f_alt;
-    @Bin(outOrder = 16)
+    @Bin(outOrder = 16, outByteOrder = LITTLE_ENDIAN)
     short reg_iy;
-    @Bin(outOrder = 17)
+    @Bin(outOrder = 17, outByteOrder = LITTLE_ENDIAN)
     short reg_ix;
-    @Bin(outOrder = 18)
+    @Bin(outOrder = 18, outByteOrder = LITTLE_ENDIAN)
     byte iff;
-    @Bin(outOrder = 19)
+    @Bin(outOrder = 19, outByteOrder = LITTLE_ENDIAN)
     byte iff2;
 
     @Bin(outOrder = 20)

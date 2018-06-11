@@ -1,6 +1,9 @@
 package com.igormaznitsa.jbbp.utils;
 
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
+import com.igormaznitsa.jbbp.io.JBBPByteOrder;
+import com.igormaznitsa.jbbp.mapper.Bin;
+import com.igormaznitsa.jbbp.mapper.BinType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
@@ -240,6 +243,14 @@ class JBBPDslBuilderTest {
   }
 
   @Test
+  public void testSize() {
+    final JBBPDslBuilder dsl = Begin();
+    assertEquals(0, dsl.size());
+    dsl.Int();
+    assertEquals(1, dsl.size());
+  }
+
+  @Test
   public void testHasOpenedStructs() {
     final JBBPDslBuilder dsl = Begin();
     assertFalse(dsl.hasOpenedStructs());
@@ -274,5 +285,144 @@ class JBBPDslBuilderTest {
     assertEquals("stringj[_];", Begin().StringArray(-5).End());
     assertEquals("stringj[_] abc;", Begin().StringArray("abc", -5).End());
     assertEquals("stringj[a+b] abc;", Begin().StringArray("abc", "a+b").End());
+  }
+
+  @Test
+  public void testAnotatedClass_AllClassAnnotated() {
+    @Bin
+    class Test {
+      @Bin(type = BinType.UBYTE)
+      int a;
+    }
+
+    assertEquals("Test{ubyte a;}", Begin().AnnotatedClass(Test.class).End());
+  }
+
+  @Test
+  public void testAnotatedClass_AnnottatedButWithoutType() {
+    class Test {
+      @Bin(outOrder = 1)
+      int a;
+      @Bin(outOrder = 3)
+      int c;
+      @Bin(outOrder = 2, outByteOrder = JBBPByteOrder.LITTLE_ENDIAN)
+      int b;
+
+      class Internal {
+        @Bin(outOrder = 1)
+        short a;
+        @Bin(outOrder = 2, extra = "8")
+        short [] b;
+      };
+
+      @Bin(outOrder = 4, extra = "a+b")
+      Internal [] d;
+    }
+
+    assertEquals("Test{int a;<int b;int c;d[a+b]{short a;short[8] b;}}", Begin().AnnotatedClass(Test.class).End());
+  }
+
+  @Test
+  public void testAnotatedClass_AnnottatedAllTypes() {
+    class Test {
+      @Bin(outOrder = 1, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_4)
+      byte a;
+      @Bin(outOrder = 2, outBitNumber = JBBPBitNumber.BITS_2, extra = "123")
+      byte [] a1;
+      @Bin(outOrder = 3)
+      boolean b;
+      @Bin(outOrder = 4, extra = "456")
+      boolean [] b1;
+      @Bin(outOrder = 5)
+      byte c;
+      @Bin(outOrder = 6, extra = "456")
+      byte [] c1;
+      @Bin(outOrder = 7, outByteOrder = JBBPByteOrder.LITTLE_ENDIAN)
+      short d;
+      @Bin(outOrder = 8, extra = "2")
+      short [] d1;
+      @Bin(outOrder = 9, type = BinType.USHORT, outByteOrder = JBBPByteOrder.LITTLE_ENDIAN)
+      short e;
+      @Bin(outOrder = 10, type = BinType.USHORT_ARRAY, extra = "21")
+      short [] e1;
+      @Bin(outOrder = 11, outByteOrder = JBBPByteOrder.LITTLE_ENDIAN)
+      int f;
+      @Bin(outOrder = 12, extra = "211")
+      int [] f1;
+      @Bin(outOrder = 13, outByteOrder = JBBPByteOrder.LITTLE_ENDIAN)
+      long g;
+      @Bin(outOrder = 14, extra = "211")
+      long [] g1;
+      @Bin(outOrder = 15, outByteOrder = JBBPByteOrder.LITTLE_ENDIAN)
+      float h;
+      @Bin(outOrder = 16, extra = "1211")
+      float [] h1;
+      @Bin(outOrder = 17, outByteOrder = JBBPByteOrder.LITTLE_ENDIAN)
+      double i;
+      @Bin(outOrder = 18, extra = "3")
+      double [] i1;
+      @Bin(outOrder = 19)
+      String l;
+      @Bin(outOrder = 20, extra = "a+b")
+      String [] l1;
+
+      class Some {
+        @Bin(outOrder = 1, type = BinType.UBYTE)
+        int a;
+        @Bin(outOrder = 2, type = BinType.UBYTE_ARRAY, extra = "223")
+        byte [] a1;
+
+        @Bin
+        class Internal {
+          int a;
+        }
+
+        @Bin(outOrder = 3)
+        Internal jjj;
+      }
+
+      @Bin(outOrder = 21)
+      Test.Some x;
+
+      @Bin(outOrder = 22, extra = "998")
+      Test.Some [] x1;
+    }
+
+    assertEquals("Test{\n" +
+        "\tbit:4 a;\n" +
+        "\tbyte[123] a1;\n" +
+        "\tbool b;\n" +
+        "\tbool[456] b1;\n" +
+        "\tbyte c;\n" +
+        "\tbyte[456] c1;\n" +
+        "\t<short d;\n" +
+        "\tshort[2] d1;\n" +
+        "\t<ushort e;\n" +
+        "\tushort[21] e1;\n" +
+        "\t<int f;\n" +
+        "\tint[211] f1;\n" +
+        "\t<long g;\n" +
+        "\tlong[211] g1;\n" +
+        "\t<floatj h;\n" +
+        "\tfloatj[1211] h1;\n" +
+        "\t<doublej i;\n" +
+        "\tdoublej[3] i1;\n" +
+        "\tstringj l;\n" +
+        "\tstringj[a+b] l1;\n" +
+        "\tx{\n" +
+        "\t\tubyte a;\n" +
+        "\t\tubyte[223] a1;\n" +
+        "\t\tjjj{\n" +
+        "\t\t\tint a;\n" +
+        "\t\t}\n" +
+        "\t}\n" +
+        "\tx1[998]{\n" +
+        "\t\tubyte a;\n" +
+        "\t\tubyte[223] a1;\n" +
+        "\t\tjjj{\n" +
+        "\t\t\tint a;\n" +
+        "\t\t}\n" +
+        "\t}\n" +
+        "}\n", Begin().AnnotatedClass(Test.class).End(true));
   }
 }
