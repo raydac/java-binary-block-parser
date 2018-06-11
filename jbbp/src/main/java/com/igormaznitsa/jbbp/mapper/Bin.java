@@ -18,6 +18,7 @@ package com.igormaznitsa.jbbp.mapper;
 
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
+import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.io.JBBPCustomFieldWriter;
 import com.igormaznitsa.jbbp.io.JBBPOut;
 import com.igormaznitsa.jbbp.utils.JBBPTextWriter;
@@ -103,6 +104,14 @@ public @interface Bin {
    * @since 1.1
    */
   JBBPBitNumber outBitNumber() default JBBPBitNumber.BITS_8;
+
+  /**
+   * Byte order to be used for write of the value.
+   *
+   * @return order of bytes to be used for field value write
+   * @since 1.4.0
+   */
+  JBBPByteOrder outByteOrder() default JBBPByteOrder.BIG_ENDIAN;
 
   /**
    * The Value defines the field order to sort fields of the class for save or logging.
