@@ -2,9 +2,14 @@ package com.igormaznitsa.jbbp.utils;
 
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
+import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.mapper.BinType;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -95,6 +100,15 @@ public class JBBPDslBuilder {
       }
     }
     return buffer;
+  }
+
+  /**
+   * Get number of items added into internal item list.
+   *
+   * @return number of added items
+   */
+  public int size() {
+    return this.items.size();
   }
 
   /**
@@ -1188,6 +1202,206 @@ public class JBBPDslBuilder {
     return buffer.toString();
   }
 
+  /**
+   * Allows to collect all fields which can be used for scripting.
+   *
+   * @param annotatedClass class to be processed, must not be null
+   * @return container which contains all found items
+   */
+  protected BinFieldContainer collectAnnotatedFields(final Class<?> annotatedClass) {
+    final Bin defautBin = annotatedClass.getAnnotation(Bin.class);
+    final BinFieldContainer result = new BinFieldContainer(annotatedClass, defautBin, null);
+
+    final Class<?> parent = annotatedClass.getSuperclass();
+
+    if (parent != null && parent != Object.class) {
+      final BinFieldContainer parentFields = collectAnnotatedFields(parent);
+      if (!parentFields.fields.isEmpty()) {
+        result.addAllFromContainer(parentFields);
+      }
+    }
+
+    for (final Field f : annotatedClass.getDeclaredFields()) {
+      if ((f.getModifiers() & (Modifier.NATIVE | Modifier.STATIC | Modifier.FINAL | Modifier.PRIVATE | Modifier.TRANSIENT)) == 0) {
+        final Bin binAnno = f.getAnnotation(Bin.class);
+        if (binAnno != null || defautBin != null) {
+          final Class<?> type = f.getType().isArray() ? f.getType().getComponentType() : f.getType();
+          if (type.isPrimitive() || type == String.class) {
+            final Bin foundBin = binAnno == null ? defautBin : binAnno;
+            result.addField(foundBin, f);
+          } else {
+            final BinFieldContainer container = collectAnnotatedFields(type);
+            if (!container.fields.isEmpty()) {
+              if (binAnno != null) {
+                container.bin = binAnno;
+              }
+              container.field = f;
+              result.addContaner(container);
+            }
+          }
+        }
+      }
+    }
+
+    result.sort();
+
+    if (!result.fields.isEmpty()) {
+      result.addContaner(BinFieldContainer.END_STRUCT);
+    }
+
+    return result;
+  }
+
+  /**
+   * Convert an annotated class into its JBBP DSL representation.
+   *
+   * @param annotatedClass class to be converted into JBBP script, must not be null
+   * @return the builder instance, must not be null
+   * @see com.igormaznitsa.jbbp.mapper.Bin
+   */
+  public JBBPDslBuilder AnnotatedClass(final Class<?> annotatedClass) {
+    final BinFieldContainer collected = collectAnnotatedFields(annotatedClass);
+
+    final JBBPByteOrder old = this.byteOrder;
+    this.byteOrder = JBBPByteOrder.BIG_ENDIAN;
+
+
+    class Pair {
+      final BinFieldContainer container;
+      final Iterator<BinField> iter;
+
+      Pair(final BinFieldContainer container) {
+        this.container = container;
+        this.iter = container.fields.iterator();
+      }
+    }
+
+    final List<Pair> stack = new ArrayList<Pair>();
+    stack.add(new Pair(collected));
+    this.Struct(collected.getName());
+
+    while (!stack.isEmpty()) {
+      final Pair pair = stack.remove(0);
+      while (pair.iter.hasNext()) {
+        final BinField field = pair.iter.next();
+        if (field instanceof BinFieldContainer) {
+          final BinFieldContainer conty = (BinFieldContainer) field;
+          if (conty == BinFieldContainer.END_STRUCT) {
+            this.CloseStruct();
+          } else {
+            if (field.isArray()) {
+              this.StructArray(conty.getName(), conty.bin.extra());
+            } else {
+              this.Struct(conty.getName());
+            }
+            stack.add(0, pair);
+            stack.add(0, new Pair(conty));
+            break;
+          }
+        } else {
+          final BinType type = field.findType();
+          this.ByteOrder(pair.container.getByteOrder(field));
+          switch (type) {
+            case BIT_ARRAY: {
+              this.BitArray(field.getName(), pair.container.getBitNumber(field), field.bin.extra());
+            }
+            break;
+            case BIT: {
+              this.Bits(field.getName(), pair.container.getBitNumber(field));
+            }
+            break;
+            case BOOL: {
+              this.Bool(field.getName());
+            }
+            break;
+            case BOOL_ARRAY: {
+              this.BoolArray(field.getName(), field.bin.extra());
+            }
+            break;
+            case BYTE: {
+              this.Byte(field.getName());
+            }
+            break;
+            case BYTE_ARRAY: {
+              this.ByteArray(field.getName(), field.bin.extra());
+            }
+            break;
+            case UBYTE: {
+              this.UByte(field.getName());
+            }
+            break;
+            case UBYTE_ARRAY: {
+              this.UByteArray(field.getName(), field.bin.extra());
+            }
+            break;
+            case SHORT: {
+              this.Short(field.getName());
+            }
+            break;
+            case SHORT_ARRAY: {
+              this.ShortArray(field.getName(), field.bin.extra());
+            }
+            break;
+            case USHORT: {
+              this.UShort(field.getName());
+            }
+            break;
+            case USHORT_ARRAY: {
+              this.UShortArray(field.getName(), field.bin.extra());
+            }
+            break;
+            case INT: {
+              this.Int(field.getName());
+            }
+            break;
+            case INT_ARRAY: {
+              this.IntArray(field.getName(), field.bin.extra());
+            }
+            break;
+            case LONG: {
+              this.Long(field.getName());
+            }
+            break;
+            case LONG_ARRAY: {
+              this.LongArray(field.getName(), field.bin.extra());
+            }
+            break;
+            case FLOAT: {
+              this.Float(field.getName());
+            }
+            break;
+            case FLOAT_ARRAY: {
+              this.FloatArray(field.getName(), field.bin.extra());
+            }
+            break;
+            case DOUBLE: {
+              this.Double(field.getName());
+            }
+            break;
+            case DOUBLE_ARRAY: {
+              this.DoubleArray(field.getName(), field.bin.extra());
+            }
+            break;
+            case STRING: {
+              this.String(field.getName());
+            }
+            break;
+            case STRING_ARRAY: {
+              this.StringArray(field.getName(), field.bin.extra());
+            }
+            break;
+            default:
+              throw new Error("Unexpected type:" + type);
+          }
+        }
+      }
+    }
+
+    this.byteOrder = old;
+
+    return this;
+  }
+
   protected static class Item {
     final BinType type;
     final String name;
@@ -1262,6 +1476,89 @@ public class JBBPDslBuilder {
       } catch (NumberFormatException ex) {
         return '(' + expression + ')';
       }
+    }
+  }
+
+  protected static class BinField implements Comparable<BinField> {
+
+    Bin bin;
+    Field field;
+
+    BinField(final Bin bin, final Field field) {
+      this.bin = bin;
+      this.field = field;
+    }
+
+    boolean isArray() {
+      return this.field == null ? false : this.field.getType().isArray();
+    }
+
+    BinType findType() {
+      if (this.field == null) {
+        return BinType.STRUCT;
+      }
+      return this.bin.type() == BinType.UNDEFINED ? BinType.findCompatible(this.field.getType()) : this.bin.type();
+    }
+
+    String getName() {
+      if (this.field == null) {
+        return null;
+      }
+
+      return this.bin == null ?
+          this.field.getName() :
+          this.bin.name().length() == 0 ?
+              this.field.getName() :
+              this.bin.name();
+    }
+
+    @Override
+    public int compareTo(final BinField that) {
+      final int thisOrder = this.bin == null ? 0 : this.bin.outOrder();
+      final int thatOrder = that.bin == null ? 0 : that.bin.outOrder();
+
+      return thisOrder == thatOrder ? 0 : (thisOrder < thatOrder ? -1 : 1);
+    }
+  }
+
+  protected static class BinFieldContainer extends BinField {
+    final List<BinField> fields = new ArrayList<BinField>();
+    final Class<?> klazz;
+
+    static BinFieldContainer END_STRUCT = new BinFieldContainer(null, null, null);
+
+    BinFieldContainer(final Class<?> klazz, final Bin bin, final Field field) {
+      super(bin, field);
+      this.klazz = klazz;
+    }
+
+    void sort() {
+      Collections.sort(this.fields);
+    }
+
+    void addAllFromContainer(final BinFieldContainer container) {
+      this.fields.addAll(container.fields);
+    }
+
+    void addContaner(final BinFieldContainer container) {
+      this.fields.add(container);
+    }
+
+    void addField(final Bin bin, final Field field) {
+      this.fields.add(new BinField(bin, field));
+    }
+
+    JBBPByteOrder getByteOrder(final BinField field) {
+      return field.bin.outByteOrder();
+    }
+
+    String getName() {
+      final String name = super.getName();
+      return name == null ? this.klazz.getSimpleName() : name;
+    }
+
+    JBBPBitNumber getBitNumber(final BinField field) {
+      return field.bin.outBitNumber() == JBBPBitNumber.BITS_8 ? this.bin.outBitNumber() : field.bin.outBitNumber();
     }
   }
 
