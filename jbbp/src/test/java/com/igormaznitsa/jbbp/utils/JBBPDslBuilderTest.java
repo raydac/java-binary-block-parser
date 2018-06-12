@@ -30,6 +30,21 @@ class JBBPDslBuilderTest {
   }
 
   @Test
+  public void testType_Custom() {
+    assertEquals("some;", Begin().Custom("some").End());
+    assertEquals("some huzzaa;", Begin().Custom("some", "huzzaa").End());
+    assertEquals("some:(a+b);", Begin().Custom("some", null, "a+b").End());
+    assertEquals("some:(a+b) huzzaa;", Begin().Custom("some", "huzzaa", "a+b").End());
+  }
+
+  @Test
+  public void testType_CustomArray() {
+    assertEquals("some[1234];", Begin().CustomArray("some", 1234).End());
+    assertEquals("some[1234] lupus;", Begin().CustomArray("some", "lupus", 1234).End());
+    assertEquals("some:(c/2)[a+b] huzzaa;", Begin().CustomArray("some", "huzzaa", "a+b","c/2").End());
+  }
+
+  @Test
   public void testType_Bit() {
     assertEquals("bit:1;", Begin().Bit().End());
     assertEquals("bit:1 abc;", Begin().Bit("abc").End());
@@ -261,6 +276,14 @@ class JBBPDslBuilderTest {
   }
 
   @Test
+  public void testStructArray() {
+    assertEquals("[123]{}", Begin().StructArray(123).CloseStruct().End());
+    assertEquals("[_]{}", Begin().StructArray("_").CloseStruct().End());
+    assertEquals("alloha[123]{}", Begin().StructArray("alloha", 123).CloseStruct().End());
+    assertEquals("alloha[_]{}", Begin().StructArray("alloha", "_").CloseStruct().End());
+  }
+
+  @Test
   public void testStruct_CloseStruct() {
     assertEquals("{{{}}}", Begin().Struct().Struct().Struct().CloseStruct().CloseStruct().CloseStruct().End());
     assertEquals("{\n" +
@@ -312,11 +335,11 @@ class JBBPDslBuilderTest {
         @Bin(outOrder = 1)
         short a;
         @Bin(outOrder = 2, extra = "8")
-        short [] b;
-      };
+        short[] b;
+      }
 
       @Bin(outOrder = 4, extra = "a+b")
-      Internal [] d;
+      Internal[] d;
     }
 
     assertEquals("Test{int a;<int b;int c;d[a+b]{short a;short[8] b;}}", Begin().AnnotatedClass(Test.class).End());
@@ -328,49 +351,49 @@ class JBBPDslBuilderTest {
       @Bin(outOrder = 1, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_4)
       byte a;
       @Bin(outOrder = 2, outBitNumber = JBBPBitNumber.BITS_2, extra = "123")
-      byte [] a1;
+      byte[] a1;
       @Bin(outOrder = 3)
       boolean b;
       @Bin(outOrder = 4, extra = "456")
-      boolean [] b1;
+      boolean[] b1;
       @Bin(outOrder = 5)
       byte c;
       @Bin(outOrder = 6, extra = "456")
-      byte [] c1;
+      byte[] c1;
       @Bin(outOrder = 7, outByteOrder = JBBPByteOrder.LITTLE_ENDIAN)
       short d;
       @Bin(outOrder = 8, extra = "2")
-      short [] d1;
+      short[] d1;
       @Bin(outOrder = 9, type = BinType.USHORT, outByteOrder = JBBPByteOrder.LITTLE_ENDIAN)
       short e;
       @Bin(outOrder = 10, type = BinType.USHORT_ARRAY, extra = "21")
-      short [] e1;
+      short[] e1;
       @Bin(outOrder = 11, outByteOrder = JBBPByteOrder.LITTLE_ENDIAN)
       int f;
       @Bin(outOrder = 12, extra = "211")
-      int [] f1;
+      int[] f1;
       @Bin(outOrder = 13, outByteOrder = JBBPByteOrder.LITTLE_ENDIAN)
       long g;
       @Bin(outOrder = 14, extra = "211")
-      long [] g1;
+      long[] g1;
       @Bin(outOrder = 15, outByteOrder = JBBPByteOrder.LITTLE_ENDIAN)
       float h;
       @Bin(outOrder = 16, extra = "1211")
-      float [] h1;
+      float[] h1;
       @Bin(outOrder = 17, outByteOrder = JBBPByteOrder.LITTLE_ENDIAN)
       double i;
       @Bin(outOrder = 18, extra = "3")
-      double [] i1;
+      double[] i1;
       @Bin(outOrder = 19)
       String l;
       @Bin(outOrder = 20, extra = "a+b")
-      String [] l1;
+      String[] l1;
 
       class Some {
         @Bin(outOrder = 1, type = BinType.UBYTE)
         int a;
         @Bin(outOrder = 2, type = BinType.UBYTE_ARRAY, extra = "223")
-        byte [] a1;
+        byte[] a1;
 
         @Bin
         class Internal {
@@ -385,7 +408,7 @@ class JBBPDslBuilderTest {
       Test.Some x;
 
       @Bin(outOrder = 22, extra = "998")
-      Test.Some [] x1;
+      Test.Some[] x1;
     }
 
     assertEquals("Test{\n" +

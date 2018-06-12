@@ -186,6 +186,42 @@ public class JBBPDslBuilder {
   }
 
   /**
+   * Add anonymous custom variable.
+   *
+   * @param type custom type, must not be null
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder Custom(final String type) {
+    return this.Custom(type, null, null);
+  }
+
+  /**
+   * Add named custom variable.
+   *
+   * @param type custom type, must not be null
+   * @param name name of the field, can be null for anonymous
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder Custom(final String type, final String name) {
+    return this.Custom(type, name, null);
+  }
+
+  /**
+   * Add named parametric custom variable.
+   *
+   * @param type  custom type, must not be null
+   * @param name  name of the field, can be null for anonymous
+   * @param param optional parameter for the field, can be null
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder Custom(final String type, final String name, final String param) {
+    final ItemCustom custom = new ItemCustom(type, name, this.byteOrder);
+    custom.bitLenExpression = param == null ? null : assertExpressionChars(param);
+    this.items.add(custom);
+    return this;
+  }
+
+  /**
    * Create new anonymous struct.
    *
    * @return the builder instance, must not be null
@@ -250,6 +286,47 @@ public class JBBPDslBuilder {
     item.sizeExpression = assertExpressionChars(sizeExpression);
     this.items.add(item);
     this.openedStructCounter++;
+    return this;
+  }
+
+  /**
+   * Create anonymous custom type array with fixed size.
+   *
+   * @param type custom type, must not be null
+   * @param size size of he array, if less than zero then read till end of stream.
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder CustomArray(final String type, final int size) {
+    return this.CustomArray(type, null, arraySizeToString(size), null);
+  }
+
+  /**
+   * Create named custom type array with fixed size.
+   *
+   * @param type custom type, must not be null
+   * @param name name of the array, can be null for anonymous one
+   * @param size size of he array, if less than zero then read till end of stream.
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder CustomArray(final String type, final String name, final int size) {
+    return this.CustomArray(type, name, arraySizeToString(size), null);
+  }
+
+  /**
+   * Create named custom type array which size calculated by expression.
+   *
+   * @param type           custom type, must not be null
+   * @param name           name of the array, can be null for anonymous one
+   * @param sizeExpression expression to calculate array length, must not be null.
+   * @param param          optional parameter for the field, can be null
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder CustomArray(final String type, final String name, final String sizeExpression, final String param) {
+    final ItemCustom item = new ItemCustom(type, name, this.byteOrder);
+    item.array = true;
+    item.bitLenExpression =  param == null ? param : assertExpressionChars(param);
+    item.sizeExpression = assertExpressionChars(sizeExpression);
+    this.items.add(item);
     return this;
   }
 
@@ -1178,6 +1255,8 @@ public class JBBPDslBuilder {
               structCounter--;
               doTabs(format, buffer, structCounter).append('}');
             }
+          } else if (item instanceof ItemCustom) {
+            doTabs(format, buffer, structCounter).append(item.toString());
           } else if (item instanceof ItemAlign) {
             doTabs(format, buffer, structCounter).append("align").append(item.sizeExpression == null ? "" : ':' + item.makeExpressionForExtraField(item.sizeExpression)).append(';');
           } else if (item instanceof ItemSkip) {
@@ -1402,6 +1481,16 @@ public class JBBPDslBuilder {
     return this;
   }
 
+  protected static class ItemCustom extends Item {
+    final String customType;
+    boolean array;
+
+    ItemCustom(final String customType, final String name, final JBBPByteOrder byteOrder) {
+      super(BinType.UNDEFINED, name, byteOrder);
+      this.customType = customType;
+    }
+  }
+
   protected static class Item {
     final BinType type;
     final String name;
@@ -1418,15 +1507,24 @@ public class JBBPDslBuilder {
 
     @Override
     public String toString() {
-      String type = this.type.name().toLowerCase(Locale.ENGLISH);
-      final boolean isArray = type.endsWith("_array");
+      String type;
+      boolean isArray = false;
+      boolean customType = this instanceof ItemCustom;
 
-      if (isArray) {
-        type = type.substring(0, type.indexOf('_'));
-      }
+      if (customType) {
+        type = ((ItemCustom) this).customType;
+        isArray = ((ItemCustom) this).array;
+      } else {
+        type = this.type.name().toLowerCase(Locale.ENGLISH);
+        isArray = type.endsWith("_array");
 
-      if (type.equals("string") || type.equals("float") || type.equals("double")) {
-        type += 'j';
+        if (isArray) {
+          type = type.substring(0, type.indexOf('_'));
+        }
+
+        if (type.equals("string") || type.equals("float") || type.equals("double")) {
+          type += 'j';
+        }
       }
 
       final StringBuilder result = new StringBuilder();
@@ -1437,7 +1535,11 @@ public class JBBPDslBuilder {
 
       result.append(type);
 
-      if (this.type == BinType.BIT || this.type == BinType.BIT_ARRAY) {
+      if (customType) {
+        if (this.bitLenExpression != null) {
+          result.append(':').append(makeExpressionForExtraField(this.bitLenExpression));
+        }
+      } else if (this.type == BinType.BIT || this.type == BinType.BIT_ARRAY) {
         result.append(':');
         if (bitLenExpression == null) {
           if (this.bitNumber == null) {
