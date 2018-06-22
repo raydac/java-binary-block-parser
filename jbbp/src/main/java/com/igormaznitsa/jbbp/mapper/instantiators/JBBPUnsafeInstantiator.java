@@ -46,8 +46,8 @@ public final class JBBPUnsafeInstantiator implements JBBPClassInstantiator {
   static {
     try {
       final Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
-      final Field singleoneInstanceField = ReflectUtils.makeAccessible(unsafeClass.getDeclaredField("theUnsafe"));
-      SUN_MISC_UNSAFE = singleoneInstanceField.get(null);
+      final Field singletoneInstanceField = ReflectUtils.makeAccessible(unsafeClass.getDeclaredField("theUnsafe"));
+      SUN_MISC_UNSAFE = singletoneInstanceField.get(null);
       ALLOCATE_INSTANCE_METHOD = ReflectUtils.makeAccessible(unsafeClass.getMethod("allocateInstance", Class.class));
     } catch (ClassNotFoundException e) {
       throw new Error("Can't find 'sun.misc.Unsafe' class", e);

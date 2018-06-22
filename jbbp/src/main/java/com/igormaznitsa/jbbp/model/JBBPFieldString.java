@@ -17,14 +17,6 @@
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
-import com.igormaznitsa.jbbp.exceptions.JBBPFinderException;
-import com.igormaznitsa.jbbp.exceptions.JBBPTooManyFieldsFoundException;
-import com.igormaznitsa.jbbp.mapper.JBBPMapper;
-import com.igormaznitsa.jbbp.mapper.JBBPMapperCustomFieldProcessor;
-import com.igormaznitsa.jbbp.model.finder.JBBPFieldFinder;
-import com.igormaznitsa.jbbp.utils.JBBPUtils;
-
-import java.util.List;
 
 /**
  * Describes a java string object.

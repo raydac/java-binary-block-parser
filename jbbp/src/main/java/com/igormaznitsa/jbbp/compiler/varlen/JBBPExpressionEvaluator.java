@@ -600,7 +600,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
             final JBBPNamedFieldInfo namedField = compiledBlockData.getNamedFields()[index];
             final JBBPNumericField numericField = fieldMap.get(namedField);
             if (numericField == null) {
-              throw new java.lang.ArithmeticException("Can't find field '" + namedField.getFieldName() + "' among numeric fiels");
+              throw new java.lang.ArithmeticException("Can't find field '" + namedField.getFieldName() + "' among numeric fields");
             } else {
               value = fieldMap.get(namedField).getAsInt();
             }

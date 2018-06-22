@@ -61,7 +61,7 @@ public abstract class AbstractMappedClassFieldObserver {
     try {
       return field.get(obj);
     } catch (Exception ex) {
-      throw new JBBPException("Can't get falue from field [" + field + ']', ex);
+      throw new JBBPException("Can't get value from field [" + field + ']', ex);
     }
   }
 
@@ -95,7 +95,7 @@ public abstract class AbstractMappedClassFieldObserver {
       cachedClasses = fieldz;
     } else {
       fieldz = cachedClasses;
-      synchronized (fieldz) {
+      synchronized (cachedClasses) {
         orderedFields = fieldz.get(obj.getClass());
       }
     }

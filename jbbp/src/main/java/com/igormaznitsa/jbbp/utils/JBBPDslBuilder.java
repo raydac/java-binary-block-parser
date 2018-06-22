@@ -360,7 +360,7 @@ public class JBBPDslBuilder {
   public JBBPDslBuilder CustomArray(final String type, final String name, final String sizeExpression, final String param) {
     final ItemCustom item = new ItemCustom(type, name, this.byteOrder);
     item.array = true;
-    item.bitLenExpression = param == null ? param : assertExpressionChars(param);
+    item.bitLenExpression = param == null ? null : assertExpressionChars(param);
     item.sizeExpression = assertExpressionChars(sizeExpression);
     this.items.add(item);
     return this;
@@ -1574,7 +1574,7 @@ public class JBBPDslBuilder {
     @Override
     public String toString() {
       String type;
-      boolean isArray = false;
+      boolean isArray;
       boolean customType = this instanceof ItemCustom;
 
       if (customType) {
@@ -1658,7 +1658,7 @@ public class JBBPDslBuilder {
     }
 
     boolean isArray() {
-      return this.field == null ? false : this.field.getType().isArray();
+      return this.field != null && this.field.getType().isArray();
     }
 
     BinType findType() {
@@ -1680,6 +1680,27 @@ public class JBBPDslBuilder {
               this.bin.name();
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+      if (obj == null) {
+        return false;
+      }
+      if (obj == this) {
+        return true;
+      }
+      if (obj instanceof BinField) {
+        final BinField that = (BinField) obj;
+        return this.field.equals(that.field) && this.bin.equals(that.bin);
+      }
+      return false;
+    }
+
+    @Override
+    public int hashCode() {
+      return this.field.hashCode();
+    }
+
+    @SuppressWarnings("NullableProblems")
     @Override
     public int compareTo(final BinField that) {
       final int thisOrder = this.bin == null ? 0 : this.bin.outOrder();

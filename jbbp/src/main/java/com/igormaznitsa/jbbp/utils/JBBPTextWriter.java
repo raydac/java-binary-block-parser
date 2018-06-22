@@ -1545,11 +1545,13 @@ public class JBBPTextWriter extends FilterWriter {
     return this.linePosition;
   }
 
+  @SuppressWarnings("NullableProblems")
   @Override
   public void write(final String str) throws IOException {
     this.write(str, 0, str.length());
   }
 
+  @SuppressWarnings("NullableProblems")
   @Override
   public void write(final char[] cbuf) throws IOException {
     this.write(cbuf, 0, cbuf.length);

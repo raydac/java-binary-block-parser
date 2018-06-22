@@ -227,6 +227,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
     this.out.flush();
   }
 
+  @SuppressWarnings("NullableProblems")
   @Override
   public void write(final byte[] b, final int off, final int len) throws IOException {
     if (this.bitBufferCount == 0) {
@@ -242,6 +243,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
     }
   }
 
+  @SuppressWarnings("NullableProblems")
   @Override
   public void write(final byte[] b) throws IOException {
     this.write(b, 0, b.length);
@@ -369,7 +371,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
   /**
    * Write string in UTF8 format into stream.
    * <b>the byte order in saved char data will be BIG_ENDIAN</b>
-   * Format: PREFIX(FF=null | 0=empty | 0x8packedLength) LENGTH[packedLength] DATA_ARRY[LENGTH]
+   * Format: PREFIX(FF=null | 0=empty | 0x8packedLength) LENGTH[packedLength] DATA_ARRAY[LENGTH]
    *
    * @param value string to be written, can be null
    * @param order order of bytes in written data (it doesn't affect encoded UTF8 array)

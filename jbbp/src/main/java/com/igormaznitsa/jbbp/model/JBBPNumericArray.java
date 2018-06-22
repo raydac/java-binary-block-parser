@@ -17,7 +17,7 @@
 package com.igormaznitsa.jbbp.model;
 
 /**
- * The Inerface describes array which elements can be provided as number or boolean.
+ * The Interface describes array which elements can be provided as number or boolean.
  *
  * @since 1.4.0
  */

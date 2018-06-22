@@ -728,7 +728,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
         }
 
         boolean doesNeedBrackets(Object obj) {
-          if (obj == null || !(obj instanceof ExprTreeItem)) {
+          if (!(obj instanceof ExprTreeItem)) {
             return false;
           }
           final ExprTreeItem that = (ExprTreeItem) obj;

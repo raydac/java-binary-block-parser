@@ -59,7 +59,7 @@ public final class JBBPOnlyFieldEvaluator implements JBBPIntegerValueEvaluator {
       final JBBPNamedFieldInfo namedField = block.getNamedFields()[this.namedFieldIndex];
       final JBBPNumericField numericField = fieldMap.get(namedField);
       if (numericField == null) {
-        throw new java.lang.ArithmeticException("Can't find field '" + namedField.getFieldName() + "' among numeric fiels");
+        throw new java.lang.ArithmeticException("Can't find field '" + namedField.getFieldName() + "' among numeric fields");
       } else {
         result = numericField.getAsInt();
       }

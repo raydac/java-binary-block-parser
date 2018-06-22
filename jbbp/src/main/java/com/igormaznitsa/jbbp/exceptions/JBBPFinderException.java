@@ -50,18 +50,6 @@ public class JBBPFinderException extends JBBPException {
   }
 
   /**
-   * Do not use the method, it will be removed in future. It just presented for back compatibility.
-   *
-   * @return the name or the path used for search, it can be null
-   * @see #getNameOrPath()
-   * @deprecated
-   */
-  @Deprecated
-  public String getNamrOrPath() {
-    return this.getNameOrPath();
-  }
-
-  /**
    * Get the name or the path used for search.
    *
    * @return the name or the path used for search, it can be null

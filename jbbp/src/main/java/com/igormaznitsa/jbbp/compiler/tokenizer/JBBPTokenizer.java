@@ -223,8 +223,6 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
             this.detectedException = new JBBPTokenizerException("Wrong format of type definition [" + fieldType + ']', position);
             return;
           }
-        } else {
-          parsedType = null;
         }
 
         this.nextItem = new JBBPToken(type, position, parsedType, groupArrayLength, fieldName);
@@ -264,6 +262,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
     return null;
   }
 
+  @SuppressWarnings("NullableProblems")
   @Override
   public Iterator<JBBPToken> iterator() {
     return this;

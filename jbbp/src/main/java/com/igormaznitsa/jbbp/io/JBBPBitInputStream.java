@@ -866,6 +866,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     return this.bitsInBuffer > 0 || loadNextByteInBuffer() >= 0;
   }
 
+  @SuppressWarnings("NullableProblems")
   @Override
   public int read(final byte[] array, final int offset, final int length) throws IOException {
     if (this.bitsInBuffer == 0) {
@@ -929,6 +930,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     this.byteCounter = 0L;
   }
 
+  @SuppressWarnings("NullableProblems")
   @Override
   public int read(final byte[] array) throws IOException {
     return this.read(array, 0, array.length);
@@ -948,7 +950,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     }
   }
 
-  private final IOException makeIOExceptionForWrongPrefix(final int prefix) {
+  private IOException makeIOExceptionForWrongPrefix(final int prefix) {
     return new IOException("Wrong string prefix:" + prefix);
   }
 
@@ -981,7 +983,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
         }
         break;
         case 3: {
-          int buffer = 0;
+          int buffer;
           if (byteOrder == JBBPByteOrder.BIG_ENDIAN) {
             buffer = (this.readByte() << 16) | (this.readByte() << 8) | this.readByte();
           } else {
@@ -1021,7 +1023,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * @param items     number of items, or -1 if read whole stream
    * @param byteOrder order of bytes in structure, must not be null
    * @return array, it can contain null among values, must not be null
-   * @throws IOException
+   * @throws IOException thrown for transport errors
    * @see JBBPBitOutputStream#writeStringArray(String[], JBBPByteOrder)
    * @since 1.4.0
    */

@@ -241,7 +241,7 @@ public final class JBBPUtils {
 
       final String v = Integer.toString(b & 0xFF, radix);
       if (v.length() < maxlen) {
-        result.append(zero.substring(0, maxlen - v.length()));
+        result.append(zero, 0, maxlen - v.length());
       }
       result.append(v.toUpperCase(Locale.ENGLISH));
     }
