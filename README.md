@@ -16,6 +16,8 @@ For instance I have been very actively using the framework in [the ZX-Poly emula
 
 # Change log
 - **1.4.0 (under development)**
+  - added field `outByteOrder` attribute to `Bin` annotation, it affects logic of `JBBPOut#Bin` for output of annotated objects which fields should be saved with different byte order
+  - removed deprecated method `JBBPFinderException#getNameOrPath`
   - added [auxiliary class to build JBBP script](https://github.com/raydac/java-binary-block-parser/blob/master/jbbp/src/main/java/com/igormaznitsa/jbbp/utils/JBBPDslBuilder.java)
   - added flag `JBBPParser#FLAG_NEGATIVE_EXPRESSION_RESULT_AS_ZERO` to recognize negative expression result as zero
   - improved Java 6 class source generator to process FLAG_SKIP_REMAINING_FIELDS_IF_EOF for structure fields
