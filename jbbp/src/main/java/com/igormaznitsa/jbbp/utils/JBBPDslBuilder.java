@@ -293,11 +293,34 @@ public class JBBPDslBuilder {
    * Create anonymous custom type array with fixed size.
    *
    * @param type custom type, must not be null
-   * @param size size of he array, if less than zero then read till end of stream.
+   * @param size size of the array, if less than zero then read till end of stream.
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder CustomArray(final String type, final int size) {
-    return this.CustomArray(type, null, arraySizeToString(size), null);
+    return this.CustomArray(type, arraySizeToString(size));
+  }
+
+  /**
+   * Create anonymous custom type array with fixed size.
+   *
+   * @param type custom type, must not be null
+   * @param size expression to calculate size of the array, must not be null.
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder CustomArray(final String type, final String size) {
+    return this.CustomArray(type, null, size, null);
+  }
+
+  /**
+   * Create named custom type array with fixed size.
+   *
+   * @param type custom type, must not be null
+   * @param name name of the array, can be null for anonymous one
+   * @param size expression to calculate size of the array, must not be null.
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder CustomArray(final String type, final String name, final String size) {
+    return this.CustomArray(type, name, size, null);
   }
 
   /**
@@ -315,6 +338,19 @@ public class JBBPDslBuilder {
   /**
    * Create named custom type array which size calculated by expression.
    *
+   * @param type  custom type, must not be null
+   * @param name  name of the array, can be null for anonymous one
+   * @param size  size of the array, if negative then read till the end of stream.
+   * @param param optional parameter for the field, can be null
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder CustomArray(final String type, final String name, final int size, final String param) {
+    return this.CustomArray(type, name, arraySizeToString(size), param);
+  }
+
+  /**
+   * Create named custom type array which size calculated by expression.
+   *
    * @param type           custom type, must not be null
    * @param name           name of the array, can be null for anonymous one
    * @param sizeExpression expression to calculate array length, must not be null.
@@ -324,7 +360,7 @@ public class JBBPDslBuilder {
   public JBBPDslBuilder CustomArray(final String type, final String name, final String sizeExpression, final String param) {
     final ItemCustom item = new ItemCustom(type, name, this.byteOrder);
     item.array = true;
-    item.bitLenExpression =  param == null ? param : assertExpressionChars(param);
+    item.bitLenExpression = param == null ? param : assertExpressionChars(param);
     item.sizeExpression = assertExpressionChars(sizeExpression);
     this.items.add(item);
     return this;
@@ -1339,11 +1375,25 @@ public class JBBPDslBuilder {
    * @see com.igormaznitsa.jbbp.mapper.Bin
    */
   public JBBPDslBuilder AnnotatedClass(final Class<?> annotatedClass) {
+    return addAnnotatedClass(annotatedClass, false);
+  }
+
+  /**
+   * Add just fields of annotated class, outbound class will not be added as structure.
+   *
+   * @param annotatedClass class to be converted into JBBP script, must not be null
+   * @return the builder instance, must not be null
+   * @see com.igormaznitsa.jbbp.mapper.Bin
+   */
+  public JBBPDslBuilder AnnotatedClassFields(final Class<?> annotatedClass) {
+    return addAnnotatedClass(annotatedClass, true);
+  }
+
+  protected JBBPDslBuilder addAnnotatedClass(final Class<?> annotatedClass, final boolean onlyFields) {
     final BinFieldContainer collected = collectAnnotatedFields(annotatedClass);
 
     final JBBPByteOrder old = this.byteOrder;
     this.byteOrder = JBBPByteOrder.BIG_ENDIAN;
-
 
     class Pair {
       final BinFieldContainer container;
@@ -1355,9 +1405,25 @@ public class JBBPDslBuilder {
       }
     }
 
+    if (onlyFields) {
+      int indexOfLastEndStruct = -1;
+      for (int i = collected.fields.size() - 1; i >= 0; i--) {
+        if (collected.fields.get(i) == BinFieldContainer.END_STRUCT) {
+          indexOfLastEndStruct = i;
+          break;
+        }
+      }
+      if (indexOfLastEndStruct >= 0) {
+        collected.fields.remove(indexOfLastEndStruct);
+      } else {
+        throw new IllegalStateException("Can't find end of structure");
+      }
+    } else {
+      this.Struct(collected.getName());
+    }
+
     final List<Pair> stack = new ArrayList<Pair>();
     stack.add(new Pair(collected));
-    this.Struct(collected.getName());
 
     while (!stack.isEmpty()) {
       final Pair pair = stack.remove(0);

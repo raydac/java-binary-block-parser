@@ -40,7 +40,10 @@ class JBBPDslBuilderTest {
   @Test
   public void testType_CustomArray() {
     assertEquals("some[1234];", Begin().CustomArray("some", 1234).End());
+    assertEquals("some[q+b];", Begin().CustomArray("some", "q+b").End());
     assertEquals("some[1234] lupus;", Begin().CustomArray("some", "lupus", 1234).End());
+    assertEquals("some[a+1234] lupus;", Begin().CustomArray("some", "lupus", "a+1234").End());
+    assertEquals("some:(c/2)[_] huzzaa;", Begin().CustomArray("some", "huzzaa", -1,"c/2").End());
     assertEquals("some:(c/2)[a+b] huzzaa;", Begin().CustomArray("some", "huzzaa", "a+b","c/2").End());
   }
 
@@ -447,5 +450,40 @@ class JBBPDslBuilderTest {
         "\t\t}\n" +
         "\t}\n" +
         "}\n", Begin().AnnotatedClass(Test.class).End(true));
+
+    assertEquals("bit:4 a;\n" +
+        "byte[123] a1;\n" +
+        "bool b;\n" +
+        "bool[456] b1;\n" +
+        "byte c;\n" +
+        "byte[456] c1;\n" +
+        "<short d;\n" +
+        "short[2] d1;\n" +
+        "<ushort e;\n" +
+        "ushort[21] e1;\n" +
+        "<int f;\n" +
+        "int[211] f1;\n" +
+        "<long g;\n" +
+        "long[211] g1;\n" +
+        "<floatj h;\n" +
+        "floatj[1211] h1;\n" +
+        "<doublej i;\n" +
+        "doublej[3] i1;\n" +
+        "stringj l;\n" +
+        "stringj[a+b] l1;\n" +
+        "x{\n" +
+        "\tubyte a;\n" +
+        "\tubyte[223] a1;\n" +
+        "\tjjj{\n" +
+        "\t\tint a;\n" +
+        "\t}\n" +
+        "}\n" +
+        "x1[998]{\n" +
+        "\tubyte a;\n" +
+        "\tubyte[223] a1;\n" +
+        "\tjjj{\n" +
+        "\t\tint a;\n" +
+        "\t}\n" +
+        "}\n", Begin().AnnotatedClassFields(Test.class).End(true));
   }
 }
