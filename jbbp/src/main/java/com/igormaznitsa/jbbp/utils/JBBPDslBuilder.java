@@ -196,6 +196,36 @@ public class JBBPDslBuilder {
   }
 
   /**
+   * Add var anonymous field.
+   *
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder Var() {
+    return this.Var(null);
+  }
+
+  /**
+   * Add named var field.
+   *
+   * @param name name of the field, can be null
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder Var(final String name) {
+    return this.Var(name, null);
+  }
+
+  /**
+   * Add named var field.
+   *
+   * @param name name of the field, can be null
+   * @param param optional parameter for the field, can be null
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder Var(final String name, final String param) {
+    return this.Custom("var", name, param);
+  }
+
+  /**
    * Add named custom variable.
    *
    * @param type custom type, must not be null
@@ -287,6 +317,71 @@ public class JBBPDslBuilder {
     this.items.add(item);
     this.openedStructCounter++;
     return this;
+  }
+
+  /**
+   * Create anonymous var array with fixed size.
+   *
+   * @param size size of the array, if negative then read till end of stream.
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder VarArray(final int size) {
+    return this.VarArray(null, arraySizeToString(size), null);
+  }
+
+  /**
+   * Create anonymous var array with size calculated through expression.
+   *
+   * @param sizeExpression expression to calculate size.
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder VarArray(final String sizeExpression) {
+    return this.VarArray(null, sizeExpression);
+  }
+
+  /**
+   * Create named var array with fixed size.
+   *
+   * @param size size of the array, if negative then read till end of stream.
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder VarArray(final String name, final int size) {
+    return this.VarArray(name, arraySizeToString(size), null);
+  }
+
+  /**
+   * Create named var array with fixed size.
+   *
+   * @param name name of the array, can be null for anonymous one
+   * @param sizeExpression expression to calculate size of the array, must not be null.
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder VarArray(final String name, final String sizeExpression) {
+    return this.VarArray(name, sizeExpression, null);
+  }
+
+  /**
+   * Create named var array with fixed size.
+   *
+   * @param name name of the array, can be null for anonymous one
+   * @param size size of array, it can be negative if to read stream till end.
+   * @param param optional parameter for the field, can be null
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder VarArray(final String name, final int size, final String param) {
+    return this.VarArray(name, arraySizeToString(size), param);
+  }
+
+  /**
+   * Create named var array with fixed size.
+   *
+   * @param name name of the array, can be null for anonymous one
+   * @param sizeExpression expression to calculate size of the array, must not be null.
+   * @param param optional parameter for the field, can be null
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder VarArray(final String name, final String sizeExpression, final String param) {
+    return this.CustomArray("var", name, sizeExpression, param);
   }
 
   /**

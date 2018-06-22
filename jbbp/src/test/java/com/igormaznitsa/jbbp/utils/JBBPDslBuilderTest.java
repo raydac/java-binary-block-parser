@@ -38,6 +38,24 @@ class JBBPDslBuilderTest {
   }
 
   @Test
+  public void testType_Var() {
+    assertEquals("var;", Begin().Var().End());
+    assertEquals("var huzzaa;", Begin().Var("huzzaa").End());
+    assertEquals("var:(a+b);", Begin().Var(null, "a+b").End());
+    assertEquals("var:(a+b) huzzaa;", Begin().Var("huzzaa", "a+b").End());
+  }
+
+  @Test
+  public void testType_VarArray() {
+    assertEquals("var[1234];", Begin().VarArray(1234).End());
+    assertEquals("var[q+b];", Begin().VarArray("q+b").End());
+    assertEquals("var[1234] lupus;", Begin().VarArray("lupus", 1234).End());
+    assertEquals("var[a+1234] lupus;", Begin().VarArray("lupus", "a+1234").End());
+    assertEquals("var:(c/2)[_] huzzaa;", Begin().VarArray("huzzaa", -1,"c/2").End());
+    assertEquals("var:(c/2)[a+b] huzzaa;", Begin().VarArray("huzzaa", "a+b","c/2").End());
+  }
+
+  @Test
   public void testType_CustomArray() {
     assertEquals("some[1234];", Begin().CustomArray("some", 1234).End());
     assertEquals("some[q+b];", Begin().CustomArray("some", "q+b").End());
