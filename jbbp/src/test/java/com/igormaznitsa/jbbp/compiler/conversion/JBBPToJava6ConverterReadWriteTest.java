@@ -47,7 +47,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test reading writing with converted classes from parser.
  */
-public class JBBPToJBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6ConverterTest {
+public class JBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6ConverterTest {
 
   private byte[] loadResource(final String name) throws Exception {
     final InputStream result = this.getClass().getClassLoader().getResourceAsStream("com/igormaznitsa/jbbp/it/" + name);
