@@ -46,13 +46,15 @@ public class RandomAutoTest extends AbstractJBBPToJava6ConverterTest {
     final int fieldsNumber;
     final int structNumber;
     final int booleanDataItemCounter;
+    final long typeFlags;
 
-    Result(final String script, final int bitLength, final int fieldsNumber, final int structNumber, final int booleanDtaItemCounter) {
+    Result(final String script, final int bitLength, final int fieldsNumber, final int structNumber, final int booleanDtaItemCounter, final long typeFlags) {
       this.script = script;
       this.bitLength = bitLength;
       this.fieldsNumber = fieldsNumber;
       this.structNumber = structNumber;
       this.booleanDataItemCounter = booleanDtaItemCounter;
+      this.typeFlags = typeFlags;
     }
   }
 
@@ -101,6 +103,8 @@ public class RandomAutoTest extends AbstractJBBPToJava6ConverterTest {
 
     int activeStructCounter = 0;
 
+    long typeFlags = 0;
+
     for (int i = 0; i < items; i++) {
 
       if (RND.nextInt(50) > 48) {
@@ -116,7 +120,9 @@ public class RandomAutoTest extends AbstractJBBPToJava6ConverterTest {
         final StructLen len = counterStack.remove(0);
         counterStack.get(0).add(len.make());
       } else {
-        switch (RND.nextInt(25)) {
+        final int rndType = RND.nextInt(25);
+        typeFlags |= (1 << rndType);
+        switch (rndType) {
           case 0: { // STRUCT
             builder.Struct(generateNames ? makeRndName() : null);
             counterStack.add(0, new StructLen());
@@ -221,7 +227,7 @@ public class RandomAutoTest extends AbstractJBBPToJava6ConverterTest {
             fieldsTotal++;
           }
           break;
-          case 14: { // SHORT_ARRAY
+          case 14: { // USHORT_ARRAY
             final int arrayLen = makeArrayLengthNumber();
             builder.UShortArray(generateNames ? makeRndName() : null, String.valueOf(arrayLen));
             counterStack.get(0).add(16 * arrayLen);
@@ -305,7 +311,7 @@ public class RandomAutoTest extends AbstractJBBPToJava6ConverterTest {
       counterStack.get(0).add(len.make());
     }
 
-    return new Result(builder.End(), counterStack.get(0).make(), fieldsTotal, structsTotal, booleanDataItems);
+    return new Result(builder.End(), counterStack.get(0).make(), fieldsTotal, structsTotal, booleanDataItems, typeFlags);
   }
 
   private byte[] makeRandomDataArray(final int bitLength) {
@@ -320,11 +326,15 @@ public class RandomAutoTest extends AbstractJBBPToJava6ConverterTest {
   public void testCompileParseAndWriteArray() throws Exception {
     int testIndex = 1;
 
+    long generatedFields = 0L;
+
     for (int i = 5; i < 500; i += 3) {
       Result result;
       do {
         result = generate(i, true);
       } while (result.bitLength > 10000000);
+
+      generatedFields |= result.typeFlags;
 
       System.out.println(String.format("Test %d, data bit length = %d, fields = %d, sructs = %d", testIndex, result.bitLength, result.fieldsNumber, result.structNumber));
 
@@ -335,6 +345,8 @@ public class RandomAutoTest extends AbstractJBBPToJava6ConverterTest {
 
       testIndex++;
     }
+
+    assertEquals(0x1FFFFFFL, generatedFields, "All field types must be presented");
   }
 
 

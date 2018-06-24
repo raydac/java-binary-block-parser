@@ -726,6 +726,10 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
       long d;
       @Bin(outOrder = 5, comment = "some array")
       byte[] arr = new byte[128];
+      @Bin(outOrder = 6, comment = "some string")
+      String str = "Hello String";
+      @Bin(outOrder = 7, comment = "some string array")
+      String [] strs = new String[] {"Hello", null, "World"};
     }
 
     final SomeClass cl = new SomeClass();

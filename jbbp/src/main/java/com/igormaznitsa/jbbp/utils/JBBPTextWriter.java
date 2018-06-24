@@ -1896,7 +1896,10 @@ public class JBBPTextWriter extends FilterWriter {
     protected void onFieldString(final Object obj, final Field field, final Bin annotation, final String value) {
       try {
         ensureValueMode();
+        final String prefix = prefixValue;
+        prefixValue = "";
         printValueString(value == null ? "<NULL>" : '\"'+value+'\"');
+        prefixValue = prefix;
         if (this.arrayCounter == 0) {
           Comment(makeFieldDescription(field, annotation));
         }
