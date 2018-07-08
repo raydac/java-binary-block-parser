@@ -100,7 +100,8 @@ public class JBBPGenerateTask extends AbstractJBBPTask {
         .setClassImplements(ext.interfaces)
         .setSubClassInterfaces(ext.mapSubClassInterfaces)
         .setAddGettersSetters(ext.addGettersSetters)
-        .setDoAbstract(ext.doAbstract);
+        .setDoAbstract(ext.doAbstract)
+        .setDisableGenerateFields(ext.disableGenerateFields);
 
 
     for (final File aScript : findScripts(ext)) {

@@ -81,6 +81,7 @@ public class JBBPGenerateMojoTest extends AbstractMojoTestCase {
     assertEquals("OUT-8", mojo.getOutputEncoding());
     assertEquals("com.igormaznitsa.Super", mojo.getSuperClass());
     assertEquals("SOME_TARGET", mojo.getTarget());
+    assertTrue(mojo.isDisableGenerateFields());
     assertTrue(mojo.getDoAbstract());
     assertTrue(mojo.getAddGettersSetters());
     assertArrayEquals(new String[] {"abc", "def"}, set2array(mojo.getCustomTypes()));

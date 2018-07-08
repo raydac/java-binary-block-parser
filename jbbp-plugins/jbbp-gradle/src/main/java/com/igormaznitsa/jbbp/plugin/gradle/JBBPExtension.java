@@ -18,6 +18,7 @@ import java.util.Set;
  * @since 1.3.0
  */
 public class JBBPExtension {
+
   /**
    * The Registered name of the extension.
    */
@@ -29,12 +30,14 @@ public class JBBPExtension {
   public Target target = Target.JAVA_1_6;
 
   /**
-   * Flag to generate getters and setters in result class, all fields will be protected ones.
+   * Flag to generate getters and setters in result class, all fields will be
+   * protected ones.
    */
   public boolean addGettersSetters = false;
 
   /**
-   * Make the result class as abstract one even if it doesn't have abstract methods.
+   * Make the result class as abstract one even if it doesn't have abstract
+   * methods.
    */
   public boolean doAbstract = false;
 
@@ -54,7 +57,8 @@ public class JBBPExtension {
   public Set<String> customTypes = new HashSet<String>();
 
   /**
-   * Interface names mapped to generated sub-classes, mapped interface will be used in getters instead of the sub-class type.
+   * Interface names mapped to generated sub-classes, mapped interface will be
+   * used in getters instead of the sub-class type.
    */
   public Map<String, String> mapSubClassInterfaces = new HashMap<String, String>();
 
@@ -74,7 +78,8 @@ public class JBBPExtension {
   public String headComment = null;
 
   /**
-   * Text file which content will be added into head of generated class as comments.
+   * Text file which content will be added into head of generated class as
+   * comments.
    */
   public File headCommentFile = null;
 
@@ -97,6 +102,13 @@ public class JBBPExtension {
    * Package name to override the package name extracted from JBBP script name.
    */
   public String packageName = null;
+
+  /**
+   * Disable generate fields for target class.
+   *
+   * @since 1.4.0
+   */
+  public boolean disableGenerateFields = false;
 
   /**
    * Output folder for result classes.

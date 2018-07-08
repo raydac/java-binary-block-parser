@@ -35,6 +35,7 @@
                     <superClass>com.igormaznitsa.Super</superClass>
                     <doAbstract>true</doAbstract>
                     <target>SOME_TARGET</target>
+                    <disableGenerateFields>true</disableGenerateFields>
                     <mapStructToInterfaces>
                         <a.b.c>com.test.C</a.b.c>
                         <a.b.d>com.test.D</a.b.d>

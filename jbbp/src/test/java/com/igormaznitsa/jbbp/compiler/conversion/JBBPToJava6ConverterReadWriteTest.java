@@ -74,7 +74,6 @@ public class JBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6Conver
   public void testReadWrite_ExtendsSuperClassAndUseItsFields() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("stringj str; stringj [2] strarr;  floatj flt; floatj [2] fltarr; doublej dbl; doublej [2] dblarr;");
     final String text = JBBPToJava6Converter.makeBuilder(parser).setMainClassName(CLASS_NAME).setMainClassPackage(PACKAGE_NAME).disableGenerateFields().setSuperClass(TestSuperclass.class.getCanonicalName()).setAddGettersSetters(true).build().convert();
-    System.out.println(text);
     final String fullClassName = PACKAGE_NAME + '.' + CLASS_NAME;
     final ClassLoader classLoader = saveAndCompile(new JavaClassContent(fullClassName, text));
 

@@ -57,6 +57,11 @@ public interface JBBPScriptTranslator {
     @Nullable
     JBBPCustomFieldTypeProcessor customFieldTypeProcessor = null;
     /**
+     * Disable generate class fields.
+     * @since 1.4.0
+     */
+    private boolean disableGenerateFields = false;
+    /**
      * Flag to force abstract main class.
      */
     private boolean doAbstract = false;
@@ -131,6 +136,16 @@ public interface JBBPScriptTranslator {
       return this;
     }
 
+    public boolean isDisableGenerateFields() {
+      return this.disableGenerateFields;
+    }
+
+    @Nonnull
+    public Parameters setDisableGenerateFields(final boolean value) {
+      this.disableGenerateFields = value;
+      return this;
+    }
+    
     @Nonnull
     public Set<String> getClassImplements() {
       return Collections.unmodifiableSet(this.classImplements);

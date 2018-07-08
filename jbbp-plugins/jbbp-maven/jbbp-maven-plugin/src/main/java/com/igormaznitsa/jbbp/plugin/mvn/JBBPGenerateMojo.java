@@ -111,6 +111,11 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
   @Parameter(alias = "customText")
   private String customText;
   /**
+   * Disable generate fields in result class.
+   */
+  @Parameter(alias = "disableGenerateFields",defaultValue = "false")
+  private boolean disableGenerateFields;
+  /**
    * Generate getters and setters for class fields (class fields will be private
    * ones).
    */
@@ -193,6 +198,10 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
     return this.parserFlags;
   }
 
+  public boolean isDisableGenerateFields() {
+    return this.disableGenerateFields;
+  }
+  
   @Nullable
   private String makeCapText(@Nonnull final String inEncoding) throws IOException {
     String result = null;
@@ -298,7 +307,8 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
           .setClassImplements(this.interfaces)
           .setSubClassInterfaces(this.mapStructToInterfaces)
           .setAddGettersSetters(this.addGettersSetters)
-          .setDoAbstract(this.doAbstract);
+          .setDoAbstract(this.doAbstract)
+          .setDisableGenerateFields(this.disableGenerateFields);
 
       for (final File aScript : foundJBBPScripts) {
         parameters.setScriptFile(aScript).assertAllOk();

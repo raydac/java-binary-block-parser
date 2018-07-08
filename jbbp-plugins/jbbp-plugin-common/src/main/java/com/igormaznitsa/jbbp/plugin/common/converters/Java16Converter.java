@@ -36,7 +36,7 @@ public class Java16Converter implements JBBPScriptTranslator {
       final String[] implementsSorted = parameters.getClassImplements().toArray(new String[parameters.getClassImplements().size()]);
       Arrays.sort(implementsSorted);
 
-      final JBBPToJava6Converter converter = JBBPToJava6Converter.makeBuilder(parser)
+      final JBBPToJava6Converter.Builder builder = JBBPToJava6Converter.makeBuilder(parser)
           .setMapSubClassesInterfaces(parameters.getSubClassInterfaces())
           .setMainClassName(className)
           .setHeadComment(parameters.getHeadComment())
@@ -46,9 +46,13 @@ public class Java16Converter implements JBBPScriptTranslator {
           .setDoMainClassAbstract(parameters.isDoAbstract())
           .setMainClassImplements(implementsSorted)
           .setParserFlags(parameters.getParserFlags())
-          .setSuperClass(parameters.superClass).build();
+          .setSuperClass(parameters.superClass);
 
-      FileUtils.write(resultJavaFile, converter.convert(), parameters.getEncodingOut());
+      if (parameters.isDisableGenerateFields()) {
+        builder.disableGenerateFields();
+      }
+      
+      FileUtils.write(resultJavaFile, builder.build().convert(), parameters.getEncodingOut());
     }
     return resultFiles;
   }
