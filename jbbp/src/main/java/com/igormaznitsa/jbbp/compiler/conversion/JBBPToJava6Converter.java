@@ -275,7 +275,9 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     final String structType;
     if (nullableArraySize == null) {
       structType = structBaseTypeName;
-      this.getCurrentStruct().getFields().indent().print(fieldModifier).printf(" %s %s;", structType, structName).println();
+      if (this.builder.generateFields) {
+        this.getCurrentStruct().getFields().indent().print(fieldModifier).printf(" %s %s;", structType, structName).println();
+      }
       processSkipRemainingFlag();
       processSkipRemainingFlagForWriting("this." + structName);
       this.getCurrentStruct().getReadFunc().indent()
@@ -284,7 +286,9 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
       this.getCurrentStruct().getWriteFunc().indent().print(structName).println(".write(Out);");
     } else {
       structType = structBaseTypeName + " []";
-      this.getCurrentStruct().getFields().indent().print(fieldModifier).printf(" %s %s;", structType, structName).println();
+      if (this.builder.generateFields) {
+        this.getCurrentStruct().getFields().indent().print(fieldModifier).printf(" %s %s;", structType, structName).println();
+      }
       processSkipRemainingFlag();
       processSkipRemainingFlagForWriting("this." + structName);
       if ("-1".equals(arraySizeIn)) {
@@ -357,12 +361,16 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
     if (nullableArraySize == null) {
       textFieldType = type.asJavaSingleFieldType();
-      getCurrentStruct().getFields().printf("%s %s %s;%n", fieldModifier, textFieldType, fieldName);
+      if (this.builder.generateFields) {
+        getCurrentStruct().getFields().printf("%s %s %s;%n", fieldModifier, textFieldType, fieldName);
+      }
       getCurrentStruct().getReadFunc().println(String.format("this.%s = %s;", fieldName, type.makeReaderForSingleField(NAME_INPUT_STREAM, byteOrder)));
       getCurrentStruct().getWriteFunc().print(type.makeWriterForSingleField(NAME_OUTPUT_STREAM, "this." + fieldName, byteOrder)).println(";");
     } else {
       textFieldType = type.asJavaArrayFieldType() + " []";
-      getCurrentStruct().getFields().printf("%s %s %s;%n", fieldModifier, textFieldType, fieldName);
+      if (this.builder.generateFields) {
+        getCurrentStruct().getFields().printf("%s %s %s;%n", fieldModifier, textFieldType, fieldName);
+      }
       getCurrentStruct().getReadFunc().printf("this.%s = %s;%n", fieldName, type.makeReaderForArray(NAME_INPUT_STREAM, arraySizeIn, byteOrder));
       if (readWholeStreamAsArray) {
         getCurrentStruct().getWriteFunc().print(type.makeWriterForArrayWithUnknownSize(NAME_OUTPUT_STREAM, "this." + fieldName, byteOrder)).println(";");
@@ -432,7 +440,9 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     }
 
     final String fieldType = nullableArraySize == null ? "byte" : "byte []";
-    getCurrentStruct().getFields().indent().printf("%s %s %s;%n", fieldModifier, fieldType, fieldName);
+    if (this.builder.generateFields) {
+      getCurrentStruct().getFields().indent().printf("%s %s %s;%n", fieldModifier, fieldType, fieldName);
+    }
 
     if (nullableNameFieldInfo != null && this.builder.addGettersSetters) {
       registerGetterSetter(fieldType, fieldName, true);
@@ -468,7 +478,9 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     final String specialFieldName_fieldNameInfo = specialFieldName + "FieldInfo";
     final String specialFieldName_typeParameterContainer = specialFieldName + "TypeParameter";
 
-    this.getCurrentStruct().getFields().printf("%s JBBPAbstractField %s;%n", fieldModifier, fieldName);
+    if (this.builder.generateFields) {
+      this.getCurrentStruct().getFields().printf("%s JBBPAbstractField %s;%n", fieldModifier, fieldName);
+    }
 
     if (nullableNameFieldInfo != null) {
       this.specialSection.printf("private static final JBBPNamedFieldInfo %s = %s;%n",
@@ -535,7 +547,9 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     final String fieldType;
     if (readWholeStreamIntoArray || nullableArraySizeEvaluator != null) {
       fieldType = "JBBPAbstractArrayField<? extends JBBPAbstractField>";
-      this.getCurrentStruct().getFields().printf("%s %s %s;%n", fieldModifier, fieldType, fieldName);
+      if (this.builder.generateFields) {
+        this.getCurrentStruct().getFields().printf("%s %s %s;%n", fieldModifier, fieldType, fieldName);
+      }
 
       this.getCurrentStruct().getReadFunc().printf("%s = %s;%n",
           fieldName,
@@ -560,7 +574,9 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
     } else {
       fieldType = "JBBPAbstractField";
-      this.getCurrentStruct().getFields().printf("%s %s %s;%n", fieldModifier, fieldType, fieldName);
+      if (this.builder.generateFields) {
+        this.getCurrentStruct().getFields().printf("%s %s %s;%n", fieldModifier, fieldType, fieldName);
+      }
 
       this.getCurrentStruct().getReadFunc().printf("%s = %s;%n",
           fieldName,
@@ -941,10 +957,17 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
      * Text to be inserted into custom section of the resut class.
      */
     private String mainClassCustomText;
+    /**
+     * Flag to generate fields in result class file.
+     *
+     * @since 1.4.0
+     */
+    private boolean generateFields;
 
     private Builder(final JBBPParser parser) {
       this.srcParser = parser;
       this.parserFlags = parser.getFlags();
+      this.generateFields = true;
     }
 
     private void assertNonLocked() {
@@ -1073,6 +1096,18 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     public Builder setHeadComment(final String text) {
       assertNonLocked();
       this.headComment = text;
+      return this;
+    }
+
+    /**
+     * Disable generate fields, useful if some super class extended and its fields should be used instead of generated ones.
+     * If disable then all code will be generated but without class fields. By default field generate is enabled.
+     *
+     * @return the builder instance, must not be null
+     * @since 1.4.0
+     */
+    public Builder disableGenerateFields() {
+      this.generateFields = false;
       return this;
     }
 

@@ -61,6 +61,45 @@ public class JBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6Conver
     }
   }
 
+  public static abstract class TestSuperclass {
+    protected String str;
+    protected String[] strarr;
+    protected float flt;
+    protected float[] fltarr;
+    protected double dbl;
+    protected double[] dblarr;
+  }
+
+  @Test
+  public void testReadWrite_ExtendsSuperClassAndUseItsFields() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("stringj str; stringj [2] strarr;  floatj flt; floatj [2] fltarr; doublej dbl; doublej [2] dblarr;");
+    final String text = JBBPToJava6Converter.makeBuilder(parser).setMainClassName(CLASS_NAME).setMainClassPackage(PACKAGE_NAME).disableGenerateFields().setSuperClass(TestSuperclass.class.getCanonicalName()).setAddGettersSetters(true).build().convert();
+    System.out.println(text);
+    final String fullClassName = PACKAGE_NAME + '.' + CLASS_NAME;
+    final ClassLoader classLoader = saveAndCompile(new JavaClassContent(fullClassName, text));
+
+    final Object instance = ReflectUtils.newInstance(classLoader.loadClass(fullClassName));
+    assertTrue(instance instanceof TestSuperclass);
+
+    callRead(instance, new byte[] {
+        0,
+        2, 49, 50, 1, 51,
+        1, 2, 3, 4,
+        5, 6, 7, 8, 9, 10, 11, 12,
+        1, 2, 3, 4, 5, 6, 7, 8,
+        9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24
+    });
+
+    final TestSuperclass parsed = (TestSuperclass) instance;
+
+    assertNull(null, parsed.str);
+    assertArrayEquals(new String[] {"12", "3"}, parsed.strarr);
+    assertEquals(2.3879393E-38f, parsed.flt);
+    assertArrayEquals(new float[] {6.301941E-36f, 1.661634E-33f}, parsed.fltarr);
+    assertEquals(8.20788039913184E-304d, parsed.dbl);
+    assertArrayEquals(new double[] {4.0383818836028145E-265d, 1.9074368412237584E-226d}, parsed.dblarr);
+  }
+
   @Test
   public void testReaWrite_StructMappedToInterface_Array_GettersSettersOn() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("z { x { y [_] { byte a;}}}");
@@ -158,12 +197,12 @@ public class JBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6Conver
   @Test
   public void testReadWite_Bit_SingleValueWhichLengthCalclatedThrouhExpression() throws Exception {
     final Object instance = compileAndMakeInstance("ubyte a; ubyte b; bit:(a+b) c;");
-    final byte[] etalon = new byte[] {1, 2, (byte)0xB4};
+    final byte[] etalon = new byte[] {1, 2, (byte) 0xB4};
 
     callRead(instance, etalon.clone());
 
     assertEquals(4, getField(instance, "c", Byte.class).intValue());
-    assertArrayEquals(new byte[]{1, 2, 4}, callWrite(instance));
+    assertArrayEquals(new byte[] {1, 2, 4}, callWrite(instance));
   }
 
   @Test
