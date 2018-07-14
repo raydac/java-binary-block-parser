@@ -210,6 +210,13 @@ public class JBBPToJBBPToJava6ConverterCompilationTest extends AbstractJBBPToJav
   }
 
   @Test
+  public void testValFields() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("ubyte a; ubyte b; val:(a+b*2) v; byte [v] data;");
+    assertCompilation(makeSources(parser, null, false));
+    assertCompilation(makeSources(parser, null, true));
+  }
+
+  @Test
   public void testStringFields() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("stringj str; stringj [5] strarr; stringj [_] all;");
     assertCompilation(makeSources(parser, null, false));

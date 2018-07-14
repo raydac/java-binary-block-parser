@@ -85,7 +85,7 @@ public class CompiledBlockVisitor {
       final int c = compiledData[positionAtCompiledBlock.getAndIncrement()] & 0xFF;
       final boolean wideCode = (c & JBBPCompiler.FLAG_WIDE) != 0;
       final int ec = wideCode ? compiledData[positionAtCompiledBlock.getAndIncrement()] & 0xFF : 0;
-      final boolean isFloatDoubleOrStringField = (ec & JBBPCompiler.EXT_FLAG_EXTRA_DIFF_TYPE) != 0;
+      final boolean altFileType = (ec & JBBPCompiler.EXT_FLAG_EXTRA_DIFF_TYPE) != 0;
       final boolean extraFieldNumAsExpr = (ec & JBBPCompiler.EXT_FLAG_EXTRA_AS_EXPRESSION) != 0;
       final int code = (ec << 8) | c;
 
@@ -134,7 +134,15 @@ public class CompiledBlockVisitor {
         case JBBPCompiler.CODE_SKIP:
         case JBBPCompiler.CODE_ALIGN: {
           final JBBPIntegerValueEvaluator evaluator = extraFieldNumAsExpr ? extraFieldValueEvaluator : new IntConstValueEvaluator(JBBPUtils.unpackInt(compiledData, positionAtCompiledBlock));
-          visitActionItem(theOffset, theCode, evaluator);
+          if (altFileType) {
+            if (theCode == JBBPCompiler.CODE_SKIP) {
+              visitValField(theOffset, name, evaluator);
+            } else {
+              throw new Error("Unexpected code:" + theCode);
+            }
+          } else {
+            visitActionItem(theOffset, theCode, evaluator);
+          }
         }
         break;
 
@@ -151,7 +159,7 @@ public class CompiledBlockVisitor {
         case JBBPCompiler.CODE_USHORT:
         case JBBPCompiler.CODE_INT:
         case JBBPCompiler.CODE_LONG: {
-          visitPrimitiveField(theOffset, theCode, name, byteOrder, readWholeStream, isFloatDoubleOrStringField, arraySizeEvaluator);
+          visitPrimitiveField(theOffset, theCode, name, byteOrder, readWholeStream, altFileType, arraySizeEvaluator);
         }
         break;
 
@@ -202,6 +210,17 @@ public class CompiledBlockVisitor {
   }
 
   /**
+   * Visit field contains virtual field with VAL type.
+   *
+   * @param offsetInCompiledBlock offset in the compiled block
+   * @param nameFieldInfo         name of the field, must not be null
+   * @param expression            expression to calculate value
+   * @since 1.4.0
+   */
+  public void visitValField(int offsetInCompiledBlock, JBBPNamedFieldInfo nameFieldInfo, JBBPIntegerValueEvaluator expression) {
+  }
+
+  /**
    * Visit a primitive data field
    *
    * @param offsetInCompiledBlock  offset in the compiled block
@@ -209,7 +228,7 @@ public class CompiledBlockVisitor {
    * @param nullableNameFieldInfo  field info, null if the field is anonymous one
    * @param byteOrder              byte order for the field, must not be null
    * @param readWholeStreamAsArray if true then it is array with unknown size till the stream end
-   * @param isFloatDoubleOrStringField   flag shows that INT should be recognized as FLOAT and LONG as DOUBLE and BOOL as STRING
+   * @param altFieldType           flag shows that field type is alternative one, INT should be recognized as FLOAT and LONG as DOUBLE and BOOL as STRING
    * @param nullableArraySize      array size if the field is array, null if the field is not array or variable length array
    * @see JBBPCompiler#CODE_BYTE
    * @see JBBPCompiler#CODE_UBYTE
@@ -218,8 +237,9 @@ public class CompiledBlockVisitor {
    * @see JBBPCompiler#CODE_BOOL
    * @see JBBPCompiler#CODE_INT
    * @see JBBPCompiler#CODE_LONG
+   * @see JBBPCompiler#CODE_SKIP
    */
-  public void visitPrimitiveField(int offsetInCompiledBlock, int primitiveType, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPByteOrder byteOrder, boolean readWholeStreamAsArray, boolean isFloatDoubleOrStringField, JBBPIntegerValueEvaluator nullableArraySize) {
+  public void visitPrimitiveField(int offsetInCompiledBlock, int primitiveType, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPByteOrder byteOrder, boolean readWholeStreamAsArray, boolean altFieldType, JBBPIntegerValueEvaluator nullableArraySize) {
   }
 
   /**
