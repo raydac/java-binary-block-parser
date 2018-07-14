@@ -692,7 +692,7 @@ public class JBBPMapperTest {
     final class Outer {
 
       @Bin
-      int val;
+      int value;
       @Bin
       Inner inner;
 
@@ -712,11 +712,11 @@ public class JBBPMapperTest {
     final Outer oldouter = new Outer();
     final Outer.Inner inner = oldouter.inner;
 
-    final Outer newouter = (Outer) JBBPParser.prepare("int val; inner{ byte a; byte b;}").parse(new byte[] {1, 2, 3, 4, 5, 6}).mapTo(oldouter);
+    final Outer newouter = (Outer) JBBPParser.prepare("int value; inner{ byte a; byte b;}").parse(new byte[] {1, 2, 3, 4, 5, 6}).mapTo(oldouter);
 
     assertSame(oldouter, newouter);
     assertSame(inner, newouter.inner);
-    assertEquals(0x01020304, oldouter.val);
+    assertEquals(0x01020304, oldouter.value);
     assertEquals(5, inner.a);
     assertEquals(6, inner.b);
   }
@@ -727,7 +727,7 @@ public class JBBPMapperTest {
     final class Outer {
 
       @Bin
-      int val;
+      int value;
       @Bin
       Inner[] inner;
 
@@ -751,13 +751,13 @@ public class JBBPMapperTest {
     final Outer.Inner inner0 = oldouter.inner[0];
     final Outer.Inner inner1 = oldouter.inner[1];
 
-    final Outer newouter = (Outer) JBBPParser.prepare("int val; inner [2] { byte a; byte b;}").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}).mapTo(oldouter);
+    final Outer newouter = (Outer) JBBPParser.prepare("int value; inner [2] { byte a; byte b;}").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}).mapTo(oldouter);
 
     assertSame(oldouter, newouter);
     assertSame(inner, newouter.inner);
     assertSame(inner0, newouter.inner[0]);
     assertSame(inner1, newouter.inner[1]);
-    assertEquals(0x01020304, oldouter.val);
+    assertEquals(0x01020304, oldouter.value);
     assertEquals(5, inner[0].a);
     assertEquals(6, inner[0].b);
     assertEquals(7, inner[1].a);
@@ -770,7 +770,7 @@ public class JBBPMapperTest {
     final class Outer {
 
       @Bin
-      int val;
+      int value;
       @Bin
       Inner[] inner;
 
@@ -792,11 +792,11 @@ public class JBBPMapperTest {
     assertNull(inner[0]);
     assertNull(inner[1]);
 
-    final Outer newouter = (Outer) JBBPParser.prepare("int val; inner [2] { byte a; byte b;}").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}).mapTo(oldouter);
+    final Outer newouter = (Outer) JBBPParser.prepare("int value; inner [2] { byte a; byte b;}").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}).mapTo(oldouter);
 
     assertSame(oldouter, newouter);
     assertSame(inner, newouter.inner);
-    assertEquals(0x01020304, oldouter.val);
+    assertEquals(0x01020304, oldouter.value);
     assertEquals(5, inner[0].a);
     assertEquals(6, inner[0].b);
     assertEquals(7, inner[1].a);
@@ -829,7 +829,7 @@ public class JBBPMapperTest {
     assertThrows(JBBPMapperException.class, new Executable() {
       @Override
       public void execute() throws Throwable {
-        JBBPParser.prepare("int val; inner [2] { byte a; byte b;}").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}).mapTo(new Outer());
+        JBBPParser.prepare("int value; inner [2] { byte a; byte b;}").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}).mapTo(new Outer());
       }
     });
   }

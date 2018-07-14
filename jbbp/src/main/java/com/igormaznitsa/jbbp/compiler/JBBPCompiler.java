@@ -143,14 +143,48 @@ public final class JBBPCompiler {
   public static final int EXT_FLAG_EXTRA_AS_EXPRESSION = 0x02;
 
   /**
-   * The Flag shows that the type of data should be recognized as float (if int) or as double (if long).
+   * The Flag shows that the type of data should be recognized differently.
+   * as float (if int), as double (if long), as virtual value (if skip).
    *
    * @since 1.4.0
    */
-  public static final int EXT_FLAG_EXTRA_AS_FLOAT_DOUBLE_OR_STRING = 0x04;
+  public static final int EXT_FLAG_EXTRA_DIFF_TYPE = 0x04;
 
   public static JBBPCompiledBlock compile(final String script) throws IOException {
     return compile(script, null);
+  }
+
+  private static void assertTokenNotArray(final String fieldType, final JBBPToken token) {
+    if (token.getArraySizeAsString() != null) {
+      final String fieldName = token.getFieldName() == null ? "<ANONYM>" : token.getFieldName();
+      throw new JBBPCompilationException('\'' + fieldType + "' can't be array (" + fieldName + ')', token);
+    }
+  }
+
+  private static void assertTokenNamed(final String fieldType, final JBBPToken token) {
+    if (token.getFieldName() == null) {
+      final String fieldName = token.getFieldName() == null ? "<ANONYM>" : token.getFieldName();
+      throw new JBBPCompilationException('\'' + fieldType + "' must be named (" + fieldName + ')', token);
+    }
+  }
+
+  private static void assertTokenNotNamed(final String fieldType, final JBBPToken token) {
+    if (token.getFieldName() != null) {
+      final String fieldName = token.getFieldName() == null ? "<ANONYM>" : token.getFieldName();
+      throw new JBBPCompilationException('\'' + fieldType + "' must not be named (" + fieldName + ')', token);
+    }
+  }
+
+  private static void assertTokenHasExtraData(final String fieldType, final JBBPToken token) {
+    if (token.getFieldTypeParameters().getExtraData() == null) {
+      throw new JBBPCompilationException('\'' + fieldType + "\' doesn't have extra value", token);
+    }
+  }
+
+  private static void assertTokenDoesntHaveExtraData(final String fieldType, final JBBPToken token) {
+    if (token.getFieldTypeParameters().getExtraData() != null) {
+      throw new JBBPCompilationException('\'' + fieldType + "\' has extra value", token);
+    }
   }
 
   /**
@@ -212,7 +246,7 @@ public final class JBBPCompiler {
       }
 
       final boolean extraFieldNumericDataAsExpression = ((code >>> 8) & EXT_FLAG_EXTRA_AS_EXPRESSION) != 0;
-      final boolean fieldIsFloatOrDouble = ((code >>> 8) & EXT_FLAG_EXTRA_AS_FLOAT_DOUBLE_OR_STRING) != 0;
+      final boolean fieldTypeDiff = ((code >>> 8) & EXT_FLAG_EXTRA_DIFF_TYPE) != 0;
 
       switch (code & 0xF) {
         case CODE_BOOL:
@@ -249,11 +283,13 @@ public final class JBBPCompiler {
         }
         break;
         case CODE_SKIP: {
-          if (token.getArraySizeAsString() != null) {
-            throw new JBBPCompilationException("'skip' can't be array", token);
-          }
-          if (token.getFieldName() != null) {
-            throw new JBBPCompilationException("'skip' must not be named", token);
+          if (fieldTypeDiff) {
+            assertTokenNotArray("val", token);
+            assertTokenNamed("val", token);
+            assertTokenHasExtraData("val", token);
+          } else {
+            assertTokenNotArray("skip", token);
+            assertTokenNotNamed("skip", token);
           }
           if (extraFieldNumericDataAsExpression) {
             varLengthEvaluators.add(JBBPEvaluatorFactory.getInstance().make(token.getFieldTypeParameters().getExtraDataExpression(), namedFields, out.toByteArray()));
@@ -265,8 +301,10 @@ public final class JBBPCompiler {
             } else {
               try {
                 extraFieldNumberAsInt = Integer.parseInt(extraNumberAsStr);
-                assertNonNegativeValue(extraFieldNumberAsInt, token);
-              } catch (NumberFormatException ex) {
+                if (!fieldTypeDiff) {
+                  assertNonNegativeValue(extraFieldNumberAsInt, token);
+                }
+              } catch (final NumberFormatException ex) {
                 extraFieldNumberAsInt = -1;
               }
             }
@@ -274,12 +312,8 @@ public final class JBBPCompiler {
         }
         break;
         case CODE_ALIGN: {
-          if (token.getArraySizeAsString() != null) {
-            throw new JBBPCompilationException("'align' can't be array", token);
-          }
-          if (token.getFieldName() != null) {
-            throw new JBBPCompilationException("'align' must not be named", token);
-          }
+          assertTokenNotArray("align", token);
+          assertTokenNotNamed("align", token);
 
           if (extraFieldNumericDataAsExpression) {
             varLengthEvaluators.add(JBBPEvaluatorFactory.getInstance().make(token.getFieldTypeParameters().getExtraDataExpression(), namedFields, out.toByteArray()));
@@ -344,15 +378,9 @@ public final class JBBPCompiler {
         }
         break;
         case CODE_RESET_COUNTER: {
-          if (token.getArraySizeAsString() != null) {
-            throw new JBBPCompilationException("A Reset counter field can't be array", token);
-          }
-          if (token.getFieldName() != null) {
-            throw new JBBPCompilationException("A Reset counter field can't be named [" + token.getFieldName() + ']', token);
-          }
-          if (token.getFieldTypeParameters().getExtraData() != null) {
-            throw new JBBPCompilationException("A Reset counter field doesn't use extra value [" + token.getFieldName() + ']', token);
-          }
+          assertTokenNotArray("Reset counter", token);
+          assertTokenNotNamed("Reset counter", token);
+          assertTokenDoesntHaveExtraData("Reset counter", token);
         }
         break;
         case CODE_STRUCT_START: {
@@ -519,11 +547,11 @@ public final class JBBPCompiler {
 
         result |= token.getArraySizeAsString() == null ? 0 : (token.isVarArrayLength() ? FLAG_ARRAY | FLAG_WIDE | (EXT_FLAG_EXPRESSION_OR_WHOLESTREAM << 8) : FLAG_ARRAY);
         result |= hasExpressionAsExtraNumber ? FLAG_WIDE | (EXT_FLAG_EXTRA_AS_EXPRESSION << 8) : 0;
-        result |= token.getFieldTypeParameters().isFloatDoubleOrString() ? FLAG_WIDE | (EXT_FLAG_EXTRA_AS_FLOAT_DOUBLE_OR_STRING << 8) : 0;
+        result |= token.getFieldTypeParameters().isSpecialField() ? FLAG_WIDE | (EXT_FLAG_EXTRA_DIFF_TYPE << 8) : 0;
         result |= token.getFieldName() == null ? 0 : FLAG_NAMED;
 
         final String name = descriptor.getTypeName().toLowerCase(Locale.ENGLISH);
-        if ("skip".equals(name)) {
+        if ("skip".equals(name) || "val".equals(name)) {
           result |= CODE_SKIP;
         } else if ("align".equals(name)) {
           result |= CODE_ALIGN;

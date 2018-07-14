@@ -172,7 +172,89 @@ public class JBBPParserTest {
   }
 
   @Test
-  public void testParse_String_ErrorForEOF() throws Exception {
+  public void testCompile_Value() {
+    JBBPParser.prepare("val:34 value;");
+    JBBPParser.prepare("val:(1+$$) value;");
+    JBBPParser.prepare("val:(1<<4) value;");
+  }
+
+  @Test
+  public void testCompile_Value_CompilationErrors() {
+    assertThrows(JBBPCompilationException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        JBBPParser.prepare("val;");
+      }
+    });
+    assertThrows(JBBPCompilationException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        JBBPParser.prepare("val:1;");
+      }
+    });
+    assertThrows(JBBPCompilationException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        JBBPParser.prepare("val:(3+5);");
+      }
+    });
+    assertThrows(JBBPCompilationException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        JBBPParser.prepare("val a;");
+      }
+    });
+    assertThrows(JBBPCompilationException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        JBBPParser.prepare("val:3 [_];");
+      }
+    });
+    assertThrows(JBBPCompilationException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        JBBPParser.prepare("val:3 [_] field;");
+      }
+    });
+  }
+
+  @Test
+  public void testParse_Value_Constant() throws Exception {
+    final JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(new byte[0]));
+    assertEquals(34, JBBPParser.prepare("val:34 value;").parse(stream).findFieldForType(JBBPFieldInt.class).getAsInt());
+    assertEquals(0L, stream.getCounter());
+  }
+
+  @Test
+  public void testParse_Value_NegativeConstant() throws Exception {
+    final JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(new byte[0]));
+    assertEquals(-34, JBBPParser.prepare("val:-34 value;").parse(stream).findFieldForType(JBBPFieldInt.class).getAsInt());
+    assertEquals(0L, stream.getCounter());
+  }
+
+  @Test
+  public void testParse_Value_Expression() throws Exception {
+    final JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {1, 2}));
+    assertEquals(3, JBBPParser.prepare("ubyte a; ubyte b; val:(a+b) value;").parse(stream).findFieldForType(JBBPFieldInt.class).getAsInt());
+    assertEquals(2L, stream.getCounter());
+  }
+
+  @Test
+  public void testParse_Value_UseInExpression_NegativeResult() throws Exception {
+    final JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {1, 2}));
+    assertEquals(-2, JBBPParser.prepare("ubyte a; ubyte b; val:(a-b) value; val:(value*2) secondvalue;").parse(stream).findFieldForNameAndType("secondvalue", JBBPFieldInt.class).getAsInt());
+    assertEquals(2L, stream.getCounter());
+  }
+
+  @Test
+  public void testParse_Value_UseInExpression() throws Exception {
+    final JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {1, 2}));
+    assertEquals(6, JBBPParser.prepare("ubyte a; ubyte b; val:(a+b) value; val:(value*2) secondvalue;").parse(stream).findFieldForNameAndType("secondvalue", JBBPFieldInt.class).getAsInt());
+    assertEquals(2L, stream.getCounter());
+  }
+
+  @Test
+  public void testParse_String_ErrorForEOF() {
     final JBBPParser parser = JBBPParser.prepare("stringj;");
     assertThrows(EOFException.class, new Executable() {
       @Override
@@ -595,7 +677,7 @@ public class JBBPParserTest {
     assertThrows(ArithmeticException.class, new Executable() {
       @Override
       public void execute() throws Throwable {
-        parser.parse(new byte[]{1,3,65,66,67,0,1,2,3});
+        parser.parse(new byte[] {1, 3, 65, 66, 67, 0, 1, 2, 3});
       }
     });
   }
@@ -606,7 +688,7 @@ public class JBBPParserTest {
     assertThrows(ArithmeticException.class, new Executable() {
       @Override
       public void execute() throws Throwable {
-        parser.parse(new byte[]{3,65,66,67,0,1,2,3});
+        parser.parse(new byte[] {3, 65, 66, 67, 0, 1, 2, 3});
       }
     });
   }
@@ -878,8 +960,8 @@ public class JBBPParserTest {
 
   @Test
   public void testParse_BitFields_SizeProvidedThroughExpression() throws Exception {
-    assertEquals(4, JBBPParser.prepare("ubyte a; ubyte b; bit:(a+b) c;").parse(new byte[]{1,2,(byte)0xB4}).findFieldForType(JBBPFieldBit.class).getAsInt());
-    assertEquals(20, JBBPParser.prepare("ubyte a; ubyte b; bit:(a+b) c;").parse(new byte[]{3,2,(byte)0xB4}).findFieldForType(JBBPFieldBit.class).getAsInt());
+    assertEquals(4, JBBPParser.prepare("ubyte a; ubyte b; bit:(a+b) c;").parse(new byte[] {1, 2, (byte) 0xB4}).findFieldForType(JBBPFieldBit.class).getAsInt());
+    assertEquals(20, JBBPParser.prepare("ubyte a; ubyte b; bit:(a+b) c;").parse(new byte[] {3, 2, (byte) 0xB4}).findFieldForType(JBBPFieldBit.class).getAsInt());
   }
 
   @Test
@@ -887,13 +969,13 @@ public class JBBPParserTest {
     assertThrows(IllegalArgumentException.class, new Executable() {
       @Override
       public void execute() throws Throwable {
-        JBBPParser.prepare("ubyte a; ubyte b; bit:(a+b) c;").parse(new byte[]{11,2,(byte)0xB4});
+        JBBPParser.prepare("ubyte a; ubyte b; bit:(a+b) c;").parse(new byte[] {11, 2, (byte) 0xB4});
       }
     });
     assertThrows(IllegalArgumentException.class, new Executable() {
       @Override
       public void execute() throws Throwable {
-        JBBPParser.prepare("ubyte a; ubyte b; bit:(a-b) c;").parse(new byte[]{2,2,(byte)0xB4});
+        JBBPParser.prepare("ubyte a; ubyte b; bit:(a-b) c;").parse(new byte[] {2, 2, (byte) 0xB4});
       }
     });
   }
@@ -2052,10 +2134,10 @@ public class JBBPParserTest {
 
   @Test
   public void testParseFixedSizeStructureArray() throws Exception {
-    final JBBPParser parser = JBBPParser.prepare("int val; inner [2] { byte a; byte b;}");
+    final JBBPParser parser = JBBPParser.prepare("int val1; inner [2] { byte a; byte b;}");
 
     final JBBPFieldStruct parsed = parser.parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8});
-    assertEquals(0x01020304, parsed.findFieldForPathAndType("val", JBBPFieldInt.class).getAsInt());
+    assertEquals(0x01020304, parsed.findFieldForPathAndType("val1", JBBPFieldInt.class).getAsInt());
 
     final JBBPFieldArrayStruct structArray = parsed.findFieldForNameAndType("inner", JBBPFieldArrayStruct.class);
 

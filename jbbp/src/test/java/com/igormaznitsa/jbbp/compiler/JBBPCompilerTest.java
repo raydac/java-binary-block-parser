@@ -593,7 +593,7 @@ public class JBBPCompilerTest {
 
   @Test
   public void testCompile_FixedStructArray() throws Exception {
-    final JBBPCompiledBlock compiled = JBBPCompiler.compile("int val; inner [2] { byte a; byte b;}");
+    final JBBPCompiledBlock compiled = JBBPCompiler.compile("int value; inner [2] { byte a; byte b;}");
 
     assertArrayEquals(new byte[] {
         JBBPCompiler.CODE_INT | JBBPCompiler.FLAG_NAMED,

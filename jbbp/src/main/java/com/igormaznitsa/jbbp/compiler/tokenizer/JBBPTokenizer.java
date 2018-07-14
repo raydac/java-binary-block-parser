@@ -68,6 +68,8 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
     GLOBAL_RESERVED_TYPE_NAMES.add("long");
     GLOBAL_RESERVED_TYPE_NAMES.add("align");
     GLOBAL_RESERVED_TYPE_NAMES.add("skip");
+    GLOBAL_RESERVED_TYPE_NAMES.add("var");
+    GLOBAL_RESERVED_TYPE_NAMES.add("val");
     GLOBAL_RESERVED_TYPE_NAMES.add("$");
   }
 

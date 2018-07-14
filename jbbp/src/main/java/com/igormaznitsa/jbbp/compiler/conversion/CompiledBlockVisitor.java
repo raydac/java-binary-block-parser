@@ -85,7 +85,7 @@ public class CompiledBlockVisitor {
       final int c = compiledData[positionAtCompiledBlock.getAndIncrement()] & 0xFF;
       final boolean wideCode = (c & JBBPCompiler.FLAG_WIDE) != 0;
       final int ec = wideCode ? compiledData[positionAtCompiledBlock.getAndIncrement()] & 0xFF : 0;
-      final boolean isFloatDoubleOrStringField = (ec & JBBPCompiler.EXT_FLAG_EXTRA_AS_FLOAT_DOUBLE_OR_STRING) != 0;
+      final boolean isFloatDoubleOrStringField = (ec & JBBPCompiler.EXT_FLAG_EXTRA_DIFF_TYPE) != 0;
       final boolean extraFieldNumAsExpr = (ec & JBBPCompiler.EXT_FLAG_EXTRA_AS_EXPRESSION) != 0;
       final int code = (ec << 8) | c;
 

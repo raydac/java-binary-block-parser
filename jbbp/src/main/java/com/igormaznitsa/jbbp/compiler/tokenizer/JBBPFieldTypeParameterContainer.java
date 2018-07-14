@@ -108,16 +108,16 @@ public final class JBBPFieldTypeParameterContainer implements Serializable {
   }
 
   /**
-   * Check that the type is float, double or string.
+   * Check that the type is a special one ('floatj', 'doublej', 'stringj' or 'value').
    *
-   * @return true if the type is either float, double or string
+   * @return true if the type is a special one
    * @see JBBPFieldFloat#TYPE_NAME
    * @see JBBPFieldDouble#TYPE_NAME
    * @see JBBPFieldString#TYPE_NAME
    * @since 1.4.0
    */
-  public boolean isFloatDoubleOrString() {
-    return this.typeName.equals(JBBPFieldFloat.TYPE_NAME) || this.typeName.equals(JBBPFieldDouble.TYPE_NAME) || this.typeName.equals(JBBPFieldString.TYPE_NAME);
+  public boolean isSpecialField() {
+    return this.typeName.equals(JBBPFieldFloat.TYPE_NAME) || this.typeName.equals(JBBPFieldDouble.TYPE_NAME) || this.typeName.equals(JBBPFieldString.TYPE_NAME) || this.typeName.equals("val");
   }
 
   @Override
