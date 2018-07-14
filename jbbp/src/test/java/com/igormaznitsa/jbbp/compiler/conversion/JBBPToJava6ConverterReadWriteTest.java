@@ -194,6 +194,17 @@ public class JBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6Conver
   }
 
   @Test
+  public void testReadWite_Val_CalculatedLength() throws Exception {
+    final Object instance = compileAndMakeInstance("ubyte a; ubyte b; val:(a-b) c; val:(c+8) d; byte [d] data;");
+    final byte[] etalon = new byte[] {2, 8, 33, 44};
+
+    callRead(instance, etalon.clone());
+
+    assertArrayEquals(new byte[]{33,44}, getField(instance, "data", byte[].class));
+    assertArrayEquals(etalon, callWrite(instance));
+  }
+
+  @Test
   public void testReadWite_Bit_SingleValueWhichLengthCalclatedThrouhExpression() throws Exception {
     final Object instance = compileAndMakeInstance("ubyte a; ubyte b; bit:(a+b) c;");
     final byte[] etalon = new byte[] {1, 2, (byte) 0xB4};
