@@ -1,5 +1,6 @@
 package com.igormaznitsa.jbbp.utils;
 
+import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.mapper.Bin;
@@ -50,6 +51,31 @@ public class JBBPDslBuilder {
    */
   public static JBBPDslBuilder Begin() {
     return new JBBPDslBuilder();
+  }
+
+  protected static String assertTextNotNullAndTrimmedNotEmpty(final String text) {
+    if (text == null) {
+      throw new NullPointerException("Must not be null");
+    }
+    if (text.trim().length() == 0) {
+      throw new IllegalArgumentException("Must not be empty: " + text);
+    }
+    return text;
+  }
+
+  protected static String assertNameIfNotNull(final String name) {
+    if (name != null) {
+      for (int i = 0; i < name.length(); i++) {
+        final char c = name.charAt(i);
+        if (i == 0 && Character.isDigit(c)) {
+          throw new IllegalArgumentException("Digit can't be first char");
+        }
+        if (!Character.isLetterOrDigit(c)) {
+          throw new IllegalArgumentException("Only letters and digits allowed: " + name);
+        }
+      }
+    }
+    return name;
   }
 
   protected static String assertExpressionChars(final String expression) {
@@ -217,7 +243,7 @@ public class JBBPDslBuilder {
   /**
    * Add named var field.
    *
-   * @param name name of the field, can be null
+   * @param name  name of the field, can be null
    * @param param optional parameter for the field, can be null
    * @return the builder instance, must not be null
    */
@@ -320,6 +346,34 @@ public class JBBPDslBuilder {
   }
 
   /**
+   * Add virtual field which not be read but its value will be calculated by expression
+   *
+   * @param name       name of the value, it must not be null or empty
+   * @param expression expression to calculate value, it must not be null or empty
+   * @return the builder instance, must not be null
+   */
+  public JBBPDslBuilder Val(final String name, final String expression) {
+    final Item item = new ItemVal(
+        assertTextNotNullAndTrimmedNotEmpty(name),
+        assertExpressionChars(assertTextNotNullAndTrimmedNotEmpty(expression)).trim()
+    );
+    this.items.add(item);
+    return this;
+  }
+
+  /**
+   * Add command to reset counter of the current read stream.
+   *
+   * @return the builder instance, must not be null
+   * @see JBBPBitInputStream#resetCounter()
+   */
+  public JBBPDslBuilder ResetCounter() {
+    final Item item = new ItemResetCounter();
+    this.items.add(item);
+    return this;
+  }
+
+  /**
    * Create anonymous var array with fixed size.
    *
    * @param size size of the array, if negative then read till end of stream.
@@ -352,7 +406,7 @@ public class JBBPDslBuilder {
   /**
    * Create named var array with fixed size.
    *
-   * @param name name of the array, can be null for anonymous one
+   * @param name           name of the array, can be null for anonymous one
    * @param sizeExpression expression to calculate size of the array, must not be null.
    * @return the builder instance, must not be null
    */
@@ -363,8 +417,8 @@ public class JBBPDslBuilder {
   /**
    * Create named var array with fixed size.
    *
-   * @param name name of the array, can be null for anonymous one
-   * @param size size of array, it can be negative if to read stream till end.
+   * @param name  name of the array, can be null for anonymous one
+   * @param size  size of array, it can be negative if to read stream till end.
    * @param param optional parameter for the field, can be null
    * @return the builder instance, must not be null
    */
@@ -375,9 +429,9 @@ public class JBBPDslBuilder {
   /**
    * Create named var array with fixed size.
    *
-   * @param name name of the array, can be null for anonymous one
+   * @param name           name of the array, can be null for anonymous one
    * @param sizeExpression expression to calculate size of the array, must not be null.
-   * @param param optional parameter for the field, can be null
+   * @param param          optional parameter for the field, can be null
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder VarArray(final String name, final String sizeExpression, final String param) {
@@ -1390,6 +1444,10 @@ public class JBBPDslBuilder {
             doTabs(format, buffer, structCounter).append(item.toString());
           } else if (item instanceof ItemAlign) {
             doTabs(format, buffer, structCounter).append("align").append(item.sizeExpression == null ? "" : ':' + item.makeExpressionForExtraField(item.sizeExpression)).append(';');
+          } else if (item instanceof ItemVal) {
+            doTabs(format, buffer, structCounter).append("val").append(':' + item.makeExpressionForExtraField(item.sizeExpression)).append(' ').append(item.name).append(';');
+          } else if (item instanceof ItemResetCounter) {
+            doTabs(format, buffer, structCounter).append("reset$$;");
           } else if (item instanceof ItemSkip) {
             doTabs(format, buffer, structCounter).append("skip").append(item.sizeExpression == null ? "" : ':' + item.makeExpressionForExtraField(item.sizeExpression)).append(';');
           } else if (item instanceof ItemComment) {
@@ -1662,7 +1720,7 @@ public class JBBPDslBuilder {
 
     Item(final BinType type, final String name, final JBBPByteOrder byteOrder) {
       this.type = type;
-      this.name = name;
+      this.name = name == null ? name : assertNameIfNotNull(assertTextNotNullAndTrimmedNotEmpty(name)).trim();
       this.byteOrder = byteOrder;
     }
 
@@ -1856,6 +1914,19 @@ public class JBBPDslBuilder {
     ItemAlign(final String sizeExpression) {
       super(BinType.UNDEFINED, null, JBBPByteOrder.BIG_ENDIAN);
       this.sizeExpression = sizeExpression;
+    }
+  }
+
+  protected static class ItemVal extends Item {
+    ItemVal(final String name, final String sizeExpression) {
+      super(BinType.UNDEFINED, assertTextNotNullAndTrimmedNotEmpty(name), JBBPByteOrder.BIG_ENDIAN);
+      this.sizeExpression = assertExpressionChars(assertTextNotNullAndTrimmedNotEmpty(sizeExpression).trim());
+    }
+  }
+
+  protected static class ItemResetCounter extends Item {
+    ItemResetCounter() {
+      super(BinType.UNDEFINED, null, JBBPByteOrder.BIG_ENDIAN);
     }
   }
 

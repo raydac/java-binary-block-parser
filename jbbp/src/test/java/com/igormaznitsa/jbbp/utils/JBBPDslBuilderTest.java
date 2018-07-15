@@ -20,6 +20,34 @@ class JBBPDslBuilderTest {
   }
 
   @Test
+  public void testWrongName() {
+    assertThrows(IllegalArgumentException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        Begin().Int("").End();
+      }
+    });
+    assertThrows(IllegalArgumentException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        Begin().Int("  ").End();
+      }
+    });
+    assertThrows(IllegalArgumentException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        Begin().Int("3a").End();
+      }
+    });
+    assertThrows(IllegalArgumentException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        Begin().Int("ab\n").End();
+      }
+    });
+  }
+
+  @Test
   public void testNonFormatted() {
     assertEquals("bool test;{int field1;}", Begin().Bool("test").Struct().Int("field1").CloseStruct().End(false));
   }
@@ -153,6 +181,40 @@ class JBBPDslBuilderTest {
         Begin().Skip(-3);
       }
     });
+  }
+
+  @Test
+  public void testResetCounter() {
+    assertEquals("reset$$;", Begin().ResetCounter().End());
+  }
+
+  @Test
+  public void testVal() {
+    assertThrows(NullPointerException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        Begin().Val(null, "a+b").End();
+      }
+    });
+    assertThrows(NullPointerException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        Begin().Val("hello", null).End();
+      }
+    });
+    assertThrows(IllegalArgumentException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        Begin().Val("", "a+b").End();
+      }
+    });
+    assertThrows(IllegalArgumentException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        Begin().Val("hello", "").End();
+      }
+    });
+    assertEquals("val:(a+b) hello;", Begin().Val("hello", "a+b").End());
   }
 
   @Test
