@@ -240,11 +240,6 @@ public final class JBBPCompiler {
       int extraFieldNumberAsInt = -1;
       int customTypeFieldIndex = -1;
 
-      // check that the field is not in the current structure which is a whole stream one
-      if ((code & 0xF) != CODE_STRUCT_END && fieldUnrestrictedArrayOffset >= 0 && (structureStack.isEmpty() || structureStack.get(structureStack.size() - 1).startStructureOffset != fieldUnrestrictedArrayOffset)) {
-        throw new JBBPCompilationException("Attempt to read after a 'till-the-end' field", token);
-      }
-
       final boolean extraFieldNumericDataAsExpression = ((code >>> 8) & EXT_FLAG_EXTRA_AS_EXPRESSION) != 0;
       final boolean fieldTypeDiff = ((code >>> 8) & EXT_FLAG_EXTRA_DIFF_TYPE) != 0;
 
@@ -384,13 +379,21 @@ public final class JBBPCompiler {
         }
         break;
         case CODE_STRUCT_START: {
-          structureStack.add(new StructStackItem(namedFields.size() + ((code & JBBPCompiler.FLAG_NAMED) == 0 ? 0 : 1), startFieldOffset, code, token));
+          final boolean arrayReadTillEnd = (code & FLAG_ARRAY) != 0 && (extraCode & EXT_FLAG_EXPRESSION_OR_WHOLESTREAM) != 0 && "_".equals(token.getArraySizeAsString());
+          structureStack.add(new StructStackItem(namedFields.size() + ((code & JBBPCompiler.FLAG_NAMED) == 0 ? 0 : 1), startFieldOffset, arrayReadTillEnd, code, token));
         }
         break;
         case CODE_STRUCT_END: {
           if (structureStack.isEmpty()) {
             throw new JBBPCompilationException("Detected structure close tag without opening one", token);
           } else {
+            if (fieldUnrestrictedArrayOffset >= 0) {
+              final StructStackItem startOfStruct = structureStack.get(structureStack.size() - 1);
+              if (startOfStruct.arrayToReadTillEndOfStream && fieldUnrestrictedArrayOffset != startOfStruct.startStructureOffset) {
+                throw new JBBPCompilationException("Detected unlimited array of structures but there is already presented one", token);
+              }
+            }
+
             currentClosedStructure = structureStack.remove(structureStack.size() - 1);
             offset += writePackedInt(out, currentClosedStructure.startStructureOffset);
           }
@@ -400,7 +403,11 @@ public final class JBBPCompiler {
           throw new Error("Detected unsupported compiled code, notify the developer please [" + code + ']');
       }
 
-      if ((code & FLAG_ARRAY) != 0) {
+      if ((code & FLAG_ARRAY) == 0) {
+        if (structureStack.isEmpty() && (code & 0x0F) != CODE_STRUCT_END && fieldUnrestrictedArrayOffset >= 0) {
+           throw new JBBPCompilationException("Detected field defined after unlimited array", token);
+        }
+      } else {
         if ((extraCode & EXT_FLAG_EXPRESSION_OR_WHOLESTREAM) != 0) {
           if ("_".equals(token.getArraySizeAsString())) {
             if (fieldUnrestrictedArrayOffset >= 0) {
@@ -636,17 +643,24 @@ public final class JBBPCompiler {
     private final int namedFieldCounter;
 
     /**
+     * Flag shows that the structure is array which shoukd be read till end of stream
+     */
+    private final boolean arrayToReadTillEndOfStream;
+
+    /**
      * The Constructor.
      *
      * @param namedFieldCounter    the named field counter value for the structure
      *                             start
      * @param startStructureOffset the offset of the start structure byte-code
      *                             instruction
+     * @param arrayToReadTillEnd   if true then it is array to read till end
      * @param code                 the start byte code
      * @param token                the token
      */
-    private StructStackItem(final int namedFieldCounter, final int startStructureOffset, final int code, final JBBPToken token) {
+    private StructStackItem(final int namedFieldCounter, final int startStructureOffset, final boolean arrayToReadTillEnd, final int code, final JBBPToken token) {
       this.namedFieldCounter = namedFieldCounter;
+      this.arrayToReadTillEndOfStream = arrayToReadTillEnd;
       this.startStructureOffset = startStructureOffset;
       this.code = code;
       this.token = token;

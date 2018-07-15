@@ -40,6 +40,53 @@ public class JBBPCompilerTest {
   }
 
   @Test
+  public void testCompile_AllowedStructInsideStructWhichShouldBeReadTillEnd() throws Exception {
+    JBBPCompiler.compile("a [_] { byte c;}");
+    JBBPCompiler.compile("a [_] { b {byte c;}}");
+    JBBPCompiler.compile("[_] { b [2] {byte c;}}");
+  }
+
+  @Test
+  public void testCompile_ErrorSituationsReadTillEnd() {
+    assertThrows(JBBPCompilationException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        JBBPCompiler.compile("ubyte [_]; ubyte [_];");
+      }
+    });
+    assertThrows(JBBPCompilationException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        JBBPCompiler.compile("ubyte [_]; a {byte;};");
+      }
+    });
+    assertThrows(JBBPCompilationException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        JBBPCompiler.compile("byte;test [_] {byte;} int error;");
+      }
+    });
+    assertThrows(JBBPCompilationException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        JBBPCompiler.compile("ubyte [_]; byte;");
+      }
+    });
+    assertThrows(JBBPCompilationException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        JBBPCompiler.compile("a [_] { byte a; } b [_] { byte a;}");
+      }
+    });
+    assertThrows(JBBPCompilationException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        JBBPCompiler.compile("a [_] { b [_] { byte a;}}");
+      }
+    });
+  }
+
+  @Test
   public void testCompile_StructForWholeStreamAsSecondField() throws Exception {
     final JBBPCompiledBlock block = JBBPCompiler.compile("byte;test [_] {byte;}");
     assertEquals(6, block.getCompiledData().length);
@@ -49,16 +96,6 @@ public class JBBPCompilerTest {
     assertEquals(JBBPCompiler.CODE_BYTE, block.getCompiledData()[3]);
     assertEquals(JBBPCompiler.CODE_STRUCT_END, block.getCompiledData()[4]);
     assertEquals(1, block.getCompiledData()[5]);
-  }
-
-  @Test
-  public void testCompile_ErrorForFieldAfterWholeStreamArray() throws Exception {
-    try {
-      JBBPCompiler.compile("byte;test [_] {byte;} int error;");
-      fail("Must throw IAE");
-    } catch (JBBPCompilationException ex) {
-      assertTrue(ex.getToken().toString().contains("int error"));
-    }
   }
 
   @Test
