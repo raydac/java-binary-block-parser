@@ -59,7 +59,17 @@ public class JBBPToJBBPToJava6ConverterCompilationTest extends AbstractJBBPToJav
   @Test
   public void testMapSubstructToInterface() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("a { b { c [_] { byte d;}} }");
-    final String text = JBBPToJava6Converter.makeBuilder(parser).setMainClassName(CLASS_NAME).setAddGettersSetters(true).setMapSubClassesInterfaces(makeMap("a.b", "com.igormaznitsa.Impl", "a.b.c", "com.igormaznitsa.Impl2")).build().convert();
+    final String text = JBBPToJava6Converter.makeBuilder(parser)
+        .setMainClassName(CLASS_NAME)
+        .setAddGettersSetters(true)
+        .setMapSubClassesInterfaces(
+            makeMap(
+                "a.b","com.igormaznitsa.Impl",
+                "a.b.c", "com.igormaznitsa.Impl2"
+            )
+        )
+        .build()
+        .convert();
     assertTrue(text.contains("public static class B implements com.igormaznitsa.Impl"));
     assertTrue(text.contains("public static class C implements com.igormaznitsa.Impl2"));
     assertTrue(text.contains("public com.igormaznitsa.Impl getB() { return this.b;}"));

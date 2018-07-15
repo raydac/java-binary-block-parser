@@ -254,9 +254,11 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
         this.builder.superClass,
         this.builder.mainClassImplements,
         this.builder.mapSubClassesInterfaces,
+        this.builder.mapSubClassesSuperclasses,
         this.specialSection.toString(),
         specialMethodsText.length() == 0 ? null : specialMethodsText,
-        this.builder.mainClassCustomText
+        this.builder.mainClassCustomText,
+        true
     );
 
     this.result = buffer.toString();
@@ -272,18 +274,27 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
     final String fieldModifier = makeModifier(nullableNameFieldInfo);
 
+    final String toType;
+    if (this.builder.generateFields) {
+      toType = "";
+    } else {
+      toType = '('+structBaseTypeName+')';
+    }
+
     final String structType;
     if (nullableArraySize == null) {
       structType = structBaseTypeName;
       if (this.builder.generateFields) {
         this.getCurrentStruct().getFields().indent().print(fieldModifier).printf(" %s %s;", structType, structName).println();
       }
+
       processSkipRemainingFlag();
       processSkipRemainingFlagForWriting("this." + structName);
+
       this.getCurrentStruct().getReadFunc().indent()
           .printf("if ( this.%1$s == null) { this.%1$s = new %2$s(%3$s);}", structName, structType, this.structStack.size() == 1 ? "this" : "this." + NAME_ROOT_STRUCT)
-          .printf(" this.%s.read(%s);%n", structName, NAME_INPUT_STREAM);
-      this.getCurrentStruct().getWriteFunc().indent().print(structName).println(".write(Out);");
+          .printf(" %s.read(%s);%n", toType.length() == 0 ? "this." + structName : '('+toType+ "this." + structName+')', NAME_INPUT_STREAM);
+      this.getCurrentStruct().getWriteFunc().indent().print(toType.length() == 0 ? structName : '(' +toType + structName + ')').println(".write(Out);");
     } else {
       structType = structBaseTypeName + " []";
       if (this.builder.generateFields) {
@@ -293,13 +304,18 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
       processSkipRemainingFlagForWriting("this." + structName);
       if ("-1".equals(arraySizeIn)) {
         this.getCurrentStruct().getReadFunc().indent()
-            .printf("List<%3$s> __%1$s_tmplst__ = new ArrayList<%3$s>(); while (%5$s.hasAvailableData()){ __%1$s_tmplst__.add(new %3$s(%4$s).read(%5$s));} this.%1$s = __%1$s_tmplst__.toArray(new %3$s[__%1$s_tmplst__.size()]);__%1$s_tmplst__ = null;%n", structName, arraySizeIn, structBaseTypeName, (this.structStack.size() == 1 ? "this" : NAME_ROOT_STRUCT), NAME_INPUT_STREAM);
-        this.getCurrentStruct().getWriteFunc().indent().printf("for (int I=0;I<this.%1$s.length;I++){ this.%1$s[I].write(%2$s); }%n", structName, NAME_OUTPUT_STREAM);
+            .printf("List<%3$s> __%1$s_tmplst__ = new ArrayList<%3$s>(); while (%5$s.hasAvailableData()){ __%1$s_tmplst__.add(new %3$s(%4$s).read(%5$s));} this.%1$s = __%1$s_tmplst__.toArray(new %3$s[__%1$s_tmplst__.size()]);__%1$s_tmplst__ = null;%n",
+                structName,
+                arraySizeIn,
+                structBaseTypeName,
+                (this.structStack.size() == 1 ? "this" : NAME_ROOT_STRUCT),
+                NAME_INPUT_STREAM);
+        this.getCurrentStruct().getWriteFunc().indent().printf("for (int I=0;I<this.%1$s.length;I++){ %2$s.write(%3$s); }%n", structName, toType.length() == 0 ? "this."+structName + "[I]" : '(' + toType +"this."+structName + "[I])", NAME_OUTPUT_STREAM);
       } else {
         this.getCurrentStruct().getReadFunc().indent()
             .printf("if (this.%1$s == null || this.%1$s.length != %2$s){ this.%1$s = new %3$s[%2$s]; for(int I=0;I<%2$s;I++){ this.%1$s[I] = new %3$s(%4$s);}}", structName, arraySizeIn, structBaseTypeName, (this.structStack.size() == 1 ? "this" : "this." + NAME_ROOT_STRUCT))
-            .printf("for (int I=0;I<%2$s;I++){ this.%1$s[I].read(%3$s); }%n", structName, arraySizeIn, NAME_INPUT_STREAM);
-        this.getCurrentStruct().getWriteFunc().indent().printf("for (int I=0;I<%2$s;I++){ this.%1$s[I].write(%3$s); }", structName, arraySizeOut, NAME_OUTPUT_STREAM);
+            .printf("for (int I=0;I<%2$s;I++){ this.%1$s[I].read(%3$s); }%n", toType + structName, arraySizeIn, NAME_INPUT_STREAM);
+        this.getCurrentStruct().getWriteFunc().indent().printf("for (int I=0;I<%2$s;I++){ this.%1$s[I].write(%3$s); }", toType + structName, arraySizeOut, NAME_OUTPUT_STREAM);
       }
     }
 
@@ -952,6 +968,10 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
      */
     private final Map<String, String> mapSubClassesInterfaces = new HashMap<String, String>();
     /**
+     * Superclasses to be extended by generated subclasses.
+     */
+    private final Map<String, String> mapSubClassesSuperclasses = new HashMap<String, String>();
+    /**
      * The Package name for the result class.
      */
     private String mainClassPackage;
@@ -1017,6 +1037,22 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
       this.mapSubClassesInterfaces.clear();
       if (mapClassNameToInterface != null) {
         this.mapSubClassesInterfaces.putAll(mapClassNameToInterface);
+      }
+      return this;
+    }
+
+    /**
+     * Add superclasses to classes generated for inside structures, a structure class will extend mapped class.
+     *
+     * @param mapClassNameToSuperclasses map with structure path as the key and the interface name as value, it can be null. <b>Names of structures should be in the lower case form amd dot separated for their hierarchy. (example: "a.b.c")</b>
+     * @return the builder instance, must not be null
+     * @since 1.4.0
+     */
+    public Builder setMapSubClassesSuperclasses(final Map<String, String> mapClassNameToSuperclasses) {
+      assertNonLocked();
+      this.mapSubClassesSuperclasses.clear();
+      if (mapClassNameToSuperclasses != null) {
+        this.mapSubClassesSuperclasses.putAll(mapClassNameToSuperclasses);
       }
       return this;
     }
@@ -1203,7 +1239,17 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
       return this.parent.findRoot();
     }
 
-    void write(final JavaSrcTextBuffer buffer, final String extraModifier, final String superClass, final Set<String> implementedInterfaces, final Map<String, String> mapStructInterfaces, final String commonSectionText, final String specialMethods, final String customText) {
+    void write(
+        final JavaSrcTextBuffer buffer,
+        final String extraModifier,
+        final String superClass,
+        final Set<String> implementedInterfaces,
+        final Map<String, String> mapStructInterfaces,
+        final Map<String, String> mapStructSuperclasses,
+        final String commonSectionText,
+        final String specialMethods,
+        final String customText,
+        final boolean useSuperclassForReadWrite) {
       final String interfaceForGetSet = mapStructInterfaces == null ? null : mapStructInterfaces.get(this.getPath());
 
       buffer.indent().printf(
@@ -1221,7 +1267,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
       }
 
       for (final Struct c : this.children) {
-        c.write(buffer, null, null, null, mapStructInterfaces, null, null, null);
+        c.write(buffer, null, mapStructSuperclasses.get(c.getPath()), null, mapStructInterfaces, mapStructSuperclasses, null, null, null, false);
       }
       buffer.println();
 
@@ -1245,7 +1291,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
       buffer.println();
 
-      buffer.indent().printf("public %s read(final JBBPBitInputStream In) throws IOException {%n", superClass == null ? this.className : superClass);
+      buffer.indent().printf("public %s read(final JBBPBitInputStream In) throws IOException {%n", useSuperclassForReadWrite && superClass != null ? superClass : this.className);
       buffer.incIndent();
       buffer.printLinesWithIndent(this.readFunc.toString());
       buffer.indent().println("return this;");
@@ -1254,7 +1300,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
       buffer.println();
 
-      buffer.indent().printf("public %s write(final JBBPBitOutputStream Out) throws IOException {%n", superClass == null ? this.className : superClass);
+      buffer.indent().printf("public %s write(final JBBPBitOutputStream Out) throws IOException {%n", useSuperclassForReadWrite && superClass != null ? superClass : this.className);
       buffer.incIndent();
       buffer.printLinesWithIndent(this.writeFunc.toString());
       buffer.indent().println("return this;");

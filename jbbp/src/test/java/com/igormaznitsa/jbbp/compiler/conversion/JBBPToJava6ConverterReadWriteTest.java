@@ -38,6 +38,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,18 +63,65 @@ public class JBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6Conver
   }
 
   public static abstract class TestSuperclass {
-    protected String str;
-    protected String[] strarr;
-    protected float flt;
-    protected float[] fltarr;
-    protected double dbl;
-    protected double[] dblarr;
+    public String str;
+    public String[] strarr;
+    public float flt;
+    public float[] fltarr;
+    public double dbl;
+    public double[] dblarr;
+    public char len;
+
+    public static abstract class Ins {
+      public byte[] a;
+      public byte b;
+      public byte c;
+
+      public static abstract class InsIns {
+        public byte a;
+      }
+
+      public InsIns insins;
+    }
+
+    public Ins[] ins;
   }
 
   @Test
   public void testReadWrite_ExtendsSuperClassAndUseItsFields() throws Exception {
-    final JBBPParser parser = JBBPParser.prepare("stringj str; stringj [2] strarr;  floatj flt; floatj [2] fltarr; doublej dbl; doublej [2] dblarr;");
-    final String text = JBBPToJava6Converter.makeBuilder(parser).setMainClassName(CLASS_NAME).setMainClassPackage(PACKAGE_NAME).disableGenerateFields().setSuperClass(TestSuperclass.class.getCanonicalName()).setAddGettersSetters(true).build().convert();
+    final JBBPParser parser = JBBPParser.prepare(
+        "stringj str;"
+            + "stringj [2] strarr;"
+            + "floatj flt;"
+            + "floatj [2] fltarr;"
+            + "doublej dbl;"
+            + "doublej [2] dblarr;"
+            + "ubyte len;"
+            + "ins [_] {"
+            + "      byte [len] a;"
+            + "      byte b;"
+            + "      byte c;"
+            + "      insins {"
+            + "        byte a;"
+            + "      }"
+            + "}"
+    );
+
+    this.printGeneratedClassText = true;
+
+    final Map<String,String> superclasses = new HashMap<String, String>();
+    superclasses.put("ins",TestSuperclass.Ins.class.getCanonicalName());
+    superclasses.put("ins.insins",TestSuperclass.Ins.InsIns.class.getCanonicalName());
+
+    final String text = JBBPToJava6Converter.makeBuilder(parser)
+        .setMainClassName(CLASS_NAME)
+        .setMainClassPackage(PACKAGE_NAME)
+        .disableGenerateFields()
+        .setSuperClass(TestSuperclass.class.getCanonicalName())
+        .setMapSubClassesSuperclasses(superclasses)
+        .setAddGettersSetters(false)
+        .build()
+        .convert();
+
     final String fullClassName = PACKAGE_NAME + '.' + CLASS_NAME;
     final ClassLoader classLoader = saveAndCompile(new JavaClassContent(fullClassName, text));
 
@@ -86,7 +134,10 @@ public class JBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6Conver
         1, 2, 3, 4,
         5, 6, 7, 8, 9, 10, 11, 12,
         1, 2, 3, 4, 5, 6, 7, 8,
-        9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24
+        9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+        2,
+        1,2,
+        3,4,5
     });
 
     final TestSuperclass parsed = (TestSuperclass) instance;
@@ -200,7 +251,7 @@ public class JBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6Conver
 
     callRead(instance, etalon.clone());
 
-    assertArrayEquals(new byte[]{33,44}, getField(instance, "data", byte[].class));
+    assertArrayEquals(new byte[] {33, 44}, getField(instance, "data", byte[].class));
     assertArrayEquals(etalon, callWrite(instance));
   }
 
