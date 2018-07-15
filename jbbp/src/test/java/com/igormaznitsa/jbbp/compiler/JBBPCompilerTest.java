@@ -608,17 +608,36 @@ public class JBBPCompilerTest {
   }
 
   @Test
-  public void testCompile_ErrorForNamedReset() throws Exception {
+  public void testCompile_correctFieldName() throws Exception {
+    JBBPCompiler.compile("int a;int _a;int a11;int a_f;int a_1;");
+    assertThrows(JBBPCompilationException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        JBBPCompiler.compile("int 1a;");
+      }
+    });
+  }
+
+  @Test
+  public void testCompile_ErrorForNonAllowedArguments() throws Exception {
+    assertThrows(JBBPCompilationException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        JBBPCompiler.compile("reset$$:1;");
+      }
+    });
     assertThrows(JBBPCompilationException.class, new Executable() {
       @Override
       public void execute() throws Throwable {
         JBBPCompiler.compile("reset$$ hello;");
       }
     });
-  }
-
-  @Test
-  public void testCompile_ErrorForArrayReset() throws Exception {
+    assertThrows(JBBPCompilationException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        JBBPCompiler.compile("reset$$ [445];");
+      }
+    });
     assertThrows(JBBPCompilationException.class, new Executable() {
       @Override
       public void execute() throws Throwable {
