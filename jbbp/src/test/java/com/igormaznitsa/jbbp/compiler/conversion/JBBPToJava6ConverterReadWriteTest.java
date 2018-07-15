@@ -128,7 +128,7 @@ public class JBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6Conver
     final Object instance = ReflectUtils.newInstance(classLoader.loadClass(fullClassName));
     assertTrue(instance instanceof TestSuperclass);
 
-    callRead(instance, new byte[] {
+    final byte [] etalon = new byte[] {
         0,
         2, 49, 50, 1, 51,
         1, 2, 3, 4,
@@ -138,7 +138,9 @@ public class JBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6Conver
         2,
         1,2,
         3,4,5
-    });
+    };
+
+    callRead(instance, etalon);
 
     final TestSuperclass parsed = (TestSuperclass) instance;
 
@@ -148,6 +150,14 @@ public class JBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6Conver
     assertArrayEquals(new float[] {6.301941E-36f, 1.661634E-33f}, parsed.fltarr);
     assertEquals(8.20788039913184E-304d, parsed.dbl);
     assertArrayEquals(new double[] {4.0383818836028145E-265d, 1.9074368412237584E-226d}, parsed.dblarr);
+
+    assertEquals(1, parsed.ins.length);
+    assertArrayEquals(new byte[]{1,2}, parsed.ins[0].a);
+    assertEquals(3, parsed.ins[0].b);
+    assertEquals(4, parsed.ins[0].c);
+    assertEquals(5, parsed.ins[0].insins.a);
+
+    assertArrayEquals(etalon, callWrite(instance));
   }
 
   @Test
