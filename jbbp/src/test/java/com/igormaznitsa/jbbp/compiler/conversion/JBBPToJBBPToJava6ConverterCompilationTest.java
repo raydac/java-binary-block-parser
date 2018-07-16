@@ -57,6 +57,27 @@ public class JBBPToJBBPToJava6ConverterCompilationTest extends AbstractJBBPToJav
   }
 
   @Test
+  public void testMapSubstructToSuperclassesInterface() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("a { b { c [_] { byte d;}} }");
+    final String text = JBBPToJava6Converter.makeBuilder(parser)
+        .setMainClassName(CLASS_NAME)
+        .setAddGettersSetters(true)
+        .setMapSubClassesSuperclasses(
+            makeMap(
+                "a.b","com.igormaznitsa.Impl",
+                "a.b.c", "com.igormaznitsa.Impl2"
+            )
+        )
+        .build()
+        .convert();
+    assertTrue(text.contains("public static class B extends com.igormaznitsa.Impl"));
+    assertTrue(text.contains("public static class C extends com.igormaznitsa.Impl2"));
+    assertTrue(text.contains("public B getB() { return this.b;}"));
+    assertTrue(text.contains("public C [] getC() { return this.c;}"));
+    System.out.println(text);
+  }
+
+  @Test
   public void testMapSubstructToInterface() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("a { b { c [_] { byte d;}} }");
     final String text = JBBPToJava6Converter.makeBuilder(parser)
@@ -311,5 +332,21 @@ public class JBBPToJBBPToJava6ConverterCompilationTest extends AbstractJBBPToJav
     assertCompilation(makeSources(parser, null, false));
     assertCompilation(makeSources(parser, null, true));
   }
+
+  @Test
+  public void testStaticInternalClasses() throws Exception {
+    String text = JBBPToJava6Converter.makeBuilder(JBBPParser.prepare("somestruct {int a;}"))
+        .setMainClassPackage(PACKAGE_NAME).setMainClassName(CLASS_NAME)
+        .build().convert();
+    assertTrue(text.contains(" static class SOMESTRUCT {"));
+
+    text = JBBPToJava6Converter.makeBuilder(JBBPParser.prepare("somestruct {int a;}"))
+        .setMainClassPackage(PACKAGE_NAME).setMainClassName(CLASS_NAME)
+        .doInternalClassesNonStatic()
+        .build().convert();
+    assertFalse(text.contains(" static class SOMESTRUCT {"));
+    assertTrue(text.contains(" class SOMESTRUCT {"));
+  }
+
 
 }
