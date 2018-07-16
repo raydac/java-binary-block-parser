@@ -270,7 +270,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     final String structBaseTypeName = structName.toUpperCase(Locale.ENGLISH);
     final String arraySizeIn = nullableArraySize == null ? null : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.flagSet, true);
     final String arraySizeOut = nullableArraySize == null ? null : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.flagSet, true);
-    final Struct newStruct = new Struct(this.getCurrentStruct(), structBaseTypeName, "public static");
+    final Struct newStruct = new Struct(this.getCurrentStruct(), structBaseTypeName, "public" + (builder.internalClassesNotStatic ? "" : " static"));
 
     final String fieldModifier = makeModifier(nullableNameFieldInfo);
 
@@ -278,7 +278,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     if (this.builder.generateFields) {
       toType = "";
     } else {
-      toType = '('+structBaseTypeName+')';
+      toType = '(' + structBaseTypeName + ')';
     }
 
     final String structType;
@@ -293,8 +293,8 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
       this.getCurrentStruct().getReadFunc().indent()
           .printf("if ( this.%1$s == null) { this.%1$s = new %2$s(%3$s);}", structName, structType, this.structStack.size() == 1 ? "this" : "this." + NAME_ROOT_STRUCT)
-          .printf(" %s.read(%s);%n", toType.length() == 0 ? "this." + structName : '('+toType+ "this." + structName+')', NAME_INPUT_STREAM);
-      this.getCurrentStruct().getWriteFunc().indent().print(toType.length() == 0 ? structName : '(' +toType + structName + ')').println(".write(Out);");
+          .printf(" %s.read(%s);%n", toType.length() == 0 ? "this." + structName : '(' + toType + "this." + structName + ')', NAME_INPUT_STREAM);
+      this.getCurrentStruct().getWriteFunc().indent().print(toType.length() == 0 ? structName : '(' + toType + structName + ')').println(".write(Out);");
     } else {
       structType = structBaseTypeName + " []";
       if (this.builder.generateFields) {
@@ -310,7 +310,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
                 structBaseTypeName,
                 (this.structStack.size() == 1 ? "this" : NAME_ROOT_STRUCT),
                 NAME_INPUT_STREAM);
-        this.getCurrentStruct().getWriteFunc().indent().printf("for (int I=0;I<this.%1$s.length;I++){ %2$s.write(%3$s); }%n", structName, toType.length() == 0 ? "this."+structName + "[I]" : '(' + toType +"this."+structName + "[I])", NAME_OUTPUT_STREAM);
+        this.getCurrentStruct().getWriteFunc().indent().printf("for (int I=0;I<this.%1$s.length;I++){ %2$s.write(%3$s); }%n", structName, toType.length() == 0 ? "this." + structName + "[I]" : '(' + toType + "this." + structName + "[I])", NAME_OUTPUT_STREAM);
       } else {
         this.getCurrentStruct().getReadFunc().indent()
             .printf("if (this.%1$s == null || this.%1$s.length != %2$s){ this.%1$s = new %3$s[%2$s]; for(int I=0;I<%2$s;I++){ this.%1$s[I] = new %3$s(%4$s);}}", structName, arraySizeIn, structBaseTypeName, (this.structStack.size() == 1 ? "this" : "this." + NAME_ROOT_STRUCT))
@@ -971,6 +971,11 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
      * Superclasses to be extended by generated subclasses.
      */
     private final Map<String, String> mapSubClassesSuperclasses = new HashMap<String, String>();
+
+    /**
+     * Imternal classes must not be static.
+     */
+    public boolean internalClassesNotStatic;
     /**
      * The Package name for the result class.
      */
@@ -1126,6 +1131,18 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     public Builder setMainClassName(final String value) {
       assertNonLocked();
       this.mainClassName = value;
+      return this;
+    }
+
+    /**
+     * Don't make insternal generated classes as static ones
+     *
+     * @return the builder instance, must not be null
+     * @since 1.4.0
+     */
+    public Builder doInternalClassesNonStatic() {
+      assertNonLocked();
+      this.internalClassesNotStatic = true;
       return this;
     }
 

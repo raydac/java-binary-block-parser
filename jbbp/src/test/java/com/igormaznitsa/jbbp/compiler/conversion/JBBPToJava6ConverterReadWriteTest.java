@@ -62,7 +62,7 @@ public class JBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6Conver
     }
   }
 
-  public static abstract class TestSuperclass {
+  public static class TestSuperclass {
     public String str;
     public String[] strarr;
     public float flt;
@@ -71,12 +71,12 @@ public class JBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6Conver
     public double[] dblarr;
     public char len;
 
-    public static abstract class Ins {
+    public class Ins {
       public byte[] a;
       public byte b;
       public byte c;
 
-      public static abstract class InsIns {
+      public class InsIns {
         public byte a;
       }
 
@@ -112,17 +112,20 @@ public class JBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6Conver
     superclasses.put("ins",TestSuperclass.Ins.class.getCanonicalName());
     superclasses.put("ins.insins",TestSuperclass.Ins.InsIns.class.getCanonicalName());
 
+    final String thePackage = JBBPToJava6ConverterReadWriteTest.class.getPackage().getName();
+
     final String text = JBBPToJava6Converter.makeBuilder(parser)
         .setMainClassName(CLASS_NAME)
-        .setMainClassPackage(PACKAGE_NAME)
+        .setMainClassPackage(thePackage)
         .disableGenerateFields()
         .setSuperClass(TestSuperclass.class.getCanonicalName())
         .setMapSubClassesSuperclasses(superclasses)
         .setAddGettersSetters(false)
+        .doInternalClassesNonStatic()
         .build()
         .convert();
 
-    final String fullClassName = PACKAGE_NAME + '.' + CLASS_NAME;
+    final String fullClassName = thePackage + '.' + CLASS_NAME;
     final ClassLoader classLoader = saveAndCompile(new JavaClassContent(fullClassName, text));
 
     final Object instance = ReflectUtils.newInstance(classLoader.loadClass(fullClassName));

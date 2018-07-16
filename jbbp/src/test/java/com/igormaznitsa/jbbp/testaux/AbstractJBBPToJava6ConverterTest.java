@@ -98,8 +98,8 @@ public abstract class AbstractJBBPToJava6ConverterTest {
       instance.getClass().getMethod("read", JBBPBitInputStream.class).invoke(instance, inStream);
       return instance;
     } catch (InvocationTargetException ex) {
-      if (ex.getCause() != null) {
-        throw (Exception) ex.getCause();
+      if (ex.getTargetException() != null) {
+        throw (Exception) ex.getTargetException();
       } else {
         throw ex;
       }
