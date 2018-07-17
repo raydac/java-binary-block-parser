@@ -89,10 +89,18 @@ public class JBBPGenerateMojoTest extends AbstractMojoTestCase {
     assertArrayEquals(new String[] {"path1/**/*.jbbp", "path2/**/*.jbbp"}, set2array(mojo.getIncludes()));
     assertArrayEquals(new String[] {"path3/**/*.jbbp", "path4/**/*.jbbp"}, set2array(mojo.getExcludes()));
 
+    assertTrue(mojo.isDoInnerClassesNonStatic());
+    assertTrue(mojo.isDisableGenerateFields());
+
     final Map<String, String> mapStructToInterfaces = mojo.getMapStructToInterfaces();
     assertEquals(2, mapStructToInterfaces.size());
     assertEquals("com.test.C", mapStructToInterfaces.get("a.b.c"));
     assertEquals("com.test.D", mapStructToInterfaces.get("a.b.d"));
+
+    final Map<String, String> mapStructToSuperclasses = mojo.getMapStructToSuperclasses();
+    assertEquals(2, mapStructToSuperclasses.size());
+    assertEquals("com.test.CC", mapStructToSuperclasses.get("a.b.c"));
+    assertEquals("com.test.DD", mapStructToSuperclasses.get("a.b.d"));
   }
 
 }

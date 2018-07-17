@@ -77,6 +77,20 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
   @Parameter(alias = "mapStructToInterfaces")
   private final Map<String, String> mapStructToInterfaces = new HashMap<String, String>();
   /**
+   * Superclasses for structures, structure will be extending mapped superclass.
+   *
+   * @since 1.4.0
+   */
+  @Parameter(alias = "mapStructToSuperclasses")
+  private final Map<String, String> mapStructToSuperclasses = new HashMap<String, String>();
+  /**
+   * Do not make generated inner classes as static ones.
+   *
+   * @since 1.4.0
+   */
+  @Parameter(alias = "doInnerClassesNonStatic")
+  private boolean doInnerClassesNonStatic;
+  /**
    * Specify output file encoding; defaults to source encoding.
    */
   @Parameter(alias = "outputEncoding", defaultValue = "${project.build.sourceEncoding}")
@@ -113,7 +127,7 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
   /**
    * Disable generate fields in result class.
    */
-  @Parameter(alias = "disableGenerateFields",defaultValue = "false")
+  @Parameter(alias = "disableGenerateFields", defaultValue = "false")
   private boolean disableGenerateFields;
   /**
    * Generate getters and setters for class fields (class fields will be private
@@ -137,6 +151,10 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
     return this.superClass;
   }
 
+  public void setDoAbstract(final boolean value) {
+    this.doAbstract = value;
+  }
+
   public boolean getDoAbstract() {
     return this.doAbstract;
   }
@@ -144,6 +162,11 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
   @Nonnull
   public Map<String, String> getMapStructToInterfaces() {
     return this.mapStructToInterfaces;
+  }
+
+  @Nonnull
+  public Map<String, String> getMapStructToSuperclasses() {
+    return this.mapStructToSuperclasses;
   }
 
   @Nonnull
@@ -201,7 +224,19 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
   public boolean isDisableGenerateFields() {
     return this.disableGenerateFields;
   }
-  
+
+  public void setDisableGenerateFields(final boolean value) {
+    this.disableGenerateFields = value;
+  }
+
+  public void setDoInnerClassesNonStatic(final boolean value) {
+    this.doInnerClassesNonStatic = value;
+  }
+
+  public boolean isDoInnerClassesNonStatic() {
+    return this.doInnerClassesNonStatic;
+  }
+
   @Nullable
   private String makeCapText(@Nonnull final String inEncoding) throws IOException {
     String result = null;
@@ -306,6 +341,8 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
           .setSuperClass(this.superClass)
           .setClassImplements(this.interfaces)
           .setSubClassInterfaces(this.mapStructToInterfaces)
+          .setDoInternalClassesNonStatic(this.doInnerClassesNonStatic)
+          .setSubClassSuperclasses(this.mapStructToSuperclasses)
           .setAddGettersSetters(this.addGettersSetters)
           .setDoAbstract(this.doAbstract)
           .setDisableGenerateFields(this.disableGenerateFields);

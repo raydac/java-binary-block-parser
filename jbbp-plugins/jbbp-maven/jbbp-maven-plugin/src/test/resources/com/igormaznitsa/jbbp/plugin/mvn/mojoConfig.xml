@@ -40,6 +40,12 @@
                         <a.b.c>com.test.C</a.b.c>
                         <a.b.d>com.test.D</a.b.d>
                     </mapStructToInterfaces>
+                    <mapStructToSuperclasses>
+                        <a.b.c>com.test.CC</a.b.c>
+                        <a.b.d>com.test.DD</a.b.d>
+                    </mapStructToSuperclasses>
+                    <doInnerClassesNonStatic>true</doInnerClassesNonStatic>
+                    <disableGenerateFields>true</disableGenerateFields>
                     <customTypes>
                         <type>abc</type>
                         <type>def</type>

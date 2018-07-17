@@ -63,6 +63,13 @@ public class JBBPExtension {
   public Map<String, String> mapSubClassInterfaces = new HashMap<String, String>();
 
   /**
+   * Superclasses to be mapped to generated sub-classes
+   *
+   * @since 1.4.0
+   */
+  public Map<String, String> mapSubClassSuperclasses = new HashMap<String, String>();
+
+  /**
    * Encoding for text input.
    */
   public String inEncoding = "UTF-8";
@@ -109,6 +116,13 @@ public class JBBPExtension {
    * @since 1.4.0
    */
   public boolean disableGenerateFields = false;
+
+  /**
+   * Make inner clases non-static ones
+   *
+   * @since 1.4.0
+   */
+  public boolean doInternalClassesNonStatic = false;
 
   /**
    * Output folder for result classes.

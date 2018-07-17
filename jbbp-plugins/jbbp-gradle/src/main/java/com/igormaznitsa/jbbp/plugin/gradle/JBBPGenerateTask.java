@@ -99,6 +99,8 @@ public class JBBPGenerateTask extends AbstractJBBPTask {
         .setSuperClass(ext.superClass)
         .setClassImplements(ext.interfaces)
         .setSubClassInterfaces(ext.mapSubClassInterfaces)
+        .setSubClassSuperclasses(ext.mapSubClassSuperclasses)
+        .setDoInternalClassesNonStatic(ext.doInternalClassesNonStatic)
         .setAddGettersSetters(ext.addGettersSetters)
         .setDoAbstract(ext.doAbstract)
         .setDisableGenerateFields(ext.disableGenerateFields);

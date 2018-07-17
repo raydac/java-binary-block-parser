@@ -42,6 +42,20 @@ public interface JBBPScriptTranslator {
     @Nonnull
     private final Map<String, String> subClassInterfaces = new HashMap<String, String>();
     /**
+     * Map of superclasses to be extended by subclasses.
+     *
+     * @since 1.4.0
+     */
+    @Nonnull
+    private final Map<String, String> subClassSuperclasses = new HashMap<String, String>();
+
+    /**
+     * Flag to not make generated subclasses as static ones.
+     *
+     * @since 1.4.0
+     */
+    private boolean doInternalClassesNonStatic;
+    /**
      * Set of interface names to be implemented by the main class.
      */
     @Nonnull
@@ -58,6 +72,7 @@ public interface JBBPScriptTranslator {
     JBBPCustomFieldTypeProcessor customFieldTypeProcessor = null;
     /**
      * Disable generate class fields.
+     *
      * @since 1.4.0
      */
     private boolean disableGenerateFields = false;
@@ -145,7 +160,7 @@ public interface JBBPScriptTranslator {
       this.disableGenerateFields = value;
       return this;
     }
-    
+
     @Nonnull
     public Set<String> getClassImplements() {
       return Collections.unmodifiableSet(this.classImplements);
@@ -161,6 +176,28 @@ public interface JBBPScriptTranslator {
     @Nonnull
     public Map<String, String> getSubClassInterfaces() {
       return Collections.unmodifiableMap(this.subClassInterfaces);
+    }
+
+    @Nonnull
+    public Map<String, String> getSubClassSuperclasses() {
+      return Collections.unmodifiableMap(this.subClassSuperclasses);
+    }
+
+    @Nonnull
+    public Parameters setDoInternalClassesNonStatic(final boolean flag) {
+      this.doInternalClassesNonStatic = flag;
+      return this;
+    }
+
+    public boolean isDoInternalClassesNonStatic() {
+      return this.doInternalClassesNonStatic;
+    }
+
+    @Nonnull
+    public Parameters setSubClassSuperclasses(@Nonnull final Map<String, String> value) {
+      this.subClassSuperclasses.clear();
+      this.subClassSuperclasses.putAll(value);
+      return this;
     }
 
     @Nonnull

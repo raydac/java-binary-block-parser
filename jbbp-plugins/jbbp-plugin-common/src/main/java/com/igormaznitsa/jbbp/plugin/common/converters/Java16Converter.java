@@ -18,7 +18,7 @@ import java.util.Set;
 public class Java16Converter implements JBBPScriptTranslator {
   @Override
   @Nonnull
-  public Set<File> translate(@Nonnull final JBBPScriptTranslator.Parameters parameters, final boolean dryRun) throws IOException {
+  public Set<File> translate(@Nonnull final Parameters parameters, final boolean dryRun) throws IOException {
     final File scriptToProcess = Assertions.assertNotNull(parameters.getScriptFile());
 
     final String text = FileUtils.readFileToString(scriptToProcess, parameters.getEncodingIn());
@@ -38,6 +38,7 @@ public class Java16Converter implements JBBPScriptTranslator {
 
       final JBBPToJava6Converter.Builder builder = JBBPToJava6Converter.makeBuilder(parser)
           .setMapSubClassesInterfaces(parameters.getSubClassInterfaces())
+          .setMapSubClassesSuperclasses(parameters.getSubClassSuperclasses())
           .setMainClassName(className)
           .setHeadComment(parameters.getHeadComment())
           .setMainClassPackage(packageName)
@@ -47,6 +48,10 @@ public class Java16Converter implements JBBPScriptTranslator {
           .setMainClassImplements(implementsSorted)
           .setParserFlags(parameters.getParserFlags())
           .setSuperClass(parameters.superClass);
+
+      if (parameters.isDoInternalClassesNonStatic()) {
+        builder.doInternalClassesNonStatic();
+      }
 
       if (parameters.isDisableGenerateFields()) {
         builder.disableGenerateFields();
