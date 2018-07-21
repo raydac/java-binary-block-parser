@@ -33,7 +33,7 @@ import java.util.Random;
  */
 public class JBBP_Benchmark {
 
-  private static final JBBPParser parser = JBBPParser.prepare("ubyte val; data [(val>>1)*(val+3)]{ bit:3 a; bit:3 b; bit:2 c; skip:1; }");
+  private static final JBBPParser parser = JBBPParser.prepare("ubyte value; data [(value>>1)*(value+3)]{ bit:3 a; bit:3 b; bit:2 c; skip:1; }");
 
   private static final Random RND = new Random(12345);
 
@@ -44,12 +44,6 @@ public class JBBP_Benchmark {
     DATA = new byte[1 + ((val >> 1) * (val + 3)) * 2];
     RND.nextBytes(DATA);
     DATA[0] = (byte) val;
-  }
-
-  public static void main(String... args) {
-    System.out.println("-------------");
-    System.out.println(parser.convertToSrc(TargetSources.JAVA_1_6, "com.igormaznitsa.jbbp.benchmarks.JBBP_Benchmark_Parser").get(0).getResult().values().iterator().next());
-    System.out.println("-------------");
   }
 
   @Benchmark
@@ -64,7 +58,7 @@ public class JBBP_Benchmark {
 
   @Benchmark
   public void measureParse_Static() throws IOException {
-    new JBBP_Benchmark_Parser().read(new JBBPBitInputStream(new ByteArrayInputStream(DATA)));
+    new JBBPBenchmarkParser().read(new JBBPBitInputStream(new ByteArrayInputStream(DATA)));
   }
 
   public static class InData {
@@ -77,8 +71,8 @@ public class JBBP_Benchmark {
   }
 
   public static class Data {
-    @Bin(name = "val", type = BinType.UBYTE)
-    public int val;
+    @Bin(name = "value", type = BinType.UBYTE)
+    public int value;
 
     @Bin(name = "data")
     public InData[] data;
