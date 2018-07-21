@@ -42,6 +42,12 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
   }
 
   @Test
+  public void testMakeStrWriter() throws Exception {
+    final String generated = JBBPTextWriter.makeStrWriter().Int(12).Byte(34).BR().Comment("Huzzaaa").Close().toString();
+    assertEquals(String.format(".0x0000000C,0x22%n;Huzzaaa"),generated);
+  }
+
+  @Test
   public void testConstructor_Default() {
     final JBBPTextWriter writer = new JBBPTextWriter();
     assertTrue(writer.getWrappedWriter() instanceof StringWriter);
@@ -729,7 +735,7 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
       @Bin(outOrder = 6, comment = "some string")
       String str = "Hello String";
       @Bin(outOrder = 7, comment = "some string array")
-      String [] strs = new String[] {"Hello", null, "World"};
+      String[] strs = new String[] {"Hello", null, "World"};
     }
 
     final SomeClass cl = new SomeClass();
@@ -858,6 +864,19 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
     final String text = makeWriter().SetMaxValuesPerLine(16).Bin(parser.parse(testArray)).Close().toString();
     System.out.println(text);
     assertFile("txtwrtrjbbpobj1.txt", text);
+  }
+
+  @Test
+  public void testBin_ValField() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("val:123 a;");
+    final String text = makeWriter().SetMaxValuesPerLine(16).Bin(parser.parse(new byte[0])).Close().toString();
+    assertEquals("~--------------------------------------------------------------------------------\n" +
+        "; Start {} \n" +
+        "~--------------------------------------------------------------------------------\n" +
+        "    .0x0000007B; int a\n" +
+        "~--------------------------------------------------------------------------------\n" +
+        "; End {} \n" +
+        "~--------------------------------------------------------------------------------\n", text);
   }
 
   @Test

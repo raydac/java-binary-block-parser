@@ -321,6 +321,17 @@ public class JBBPTextWriter extends FilterWriter {
     Radix(radix);
   }
 
+  /**
+   * Auxiliary method allows to build writer over StringWriter with system-depended next line and hex radix.
+   * The Method allows fast instance create.
+   *
+   * @since 1.4.0
+   */
+  public static JBBPTextWriter makeStrWriter() {
+    final String lineSeparator = System.setProperty("line.separator", "\n");
+    return new JBBPTextWriter(new StringWriter(), JBBPByteOrder.BIG_ENDIAN, lineSeparator, 16, "0x", ".", ";", "~", ",");
+  }
+
   protected static String makeFieldComment(final JBBPAbstractField field) {
     final String path = field.getFieldPath();
     final StringBuilder result = new StringBuilder(128);
@@ -1421,10 +1432,10 @@ public class JBBPTextWriter extends FilterWriter {
         }
         Comment(" " + makeFieldComment(field) + postfix);
       } else if (field instanceof JBBPFieldString) {
-        final String value = ((JBBPFieldString)field).getAsString();
-        Str(value == null ? "<NULL>" : '\"'+value+'\"');
+        final String value = ((JBBPFieldString) field).getAsString();
+        Str(value == null ? "<NULL>" : '\"' + value + '\"');
         Comment(" " + makeFieldComment(field) + postfix);
-      }  else {
+      } else {
         throw new Error("Unexpected field [" + field.getClass() + ']');
       }
     }
@@ -1898,7 +1909,7 @@ public class JBBPTextWriter extends FilterWriter {
         ensureValueMode();
         final String prefix = prefixValue;
         prefixValue = "";
-        printValueString(value == null ? "<NULL>" : '\"'+value+'\"');
+        printValueString(value == null ? "<NULL>" : '\"' + value + '\"');
         prefixValue = prefix;
         if (this.arrayCounter == 0) {
           Comment(makeFieldDescription(field, annotation));
