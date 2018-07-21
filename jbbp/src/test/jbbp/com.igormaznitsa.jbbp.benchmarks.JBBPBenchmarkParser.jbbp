@@ -1,0 +1,7 @@
+ubyte value;
+data [(value>>1)*(value+3)]{ 
+    bit:3 a;
+    bit:3 b;
+    bit:2 c;
+    skip:1; 
+}
