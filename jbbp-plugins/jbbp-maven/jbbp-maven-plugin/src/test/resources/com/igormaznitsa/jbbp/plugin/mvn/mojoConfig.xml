@@ -46,6 +46,8 @@
                     </mapStructToSuperclasses>
                     <doInnerClassesNonStatic>true</doInnerClassesNonStatic>
                     <disableGenerateFields>true</disableGenerateFields>
+                    <addToSourceFolders>true</addToSourceFolders>
+                    <addToTestSourceFolders>true</addToTestSourceFolders>
                     <customTypes>
                         <type>abc</type>
                         <type>def</type>

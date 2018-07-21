@@ -146,6 +146,38 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
   @Parameter(alias = "doAbstract")
   private boolean doAbstract;
 
+  /**
+   * Add generated output folder to list of source folders.
+   *
+   * @since 1.4.0
+   */
+  @Parameter(alias = "addToSourceFolders")
+  private boolean addToSourceFolders;
+
+  /**
+   * Add generated output folder to list of test source folders.
+   *
+   * @since 1.4.0
+   */
+  @Parameter(alias = "addToTestSourceFolders")
+  private boolean addToTestSourceFolders;
+
+  public boolean isAddToSourceFolders() {
+    return this.addToSourceFolders;
+  }
+
+  public void setAddToSourceFolders(final boolean value) {
+    this.addToSourceFolders = value;
+  }
+
+  public boolean isAddToTestSourceFolders() {
+    return this.addToTestSourceFolders;
+  }
+
+  public void setAddToTestSourceFolders(final boolean value) {
+    this.addToTestSourceFolders = value;
+  }
+
   @Nullable
   public String getSuperClass() {
     return this.superClass;
@@ -155,7 +187,7 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
     this.doAbstract = value;
   }
 
-  public boolean getDoAbstract() {
+  public boolean isDoAbstract() {
     return this.doAbstract;
   }
 
@@ -338,14 +370,14 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
           .setEncodingIn(inEncoding)
           .setEncodingOut(outEncoding)
           .setCustomFieldTypeProcessor(customFieldProcessor)
-          .setSuperClass(this.superClass)
-          .setClassImplements(this.interfaces)
-          .setSubClassInterfaces(this.mapStructToInterfaces)
-          .setDoInternalClassesNonStatic(this.doInnerClassesNonStatic)
-          .setSubClassSuperclasses(this.mapStructToSuperclasses)
-          .setAddGettersSetters(this.addGettersSetters)
-          .setDoAbstract(this.doAbstract)
-          .setDisableGenerateFields(this.disableGenerateFields);
+          .setSuperClass(this.getSuperClass())
+          .setClassImplements(this.getInterfaces())
+          .setSubClassInterfaces(this.getMapStructToInterfaces())
+          .setDoInternalClassesNonStatic(this.isDoInnerClassesNonStatic())
+          .setSubClassSuperclasses(this.getMapStructToSuperclasses())
+          .setAddGettersSetters(this.getAddGettersSetters())
+          .setDoAbstract(this.isDoAbstract())
+          .setDisableGenerateFields(this.isDisableGenerateFields());
 
       for (final File aScript : foundJBBPScripts) {
         parameters.setScriptFile(aScript).assertAllOk();
@@ -359,6 +391,16 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
         } catch (IOException ex) {
           throw new MojoExecutionException("Error during JBBP script translation : " + aScript.getAbsolutePath(), ex);
         }
+      }
+
+      if (this.isAddToSourceFolders()) {
+        getLog().info("Add folder to compile source root: "+ this.getOutput().getAbsolutePath());
+        this.project.addCompileSourceRoot(this.getOutput().getAbsolutePath());
+      }
+
+      if (this.isAddToTestSourceFolders()) {
+        getLog().info("Add folder to test compile source root: "+ this.getOutput().getAbsolutePath());
+        this.project.addTestCompileSourceRoot(this.getOutput().getAbsolutePath());
       }
     }
 
