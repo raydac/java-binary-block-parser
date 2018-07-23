@@ -58,7 +58,7 @@ public class JBBP_Benchmark {
 
   @Benchmark
   public void measureParse_Static() throws IOException {
-    new JBBPBenchmarkParser().read(new JBBPBitInputStream(new ByteArrayInputStream(DATA)));
+    parser.parse(new JBBPBitInputStream(new ByteArrayInputStream(DATA)));
   }
 
   public static class InData {
