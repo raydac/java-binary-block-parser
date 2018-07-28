@@ -53,6 +53,34 @@ public class JBBPDslBuilder {
     return new JBBPDslBuilder();
   }
 
+  protected void addItem(final Item item) {
+    if (item.name == null || item.name.length() == 0) {
+      this.items.add(item);
+    } else {
+      int structCounter = 0;
+      for (int i = this.items.size() - 1; i >= 0; i--) {
+        final Item itm = this.items.get(i);
+
+        if (itm.type == BinType.STRUCT || itm.type == BinType.STRUCT_ARRAY) {
+          if (structCounter == 0) {
+            break;
+          }
+          structCounter++;
+        } else if (itm instanceof ItemStructEnd) {
+          structCounter--;
+        }
+
+        if (structCounter == 0) {
+          final String thatName = itm.name;
+          if (thatName != null && thatName.length() > 0 && item.name.equalsIgnoreCase(thatName)) {
+            throw new IllegalArgumentException("Duplicated item name '" + item.name + '\'');
+          }
+        }
+      }
+      this.items.add(item);
+    }
+  }
+
   protected static String assertTextNotNullAndTrimmedNotEmpty(final String text) {
     if (text == null) {
       throw new NullPointerException("Must not be null");
@@ -175,7 +203,7 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder Align(final String sizeExpression) {
-    this.items.add(new ItemAlign(assertExpressionChars(sizeExpression)));
+    this.addItem(new ItemAlign(assertExpressionChars(sizeExpression)));
     return this;
   }
 
@@ -207,7 +235,7 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder Skip(final String sizeExpression) {
-    this.items.add(new ItemSkip(assertExpressionChars(sizeExpression)));
+    this.addItem(new ItemSkip(assertExpressionChars(sizeExpression)));
     return this;
   }
 
@@ -273,7 +301,7 @@ public class JBBPDslBuilder {
   public JBBPDslBuilder Custom(final String type, final String name, final String param) {
     final ItemCustom custom = new ItemCustom(type, name, this.byteOrder);
     custom.bitLenExpression = param == null ? null : assertExpressionChars(param);
-    this.items.add(custom);
+    this.addItem(custom);
     return this;
   }
 
@@ -294,7 +322,7 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder Struct(final String name) {
     final Item item = new Item(BinType.STRUCT, name, this.byteOrder);
-    this.items.add(item);
+    this.addItem(item);
     this.openedStructCounter++;
     return this;
   }
@@ -340,7 +368,7 @@ public class JBBPDslBuilder {
   public JBBPDslBuilder StructArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.STRUCT_ARRAY, name, this.byteOrder);
     item.sizeExpression = assertExpressionChars(sizeExpression);
-    this.items.add(item);
+    this.addItem(item);
     this.openedStructCounter++;
     return this;
   }
@@ -357,7 +385,7 @@ public class JBBPDslBuilder {
         assertTextNotNullAndTrimmedNotEmpty(name),
         assertExpressionChars(assertTextNotNullAndTrimmedNotEmpty(expression)).trim()
     );
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -369,7 +397,7 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder ResetCounter() {
     final Item item = new ItemResetCounter();
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -511,7 +539,7 @@ public class JBBPDslBuilder {
     item.array = true;
     item.bitLenExpression = param == null ? null : assertExpressionChars(param);
     item.sizeExpression = assertExpressionChars(sizeExpression);
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -536,7 +564,7 @@ public class JBBPDslBuilder {
     if (this.openedStructCounter == 0) {
       throw new IllegalStateException("There is not any opened struct");
     }
-    this.items.add(new ItemStructEnd(closeAllOpened));
+    this.addItem(new ItemStructEnd(closeAllOpened));
     this.openedStructCounter = closeAllOpened ? 0 : this.openedStructCounter - 1;
     return this;
   }
@@ -599,7 +627,7 @@ public class JBBPDslBuilder {
   public JBBPDslBuilder Bits(final String name, final JBBPBitNumber bits) {
     final Item item = new Item(BinType.BIT, name, this.byteOrder);
     item.bitNumber = bits;
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -613,7 +641,7 @@ public class JBBPDslBuilder {
   public JBBPDslBuilder Bits(final String name, final String bitLenExpression) {
     final Item item = new Item(BinType.BIT, name, this.byteOrder);
     item.bitLenExpression = assertExpressionChars(bitLenExpression);
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -686,7 +714,7 @@ public class JBBPDslBuilder {
     final Item item = new Item(BinType.BIT_ARRAY, name, this.byteOrder);
     item.bitNumber = bits;
     item.sizeExpression = assertExpressionChars(sizeExpression);
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -702,7 +730,7 @@ public class JBBPDslBuilder {
     final Item item = new Item(BinType.BIT_ARRAY, name, this.byteOrder);
     item.bitLenExpression = assertExpressionChars(bitLenExpression);
     item.sizeExpression = assertExpressionChars(sizeExpression);
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -747,7 +775,7 @@ public class JBBPDslBuilder {
   public JBBPDslBuilder BoolArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.BOOL_ARRAY, name, this.byteOrder);
     item.sizeExpression = assertExpressionChars(sizeExpression);
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -768,7 +796,7 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder Bool(final String name) {
     final Item item = new Item(BinType.BOOL, name, this.byteOrder);
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -789,7 +817,7 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder Byte(final String name) {
     final Item item = new Item(BinType.BYTE, name, this.byteOrder);
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -834,7 +862,7 @@ public class JBBPDslBuilder {
   public JBBPDslBuilder ByteArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.BYTE_ARRAY, name, this.byteOrder);
     item.sizeExpression = assertExpressionChars(sizeExpression);
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -855,7 +883,7 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder UByte(final String name) {
     final Item item = new Item(BinType.UBYTE, name, this.byteOrder);
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -900,7 +928,7 @@ public class JBBPDslBuilder {
   public JBBPDslBuilder UByteArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.UBYTE_ARRAY, name, this.byteOrder);
     item.sizeExpression = assertExpressionChars(sizeExpression);
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -921,7 +949,7 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder Short(final String name) {
     final Item item = new Item(BinType.SHORT, name, this.byteOrder);
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -966,7 +994,7 @@ public class JBBPDslBuilder {
   public JBBPDslBuilder ShortArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.SHORT_ARRAY, name, this.byteOrder);
     item.sizeExpression = assertExpressionChars(sizeExpression);
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -987,7 +1015,7 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder UShort(final String name) {
     final Item item = new Item(BinType.USHORT, name, this.byteOrder);
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -1021,7 +1049,7 @@ public class JBBPDslBuilder {
   public JBBPDslBuilder UShortArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.USHORT_ARRAY, name, this.byteOrder);
     item.sizeExpression = assertExpressionChars(sizeExpression);
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -1053,7 +1081,7 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder Int(final String name) {
     final Item item = new Item(BinType.INT, name, this.byteOrder);
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -1098,7 +1126,7 @@ public class JBBPDslBuilder {
   public JBBPDslBuilder IntArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.INT_ARRAY, name, this.byteOrder);
     item.sizeExpression = assertExpressionChars(sizeExpression);
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -1119,7 +1147,7 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder Long(final String name) {
     final Item item = new Item(BinType.LONG, name, this.byteOrder);
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -1164,7 +1192,7 @@ public class JBBPDslBuilder {
   public JBBPDslBuilder LongArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.LONG_ARRAY, name, this.byteOrder);
     item.sizeExpression = assertExpressionChars(sizeExpression);
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -1185,7 +1213,7 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder Float(final String name) {
     final Item item = new Item(BinType.FLOAT, name, this.byteOrder);
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -1230,7 +1258,7 @@ public class JBBPDslBuilder {
   public JBBPDslBuilder FloatArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.FLOAT_ARRAY, name, this.byteOrder);
     item.sizeExpression = assertExpressionChars(sizeExpression);
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -1251,7 +1279,7 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder Double(final String name) {
     final Item item = new Item(BinType.DOUBLE, name, this.byteOrder);
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -1262,7 +1290,7 @@ public class JBBPDslBuilder {
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder Comment(final String text) {
-    this.items.add(new ItemComment(text == null ? "" : text));
+    this.addItem(new ItemComment(text == null ? "" : text));
     return this;
   }
 
@@ -1307,7 +1335,7 @@ public class JBBPDslBuilder {
   public JBBPDslBuilder DoubleArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.DOUBLE_ARRAY, name, this.byteOrder);
     item.sizeExpression = assertExpressionChars(sizeExpression);
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -1327,7 +1355,7 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder String(final String name) {
     final Item item = new Item(BinType.STRING, name, this.byteOrder);
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 
@@ -1372,7 +1400,7 @@ public class JBBPDslBuilder {
   public JBBPDslBuilder StringArray(final String name, final String sizeExpression) {
     final Item item = new Item(BinType.STRING_ARRAY, name, this.byteOrder);
     item.sizeExpression = assertExpressionChars(sizeExpression);
-    this.items.add(item);
+    this.addItem(item);
     return this;
   }
 

@@ -64,6 +64,50 @@ class JBBPDslBuilderTest {
   }
 
   @Test
+  public void testCheckForDuplicatedNameInSameStructure() {
+    final JBBPDslBuilder builder = JBBPDslBuilder.Begin().Int("test");
+    assertThrows(IllegalArgumentException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        builder.Bool("test");
+      }
+    });
+
+    final JBBPDslBuilder builder1 = JBBPDslBuilder.Begin().Int("test").Struct().CloseStruct();
+    assertThrows(IllegalArgumentException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        builder1.Bool("test");
+      }
+    });
+
+    final JBBPDslBuilder builder2 = JBBPDslBuilder.Begin().Int("test");
+    assertThrows(IllegalArgumentException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        builder2.Struct("test");
+      }
+    });
+
+    final JBBPDslBuilder builder3 = JBBPDslBuilder.Begin().Struct("test").Int("a").CloseStruct().Bool("b");
+    assertThrows(IllegalArgumentException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        builder3.Struct("test");
+      }
+    });
+
+  }
+
+  @Test
+  public void testCheckForDuplicatedNameInDifferentStructures() {
+    JBBPDslBuilder.Begin().Int("test").Struct().Bool("test").CloseStruct().End();
+    JBBPDslBuilder.Begin().Int("test").Struct().Int("test").Struct().Bool("test").CloseStruct().CloseStruct().End();
+    JBBPDslBuilder.Begin().Struct().Int("test").Struct().Bool("test").CloseStruct().CloseStruct().Int("test").End();
+    JBBPDslBuilder.Begin().Struct("test").Int("test").CloseStruct().End();
+  }
+
+  @Test
   public void testNonFormatted() {
     assertEquals("bool test;{int field1;}", Begin().Bool("test").Struct().Int("field1").CloseStruct().End(false));
   }
@@ -95,8 +139,8 @@ class JBBPDslBuilderTest {
     assertEquals("var[q+b];", Begin().VarArray("q+b").End());
     assertEquals("var[1234] lupus;", Begin().VarArray("lupus", 1234).End());
     assertEquals("var[a+1234] lupus;", Begin().VarArray("lupus", "a+1234").End());
-    assertEquals("var:(c/2)[_] huzzaa;", Begin().VarArray("huzzaa", -1,"c/2").End());
-    assertEquals("var:(c/2)[a+b] huzzaa;", Begin().VarArray("huzzaa", "a+b","c/2").End());
+    assertEquals("var:(c/2)[_] huzzaa;", Begin().VarArray("huzzaa", -1, "c/2").End());
+    assertEquals("var:(c/2)[a+b] huzzaa;", Begin().VarArray("huzzaa", "a+b", "c/2").End());
   }
 
   @Test
@@ -105,8 +149,8 @@ class JBBPDslBuilderTest {
     assertEquals("some[q+b];", Begin().CustomArray("some", "q+b").End());
     assertEquals("some[1234] lupus;", Begin().CustomArray("some", "lupus", 1234).End());
     assertEquals("some[a+1234] lupus;", Begin().CustomArray("some", "lupus", "a+1234").End());
-    assertEquals("some:(c/2)[_] huzzaa;", Begin().CustomArray("some", "huzzaa", -1,"c/2").End());
-    assertEquals("some:(c/2)[a+b] huzzaa;", Begin().CustomArray("some", "huzzaa", "a+b","c/2").End());
+    assertEquals("some:(c/2)[_] huzzaa;", Begin().CustomArray("some", "huzzaa", -1, "c/2").End());
+    assertEquals("some:(c/2)[a+b] huzzaa;", Begin().CustomArray("some", "huzzaa", "a+b", "c/2").End());
   }
 
   @Test
