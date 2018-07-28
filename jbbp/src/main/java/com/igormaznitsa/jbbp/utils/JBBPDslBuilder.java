@@ -67,10 +67,10 @@ public class JBBPDslBuilder {
     if (name != null) {
       for (int i = 0; i < name.length(); i++) {
         final char c = name.charAt(i);
-        if (i == 0 && Character.isDigit(c)) {
+        if (i == 0 && (Character.isDigit(c))) {
           throw new IllegalArgumentException("Digit can't be first char");
         }
-        if (!Character.isLetterOrDigit(c)) {
+        if (!Character.isLetterOrDigit(c) && c != '_') {
           throw new IllegalArgumentException("Only letters and digits allowed: " + name);
         }
       }
