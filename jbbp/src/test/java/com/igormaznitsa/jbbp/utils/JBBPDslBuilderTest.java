@@ -20,6 +20,16 @@ class JBBPDslBuilderTest {
   }
 
   @Test
+  public void testAllowedVarName() {
+    Begin().Int("a").End();
+    Begin().Int("A").End();
+    Begin().Int("a1").End();
+    Begin().Int("a2").End();
+    Begin().Int("a1_1").End();
+    Begin().Int("a2_2").End();
+  }
+
+  @Test
   public void testWrongName() {
     assertThrows(IllegalArgumentException.class, new Executable() {
       @Override
@@ -43,6 +53,12 @@ class JBBPDslBuilderTest {
       @Override
       public void execute() throws Throwable {
         Begin().Int("ab\n").End();
+      }
+    });
+    assertThrows(IllegalArgumentException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        Begin().Int("a$\n").End();
       }
     });
   }
