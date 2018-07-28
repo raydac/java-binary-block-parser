@@ -73,6 +73,13 @@ class JBBPDslBuilderTest {
       }
     });
 
+    assertThrows(IllegalArgumentException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        builder.Bool("Test");
+      }
+    });
+
     final JBBPDslBuilder builder1 = JBBPDslBuilder.Begin().Int("test").Struct().CloseStruct();
     assertThrows(IllegalArgumentException.class, new Executable() {
       @Override
