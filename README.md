@@ -15,7 +15,7 @@ For instance I have been very actively using the framework in [the ZX-Poly emula
 ![Use cases](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_mm.png)
 
 # Change log
-- **1.4.0 (under development)**
+- **1.4.0 (29-jul-2018)**
   - added type `val` which allows to create virtual field with calculated value, can play role of variable in scripts
   - `val` and `var` have been added into reserved words and can't be used as field names
   - added field `outByteOrder` attribute to `Bin` annotation, it affects logic of `JBBPOut#Bin` for output of annotated objects which fields should be saved with different byte order
