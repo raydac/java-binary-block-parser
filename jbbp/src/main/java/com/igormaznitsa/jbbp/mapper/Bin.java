@@ -85,8 +85,7 @@ public @interface Bin {
   boolean custom() default false;
 
   /**
-   * The Filed contains some extra text info which can be used by a custom field
-   * processor, the engine doesn't use the field.
+   * The Field is used by custom field processor and as expression to calculate array length.
    *
    * @return the extra field as String
    * @see JBBPMapperCustomFieldProcessor

@@ -1550,10 +1550,12 @@ public class JBBPDslBuilder {
 
   /**
    * Convert an annotated class into its JBBP DSL representation.
+   * <b>NB!</b> the method creates structure bases on class name, so that it can't be used for auto-mapping
+   * if you want use auto-mapping, use {@link JBBPDslBuilder#AnnotatedClassFields(Class)}
    *
    * @param annotatedClass class to be converted into JBBP script, must not be null
    * @return the builder instance, must not be null
-   * @see com.igormaznitsa.jbbp.mapper.Bin
+   * @see JBBPDslBuilder#AnnotatedClassFields(Class)
    */
   public JBBPDslBuilder AnnotatedClass(final Class<?> annotatedClass) {
     return addAnnotatedClass(annotatedClass, false);
@@ -1561,10 +1563,13 @@ public class JBBPDslBuilder {
 
   /**
    * Add just fields of annotated class, outbound class will not be added as structure.
+   * <b>The Method allows to prepare script which will be able make mapping of field values</b>
    *
    * @param annotatedClass class to be converted into JBBP script, must not be null
    * @return the builder instance, must not be null
+   * @see com.igormaznitsa.jbbp.model.JBBPFieldStruct#mapTo
    * @see com.igormaznitsa.jbbp.mapper.Bin
+   * @see JBBPDslBuilder#AnnotatedClass(Class)
    */
   public JBBPDslBuilder AnnotatedClassFields(final Class<?> annotatedClass) {
     return addAnnotatedClass(annotatedClass, true);

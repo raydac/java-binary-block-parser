@@ -33,6 +33,8 @@ import com.igormaznitsa.jbbp.model.JBBPFieldArrayLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import com.igormaznitsa.jbbp.model.JBBPNumericField;
+import com.igormaznitsa.jbbp.utils.JBBPDslBuilder;
+import com.igormaznitsa.jbbp.utils.JBBPTextWriter;
 import org.junit.jupiter.api.Test;
 
 import java.io.EOFException;
@@ -220,6 +222,22 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
 
     assertEquals(threads.length * ITERATIONS, parsingCounter.get());
     assertEquals(0, errorCounter.get());
+  }
+
+  @Test
+  public void testParseBitsThroughDslBasedScriptAndMapping() throws Exception {
+    class Bits {
+      @Bin(name = "a", type = BinType.BIT_ARRAY, outBitNumber = JBBPBitNumber.BITS_1, extra = "_")
+      byte[] bit;
+    }
+
+    JBBPParser parser = JBBPParser.prepare(JBBPDslBuilder.Begin().AnnotatedClassFields(Bits.class).End());
+
+    Bits parsed = parser.parse(new byte[] {73}).mapTo(Bits.class);
+
+    System.out.println(JBBPTextWriter.makeStrWriter().Bin(parsed).Close().toString());
+
+    assertArrayEquals(new byte[] {1, 0, 0, 1, 0, 0, 1, 0}, parsed.bit);
   }
 
   /**
