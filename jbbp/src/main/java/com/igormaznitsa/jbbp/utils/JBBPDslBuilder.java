@@ -1933,7 +1933,13 @@ public class JBBPDslBuilder {
     }
 
     JBBPBitNumber getBitNumber(final BinField field) {
-      return field.bin.outBitNumber() == JBBPBitNumber.BITS_8 ? this.bin.outBitNumber() : field.bin.outBitNumber();
+      final JBBPBitNumber result;
+      if (field.bin.outBitNumber() == JBBPBitNumber.BITS_8) {
+        result = this.bin == null ? JBBPBitNumber.BITS_8 : this.bin.outBitNumber();
+      } else {
+        result = field.bin.outBitNumber();
+      }
+      return result;
     }
   }
 

@@ -1,9 +1,12 @@
 package com.igormaznitsa.jbbp.utils;
 
+import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.mapper.BinType;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayBit;
+import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
@@ -493,6 +496,21 @@ class JBBPDslBuilderTest {
     }
 
     assertEquals("Test{int a;<int b;int c;d[a+b]{short a;short[8] b;}}", Begin().AnnotatedClass(Test.class).End());
+  }
+
+  @Test
+  public void testReportedIssue_20_NPEforOutBitNumber() throws Exception {
+    class BreakJBBPDslBuilder {
+      @Bin(outOrder = 1, comment = "Reserved", type = BinType.BIT_ARRAY, extra = "4")
+      public byte[] reserved;
+    }
+
+    final String dsl = Begin().AnnotatedClass(BreakJBBPDslBuilder.class).End();
+
+    assertEquals("BreakJBBPDslBuilder{bit:8[4] reserved;}", dsl);
+
+    JBBPFieldStruct struct = JBBPParser.prepare(dsl).parse(new byte[] {1, 2, 3, 4});
+    assertArrayEquals(new byte[] {1, 2, 3, 4}, struct.findFieldForType(JBBPFieldStruct.class).findFieldForType(JBBPFieldArrayBit.class).getArray());
   }
 
   @Test
