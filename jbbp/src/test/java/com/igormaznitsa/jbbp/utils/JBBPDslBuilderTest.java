@@ -499,6 +499,38 @@ class JBBPDslBuilderTest {
   }
 
   @Test
+  public void testReportedIssue_21_IAEforEmptyExtraAttributeForArrayField() {
+    class BreakJBBPDslBuilderChild {
+      @Bin(outOrder = 1, comment = "Reserved", type = BinType.BYTE)
+      public byte reserved;
+    }
+
+    class BreakJBBPDslBuilderParent {
+      @Bin(outOrder = 1)
+      public BreakJBBPDslBuilderChild[] breakJBBPDslBuilderChildArray;
+    }
+
+    class BreakJBBPDslBuilderArrayField {
+      @Bin(outOrder = 1, type = BinType.BYTE_ARRAY)
+      public byte[] bytes;
+    }
+
+    try {
+      Begin().AnnotatedClass(BreakJBBPDslBuilderParent.class).End();
+      fail();
+    } catch (IllegalArgumentException ex) {
+      assertTrue(ex.getMessage().contains("Bin#extra"));
+    }
+
+    try {
+      Begin().AnnotatedClass(BreakJBBPDslBuilderArrayField.class).End();
+      fail();
+    } catch (IllegalArgumentException ex) {
+      assertTrue(ex.getMessage().contains("Bin#extra"));
+    }
+  }
+
+  @Test
   public void testReportedIssue_20_NPEforOutBitNumber() throws Exception {
     class BreakJBBPDslBuilder {
       @Bin(outOrder = 1, comment = "Reserved", type = BinType.BIT_ARRAY, extra = "4")

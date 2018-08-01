@@ -1521,6 +1521,7 @@ public class JBBPDslBuilder {
       if ((f.getModifiers() & (Modifier.NATIVE | Modifier.STATIC | Modifier.FINAL | Modifier.PRIVATE | Modifier.TRANSIENT)) == 0) {
         final Bin binAnno = f.getAnnotation(Bin.class);
         if (binAnno != null || defautBin != null) {
+          validateAnnotatedField(defautBin, binAnno, f);
           final Class<?> type = f.getType().isArray() ? f.getType().getComponentType() : f.getType();
           if (type.isPrimitive() || type == String.class) {
             final Bin foundBin = binAnno == null ? defautBin : binAnno;
@@ -1546,6 +1547,15 @@ public class JBBPDslBuilder {
     }
 
     return result;
+  }
+
+  protected void validateAnnotatedField(final Bin defaultBin, final Bin fieldBin, final Field field) {
+    final Bin thebin = fieldBin == null ? defaultBin : fieldBin;
+    final boolean emptyExtra = thebin.extra().trim().length() == 0;
+
+    if ((thebin.type() == BinType.UNDEFINED && field.getType().isArray() || thebin.type().name().endsWith("_ARRAY")) && emptyExtra) {
+      throw new IllegalArgumentException(field.toString() + ": missing array length expression in Bin#extra");
+    }
   }
 
   /**
