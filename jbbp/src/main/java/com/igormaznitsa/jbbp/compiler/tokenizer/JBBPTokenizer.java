@@ -257,8 +257,15 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
       if (normalized.indexOf('.') >= 0) {
         return new JBBPTokenizerException("Field name must not contain '.' char", position);
       }
-      if (this.reservedTypeNames.contains(normalized) || normalized.startsWith("$")) {
-        return new JBBPTokenizerException("'" + name + "' can't be used as field name", position);
+
+      if (normalized.length() > 0) {
+        if (normalized.equalsIgnoreCase("_")
+            || normalized.startsWith("$")
+            || normalized.equals("$$")
+            || Character.isDigit(normalized.charAt(0))
+        ) {
+          return new JBBPTokenizerException("'" + name + "' can't be used as field name", position);
+        }
       }
     }
     return null;

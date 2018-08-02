@@ -51,6 +51,70 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
   private static final int FLAG_DETECTED_VAR_FIELDS = 4;
   private static final int FLAG_ADD_ASSERT_NOT_NEGATIVE_EXPR = 8;
 
+  private static final Set<String> RESERVED_JAVA_KEYWORDS;
+
+  static {
+    final Set<String> reserved = new HashSet<String>();
+
+    reserved.add("abstract");
+    reserved.add("assert");
+    reserved.add("boolean");
+    reserved.add("break");
+    reserved.add("byte");
+    reserved.add("case");
+    reserved.add("catch");
+    reserved.add("char");
+    reserved.add("class");
+    reserved.add("continue");
+    reserved.add("default");
+    reserved.add("do");
+    reserved.add("double");
+    reserved.add("else");
+    reserved.add("enum");
+    reserved.add("extends");
+    reserved.add("final");
+    reserved.add("finally");
+    reserved.add("float");
+    reserved.add("for");
+    reserved.add("if");
+    reserved.add("implements");
+    reserved.add("import");
+    reserved.add("instanceof");
+    reserved.add("int");
+    reserved.add("interface");
+    reserved.add("long");
+    reserved.add("native");
+    reserved.add("new");
+    reserved.add("package");
+    reserved.add("private");
+    reserved.add("protected");
+    reserved.add("public");
+    reserved.add("return");
+    reserved.add("short");
+    reserved.add("static");
+    reserved.add("strictfp");
+    reserved.add("super");
+    reserved.add("switch");
+    reserved.add("synchronized");
+    reserved.add("this");
+    reserved.add("throw");
+    reserved.add("throws");
+    reserved.add("transient");
+    reserved.add("try");
+    reserved.add("void");
+    reserved.add("volatile");
+    reserved.add("while");
+    reserved.add("true");
+    reserved.add("null");
+    reserved.add("false");
+    reserved.add("var");
+    reserved.add("const");
+    reserved.add("goto");
+
+    RESERVED_JAVA_KEYWORDS = Collections.unmodifiableSet(reserved);
+  }
+
+
   /**
    * Name of the field to be used as link to the root structure instance in
    * child structures.
@@ -266,7 +330,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
   @Override
   public void visitStructureStart(final int offsetInCompiledBlock, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPIntegerValueEvaluator nullableArraySize) {
-    final String structName = (nullableNameFieldInfo == null ? makeAnonymousStructName() : nullableNameFieldInfo.getFieldName()).toLowerCase(Locale.ENGLISH);
+    final String structName = (nullableNameFieldInfo == null ? makeAnonymousStructName() : prepFldName(nullableNameFieldInfo.getFieldName())).toLowerCase(Locale.ENGLISH);
     final String structBaseTypeName = structName.toUpperCase(Locale.ENGLISH);
     final String arraySizeIn = nullableArraySize == null ? null : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.flagSet, true);
     final String arraySizeOut = nullableArraySize == null ? null : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.flagSet, true);
@@ -339,6 +403,26 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     }
   }
 
+  private String prepFldName(final String fieldName) {
+    String result = fieldName;
+    if (RESERVED_JAVA_KEYWORDS.contains(fieldName)) {
+      result = '_' + result;
+    } else if (fieldName.startsWith("_")) {
+      if (fieldName.endsWith("_")) {
+        final String withoutUnderscores = fieldName.substring(1, fieldName.length() - 1);
+        if (RESERVED_JAVA_KEYWORDS.contains(withoutUnderscores)) {
+          result = '_' + result + anonymousFieldCounter.incrementAndGet() + '_';
+        }
+      } else {
+        final String withoutUnderscore = fieldName.substring(1);
+        if (RESERVED_JAVA_KEYWORDS.contains(withoutUnderscore)) {
+          result += '_';
+        }
+      }
+    }
+    return result;
+  }
+
   @Override
   public void visitStructureEnd(final int offsetInCompiledBlock, final JBBPNamedFieldInfo nullableNameFieldInfo) {
     this.structStack.remove(0);
@@ -346,7 +430,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
   @Override
   public void visitValField(final int offsetInCompiledBlock, final JBBPNamedFieldInfo nameFieldInfo, final JBBPIntegerValueEvaluator expression) {
-    final String fieldName = nameFieldInfo.getFieldName();
+    final String fieldName = prepFldName(nameFieldInfo.getFieldName());
     FieldType type = FieldType.VAL;
 
     registerNamedField(nameFieldInfo, type);
@@ -372,7 +456,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
   @Override
   public void visitPrimitiveField(final int offsetInCompiledBlock, final int primitiveType, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPByteOrder byteOrder, final boolean readWholeStreamAsArray, final boolean altFieldType, final JBBPIntegerValueEvaluator nullableArraySize) {
-    final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() : nullableNameFieldInfo.getFieldName();
+    final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() : prepFldName(nullableNameFieldInfo.getFieldName());
     FieldType type = FieldType.findForCode(primitiveType);
 
     if (altFieldType) {
@@ -440,7 +524,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
   @Override
   public void visitBitField(final int offsetInCompiledBlock, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPIntegerValueEvaluator notNullFieldSize, final JBBPIntegerValueEvaluator nullableArraySize) {
-    final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() : nullableNameFieldInfo.getFieldName();
+    final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() : prepFldName(nullableNameFieldInfo.getFieldName());
 
     registerNamedField(nullableNameFieldInfo, FieldType.BIT);
 
@@ -513,7 +597,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
     registerNamedField(nullableNameFieldInfo, FieldType.CUSTOM);
 
-    final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() : nullableNameFieldInfo.getFieldName();
+    final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() : prepFldName(nullableNameFieldInfo.getFieldName());
     final String fieldModifier = makeModifier(nullableNameFieldInfo);
 
     final String specialFieldName = makeSpecialFieldName();
@@ -527,7 +611,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     if (nullableNameFieldInfo != null) {
       this.specialSection.printf("private static final JBBPNamedFieldInfo %s = %s;%n",
           specialFieldName_fieldNameInfo,
-          "new JBBPNamedFieldInfo(\"" + nullableNameFieldInfo.getFieldName() + "\",\"" + nullableNameFieldInfo.getFieldPath() + "\"," + nullableNameFieldInfo.getFieldOffsetInCompiledBlock() + ")"
+          "new JBBPNamedFieldInfo(\"" + prepFldName(nullableNameFieldInfo.getFieldName()) + "\",\"" + nullableNameFieldInfo.getFieldPath() + "\"," + nullableNameFieldInfo.getFieldOffsetInCompiledBlock() + ")"
       );
     }
 
@@ -572,7 +656,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
     registerNamedField(nullableNameFieldInfo, FieldType.VAR);
 
-    final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() : nullableNameFieldInfo.getFieldName();
+    final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() : prepFldName(nullableNameFieldInfo.getFieldName());
     final String fieldModifier = makeModifier(nullableNameFieldInfo);
 
     final String specialFieldName = makeSpecialFieldName();
@@ -581,7 +665,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     if (nullableNameFieldInfo != null) {
       this.specialSection.printf("private static final JBBPNamedFieldInfo %s = %s;%n",
           specialFieldName_fieldNameInfo,
-          "new JBBPNamedFieldInfo(\"" + nullableNameFieldInfo.getFieldName() + "\",\"" + nullableNameFieldInfo.getFieldPath() + "\"," + nullableNameFieldInfo.getFieldOffsetInCompiledBlock() + ")"
+          "new JBBPNamedFieldInfo(\"" + prepFldName(nullableNameFieldInfo.getFieldName()) + "\",\"" + nullableNameFieldInfo.getFieldPath() + "\"," + nullableNameFieldInfo.getFieldOffsetInCompiledBlock() + ")"
       );
     }
 
@@ -1364,7 +1448,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     }
   }
 
-  private static final class NamedFieldInfo {
+  private final class NamedFieldInfo {
 
     final JBBPNamedFieldInfo info;
     final Struct struct;
@@ -1377,14 +1461,15 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     }
 
     String makeSrcPath(final Struct currentStruct) {
+      final String fieldName = prepFldName(info.getFieldName());
       if (this.struct == currentStruct) {
-        return "this." + info.getFieldName();
+        return "this." + fieldName;
       } else {
         final String structPath = this.struct.getPath();
         if (currentStruct.isRoot()) {
-          return "this." + (structPath.length() == 0 ? "" : structPath + ".") + info.getFieldName();
+          return "this." + (structPath.length() == 0 ? "" : structPath + ".") + fieldName;
         } else {
-          return "this." + NAME_ROOT_STRUCT + '.' + (structPath.length() == 0 ? "" : structPath + ".") + info.getFieldName();
+          return "this." + NAME_ROOT_STRUCT + '.' + (structPath.length() == 0 ? "" : structPath + ".") + fieldName;
         }
       }
     }

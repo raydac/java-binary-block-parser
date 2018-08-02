@@ -284,12 +284,40 @@ public class JBBPCompilerTest {
 
   @Test
   public void testCompile_ErrorForIllegaFieldName() throws Exception {
-    try {
-      JBBPCompiler.compile("  byte int;");
-      fail("Must throw Tokenizer Exception");
-    } catch (JBBPTokenizerException ex) {
-      assertEquals(2, ex.getPosition());
-    }
+    assertThrows(JBBPTokenizerException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        JBBPCompiler.compile("  byte _;");
+      }
+    });
+
+    assertThrows(JBBPTokenizerException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        JBBPCompiler.compile("  byte $a;");
+      }
+    });
+
+    assertThrows(JBBPTokenizerException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        JBBPCompiler.compile("  byte $$;");
+      }
+    });
+
+    assertThrows(JBBPTokenizerException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        JBBPCompiler.compile("  byte a.b;");
+      }
+    });
+
+    assertThrows(JBBPTokenizerException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        JBBPCompiler.compile("  byte 1d;");
+      }
+    });
   }
 
   @Test

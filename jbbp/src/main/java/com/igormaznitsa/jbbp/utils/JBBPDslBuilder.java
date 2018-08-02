@@ -93,13 +93,18 @@ public class JBBPDslBuilder {
 
   protected static String assertNameIfNotNull(final String name) {
     if (name != null) {
+      if (name.equals("_")) {
+        throw new IllegalArgumentException("Only underscore is not allowed as name");
+      }
+
       for (int i = 0; i < name.length(); i++) {
         final char c = name.charAt(i);
-        if (i == 0 && (Character.isDigit(c))) {
-          throw new IllegalArgumentException("Digit can't be first char");
+        if (i == 0 && Character.isDigit(c)) {
+            throw new IllegalArgumentException("Digit can't be first char");
         }
+
         if (!Character.isLetterOrDigit(c) && c != '_') {
-          throw new IllegalArgumentException("Only letters and digits allowed: " + name);
+          throw new IllegalArgumentException("Only letters, digits and underscore allowed: " + name);
         }
       }
     }

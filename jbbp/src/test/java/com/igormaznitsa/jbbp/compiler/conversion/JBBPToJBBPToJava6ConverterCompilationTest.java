@@ -43,6 +43,12 @@ public class JBBPToJBBPToJava6ConverterCompilationTest extends AbstractJBBPToJav
   }
 
   @Test
+  public void testVarNamesAsJavaTypes() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("ubyte;int integer; int number; int try; int byte; int _byte; int _byte_; int char; int short; int long; int double; int float; int [long+double+char] string;");
+    assertCompilation(makeSources(parser, "some multiline text\nto be added into header", true));
+  }
+
+  @Test
   public void testExpression() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("bit:8 bitf; var somevar; bool bbb; long aaa; ubyte kkk; {{int lrn; {int [(lrn/aaa*1*(2*somevar-4)&$joomla)/(100%9>>bitf)&56|~kkk^78&bbb];}}}");
     assertCompilation(makeSources(parser, "some multiline text\nto be added into header", false));
