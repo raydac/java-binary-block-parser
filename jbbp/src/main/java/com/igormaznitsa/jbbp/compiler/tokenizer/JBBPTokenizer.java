@@ -259,12 +259,12 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
       }
 
       if (normalized.length() > 0) {
-        if (normalized.equalsIgnoreCase("_")
-            || normalized.startsWith("$")
+        if (normalized.equals("_")
             || normalized.equals("$$")
+            || normalized.startsWith("$")
             || Character.isDigit(normalized.charAt(0))
         ) {
-          return new JBBPTokenizerException("'" + name + "' can't be used as field name", position);
+          return new JBBPTokenizerException("'" + name + "' can't be field name", position);
         }
       }
     }
