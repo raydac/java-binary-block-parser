@@ -17,6 +17,8 @@ For instance I have been very actively using the framework in [the ZX-Poly emula
 # Change log
 - **1.4.1 (SNAPSHOT)**
   - fixed NPE in JBBPDslBuilder for not-provided outBitNumber attribute in annotated field  marked as type BIT or BIT_ARRAY [#20](https://github.com/raydac/java-binary-block-parser/issues/20)
+  - naming of fields has been made more tolerant, now it is allowed to have field names with names similar to data types
+  - improved check of field names in JBBPDslBuilder [#21](https://github.com/raydac/java-binary-block-parser/issues/21)
 
 - **1.4.0 (29-jul-2018)**
   - added type `val` which allows to create virtual field with calculated value, can play role of variable in scripts
