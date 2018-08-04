@@ -266,6 +266,13 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
         ) {
           return new JBBPTokenizerException("'" + name + "' can't be field name", position);
         }
+
+        for (int i = 1; i < normalized.length(); i++) {
+          final char chr = normalized.charAt(i);
+          if (chr != '_' && !Character.isLetterOrDigit(chr)) {
+            return new JBBPTokenizerException("Char '" + chr + "' not allowed in name", position);
+          }
+        }
       }
     }
     return null;

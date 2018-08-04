@@ -28,6 +28,40 @@ import static org.junit.jupiter.api.Assertions.*;
 public class JBBPTokenizerTest {
 
   @Test
+  public void testNotAllowesNameError() {
+    assertThrows(JBBPTokenizerException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        new JBBPTokenizer("int $$;").next();
+      }
+    });
+    assertThrows(JBBPTokenizerException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        new JBBPTokenizer("int $a;").next();
+      }
+    });
+    assertThrows(JBBPTokenizerException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        new JBBPTokenizer("int a%d;").next();
+      }
+    });
+    assertThrows(JBBPTokenizerException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        new JBBPTokenizer("int 1a;").next();
+      }
+    });
+    assertThrows(JBBPTokenizerException.class, new Executable() {
+      @Override
+      public void execute() throws Throwable {
+        new JBBPTokenizer("int _;").next();
+      }
+    });
+  }
+
+  @Test
   public void testError_ForEmptyString() {
     final JBBPTokenizer parser = new JBBPTokenizer("");
     assertTrue(parser.hasNext());
