@@ -19,6 +19,7 @@ package com.igormaznitsa.jbbp.io;
 import com.igormaznitsa.jbbp.exceptions.JBBPException;
 import com.igormaznitsa.jbbp.exceptions.JBBPIllegalArgumentException;
 import com.igormaznitsa.jbbp.mapper.Bin;
+import com.igormaznitsa.jbbp.utils.DslBinCustom;
 import com.igormaznitsa.jbbp.mapper.BinType;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
@@ -148,7 +149,9 @@ public abstract class AbstractMappedClassFieldObserver {
     field = ReflectUtils.makeAccessible(field);
 
     final Bin clazzAnno = obj.getClass().getAnnotation(Bin.class);
+    final DslBinCustom clazzCustomAnno = obj.getClass().getAnnotation(DslBinCustom.class);
     final Bin fieldAnno = field == null ? null : field.getAnnotation(Bin.class);
+    final DslBinCustom fieldCustomAnno = field == null ? null : field.getAnnotation(DslBinCustom.class);
 
     this.onStructStart(obj, field, clazzAnno == null ? fieldAnno : clazzAnno);
 

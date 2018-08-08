@@ -973,4 +973,22 @@ public final class JBBPUtils {
     return msk - 1;
   }
 
+  /**
+   * Allows to check two objects even if one of them is null
+   *
+   * @param o1 object one can be null
+   * @param o2 object two can be null
+   * @return true if objects are equal ones, false otherwise
+   * @since 1.4.1
+   */
+  public static boolean equals(final Object o1, final Object o2) {
+    if (o1 == o2) {
+      return true;
+    }
+    if (o1 == null || o2 == null) {
+      return false;
+    }
+    return o1.equals(o2);
+  }
+
 }

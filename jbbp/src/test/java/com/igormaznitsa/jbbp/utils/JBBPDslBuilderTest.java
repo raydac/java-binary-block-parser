@@ -546,6 +546,42 @@ class JBBPDslBuilderTest {
   }
 
   @Test
+  public void testAnnotatedClass_DefaultBin() {
+    @Bin(name = "sometest", type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_5)
+    class Test {
+      byte a;
+      byte b;
+      byte c;
+      @Bin(name = "dd", type = BinType.BOOL)
+      int d;
+    }
+    assertEquals("Test{bit:5 a;bit:5 b;bit:5 c;bool dd;}", Begin().AnnotatedClass(Test.class).End(false));
+  }
+
+  @Test
+  public void testAnnotatedClass_DefaultBin_InnerClass() {
+    @Bin(name = "sometest", type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_5)
+    class Test {
+      byte a;
+      byte b;
+      byte c;
+      @Bin(name = "dd", type = BinType.BOOL)
+      int d;
+
+      @Bin(type = BinType.LONG)
+      class Internal {
+        int a;
+        int b;
+        int c;
+      }
+
+      @Bin(extra = "_")
+      Internal[] array;
+    }
+    assertEquals("Test{bit:5 a;array[_]{long a;long b;long c;}bit:5 b;bit:5 c;bool dd;}", Begin().AnnotatedClass(Test.class).End(false));
+  }
+
+  @Test
   public void testAnotatedClass_AnnottatedAllTypes() {
     class Test {
       @Bin(outOrder = 1, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_4)
@@ -589,6 +625,9 @@ class JBBPDslBuilderTest {
       @Bin(outOrder = 20, extra = "a+b")
       String[] l1;
 
+      @DslBinCustom(type = "int9", extraExpression = "a+b", arraySizeExpression = "c*d")
+      int[] cus;
+
       class Some {
         @Bin(outOrder = 1, type = BinType.UBYTE)
         int a;
@@ -612,6 +651,7 @@ class JBBPDslBuilderTest {
     }
 
     assertEquals("Test{\n" +
+        "\tint9:(a+b)[c*d] cus;\n" +
         "\tbit:4 a;\n" +
         "\tbyte[123] a1;\n" +
         "\tbool b;\n" +
@@ -648,7 +688,8 @@ class JBBPDslBuilderTest {
         "\t}\n" +
         "}\n", Begin().AnnotatedClass(Test.class).End(true));
 
-    assertEquals("bit:4 a;\n" +
+    assertEquals("int9:(a+b)[c*d] cus;\n" +
+        "bit:4 a;\n" +
         "byte[123] a1;\n" +
         "bool b;\n" +
         "bool[456] b1;\n" +

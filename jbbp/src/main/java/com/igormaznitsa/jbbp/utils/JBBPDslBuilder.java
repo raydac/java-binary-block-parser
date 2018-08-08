@@ -100,7 +100,7 @@ public class JBBPDslBuilder {
       for (int i = 0; i < name.length(); i++) {
         final char c = name.charAt(i);
         if (i == 0 && Character.isDigit(c)) {
-            throw new IllegalArgumentException("Digit can't be first char");
+          throw new IllegalArgumentException("Digit can't be first char");
         }
 
         if (!Character.isLetterOrDigit(c) && c != '_') {
@@ -1511,12 +1511,21 @@ public class JBBPDslBuilder {
    */
   protected BinFieldContainer collectAnnotatedFields(final Class<?> annotatedClass) {
     final Bin defautBin = annotatedClass.getAnnotation(Bin.class);
-    final BinFieldContainer result = new BinFieldContainer(annotatedClass, defautBin, null);
+    final DslBinCustom defaultBinCustom = annotatedClass.getAnnotation(DslBinCustom.class);
 
-    final Class<?> parent = annotatedClass.getSuperclass();
+    final BinFieldContainer result;
+    if (defautBin != null) {
+      result = new BinFieldContainer(annotatedClass, defautBin, true, null);
+    } else if (defaultBinCustom != null) {
+      result = new BinFieldContainer(annotatedClass, defaultBinCustom, true, null);
+    } else {
+      result = new BinFieldContainer(annotatedClass, null);
+    }
 
-    if (parent != null && parent != Object.class) {
-      final BinFieldContainer parentFields = collectAnnotatedFields(parent);
+    final Class<?> superclazz = annotatedClass.getSuperclass();
+
+    if (superclazz != null && superclazz != Object.class) {
+      final BinFieldContainer parentFields = collectAnnotatedFields(superclazz);
       if (!parentFields.fields.isEmpty()) {
         result.addAllFromContainer(parentFields);
       }
@@ -1524,18 +1533,36 @@ public class JBBPDslBuilder {
 
     for (final Field f : annotatedClass.getDeclaredFields()) {
       if ((f.getModifiers() & (Modifier.NATIVE | Modifier.STATIC | Modifier.FINAL | Modifier.PRIVATE | Modifier.TRANSIENT)) == 0) {
-        final Bin binAnno = f.getAnnotation(Bin.class);
-        if (binAnno != null || defautBin != null) {
-          validateAnnotatedField(defautBin, binAnno, f);
+        final Bin fieldBinAnno = f.getAnnotation(Bin.class);
+        final DslBinCustom fieldBinCustomAnno = f.getAnnotation(DslBinCustom.class);
+
+        if (fieldBinAnno != null || defautBin != null || defaultBinCustom != null || fieldBinCustomAnno != null) {
+          validateAnnotatedField(defautBin, fieldBinAnno, defaultBinCustom, fieldBinCustomAnno, f);
+
           final Class<?> type = f.getType().isArray() ? f.getType().getComponentType() : f.getType();
           if (type.isPrimitive() || type == String.class) {
-            final Bin foundBin = binAnno == null ? defautBin : binAnno;
-            result.addField(foundBin, f);
+            if (fieldBinAnno != null || fieldBinCustomAnno != null) {
+              if (fieldBinAnno != null) {
+                result.addBinField(fieldBinAnno, true, f);
+              } else {
+                result.addBinCustomField(fieldBinCustomAnno, true, f);
+              }
+            } else {
+              if (defautBin != null) {
+                result.addBinField(defautBin, false, f);
+              } else {
+                result.addBinCustomField(defaultBinCustom, false, f);
+              }
+            }
           } else {
             final BinFieldContainer container = collectAnnotatedFields(type);
             if (!container.fields.isEmpty()) {
-              if (binAnno != null) {
-                container.bin = binAnno;
+              if (fieldBinAnno != null) {
+                container.bin = fieldBinAnno;
+                container.fieldLocalAnnotation = true;
+              } else if (fieldBinCustomAnno != null) {
+                container.binCustom = fieldBinCustomAnno;
+                container.fieldLocalAnnotation = true;
               }
               container.field = f;
               result.addContaner(container);
@@ -1554,12 +1581,28 @@ public class JBBPDslBuilder {
     return result;
   }
 
-  protected void validateAnnotatedField(final Bin defaultBin, final Bin fieldBin, final Field field) {
+  private void validateAnnotatedField(
+      final Bin defaultBin,
+      final Bin fieldBin,
+      final DslBinCustom defaultBinCustom,
+      final DslBinCustom fieldBinCustom,
+      final Field field
+  ) {
     final Bin thebin = fieldBin == null ? defaultBin : fieldBin;
-    final boolean emptyExtra = thebin.extra().trim().length() == 0;
+    final DslBinCustom thebinCustom = fieldBinCustom == null ? defaultBinCustom : fieldBinCustom;
 
-    if ((thebin.type() == BinType.UNDEFINED && field.getType().isArray() || thebin.type().name().endsWith("_ARRAY")) && emptyExtra) {
-      throw new IllegalArgumentException(field.toString() + ": missing array length expression in Bin#extra");
+    if (thebin == null) {
+      if (thebinCustom.type().trim().length() == 0) {
+        throw new IllegalArgumentException(field.toString() + ": missing value in DslBinCustom#type");
+      }
+      if (field.getType().isArray() && thebinCustom.arraySizeExpression().trim().length() == 0) {
+        throw new IllegalArgumentException(field.toString() + ": missing value in DslBinCustom#arraySizeExpression");
+      }
+    } else {
+      final boolean emptyExtra = thebin.extra().length() == 0;
+      if ((thebin.type() == BinType.UNDEFINED && field.getType().isArray() || thebin.type().name().endsWith("_ARRAY")) && emptyExtra) {
+        throw new IllegalArgumentException(field.toString() + ": missing array length expression in Bin#extra");
+      }
     }
   }
 
@@ -1635,7 +1678,7 @@ public class JBBPDslBuilder {
           if (conty == BinFieldContainer.END_STRUCT) {
             this.CloseStruct();
           } else {
-            if (field.isArray()) {
+            if (field.isArrayField()) {
               this.StructArray(conty.getName(), conty.bin.extra());
             } else {
               this.Struct(conty.getName());
@@ -1645,99 +1688,108 @@ public class JBBPDslBuilder {
             break;
           }
         } else {
-          final BinType type = field.findType();
-          this.ByteOrder(pair.container.getByteOrder(field));
-          switch (type) {
-            case BIT_ARRAY: {
-              this.BitArray(field.getName(), pair.container.getBitNumber(field), field.bin.extra());
+          if (field.isCustomBin()) {
+            this.ByteOrder(pair.container.getByteOrder(field));
+            if (field.isArrayField() || field.binCustom.arraySizeExpression().length() > 0) {
+              this.CustomArray(field.binCustom.type(), field.getName(), field.binCustom.arraySizeExpression(), field.binCustom.extraExpression());
+            } else {
+              this.Custom(field.binCustom.type(), field.getName(), field.binCustom.extraExpression());
             }
-            break;
-            case BIT: {
-              this.Bits(field.getName(), pair.container.getBitNumber(field));
+          } else {
+            final BinType type = field.findType();
+            this.ByteOrder(pair.container.getByteOrder(field));
+            switch (type) {
+              case BIT_ARRAY: {
+                this.BitArray(field.getName(), pair.container.getBitNumber(field), field.bin.extra());
+              }
+              break;
+              case BIT: {
+                this.Bits(field.getName(), pair.container.getBitNumber(field));
+              }
+              break;
+              case BOOL: {
+                this.Bool(field.getName());
+              }
+              break;
+              case BOOL_ARRAY: {
+                this.BoolArray(field.getName(), field.bin.extra());
+              }
+              break;
+              case BYTE: {
+                this.Byte(field.getName());
+              }
+              break;
+              case BYTE_ARRAY: {
+                this.ByteArray(field.getName(), field.bin.extra());
+              }
+              break;
+              case UBYTE: {
+                this.UByte(field.getName());
+              }
+              break;
+              case UBYTE_ARRAY: {
+                this.UByteArray(field.getName(), field.bin.extra());
+              }
+              break;
+              case SHORT: {
+                this.Short(field.getName());
+              }
+              break;
+              case SHORT_ARRAY: {
+                this.ShortArray(field.getName(), field.bin.extra());
+              }
+              break;
+              case USHORT: {
+                this.UShort(field.getName());
+              }
+              break;
+              case USHORT_ARRAY: {
+                this.UShortArray(field.getName(), field.bin.extra());
+              }
+              break;
+              case INT: {
+                this.Int(field.getName());
+              }
+              break;
+              case INT_ARRAY: {
+                this.IntArray(field.getName(), field.bin.extra());
+              }
+              break;
+              case LONG: {
+                this.Long(field.getName());
+              }
+              break;
+              case LONG_ARRAY: {
+                this.LongArray(field.getName(), field.bin.extra());
+              }
+              break;
+              case FLOAT: {
+                this.Float(field.getName());
+              }
+              break;
+              case FLOAT_ARRAY: {
+                this.FloatArray(field.getName(), field.bin.extra());
+              }
+              break;
+              case DOUBLE: {
+                this.Double(field.getName());
+              }
+              break;
+              case DOUBLE_ARRAY: {
+                this.DoubleArray(field.getName(), field.bin.extra());
+              }
+              break;
+              case STRING: {
+                this.String(field.getName());
+              }
+              break;
+              case STRING_ARRAY: {
+                this.StringArray(field.getName(), field.bin.extra());
+              }
+              break;
+              default:
+                throw new Error("Unexpected type:" + type);
             }
-            break;
-            case BOOL: {
-              this.Bool(field.getName());
-            }
-            break;
-            case BOOL_ARRAY: {
-              this.BoolArray(field.getName(), field.bin.extra());
-            }
-            break;
-            case BYTE: {
-              this.Byte(field.getName());
-            }
-            break;
-            case BYTE_ARRAY: {
-              this.ByteArray(field.getName(), field.bin.extra());
-            }
-            break;
-            case UBYTE: {
-              this.UByte(field.getName());
-            }
-            break;
-            case UBYTE_ARRAY: {
-              this.UByteArray(field.getName(), field.bin.extra());
-            }
-            break;
-            case SHORT: {
-              this.Short(field.getName());
-            }
-            break;
-            case SHORT_ARRAY: {
-              this.ShortArray(field.getName(), field.bin.extra());
-            }
-            break;
-            case USHORT: {
-              this.UShort(field.getName());
-            }
-            break;
-            case USHORT_ARRAY: {
-              this.UShortArray(field.getName(), field.bin.extra());
-            }
-            break;
-            case INT: {
-              this.Int(field.getName());
-            }
-            break;
-            case INT_ARRAY: {
-              this.IntArray(field.getName(), field.bin.extra());
-            }
-            break;
-            case LONG: {
-              this.Long(field.getName());
-            }
-            break;
-            case LONG_ARRAY: {
-              this.LongArray(field.getName(), field.bin.extra());
-            }
-            break;
-            case FLOAT: {
-              this.Float(field.getName());
-            }
-            break;
-            case FLOAT_ARRAY: {
-              this.FloatArray(field.getName(), field.bin.extra());
-            }
-            break;
-            case DOUBLE: {
-              this.Double(field.getName());
-            }
-            break;
-            case DOUBLE_ARRAY: {
-              this.DoubleArray(field.getName(), field.bin.extra());
-            }
-            break;
-            case STRING: {
-              this.String(field.getName());
-            }
-            break;
-            case STRING_ARRAY: {
-              this.StringArray(field.getName(), field.bin.extra());
-            }
-            break;
-            default:
-              throw new Error("Unexpected type:" + type);
           }
         }
       }
@@ -1851,18 +1903,35 @@ public class JBBPDslBuilder {
   protected static class BinField implements Comparable<BinField> {
 
     Bin bin;
+    DslBinCustom binCustom;
     Field field;
 
-    BinField(final Bin bin, final Field field) {
-      this.bin = bin;
+    boolean fieldLocalAnnotation;
+
+    BinField(final DslBinCustom binCustom, final boolean fieldLocalAnnotation, final Field field) {
+      this.fieldLocalAnnotation = fieldLocalAnnotation;
+      this.bin = null;
+      this.binCustom = binCustom;
       this.field = field;
     }
 
-    boolean isArray() {
+    BinField(final Bin bin, final boolean fieldLocalAnnotation, final Field field) {
+      this.fieldLocalAnnotation = fieldLocalAnnotation;
+      this.bin = bin;
+      this.field = field;
+      this.binCustom = null;
+    }
+
+    boolean isArrayField() {
       return this.field != null && this.field.getType().isArray();
     }
 
+    boolean isCustomBin() {
+      return this.binCustom != null;
+    }
+
     BinType findType() {
+      assertNotCustomBin();
       if (this.field == null) {
         return BinType.STRUCT;
       }
@@ -1870,15 +1939,28 @@ public class JBBPDslBuilder {
     }
 
     String getName() {
-      if (this.field == null) {
-        return null;
-      }
+      String result = null;
 
-      return this.bin == null ?
-          this.field.getName() :
-          this.bin.name().length() == 0 ?
-              this.field.getName() :
-              this.bin.name();
+      if (this.field != null) {
+        if (this.fieldLocalAnnotation) {
+          if (this.bin != null) {
+            result = this.bin.name().length() == 0 ? this.field.getName() : this.bin.name();
+          } else if (this.binCustom != null) {
+            result = this.binCustom.name().length() == 0 ? this.field.getName() : this.binCustom.name();
+          } else {
+            throw new Error("Unexpected");
+          }
+        } else {
+          result = field.getName();
+        }
+      }
+      return result;
+    }
+
+    protected void assertNotCustomBin() {
+      if (this.binCustom != null) {
+        throw new Error("Unexpected custom bin");
+      }
     }
 
     @Override
@@ -1891,7 +1973,10 @@ public class JBBPDslBuilder {
       }
       if (obj instanceof BinField) {
         final BinField that = (BinField) obj;
-        return this.field.equals(that.field) && this.bin.equals(that.bin);
+
+        return this.field.equals(that.field)
+            && JBBPUtils.equals(this.bin, that.bin)
+            && JBBPUtils.equals(this.binCustom, that.binCustom);
       }
       return false;
     }
@@ -1901,13 +1986,27 @@ public class JBBPDslBuilder {
       return this.field.hashCode();
     }
 
+    private int getOrder() {
+      if (this.binCustom != null) {
+        return this.binCustom.order();
+      }
+      if (this.bin != null) {
+        return this.bin.outOrder();
+      }
+      return 0;
+    }
+
     @SuppressWarnings("NullableProblems")
     @Override
     public int compareTo(final BinField that) {
-      final int thisOrder = this.bin == null ? 0 : this.bin.outOrder();
-      final int thatOrder = that.bin == null ? 0 : that.bin.outOrder();
+      final int thisOrder = this.getOrder();
+      final int thatOrder = that.getOrder();
 
-      return thisOrder == thatOrder ? 0 : (thisOrder < thatOrder ? -1 : 1);
+      if (thisOrder == thatOrder) {
+        return this.getName().compareTo(that.getName());
+      } else {
+        return thisOrder < thatOrder ? -1 : 1;
+      }
     }
   }
 
@@ -1915,10 +2014,20 @@ public class JBBPDslBuilder {
     final List<BinField> fields = new ArrayList<BinField>();
     final Class<?> klazz;
 
-    static BinFieldContainer END_STRUCT = new BinFieldContainer(null, null, null);
+    static BinFieldContainer END_STRUCT = new BinFieldContainer(null, null);
 
-    BinFieldContainer(final Class<?> klazz, final Bin bin, final Field field) {
-      super(bin, field);
+    BinFieldContainer(final Class<?> klazz, final Bin bin, final boolean binSet, final Field field) {
+      super(bin, binSet, field);
+      this.klazz = klazz;
+    }
+
+    BinFieldContainer(final Class<?> klazz, final Field field) {
+      super((Bin) null, false, field);
+      this.klazz = klazz;
+    }
+
+    BinFieldContainer(final Class<?> klazz, final DslBinCustom binCustom, final boolean binCustomSet, final Field field) {
+      super(binCustom, binCustomSet, field);
       this.klazz = klazz;
     }
 
@@ -1934,12 +2043,16 @@ public class JBBPDslBuilder {
       this.fields.add(container);
     }
 
-    void addField(final Bin bin, final Field field) {
-      this.fields.add(new BinField(bin, field));
+    void addBinField(final Bin bin, final boolean binSet, final Field field) {
+      this.fields.add(new BinField(bin, binSet, field));
+    }
+
+    void addBinCustomField(final DslBinCustom bin, final boolean binCustomSet, final Field field) {
+      this.fields.add(new BinField(bin, binCustomSet, field));
     }
 
     JBBPByteOrder getByteOrder(final BinField field) {
-      return field.bin.outByteOrder();
+      return field.binCustom == null ? field.bin.outByteOrder() : field.binCustom.byteOrder();
     }
 
     String getName() {
@@ -1948,6 +2061,7 @@ public class JBBPDslBuilder {
     }
 
     JBBPBitNumber getBitNumber(final BinField field) {
+      assertNotCustomBin();
       final JBBPBitNumber result;
       if (field.bin.outBitNumber() == JBBPBitNumber.BITS_8) {
         result = this.bin == null ? JBBPBitNumber.BITS_8 : this.bin.outBitNumber();
