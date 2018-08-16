@@ -1,6 +1,7 @@
 Change log
 --------------------------
 1.4.1
+ - fixed incompatibility in tokenizer regex syntax for Android SDK [#23](https://github.com/raydac/java-binary-block-parser/issues/23)
  - added DslBinCustom annotation to provide way to mark custom type fields for JBBPDslBuilder
  - fixed NPE in JBBPDslBuilder for not-provided outBitNumber attribute in annotated field  marked as type BIT or BIT_ARRAY [#20](https://github.com/raydac/java-binary-block-parser/issues/20)
  - naming of fields has been made more tolerant, now it is allowed to have field names with names similar to data types
