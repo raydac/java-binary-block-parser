@@ -43,7 +43,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
   /**
    * The Pattern to break a string to tokens.
    */
-  private static final Pattern PATTERN = Pattern.compile("\\s*//.*$|\\s*(})|\\s*([^\\s;\\[\\]}{]+)?\\s*(?:\\[\\s*([^\\[\\]{};]+)\\s*])?\\s*([^\\d\\s;\\[\\]}{/][^\\s;\\[\\]}{/]*)?\\s*([{;])", Pattern.MULTILINE);
+  private static final Pattern PATTERN = Pattern.compile("\\s*//.*$|\\s*(\\})|\\s*([^\\s;\\[\\]\\}\\{]+)?\\s*(?:\\[\\s*([^\\[\\]\\{\\};]+)\\s*\\])?\\s*([^\\d\\s;\\[\\]\\}\\{/][^\\s;\\[\\]\\}\\{/]*)?\\s*([\\{;])", Pattern.MULTILINE);
   /**
    * The Pattern to break field type to parameters.
    */
