@@ -54,12 +54,16 @@ public class JBBPDslBuilder {
   }
 
   protected void addItem(final Item item) {
-    if (item.name == null || item.name.length() == 0) {
+    if (item instanceof ItemComment || item.name == null || item.name.length() == 0) {
       this.items.add(item);
     } else {
       int structCounter = 0;
       for (int i = this.items.size() - 1; i >= 0; i--) {
         final Item itm = this.items.get(i);
+
+        if (itm instanceof ItemComment) {
+          continue;
+        }
 
         if (itm.type == BinType.STRUCT || itm.type == BinType.STRUCT_ARRAY) {
           if (structCounter == 0) {
@@ -1289,13 +1293,25 @@ public class JBBPDslBuilder {
   }
 
   /**
-   * Add comment.
+   * Add comment, in case that a field followed by the comment, the comment will be placed on the same line as field definition.
    *
    * @param text text of comment, can be null
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder Comment(final String text) {
-    this.addItem(new ItemComment(text == null ? "" : text));
+    this.addItem(new ItemComment(text == null ? "" : text, false));
+    return this;
+  }
+
+  /**
+   * Add comment which will be placed on new line.
+   *
+   * @param text text of comment, can be null
+   * @return the builder instance, must not be null
+   * @since 1.4.1
+   */
+  public JBBPDslBuilder NewLineComment(final String text) {
+    this.addItem(new ItemComment(text == null ? "" : text, true));
     return this;
   }
 
@@ -1484,7 +1500,31 @@ public class JBBPDslBuilder {
           } else if (item instanceof ItemSkip) {
             doTabs(format, buffer, structCounter).append("skip").append(item.sizeExpression == null ? "" : ':' + item.makeExpressionForExtraField(item.sizeExpression)).append(';');
           } else if (item instanceof ItemComment) {
-            doTabs(format, buffer, structCounter).append("// ").append(item.name.replace("\n", " "));
+            final ItemComment comment = (ItemComment) item;
+            final String commentText = comment.getComment().replace("\n", " ");
+            if (comment.isNewLine()) {
+              if (buffer.length() > 0) {
+                final int lastNewLine = buffer.lastIndexOf("\n");
+                if (lastNewLine < 0 || buffer.substring(lastNewLine + 1).length() != 0) {
+                  buffer.append('\n');
+                }
+              }
+              doTabs(format, buffer, structCounter).append("// ").append(commentText);
+            } else {
+              final String current = buffer.toString();
+              if (current.endsWith(";\n") || current.endsWith("}\n")) {
+                buffer.setLength(buffer.length() - 1);
+              }
+              final int lastCommentIndex = buffer.lastIndexOf("//");
+              if (lastCommentIndex < 0) {
+                buffer.append("// ");
+              } else if (buffer.lastIndexOf("\n") > lastCommentIndex) {
+                buffer.append("// ");
+              } else {
+                buffer.append(' ');
+              }
+              buffer.append(commentText);
+            }
           } else {
             throw new IllegalArgumentException("Unexpected item : " + item.getClass().getName());
           }
@@ -1792,6 +1832,10 @@ public class JBBPDslBuilder {
             }
           }
         }
+        final String comment = field.getComment();
+        if (comment.length() != 0) {
+          this.Comment(comment);
+        }
       }
     }
 
@@ -1820,7 +1864,7 @@ public class JBBPDslBuilder {
 
     Item(final BinType type, final String name, final JBBPByteOrder byteOrder) {
       this.type = type;
-      this.name = name == null ? name : assertNameIfNotNull(assertTextNotNullAndTrimmedNotEmpty(name)).trim();
+      this.name = name == null ? null : assertNameIfNotNull(assertTextNotNullAndTrimmedNotEmpty(name)).trim();
       this.byteOrder = byteOrder;
     }
 
@@ -1900,6 +1944,9 @@ public class JBBPDslBuilder {
     }
   }
 
+  /**
+   * Internal auxiliary class to keep found annotated fields.
+   */
   protected static class BinField implements Comparable<BinField> {
 
     Bin bin;
@@ -1920,6 +1967,18 @@ public class JBBPDslBuilder {
       this.bin = bin;
       this.field = field;
       this.binCustom = null;
+    }
+
+    String getComment() {
+      String result = "";
+      if (this.fieldLocalAnnotation) {
+        if (this.binCustom != null) {
+          result = this.binCustom.comment();
+        } else if (this.bin != null) {
+          result = this.bin.comment();
+        }
+      }
+      return result;
     }
 
     boolean isArrayField() {
@@ -2016,8 +2075,8 @@ public class JBBPDslBuilder {
 
     static BinFieldContainer END_STRUCT = new BinFieldContainer(null, null);
 
-    BinFieldContainer(final Class<?> klazz, final Bin bin, final boolean binSet, final Field field) {
-      super(bin, binSet, field);
+    BinFieldContainer(final Class<?> klazz, final Bin bin, final boolean fieldLocalAnnotation, final Field field) {
+      super(bin, fieldLocalAnnotation, field);
       this.klazz = klazz;
     }
 
@@ -2026,8 +2085,8 @@ public class JBBPDslBuilder {
       this.klazz = klazz;
     }
 
-    BinFieldContainer(final Class<?> klazz, final DslBinCustom binCustom, final boolean binCustomSet, final Field field) {
-      super(binCustom, binCustomSet, field);
+    BinFieldContainer(final Class<?> klazz, final DslBinCustom binCustom, final boolean fieldLocalAnnotation, final Field field) {
+      super(binCustom, fieldLocalAnnotation, field);
       this.klazz = klazz;
     }
 
@@ -2043,12 +2102,12 @@ public class JBBPDslBuilder {
       this.fields.add(container);
     }
 
-    void addBinField(final Bin bin, final boolean binSet, final Field field) {
-      this.fields.add(new BinField(bin, binSet, field));
+    void addBinField(final Bin bin, final boolean fieldLocalAnnotation, final Field field) {
+      this.fields.add(new BinField(bin, fieldLocalAnnotation, field));
     }
 
-    void addBinCustomField(final DslBinCustom bin, final boolean binCustomSet, final Field field) {
-      this.fields.add(new BinField(bin, binCustomSet, field));
+    void addBinCustomField(final DslBinCustom bin, final boolean fieldLocalAnnotation, final Field field) {
+      this.fields.add(new BinField(bin, fieldLocalAnnotation, field));
     }
 
     JBBPByteOrder getByteOrder(final BinField field) {
@@ -2073,8 +2132,21 @@ public class JBBPDslBuilder {
   }
 
   protected static class ItemComment extends Item {
-    ItemComment(final String text) {
-      super(BinType.UNDEFINED, text, JBBPByteOrder.BIG_ENDIAN);
+    private final boolean newLine;
+    private final String comment;
+
+    ItemComment(final String text, final boolean newLine) {
+      super(BinType.UNDEFINED, "_ignored_because_comment_", JBBPByteOrder.BIG_ENDIAN);
+      this.comment = text;
+      this.newLine = newLine;
+    }
+
+    String getComment() {
+      return this.comment == null ? "" : this.comment;
+    }
+
+    boolean isNewLine() {
+      return this.newLine;
     }
   }
 

@@ -144,6 +144,16 @@ class JBBPDslBuilderTest {
   }
 
   @Test
+  public void testComment() {
+    assertEquals("// Test\n", Begin().Comment("Test").End());
+    assertEquals("// //\n// Test\n", Begin().Comment("//").Comment("Test").End());
+    assertEquals("// Test\n// Test2\n", Begin().Comment("Test").Comment("Test2").End());
+    assertEquals("int a;// Test\n// Test2\n", Begin().Int("a").Comment("Test").Comment("Test2").End());
+    assertEquals("int a;\n// Test\n// Test2\n", Begin().Int("a").NewLineComment("Test").NewLineComment("Test2").End());
+    assertEquals("int a;hello{// hello\n}// end hello\n", Begin().Int("a").Struct("hello").Comment("hello").CloseStruct().Comment("end hello").End());
+  }
+
+  @Test
   public void testType_VarArray() {
     assertEquals("var[1234];", Begin().VarArray(1234).End());
     assertEquals("var[q+b];", Begin().VarArray("q+b").End());
@@ -539,7 +549,7 @@ class JBBPDslBuilderTest {
 
     final String dsl = Begin().AnnotatedClass(BreakJBBPDslBuilder.class).End();
 
-    assertEquals("BreakJBBPDslBuilder{bit:8[4] reserved;}", dsl);
+    assertEquals("BreakJBBPDslBuilder{bit:8[4] reserved;// Reserved\n}", dsl);
 
     JBBPFieldStruct struct = JBBPParser.prepare(dsl).parse(new byte[] {1, 2, 3, 4});
     assertArrayEquals(new byte[] {1, 2, 3, 4}, struct.findFieldForType(JBBPFieldStruct.class).findFieldForType(JBBPFieldArrayBit.class).getArray());
@@ -584,7 +594,7 @@ class JBBPDslBuilderTest {
   @Test
   public void testAnotatedClass_AnnottatedAllTypes() {
     class Test {
-      @Bin(outOrder = 1, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_4)
+      @Bin(outOrder = 1, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_4, comment = "bit field")
       byte a;
       @Bin(outOrder = 2, outBitNumber = JBBPBitNumber.BITS_2, extra = "123")
       byte[] a1;
@@ -625,7 +635,7 @@ class JBBPDslBuilderTest {
       @Bin(outOrder = 20, extra = "a+b")
       String[] l1;
 
-      @DslBinCustom(type = "int9", extraExpression = "a+b", arraySizeExpression = "c*d")
+      @DslBinCustom(type = "int9", extraExpression = "a+b", arraySizeExpression = "c*d", byteOrder = JBBPByteOrder.LITTLE_ENDIAN, comment = "some comment")
       int[] cus;
 
       class Some {
@@ -651,8 +661,8 @@ class JBBPDslBuilderTest {
     }
 
     assertEquals("Test{\n" +
-        "\tint9:(a+b)[c*d] cus;\n" +
-        "\tbit:4 a;\n" +
+        "\t<int9:(a+b)[c*d] cus;// some comment\n" +
+        "\tbit:4 a;// bit field\n" +
         "\tbyte[123] a1;\n" +
         "\tbool b;\n" +
         "\tbool[456] b1;\n" +
@@ -688,8 +698,8 @@ class JBBPDslBuilderTest {
         "\t}\n" +
         "}\n", Begin().AnnotatedClass(Test.class).End(true));
 
-    assertEquals("int9:(a+b)[c*d] cus;\n" +
-        "bit:4 a;\n" +
+    assertEquals("<int9:(a+b)[c*d] cus;// some comment\n" +
+        "bit:4 a;// bit field\n" +
         "byte[123] a1;\n" +
         "bool b;\n" +
         "bool[456] b1;\n" +
