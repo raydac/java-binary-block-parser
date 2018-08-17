@@ -42,6 +42,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
 
   /**
    * The Pattern to break a string to tokens.
+   * <b>WARNING! DO NOT UNESCAPE '}' AND '{' CHARS BECAUSE IT MAKES INCOMPATIBILITY WITH ANDROID!</b>
    */
   private static final Pattern PATTERN = Pattern.compile("\\s*//.*$|\\s*(\\})|\\s*([^\\s;\\[\\]\\}\\{]+)?\\s*(?:\\[\\s*([^\\[\\]\\{\\};]+)\\s*\\])?\\s*([^\\d\\s;\\[\\]\\}\\{/][^\\s;\\[\\]\\}\\{/]*)?\\s*([\\{;])", Pattern.MULTILINE);
   /**
