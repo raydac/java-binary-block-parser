@@ -1,5 +1,5 @@
 [![License Apache 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-green.svg)](http://www.apache.org/licenses/LICENSE-2.0)
-[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.igormaznitsa/jbbp/badge.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|jbbp|1.4.0|jar)
+[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.igormaznitsa/jbbp/badge.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|jbbp|1.4.1|jar)
 [![Codacy Badge](https://api.codacy.com/project/badge/grade/50b0281430a94eb6abe417409f99ed58)](https://www.codacy.com/app/rrg4400/java-binary-block-parser)
 [![Java 6.0+](https://img.shields.io/badge/java-6.0%2b-green.svg)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 [![Android 2.0+](https://img.shields.io/badge/android-2.0%2b-green.svg)](http://developer.android.com/sdk/index.html)
@@ -15,7 +15,7 @@ For instance I have been very actively using the framework in [the ZX-Poly emula
 ![Use cases](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_mm.png)
 
 # Change log
-- **1.4.1 (SNAPSHOT)**
+- **1.4.1 (20-aug-2018)**
   - fixed incompatibility in tokenizer regex syntax for Android SDK [#23](https://github.com/raydac/java-binary-block-parser/issues/23)
   - added DslBinCustom annotation to provide way to mark custom type fields for JBBPDslBuilder
   - fixed NPE in JBBPDslBuilder for not-provided outBitNumber attribute in annotated field  marked as type BIT or BIT_ARRAY [#20](https://github.com/raydac/java-binary-block-parser/issues/20)
@@ -56,7 +56,7 @@ The Framework has been published in the Maven Central and can be easily added as
 <dependency>
   <groupId>com.igormaznitsa</groupId>
   <artifactId>jbbp</artifactId>
-  <version>1.4.0</version>
+  <version>1.4.1</version>
 </dependency>
 ```
 the precompiled library jar, javadoc and sources also can be downloaded directly from [the Maven central.](http://search.maven.org/#browse|808871750)
@@ -103,7 +103,7 @@ in Maven you should just add such plugin execution
  <plugin>
    <groupId>com.igormaznitsa</groupId>
    <artifactId>jbbp-maven-plugin</artifactId>
-   <version>1.4.0</version>
+   <version>1.4.1</version>
    <executions>
      <execution>
        <id>gen-jbbp-src</id>
