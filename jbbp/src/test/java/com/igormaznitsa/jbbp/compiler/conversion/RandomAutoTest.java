@@ -91,6 +91,14 @@ public class RandomAutoTest extends AbstractJBBPToJava6ConverterTest {
     return result.toString();
   }
 
+  String genRandomString(final int length) {
+    final StringBuilder builder = new StringBuilder(length);
+    for(int i=0;i<length;i++){
+      builder.append((char)(' '+this.RND.nextInt(100)));
+    }
+    return builder.toString();
+  }
+
   Result generate(final int items, final boolean generateNames) {
     final JBBPDslBuilder builder = JBBPDslBuilder.Begin();
 
@@ -120,7 +128,7 @@ public class RandomAutoTest extends AbstractJBBPToJava6ConverterTest {
         final StructLen len = counterStack.remove(0);
         counterStack.get(0).add(len.make());
       } else {
-        final int rndType = RND.nextInt(25);
+        final int rndType = RND.nextInt(27);
         typeFlags |= (1 << rndType);
         switch (rndType) {
           case 0: { // STRUCT
@@ -300,6 +308,14 @@ public class RandomAutoTest extends AbstractJBBPToJava6ConverterTest {
             }
           }
           break;
+          case 25: { // COMMENT
+            builder.Comment(genRandomString(this.RND.nextInt(32)));
+          }
+          break;
+          case 26: { // COMMENT NEW LINE
+            builder.NewLineComment(genRandomString(this.RND.nextInt(32)));
+          }
+          break;
         }
       }
     }
@@ -346,7 +362,7 @@ public class RandomAutoTest extends AbstractJBBPToJava6ConverterTest {
       testIndex++;
     }
 
-    assertEquals(0x1FFFFFFL, generatedFields, "All field types must be presented");
+    assertEquals(0x7FFFFFFL, generatedFields, "All field types must be presented");
   }
 
 
