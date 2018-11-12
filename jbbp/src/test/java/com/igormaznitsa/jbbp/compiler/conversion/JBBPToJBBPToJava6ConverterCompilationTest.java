@@ -63,6 +63,35 @@ public class JBBPToJBBPToJava6ConverterCompilationTest extends AbstractJBBPToJav
   }
 
   @Test
+  public void testMakeInternalClassObjects_StaticClasses() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("a { b { c [_] { byte d;}} }");
+    final String text = JBBPToJava6Converter
+        .makeBuilder(parser)
+        .setMainClassName(CLASS_NAME)
+        .setAddGettersSetters(true)
+        .build()
+        .convert();
+    assertTrue(text.contains("public A makeA(){ this.a = new A(this); return this.a; }"));
+    assertTrue(text.contains("public B makeB(){ this.b = new B(_Root_); return this.b; }"));
+    assertTrue(text.contains("public C[] makeC(int _Len_){ this.c = new C[_Len_]; for(int i=0;i < _Len_;i++) this.c[i]=new C(_Root_); return this.c; }"));
+  }
+
+  @Test
+  public void testMakeInternalClassObjects_NonStaticClasses() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("a { b { c [_] { byte d;}} }");
+    final String text = JBBPToJava6Converter
+        .makeBuilder(parser)
+        .setMainClassName(CLASS_NAME)
+        .setAddGettersSetters(true)
+        .doInternalClassesNonStatic()
+        .build()
+        .convert();
+    assertTrue(text.contains("public A makeA(){ this.a = new A(this); return this.a; }"));
+    assertTrue(text.contains("public B makeB(){ this.b = new B(_Root_); return this.b; }"));
+    assertTrue(text.contains("public C[] makeC(int _Len_){ this.c = new C[_Len_]; for(int i=0;i < _Len_;i++) this.c[i]=new C(_Root_); return this.c; }"));
+  }
+
+  @Test
   public void testMapSubstructToSuperclassesInterface() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("a { b { c [_] { byte d;}} }");
     final String text = JBBPToJava6Converter.makeBuilder(parser)
@@ -70,7 +99,7 @@ public class JBBPToJBBPToJava6ConverterCompilationTest extends AbstractJBBPToJav
         .setAddGettersSetters(true)
         .setMapSubClassesSuperclasses(
             makeMap(
-                "a.b","com.igormaznitsa.Impl",
+                "a.b", "com.igormaznitsa.Impl",
                 "a.b.c", "com.igormaznitsa.Impl2"
             )
         )
@@ -91,7 +120,7 @@ public class JBBPToJBBPToJava6ConverterCompilationTest extends AbstractJBBPToJav
         .setAddGettersSetters(true)
         .setMapSubClassesInterfaces(
             makeMap(
-                "a.b","com.igormaznitsa.Impl",
+                "a.b", "com.igormaznitsa.Impl",
                 "a.b.c", "com.igormaznitsa.Impl2"
             )
         )
