@@ -37,9 +37,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.*;
 
 /**
- * Converter to produce Java class sources (1.6+) from JBBPParser. If a parser contains variable field, custom fields or external
- * values in expressions then the result class will be abstract one and its
- * abstract methods must be implemented in successor.
+ * Converter to produce Java class sources (1.6+) from JBBPParser. If a parser
+ * contains variable field, custom fields or external values in expressions then
+ * the result class will be abstract one and its abstract methods must be
+ * implemented in successor.
  *
  * @since 1.3.0
  */
@@ -114,7 +115,6 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     RESERVED_JAVA_KEYWORDS = Collections.unmodifiableSet(reserved);
   }
 
-
   /**
    * Name of the field to be used as link to the root structure instance in
    * child structures.
@@ -185,8 +185,8 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
   /**
    * Make new builder.
    *
-   * @param parser parser instance to be used as the base for translation, must not be
-   *               null
+   * @param parser parser instance to be used as the base for translation, must
+   *               not be null
    * @return the new builder instance, must not be null.
    */
   public static Builder makeBuilder(final JBBPParser parser) {
@@ -346,6 +346,9 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     }
 
     final String structType;
+
+    final String pathToRootObject = this.structStack.size() == 1 ? "this" : NAME_ROOT_STRUCT;
+
     if (nullableArraySize == null) {
       structType = structBaseTypeName;
       if (this.builder.generateFields) {
@@ -356,7 +359,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
       processSkipRemainingFlagForWriting("this." + structName);
 
       this.getCurrentStruct().getReadFunc().indent()
-          .printf("if ( this.%1$s == null) { this.%1$s = new %2$s(%3$s);}", structName, structType, this.structStack.size() == 1 ? "this" : "this." + NAME_ROOT_STRUCT)
+          .printf("if ( this.%1$s == null) { this.%1$s = new %2$s(%3$s);}", structName, structType, pathToRootObject)
           .printf(" %s.read(%s);%n", toType.length() == 0 ? "this." + structName : '(' + toType + "this." + structName + ')', NAME_INPUT_STREAM);
       this.getCurrentStruct().getWriteFunc().indent().print(toType.length() == 0 ? structName : '(' + toType + structName + ')').println(".write(Out);");
     } else {
@@ -372,12 +375,12 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
                 structName,
                 arraySizeIn,
                 structBaseTypeName,
-                (this.structStack.size() == 1 ? "this" : NAME_ROOT_STRUCT),
+                pathToRootObject,
                 NAME_INPUT_STREAM);
         this.getCurrentStruct().getWriteFunc().indent().printf("for (int I=0;I<this.%1$s.length;I++){ %2$s.write(%3$s); }%n", structName, toType.length() == 0 ? "this." + structName + "[I]" : '(' + toType + "this." + structName + "[I])", NAME_OUTPUT_STREAM);
       } else {
         this.getCurrentStruct().getReadFunc().indent()
-            .printf("if (this.%1$s == null || this.%1$s.length != %2$s){ this.%1$s = new %3$s[%2$s]; for(int I=0;I<%2$s;I++){ this.%1$s[I] = new %3$s(%4$s);}}", structName, arraySizeIn, structBaseTypeName, (this.structStack.size() == 1 ? "this" : "this." + NAME_ROOT_STRUCT))
+            .printf("if (this.%1$s == null || this.%1$s.length != %2$s){ this.%1$s = new %3$s[%2$s]; for(int I=0;I<%2$s;I++){ this.%1$s[I] = new %3$s(%4$s);}}", structName, arraySizeIn, structBaseTypeName, pathToRootObject)
             .printf("for (int I=0;I<%2$s;I++){ this.%1$s[I].read(%3$s); }%n", toType + structName, arraySizeIn, NAME_INPUT_STREAM);
         this.getCurrentStruct().getWriteFunc().indent().printf("for (int I=0;I<%2$s;I++){ this.%1$s[I].write(%3$s); }", toType + structName, arraySizeOut, NAME_OUTPUT_STREAM);
       }
@@ -386,6 +389,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     if (nullableNameFieldInfo != null && this.builder.addGettersSetters) {
       final String interfaceForGetter = this.builder.mapSubClassesInterfaces.get(newStruct.getPath());
       registerGetterSetter(interfaceForGetter == null ? structType : interfaceForGetter + (nullableArraySize == null ? "" : " []"), structName, false);
+      registerMaker(structBaseTypeName, structName, pathToRootObject, nullableArraySize != null);
     }
 
     this.structStack.add(0, newStruct);
@@ -520,6 +524,26 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     }
 
     this.getCurrentStruct().getGettersSetters().indent().printf("public %s get%s() { return this.%s;}%n", fieldType, fieldName.toUpperCase(Locale.ENGLISH), fieldName);
+  }
+
+  private void registerMaker(final String rawFieldType, final String fieldName, final String pathToRootObject, final boolean array) {
+    if (!this.getCurrentStruct().getGettersSetters().isEmpty()) {
+      this.getCurrentStruct().getGettersSetters().println();
+    }
+
+    if (array) {
+      this.getCurrentStruct()
+          .getGettersSetters().indent().printf(
+          "public %1$s[] make%2$s(int _Len_){ this.%3$s = new %1$s[_Len_]; for(int i=0;i < _Len_;i++) this.%3$s[i]=new %1$s(%4$s); return this.%3$s; }",
+          rawFieldType, fieldName.toUpperCase(Locale.ENGLISH), fieldName, pathToRootObject
+      );
+    } else {
+      this.getCurrentStruct()
+          .getGettersSetters().indent().printf(
+          "public %1$s make%2$s(){ this.%3$s = new %1$s(%4$s); return this.%3$s; }",
+          rawFieldType, fieldName.toUpperCase(Locale.ENGLISH), fieldName, pathToRootObject
+      );
+    }
   }
 
   @Override
@@ -1048,7 +1072,8 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
      */
     private final JBBPParser srcParser;
     /**
-     * Interfaces to be implemented by generated subclasses, also getters return the interface type.
+     * Interfaces to be implemented by generated subclasses, also getters return
+     * the interface type.
      */
     private final Map<String, String> mapSubClassesInterfaces = new HashMap<String, String>();
     /**
@@ -1116,9 +1141,14 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     }
 
     /**
-     * Map inside structures to mainClassImplements, a structure class will implement mapped interface and getter of the structure object will return interface object as result.
+     * Map inside structures to mainClassImplements, a structure class will
+     * implement mapped interface and getter of the structure object will return
+     * interface object as result.
      *
-     * @param mapClassNameToInterface map with structure path as the key and the interface name as value, it can be null. <b>Names of structures should be in the lower case form amd dot separated for their hierarchy. (example: "a.b.c")</b>
+     * @param mapClassNameToInterface map with structure path as the key and the
+     *                                interface name as value, it can be null. <b>Names of structures should be
+     *                                in the lower case form amd dot separated for their hierarchy. (example:
+     *                                "a.b.c")</b>
      * @return the builder instance, must not be null
      */
     public Builder setMapSubClassesInterfaces(final Map<String, String> mapClassNameToInterface) {
@@ -1131,9 +1161,13 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     }
 
     /**
-     * Add superclasses to classes generated for inside structures, a structure class will extend mapped class.
+     * Add superclasses to classes generated for inside structures, a structure
+     * class will extend mapped class.
      *
-     * @param mapClassNameToSuperclasses map with structure path as the key and the interface name as value, it can be null. <b>Names of structures should be in the lower case form amd dot separated for their hierarchy. (example: "a.b.c")</b>
+     * @param mapClassNameToSuperclasses map with structure path as the key and
+     *                                   the interface name as value, it can be null. <b>Names of structures
+     *                                   should be in the lower case form amd dot separated for their hierarchy.
+     *                                   (example: "a.b.c")</b>
      * @return the builder instance, must not be null
      * @since 1.4.0
      */
@@ -1159,7 +1193,8 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     }
 
     /**
-     * Set flag to generate getters setters. <b>NB! All fields will be private ones in the case.</b>
+     * Set flag to generate getters setters. <b>NB! All fields will be private
+     * ones in the case.</b>
      *
      * @param value flag, if true then generate getters setters, false otherwise
      * @return the builder instance, must not be null
@@ -1171,7 +1206,8 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     }
 
     /**
-     * Set the parser flags for the generated class, by default the flags are imported from the base parser.
+     * Set the parser flags for the generated class, by default the flags are
+     * imported from the base parser.
      *
      * @param value parser flags.
      * @return the builder instance, must not be null
@@ -1185,7 +1221,8 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     /**
      * Set the package for the generated class.
      *
-     * @param value name of the package, it can be empty or null in the case the class will be in the default package
+     * @param value name of the package, it can be empty or null in the case the
+     *              class will be in the default package
      * @return the builder instance, must not be null
      */
     public Builder setMainClassPackage(final String value) {
@@ -1195,7 +1232,8 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     }
 
     /**
-     * Set flag to force abstract modifier for the generated class, by default the class is abstract one only if it contains abstract methods.
+     * Set flag to force abstract modifier for the generated class, by default
+     * the class is abstract one only if it contains abstract methods.
      *
      * @param value true if to force the abstract modifier, false otherwise
      * @return the builder instance, must not be null
@@ -1231,7 +1269,9 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     }
 
     /**
-     * Set the superclass for the main generated class. <b>NB! Also it affects read and write methods of the main class, the class will be used as the return type.</b>
+     * Set the superclass for the main generated class. <b>NB! Also it affects
+     * read and write methods of the main class, the class will be used as the
+     * return type.</b>
      *
      * @param value the superclass name, it can be null
      * @return the builder instance, must not be null
@@ -1255,7 +1295,8 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     }
 
     /**
-     * Set commentaries placed just before first package directive of the generated class.
+     * Set commentaries placed just before first package directive of the
+     * generated class.
      *
      * @param text text to be used as comment, it can be null
      * @return the builder instance, must not be null
@@ -1267,8 +1308,10 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     }
 
     /**
-     * Disable generate fields, useful if some super class extended and its fields should be used instead of generated ones.
-     * If disable then all code will be generated but without class fields. By default field generate is enabled.
+     * Disable generate fields, useful if some super class extended and its
+     * fields should be used instead of generated ones. If disable then all code
+     * will be generated but without class fields. By default field generate is
+     * enabled.
      *
      * @return the builder instance, must not be null
      * @since 1.4.0
@@ -1279,7 +1322,8 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     }
 
     /**
-     * Build converter with provided parameters. NB! It locks builder parameters and they can't be changed in future.
+     * Build converter with provided parameters. NB! It locks builder parameters
+     * and they can't be changed in future.
      *
      * @return a converter instance.
      */
