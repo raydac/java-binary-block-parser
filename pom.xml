@@ -4,7 +4,7 @@
 
     <groupId>com.igormaznitsa</groupId>
     <artifactId>jbbp-main-pom</artifactId>
-    <version>1.4.1</version>
+    <version>1.4.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -24,7 +24,7 @@
         <jbbp.version>${project.version}</jbbp.version>
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
-        <junit5.version>5.2.0</junit5.version>
+        <junit5.version>5.3.1</junit5.version>
     </properties>
 
     <issueManagement>
@@ -93,7 +93,7 @@
         <dependency>
             <groupId>org.apache.maven.surefire</groupId>
             <artifactId>surefire-logger-api</artifactId>
-            <version>2.21.0</version>
+            <version>2.22.1</version>
             <!-- to get around bug https://github.com/junit-team/junit5/issues/1367 -->
             <scope>test</scope>
             <optional>true</optional>
@@ -148,7 +148,7 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.7.9</version>
+                        <version>0.8.2</version>
                         <executions>
                             <execution>
                                 <goals>
@@ -174,7 +174,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.7.0</version>
+                <version>3.8.0</version>
                 <configuration>
                     <compilerArgument>-Xlint:all</compilerArgument>
                     <verbose>false</verbose>
@@ -187,7 +187,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.21.0</version>
+                <version>2.22.1</version>
                 <configuration>
                     <forkCount>1</forkCount>
                     <reuseForks>false</reuseForks>
@@ -203,11 +203,6 @@
                         <groupId>org.junit.jupiter</groupId>
                         <artifactId>junit-jupiter-engine</artifactId>
                         <version>${junit5.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.junit.platform</groupId>
-                        <artifactId>junit-platform-surefire-provider</artifactId>
-                        <version>1.2.0</version>
                     </dependency>
                 </dependencies>
             </plugin>
