@@ -77,6 +77,20 @@ public class JBBPToJBBPToJava6ConverterCompilationTest extends AbstractJBBPToJav
   }
 
   @Test
+  public void testMakeInternalClassObjects_NoMakersWithoutGettersSetters() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("a { b { c [_] { byte d;}} }");
+    final String text = JBBPToJava6Converter
+        .makeBuilder(parser)
+        .setMainClassName(CLASS_NAME)
+        .setAddGettersSetters(false)
+        .build()
+        .convert();
+    assertFalse(text.contains("public A makeA(){ this.a = new A(this); return this.a; }"));
+    assertFalse(text.contains("public B makeB(){ this.b = new B(_Root_); return this.b; }"));
+    assertFalse(text.contains("public C[] makeC(int _Len_){ this.c = new C[_Len_]; for(int i=0;i < _Len_;i++) this.c[i]=new C(_Root_); return this.c; }"));
+  }
+
+  @Test
   public void testMakeInternalClassObjects_NonStaticClasses() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("a { b { c [_] { byte d;}} }");
     final String text = JBBPToJava6Converter
