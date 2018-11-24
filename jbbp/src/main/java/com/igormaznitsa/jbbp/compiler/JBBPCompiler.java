@@ -163,15 +163,13 @@ public final class JBBPCompiler {
 
   private static void assertTokenNamed(final String fieldType, final JBBPToken token) {
     if (token.getFieldName() == null) {
-      final String fieldName = token.getFieldName() == null ? "<ANONYM>" : token.getFieldName();
-      throw new JBBPCompilationException('\'' + fieldType + "' must be named (" + fieldName + ')', token);
+      throw new JBBPCompilationException('\'' + fieldType + "' must be named", token);
     }
   }
 
   private static void assertTokenNotNamed(final String fieldType, final JBBPToken token) {
     if (token.getFieldName() != null) {
-      final String fieldName = token.getFieldName() == null ? "<ANONYM>" : token.getFieldName();
-      throw new JBBPCompilationException('\'' + fieldType + "' must not be named (" + fieldName + ')', token);
+      throw new JBBPCompilationException('\'' + fieldType + "' must not be named (" + token.getFieldName() + ')', token);
     }
   }
 

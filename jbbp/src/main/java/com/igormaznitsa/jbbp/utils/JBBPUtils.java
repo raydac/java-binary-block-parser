@@ -38,6 +38,9 @@ import java.util.Locale;
  */
 public final class JBBPUtils {
 
+  public static final String [] ARRAY_STRING_EMPTY = new String[0];
+  public static final JBBPAbstractField[] ARRAY_FIELD_EMPTY = new JBBPAbstractField[0];
+
   private static final Charset CHARSET_UTF8 = Charset.forName("UTF-8");
 
   private JBBPUtils() {

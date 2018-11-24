@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_STRING_EMPTY;
+
 /**
  * The Aggregator allows to join several custom field type processors.
  *
@@ -52,7 +54,7 @@ public class JBBPCustomFieldTypeProcessorAggregator implements JBBPCustomFieldTy
         this.customTypeMap.put(s, p);
       }
     }
-    this.types = this.customTypeMap.keySet().toArray(new String[this.customTypeMap.size()]);
+    this.types = this.customTypeMap.keySet().toArray(ARRAY_STRING_EMPTY);
   }
 
   @Override

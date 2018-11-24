@@ -15,6 +15,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 
+import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_STRING_EMPTY;
+
 public class Java16Converter implements JBBPScriptTranslator {
   @Override
   @Nonnull
@@ -33,7 +35,7 @@ public class Java16Converter implements JBBPScriptTranslator {
 
       final JBBPParser parser = JBBPParser.prepare(text, JBBPBitOrder.LSB0, parameters.customFieldTypeProcessor, parameters.getParserFlags());
 
-      final String[] implementsSorted = parameters.getClassImplements().toArray(new String[parameters.getClassImplements().size()]);
+      final String[] implementsSorted = parameters.getClassImplements().toArray(ARRAY_STRING_EMPTY);
       Arrays.sort(implementsSorted);
 
       final JBBPToJava6Converter.Builder builder = JBBPToJava6Converter.makeBuilder(parser)

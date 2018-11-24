@@ -1494,7 +1494,7 @@ public class JBBPDslBuilder {
           } else if (item instanceof ItemAlign) {
             doTabs(format, buffer, structCounter).append("align").append(item.sizeExpression == null ? "" : ':' + item.makeExpressionForExtraField(item.sizeExpression)).append(';');
           } else if (item instanceof ItemVal) {
-            doTabs(format, buffer, structCounter).append("val").append(':' + item.makeExpressionForExtraField(item.sizeExpression)).append(' ').append(item.name).append(';');
+            doTabs(format, buffer, structCounter).append("val").append(':').append(item.makeExpressionForExtraField(item.sizeExpression)).append(' ').append(item.name).append(';');
           } else if (item instanceof ItemResetCounter) {
             doTabs(format, buffer, structCounter).append("reset$$;");
           } else if (item instanceof ItemSkip) {

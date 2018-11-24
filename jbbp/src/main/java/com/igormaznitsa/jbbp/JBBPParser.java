@@ -68,6 +68,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_FIELD_EMPTY;
+
 /**
  * the Main class allows a user to parse a binary stream or block for predefined
  * and precompiled script.
@@ -508,7 +510,7 @@ public final class JBBPParser {
               // skip offset
               JBBPUtils.unpackInt(compiled, positionAtCompiledBlock);
               if (resultNotIgnored) {
-                structureFields.add(new JBBPFieldStruct(name, structFields.toArray(new JBBPAbstractField[structFields.size()])));
+                structureFields.add(new JBBPFieldStruct(name, structFields.toArray(ARRAY_FIELD_EMPTY)));
               }
             } else {
               final int nameFieldCurrent = positionAtNamedFieldList.get();
@@ -533,7 +535,7 @@ public final class JBBPParser {
                     }
                   }
 
-                  result = list.isEmpty() ? EMPTY_STRUCT_ARRAY : list.toArray(new JBBPFieldStruct[list.size()]);
+                  result = list.isEmpty() ? EMPTY_STRUCT_ARRAY : list.toArray(EMPTY_STRUCT_ARRAY);
                 } else {
                   // read number of items
                   if (arrayLength == 0) {

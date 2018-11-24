@@ -28,6 +28,8 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
+import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_STRING_EMPTY;
+
 /**
  * Task to translate found JBBP scripts in source files.
  *
@@ -58,7 +60,7 @@ public class JBBPGenerateTask extends AbstractJBBPTask {
       }
       getLogger().debug("Defined normalized custom types : " + normalizedCustomTypeNames);
     }
-    final String[] customTypesArray = normalizedCustomTypeNames.toArray(new String[normalizedCustomTypeNames.size()]);
+    final String[] customTypesArray = normalizedCustomTypeNames.toArray(ARRAY_STRING_EMPTY);
 
     final JBBPCustomFieldTypeProcessor customFieldProcessor = new JBBPCustomFieldTypeProcessor() {
       @Override

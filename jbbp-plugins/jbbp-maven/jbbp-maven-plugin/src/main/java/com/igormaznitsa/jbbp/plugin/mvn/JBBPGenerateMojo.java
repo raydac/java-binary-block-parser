@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.igormaznitsa.jbbp.plugin.common.utils.CommonUtils.ensureEncodingName;
+import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_STRING_EMPTY;
 
 /**
  * The Mojo looks for all JBBP scripts in source and generate sources.
@@ -330,7 +331,7 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
     }
     getLog().debug("Defined normalized custom types : " + normalizedCustomTypeNames);
 
-    final String[] customTypesArray = normalizedCustomTypeNames.toArray(new String[normalizedCustomTypeNames.size()]);
+    final String[] customTypesArray = normalizedCustomTypeNames.toArray(ARRAY_STRING_EMPTY);
 
     final JBBPCustomFieldTypeProcessor customFieldProcessor = new JBBPCustomFieldTypeProcessor() {
       @Override

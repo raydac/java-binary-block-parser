@@ -20,7 +20,6 @@ import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.mapper.BinType;
-import com.igormaznitsa.jbbp.utils.TargetSources;
 import org.openjdk.jmh.annotations.Benchmark;
 
 import java.io.ByteArrayInputStream;

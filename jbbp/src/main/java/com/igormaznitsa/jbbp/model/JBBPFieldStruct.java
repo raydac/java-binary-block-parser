@@ -26,6 +26,8 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 import java.util.List;
 
+import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_FIELD_EMPTY;
+
 /**
  * Describes a structure.
  *
@@ -59,7 +61,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * @param fields a field list, it must not be null
    */
   public JBBPFieldStruct(final JBBPNamedFieldInfo name, final List<JBBPAbstractField> fields) {
-    this(name, fields.toArray(new JBBPAbstractField[fields.size()]));
+    this(name, fields.toArray(ARRAY_FIELD_EMPTY));
   }
 
   /**

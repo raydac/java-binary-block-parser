@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_STRING_EMPTY;
+
 /**
  * The Class implements an evaluator which can calculate an expression.
  *
@@ -399,7 +401,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
     }
 
     this.compiledExpression = compiledScript.toByteArray();
-    this.externalValueNames = externalValueNameList.isEmpty() ? null : externalValueNameList.toArray(new String[externalValueNameList.size()]);
+    this.externalValueNames = externalValueNameList.isEmpty() ? null : externalValueNameList.toArray(ARRAY_STRING_EMPTY);
 
     this.maxStackDepth = calculateMaxStackDepth();
   }
