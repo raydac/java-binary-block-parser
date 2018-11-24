@@ -105,6 +105,6 @@ public final class JBBPClassInstantiatorFactory {
         throw new Error("Unexpected type, contact developer! [" + type + ']');
     }
 
-    return JBBPClassInstantiator.class.cast(ReflectUtils.newInstanceForClassName(className));
+    return (JBBPClassInstantiator) ReflectUtils.newInstanceForClassName(className);
   }
 }

@@ -199,7 +199,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
    * @return generated class with needed parameters as text, must not be null.
    */
   public String convert() {
-    return JBBPToJava6Converter.class.cast(this.visit()).getResult();
+    return ((JBBPToJava6Converter) this.visit()).getResult();
   }
 
   private void registerNamedField(final JBBPNamedFieldInfo fieldInfo, final FieldType fieldType) {

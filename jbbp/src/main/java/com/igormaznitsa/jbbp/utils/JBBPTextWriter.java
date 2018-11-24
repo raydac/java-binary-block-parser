@@ -54,9 +54,10 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
-import java.util.Stack;
 
 /**
  * the Writer allows to make text describes some bin data, it supports output of
@@ -1232,7 +1233,7 @@ public class JBBPTextWriter extends FilterWriter {
           }
 
           if (c.indexOf('\n') >= 0) {
-            final String[] splitted = c.split("\\n");
+            final String[] splitted = c.split("\\n", -1);
             for (final String s : splitted) {
               this.ensureCommentMode();
               this.write(s);
@@ -1741,7 +1742,7 @@ public class JBBPTextWriter extends FilterWriter {
 
   private final class MappedObjectLogger extends AbstractMappedClassFieldObserver {
 
-    private final Stack<Integer> counterStack = new Stack<Integer>();
+    private final Deque<Integer> counterStack = new ArrayDeque<Integer>();
     private int arrayCounter;
 
     protected void init() {

@@ -248,8 +248,8 @@
                         <configuration>
                             <signature>
                                 <groupId>net.sf.androidscents.signature</groupId>
-                                <artifactId>android-api-level-5</artifactId>
-                                <version>2.0_r1</version>
+                                <artifactId>android-api-level-9</artifactId>
+                                <version>2.3.1_r2</version>
                             </signature>
                             <ignores>
                                 <ignore>sun.misc.Unsafe</ignore>
