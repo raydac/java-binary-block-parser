@@ -46,13 +46,7 @@ public class JBBPNamedNumericFieldMapTest {
 
   @Test
   public void testConstructor_ProviderIsNotNull() {
-    final JBBPExternalValueProvider provider = new JBBPExternalValueProvider() {
-
-      @Override
-      public int provideArraySize(String fieldName, JBBPNamedNumericFieldMap numericFieldMap, JBBPCompiledBlock compiledBlock) {
-        return 0;
-      }
-    };
+    final JBBPExternalValueProvider provider = (fieldName, numericFieldMap, compiledBlock) -> 0;
     final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap(provider);
     assertEquals(0, map.size());
     assertSame(provider, map.getExternalValueProvider());
@@ -60,13 +54,7 @@ public class JBBPNamedNumericFieldMapTest {
 
   @Test
   public void testGetExternalValueProvider() {
-    final JBBPExternalValueProvider provider = new JBBPExternalValueProvider() {
-
-      @Override
-      public int provideArraySize(String fieldName, JBBPNamedNumericFieldMap numericFieldMap, JBBPCompiledBlock compiledBlock) {
-        return 0;
-      }
-    };
+    final JBBPExternalValueProvider provider = (fieldName, numericFieldMap, compiledBlock) -> 0;
     final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap(provider);
     assertSame(provider, map.getExternalValueProvider());
 

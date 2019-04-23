@@ -38,12 +38,7 @@ public class JBBPClassInstantiatorFactoryTest {
 
   @Test
   public void testMake_WithArgument_NPEForNuill() {
-    assertThrows(NullPointerException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPClassInstantiatorFactory.getInstance().make(null);
-      }
-    });
+    assertThrows(NullPointerException.class, () -> JBBPClassInstantiatorFactory.getInstance().make(null));
   }
 
   @Test

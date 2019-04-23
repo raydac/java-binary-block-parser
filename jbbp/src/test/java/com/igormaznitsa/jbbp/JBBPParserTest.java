@@ -83,12 +83,7 @@ public class JBBPParserTest {
 
   @Test
   public void testFieldNameCaseInsensetive_ExceptionForDuplicationOfFieldNames() throws Exception {
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("bool Field1; byte field1;");
-      }
-    });
+    assertThrows(JBBPCompilationException.class, () -> JBBPParser.prepare("bool Field1; byte field1;"));
   }
 
   @Test
@@ -104,12 +99,7 @@ public class JBBPParserTest {
   @Test
   public void testParse_Bool_ErrorForEOF() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("bool;");
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        parser.parse(new byte[0]);
-      }
-    });
+    assertThrows(EOFException.class, () -> parser.parse(new byte[0]));
   }
 
   @Test
@@ -142,12 +132,7 @@ public class JBBPParserTest {
   @Test
   public void testParse_Byte_ErrorForEOF() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("byte;");
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        parser.parse(new byte[0]);
-      }
-    });
+    assertThrows(EOFException.class, () -> parser.parse(new byte[0]));
   }
 
   @Test
@@ -180,42 +165,12 @@ public class JBBPParserTest {
 
   @Test
   public void testCompile_Value_CompilationErrors() {
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("val;");
-      }
-    });
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("val:1;");
-      }
-    });
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("val:(3+5);");
-      }
-    });
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("val a;");
-      }
-    });
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("val:3 [_];");
-      }
-    });
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("val:3 [_] field;");
-      }
-    });
+    assertThrows(JBBPCompilationException.class, () -> JBBPParser.prepare("val;"));
+    assertThrows(JBBPCompilationException.class, () -> JBBPParser.prepare("val:1;"));
+    assertThrows(JBBPCompilationException.class, () -> JBBPParser.prepare("val:(3+5);"));
+    assertThrows(JBBPCompilationException.class, () -> JBBPParser.prepare("val a;"));
+    assertThrows(JBBPCompilationException.class, () -> JBBPParser.prepare("val:3 [_];"));
+    assertThrows(JBBPCompilationException.class, () -> JBBPParser.prepare("val:3 [_] field;"));
   }
 
   @Test
@@ -256,12 +211,7 @@ public class JBBPParserTest {
   @Test
   public void testParse_String_ErrorForEOF() {
     final JBBPParser parser = JBBPParser.prepare("stringj;");
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        parser.parse(new byte[0]);
-      }
-    });
+    assertThrows(EOFException.class, () -> parser.parse(new byte[0]));
   }
 
   @Test
@@ -288,12 +238,7 @@ public class JBBPParserTest {
   @Test
   public void testParse_UByte_ErrorForEOF() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("ubyte;");
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        parser.parse(new byte[0]);
-      }
-    });
+    assertThrows(EOFException.class, () -> parser.parse(new byte[0]));
   }
 
   @Test
@@ -320,12 +265,7 @@ public class JBBPParserTest {
   @Test
   public void testParse_Short_ErrorForEOF() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("short;");
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        parser.parse(new byte[0]);
-      }
-    });
+    assertThrows(EOFException.class, () -> parser.parse(new byte[0]));
   }
 
   @Test
@@ -352,12 +292,7 @@ public class JBBPParserTest {
   @Test
   public void testParse_UShort_ErrorForEOF() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("ushort;");
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        parser.parse(new byte[0]);
-      }
-    });
+    assertThrows(EOFException.class, () -> parser.parse(new byte[0]));
   }
 
   @Test
@@ -384,12 +319,7 @@ public class JBBPParserTest {
   @Test
   public void testParse_Int_ErrorForEOF() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("int;");
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        parser.parse(new byte[0]);
-      }
-    });
+    assertThrows(EOFException.class, () -> parser.parse(new byte[0]));
   }
 
   @Test
@@ -416,12 +346,7 @@ public class JBBPParserTest {
   @Test
   public void testParse_Float_ErrorForEOF() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("floatj;");
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        parser.parse(new byte[0]);
-      }
-    });
+    assertThrows(EOFException.class, () -> parser.parse(new byte[0]));
   }
 
   @Test
@@ -448,12 +373,7 @@ public class JBBPParserTest {
   @Test
   public void testParse_Long_ErrorForEOF() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("long;");
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        parser.parse(new byte[0]);
-      }
-    });
+    assertThrows(EOFException.class, () -> parser.parse(new byte[0]));
   }
 
   @Test
@@ -480,12 +400,7 @@ public class JBBPParserTest {
   @Test
   public void testParse_Double_ErrorForEOF() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("doublej;");
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        parser.parse(new byte[0]);
-      }
-    });
+    assertThrows(EOFException.class, () -> parser.parse(new byte[0]));
   }
 
   @Test
@@ -674,45 +589,32 @@ public class JBBPParserTest {
   @Test
   public void testParse_StringFieldInArihmeticExpression_ArihmeticException() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("byte a; stringj b; byte[a+b];");
-    assertThrows(ArithmeticException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        parser.parse(new byte[] {1, 3, 65, 66, 67, 0, 1, 2, 3});
-      }
-    });
+    assertThrows(ArithmeticException.class, () -> parser.parse(new byte[] {1, 3, 65, 66, 67, 0, 1, 2, 3}));
   }
 
   @Test
   public void testParse_StringFieldAsSingleVariableInExpression_ArihmeticException() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("stringj b; byte[b];");
-    assertThrows(ArithmeticException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        parser.parse(new byte[] {3, 65, 66, 67, 0, 1, 2, 3});
-      }
-    });
+    assertThrows(ArithmeticException.class, () -> parser.parse(new byte[] {3, 65, 66, 67, 0, 1, 2, 3}));
   }
 
   @Test
   public void testParse_SingleNonamedVar_ErrorForNullResult() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("short k; var; int;");
-    assertThrows(NullPointerException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        final JBBPFieldStruct struct = parser.parse(new byte[] {9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
+    assertThrows(NullPointerException.class, () -> {
+      final JBBPFieldStruct struct = parser.parse(new byte[] {9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
-          @Override
-          public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
-            fail("Must not be called");
-            return null;
-          }
+        @Override
+        public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+          fail("Must not be called");
+          return null;
+        }
 
-          @Override
-          public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
-            return null;
-          }
-        }, null);
-      }
+        @Override
+        public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+          return null;
+        }
+      }, null);
     });
   }
 
@@ -720,23 +622,20 @@ public class JBBPParserTest {
   public void testParse_SingleNonamedVar_ErrorForArrayResult() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("short k; var; int;");
 
-    assertThrows(JBBPParsingException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        final JBBPFieldStruct struct = parser.parse(new byte[] {9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
+    assertThrows(JBBPParsingException.class, () -> {
+      final JBBPFieldStruct struct = parser.parse(new byte[] {9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
-          @Override
-          public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
-            fail("Must not be called");
-            return null;
-          }
+        @Override
+        public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+          fail("Must not be called");
+          return null;
+        }
 
-          @Override
-          public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
-            return new JBBPFieldArrayByte(fieldName, new byte[] {1, 2, 3});
-          }
-        }, null);
-      }
+        @Override
+        public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+          return new JBBPFieldArrayByte(fieldName, new byte[] {1, 2, 3});
+        }
+      }, null);
     });
   }
 
@@ -744,24 +643,21 @@ public class JBBPParserTest {
   public void testParse_SingleNonamedVar_ErrorForDifferentName() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("short k; var name; int;");
 
-    assertThrows(JBBPParsingException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        final JBBPFieldStruct struct = parser.parse(new byte[] {9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
+    assertThrows(JBBPParsingException.class, () -> {
+      final JBBPFieldStruct struct = parser.parse(new byte[] {9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
-          @Override
-          public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
-            fail("Must not be called");
-            return null;
-          }
+        @Override
+        public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+          fail("Must not be called");
+          return null;
+        }
 
-          @Override
-          public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
-            assertNotNull(fieldName);
-            return new JBBPFieldByte(new JBBPNamedFieldInfo("jskdjhsd", "dlkjsf", 0), (byte) 1);
-          }
-        }, null);
-      }
+        @Override
+        public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+          assertNotNull(fieldName);
+          return new JBBPFieldByte(new JBBPNamedFieldInfo("jskdjhsd", "dlkjsf", 0), (byte) 1);
+        }
+      }, null);
     });
   }
 
@@ -902,24 +798,21 @@ public class JBBPParserTest {
   public void testParse_SingleNonamedVarArray_ErrorForNullResult() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("short k; var [k]; int;");
 
-    assertThrows(NullPointerException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        final JBBPFieldStruct struct = parser.parse(new byte[] {9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
+    assertThrows(NullPointerException.class, () -> {
+      final JBBPFieldStruct struct = parser.parse(new byte[] {9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
-          @Override
-          public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
-            assertEquals(0x0908, arraySize);
-            return null;
-          }
+        @Override
+        public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+          assertEquals(0x0908, arraySize);
+          return null;
+        }
 
-          @Override
-          public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
-            fail("Must not be called");
-            return null;
-          }
-        }, null);
-      }
+        @Override
+        public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+          fail("Must not be called");
+          return null;
+        }
+      }, null);
     });
   }
 
@@ -927,35 +820,27 @@ public class JBBPParserTest {
   public void testParse_SingleNonamedVarArray_ErrorForDifferentName() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("short k; var [234] name; int;");
 
-    assertThrows(JBBPParsingException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        final JBBPFieldStruct struct = parser.parse(new byte[] {9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
+    assertThrows(JBBPParsingException.class, () -> {
+      final JBBPFieldStruct struct = parser.parse(new byte[] {9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
-          @Override
-          public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
-            assertNotNull(fieldName);
-            return new JBBPFieldArrayByte(new JBBPNamedFieldInfo("jskdjhsd", "dlkjsf", 0), new byte[] {1});
-          }
+        @Override
+        public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+          assertNotNull(fieldName);
+          return new JBBPFieldArrayByte(new JBBPNamedFieldInfo("jskdjhsd", "dlkjsf", 0), new byte[] {1});
+        }
 
-          @Override
-          public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
-            fail("Must not be called");
-            return null;
-          }
-        }, null);
-      }
+        @Override
+        public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+          fail("Must not be called");
+          return null;
+        }
+      }, null);
     });
   }
 
   @Test
   public void testParse_BitFields_EOF() throws Exception {
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("bit:4;").parse(new byte[0]);
-      }
-    });
+    assertThrows(EOFException.class, () -> JBBPParser.prepare("bit:4;").parse(new byte[0]));
   }
 
   @Test
@@ -966,28 +851,13 @@ public class JBBPParserTest {
 
   @Test
   public void testParse_BitFields_ErrorForWrongValueOfBitFieldLength() throws Exception {
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("ubyte a; ubyte b; bit:(a+b) c;").parse(new byte[] {11, 2, (byte) 0xB4});
-      }
-    });
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("ubyte a; ubyte b; bit:(a-b) c;").parse(new byte[] {2, 2, (byte) 0xB4});
-      }
-    });
+    assertThrows(IllegalArgumentException.class, () -> JBBPParser.prepare("ubyte a; ubyte b; bit:(a+b) c;").parse(new byte[] {11, 2, (byte) 0xB4}));
+    assertThrows(IllegalArgumentException.class, () -> JBBPParser.prepare("ubyte a; ubyte b; bit:(a-b) c;").parse(new byte[] {2, 2, (byte) 0xB4}));
   }
 
   @Test
   public void testParse_BitFieldArray_EOF() throws Exception {
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("bit:4 [1];").parse(new byte[0]);
-      }
-    });
+    assertThrows(EOFException.class, () -> JBBPParser.prepare("bit:4 [1];").parse(new byte[0]));
   }
 
   @Test
@@ -1026,12 +896,7 @@ public class JBBPParserTest {
 
   @Test
   public void testParse_Align_ErrorForEOF() throws Exception {
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("byte; align:34;").parse(new byte[] {1});
-      }
-    });
+    assertThrows(EOFException.class, () -> JBBPParser.prepare("byte; align:34;").parse(new byte[] {1}));
   }
 
   @Test
@@ -1065,22 +930,12 @@ public class JBBPParserTest {
 
   @Test
   public void testParse_Skip_Default_ErrorForEOF() throws Exception {
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("byte; skip;").parse(new byte[] {1});
-      }
-    });
+    assertThrows(EOFException.class, () -> JBBPParser.prepare("byte; skip;").parse(new byte[] {1}));
   }
 
   @Test
   public void testParse_Skip_ErrorForEOF() throws Exception {
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("byte; skip:34;").parse(new byte[] {1});
-      }
-    });
+    assertThrows(EOFException.class, () -> JBBPParser.prepare("byte; skip:34;").parse(new byte[] {1}));
   }
 
   @Test
@@ -1114,12 +969,7 @@ public class JBBPParserTest {
   @Test
   public void testParse_Skip_TooLongDistance() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("byte; skip:33; short;");
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        parser.parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8});
-      }
-    });
+    assertThrows(EOFException.class, () -> parser.parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}));
   }
 
   @Test
@@ -1142,12 +992,7 @@ public class JBBPParserTest {
 
   @Test
   public void testParse_FixedBitArray_EOFException() throws Exception {
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("byte; bit:4[1];").parse(new byte[] {1});
-      }
-    });
+    assertThrows(EOFException.class, () -> JBBPParser.prepare("byte; bit:4[1];").parse(new byte[] {1}));
   }
 
   @Test
@@ -1224,12 +1069,7 @@ public class JBBPParserTest {
 
   @Test
   public void testParse_FixedByteArray_EOFException() throws Exception {
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("byte; byte[1];").parse(new byte[] {1});
-      }
-    });
+    assertThrows(EOFException.class, () -> JBBPParser.prepare("byte; byte[1];").parse(new byte[] {1}));
   }
 
   @Test
@@ -1300,12 +1140,7 @@ public class JBBPParserTest {
 
   @Test
   public void testParse_FixedUByteArray_EOFException() throws Exception {
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("byte; ubyte[1];").parse(new byte[] {1});
-      }
-    });
+    assertThrows(EOFException.class, () -> JBBPParser.prepare("byte; ubyte[1];").parse(new byte[] {1}));
   }
 
   @Test
@@ -1376,12 +1211,7 @@ public class JBBPParserTest {
 
   @Test
   public void testParse_FixedBooleanArray_EOFException() throws Exception {
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("byte; bool[1];").parse(new byte[] {1});
-      }
-    });
+    assertThrows(EOFException.class, () -> JBBPParser.prepare("byte; bool[1];").parse(new byte[] {1}));
   }
 
   @Test
@@ -1452,12 +1282,7 @@ public class JBBPParserTest {
 
   @Test
   public void testParse_FixedShortArray_EOFException() throws Exception {
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("byte; short[1];").parse(new byte[] {1});
-      }
-    });
+    assertThrows(EOFException.class, () -> JBBPParser.prepare("byte; short[1];").parse(new byte[] {1}));
   }
 
   @Test
@@ -1516,12 +1341,7 @@ public class JBBPParserTest {
 
   @Test
   public void testParse_FixedUShortArray_EOFException() throws Exception {
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("byte; ushort[1];").parse(new byte[] {1});
-      }
-    });
+    assertThrows(EOFException.class, () -> JBBPParser.prepare("byte; ushort[1];").parse(new byte[] {1}));
   }
 
   @Test
@@ -1580,12 +1400,7 @@ public class JBBPParserTest {
 
   @Test
   public void testParse_FixedIntArray_EOFException() throws Exception {
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("byte; int[1];").parse(new byte[] {1});
-      }
-    });
+    assertThrows(EOFException.class, () -> JBBPParser.prepare("byte; int[1];").parse(new byte[] {1}));
   }
 
   @Test
@@ -1644,12 +1459,7 @@ public class JBBPParserTest {
 
   @Test
   public void testParse_FixedFloatArray_EOFException() throws Exception {
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("byte; floatj[1];").parse(new byte[] {1});
-      }
-    });
+    assertThrows(EOFException.class, () -> JBBPParser.prepare("byte; floatj[1];").parse(new byte[] {1}));
   }
 
   @Test
@@ -1708,12 +1518,7 @@ public class JBBPParserTest {
 
   @Test
   public void testParse_FixedLongArray_EOFException() throws Exception {
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("byte; long[1];").parse(new byte[] {1});
-      }
-    });
+    assertThrows(EOFException.class, () -> JBBPParser.prepare("byte; long[1];").parse(new byte[] {1}));
   }
 
   @Test
@@ -1772,12 +1577,7 @@ public class JBBPParserTest {
 
   @Test
   public void testParse_FixedDoubleArray_EOFException() throws Exception {
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("byte; doublej[1];").parse(new byte[] {1});
-      }
-    });
+    assertThrows(EOFException.class, () -> JBBPParser.prepare("byte; doublej[1];").parse(new byte[] {1}));
   }
 
   @Test
@@ -1945,32 +1745,17 @@ public class JBBPParserTest {
 
   @Test
   public void testParse_NegativeCalculatedArrayLength() throws Exception {
-    assertThrows(JBBPParsingException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("ubyte len; byte[len-4];").parse(new byte[] {2, 1, 2, 3, 4});
-      }
-    });
+    assertThrows(JBBPParsingException.class, () -> JBBPParser.prepare("ubyte len; byte[len-4];").parse(new byte[] {2, 1, 2, 3, 4}));
   }
 
   @Test
   public void testParse_NegativeArrayLength() throws Exception {
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("ubyte len; byte[-2];").parse(new byte[] {2, 1, 2, 3, 4});
-      }
-    });
+    assertThrows(JBBPCompilationException.class, () -> JBBPParser.prepare("ubyte len; byte[-2];").parse(new byte[] {2, 1, 2, 3, 4}));
   }
 
   @Test
   public void testParse_ErrorForLessDataThanExpected() throws Exception {
-    assertThrows(EOFException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("ubyte len; byte[5];").parse(new byte[] {2, 1, 2, 3, 4});
-      }
-    });
+    assertThrows(EOFException.class, () -> JBBPParser.prepare("ubyte len; byte[5];").parse(new byte[] {2, 1, 2, 3, 4}));
   }
 
   @Test
@@ -2215,12 +2000,7 @@ public class JBBPParserTest {
   public void testParse_ErrorForNotAllReadFields() throws Exception {
     final JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {1, 2, 3, 4}));
     final JBBPParser parser = JBBPParser.prepare("int a; int b;");
-    assertThrows(JBBPParsingException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        parser.parse(stream);
-      }
-    });
+    assertThrows(JBBPParsingException.class, () -> parser.parse(stream));
   }
 
   @Test
@@ -2228,12 +2008,7 @@ public class JBBPParserTest {
     final JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {(byte) 0xEF, 1, 2, 3}));
     final JBBPParser parser = JBBPParser.prepare("byte len; byte [len] arr;");
 
-    assertThrows(JBBPParsingException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        parser.parse(stream);
-      }
-    });
+    assertThrows(JBBPParsingException.class, () -> parser.parse(stream));
   }
 
   @Test
@@ -2241,12 +2016,7 @@ public class JBBPParserTest {
     final JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {2, 1, 2, 3}));
     final JBBPParser parser = JBBPParser.prepare("byte len; byte [len - 8] arr;");
 
-    assertThrows(JBBPParsingException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        parser.parse(stream);
-      }
-    });
+    assertThrows(JBBPParsingException.class, () -> parser.parse(stream));
   }
 
   @Test

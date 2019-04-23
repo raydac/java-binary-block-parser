@@ -48,42 +48,12 @@ public class JBBPCompilerTest {
 
   @Test
   public void testCompile_ErrorSituationsReadTillEnd() {
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("ubyte [_]; ubyte [_];");
-      }
-    });
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("ubyte [_]; a {byte;};");
-      }
-    });
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("byte;test [_] {byte;} int error;");
-      }
-    });
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("ubyte [_]; byte;");
-      }
-    });
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("a [_] { byte a; } b [_] { byte a;}");
-      }
-    });
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("a [_] { b [_] { byte a;}}");
-      }
-    });
+    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("ubyte [_]; ubyte [_];"));
+    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("ubyte [_]; a {byte;};"));
+    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("byte;test [_] {byte;} int error;"));
+    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("ubyte [_]; byte;"));
+    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("a [_] { byte a; } b [_] { byte a;}"));
+    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("a [_] { b [_] { byte a;}}"));
   }
 
   @Test
@@ -143,72 +113,37 @@ public class JBBPCompilerTest {
 
   @Test
   public void testCompile_ErrorForNamedAlignField() throws Exception {
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("align hello;");
-      }
-    });
+    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("align hello;"));
   }
 
   @Test
   public void testCompile_ErrorForArrayAlignField() throws Exception {
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("align [445] hello;");
-      }
-    });
+    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("align [445] hello;"));
   }
 
   @Test
   public void testCompile_ErrorForZeroAlignValue() throws Exception {
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("align:0;");
-      }
-    });
+    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("align:0;"));
   }
 
   @Test
   public void testCompile_ErrorForNegativeAlignValue() throws Exception {
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("align:-1;");
-      }
-    });
+    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("align:-1;"));
   }
 
   @Test
   public void testCompile_ErrorForNonNumericAlignValue() throws Exception {
-    assertThrows(JBBPTokenizerException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("align:hhh;");
-      }
-    });
+    assertThrows(JBBPTokenizerException.class, () -> JBBPCompiler.compile("align:hhh;"));
   }
 
   @Test
   public void testCompile_ErrorForNamedSkipField() throws Exception {
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("skip hello;");
-      }
-    });
+    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("skip hello;"));
   }
 
   @Test
   public void testCompile_ErrorForArraySkipField() throws Exception {
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("skip [445] hello;");
-      }
-    });
+    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("skip [445] hello;"));
   }
 
   @Test
@@ -218,22 +153,12 @@ public class JBBPCompilerTest {
 
   @Test
   public void testCompile_ErrorForNegativeSkipValue() throws Exception {
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("skip:-1;");
-      }
-    });
+    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("skip:-1;"));
   }
 
   @Test
   public void testCompile_ErrorForNonNumericSkipValue() throws Exception {
-    assertThrows(JBBPTokenizerException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("skip:hhh;");
-      }
-    });
+    assertThrows(JBBPTokenizerException.class, () -> JBBPCompiler.compile("skip:hhh;"));
   }
 
   @Test
@@ -284,40 +209,15 @@ public class JBBPCompilerTest {
 
   @Test
   public void testCompile_ErrorForIllegaFieldName() throws Exception {
-    assertThrows(JBBPTokenizerException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("  byte _;");
-      }
-    });
+    assertThrows(JBBPTokenizerException.class, () -> JBBPCompiler.compile("  byte _;"));
 
-    assertThrows(JBBPTokenizerException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("  byte $a;");
-      }
-    });
+    assertThrows(JBBPTokenizerException.class, () -> JBBPCompiler.compile("  byte $a;"));
 
-    assertThrows(JBBPTokenizerException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("  byte $$;");
-      }
-    });
+    assertThrows(JBBPTokenizerException.class, () -> JBBPCompiler.compile("  byte $$;"));
 
-    assertThrows(JBBPTokenizerException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("  byte a.b;");
-      }
-    });
+    assertThrows(JBBPTokenizerException.class, () -> JBBPCompiler.compile("  byte a.b;"));
 
-    assertThrows(JBBPTokenizerException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("  byte 1d;");
-      }
-    });
+    assertThrows(JBBPTokenizerException.class, () -> JBBPCompiler.compile("  byte 1d;"));
   }
 
   @Test
@@ -600,42 +500,22 @@ public class JBBPCompilerTest {
 
   @Test
   public void testCompile_ErrorForArrayAsVarLength() throws Exception {
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("out { int [4] len; some {byte [len] HeLLo;} }");
-      }
-    });
+    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("out { int [4] len; some {byte [len] HeLLo;} }"));
   }
 
   @Test
   public void testCompile_ErrorForFieldInStructArrayAsVarLength() throws Exception {
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("struct [10] {int [4] len;} some {byte [struct.len] HeLLo;} ");
-      }
-    });
+    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("struct [10] {int [4] len;} some {byte [struct.len] HeLLo;} "));
   }
 
   @Test
   public void testCompile_ErrorForFieldInStructAsVarLength() throws Exception {
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("struct [10] {int len;} some {byte [struct.len] HeLLo;} ");
-      }
-    });
+    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("struct [10] {int len;} some {byte [struct.len] HeLLo;} "));
   }
 
   @Test
   public void testCompile_ErrorForUnknownFieldAsArrayLength() throws Exception {
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("some {byte [struct.len] HeLLo;} ");
-      }
-    });
+    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("some {byte [struct.len] HeLLo;} "));
   }
 
   @Test
@@ -675,50 +555,20 @@ public class JBBPCompilerTest {
   @Test
   public void testCompile_correctFieldName() throws Exception {
     JBBPCompiler.compile("int a;int _a;int a11;int a_f;int a_1;");
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("int 1a;");
-      }
-    });
+    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("int 1a;"));
   }
 
   @Test
   public void testCompile_ErrorForNonAllowedArguments() throws Exception {
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("reset$$:1;");
-      }
-    });
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("reset$$ hello;");
-      }
-    });
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("reset$$ [445];");
-      }
-    });
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("reset$$ [445] hello;");
-      }
-    });
+    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("reset$$:1;"));
+    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("reset$$ hello;"));
+    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("reset$$ [445];"));
+    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("reset$$ [445] hello;"));
   }
 
   @Test
   public void testCompile_ErrorForResetWithExtraValue() throws Exception {
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPCompiler.compile("reset$$:1;");
-      }
-    });
+    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("reset$$:1;"));
   }
 
   @Test

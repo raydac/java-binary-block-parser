@@ -55,7 +55,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
   private static final Set<String> RESERVED_JAVA_KEYWORDS;
 
   static {
-    final Set<String> reserved = new HashSet<String>();
+    final Set<String> reserved = new HashSet<>();
 
     reserved.add("abstract");
     reserved.add("assert");
@@ -140,7 +140,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
   /**
    * Map of detected named fields to their name field info object.
    */
-  private final Map<JBBPNamedFieldInfo, NamedFieldInfo> foundNamedFields = new HashMap<JBBPNamedFieldInfo, NamedFieldInfo>();
+  private final Map<JBBPNamedFieldInfo, NamedFieldInfo> foundNamedFields = new HashMap<>();
   /**
    * Counter of anonymous fields to generate unique names.
    */
@@ -153,7 +153,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
    * The List implements stack of current processing structures. The 0 contains
    * the root.
    */
-  private final List<Struct> structStack = new ArrayList<Struct>();
+  private final List<Struct> structStack = new ArrayList<>();
   /**
    * Text buffer for the special section.
    */
@@ -765,7 +765,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     final StringBuilder buffer = new StringBuilder();
 
     final ExpressionEvaluatorVisitor visitor = new ExpressionEvaluatorVisitor() {
-      private final List<Object> stack = new ArrayList<Object>();
+      private final List<Object> stack = new ArrayList<>();
 
       @Override
       public ExpressionEvaluatorVisitor visitStart() {
@@ -1066,7 +1066,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     /**
      * Set of interfaces to be implemented by the main result class.
      */
-    private final Set<String> mainClassImplements = new HashSet<String>();
+    private final Set<String> mainClassImplements = new HashSet<>();
     /**
      * The Parser to provide compiled data.
      */
@@ -1075,11 +1075,11 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
      * Interfaces to be implemented by generated subclasses, also getters return
      * the interface type.
      */
-    private final Map<String, String> mapSubClassesInterfaces = new HashMap<String, String>();
+    private final Map<String, String> mapSubClassesInterfaces = new HashMap<>();
     /**
      * Superclasses to be extended by generated subclasses.
      */
-    private final Map<String, String> mapSubClassesSuperclasses = new HashMap<String, String>();
+    private final Map<String, String> mapSubClassesSuperclasses = new HashMap<>();
 
     /**
      * Imternal classes must not be static.
@@ -1341,7 +1341,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     private final String classModifiers;
     private final String className;
     private final Struct parent;
-    private final List<Struct> children = new ArrayList<Struct>();
+    private final List<Struct> children = new ArrayList<>();
     private final JavaSrcTextBuffer fields = new JavaSrcTextBuffer();
     private final JavaSrcTextBuffer readFunc = new JavaSrcTextBuffer();
     private final JavaSrcTextBuffer writeFunc = new JavaSrcTextBuffer();
@@ -1504,6 +1504,10 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
       this.fieldType = fieldType;
     }
 
+    private String toFieldIfNotEmpty(final String structPath) {
+      return structPath.isEmpty() ? "" : structPath + ".";
+    }
+
     String makeSrcPath(final Struct currentStruct) {
       final String fieldName = prepFldName(info.getFieldName());
       if (this.struct == currentStruct) {
@@ -1511,9 +1515,9 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
       } else {
         final String structPath = this.struct.getPath();
         if (currentStruct.isRoot()) {
-          return "this." + (structPath.length() == 0 ? "" : structPath + ".") + fieldName;
+          return "this." + toFieldIfNotEmpty(structPath) + fieldName;
         } else {
-          return "this." + NAME_ROOT_STRUCT + '.' + (structPath.length() == 0 ? "" : structPath + ".") + fieldName;
+          return "this." + NAME_ROOT_STRUCT + '.' + toFieldIfNotEmpty(structPath) + fieldName;
         }
       }
     }

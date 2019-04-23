@@ -90,12 +90,7 @@ public class JBBPOutTest {
 
   @Test
   public void testSkip_ErrorForNegativeValue() throws Exception {
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        BeginBin().Skip(-1);
-      }
-    });
+    assertThrows(IllegalArgumentException.class, () -> BeginBin().Skip(-1));
   }
 
   @Test
@@ -147,8 +142,8 @@ public class JBBPOutTest {
     assertArrayEquals(new byte[] {0x01, 0x02, 0x03, 0x04, 0x05, (byte) 0xFF}, BeginBin().Byte(1, 2, 3, 4, 5).Align(5).Byte(0xFF).End().toByteArray());
     assertArrayEquals(new byte[] {(byte) 0x01, 0x00, 0x02, 0x00, (byte) 0x03}, BeginBin().Align(2).Byte(1).Align(2).Byte(2).Align(2).Byte(3).End().toByteArray());
     assertArrayEquals(new byte[] {(byte) 0xF1, 0x00, (byte) 0x01, 0x00, 0x02, 0x00, (byte) 0x03}, BeginBin().Byte(0xF1).Align(2).Byte(1).Align(2).Byte(2).Align(2).Byte(3).End().toByteArray());
-    assertArrayEquals(new byte[] {(byte) 0xF1, 0x00, 0x00, (byte) 0x01, 0x00, 00, 0x02, 0x00, 00, (byte) 0x03}, BeginBin().Byte(0xF1).Align(3).Byte(1).Align(3).Byte(2).Align(3).Byte(3).End().toByteArray());
-    assertArrayEquals(new byte[] {0x01, 0x02, 03, 0x04, 0x00, (byte) 0xF1}, BeginBin().Int(0x01020304).Align(5).Byte(0xF1).End().toByteArray());
+    assertArrayEquals(new byte[] {(byte) 0xF1, 0x00, 0x00, (byte) 0x01, 0x00, 0x00, 0x02, 0x00, 00, (byte) 0x03}, BeginBin().Byte(0xF1).Align(3).Byte(1).Align(3).Byte(2).Align(3).Byte(3).End().toByteArray());
+    assertArrayEquals(new byte[] {0x01, 0x02, 0x03, 0x04, 0x00, (byte) 0xF1}, BeginBin().Int(0x01020304).Align(5).Byte(0xF1).End().toByteArray());
     assertArrayEquals(new byte[] {0x01, 0x00, 0x00, 0x00, 0x00, (byte) 0xF1}, BeginBin().Bit(1).Align(5).Byte(0xF1).End().toByteArray());
   }
 
@@ -242,22 +237,17 @@ public class JBBPOutTest {
 
   @Test
   public void testShort() throws Exception {
-    assertArrayEquals(new byte[] {0x01, 02}, BeginBin().Short(0x0102).End().toByteArray());
+    assertArrayEquals(new byte[] {0x01, 0x02}, BeginBin().Short(0x0102).End().toByteArray());
   }
 
   @Test
   public void testShort_BigEndian() throws Exception {
-    assertArrayEquals(new byte[] {0x01, 02}, BeginBin().ByteOrder(JBBPByteOrder.BIG_ENDIAN).Short(0x0102).End().toByteArray());
+    assertArrayEquals(new byte[] {0x01, 0x02}, BeginBin().ByteOrder(JBBPByteOrder.BIG_ENDIAN).Short(0x0102).End().toByteArray());
   }
 
   @Test
   public void testShort_String_NPEForNullString() throws Exception {
-    assertThrows(NullPointerException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        BeginBin().Short((String) null).End();
-      }
-    });
+    assertThrows(NullPointerException.class, () -> BeginBin().Short((String) null).End());
   }
 
   @Test
@@ -272,7 +262,7 @@ public class JBBPOutTest {
 
   @Test
   public void testShort_LittleEndian() throws Exception {
-    assertArrayEquals(new byte[] {0x02, 01}, BeginBin().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).Short(0x0102).End().toByteArray());
+    assertArrayEquals(new byte[] {0x02, 0x01}, BeginBin().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).Short(0x0102).End().toByteArray());
   }
 
   @Test
@@ -307,12 +297,12 @@ public class JBBPOutTest {
 
   @Test
   public void testInt() throws Exception {
-    assertArrayEquals(new byte[] {0x01, 02, 0x03, 0x04}, BeginBin().Int(0x01020304).End().toByteArray());
+    assertArrayEquals(new byte[] {0x01, 0x02, 0x03, 0x04}, BeginBin().Int(0x01020304).End().toByteArray());
   }
 
   @Test
   public void testIntArray() throws Exception {
-    assertArrayEquals(new byte[] {0x01, 02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}, BeginBin().Int(0x01020304, 0x05060708).End().toByteArray());
+    assertArrayEquals(new byte[] {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}, BeginBin().Int(0x01020304, 0x05060708).End().toByteArray());
   }
 
   @Test
@@ -339,17 +329,17 @@ public class JBBPOutTest {
 
   @Test
   public void testLong() throws Exception {
-    assertArrayEquals(new byte[] {0x01, 02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}, BeginBin().Long(0x0102030405060708L).End().toByteArray());
+    assertArrayEquals(new byte[] {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}, BeginBin().Long(0x0102030405060708L).End().toByteArray());
   }
 
   @Test
   public void testLongArray() throws Exception {
-    assertArrayEquals(new byte[] {0x01, 02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18}, BeginBin().Long(0x0102030405060708L, 0x1112131415161718L).End().toByteArray());
+    assertArrayEquals(new byte[] {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18}, BeginBin().Long(0x0102030405060708L, 0x1112131415161718L).End().toByteArray());
   }
 
   @Test
   public void testLong_BigEndian() throws Exception {
-    assertArrayEquals(new byte[] {0x01, 02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}, BeginBin().ByteOrder(JBBPByteOrder.BIG_ENDIAN).Long(0x0102030405060708L).End().toByteArray());
+    assertArrayEquals(new byte[] {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}, BeginBin().ByteOrder(JBBPByteOrder.BIG_ENDIAN).Long(0x0102030405060708L).End().toByteArray());
   }
 
   @Test
@@ -562,12 +552,7 @@ public class JBBPOutTest {
     final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
     final JBBPBitOutputStream bitstream = new JBBPBitOutputStream(buffer, JBBPBitOrder.LSB0);
 
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        BeginBin(bitstream, JBBPByteOrder.BIG_ENDIAN, JBBPBitOrder.MSB0);
-      }
-    });
+    assertThrows(IllegalArgumentException.class, () -> BeginBin(bitstream, JBBPByteOrder.BIG_ENDIAN, JBBPBitOrder.MSB0));
   }
 
   @Test
@@ -598,12 +583,7 @@ public class JBBPOutTest {
 
   @Test
   public void testVar_NPEForNullProcessor() throws Exception {
-    assertThrows(NullPointerException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        BeginBin().Var(null).End();
-      }
-    });
+    assertThrows(NullPointerException.class, () -> BeginBin().Var(null).End());
   }
 
   @Test
@@ -623,16 +603,12 @@ public class JBBPOutTest {
 
     final byte[] array = BeginBin().
         Byte(0xCC).
-        Var(new JBBPOutVarProcessor() {
-
-          @Override
-          public boolean processVarOut(final JBBPOut context, final JBBPBitOutputStream outStream, final Object... args) throws IOException {
-            assertNotNull(context);
-            assertNotNull(outStream);
-            assertEquals(0, args.length);
-            outStream.write(0xDD);
-            return true;
-          }
+        Var((context, outStream, args) -> {
+          assertNotNull(context);
+          assertNotNull(outStream);
+          assertEquals(0, args.length);
+          outStream.write(0xDD);
+          return true;
         }).
         Byte(0xAA).
         Bin(new Test(0x12, 0x13)).
@@ -658,16 +634,12 @@ public class JBBPOutTest {
 
     final byte[] array = BeginBin().
         Byte(0xCC).
-        Var(new JBBPOutVarProcessor() {
-
-          @Override
-          public boolean processVarOut(final JBBPOut context, final JBBPBitOutputStream outStream, final Object... args) throws IOException {
-            assertNotNull(context);
-            assertNotNull(outStream);
-            assertEquals(0, args.length);
-            outStream.write(0xDD);
-            return false;
-          }
+        Var((context, outStream, args) -> {
+          assertNotNull(context);
+          assertNotNull(outStream);
+          assertEquals(0, args.length);
+          outStream.write(0xDD);
+          return false;
         }).
         Byte(0xAA).
         Align(15).
@@ -698,13 +670,9 @@ public class JBBPOutTest {
         Skip(332).
         Bin(new Test(12, 34)).
         Utf8("werwerew").
-        Var(new JBBPOutVarProcessor() {
-
-          @Override
-          public boolean processVarOut(JBBPOut context, JBBPBitOutputStream outStream, Object... args) throws IOException {
-            fail("Must not be called");
-            return false;
-          }
+        Var((context, outStream, args) -> {
+          fail("Must not be called");
+          return false;
         }).
         End().toByteArray();
 
@@ -713,26 +681,23 @@ public class JBBPOutTest {
 
   @Test
   public void testVar_VariableContent() throws Exception {
-    final JBBPOutVarProcessor var = new JBBPOutVarProcessor() {
-      @Override
-      public boolean processVarOut(JBBPOut context, JBBPBitOutputStream outStream, Object... args) throws IOException {
-        final int type = (Integer) args[0];
-        switch (type) {
-          case 0: {
-            context.Int(0x01020304);
-          }
-          break;
-          case 1: {
-            context.Int(0x05060708);
-          }
-          break;
-          default: {
-            fail("Unexpected parameter [" + type + ']');
-          }
-          break;
+    final JBBPOutVarProcessor var = (context, outStream, args) -> {
+      final int type = (Integer) args[0];
+      switch (type) {
+        case 0: {
+          context.Int(0x01020304);
         }
-        return true;
+        break;
+        case 1: {
+          context.Int(0x05060708);
+        }
+        break;
+        default: {
+          fail("Unexpected parameter [" + type + ']');
+        }
+        break;
       }
+      return true;
     };
 
     final byte[] array = BeginBin().
@@ -1254,12 +1219,7 @@ public class JBBPOutTest {
       }
     }
 
-    assertThrows(JBBPIllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        BeginBin().Bin(new Test((byte) 12, (byte) 24));
-      }
-    });
+    assertThrows(JBBPIllegalArgumentException.class, () -> BeginBin().Bin(new Test((byte) 12, (byte) 24)));
 
   }
 
@@ -1277,19 +1237,16 @@ public class JBBPOutTest {
       }
     }
 
-    assertArrayEquals(new byte[] {1, 2, 3}, BeginBin().Bin(new Test((byte) 1, (byte) 0), new JBBPCustomFieldWriter() {
-      @Override
-      public void writeCustomField(JBBPOut context, JBBPBitOutputStream outStream, Object instanceToSave, Field instanceCustomField, Bin fieldAnnotation, Object value) throws IOException {
-        assertNotNull(context);
-        assertNotNull(outStream);
-        assertNotNull(instanceToSave);
-        assertNotNull(instanceCustomField);
-        assertNotNull(fieldAnnotation);
-        assertEquals("b", instanceCustomField.getName());
-        assertTrue(instanceToSave.getClass() == instanceCustomField.getDeclaringClass());
+    assertArrayEquals(new byte[] {1, 2, 3}, BeginBin().Bin(new Test((byte) 1, (byte) 0), (context, outStream, instanceToSave, instanceCustomField, fieldAnnotation, value) -> {
+      assertNotNull(context);
+      assertNotNull(outStream);
+      assertNotNull(instanceToSave);
+      assertNotNull(instanceCustomField);
+      assertNotNull(fieldAnnotation);
+      assertEquals("b", instanceCustomField.getName());
+      assertTrue(instanceToSave.getClass() == instanceCustomField.getDeclaringClass());
 
-        context.Byte(2, 3);
-      }
+      context.Byte(2, 3);
     }).End().toByteArray());
   }
 

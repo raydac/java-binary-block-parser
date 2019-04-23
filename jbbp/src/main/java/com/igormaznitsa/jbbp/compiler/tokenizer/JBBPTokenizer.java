@@ -55,7 +55,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
   private static final Set<String> GLOBAL_RESERVED_TYPE_NAMES;
 
   static {
-    GLOBAL_RESERVED_TYPE_NAMES = new HashSet<String>();
+    GLOBAL_RESERVED_TYPE_NAMES = new HashSet<>();
     GLOBAL_RESERVED_TYPE_NAMES.add(JBBPFieldFloat.TYPE_NAME);
     GLOBAL_RESERVED_TYPE_NAMES.add(JBBPFieldDouble.TYPE_NAME);
     GLOBAL_RESERVED_TYPE_NAMES.add(JBBPFieldString.TYPE_NAME);
@@ -108,7 +108,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
     if (customFieldTypeProcessor == null) {
       this.reservedTypeNames = GLOBAL_RESERVED_TYPE_NAMES;
     } else {
-      this.reservedTypeNames = new HashSet<String>(GLOBAL_RESERVED_TYPE_NAMES);
+      this.reservedTypeNames = new HashSet<>(GLOBAL_RESERVED_TYPE_NAMES);
       for (final String customType : customFieldTypeProcessor.getCustomFieldTypes()) {
         JBBPUtils.assertNotNull(customType, "Type must not be null");
         this.reservedTypeNames.add(customType);

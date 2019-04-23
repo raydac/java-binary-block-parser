@@ -88,7 +88,7 @@ public class JavaSrcTextBuffer {
   }
 
   /**
-   * Foratted print.
+   * Formatted print.
    *
    * @param text format string
    * @param args arguments for formatted string

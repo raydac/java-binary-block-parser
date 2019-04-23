@@ -23,6 +23,8 @@ import java.util.zip.CRC32;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.apache.commons.codec.digest.PureJavaCrc32;
+
 /**
  * Different useful auxiliary test methods
  */
@@ -111,7 +113,7 @@ public enum TestUtils {
     assertEquals(chunkEtalonName, chunkType, "Chunk must be " + etalonName);
     assertEquals(etalonLength, chunkLength, "Chunk length must be " + etalonLength);
 
-    final CRC32 crc32 = new CRC32();
+    final PureJavaCrc32 crc32 = new PureJavaCrc32();
     crc32.update(etalonName.charAt(0));
     crc32.update(etalonName.charAt(1));
     crc32.update(etalonName.charAt(2));
@@ -119,7 +121,9 @@ public enum TestUtils {
 
     if (etalonLength != 0) {
       assertEquals(etalonLength, chunkData.length, "Data array " + etalonName + " must be " + etalonLength);
-      crc32.update(chunkData);
+      for(final byte b : chunkData) {
+        crc32.update(b & 0xFF);
+      }
     }
 
     final int crc = (int) crc32.getValue();

@@ -27,12 +27,7 @@ public class JBBPFieldBitTest {
 
   @Test
   public void testConstructor_NPEForNullBitNumber() {
-    assertThrows(NullPointerException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 123, null);
-      }
-    });
+    assertThrows(NullPointerException.class, () -> new JBBPFieldBit(new JBBPNamedFieldInfo("test.field", "field", 123), 123, null));
   }
 
   @Test

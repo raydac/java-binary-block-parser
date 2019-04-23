@@ -22,9 +22,9 @@
         <mvn.version>3.0</mvn.version>
         <meta.version>1.1.2</meta.version>
         <jbbp.version>${project.version}</jbbp.version>
-        <maven.compiler.source>1.6</maven.compiler.source>
-        <maven.compiler.target>1.6</maven.compiler.target>
-        <junit5.version>5.3.1</junit5.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <junit5.version>5.4.1</junit5.version>
     </properties>
 
     <issueManagement>
@@ -111,14 +111,6 @@
             <artifactId>junit-jupiter-params</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.maven.surefire</groupId>
-            <artifactId>surefire-logger-api</artifactId>
-            <version>2.22.1</version>
-            <!-- to get around bug https://github.com/junit-team/junit5/issues/1367 -->
-            <scope>test</scope>
-            <optional>true</optional>
-        </dependency>
     </dependencies>
 
     <profiles>
@@ -146,41 +138,6 @@
                                         <descriptor>src/assemble/bundle.xml</descriptor>
                                     </descriptors>
                                 </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>localrepo</id>
-            <distributionManagement>
-                <snapshotRepository>
-                    <id>local-oss-git-repo</id>
-                    <url>file:///home/igorm/Projects_PET/iam-oss-mvn-snapshots</url>
-                </snapshotRepository>
-            </distributionManagement>
-        </profile>
-        <profile>
-            <id>coverage</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.2</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>prepare-agent</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>report</id>
-                                <phase>prepare-package</phase>
-                                <goals>
-                                    <goal>report</goal>
-                                </goals>
                             </execution>
                         </executions>
                     </plugin>
@@ -256,8 +213,6 @@
                 <configuration>
                     <compilerArgument>-Xlint:all</compilerArgument>
                     <verbose>false</verbose>
-                    <source>1.6</source>
-                    <target>1.6</target>
                     <showDeprecation>true</showDeprecation>
                     <showWarnings>true</showWarnings>
                 </configuration>

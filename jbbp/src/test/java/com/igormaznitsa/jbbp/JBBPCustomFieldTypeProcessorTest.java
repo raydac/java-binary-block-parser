@@ -91,27 +91,28 @@ public class JBBPCustomFieldTypeProcessorTest {
         assertEquals(JBBPParser.FLAG_SKIP_REMAINING_FIELDS_IF_EOF, parserFlags);
         assertEquals(type.equals("some1") ? JBBPByteOrder.LITTLE_ENDIAN : JBBPByteOrder.BIG_ENDIAN, customFieldTypeInfo.getByteOrder());
 
-        if (type.equals("some1")) {
-          assertEquals(0, extraData);
-          assertEquals("b", fieldName.getFieldName());
-          assertFalse(readWholeStream);
-          assertEquals(-1, arrayLength);
-          return new JBBPFieldByte(fieldName, (byte) in.readByte());
-        } else if (type.equals("some2")) {
-          assertEquals(345, extraData);
-          assertEquals("c", fieldName.getFieldName());
-          assertFalse(readWholeStream);
-          assertEquals(-1, arrayLength);
-          return new JBBPFieldShort(fieldName, (short) in.readUnsignedShort(customFieldTypeInfo.getByteOrder()));
-        } else if (type.equals("some3")) {
-          assertEquals(0, extraData);
-          assertEquals("e", fieldName.getFieldName());
-          assertFalse(readWholeStream);
-          assertEquals(5, arrayLength);
-          return new JBBPFieldArrayByte(fieldName, in.readByteArray(arrayLength));
-        } else {
-          fail("Unexpected " + type);
-          return null;
+        switch (type) {
+          case "some1":
+            assertEquals(0, extraData);
+            assertEquals("b", fieldName.getFieldName());
+            assertFalse(readWholeStream);
+            assertEquals(-1, arrayLength);
+            return new JBBPFieldByte(fieldName, (byte) in.readByte());
+          case "some2":
+            assertEquals(345, extraData);
+            assertEquals("c", fieldName.getFieldName());
+            assertFalse(readWholeStream);
+            assertEquals(-1, arrayLength);
+            return new JBBPFieldShort(fieldName, (short) in.readUnsignedShort(customFieldTypeInfo.getByteOrder()));
+          case "some3":
+            assertEquals(0, extraData);
+            assertEquals("e", fieldName.getFieldName());
+            assertFalse(readWholeStream);
+            assertEquals(5, arrayLength);
+            return new JBBPFieldArrayByte(fieldName, in.readByteArray(arrayLength));
+          default:
+            fail("Unexpected " + type);
+            return null;
         }
       }
     };

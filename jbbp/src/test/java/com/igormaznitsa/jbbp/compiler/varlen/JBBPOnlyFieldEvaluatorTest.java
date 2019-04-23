@@ -40,7 +40,7 @@ public class JBBPOnlyFieldEvaluatorTest {
 
     map.putField(new JBBPFieldInt(nameInfo, value));
 
-    final List<JBBPNamedFieldInfo> list = new ArrayList<JBBPNamedFieldInfo>();
+    final List<JBBPNamedFieldInfo> list = new ArrayList<>();
     list.add(nameInfo);
 
     final byte[] compiled = new byte[] {0};
@@ -53,21 +53,17 @@ public class JBBPOnlyFieldEvaluatorTest {
   @Test
   public void testExternalValue() {
     final int value = 1234;
-    final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap(new JBBPExternalValueProvider() {
-
-      @Override
-      public int provideArraySize(final String fieldName, final JBBPNamedNumericFieldMap numericFieldMap, final JBBPCompiledBlock compiledBlock) {
-        if (fieldName.equals("value")) {
-          return value;
-        }
-        assertNotNull(numericFieldMap);
-        assertNotNull(compiledBlock);
-        fail("Unexpected request for value [" + fieldName + ']');
-        return -1;
+    final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap((fieldName, numericFieldMap, compiledBlock) -> {
+      if (fieldName.equals("value")) {
+        return value;
       }
+      assertNotNull(numericFieldMap);
+      assertNotNull(compiledBlock);
+      fail("Unexpected request for value [" + fieldName + ']');
+      return -1;
     });
 
-    final List<JBBPNamedFieldInfo> list = new ArrayList<JBBPNamedFieldInfo>();
+    final List<JBBPNamedFieldInfo> list = new ArrayList<>();
 
     final byte[] compiled = new byte[] {0};
     final JBBPCompiledBlock compiledBlock = JBBPCompiledBlock.prepare().setCompiledData(compiled).setSource("none").setNamedFieldData(list).build();
@@ -79,21 +75,17 @@ public class JBBPOnlyFieldEvaluatorTest {
   @Test
   public void testExternalValueNamedAsFirstCharDollar() {
     final int value = 1234;
-    final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap(new JBBPExternalValueProvider() {
-
-      @Override
-      public int provideArraySize(final String fieldName, final JBBPNamedNumericFieldMap numericFieldMap, final JBBPCompiledBlock compiledBlock) {
-        if (fieldName.equals("$value")) {
-          return value;
-        }
-        assertNotNull(numericFieldMap);
-        assertNotNull(compiledBlock);
-        fail("Unexpected request for value [" + fieldName + ']');
-        return -1;
+    final JBBPNamedNumericFieldMap map = new JBBPNamedNumericFieldMap((fieldName, numericFieldMap, compiledBlock) -> {
+      if (fieldName.equals("$value")) {
+        return value;
       }
+      assertNotNull(numericFieldMap);
+      assertNotNull(compiledBlock);
+      fail("Unexpected request for value [" + fieldName + ']');
+      return -1;
     });
 
-    final List<JBBPNamedFieldInfo> list = new ArrayList<JBBPNamedFieldInfo>();
+    final List<JBBPNamedFieldInfo> list = new ArrayList<>();
 
     final byte[] compiled = new byte[] {0};
     final JBBPCompiledBlock compiledBlock = JBBPCompiledBlock.prepare().setCompiledData(compiled).setSource("none").setNamedFieldData(list).build();
@@ -104,7 +96,7 @@ public class JBBPOnlyFieldEvaluatorTest {
 
   @Test
   public void testCounterOfStreamAsParameter() throws Exception {
-    final List<JBBPNamedFieldInfo> list = new ArrayList<JBBPNamedFieldInfo>();
+    final List<JBBPNamedFieldInfo> list = new ArrayList<>();
 
     final byte[] compiled = new byte[] {0};
     final JBBPCompiledBlock compiledBlock = JBBPCompiledBlock.prepare().setCompiledData(compiled).setSource("none").setNamedFieldData(list).build();

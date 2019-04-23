@@ -44,7 +44,7 @@ public class JBBPCustomFieldTypeProcessorAggregator implements JBBPCustomFieldTy
    * @param processors processors which should be joined.
    */
   public JBBPCustomFieldTypeProcessorAggregator(final JBBPCustomFieldTypeProcessor... processors) {
-    this.customTypeMap = new HashMap<String, JBBPCustomFieldTypeProcessor>();
+    this.customTypeMap = new HashMap<>();
     for (final JBBPCustomFieldTypeProcessor p : processors) {
       for (final String s : p.getCustomFieldTypes()) {
         JBBPUtils.assertNotNull(s, "Type must not be null");

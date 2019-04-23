@@ -170,7 +170,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
 
     final ByteArrayOutputStream compiledScript = new ByteArrayOutputStream(256);
 
-    final List<Integer> operationStack = new ArrayList<Integer>();
+    final List<Integer> operationStack = new ArrayList<>();
 
     boolean prevoperator = false;
 
@@ -180,7 +180,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
     int counterOperators = 0;
     int counterVarsAndConstants = 0;
 
-    final List<String> externalValueNameList = new ArrayList<String>();
+    final List<String> externalValueNameList = new ArrayList<>();
 
     while (matcher.find()) {
       if (lastFound >= 0) {
@@ -251,32 +251,45 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
         counterOperators++;
 
         final int code;
-        if ("+".equals(operator)) {
-          code = CODE_ADD;
-        } else if ("-".equals(operator)) {
-          code = CODE_MINUS;
-        } else if ("*".equals(operator)) {
-          code = CODE_MUL;
-        } else if ("%".equals(operator)) {
-          code = CODE_MOD;
-        } else if ("/".equals(operator)) {
-          code = CODE_DIV;
-        } else if ("&".equals(operator)) {
-          code = CODE_AND;
-        } else if ("|".equals(operator)) {
-          code = CODE_OR;
-        } else if ("^".equals(operator)) {
-          code = CODE_XOR;
-        } else if ("~".equals(operator)) {
-          code = CODE_NOT;
-        } else if ("<<".equals(operator)) {
-          code = CODE_LSHIFT;
-        } else if (">>".equals(operator)) {
-          code = CODE_RSHIFT;
-        } else if (">>>".equals(operator)) {
-          code = CODE_RSIGNSHIFT;
-        } else {
-          throw new Error("Detected unsupported operator, contact developer [" + operator + ']');
+        switch (operator) {
+          case "+":
+            code = CODE_ADD;
+            break;
+          case "-":
+            code = CODE_MINUS;
+            break;
+          case "*":
+            code = CODE_MUL;
+            break;
+          case "%":
+            code = CODE_MOD;
+            break;
+          case "/":
+            code = CODE_DIV;
+            break;
+          case "&":
+            code = CODE_AND;
+            break;
+          case "|":
+            code = CODE_OR;
+            break;
+          case "^":
+            code = CODE_XOR;
+            break;
+          case "~":
+            code = CODE_NOT;
+            break;
+          case "<<":
+            code = CODE_LSHIFT;
+            break;
+          case ">>":
+            code = CODE_RSHIFT;
+            break;
+          case ">>>":
+            code = CODE_RSIGNSHIFT;
+            break;
+          default:
+            throw new Error("Detected unsupported operator, contact developer [" + operator + ']');
         }
 
         if (theFirstInTheSubExpression) {

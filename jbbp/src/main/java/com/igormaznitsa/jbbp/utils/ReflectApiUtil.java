@@ -16,7 +16,7 @@ public final class ReflectApiUtil {
   /**
    * Inside auxiliary cache of privilege processors organized as a queue.
    */
-  private static final Queue<PrivilegedProcessor> PROCESSORS_QUEUE = new ArrayBlockingQueue<PrivilegedProcessor>(32);
+  private static final Queue<PrivilegedProcessor> PROCESSORS_QUEUE = new ArrayBlockingQueue<>(32);
 
   private ReflectApiUtil() {
   }

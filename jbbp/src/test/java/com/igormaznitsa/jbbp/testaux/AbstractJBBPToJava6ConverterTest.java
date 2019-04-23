@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -73,7 +74,7 @@ public abstract class AbstractJBBPToJava6ConverterTest {
   }
 
   protected static Map<String, String> makeMap(final String... mapvalue) {
-    final Map<String, String> result = new HashMap<String, String>();
+    final Map<String, String> result = new HashMap<>();
     int i = 0;
     while (i < mapvalue.length) {
       result.put(mapvalue[i++], mapvalue[i++]);
@@ -148,13 +149,13 @@ public abstract class AbstractJBBPToJava6ConverterTest {
   }
 
   protected Object compileAndMakeInstance(final String instanceClassName, final String script, final int parserFlags, final JBBPCustomFieldTypeProcessor customFieldProcessor, final JavaClassContent... extraClasses) throws Exception {
-    final List<JavaClassContent> klazzes = new ArrayList<JavaClassContent>(Arrays.asList(extraClasses));
+    final List<JavaClassContent> klazzes = new ArrayList<>(Arrays.asList(extraClasses));
     final JavaClassContent klazzContent = new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, JBBPParser.prepare(script, JBBPBitOrder.LSB0, customFieldProcessor, parserFlags).convertToSrc(TargetSources.JAVA_1_6, PACKAGE_NAME + "." + CLASS_NAME).get(0).getResult().values().iterator().next());
     if (this.printGeneratedClassText) {
       System.out.println(klazzContent.classText);
     }
     klazzes.add(0, klazzContent);
-    final ClassLoader cloader = saveAndCompile(klazzes.toArray(new JavaClassContent[klazzes.size()]));
+    final ClassLoader cloader = saveAndCompile(klazzes.toArray(new JavaClassContent[0]));
     return ReflectUtils.newInstance(cloader.loadClass(instanceClassName));
   }
 
@@ -165,7 +166,7 @@ public abstract class AbstractJBBPToJava6ConverterTest {
   public ClassLoader saveAndCompile(final ClassLoader classLoader, final JavaClassContent... klasses) throws IOException {
     final File folder = tempFolder.newFolder();
 
-    final List<File> classFiles = new ArrayList<File>();
+    final List<File> classFiles = new ArrayList<>();
 
     for (final JavaClassContent c : klasses) {
       final File classFile = c.makeFile(folder);
@@ -179,7 +180,7 @@ public abstract class AbstractJBBPToJava6ConverterTest {
     }
 
     final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-    final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
+    final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
     final StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
     final Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(classFiles);
 
@@ -191,7 +192,7 @@ public abstract class AbstractJBBPToJava6ConverterTest {
       for (final File f : classFiles) {
         System.err.println("File '" + f.getName() + '\'');
         System.err.println("-------------------------------------------");
-        System.err.println(FileUtils.readFileToString(f));
+        System.err.println(FileUtils.readFileToString(f, StandardCharsets.UTF_8));
       }
 
       throw new IOException("Error during compilation");
@@ -208,7 +209,7 @@ public abstract class AbstractJBBPToJava6ConverterTest {
     public TemporaryFolder() {
       final String localTmpFolderPath = System.getProperty("jbbp.target.folder", null);
       if (localTmpFolderPath == null) {
-        throw new Error("Temp folder is not defined among system prperties");
+        throw new Error("Temp folder is not defined among system properties");
       }
       final File localTmpFolderAsFile = new File(localTmpFolderPath);
 
@@ -234,7 +235,7 @@ public abstract class AbstractJBBPToJava6ConverterTest {
         result.deleteOnExit();
         return result;
       } catch (IOException ex) {
-        throw new Error("Can't make new subfolder in temp folder : " + this.folder.getAbsolutePath(), ex);
+        throw new Error("Can't make new sub-folder in temp folder : " + this.folder.getAbsolutePath(), ex);
       }
     }
 

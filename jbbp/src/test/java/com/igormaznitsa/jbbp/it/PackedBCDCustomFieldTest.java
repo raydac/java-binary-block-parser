@@ -113,12 +113,7 @@ public class PackedBCDCustomFieldTest implements JBBPCustomFieldTypeProcessor {
   @Test
   public void testParse_SingleDefaultNonamedPackedDecimal_LittleEndian_Exception() throws Exception {
     final PackedBCDCustomFieldTest theInstance = this;
-    assertThrows(JBBPCompilationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("<bcd:4;", theInstance);
-      }
-    });
+    assertThrows(JBBPCompilationException.class, () -> JBBPParser.prepare("<bcd:4;", theInstance));
   }
 
 }

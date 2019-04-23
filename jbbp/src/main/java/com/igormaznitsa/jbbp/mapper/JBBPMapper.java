@@ -275,7 +275,7 @@ public final class JBBPMapper {
     final Bin defaultAnno = mappingClass.getAnnotation(Bin.class);
 
     // make chain of ancestors till java.lang.Object
-    final List<Class<?>> listOfClassHierarchy = new ArrayList<Class<?>>();
+    final List<Class<?>> listOfClassHierarchy = new ArrayList<>();
     Class<?> current = mappingClassInstance.getClass();
     while (current != java.lang.Object.class) {
       listOfClassHierarchy.add(current);

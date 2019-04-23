@@ -50,14 +50,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class JBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6ConverterTest {
 
   private byte[] loadResource(final String name) throws Exception {
-    final InputStream result = this.getClass().getClassLoader().getResourceAsStream("com/igormaznitsa/jbbp/it/" + name);
-    try {
-      if (result == null) {
-        throw new NullPointerException("Can't find resource '" + name + '\'');
-      }
+    try(final InputStream result = this.getClass().getClassLoader().getResourceAsStream("com/igormaznitsa/jbbp/it/" + name)){
       return IOUtils.toByteArray(result);
-    } finally {
-      IOUtils.closeQuietly(result);
     }
   }
 
@@ -107,7 +101,7 @@ public class JBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6Conver
 
     this.printGeneratedClassText = true;
 
-    final Map<String,String> superclasses = new HashMap<String, String>();
+    final Map<String,String> superclasses = new HashMap<>();
     superclasses.put("ins",TestSuperclass.Ins.class.getCanonicalName());
     superclasses.put("ins.insins",TestSuperclass.Ins.InsIns.class.getCanonicalName());
 
@@ -165,7 +159,7 @@ public class JBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6Conver
   @Test
   public void testReaWrite_StructMappedToInterface_Array_GettersSettersOn() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("z { x { y [_] { byte a;}}}");
-    final Map<String, String> interfaceMap = new HashMap<String, String>();
+    final Map<String, String> interfaceMap = new HashMap<>();
     interfaceMap.put("z.x.y", ByteTestInterface.class.getCanonicalName());
     final String text = JBBPToJava6Converter.makeBuilder(parser).setMainClassName(CLASS_NAME).setMainClassPackage(PACKAGE_NAME).setAddGettersSetters(true).setMapSubClassesInterfaces(interfaceMap).build().convert();
     final String fullClassName = PACKAGE_NAME + '.' + CLASS_NAME;
@@ -184,7 +178,7 @@ public class JBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6Conver
   @Test
   public void testReaWrite_StructMappedToInterface_NotArray_GettersSettersOn() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("z { x { y { byte a;}}}");
-    final Map<String, String> interfaceMap = new HashMap<String, String>();
+    final Map<String, String> interfaceMap = new HashMap<>();
     interfaceMap.put("z.x.y", ByteTestInterface.class.getCanonicalName());
     final String text = JBBPToJava6Converter.makeBuilder(parser).setMainClassName(CLASS_NAME).setMainClassPackage(PACKAGE_NAME).setAddGettersSetters(true).setMapSubClassesInterfaces(interfaceMap).build().convert();
     final String fullClassName = PACKAGE_NAME + '.' + CLASS_NAME;
@@ -865,12 +859,7 @@ public class JBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6Conver
   public void testRead_ExpressionResult_OnlyField_NegativeResultNotAllowed() throws Exception {
     final Object instance = compileAndMakeInstance("byte len; byte [len] arr;");
     final byte[] etalon = new byte[] {(byte) 0xFE, 1, 2, 3, 4};
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        callRead(instance, etalon.clone());
-      }
-    });
+    assertThrows(IllegalArgumentException.class, () -> callRead(instance, etalon.clone()));
   }
 
   @Test
@@ -886,12 +875,7 @@ public class JBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6Conver
   public void testRead_ExpressionResult_NegativeExpression_NegativeResultNotAllowed() throws Exception {
     final Object instance = compileAndMakeInstance("byte len; byte [len-9] arr;");
     final byte[] etalon = new byte[] {8, 1, 2, 3, 4};
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        callRead(instance, etalon.clone());
-      }
-    });
+    assertThrows(IllegalArgumentException.class, () -> callRead(instance, etalon.clone()));
   }
 
   @Test

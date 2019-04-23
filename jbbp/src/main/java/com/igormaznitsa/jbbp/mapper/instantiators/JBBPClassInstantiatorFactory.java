@@ -81,11 +81,7 @@ public final class JBBPClassInstantiatorFactory {
             final Class<?> unsafeclazz = Class.forName("sun.misc.Unsafe");
             unsafeclazz.getDeclaredField("theUnsafe");
             className = "com.igormaznitsa.jbbp.mapper.instantiators.JBBPUnsafeInstantiator";
-          } catch (ClassNotFoundException ex) {
-            // do nothing
-          } catch (NoSuchFieldException ex) {
-            // do nothing
-          } catch (SecurityException ex) {
+          } catch (ClassNotFoundException | NoSuchFieldException | SecurityException ex) {
             // do nothing
           }
         } else {

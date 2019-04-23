@@ -144,9 +144,7 @@ public final class JBBPSafeInstantiator implements JBBPClassInstantiator {
       }
     } catch (SecurityException ex) {
       throw new InstantiationException("Can't get access to the default constructor for class '" + klazz.getName() + "\' [" + ex + ']');
-    } catch (IllegalArgumentException ex) {
-      throw new InstantiationException("Can't make class '" + klazz.getName() + "\' [" + ex + ']');
-    } catch (InvocationTargetException ex) {
+    } catch (IllegalArgumentException | InvocationTargetException ex) {
       throw new InstantiationException("Can't make class '" + klazz.getName() + "\' [" + ex + ']');
     } catch (IllegalAccessException ex) {
       throw new InstantiationException("Can't make instance of class '" + klazz.getName() + "' for access exception [" + ex + ']');

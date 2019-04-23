@@ -59,7 +59,7 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
    * @param externalValueProvider an external value provider, it can be null
    */
   public JBBPNamedNumericFieldMap(final JBBPExternalValueProvider externalValueProvider) {
-    this.fieldMap = new LinkedHashMap<JBBPNamedFieldInfo, JBBPNumericField>();
+    this.fieldMap = new LinkedHashMap<>();
     this.externalValueProvider = externalValueProvider;
   }
 

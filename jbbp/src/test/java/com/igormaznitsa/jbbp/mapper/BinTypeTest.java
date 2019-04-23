@@ -29,12 +29,7 @@ public class BinTypeTest {
 
   @Test
   public void testNPEInFindCompatibleForNull() {
-    assertThrows(NullPointerException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        BinType.findCompatible(null);
-      }
-    });
+    assertThrows(NullPointerException.class, () -> BinType.findCompatible(null));
   }
 
   @Test

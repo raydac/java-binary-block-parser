@@ -76,9 +76,7 @@ public final class JBBPUnsafeInstantiator implements JBBPClassInstantiator {
       } else {
         throw new InstantiationException("Can't instantiate class for exception [" + ex + ']');
       }
-    } catch (IllegalAccessException ex) {
-      throw new InstantiationException("Can't instantiate class for exception [" + ex + ']');
-    } catch (IllegalArgumentException ex) {
+    } catch (IllegalAccessException | IllegalArgumentException ex) {
       throw new InstantiationException("Can't instantiate class for exception [" + ex + ']');
     }
   }

@@ -45,7 +45,7 @@
                     <restrictClassFormat>6</restrictClassFormat>
                     <checkNullable>true</checkNullable>
                     <checkMayContainNull>true</checkMayContainNull>
-                    <restrictClassFormat><![CDATA[<=6]]></restrictClassFormat>
+                    <restrictClassFormat><![CDATA[<=8]]></restrictClassFormat>
                     <failForAnnotations>
                         <param>risky</param>
                     </failForAnnotations>

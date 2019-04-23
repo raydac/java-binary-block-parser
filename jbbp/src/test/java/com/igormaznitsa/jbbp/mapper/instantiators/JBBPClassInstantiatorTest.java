@@ -161,18 +161,8 @@ public class JBBPClassInstantiatorTest {
     @Override
     public Stream<? extends Arguments> provideArguments(ExtensionContext ec) throws Exception {
       return Arrays.asList(
-          new Arguments() {
-            @Override
-            public Object[] get() {
-              return new Object[] {new JBBPUnsafeInstantiator()};
-            }
-          },
-          new Arguments() {
-            @Override
-            public Object[] get() {
-              return new Object[] {new JBBPSafeInstantiator()};
-            }
-          }).stream();
+              () -> new Object[] {new JBBPUnsafeInstantiator()},
+              (Arguments) () -> new Object[] {new JBBPSafeInstantiator()}).stream();
     }
 
   }

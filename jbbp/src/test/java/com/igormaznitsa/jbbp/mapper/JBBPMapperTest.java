@@ -402,12 +402,7 @@ public class JBBPMapperTest {
       String a;
     }
 
-    assertThrows(JBBPMapperException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("int [_] a;").parse(new byte[] {0, (byte) 0x4A, 0, (byte) 0x46, 0, (byte) 0x49, 0, (byte) 0x46}).mapTo(Mapped.class);
-      }
-    });
+    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int [_] a;").parse(new byte[] {0, (byte) 0x4A, 0, (byte) 0x46, 0, (byte) 0x49, 0, (byte) 0x46}).mapTo(Mapped.class));
   }
 
   @TestTemplate
@@ -543,12 +538,7 @@ public class JBBPMapperTest {
       long a;
     }
 
-    assertThrows(JBBPMapperException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("test { byte [_] a;}").parse(new byte[] {1, 2, 3, 4}).mapTo(Mapped.class);
-      }
-    });
+    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("test { byte [_] a;}").parse(new byte[] {1, 2, 3, 4}).mapTo(Mapped.class));
   }
 
   @TestTemplate
@@ -571,12 +561,7 @@ public class JBBPMapperTest {
       @Bin
       long a;
     }
-    assertThrows(JBBPMapperException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("byte f; test { inside {long a;} }").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9}).mapTo("f", Mapped.class);
-      }
-    });
+    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("byte f; test { inside {long a;} }").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9}).mapTo("f", Mapped.class));
   }
 
   @TestTemplate
@@ -613,17 +598,13 @@ public class JBBPMapperTest {
       @Bin
       int c;
     }
-    final Mapped mapped = JBBPParser.prepare("int a; int b; int c;").parse(new byte[] {1, 2, 3, 4, 0x4A, 0x46, 0x49, 0x46, 5, 6, 7, 8}).mapTo(Mapped.class, new JBBPMapperCustomFieldProcessor() {
-
-      @Override
-      public Object prepareObjectForMapping(final JBBPFieldStruct parsedBlock, final Bin annotation, final Field field) {
-        if ("b".equals(field.getName()) && "TEST_TEXT".equals(annotation.extra())) {
-          final int bvalue = parsedBlock.findFieldForNameAndType("b", JBBPFieldInt.class).getAsInt();
-          return String.valueOf((char) ((bvalue >>> 24) & 0xFF)) + (char) ((bvalue >>> 16) & 0xFF) + (char) ((bvalue >>> 8) & 0xFF) + (char) (bvalue & 0xFF);
-        } else {
-          fail("Unexpected state" + field);
-          return null;
-        }
+    final Mapped mapped = JBBPParser.prepare("int a; int b; int c;").parse(new byte[] {1, 2, 3, 4, 0x4A, 0x46, 0x49, 0x46, 5, 6, 7, 8}).mapTo(Mapped.class, (parsedBlock, annotation, field) -> {
+      if ("b".equals(field.getName()) && "TEST_TEXT".equals(annotation.extra())) {
+        final int bvalue = parsedBlock.findFieldForNameAndType("b", JBBPFieldInt.class).getAsInt();
+        return String.valueOf((char) ((bvalue >>> 24) & 0xFF)) + (char) ((bvalue >>> 16) & 0xFF) + (char) ((bvalue >>> 8) & 0xFF) + (char) (bvalue & 0xFF);
+      } else {
+        fail("Unexpected state" + field);
+        return null;
       }
     });
 
@@ -647,17 +628,13 @@ public class JBBPMapperTest {
 
     final Mapped mapped = new Mapped();
 
-    final Mapped result = (Mapped) JBBPParser.prepare("int a; int b; int c;").parse(new byte[] {1, 2, 3, 4, 0x4A, 0x46, 0x49, 0x46, 5, 6, 7, 8}).mapTo(mapped, new JBBPMapperCustomFieldProcessor() {
-
-      @Override
-      public Object prepareObjectForMapping(final JBBPFieldStruct parsedBlock, final Bin annotation, final Field field) {
-        if ("b".equals(field.getName()) && "TEST_TEXT".equals(annotation.extra())) {
-          final int bvalue = parsedBlock.findFieldForNameAndType("b", JBBPFieldInt.class).getAsInt();
-          return String.valueOf((char) ((bvalue >>> 24) & 0xFF)) + (char) ((bvalue >>> 16) & 0xFF) + (char) ((bvalue >>> 8) & 0xFF) + (char) (bvalue & 0xFF);
-        } else {
-          fail("Unexpected state" + field);
-          return null;
-        }
+    final Mapped result = (Mapped) JBBPParser.prepare("int a; int b; int c;").parse(new byte[] {1, 2, 3, 4, 0x4A, 0x46, 0x49, 0x46, 5, 6, 7, 8}).mapTo(mapped, (parsedBlock, annotation, field) -> {
+      if ("b".equals(field.getName()) && "TEST_TEXT".equals(annotation.extra())) {
+        final int bvalue = parsedBlock.findFieldForNameAndType("b", JBBPFieldInt.class).getAsInt();
+        return String.valueOf((char) ((bvalue >>> 24) & 0xFF)) + (char) ((bvalue >>> 16) & 0xFF) + (char) ((bvalue >>> 8) & 0xFF) + (char) (bvalue & 0xFF);
+      } else {
+        fail("Unexpected state" + field);
+        return null;
       }
     });
 
@@ -826,12 +803,7 @@ public class JBBPMapperTest {
       }
     }
 
-    assertThrows(JBBPMapperException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("int value; inner [2] { byte a; byte b;}").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}).mapTo(new Outer());
-      }
-    });
+    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int value; inner [2] { byte a; byte b;}").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}).mapTo(new Outer()));
   }
 
   @TestTemplate
@@ -881,12 +853,7 @@ public class JBBPMapperTest {
       String str;
     }
 
-    assertThrows(JBBPMapperException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(Parsed.class);
-      }
-    });
+    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(Parsed.class));
   }
 
   @TestTemplate
@@ -900,12 +867,7 @@ public class JBBPMapperTest {
       String str;
     }
 
-    assertThrows(JBBPMapperException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(Parsed.class);
-      }
-    });
+    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(Parsed.class));
   }
 
   @TestTemplate
@@ -919,12 +881,7 @@ public class JBBPMapperTest {
       String str;
     }
 
-    assertThrows(JBBPMapperException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(Parsed.class);
-      }
-    });
+    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(Parsed.class));
   }
 
   @TestTemplate
@@ -938,12 +895,7 @@ public class JBBPMapperTest {
       byte str;
     }
 
-    assertThrows(JBBPMapperException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(Parsed.class);
-      }
-    });
+    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(Parsed.class));
   }
 
   @TestTemplate
@@ -1060,12 +1012,7 @@ public class JBBPMapperTest {
       byte field;
     }
 
-    assertThrows(JBBPMapperException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("int fieldint; bit:6 field;").parse(new byte[] {1, 2, 3, 4, 0x35}).mapTo(Parsed.class);
-      }
-    });
+    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int fieldint; bit:6 field;").parse(new byte[] {1, 2, 3, 4, 0x35}).mapTo(Parsed.class));
   }
 
   @TestTemplate
@@ -1100,12 +1047,7 @@ public class JBBPMapperTest {
       @Bin(outBitNumber = JBBPBitNumber.BITS_4)
       byte field;
     }
-    assertThrows(JBBPMapperException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPParser.prepare("int fieldint; bit:3 [2] field;").parse(new byte[] {1, 2, 3, 4, 0x35}).mapTo(Parsed.class);
-      }
-    });
+    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int fieldint; bit:3 [2] field;").parse(new byte[] {1, 2, 3, 4, 0x35}).mapTo(Parsed.class));
   }
 
   @TestTemplate
@@ -1145,7 +1087,7 @@ public class JBBPMapperTest {
 
         @Override
         public List<Extension> getAdditionalExtensions() {
-          final List<Extension> result = new ArrayList<Extension>();
+          final List<Extension> result = new ArrayList<>();
           result.add(makeParameterResolver(parameter));
           return result;
         }

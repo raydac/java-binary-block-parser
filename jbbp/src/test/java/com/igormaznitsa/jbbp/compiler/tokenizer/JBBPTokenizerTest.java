@@ -29,36 +29,11 @@ public class JBBPTokenizerTest {
 
   @Test
   public void testNotAllowesNameError() {
-    assertThrows(JBBPTokenizerException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        new JBBPTokenizer("int $$;").next();
-      }
-    });
-    assertThrows(JBBPTokenizerException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        new JBBPTokenizer("int $a;").next();
-      }
-    });
-    assertThrows(JBBPTokenizerException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        new JBBPTokenizer("int a%d;").next();
-      }
-    });
-    assertThrows(JBBPTokenizerException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        new JBBPTokenizer("int 1a;").next();
-      }
-    });
-    assertThrows(JBBPTokenizerException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        new JBBPTokenizer("int _;").next();
-      }
-    });
+    assertThrows(JBBPTokenizerException.class, () -> new JBBPTokenizer("int $$;").next());
+    assertThrows(JBBPTokenizerException.class, () -> new JBBPTokenizer("int $a;").next());
+    assertThrows(JBBPTokenizerException.class, () -> new JBBPTokenizer("int a%d;").next());
+    assertThrows(JBBPTokenizerException.class, () -> new JBBPTokenizer("int 1a;").next());
+    assertThrows(JBBPTokenizerException.class, () -> new JBBPTokenizer("int _;").next());
   }
 
   @Test
@@ -252,12 +227,7 @@ public class JBBPTokenizerTest {
 
   @Test
   public void testErrorForIteratorRemove() {
-    assertThrows(UnsupportedOperationException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        new JBBPTokenizer("int a;").remove();
-      }
-    });
+    assertThrows(UnsupportedOperationException.class, () -> new JBBPTokenizer("int a;").remove());
   }
 
   @Test

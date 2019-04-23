@@ -71,13 +71,10 @@ public class JBBPSystemPropertyTest {
 
   @Test
   public void testGetAsInteger_ErrorForNonIntegerValue() {
-    assertThrows(Error.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.remove();
-        System.setProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName(), "abcd");
-        JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getAsInteger(12345);
-      }
+    assertThrows(Error.class, () -> {
+      JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.remove();
+      System.setProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName(), "abcd");
+      JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getAsInteger(12345);
     });
   }
 

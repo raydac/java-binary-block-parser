@@ -197,9 +197,9 @@ public final class JBBPCompiledBlock {
    */
   public final static class Builder {
 
-    private final List<JBBPNamedFieldInfo> namedFields = new ArrayList<JBBPNamedFieldInfo>();
-    private final List<JBBPIntegerValueEvaluator> varLenProcessors = new ArrayList<JBBPIntegerValueEvaluator>();
-    private final List<JBBPFieldTypeParameterContainer> customTypeFields = new ArrayList<JBBPFieldTypeParameterContainer>();
+    private final List<JBBPNamedFieldInfo> namedFields = new ArrayList<>();
+    private final List<JBBPIntegerValueEvaluator> varLenProcessors = new ArrayList<>();
+    private final List<JBBPFieldTypeParameterContainer> customTypeFields = new ArrayList<>();
     private String source;
     private byte[] compiledData;
     private boolean hasVarFields;

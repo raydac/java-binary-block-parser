@@ -201,14 +201,14 @@ public final class JBBPCompiler {
 
     final JBBPCompiledBlock.Builder builder = JBBPCompiledBlock.prepare().setSource(script);
 
-    final List<JBBPNamedFieldInfo> namedFields = new ArrayList<JBBPNamedFieldInfo>();
-    final List<JBBPFieldTypeParameterContainer> customTypeFields = new ArrayList<JBBPFieldTypeParameterContainer>();
-    final List<JBBPIntegerValueEvaluator> varLengthEvaluators = new ArrayList<JBBPIntegerValueEvaluator>();
+    final List<JBBPNamedFieldInfo> namedFields = new ArrayList<>();
+    final List<JBBPFieldTypeParameterContainer> customTypeFields = new ArrayList<>();
+    final List<JBBPIntegerValueEvaluator> varLengthEvaluators = new ArrayList<>();
 
     final ByteArrayOutputStream out = new ByteArrayOutputStream();
     int offset = 0;
 
-    final List<JBBPCompiler.StructStackItem> structureStack = new ArrayList<JBBPCompiler.StructStackItem>();
+    final List<JBBPCompiler.StructStackItem> structureStack = new ArrayList<>();
     final JBBPTokenizer parser = new JBBPTokenizer(script, customTypeFieldProcessor);
 
     int fieldUnrestrictedArrayOffset = -1;
@@ -556,44 +556,62 @@ public final class JBBPCompiler {
         result |= token.getFieldName() == null ? 0 : FLAG_NAMED;
 
         final String name = descriptor.getTypeName().toLowerCase(Locale.ENGLISH);
-        if ("skip".equals(name) || "val".equals(name)) {
-          result |= CODE_SKIP;
-        } else if ("align".equals(name)) {
-          result |= CODE_ALIGN;
-        } else if ("bit".equals(name)) {
-          result |= CODE_BIT;
-        } else if ("var".equals(name)) {
-          result |= CODE_VAR;
-        } else if ("bool".equals(name) || JBBPFieldString.TYPE_NAME.equals(name)) {
-          result |= CODE_BOOL;
-        } else if ("ubyte".equals(name)) {
-          result |= CODE_UBYTE;
-        } else if ("byte".equals(name)) {
-          result |= CODE_BYTE;
-        } else if ("ushort".equals(name)) {
-          result |= CODE_USHORT;
-        } else if ("short".equals(name)) {
-          result |= CODE_SHORT;
-        } else if ("int".equals(name) || JBBPFieldFloat.TYPE_NAME.equals(name)) {
-          result |= CODE_INT;
-        } else if ("long".equals(name) || JBBPFieldDouble.TYPE_NAME.equals(name)) {
-          result |= CODE_LONG;
-        } else if ("reset$$".equals(name)) {
-          result |= CODE_RESET_COUNTER;
-        } else {
-          boolean unsupportedType = true;
-          if (customTypeFieldProcessor != null) {
-            for (final String s : customTypeFieldProcessor.getCustomFieldTypes()) {
-              if (name.equals(s)) {
-                result |= CODE_CUSTOMTYPE;
-                unsupportedType = false;
-                break;
+        switch (name) {
+          case "skip":
+          case "val":
+            result |= CODE_SKIP;
+            break;
+          case "align":
+            result |= CODE_ALIGN;
+            break;
+          case "bit":
+            result |= CODE_BIT;
+            break;
+          case "var":
+            result |= CODE_VAR;
+            break;
+          case "bool":
+          case JBBPFieldString.TYPE_NAME:
+            result |= CODE_BOOL;
+            break;
+          case "ubyte":
+            result |= CODE_UBYTE;
+            break;
+          case "byte":
+            result |= CODE_BYTE;
+            break;
+          case "ushort":
+            result |= CODE_USHORT;
+            break;
+          case "short":
+            result |= CODE_SHORT;
+            break;
+          case "int":
+          case JBBPFieldFloat.TYPE_NAME:
+            result |= CODE_INT;
+            break;
+          case "long":
+          case JBBPFieldDouble.TYPE_NAME:
+            result |= CODE_LONG;
+            break;
+          case "reset$$":
+            result |= CODE_RESET_COUNTER;
+            break;
+          default:
+            boolean unsupportedType = true;
+            if (customTypeFieldProcessor != null) {
+              for (final String s : customTypeFieldProcessor.getCustomFieldTypes()) {
+                if (name.equals(s)) {
+                  result |= CODE_CUSTOMTYPE;
+                  unsupportedType = false;
+                  break;
+                }
               }
             }
-          }
-          if (unsupportedType) {
-            throw new JBBPCompilationException("Unsupported type [" + descriptor.getTypeName() + ']', token);
-          }
+            if (unsupportedType) {
+              throw new JBBPCompilationException("Unsupported type [" + descriptor.getTypeName() + ']', token);
+            }
+            break;
         }
       }
       break;

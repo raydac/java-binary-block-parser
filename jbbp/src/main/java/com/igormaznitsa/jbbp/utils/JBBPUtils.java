@@ -353,7 +353,7 @@ public final class JBBPUtils {
    * @return a list of JBBP fields
    */
   public static List<JBBPAbstractField> fieldsAsList(final JBBPAbstractField... fields) {
-    final List<JBBPAbstractField> result = new ArrayList<JBBPAbstractField>();
+    final List<JBBPAbstractField> result = new ArrayList<>();
     Collections.addAll(result, fields);
     return result;
   }

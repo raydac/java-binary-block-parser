@@ -172,13 +172,10 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
         + "byte [HLEN*4-20] Option;"
         + "byte [_] Data;");
 
-    InputStream inStream = getResourceAsInputStream("tcppacket.bin");
     byte[] testArray;
-    try {
+    try (InputStream inStream = getResourceAsInputStream("tcppacket.bin")) {
       testArray = new JBBPBitInputStream(inStream).readByteArray(-1);
       assertEquals(173, testArray.length);
-    } finally {
-      inStream.close();
     }
 
     final byte[] theData = testArray;
@@ -188,21 +185,18 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
 
     final int ITERATIONS = 1000;
 
-    final Runnable test = new Runnable() {
-      @Override
-      public void run() {
-        for (int i = 0; i < ITERATIONS; i++) {
-          try {
-            Thread.sleep(System.nanoTime() & 0xF);
-            final byte[] ippacket = parserTCP.parse(theData).findFieldForNameAndType("Data", JBBPFieldArrayByte.class).getArray();
-            assertEquals(119, ippacket.length);
-            final byte[] optionsip = parserIP.parse(ippacket).findFieldForNameAndType("Options", JBBPFieldArrayByte.class).getArray();
-            assertEquals(4, optionsip.length);
-            parsingCounter.incrementAndGet();
-          } catch (Exception ex) {
-            ex.printStackTrace();
-            errorCounter.incrementAndGet();
-          }
+    final Runnable test = () -> {
+      for (int i = 0; i < ITERATIONS; i++) {
+        try {
+          Thread.sleep(System.nanoTime() & 0xF);
+          final byte[] ippacket = parserTCP.parse(theData).findFieldForNameAndType("Data", JBBPFieldArrayByte.class).getArray();
+          assertEquals(119, ippacket.length);
+          final byte[] optionsip = parserIP.parse(ippacket).findFieldForNameAndType("Options", JBBPFieldArrayByte.class).getArray();
+          assertEquals(4, optionsip.length);
+          parsingCounter.incrementAndGet();
+        } catch (Exception ex) {
+          ex.printStackTrace();
+          errorCounter.incrementAndGet();
         }
       }
     };
@@ -288,16 +282,16 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
           return new JBBPFieldLong(fieldName, uint32_val);
         } else {
           if (readWholeStream) {
-            ArrayList<Long> laLaLaLaLong = new ArrayList<Long>();
+            ArrayList<Long> laLaLaLaLong = new ArrayList<>();
             try {
-              while (true) {
+              while (!Thread.currentThread().isInterrupted()) {
                 laLaLaLaLong.add(uint32_read(in, customTypeFieldInfo.getByteOrder(), bitOrder));
               }
             } catch (EOFException e) {
 
             }
 
-            long longs[] = convertLongs(laLaLaLaLong);
+            long[] longs = convertLongs(laLaLaLaLong);
 
             return new JBBPFieldArrayLong(fieldName, longs);
 

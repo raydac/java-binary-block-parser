@@ -145,22 +145,12 @@ public class JBBPUtilsTest {
 
   @Test
   public void testUnpackInt_NPEForArrayIsNull() {
-    assertThrows(NullPointerException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPUtils.unpackInt(null, new JBBPIntCounter());
-      }
-    });
+    assertThrows(NullPointerException.class, () -> JBBPUtils.unpackInt(null, new JBBPIntCounter()));
   }
 
   @Test
   public void testUnpackInt_IAEForWrongPrefix() {
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPUtils.unpackInt(new byte[] {(byte) 0xAA, 0, 0, 0, 0, 0}, new JBBPIntCounter());
-      }
-    });
+    assertThrows(IllegalArgumentException.class, () -> JBBPUtils.unpackInt(new byte[] {(byte) 0xAA, 0, 0, 0, 0, 0}, new JBBPIntCounter()));
   }
 
   @Test
@@ -423,22 +413,12 @@ public class JBBPUtilsTest {
 
   @Test
   public void testReverdeByteOrder_ErrorForZeroByteNumber() {
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPUtils.reverseByteOrder(1234, 0);
-      }
-    });
+    assertThrows(IllegalArgumentException.class, () -> JBBPUtils.reverseByteOrder(1234, 0));
   }
 
   @Test
   public void testReverdeByteOrder_ErrorForTooBigByteNumber() {
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        JBBPUtils.reverseByteOrder(1234, 9);
-      }
-    });
+    assertThrows(IllegalArgumentException.class, () -> JBBPUtils.reverseByteOrder(1234, 9));
   }
 
   @Test

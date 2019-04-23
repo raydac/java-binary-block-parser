@@ -83,12 +83,7 @@ public class CustomThreeByteIntegerTypeTest extends AbstractParserIntegrationTes
   @Test
   public void testReadThreeByteInteger_ErrorForEOF() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("int24 value;", new Int24CustomTypeProcessor());
-    assertThrows(JBBPParsingException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        parser.parse(new byte[] {0x01, 0x02});
-      }
-    });
+    assertThrows(JBBPParsingException.class, () -> parser.parse(new byte[] {0x01, 0x02}));
   }
 
   @Test

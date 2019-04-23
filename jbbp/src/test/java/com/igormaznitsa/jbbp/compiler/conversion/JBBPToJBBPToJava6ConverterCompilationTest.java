@@ -306,35 +306,15 @@ public class JBBPToJBBPToJava6ConverterCompilationTest extends AbstractJBBPToJav
   @Test
   public void testStringFieldAsLength_CompilationErrorForStringFieldInArithmeticException() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("stringj str; stringj [str] strarr; stringj [_] all;");
-    assertThrows(Exception.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        assertCompilation(makeSources(parser, null, false));
-      }
-    });
-    assertThrows(Exception.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        assertCompilation(makeSources(parser, null, true));
-      }
-    });
+    assertThrows(Exception.class, () -> assertCompilation(makeSources(parser, null, false)));
+    assertThrows(Exception.class, () -> assertCompilation(makeSources(parser, null, true)));
   }
 
   @Test
   public void testStringFieldInExpression_CompilationErrorForStringFieldInArithmeticException() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("stringj str; byte a; stringj [str+a] strarr; stringj [_] all;");
-    assertThrows(Exception.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        assertCompilation(makeSources(parser, null, false));
-      }
-    });
-    assertThrows(Exception.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        assertCompilation(makeSources(parser, null, true));
-      }
-    });
+    assertThrows(Exception.class, () -> assertCompilation(makeSources(parser, null, false)));
+    assertThrows(Exception.class, () -> assertCompilation(makeSources(parser, null, true)));
   }
 
   @Test

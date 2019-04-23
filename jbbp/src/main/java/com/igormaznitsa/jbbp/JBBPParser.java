@@ -257,7 +257,7 @@ public final class JBBPParser {
    */
   @SuppressWarnings("ConstantConditions")
   private List<JBBPAbstractField> parseStruct(final JBBPBitInputStream inStream, final JBBPIntCounter positionAtCompiledBlock, final JBBPVarFieldProcessor varFieldProcessor, final JBBPNamedNumericFieldMap namedNumericFieldMap, final JBBPIntCounter positionAtNamedFieldList, final JBBPIntCounter positionAtVarLengthProcessors, final boolean skipStructureFields) throws IOException {
-    final List<JBBPAbstractField> structureFields = skipStructureFields ? null : new ArrayList<JBBPAbstractField>();
+    final List<JBBPAbstractField> structureFields = skipStructureFields ? null : new ArrayList<>();
     final byte[] compiled = this.compiledBlock.getCompiledData();
 
     boolean endStructureNotMet = true;
@@ -520,7 +520,7 @@ public final class JBBPParser {
               if (resultNotIgnored) {
                 if (wholeStreamArray) {
                   // read till the stream end
-                  final List<JBBPFieldStruct> list = new ArrayList<JBBPFieldStruct>();
+                  final List<JBBPFieldStruct> list = new ArrayList<>();
                   while (inStream.hasAvailableData()) {
                     positionAtNamedFieldList.set(nameFieldCurrent);
                     positionAtVarLengthProcessors.set(varLenProcCurrent);
@@ -742,7 +742,7 @@ public final class JBBPParser {
         final String resultSources = JBBPToJava6Converter.makeBuilder(this).setMainClassPackage(packageName).setMainClassName(className).build().convert();
         final Map<String, String> resultMap = Collections.singletonMap(name.replace('.', '/') + ".java", resultSources);
 
-        return Collections.<ResultSrcItem>singletonList(new ResultSrcItem() {
+        return Collections.singletonList(new ResultSrcItem() {
           @Override
           public Properties getMetadata() {
             return metadata;

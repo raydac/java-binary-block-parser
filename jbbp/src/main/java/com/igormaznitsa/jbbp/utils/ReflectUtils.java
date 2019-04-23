@@ -16,7 +16,7 @@ public final class ReflectUtils {
    * Inside auxiliary queue for privileged processors to avoid mass creation of
    * processors.
    */
-  private static final Queue<PrivilegedProcessor> PROCESSORS_QUEUE = new ArrayBlockingQueue<PrivilegedProcessor>(32);
+  private static final Queue<PrivilegedProcessor> PROCESSORS_QUEUE = new ArrayBlockingQueue<>(32);
 
   private ReflectUtils() {
   }

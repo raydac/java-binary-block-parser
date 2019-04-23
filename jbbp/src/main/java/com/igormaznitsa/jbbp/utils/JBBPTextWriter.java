@@ -131,7 +131,7 @@ public class JBBPTextWriter extends FilterWriter {
   /**
    * The List contains all registered extras.
    */
-  private final List<Extra> extras = new ArrayList<Extra>();
+  private final List<Extra> extras = new ArrayList<>();
   /**
    * Lazy initialized field to keep field observer for Bin marked classes.
    */
@@ -1742,7 +1742,7 @@ public class JBBPTextWriter extends FilterWriter {
 
   private final class MappedObjectLogger extends AbstractMappedClassFieldObserver {
 
-    private final Deque<Integer> counterStack = new ArrayDeque<Integer>();
+    private final Deque<Integer> counterStack = new ArrayDeque<>();
     private int arrayCounter;
 
     protected void init() {

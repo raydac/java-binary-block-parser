@@ -449,32 +449,17 @@ public class JBBPBitOutputStreamTest {
 
   @Test
   public void testWriteBit_ErrorForZeroSize() throws Exception {
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        new JBBPBitOutputStream(new ByteArrayOutputStream()).writeBits(4, JBBPBitNumber.decode(0));
-      }
-    });
+    assertThrows(IllegalArgumentException.class, () -> new JBBPBitOutputStream(new ByteArrayOutputStream()).writeBits(4, JBBPBitNumber.decode(0)));
   }
 
   @Test
   public void testWriteBit_ErrorForNegativeSize() throws Exception {
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        new JBBPBitOutputStream(new ByteArrayOutputStream()).writeBits(4, JBBPBitNumber.decode(-1));
-      }
-    });
+    assertThrows(IllegalArgumentException.class, () -> new JBBPBitOutputStream(new ByteArrayOutputStream()).writeBits(4, JBBPBitNumber.decode(-1)));
   }
 
   @Test
   public void testWriteBit_ErrorForTooBigSize() throws Exception {
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        new JBBPBitOutputStream(new ByteArrayOutputStream()).writeBits(4, JBBPBitNumber.decode(9));
-      }
-    });
+    assertThrows(IllegalArgumentException.class, () -> new JBBPBitOutputStream(new ByteArrayOutputStream()).writeBits(4, JBBPBitNumber.decode(9)));
   }
 
   @Test

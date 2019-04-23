@@ -102,7 +102,7 @@ public class RandomAutoTest extends AbstractJBBPToJava6ConverterTest {
   Result generate(final int items, final boolean generateNames) {
     final JBBPDslBuilder builder = JBBPDslBuilder.Begin();
 
-    final List<StructLen> counterStack = new ArrayList<StructLen>();
+    final List<StructLen> counterStack = new ArrayList<>();
     counterStack.add(new StructLen());
 
     int structsTotal = 0;

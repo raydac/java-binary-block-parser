@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -135,32 +136,24 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
           final int tagItem = inStream.readByte();
           final JBBPFieldArrayByte result;
           switch (tagItem) {
-            case CONSTANT_Class: {
+            case CONSTANT_Class:
+            case CONSTANT_String:
+            case CONSTANT_MethodType: {
               result = new JBBPFieldArrayByte(fieldName, new byte[] {(byte) tagItem, (byte) inStream.readByte(), (byte) inStream.readByte()});
             }
             break;
             case CONSTANT_InterfaceMethodref:
             case CONSTANT_Methodref:
-            case CONSTANT_Fieldref: {
-              result = new JBBPFieldArrayByte(fieldName, new byte[] {(byte) tagItem, (byte) inStream.readByte(), (byte) inStream.readByte(), (byte) inStream.readByte(), (byte) inStream.readByte()});
-            }
-            break;
-            case CONSTANT_String: {
-              result = new JBBPFieldArrayByte(fieldName, new byte[] {(byte) tagItem, (byte) inStream.readByte(), (byte) inStream.readByte()});
-            }
-            break;
+            case CONSTANT_Fieldref:
             case CONSTANT_Float:
-            case CONSTANT_Integer: {
+            case CONSTANT_Integer:
+            case CONSTANT_NameAndType: {
               result = new JBBPFieldArrayByte(fieldName, new byte[] {(byte) tagItem, (byte) inStream.readByte(), (byte) inStream.readByte(), (byte) inStream.readByte(), (byte) inStream.readByte()});
             }
             break;
             case CONSTANT_Double:
             case CONSTANT_Long: {
               result = new JBBPFieldArrayByte(fieldName, new byte[] {(byte) tagItem, (byte) inStream.readByte(), (byte) inStream.readByte(), (byte) inStream.readByte(), (byte) inStream.readByte(), (byte) inStream.readByte(), (byte) inStream.readByte(), (byte) inStream.readByte(), (byte) inStream.readByte()});
-            }
-            break;
-            case CONSTANT_NameAndType: {
-              result = new JBBPFieldArrayByte(fieldName, new byte[] {(byte) tagItem, (byte) inStream.readByte(), (byte) inStream.readByte(), (byte) inStream.readByte(), (byte) inStream.readByte()});
             }
             break;
             case CONSTANT_Utf8: {
@@ -176,14 +169,7 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
               result = new JBBPFieldArrayByte(fieldName, res);
             }
             break;
-            case CONSTANT_MethodHandle: {
-              result = new JBBPFieldArrayByte(fieldName, new byte[] {(byte) tagItem, (byte) inStream.readByte(), (byte) inStream.readByte(), (byte) inStream.readByte()});
-            }
-            break;
-            case CONSTANT_MethodType: {
-              result = new JBBPFieldArrayByte(fieldName, new byte[] {(byte) tagItem, (byte) inStream.readByte(), (byte) inStream.readByte()});
-            }
-            break;
+            case CONSTANT_MethodHandle:
             case CONSTANT_InvokeDynamic: {
               result = new JBBPFieldArrayByte(fieldName, new byte[] {(byte) tagItem, (byte) inStream.readByte(), (byte) inStream.readByte(), (byte) inStream.readByte()});
             }
@@ -215,7 +201,7 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
 
   private String extractUtf8FromConstantPool(final ClassFile klazz, final int utf8Index) throws Exception {
     final byte[] utf8data = klazz.constant_pool_item[utf8Index - 1].cp_item;
-    return new String(utf8data, 3, utf8data.length - 3, "UTF-8");
+    return new String(utf8data, 3, utf8data.length - 3, StandardCharsets.UTF_8);
   }
 
   private void assertAttribute(final ClassFile klass, final AttributeInfo attr) throws Exception {

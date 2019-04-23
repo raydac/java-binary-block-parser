@@ -26,7 +26,7 @@ public class JBBPDslBuilder {
   /**
    * The List contains items added into builder.
    */
-  protected final List<Item> items = new ArrayList<Item>();
+  protected final List<Item> items = new ArrayList<>();
 
   /**
    * The Variable contains current byte order for all next fields.
@@ -1449,7 +1449,7 @@ public class JBBPDslBuilder {
   /**
    * Build a formatted script.
    *
-   * @param format if true then make some formatting of result, false if unformatted version allowed
+   * @param format if true then make some formatting of result, false if non-formatted version allowed
    * @return script in formatted form, must not be null
    * @throws IllegalStateException if there is an unclosed struct
    */
@@ -1605,7 +1605,7 @@ public class JBBPDslBuilder {
                 container.fieldLocalAnnotation = true;
               }
               container.field = f;
-              result.addContaner(container);
+              result.addContainer(container);
             }
           }
         }
@@ -1615,7 +1615,7 @@ public class JBBPDslBuilder {
     result.sort();
 
     if (!result.fields.isEmpty()) {
-      result.addContaner(BinFieldContainer.END_STRUCT);
+      result.addContainer(BinFieldContainer.END_STRUCT);
     }
 
     return result;
@@ -1706,7 +1706,7 @@ public class JBBPDslBuilder {
       this.Struct(collected.getName());
     }
 
-    final List<Pair> stack = new ArrayList<Pair>();
+    final List<Pair> stack = new ArrayList<>();
     stack.add(new Pair(collected));
 
     while (!stack.isEmpty()) {
@@ -2070,7 +2070,7 @@ public class JBBPDslBuilder {
   }
 
   protected static class BinFieldContainer extends BinField {
-    final List<BinField> fields = new ArrayList<BinField>();
+    final List<BinField> fields = new ArrayList<>();
     final Class<?> klazz;
 
     static BinFieldContainer END_STRUCT = new BinFieldContainer(null, null);
@@ -2098,7 +2098,7 @@ public class JBBPDslBuilder {
       this.fields.addAll(container.fields);
     }
 
-    void addContaner(final BinFieldContainer container) {
+    void addContainer(final BinFieldContainer container) {
       this.fields.add(container);
     }
 

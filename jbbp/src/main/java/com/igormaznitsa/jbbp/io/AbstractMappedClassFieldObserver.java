@@ -92,7 +92,7 @@ public abstract class AbstractMappedClassFieldObserver {
 
     final Map<Class<?>, Field[]> fieldz;
     if (cachedClasses == null) {
-      fieldz = new HashMap<Class<?>, Field[]>();
+      fieldz = new HashMap<>();
       cachedClasses = fieldz;
     } else {
       fieldz = cachedClasses;
@@ -103,8 +103,8 @@ public abstract class AbstractMappedClassFieldObserver {
 
     if (orderedFields == null) {
       // find out the outOrder of fields and fields which should be serialized
-      final List<Class<?>> listOfClassHierarchy = new ArrayList<Class<?>>();
-      final List<OrderedField> fields = new ArrayList<OrderedField>();
+      final List<Class<?>> listOfClassHierarchy = new ArrayList<>();
+      final List<OrderedField> fields = new ArrayList<>();
 
       Class<?> current = obj.getClass();
       while (current != java.lang.Object.class) {

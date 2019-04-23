@@ -132,18 +132,17 @@ public class ConvertToJSONTest extends AbstractParserIntegrationTest {
 
   @Test
   public void testConvertToJSON() throws Exception {
-    final InputStream pngStream = getResourceAsInputStream("picture.png");
-    try {
+    try (InputStream pngStream = getResourceAsInputStream("picture.png")) {
 
       final JBBPParser pngParser = JBBPParser.prepare(
-          "long header;"
-              + "// chunks\n"
-              + "chunk [_]{"
-              + "   int length; "
-              + "   int type; "
-              + "   byte[length] data; "
-              + "   int crc;"
-              + "}"
+              "long header;"
+                      + "// chunks\n"
+                      + "chunk [_]{"
+                      + "   int length; "
+                      + "   int type; "
+                      + "   byte[length] data; "
+                      + "   int crc;"
+                      + "}"
       );
 
       final JSONObject json = convertToJSon(null, pngParser.parse(pngStream));
@@ -155,8 +154,6 @@ public class ConvertToJSONTest extends AbstractParserIntegrationTest {
       assertTrue(jsonText.contains("type:"));
       assertTrue(jsonText.contains("data:"));
       assertTrue(jsonText.contains("crc:"));
-    } finally {
-      pngStream.close();
     }
   }
 }

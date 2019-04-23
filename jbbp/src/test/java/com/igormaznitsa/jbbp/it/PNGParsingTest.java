@@ -16,10 +16,7 @@
 
 package com.igormaznitsa.jbbp.it;
 
-import com.igormaznitsa.jbbp.JBBPExternalValueProvider;
-import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
 import com.igormaznitsa.jbbp.JBBPParser;
-import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.io.JBBPOut;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayByte;
@@ -28,10 +25,13 @@ import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
+import org.apache.commons.codec.digest.PureJavaCrc32;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
-import java.util.zip.CRC32;
+import java.util.Arrays;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static com.igormaznitsa.jbbp.TestUtils.assertPngChunk;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -45,7 +45,7 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
     assertEquals(chunkName, chunk.findFieldForNameAndType("type", JBBPFieldInt.class).getAsInt(), "Chunk must be " + name);
     assertEquals(length, chunk.findFieldForNameAndType("length", JBBPFieldInt.class).getAsInt(), "Chunk length must be " + length);
 
-    final CRC32 crc32 = new CRC32();
+    final PureJavaCrc32 crc32 = new PureJavaCrc32();
     crc32.update(name.charAt(0));
     crc32.update(name.charAt(1));
     crc32.update(name.charAt(2));
@@ -54,7 +54,7 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
     if (length != 0) {
       final byte[] array = chunk.findFieldForType(JBBPFieldArrayByte.class).getArray();
       assertEquals(length, array.length, "Data array " + name + " must be " + length);
-      crc32.update(array);
+      for (final byte b : array) crc32.update(b & 0xFF);
     }
 
     final int crc = (int) crc32.getValue();
@@ -166,16 +166,12 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
               + "}"
       );
 
-      final JBBPFieldStruct result = pngParser.parse(pngStream, null, new JBBPExternalValueProvider() {
-
-        @Override
-        public int provideArraySize(final String fieldName, final JBBPNamedNumericFieldMap numericFieldMap, final JBBPCompiledBlock compiledBlock) {
-          if ("value".equals(fieldName)) {
-            return numericFieldMap.findFieldForPathAndType("chunk.length", JBBPFieldInt.class).getAsInt();
-          }
-          fail("Unexpected variable '" + fieldName + '\'');
-          return -1;
+      final JBBPFieldStruct result = pngParser.parse(pngStream, null, (fieldName, numericFieldMap, compiledBlock) -> {
+        if ("value".equals(fieldName)) {
+          return numericFieldMap.findFieldForPathAndType("chunk.length", JBBPFieldInt.class).getAsInt();
         }
+        fail("Unexpected variable '" + fieldName + '\'');
+        return -1;
       });
 
       assertEquals(0x89504E470D0A1A0AL, result.findFieldForNameAndType("header", JBBPFieldLong.class).getAsLong());

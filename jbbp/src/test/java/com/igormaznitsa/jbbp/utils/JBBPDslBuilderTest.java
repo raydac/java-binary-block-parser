@@ -34,78 +34,28 @@ class JBBPDslBuilderTest {
 
   @Test
   public void testWrongName() {
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        Begin().Int("").End();
-      }
-    });
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        Begin().Int("  ").End();
-      }
-    });
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        Begin().Int("3a").End();
-      }
-    });
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        Begin().Int("ab\n").End();
-      }
-    });
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        Begin().Int("a$\n").End();
-      }
-    });
+    assertThrows(IllegalArgumentException.class, () -> Begin().Int("").End());
+    assertThrows(IllegalArgumentException.class, () -> Begin().Int("  ").End());
+    assertThrows(IllegalArgumentException.class, () -> Begin().Int("3a").End());
+    assertThrows(IllegalArgumentException.class, () -> Begin().Int("ab\n").End());
+    assertThrows(IllegalArgumentException.class, () -> Begin().Int("a$\n").End());
   }
 
   @Test
   public void testCheckForDuplicatedNameInSameStructure() {
     final JBBPDslBuilder builder = JBBPDslBuilder.Begin().Int("test");
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        builder.Bool("test");
-      }
-    });
+    assertThrows(IllegalArgumentException.class, () -> builder.Bool("test"));
 
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        builder.Bool("Test");
-      }
-    });
+    assertThrows(IllegalArgumentException.class, () -> builder.Bool("Test"));
 
     final JBBPDslBuilder builder1 = JBBPDslBuilder.Begin().Int("test").Struct().CloseStruct();
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        builder1.Bool("test");
-      }
-    });
+    assertThrows(IllegalArgumentException.class, () -> builder1.Bool("test"));
 
     final JBBPDslBuilder builder2 = JBBPDslBuilder.Begin().Int("test");
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        builder2.Struct("test");
-      }
-    });
+    assertThrows(IllegalArgumentException.class, () -> builder2.Struct("test"));
 
     final JBBPDslBuilder builder3 = JBBPDslBuilder.Begin().Struct("test").Int("a").CloseStruct().Bool("b");
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        builder3.Struct("test");
-      }
-    });
+    assertThrows(IllegalArgumentException.class, () -> builder3.Struct("test"));
 
   }
 
@@ -255,12 +205,7 @@ class JBBPDslBuilderTest {
     assertEquals("skip:3;", Begin().Skip(3).End());
     assertEquals("skip:(a+b);", Begin().Skip("a+b").End());
 
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        Begin().Skip(-3);
-      }
-    });
+    assertThrows(IllegalArgumentException.class, () -> Begin().Skip(-3));
   }
 
   @Test
@@ -270,30 +215,10 @@ class JBBPDslBuilderTest {
 
   @Test
   public void testVal() {
-    assertThrows(NullPointerException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        Begin().Val(null, "a+b").End();
-      }
-    });
-    assertThrows(NullPointerException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        Begin().Val("hello", null).End();
-      }
-    });
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        Begin().Val("", "a+b").End();
-      }
-    });
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        Begin().Val("hello", "").End();
-      }
-    });
+    assertThrows(NullPointerException.class, () -> Begin().Val(null, "a+b").End());
+    assertThrows(NullPointerException.class, () -> Begin().Val("hello", null).End());
+    assertThrows(IllegalArgumentException.class, () -> Begin().Val("", "a+b").End());
+    assertThrows(IllegalArgumentException.class, () -> Begin().Val("hello", "").End());
     assertEquals("val:(a+b) hello;", Begin().Val("hello", "a+b").End());
   }
 
@@ -303,12 +228,7 @@ class JBBPDslBuilderTest {
     assertEquals("align:3;", Begin().Align(3).End());
     assertEquals("align:(a+b);", Begin().Align("a+b").End());
 
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        Begin().Align(-3);
-      }
-    });
+    assertThrows(IllegalArgumentException.class, () -> Begin().Align(-3));
   }
 
   @Test
@@ -412,12 +332,7 @@ class JBBPDslBuilderTest {
         "\t}\n" +
         "}\n", Begin().Struct().Struct().Struct().CloseStruct(true).End(true));
 
-    assertThrows(IllegalStateException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        Begin().CloseStruct(true);
-      }
-    });
+    assertThrows(IllegalStateException.class, () -> Begin().CloseStruct(true));
   }
 
   @Test
@@ -456,12 +371,7 @@ class JBBPDslBuilderTest {
         "\t}\n" +
         "}\n", Begin().Struct().Struct().Struct().CloseStruct().CloseStruct().CloseStruct().End(true));
 
-    assertThrows(IllegalStateException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        Begin().CloseStruct();
-      }
-    });
+    assertThrows(IllegalStateException.class, () -> Begin().CloseStruct());
   }
 
   @Test
