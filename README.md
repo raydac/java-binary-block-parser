@@ -15,10 +15,11 @@ For instance I have been very actively using the framework in [the ZX-Poly emula
 ![Use cases](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_mm.png)
 
 # Change log
-- **1.4.2-SNAPSHOT**
+- **2.0.0-SNAPSHOT**
+  - __minimal Java version is 1.8+__
+  - __minimal supported version of Android API is 3.0+__
   - added creation of `makeFIELD()` method for structure types in Java6 converted classes
-  - minimal supported version of Android API increased to 2.3.1
-  - minor refactoring
+  - refactoring
 
 - **1.4.1 (20-aug-2018)**
   - fixed incompatibility in tokenizer regex syntax for Android SDK [#23](https://github.com/raydac/java-binary-block-parser/issues/23)

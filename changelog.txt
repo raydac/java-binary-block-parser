@@ -1,9 +1,8 @@
-Change log
---------------------------
-1.4.2
- - added creation of makeFIELD() method for structure types in Java6 converted classes
- - minimal supported version of Android API increased to 2.3.1
- - minor refactoring
+2.0.0-SNAPSHOT
+  - minimal Java version is 1.8+
+  - minimal supported version of Android API is 3.0+
+  - added creation of `makeFIELD()` method for structure types in Java6 converted classes
+  - refactoring
 
 1.4.1
  - fixed incompatibility in tokenizer regex syntax for Android SDK [#23](https://github.com/raydac/java-binary-block-parser/issues/23)
