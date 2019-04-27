@@ -567,7 +567,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
       }
     }
 
-    if (stackPosition != 1 || stackPosition > stackMaxPosition) {
+    if (stackPosition != 1) {
       throw new JBBPEvalException("Wrong expression [" + this.expressionSource + "] (" + stackPosition + ':' + stackMaxPosition + ')', this);
     }
     return stackMaxPosition;

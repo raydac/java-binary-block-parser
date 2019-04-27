@@ -806,12 +806,10 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
         if (obj instanceof ExprTreeItem) {
           return obj.toString();
         } else if (obj instanceof Special) {
-          switch ((Special) obj) {
-            case STREAM_COUNTER:
-              return "(int)" + streamName + ".getCounter()";
-            default:
-              throw new Error("Unexpected special");
+          if (obj == Special.STREAM_COUNTER) {
+            return "(int)" + streamName + ".getCounter()";
           }
+          throw new Error("Unexpected special");
         } else if (obj instanceof Integer) {
           if ((Integer) obj < 0) {
             return '(' + obj.toString() + ')';

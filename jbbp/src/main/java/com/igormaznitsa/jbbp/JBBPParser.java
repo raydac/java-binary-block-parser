@@ -720,43 +720,39 @@ public final class JBBPParser {
   public List<ResultSrcItem> convertToSrc(final TargetSources target, final String name) {
     JBBPUtils.assertNotNull(name, "Name must not be null");
 
-    switch (target) {
-      case JAVA_1_6: {
-        final Properties metadata = new Properties();
-        metadata.setProperty("script", this.compiledBlock.getSource());
-        metadata.setProperty("name", name);
-        metadata.setProperty("target", target.name());
-        metadata.setProperty("converter", JBBPToJava6Converter.class.getCanonicalName());
+    if (target == TargetSources.JAVA_1_6) {
+      final Properties metadata = new Properties();
+      metadata.setProperty("script", this.compiledBlock.getSource());
+      metadata.setProperty("name", name);
+      metadata.setProperty("target", target.name());
+      metadata.setProperty("converter", JBBPToJava6Converter.class.getCanonicalName());
 
-        final int nameStart = name.lastIndexOf('.');
-        final String packageName;
-        final String className;
-        if (nameStart < 0) {
-          packageName = "";
-          className = name;
-        } else {
-          packageName = name.substring(0, nameStart);
-          className = name.substring(nameStart + 1);
+      final int nameStart = name.lastIndexOf('.');
+      final String packageName;
+      final String className;
+      if (nameStart < 0) {
+        packageName = "";
+        className = name;
+      } else {
+        packageName = name.substring(0, nameStart);
+        className = name.substring(nameStart + 1);
+      }
+
+      final String resultSources = JBBPToJava6Converter.makeBuilder(this).setMainClassPackage(packageName).setMainClassName(className).build().convert();
+      final Map<String, String> resultMap = Collections.singletonMap(name.replace('.', '/') + ".java", resultSources);
+
+      return Collections.singletonList(new ResultSrcItem() {
+        @Override
+        public Properties getMetadata() {
+          return metadata;
         }
 
-        final String resultSources = JBBPToJava6Converter.makeBuilder(this).setMainClassPackage(packageName).setMainClassName(className).build().convert();
-        final Map<String, String> resultMap = Collections.singletonMap(name.replace('.', '/') + ".java", resultSources);
-
-        return Collections.singletonList(new ResultSrcItem() {
-          @Override
-          public Properties getMetadata() {
-            return metadata;
-          }
-
-          @Override
-          public Map<String, String> getResult() {
-            return resultMap;
-          }
-        });
-      }
-      default: {
-        throw new IllegalArgumentException("Unsupported target : " + target);
-      }
+        @Override
+        public Map<String, String> getResult() {
+          return resultMap;
+        }
+      });
     }
+    throw new IllegalArgumentException("Unsupported target : " + target);
   }
 }
