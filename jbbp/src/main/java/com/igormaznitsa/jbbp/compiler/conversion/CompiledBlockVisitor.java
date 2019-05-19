@@ -68,7 +68,6 @@ public class CompiledBlockVisitor {
    *
    * @return the instance of the visitor, must not be null
    */
-  @SuppressWarnings("unchecked")
   public final CompiledBlockVisitor visit() {
     this.visitStart();
 

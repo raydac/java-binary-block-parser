@@ -2055,7 +2055,6 @@ public class JBBPDslBuilder {
       return 0;
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
     public int compareTo(final BinField that) {
       final int thisOrder = this.getOrder();

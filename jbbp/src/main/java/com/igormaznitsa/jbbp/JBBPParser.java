@@ -76,7 +76,7 @@ import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_FIELD_EMPTY;
  *
  * @since 1.0
  */
-@SuppressWarnings( {"WeakerAccess", "ConstantConditions"})
+@SuppressWarnings( {"WeakerAccess"})
 public final class JBBPParser {
 
   /**
@@ -255,7 +255,6 @@ public final class JBBPParser {
    * @return list of read fields for the structure
    * @throws IOException it will be thrown for transport errors
    */
-  @SuppressWarnings("ConstantConditions")
   private List<JBBPAbstractField> parseStruct(final JBBPBitInputStream inStream, final JBBPIntCounter positionAtCompiledBlock, final JBBPVarFieldProcessor varFieldProcessor, final JBBPNamedNumericFieldMap namedNumericFieldMap, final JBBPIntCounter positionAtNamedFieldList, final JBBPIntCounter positionAtVarLengthProcessors, final boolean skipStructureFields) throws IOException {
     final List<JBBPAbstractField> structureFields = skipStructureFields ? null : new ArrayList<>();
     final byte[] compiled = this.compiledBlock.getCompiledData();

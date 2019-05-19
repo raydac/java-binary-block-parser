@@ -208,7 +208,6 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public <T extends JBBPAbstractField> T findFieldForPathAndType(final String fieldPath, final Class<T> fieldType) {
     final JBBPAbstractField field = this.findFieldForPath(fieldPath);
 
