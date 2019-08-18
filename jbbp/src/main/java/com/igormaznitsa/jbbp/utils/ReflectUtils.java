@@ -31,7 +31,7 @@ public final class ReflectUtils {
    * @see AccessController#doPrivileged(java.security.PrivilegedAction)
    */
   public static <T extends AccessibleObject> T makeAccessible(final T obj) {
-    if (obj != null && !obj.isAccessible()) {
+    if (obj != null) {
       PrivilegedProcessor processor = PROCESSORS_QUEUE.poll();
       if (processor == null) {
         processor = new PrivilegedProcessor();

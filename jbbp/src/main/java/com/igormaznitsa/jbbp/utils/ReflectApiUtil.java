@@ -29,7 +29,7 @@ public final class ReflectApiUtil {
    * @see AccessController#doPrivileged(java.security.PrivilegedAction)
    */
   public static <T extends AccessibleObject> T makeAccessible(final T obj) {
-    if (obj != null && !obj.isAccessible()) {
+    if (obj != null) {
       PrivilegedProcessor processor = PROCESSORS_QUEUE.poll();
       if (processor == null) {
         processor = new PrivilegedProcessor();
@@ -80,7 +80,7 @@ public final class ReflectApiUtil {
 
     private AccessibleObject theObject;
 
-    public void setAccessibleObject(final AccessibleObject obj) {
+    void setAccessibleObject(final AccessibleObject obj) {
       this.theObject = obj;
     }
 
