@@ -16,8 +16,8 @@ For instance I have been very actively using the framework in [the ZX-Poly emula
 
 # Change log
 - **2.0.0-SNAPSHOT**
-  - __minimal Java version is 1.8+__
-  - __minimal supported version of Android API is 3.0+__
+  - __minimal JDK version is increaded to 1.8+__
+  - __minimal Android API is increased to 3.0+__
   - added creation of `makeFIELD()` method for structure types in Java6 converted classes
   - refactoring
 

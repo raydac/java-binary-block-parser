@@ -54,7 +54,7 @@ public final class JBBPFieldInt extends JBBPAbstractField implements JBBPNumeric
     final int b2 = JBBPUtils.reverseBitsInByte((byte) (value >> 16)) & 0xFF;
     final int b3 = JBBPUtils.reverseBitsInByte((byte) (value >> 24)) & 0xFF;
 
-    return (long) ((b0 << 24) | (b1 << 16) | (b2 << 8) | b3);
+    return (b0 << 24) | (b1 << 16) | (b2 << 8) | b3;
   }
 
   @Override
@@ -64,7 +64,7 @@ public final class JBBPFieldInt extends JBBPAbstractField implements JBBPNumeric
 
   @Override
   public double getAsDouble() {
-    return (double) this.value;
+    return this.value;
   }
 
   @Override

@@ -16,10 +16,6 @@
         own DSL to describe parsing data format
     </description>
 
-    <properties>
-        <jmh.version>1.21</jmh.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
@@ -54,7 +50,7 @@
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>1.12</version>
+            <version>1.13</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

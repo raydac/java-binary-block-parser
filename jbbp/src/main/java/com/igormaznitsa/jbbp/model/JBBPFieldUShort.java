@@ -57,7 +57,7 @@ public final class JBBPFieldUShort extends JBBPAbstractField implements JBBPNume
 
   @Override
   public double getAsDouble() {
-    return (double) (this.value & 0xFFFF);
+    return this.value & 0xFFFF;
   }
 
   @Override

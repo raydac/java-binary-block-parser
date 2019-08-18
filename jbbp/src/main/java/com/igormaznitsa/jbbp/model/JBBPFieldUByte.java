@@ -54,7 +54,7 @@ public final class JBBPFieldUByte extends JBBPAbstractField implements JBBPNumer
 
   @Override
   public double getAsDouble() {
-    return (double) (this.value & 0xFF);
+    return this.value & 0xFF;
   }
 
   @Override

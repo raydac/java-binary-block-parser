@@ -421,7 +421,7 @@ public final class JBBPCompiler {
           if (fixedArraySize <= 0) {
             throw new JBBPCompilationException("Detected an array with negative or zero fixed length", token);
           }
-          offset += writePackedInt(out, token.getArraySizeAsInt());
+          offset += writePackedInt(out, fixedArraySize);
         }
       }
 

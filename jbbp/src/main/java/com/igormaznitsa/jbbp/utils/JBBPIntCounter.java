@@ -132,7 +132,7 @@ public final class JBBPIntCounter extends Number {
 
   @Override
   public long longValue() {
-    return (long) this.counter;
+    return this.counter;
   }
 
   @Override
@@ -142,7 +142,7 @@ public final class JBBPIntCounter extends Number {
 
   @Override
   public double doubleValue() {
-    return (double) this.counter;
+    return this.counter;
   }
 
 }

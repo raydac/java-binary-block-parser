@@ -49,7 +49,7 @@ public final strictfp class JBBPFieldFloat extends JBBPAbstractField implements 
 
   @Override
   public double getAsDouble() {
-    return (double) this.value;
+    return this.value;
   }
 
   @Override

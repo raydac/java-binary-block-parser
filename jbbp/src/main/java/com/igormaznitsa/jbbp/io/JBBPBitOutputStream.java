@@ -237,7 +237,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
       int i = off;
       int cnt = len;
       while (cnt > 0) {
-        this.write((int) b[i++]);
+        this.write(b[i++]);
         cnt--;
       }
     }

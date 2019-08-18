@@ -731,7 +731,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
     assertArrayNotNull(value);
     if (this.processCommands) {
       for (final char v : value) {
-        this._writeShort((int) v);
+        this._writeShort(v);
       }
     }
     return this;
