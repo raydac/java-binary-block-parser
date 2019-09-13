@@ -21,15 +21,8 @@ import com.igormaznitsa.jbbp.TestUtils;
 import com.igormaznitsa.jbbp.exceptions.JBBPMapperException;
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPOut;
-import com.igormaznitsa.jbbp.mapper.instantiators.JBBPClassInstantiator;
-import com.igormaznitsa.jbbp.mapper.instantiators.JBBPClassInstantiatorFactory;
-import com.igormaznitsa.jbbp.mapper.instantiators.JBBPClassInstantiatorType;
-import com.igormaznitsa.jbbp.mapper.instantiators.JBBPSafeInstantiator;
-import com.igormaznitsa.jbbp.mapper.instantiators.JBBPUnsafeInstantiator;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.utils.JBBPSystemProperty;
-import org.junit.jupiter.api.TestTemplate;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.Extension;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -49,11 +42,11 @@ import java.util.Random;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class JBBPMapperTest {
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_InsideStructAndClass() throws Exception {
     class Mapped {
 
@@ -63,8 +56,7 @@ public class JBBPMapperTest {
     assertEquals(3, JBBPParser.prepare("byte a; some{struc {byte a;}}").parse(new byte[] {1, 3}).mapTo("some.struc", new Mapped()).a);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_RootStructToClassWithNullCustomProcessor() throws Exception {
     class Mapped {
 
@@ -74,8 +66,7 @@ public class JBBPMapperTest {
     assertEquals(3, JBBPMapper.map(JBBPParser.prepare("byte a;").parse(new byte[] {3}), new Mapped()).a);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_Byte() throws Exception {
     class Mapped {
 
@@ -85,8 +76,7 @@ public class JBBPMapperTest {
     assertEquals(3, JBBPParser.prepare("byte a;").parse(new byte[] {3}).mapTo(new Mapped()).a);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_Short() throws Exception {
     class Mapped {
 
@@ -96,8 +86,7 @@ public class JBBPMapperTest {
     assertEquals(0x0304, JBBPParser.prepare("short a;").parse(new byte[] {3, 4}).mapTo(new Mapped()).a);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_Boolean() throws Exception {
     class Mapped {
 
@@ -114,8 +103,7 @@ public class JBBPMapperTest {
     assertTrue(mapped.c);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_String() throws Exception {
     class Mapped {
 
@@ -129,8 +117,7 @@ public class JBBPMapperTest {
     assertEquals("DE", mapped.b);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_StringArrayToStringArray() throws Exception {
     class Mapped {
 
@@ -141,16 +128,14 @@ public class JBBPMapperTest {
     assertArrayEquals(new String[] {"ABC", "DE"}, mapped.a);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_IgnoreStaticField() throws Exception {
     final MappedWithStaticField mapped = JBBPParser.prepare("int a;").parse(new byte[] {1, 2, 3, 4}).mapTo(new MappedWithStaticField());
     assertEquals(0x01020304, mapped.a);
     assertEquals(111, MappedWithStaticField.ignored);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_Bit() throws Exception {
     class Mapped {
 
@@ -167,8 +152,7 @@ public class JBBPMapperTest {
     assertEquals(6, mapped.c);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_Int() throws Exception {
     class Mapped {
 
@@ -178,8 +162,7 @@ public class JBBPMapperTest {
     assertEquals(0x01020304, JBBPParser.prepare("int a;").parse(new byte[] {1, 2, 3, 4}).mapTo(new Mapped()).a);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_MapIntToFloat() throws Exception {
     class Mapped {
 
@@ -193,8 +176,7 @@ public class JBBPMapperTest {
     assertEquals(Float.MIN_VALUE, JBBPParser.prepare("int a;").parse(min).mapTo(new Mapped()).a, 0.005d);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_MapIntArrayToFloatArray() throws Exception {
     class Mapped {
 
@@ -209,8 +191,7 @@ public class JBBPMapperTest {
     assertEquals(Float.MIN_VALUE, result.a[1], TestUtils.FLOAT_DELTA);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_MapLongArrayToDoubleArray() throws Exception {
     class Mapped {
 
@@ -225,8 +206,7 @@ public class JBBPMapperTest {
     assertEquals(Double.MIN_VALUE, result.a[1], TestUtils.FLOAT_DELTA);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_MapFloatToFloat() throws Exception {
     class Mapped {
 
@@ -238,8 +218,7 @@ public class JBBPMapperTest {
     assertEquals(-1.234567f, JBBPParser.prepare("floatj a;").parse(max).mapTo(new Mapped()).a, TestUtils.FLOAT_DELTA);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_MapFloatArrayToFloatArray() throws Exception {
     class Mapped {
 
@@ -251,8 +230,7 @@ public class JBBPMapperTest {
     assertArrayEquals(new float[] {-1.234567f, 1.234567f}, JBBPParser.prepare("floatj [_] a;").parse(max).mapTo(new Mapped()).a, TestUtils.FLOAT_DELTA);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_MapLongToDouble() throws Exception {
     class Mapped {
 
@@ -266,8 +244,7 @@ public class JBBPMapperTest {
     assertEquals(Double.MIN_VALUE, JBBPParser.prepare("long a;").parse(min).mapTo(new Mapped()).a, TestUtils.FLOAT_DELTA);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_MapDoubleToDouble() throws Exception {
     class Mapped {
 
@@ -279,8 +256,7 @@ public class JBBPMapperTest {
     assertEquals(-1.2345678912345d, JBBPParser.prepare("doublej a;").parse(max).mapTo(new Mapped()).a, TestUtils.FLOAT_DELTA);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_MapDoubleArrayToDoubleArray() throws Exception {
     class Mapped {
 
@@ -292,8 +268,7 @@ public class JBBPMapperTest {
     assertArrayEquals(new double[] {-1.2345678912345d, 45.3334d}, JBBPParser.prepare("doublej [_] a;").parse(max).mapTo(new Mapped()).a, TestUtils.FLOAT_DELTA);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_Long() throws Exception {
     class Mapped {
 
@@ -303,8 +278,7 @@ public class JBBPMapperTest {
     assertEquals(0x0102030405060708L, JBBPParser.prepare("long a;").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}).mapTo(new Mapped()).a);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_UByte() throws Exception {
     class Mapped {
 
@@ -314,8 +288,7 @@ public class JBBPMapperTest {
     assertEquals(0xFE, JBBPParser.prepare("ubyte a;").parse(new byte[] {(byte) 0xFE}).mapTo(new Mapped()).a);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_UShort() throws Exception {
     class Mapped {
 
@@ -325,8 +298,7 @@ public class JBBPMapperTest {
     assertEquals(0x0102, JBBPParser.prepare("ushort a;").parse(new byte[] {1, 2}).mapTo(new Mapped()).a);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_ByteArray() throws Exception {
     class Mapped {
 
@@ -336,8 +308,7 @@ public class JBBPMapperTest {
     assertArrayEquals(new byte[] {1, 2, 3, 4}, JBBPParser.prepare("byte [_] a;").parse(new byte[] {1, 2, 3, 4}).mapTo(new Mapped()).a);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_UByteArrayToString() throws Exception {
     class Mapped {
 
@@ -347,8 +318,7 @@ public class JBBPMapperTest {
     assertEquals("JFIF", JBBPParser.prepare("ubyte [_] a;").parse(new byte[] {(byte) 0x4A, (byte) 0x46, (byte) 0x49, (byte) 0x46}).mapTo(new Mapped()).a);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_BitArrayToString() throws Exception {
     class Mapped {
 
@@ -358,8 +328,7 @@ public class JBBPMapperTest {
     assertEquals(new String(new char[] {0xA, 0x4, 0x6, 0x4, 0x9, 0x4, 0x6, 0x4}), JBBPParser.prepare("bit:4 [_] a;").parse(new byte[] {(byte) 0x4A, (byte) 0x46, (byte) 0x49, (byte) 0x46}).mapTo(new Mapped()).a);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_BitArrayToStringWhenWholeByte() throws Exception {
     class Mapped {
 
@@ -369,8 +338,7 @@ public class JBBPMapperTest {
     assertEquals(new String(new char[] {0xFF, 0xED, 0x01, 0x36}), JBBPParser.prepare("bit:8 [_] a;").parse(new byte[] {(byte) 0xFF, (byte) 0xED, (byte) 0x01, (byte) 0x36}).mapTo(new Mapped()).a);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_ByteArrayToString() throws Exception {
     class Mapped {
 
@@ -380,8 +348,7 @@ public class JBBPMapperTest {
     assertEquals("JFIF", JBBPParser.prepare("byte [_] a;").parse(new byte[] {(byte) 0x4A, (byte) 0x46, (byte) 0x49, (byte) 0x46}).mapTo(new Mapped()).a);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_ShortArrayToString() throws Exception {
     class Mapped {
 
@@ -391,8 +358,7 @@ public class JBBPMapperTest {
     assertEquals("JFIF", JBBPParser.prepare("short [_] a;").parse(new byte[] {0, (byte) 0x4A, 0, (byte) 0x46, 0, (byte) 0x49, 0, (byte) 0x46}).mapTo(new Mapped()).a);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_IntArrayToString_Error() throws Exception {
     class Mapped {
 
@@ -403,8 +369,7 @@ public class JBBPMapperTest {
     assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int [_] a;").parse(new byte[] {0, (byte) 0x4A, 0, (byte) 0x46, 0, (byte) 0x49, 0, (byte) 0x46}).mapTo(new Mapped()));
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_UShortArrayToString() throws Exception {
     class Mapped {
 
@@ -414,8 +379,7 @@ public class JBBPMapperTest {
     assertEquals("JFIF", JBBPParser.prepare("ushort [_] a;").parse(new byte[] {0, (byte) 0x4A, 0, (byte) 0x46, 0, (byte) 0x49, 0, (byte) 0x46}).mapTo(new Mapped()).a);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_BitArray() throws Exception {
     class Mapped {
 
@@ -425,8 +389,7 @@ public class JBBPMapperTest {
     assertArrayEquals(new byte[] {2, 0, 3, 2}, JBBPParser.prepare("bit:2 [_] a;").parse(new byte[] {(byte) 0xB2}).mapTo(new Mapped()).a);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_ShortArray() throws Exception {
     class Mapped {
 
@@ -436,8 +399,7 @@ public class JBBPMapperTest {
     assertArrayEquals(new short[] {0x0102, 0x0304}, JBBPParser.prepare("short [_] a;").parse(new byte[] {1, 2, 3, 4}).mapTo(new Mapped()).a);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_BoolArray() throws Exception {
     class Mapped {
 
@@ -454,8 +416,7 @@ public class JBBPMapperTest {
     assertFalse(mapped.a[5]);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_UShortArray() throws Exception {
     class Mapped {
 
@@ -465,8 +426,7 @@ public class JBBPMapperTest {
     assertArrayEquals(new char[] {0x0102, 0x0304}, JBBPParser.prepare("ushort [_] a;").parse(new byte[] {1, 2, 3, 4}).mapTo(new Mapped()).a);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_IntArray() throws Exception {
     class Mapped {
 
@@ -476,8 +436,7 @@ public class JBBPMapperTest {
     assertArrayEquals(new int[] {0x01020304, 0x05060708}, JBBPParser.prepare("int [_] a;").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}).mapTo(new Mapped()).a);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_LongArray() throws Exception {
     class Mapped {
 
@@ -487,8 +446,7 @@ public class JBBPMapperTest {
     assertArrayEquals(new long[] {0x0102030405060708L, 0x1112131415161718L}, JBBPParser.prepare("long [_] a;").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18}).mapTo(new Mapped()).a);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_Struct() throws Exception {
     class Inside {
 
@@ -509,8 +467,7 @@ public class JBBPMapperTest {
     assertEquals(0x02030405, mapped.a.a);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_StructArray() throws Exception {
     class Inside {
 
@@ -533,8 +490,7 @@ public class JBBPMapperTest {
     assertEquals(0x06070809, mapped.a[1].a);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_ErrorForMappingStructureToPrimitiveField() {
     class Mapped {
 
@@ -545,8 +501,7 @@ public class JBBPMapperTest {
     assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("test { byte [_] a;}").parse(new byte[] {1, 2, 3, 4}).mapTo(new Mapped()));
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_mapInsideStructureDefinedByItsPath() throws Exception {
     class Mapped {
 
@@ -557,8 +512,7 @@ public class JBBPMapperTest {
     assertEquals(0x0203040506070809L, mapped.a);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_mapInsideStructureDefinedByItsPath_ErrorForNonStructure() throws Exception {
     class Mapped {
 
@@ -568,8 +522,7 @@ public class JBBPMapperTest {
     assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("byte f; test { inside {long a;} }").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9}).mapTo("f", new Mapped()));
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_privateFieldInPackagelevelClass() throws Exception {
     final ClassWithPrivateFields fld = JBBPParser.prepare("int field;").parse(new byte[] {1, 2, 3, 4}).mapTo(new ClassWithPrivateFields());
     assertNull(AccessController.doPrivileged(new PrivilegedAction<Void>() {
@@ -590,8 +543,7 @@ public class JBBPMapperTest {
 
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_customMappingFields_Class() throws Exception {
     final class Mapped {
 
@@ -617,8 +569,7 @@ public class JBBPMapperTest {
     assertEquals(0x05060708, mapped.c);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_customMappingFields_ClassInstance() throws Exception {
     final class Mapped {
 
@@ -632,7 +583,7 @@ public class JBBPMapperTest {
 
     final Mapped mapped = new Mapped();
 
-    final Mapped result = (Mapped) JBBPParser.prepare("int a; int b; int c;").parse(new byte[] {1, 2, 3, 4, 0x4A, 0x46, 0x49, 0x46, 5, 6, 7, 8}).mapTo(mapped, (parsedBlock, annotation, field) -> {
+    final Mapped result = JBBPParser.prepare("int a; int b; int c;").parse(new byte[] {1, 2, 3, 4, 0x4A, 0x46, 0x49, 0x46, 5, 6, 7, 8}).mapTo(mapped, (parsedBlock, annotation, field) -> {
       if ("b".equals(field.getName()) && "TEST_TEXT".equals(annotation.extra())) {
         final int bvalue = parsedBlock.findFieldForNameAndType("b", JBBPFieldInt.class).getAsInt();
         return String.valueOf((char) ((bvalue >>> 24) & 0xFF)) + (char) ((bvalue >>> 16) & 0xFF) + (char) ((bvalue >>> 8) & 0xFF) + (char) (bvalue & 0xFF);
@@ -649,8 +600,7 @@ public class JBBPMapperTest {
     assertEquals(0x05060708, mapped.c);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_AnnotationForWholeClass() throws Exception {
     @Bin
     final class Parsed {
@@ -667,8 +617,7 @@ public class JBBPMapperTest {
     assertEquals("abcd", parsed.c);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_InstanceOfInnerClass() throws Exception {
     final class Outer {
 
@@ -693,7 +642,7 @@ public class JBBPMapperTest {
     final Outer oldouter = new Outer();
     final Outer.Inner inner = oldouter.inner;
 
-    final Outer newouter = (Outer) JBBPParser.prepare("int value; inner{ byte a; byte b;}").parse(new byte[] {1, 2, 3, 4, 5, 6}).mapTo(oldouter);
+    final Outer newouter = JBBPParser.prepare("int value; inner{ byte a; byte b;}").parse(new byte[] {1, 2, 3, 4, 5, 6}).mapTo(oldouter);
 
     assertSame(oldouter, newouter);
     assertSame(inner, newouter.inner);
@@ -702,8 +651,7 @@ public class JBBPMapperTest {
     assertEquals(6, inner.b);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_InstanceOfInnerClassPreparedArray() throws Exception {
     final class Outer {
 
@@ -732,7 +680,7 @@ public class JBBPMapperTest {
     final Outer.Inner inner0 = oldouter.inner[0];
     final Outer.Inner inner1 = oldouter.inner[1];
 
-    final Outer newouter = (Outer) JBBPParser.prepare("int value; inner [2] { byte a; byte b;}").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}).mapTo(oldouter);
+    final Outer newouter = JBBPParser.prepare("int value; inner [2] { byte a; byte b;}").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}).mapTo(oldouter);
 
     assertSame(oldouter, newouter);
     assertSame(inner, newouter.inner);
@@ -745,8 +693,7 @@ public class JBBPMapperTest {
     assertEquals(8, inner[1].b);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_InstanceOfInnerClassNonPreparedArray() throws Exception {
     final class Outer {
 
@@ -791,8 +738,7 @@ public class JBBPMapperTest {
     assertEquals(8, inner[1].b);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_InstanceOfInnerClassNonPreparedArray_ErrorForDifferentSize() throws Exception {
     final class Outer {
 
@@ -817,8 +763,7 @@ public class JBBPMapperTest {
     assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int value; inner [2] { byte a; byte b;}").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}).mapTo(new Outer()));
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_MapToClassHierarchyWithAnnotationInheritance() throws Exception {
     @Bin
     class Ancestor {
@@ -837,8 +782,7 @@ public class JBBPMapperTest {
     assertEquals(0x05060708, successor.b);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_MapElementsByTheirPaths() throws Exception {
     class Parsed {
 
@@ -853,8 +797,7 @@ public class JBBPMapperTest {
     assertEquals("abc", parsed.str);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_MapElementsByTheirPaths_ErrorForUnknownField() throws Exception {
     class Parsed {
 
@@ -867,8 +810,7 @@ public class JBBPMapperTest {
     assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(new Parsed()));
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_MapElementsByTheirPaths_ErrorForFieldIncompatibleType() throws Exception {
     class Parsed {
 
@@ -881,8 +823,7 @@ public class JBBPMapperTest {
     assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(new Parsed()));
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_MapElementsByTheirPaths_ErrorForFieldIncompatibleType_ArrayMappingField() throws Exception {
     class Parsed {
 
@@ -895,8 +836,7 @@ public class JBBPMapperTest {
     assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(new Parsed()));
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_MapElementsByTheirPaths_ErrorForFieldIncompatibleType_ArrayBinField() throws Exception {
     class Parsed {
 
@@ -909,8 +849,7 @@ public class JBBPMapperTest {
     assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(new Parsed()));
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_IgnoreMarkedFieldByDefaultIfTransient() throws Exception {
     @Bin
     class Parsed {
@@ -927,8 +866,7 @@ public class JBBPMapperTest {
     assertEquals("abc", parsed.str);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_IgnoreMarkedFieldForTransient() throws Exception {
     @Bin
     class Parsed {
@@ -946,8 +884,7 @@ public class JBBPMapperTest {
     assertEquals("abc", parsed.str);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_IgnoreNonMarkedField() throws Exception {
     class Parsed {
 
@@ -963,8 +900,7 @@ public class JBBPMapperTest {
     assertEquals("abc", parsed.str);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_Structure_WholeStream_LocalClassesNonDefaultConstructorsAndFinalFields() throws Exception {
     @Bin
     class Struct {
@@ -1005,8 +941,7 @@ public class JBBPMapperTest {
     }
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_FieldWithDefinedBitNumberToBitField_FieldPresented() throws Exception {
     class Parsed {
 
@@ -1017,8 +952,7 @@ public class JBBPMapperTest {
     assertEquals(0x15, parsed.field);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_FieldWithDefinedBitNumberToBitField_FieldPresentedWithDifferentBitNumber() throws Exception {
     class Parsed {
 
@@ -1029,8 +963,7 @@ public class JBBPMapperTest {
     assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int fieldint; bit:6 field;").parse(new byte[] {1, 2, 3, 4, 0x35}).mapTo(new Parsed()));
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_ArrayFieldWithDefinedBitNumberToArrayBitField_FieldPresented() throws Exception {
     class Parsed {
 
@@ -1041,8 +974,7 @@ public class JBBPMapperTest {
     assertArrayEquals(new byte[] {5, 3}, parsed.field);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_ArrayFieldIgnoredBitNumberFieldForDefinedType() throws Exception {
     class Parsed {
 
@@ -1053,8 +985,7 @@ public class JBBPMapperTest {
     assertArrayEquals(new int[] {0x05060708, 0x090A0B0C}, parsed.field);
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
   public void testMap_ArrayFieldWithDefinedBitNumberToArrayBitField_FieldPresentedWithDifferentBitNumber() throws Exception {
     class Parsed {
 
@@ -1064,8 +995,8 @@ public class JBBPMapperTest {
     assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int fieldint; bit:3 [2] field;").parse(new byte[] {1, 2, 3, 4, 0x35}).mapTo(new Parsed()));
   }
 
-  @TestTemplate
-  @ExtendWith(MapperTestProvider.class)
+  @Test
+
   public void testMap_IgnoreNotFoundFields() throws Exception {
     class Parsed {
 
@@ -1080,60 +1011,7 @@ public class JBBPMapperTest {
     assertEquals(0, parsed.b);
   }
 
-  final static class MapperTestProvider implements TestTemplateInvocationContextProvider {
-
-    @Override
-    public boolean supportsTestTemplate(final ExtensionContext context) {
-      return true;
-    }
-
-    @Override
-    public Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(final ExtensionContext context) {
-      return Arrays.asList(makeInvocationContext(JBBPUnsafeInstantiator.class.getName()), makeInvocationContext(JBBPSafeInstantiator.class.getName())).stream();
-    }
-
-    private TestTemplateInvocationContext makeInvocationContext(final String parameter) {
-      return new TestTemplateInvocationContext() {
-        @Override
-        public String getDisplayName(int invocationIndex) {
-          return parameter;
-        }
-
-        @Override
-        public List<Extension> getAdditionalExtensions() {
-          final List<Extension> result = new ArrayList<>();
-          result.add(makeParameterResolver(parameter));
-          return result;
-        }
-
-      };
-    }
-
-    private ParameterResolver makeParameterResolver(final String className) {
-      return new ParameterResolver() {
-        @Override
-        public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-          return parameterContext.getParameter()
-              .getType()
-              .equals(String.class);
-        }
-
-        @Override
-        public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-          JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.set(className);
-          final JBBPClassInstantiator instance = JBBPClassInstantiatorFactory.getInstance().make(JBBPClassInstantiatorType.AUTO);
-          JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.remove();
-          try {
-            TestUtils.injectDeclaredFinalFieldValue(JBBPMapper.class, null, "CLASS_INSTANTIATOR", instance);
-          } catch (Exception ex) {
-            throw new Error("Can't inject field value", ex);
-          }
-          return className;
-        }
-      };
-    }
-  }
-
+  
   @Bin
   private static class MappedWithStaticField {
 

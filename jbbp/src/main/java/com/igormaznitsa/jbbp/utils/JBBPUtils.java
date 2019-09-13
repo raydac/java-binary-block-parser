@@ -24,6 +24,7 @@ import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -46,6 +47,13 @@ public final class JBBPUtils {
   private JBBPUtils() {
   }
 
+  @SuppressWarnings("unchecked")
+  public static <T> T[] makeSingletoneArray(final T value) {
+      final Object[] result = (Object[])Array.newInstance(value.getClass(), 1);
+      result[0] = value;
+      return (T[])result; 
+  }
+  
   /**
    * Convert a string into its UTF8 representation.
    *

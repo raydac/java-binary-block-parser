@@ -35,16 +35,17 @@ import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldString;
 import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import com.igormaznitsa.jbbp.model.JBBPNumericField;
+import com.igormaznitsa.jbbp.utils.Function;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import com.igormaznitsa.jbbp.utils.ReflectUtils;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * The Class processes mapping of a parsed binary data to class fields.
@@ -62,16 +63,45 @@ public final class JBBPMapper {
    */
   public static final int FLAG_IGNORE_MISSING_VALUES = 1;
 
-  @SuppressWarnings("unchecked")
-  private static final Function<Class<?>, Object>[] DEFAULT_INSTANTIATORS = (Function<Class<?>, Object>[]) new Function[] {(Function<Class<?>, Object>) klazz -> {
-    try {
-      return klazz.getConstructor().newInstance();
-    } catch (Exception ex) {
-      throw new RuntimeException("Can't instantiate class: " + klazz, ex);
-    }
-  }
+  private static final Function<Class<?>, Object> STATIC_MAKE_CLASS_INSTANCE = new Function<Class<?>, Object>() {
+      @Override
+      public Object apply(final Class<?> aClass) {
+          try{
+          final Method method = aClass.getMethod(MAKE_CLASS_INSTANCE_METHOD_NAME, Class.class);
+          if (Modifier.isStatic(method.getModifiers())) {
+              return method.invoke(null, klazz);
+          } else {
+              return null;
+          }
+      } catch(NoSuchMethodException ex){
+          
+        
+        }
+      }
   };
-
+  
+  public static final Function<Class<?>, Object> DEFAULT_INSTANTIATOR = klazz -> {
+      try{
+        final Method method = klazz.getMethod(MAKE_CLASS_INSTANCE_METHOD_NAME, Class.class);
+        if (Modifier.isStatic(method.getModifiers())) {
+            return method.invoke(null, klazz);
+        } else{
+            throw new NoSuchMethodException();
+        }
+      }catch(NoSuchMethodException nsmEx) {
+          try {
+              return klazz.getConstructor().newInstance();
+          } catch (Exception ex) {
+              throw new RuntimeException("Can't instantiate class: " + klazz, ex);
+          }          
+      }
+      catch (InvocationTargetException ex){
+          throw new RuntimeException(String.format("Can't make instance withstatic method %s(Class aClass) in %s", MAKE_CLASS_INSTANCE_METHOD_NAME, klazz), ex);
+      }catch(IllegalAccessException | SecurityException ex){
+          throw new RuntimeException(String.format("Can't get access to static method %s(Class aClass) in %s", MAKE_CLASS_INSTANCE_METHOD_NAME, klazz), ex);
+      }
+};
+  
   /**
    * Create a class instance, map binary data of a structure for its path to its
    * fields and return the instance.
@@ -81,10 +111,12 @@ public final class JBBPMapper {
    * @param structPath the path of a structure inside of the root to be mapped
    *                   to the class, must not be null
    * @param instance   object to be filled by values, must not be null
+   * @param instantiators functions to produce class instance by request, must not be null
    * @return the created and mapped instance of the mapping class
    * @throws JBBPMapperException for any error
    * @since 2.0.0
    */
+  @SafeVarargs
   public static <T> T map(final JBBPFieldStruct root, final String structPath, final T instance, final Function<Class<?>, Object>... instantiators) {
     return map(root, structPath, instance, null, instantiators);
   }
@@ -99,11 +131,14 @@ public final class JBBPMapper {
    *                   to the class, must not be null
    * @param instance   object to be filled by values, must not be null
    * @param flags      special flags to tune mapping process
-   * @return the created and mapped instance of the mapping class
+* @param instantiators functions to produce class instance by request,
+     * must not be null
+* @return the created and mapped instance of the mapping class
    * @throws JBBPMapperException for any error
    * @see #FLAG_IGNORE_MISSING_VALUES
    * @since 2.0.0
    */
+  @SafeVarargs
   public static <T> T map(final JBBPFieldStruct root, final String structPath, final T instance, final int flags, final Function<Class<?>, Object>... instantiators) {
     return map(root, structPath, instance, null, flags, instantiators);
   }
@@ -120,10 +155,13 @@ public final class JBBPMapper {
    * @param customFieldProcessor a custom field processor to provide custom
    *                             values, it can be null if there is not any mapping field desires the
    *                             processor
-   * @return the created and mapped instance of the mapping class
+* @param instantiators functions produce class instance by request,
+     * must not be null
+* @return the created and mapped instance of the mapping class
    * @throws JBBPMapperException for any error
    * @since 2.0.0
    */
+  @SafeVarargs
   public static <T> T map(final JBBPFieldStruct root, final String structPath, final T instance, final JBBPMapperCustomFieldProcessor customFieldProcessor, final Function<Class<?>, Object>... instantiators) {
     return map(root, structPath, instance, customFieldProcessor, 0, instantiators);
   }
@@ -141,11 +179,14 @@ public final class JBBPMapper {
    *                             values, it can be null if there is not any mapping field desires the
    *                             processor
    * @param flags                special flags to tune mapping
-   * @return the created and mapped instance of the mapping class
+* @param instantiators functions produce class instance by request,
+     * must not be null
+* @return the created and mapped instance of the mapping class
    * @throws JBBPMapperException for any error
    * @see #FLAG_IGNORE_MISSING_VALUES
    * @since 2.0.0
    */
+  @SafeVarargs
   public static <T> T map(final JBBPFieldStruct root, final String structPath, final T instance, final JBBPMapperCustomFieldProcessor customFieldProcessor, final int flags, final Function<Class<?>, Object>... instantiators) {
     JBBPUtils.assertNotNull(structPath, "Path must not be null");
     final JBBPFieldStruct struct = root.findFieldForPathAndType(structPath, JBBPFieldStruct.class);
@@ -164,12 +205,15 @@ public final class JBBPMapper {
    * @param root     a parsed structure to be mapped to the class instance, must not
    *                 be null
    * @param instance object instance to be filled by values, must not be null
-   * @return the created and mapped instance of the class
+* @param instantiators functions produce class instance by request,
+     * must not be null
+* @return the created and mapped instance of the class
    * @throws JBBPMapperException for any error
    * @since 2.0.0
    */
+  @SafeVarargs
   public static <T> T map(final JBBPFieldStruct root, final T instance, final Function<Class<?>, Object>... instantiators) {
-    return map(root, instance, null, instantiators.length == 0 ? DEFAULT_INSTANTIATORS : instantiators);
+    return map(root, instance, null, instantiators);
   }
 
   /**
@@ -183,28 +227,35 @@ public final class JBBPMapper {
    * @param instance the class to be instantiated and mapped, must not be
    *                 null
    * @param flags    special flags to tune mapping process
-   * @return the created and mapped instance of the class
+* @param instantiators functions produce class instance by request,
+     * must not be null
+* @return the created and mapped instance of the class
    * @throws JBBPMapperException for any error
    * @see #FLAG_IGNORE_MISSING_VALUES
    * @since 2.0.0
    */
+  @SafeVarargs
   public static <T> T map(final JBBPFieldStruct root, final T instance, final int flags, final Function<Class<?>, Object>... instantiators) {
-    return map(root, instance, null, flags, instantiators.length == 0 ? DEFAULT_INSTANTIATORS : instantiators);
+    return map(root, instance, null, flags, instantiators);
   }
 
   /**
    * Map a structure to a class instance.
    *
-   * @param rootStructure        a structure to be mapped, must not be null
+   * @param <T> the mapping class type
+* @param rootStructure        a structure to be mapped, must not be null
    * @param instance             a class instance to be destination for map
    *                             operations, must not be null
    * @param customFieldProcessor a custom field processor to provide custom
    *                             values, it can be null if there is not any mapping field desires the
    *                             processor
-   * @return the processed class instance, the same which was the argument for
+* @param instantiators functions to produce class instance by request,
+     * must not be null
+* @return the processed class instance, the same which was the argument for
    * the method.
    * @throws JBBPMapperException for any error
    */
+  @SafeVarargs
   public static <T> T map(final JBBPFieldStruct rootStructure, final T instance, final JBBPMapperCustomFieldProcessor customFieldProcessor, final Function<Class<?>, Object>... instantiators) {
     return map(rootStructure, instance, customFieldProcessor, 0, instantiators);
   }
@@ -212,24 +263,26 @@ public final class JBBPMapper {
   /**
    * Map a structure to a class instance.
    *
-   * @param rootStructure        a structure to be mapped, must not be null
+   * @param <T> the mapping class type
+    * @param rootStructure        a structure to be mapped, must not be null
    * @param instance             a class instance to be destination for map
    *                             operations, must not be null
    * @param customFieldProcessor a custom field processor to provide custom
    *                             values, it can be null if there is not any mapping field desires the
    *                             processor
    * @param flags                special flags for mapping process
-   * @return the processed class instance, the same which was the argument for
+* @param instantiators functions to produce class instance by request, must
+     * not be null
+     * @return the processed class instance, the same which was the argument for
    * the method.
-   * @throws JBBPMapperException for any error
+* @throws JBBPMapperException for any error
    * @see #FLAG_IGNORE_MISSING_VALUES
    * @since 1.1
    */
-  public static <T> T map(final JBBPFieldStruct rootStructure, final T instance, final JBBPMapperCustomFieldProcessor customFieldProcessor, final int flags, final Function<Class<?>, Object>... instantiatingFunctions) {
+    @SafeVarargs
+  public static <T> T map(final JBBPFieldStruct rootStructure, final T instance, final JBBPMapperCustomFieldProcessor customFieldProcessor, final int flags, final Function<Class<?>, Object>... instantiators) {
     JBBPUtils.assertNotNull(rootStructure, "The Root structure must not be null");
     JBBPUtils.assertNotNull(instance, "The Mapping class instance must not be null");
-
-    final Function<Class<?>, Object>[] useIinstantiators = instantiatingFunctions.length == 0 ? DEFAULT_INSTANTIATORS : instantiatingFunctions;
 
     final Class<?> mappingClass = instance.getClass();
 
@@ -321,7 +374,7 @@ public final class JBBPMapper {
                 for (int i = 0; i < structArray.size(); i++) {
                   final Object curInstance = Array.get(valueArray, i);
                   if (curInstance == null) {
-                    Array.set(valueArray, i, map(structArray.getElementAt(i), tryMakeInstance(componentType, binField, instance, mappingField, useIinstantiators), customFieldProcessor, useIinstantiators));
+                    Array.set(valueArray, i, map(structArray.getElementAt(i), tryMakeInstance(componentType, binField, instance, mappingField, instantiators), customFieldProcessor, instantiators));
                   } else {
                     Array.set(valueArray, i, map(structArray.getElementAt(i), curInstance, customFieldProcessor));
                   }
@@ -349,7 +402,7 @@ public final class JBBPMapper {
               } else {
                 final Object curValue = getFieldValue(instance, mappingField);
                 if (curValue == null) {
-                  setFieldValue(instance, mappingField, binField, map((JBBPFieldStruct) binField, tryMakeInstance(mappingField.getType(), binField, instance, mappingField, useIinstantiators), customFieldProcessor));
+                  setFieldValue(instance, mappingField, binField, map((JBBPFieldStruct) binField, tryMakeInstance(mappingField.getType(), binField, instance, mappingField, instantiators), customFieldProcessor));
                 } else {
                   setFieldValue(instance, mappingField, binField, map((JBBPFieldStruct) binField, curValue, customFieldProcessor));
                 }
@@ -390,13 +443,21 @@ public final class JBBPMapper {
     }
 
     if (result == null) {
+      Exception detectedException = null;
       try {
         result = type.cast(mappingObject.getClass().getMethod(MAKE_CLASS_INSTANCE_METHOD_NAME, Class.class).invoke(mappingObject, type));
       } catch (NoSuchMethodException ex) {
         // do nothing
-      } catch (IllegalAccessException | InvocationTargetException ex) {
-        throw new RuntimeException(String.format("Error during %s() call: %s",MAKE_CLASS_INSTANCE_METHOD_NAME,mappingObject.getClass()), ex);
+      } catch (IllegalAccessException ex){
+          // WARNING! Don't replace by multicatch for Android compatibility!
+          detectedException = ex;
+      } catch (InvocationTargetException ex) {
+          detectedException = ex;
       }
+      
+      if (detectedException!=null)
+      throw new RuntimeException(String.format("Error during %s() call: %s",MAKE_CLASS_INSTANCE_METHOD_NAME,mappingObject.getClass()), detectedException);
+      
       if (result == null) {
         throw new JBBPMapperException("Can't create instance of class: " + type.getCanonicalName(), binField, mappingObject.getClass(), mappingField, null);
       }

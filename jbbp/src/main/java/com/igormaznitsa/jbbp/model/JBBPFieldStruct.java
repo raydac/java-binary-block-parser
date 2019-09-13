@@ -22,10 +22,10 @@ import com.igormaznitsa.jbbp.exceptions.JBBPTooManyFieldsFoundException;
 import com.igormaznitsa.jbbp.mapper.JBBPMapper;
 import com.igormaznitsa.jbbp.mapper.JBBPMapperCustomFieldProcessor;
 import com.igormaznitsa.jbbp.model.finder.JBBPFieldFinder;
+import com.igormaznitsa.jbbp.utils.Function;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 import java.util.List;
-import java.util.function.Function;
 
 import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_FIELD_EMPTY;
 
@@ -230,7 +230,8 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * @return a mapped instance of the class, must not be null
    * @since 2.0.0
    */
-  public <T> T mapTo(final String path, final T instance, final Function<Class<?>, Object>... instantiators) {
+  @SafeVarargs
+  public final <T> T mapTo(final String path, final T instance, final Function<Class<?>, Object>... instantiators) {
     return JBBPMapper.map(this, path, instance, instantiators);
   }
 
@@ -246,7 +247,8 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * @see JBBPMapper#FLAG_IGNORE_MISSING_VALUES
    * @since 2.0.0
    */
-  public <T> T mapTo(final String path, final T instance, final int flags, final Function<Class<?>, Object>... instantiators) {
+  @SafeVarargs
+  public final <T> T mapTo(final String path, final T instance, final int flags, final Function<Class<?>, Object>... instantiators) {
     return JBBPMapper.map(this, path, instance, flags, instantiators);
   }
 
@@ -261,7 +263,8 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * @return a mapped instance of the class, must not be null
    * @since 2.0.0
    */
-  public <T> T mapTo(final String path, final T instance, final JBBPMapperCustomFieldProcessor customFieldProcessor, final Function<Class<?>, Object>... instantiators) {
+  @SafeVarargs
+  public final <T> T mapTo(final String path, final T instance, final JBBPMapperCustomFieldProcessor customFieldProcessor, final Function<Class<?>, Object>... instantiators) {
     return JBBPMapper.map(this, path, instance, customFieldProcessor, instantiators);
   }
 
@@ -278,7 +281,8 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * @see JBBPMapper#FLAG_IGNORE_MISSING_VALUES
    * @since 2.0.0
    */
-  public <T> T mapTo(final String path, final T instance, final JBBPMapperCustomFieldProcessor customFieldProcessor, final int flags, final Function<Class<?>, Object>... instantiators) {
+  @SafeVarargs
+  public final <T> T mapTo(final String path, final T instance, final JBBPMapperCustomFieldProcessor customFieldProcessor, final int flags, final Function<Class<?>, Object>... instantiators) {
     return JBBPMapper.map(this, path, instance, customFieldProcessor, flags, instantiators);
   }
 
@@ -290,7 +294,8 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * @return the same object from the arguments but with filled fields by values
    * of the structure
    */
-  public <T> T mapTo(final T objectToMap, final Function<Class<?>, Object>... instantiators) {
+  @SafeVarargs
+  public final <T> T mapTo(final T objectToMap, final Function<Class<?>, Object>... instantiators) {
     return this.mapTo(objectToMap, null, instantiators);
   }
 
@@ -304,38 +309,46 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * @see JBBPMapper#FLAG_IGNORE_MISSING_VALUES
    * @since 2.0.0
    */
-  public <T> T mapTo(final T instance, final int flags, final Function<Class<?>, Object>... instantiators) {
+  @SafeVarargs
+  public final <T> T mapTo(final T instance, final int flags, final Function<Class<?>, Object>... instantiators) {
     return this.mapTo(instance, null, flags, instantiators);
   }
 
   /**
    * Map the structure fields to object fields.
    *
+   * @param <T> the type of the input and the output to the function
    * @param instance             an object to map fields of the structure, must not be
    *                             null
    * @param customFieldProcessor a custom field processor to provide values for
    *                             custom mapping fields, it can be null if there is not any custom field
+   * @param instantiators auxiliary functions to generate instances of classes by request
    * @return the same object from the arguments but with filled fields by values
    * of the structure
    */
-  public <T> T mapTo(final T instance, final JBBPMapperCustomFieldProcessor customFieldProcessor, final Function<Class<?>, Object>... instantiators) {
+  @SafeVarargs
+  public final <T> T mapTo(final T instance, final JBBPMapperCustomFieldProcessor customFieldProcessor, final Function<Class<?>, Object>... instantiators) {
     return JBBPMapper.map(this, instance, customFieldProcessor, instantiators);
   }
 
   /**
    * Map the structure fields to object fields.
    *
+   * @param <T> the type of the input and the output to the function
    * @param objectToMap          an object to map fields of the structure, must not be
    *                             null
    * @param customFieldProcessor a custom field processor to provide values for
    *                             custom mapping fields, it can be null if there is not any custom field
    * @param flags                special flags to tune mapping process
+   * @param instantiators auxiliary functions to generate instances of
+   * classes by request
    * @return the same object from the arguments but with filled fields by values
    * of the structure
    * @see JBBPMapper#FLAG_IGNORE_MISSING_VALUES
    * @since 1.1
    */
-  public <T> T mapTo(final T objectToMap, final JBBPMapperCustomFieldProcessor customFieldProcessor, final int flags, final Function<Class<?>, Object>... instantiators) {
+  @SafeVarargs
+  public final <T> T mapTo(final T objectToMap, final JBBPMapperCustomFieldProcessor customFieldProcessor, final int flags, final Function<Class<?>, Object>... instantiators) {
     return JBBPMapper.map(this, objectToMap, customFieldProcessor, flags, instantiators);
   }
 

@@ -38,9 +38,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.util.function.Function;
 
 import static com.igormaznitsa.jbbp.io.JBBPByteOrder.LITTLE_ENDIAN;
+import com.igormaznitsa.jbbp.utils.Function;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

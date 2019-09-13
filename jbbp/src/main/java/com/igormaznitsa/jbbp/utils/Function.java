@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Igor Maznitsa.
+ * Copyright 2019 Igor Maznitsa.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.igormaznitsa.jbbp.mapper.instantiators;
+package com.igormaznitsa.jbbp.utils;
 
 /**
- * Interface describes a memory allocator for Java classes.
- *
- * @since 1.0
+ * Auxiliary functional interface. Added to support Android 3.
+ * @param <T> the type of the input to the function
+ * @param <R> the type of the result of the function
+ * @since 2.0.0
  */
-public interface JBBPClassInstantiator {
-  /**
-   * Allocate memory area for a class.
-   *
-   * @param <T>   the class type
-   * @param klazz the class which should be instantiated, must not be null
-   * @return an instance of the class
-   * @throws InstantiationException it will be thrown if the class can;t be instantiated
-   */
-  <T> T makeClassInstance(Class<T> klazz) throws InstantiationException;
+public interface Function<T, R> {
+    R apply(T t);
 }
