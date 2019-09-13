@@ -16,6 +16,7 @@ For instance I have been very actively using the framework in [the ZX-Poly emula
 
 # Change log
 - **2.0.0-SNAPSHOT**
+  - __reworked mapping system, removed hacks to instantiate classes, now only objects allowed__
   - __minimal JDK version is increaded to 1.8+__
   - __minimal Android API is increased to 3.0+__
   - added creation of `makeFIELD()` method for structure types in Java6 converted classes
