@@ -38,6 +38,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.util.function.Function;
 
 import static com.igormaznitsa.jbbp.io.JBBPByteOrder.LITTLE_ENDIAN;
 import static org.junit.jupiter.api.Assertions.*;
@@ -69,7 +70,7 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
 
     final InputStream resource = getResourceAsInputStream(name);
     try {
-      z80sn = z80Parser.parse(resource).mapTo(Z80Snapshot.class, new DataProcessor());
+      z80sn = z80Parser.parse(resource).mapTo(new Z80Snapshot(), new DataProcessor(),INSTANTIATOR);
       assertEquals(etalonLen, z80Parser.getFinalStreamByteCounter());
     } finally {
       JBBPUtils.closeQuietly(resource);
@@ -169,12 +170,18 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
     assertTrue(summ > 0);
   }
 
+  private static final Function<Class<?>,Object> INSTANTIATOR = aClass -> {
+    if (aClass == Flags.class) return new Flags();
+    if (aClass == EmulFlags.class) return new EmulFlags();
+    return null;
+  };
+
   @Test
   public void testParseAndPackThrowMapping() throws Exception {
     final InputStream in = getResourceAsInputStream("test.z80");
     Z80Snapshot parsed;
     try {
-      parsed = z80Parser.parse(in).mapTo(Z80Snapshot.class, new DataProcessor());
+      parsed = z80Parser.parse(in).mapTo(new Z80Snapshot(), new DataProcessor(), INSTANTIATOR);
     } finally {
       JBBPUtils.closeQuietly(in);
     }
@@ -307,7 +314,7 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
     }
   }
 
-  class EmulFlags {
+  static class EmulFlags {
     @Bin(outOrder = 1, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_2, outByteOrder = LITTLE_ENDIAN)
     byte interruptmode;
     @Bin(outOrder = 2, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_1, outByteOrder = LITTLE_ENDIAN)
@@ -320,7 +327,7 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
     byte inputdevice;
   }
 
-  class Flags {
+  static class Flags {
     @Bin(outOrder = 1, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_1, outByteOrder = LITTLE_ENDIAN)
     byte reg_r_bit7;
     @Bin(outOrder = 2, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_3, outByteOrder = LITTLE_ENDIAN)
@@ -333,7 +340,7 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
     byte nomeaning;
   }
 
-  class Z80Snapshot {
+  static class Z80Snapshot {
     @Bin(outOrder = 1, outByteOrder = LITTLE_ENDIAN)
     byte reg_a;
     @Bin(outOrder = 2, outByteOrder = LITTLE_ENDIAN)

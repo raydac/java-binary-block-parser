@@ -199,7 +199,7 @@ public class NetPacketParsingTest extends AbstractParserIntegrationTest {
 
     final Parsed parsed = JBBPParser.prepare("byte begin; bit:4 version; bit:4 returnType; byte [5] productCode; ushort dataLength;")
         .parse(testArray)
-        .mapTo(Parsed.class);
+        .mapTo(new Parsed());
 
     assertEquals(0x23, parsed.begin);
     assertEquals(0x01, parsed.version);
@@ -228,7 +228,7 @@ public class NetPacketParsingTest extends AbstractParserIntegrationTest {
 
     final byte[] testArray = new byte[] {0x04, (byte) 0x89, 0x00, 0x35, 0x00, 0x2C, (byte) 0xAB, (byte) 0xB4, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x70, 0x6F, 0x70, 0x64, 0x02, 0x69, 0x78, 0x06, 0x6E, 0x65, 0x74, 0x63, 0x6F, 0x6D, 0x03, 0x63, 0x6F, 0x6D, 0x00, 0x00, 0x01, 0x00, 0x01};
 
-    final Parsed parsed = JBBPParser.prepare("ushort source; ushort destination; ushort length; ushort checksum; byte [length-8] data;").parse(testArray).mapTo(Parsed.class);
+    final Parsed parsed = JBBPParser.prepare("ushort source; ushort destination; ushort length; ushort checksum; byte [length-8] data;").parse(testArray).mapTo(new Parsed());
 
     assertEquals(0x0489, parsed.source);
     assertEquals(0x0035, parsed.destination);

@@ -74,7 +74,7 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
       @Bin(type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_5, outOrder = 3, bitOrder = JBBPBitOrder.MSB0)
       byte day;
     }
-    final YearMonthDay parsed = JBBPParser.prepare("bit:6 year; bit:4 month;  bit:5 day;", JBBPBitOrder.MSB0).parse(new byte[] {(byte) 0x3D, (byte) 0xF8}).mapTo(YearMonthDay.class);
+    final YearMonthDay parsed = JBBPParser.prepare("bit:6 year; bit:4 month;  bit:5 day;", JBBPBitOrder.MSB0).parse(new byte[] {(byte) 0x3D, (byte) 0xF8}).mapTo(new YearMonthDay());
 
     assertEquals(0x0F, parsed.year);
     assertEquals(0x07, parsed.month);
@@ -111,7 +111,7 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
     }
 
 
-    TetraTimestamp parsed = JBBPParser.prepare("bit:2 timezone; bit:2 reserved; bit:4 month; bit:5 day; bit:5 hour; bit:6 minute;", JBBPBitOrder.MSB0).parse(TEST_DATA).mapTo(TetraTimestamp.class);
+    TetraTimestamp parsed = JBBPParser.prepare("bit:2 timezone; bit:2 reserved; bit:4 month; bit:5 day; bit:5 hour; bit:6 minute;", JBBPBitOrder.MSB0).parse(TEST_DATA).mapTo(new TetraTimestamp());
 
     assertEquals(2, parsed.month);
     assertEquals(8, parsed.day);
@@ -227,7 +227,7 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
 
     JBBPParser parser = JBBPParser.prepare(JBBPDslBuilder.Begin().AnnotatedClassFields(Bits.class).End());
 
-    Bits parsed = parser.parse(new byte[] {73}).mapTo(Bits.class);
+    Bits parsed = parser.parse(new byte[] {73}).mapTo(new Bits());
 
     System.out.println(JBBPTextWriter.makeStrWriter().Bin(parsed).Close().toString());
 

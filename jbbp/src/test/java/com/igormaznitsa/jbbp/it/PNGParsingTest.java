@@ -29,9 +29,6 @@ import org.apache.commons.codec.digest.PureJavaCrc32;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static com.igormaznitsa.jbbp.TestUtils.assertPngChunk;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -54,7 +51,9 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
     if (length != 0) {
       final byte[] array = chunk.findFieldForType(JBBPFieldArrayByte.class).getArray();
       assertEquals(length, array.length, "Data array " + name + " must be " + length);
-      for (final byte b : array) crc32.update(b & 0xFF);
+      for (final byte b : array) {
+        crc32.update(b & 0xFF);
+      }
     }
 
     final int crc = (int) crc32.getValue();
@@ -91,9 +90,19 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
 
         long hEAder;
         Chunk[] chuNK;
+
+        Chunk makeChunk() {
+          return new Chunk();
+        }
       }
 
-      final Png png = pngParser.parse(pngStream).mapTo(Png.class);
+      final Png result = new Png();
+      final Png png = pngParser.parse(pngStream).mapTo(result, aClass -> {
+        if (aClass == Chunk.class) {
+          return result.makeChunk();
+        }
+        return null;
+      });
 
       assertEquals(0x89504E470D0A1A0AL, png.hEAder);
 
@@ -226,9 +235,19 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
         long hEAder;
         @Bin(outOrder = 2)
         Chunk[] chuNK;
+
+        Chunk makeNewChunk() {
+          return new Chunk();
+        }
       }
 
-      final Png parsedAndMapped = pngParser.parse(pngStream).mapTo(Png.class);
+      final Png result = new Png();
+      final Png parsedAndMapped = pngParser.parse(pngStream).mapTo(result, aClass -> {
+        if (aClass == Chunk.class) {
+          return result.makeNewChunk();
+        }
+        return null;
+      });
       final byte[] saved = JBBPOut.BeginBin().Bin(parsedAndMapped).End().toByteArray();
 
       assertResource("picture.png", saved);

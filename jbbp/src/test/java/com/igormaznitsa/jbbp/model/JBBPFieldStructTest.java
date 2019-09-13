@@ -189,7 +189,7 @@ public class JBBPFieldStructTest {
 
   @Test
   public void testMapTo_Class() throws Exception {
-    final ClassTestMapToClass mapped = JBBPParser.prepare("byte a; byte b; byte c;").parse(new byte[] {1, 2, 3}).mapTo(ClassTestMapToClass.class);
+    final ClassTestMapToClass mapped = JBBPParser.prepare("byte a; byte b; byte c;").parse(new byte[] {1, 2, 3}).mapTo(new ClassTestMapToClass());
 
     assertEquals(1, mapped.a);
     assertEquals(2, mapped.b);

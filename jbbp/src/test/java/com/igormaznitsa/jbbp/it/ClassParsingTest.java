@@ -252,7 +252,7 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
   public void testParseClassFile_TestClass() throws Exception {
     final InputStream in = getResourceAsInputStream("test.clazz");
     try {
-      final ClassFile klazz = classParser.parse(in, getVarFieldProcessor(), null).mapTo(ClassFile.class);
+      final ClassFile klazz = classParser.parse(in, getVarFieldProcessor(), null).mapTo(new ClassFile());
       assertClass(klazz, FORMAT_J2SE7, "Test", "java/lang/Object", 0, 2, 4);
       assertEquals(831, classParser.getFinalStreamByteCounter());
     } finally {
@@ -264,7 +264,7 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
   public void testParseClassFile_HexEngineClass() throws Exception {
     final InputStream in = getResourceAsInputStream("hexengine.clazz");
     try {
-      final ClassFile klazz = classParser.parse(in, getVarFieldProcessor(), null).mapTo(ClassFile.class);
+      final ClassFile klazz = classParser.parse(in, getVarFieldProcessor(), null).mapTo(new ClassFile());
       assertClass(klazz, FORMAT_J2SE5, "com/igormaznitsa/jhexed/engine/HexEngine", "java/lang/Object", 0, 22, 44);
       assertEquals(21364, classParser.getFinalStreamByteCounter());
     } finally {
@@ -273,17 +273,17 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
   }
 
   @Bin
-  private class ConstantPoolItem {
+  public static class ConstantPoolItem {
     byte[] cp_item;
   }
 
   @Bin
-  private class Interface {
+  public static class Interface {
     char index;
   }
 
   @Bin
-  private class FieldMethodInfo {
+  public static class FieldMethodInfo {
     char access_flags;
     char name_index;
     char descriptor_index;
@@ -292,14 +292,14 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
   }
 
   @Bin
-  private class AttributeInfo {
+  public static class AttributeInfo {
     char name_index;
     int length;
     byte[] info;
   }
 
   @Bin
-  private class ClassFile {
+  public static  class ClassFile {
     int magic;
     char minor_version;
     char major_version;

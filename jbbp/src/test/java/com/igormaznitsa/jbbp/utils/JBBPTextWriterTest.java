@@ -750,7 +750,10 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
         Chunk[] Chunks;
       }
 
-      final Png png = pngParser.parse(pngStream).mapTo(Png.class);
+      final Png png = pngParser.parse(pngStream).mapTo(new Png(), aClass -> {
+        if (aClass == Chunk.class) return new Chunk();
+        return null;
+      });
 
       final String text = writer.SetMaxValuesPerLine(16).Bin(png).Close().toString();
 
@@ -784,7 +787,7 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
     final byte[] data = new byte[4 + 8 + 4 * 2 + 8 * 2];
     new Random(111222).nextBytes(data);
 
-    final Klazz parsed = parser.parse(data).mapTo(Klazz.class);
+    final Klazz parsed = parser.parse(data).mapTo(new Klazz());
 
     final String text = writer.SetMaxValuesPerLine(16).Bin(parsed).Close().toString();
 
@@ -888,7 +891,7 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
       String str2;
     }
 
-    final Parsed parsed = JBBPParser.prepare("byte [5] str1; ubyte [4] str2;").parse(new byte[] {49, 50, 51, 52, 53, 54, 55, 56, 57}).mapTo(Parsed.class);
+    final Parsed parsed = JBBPParser.prepare("byte [5] str1; ubyte [4] str2;").parse(new byte[] {49, 50, 51, 52, 53, 54, 55, 56, 57}).mapTo(new Parsed());
     final String text = makeWriter().Bin(parsed).Close().toString();
 
     System.out.println(text);

@@ -52,7 +52,7 @@ public class SNAParsingTest extends AbstractParserIntegrationTest {
     final SNA sna;
     final InputStream in = getResourceAsInputStream("zexall.sna");
     try {
-      sna = PARSER_SNA_48.parse(in).mapTo(SNA.class);
+      sna = PARSER_SNA_48.parse(in).mapTo(new SNA());
     } finally {
       JBBPUtils.closeQuietly(in);
     }
@@ -100,7 +100,7 @@ public class SNAParsingTest extends AbstractParserIntegrationTest {
       JBBPUtils.closeQuietly(in);
     }
 
-    final SNA mapped = parsed.findFieldForNameAndType("SNA", JBBPFieldStruct.class).mapTo(SNA.class);
+    final SNA mapped = parsed.findFieldForNameAndType("SNA", JBBPFieldStruct.class).mapTo(new SNA());
     assertResource("zexall.sna", JBBPOut.BeginBin().Bin(mapped).End().toByteArray());
   }
 

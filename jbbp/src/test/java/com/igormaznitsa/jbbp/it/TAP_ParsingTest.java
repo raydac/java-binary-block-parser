@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -48,7 +49,10 @@ public class TAP_ParsingTest extends AbstractParserIntegrationTest {
     final TapData[] parsedBlocks;
     final InputStream in = getResourceAsInputStream("test.tap");
     try {
-      final TapContainer tap = TAP_FILE_PARSER.parse(in).mapTo(TapContainer.class);
+      final TapContainer tap = TAP_FILE_PARSER.parse(in).mapTo(new TapContainer(), aClass -> {
+        if (aClass == Tap.class) return new Tap();
+        throw new Error("Unexpected class: "+aClass);
+      });
       assertEquals(89410, TAP_FILE_PARSER.getFinalStreamByteCounter());
 
       assertEquals(6, tap.tapblocks.length);
@@ -63,13 +67,13 @@ public class TAP_ParsingTest extends AbstractParserIntegrationTest {
         switch (t.flag & 0xFF) {
           case 0: {
             // header
-            td = HEADER_PARSER.parse(t.data).mapTo(Header.class);
+            td = HEADER_PARSER.parse(t.data).mapTo(new Header());
             ((Header) td).check = t.checksum;
           }
           break;
           case 0xFF: {
             // data
-            td = DATA_PARSER.parse(t.data).mapTo(Data.class);
+            td = DATA_PARSER.parse(t.data).mapTo(new Data());
           }
           break;
           default: {

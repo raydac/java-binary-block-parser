@@ -27,7 +27,6 @@ import com.igormaznitsa.jbbp.mapper.instantiators.JBBPClassInstantiatorType;
 import com.igormaznitsa.jbbp.mapper.instantiators.JBBPSafeInstantiator;
 import com.igormaznitsa.jbbp.mapper.instantiators.JBBPUnsafeInstantiator;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
-import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import com.igormaznitsa.jbbp.utils.JBBPSystemProperty;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,7 +37,6 @@ import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContext;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider;
-import org.junit.jupiter.api.function.Executable;
 
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.Field;
@@ -62,7 +60,7 @@ public class JBBPMapperTest {
       @Bin
       byte a;
     }
-    assertEquals(3, JBBPParser.prepare("byte a; some{struc {byte a;}}").parse(new byte[] {1, 3}).mapTo("some.struc", Mapped.class).a);
+    assertEquals(3, JBBPParser.prepare("byte a; some{struc {byte a;}}").parse(new byte[] {1, 3}).mapTo("some.struc", new Mapped()).a);
   }
 
   @TestTemplate
@@ -73,7 +71,7 @@ public class JBBPMapperTest {
       @Bin
       byte a;
     }
-    assertEquals(3, JBBPMapper.map(JBBPParser.prepare("byte a;").parse(new byte[] {3}), Mapped.class).a);
+    assertEquals(3, JBBPMapper.map(JBBPParser.prepare("byte a;").parse(new byte[] {3}), new Mapped()).a);
   }
 
   @TestTemplate
@@ -84,7 +82,7 @@ public class JBBPMapperTest {
       @Bin
       byte a;
     }
-    assertEquals(3, JBBPParser.prepare("byte a;").parse(new byte[] {3}).mapTo(Mapped.class).a);
+    assertEquals(3, JBBPParser.prepare("byte a;").parse(new byte[] {3}).mapTo(new Mapped()).a);
   }
 
   @TestTemplate
@@ -95,7 +93,7 @@ public class JBBPMapperTest {
       @Bin
       short a;
     }
-    assertEquals(0x0304, JBBPParser.prepare("short a;").parse(new byte[] {3, 4}).mapTo(Mapped.class).a);
+    assertEquals(0x0304, JBBPParser.prepare("short a;").parse(new byte[] {3, 4}).mapTo(new Mapped()).a);
   }
 
   @TestTemplate
@@ -110,7 +108,7 @@ public class JBBPMapperTest {
       @Bin
       boolean c;
     }
-    final Mapped mapped = JBBPParser.prepare("bool a; bool b; bool c;").parse(new byte[] {23, 0, 12}).mapTo(Mapped.class);
+    final Mapped mapped = JBBPParser.prepare("bool a; bool b; bool c;").parse(new byte[] {23, 0, 12}).mapTo(new Mapped());
     assertTrue(mapped.a);
     assertFalse(mapped.b);
     assertTrue(mapped.c);
@@ -126,7 +124,7 @@ public class JBBPMapperTest {
       @Bin
       String b;
     }
-    final Mapped mapped = JBBPParser.prepare("stringj a; stringj b;").parse(new byte[] {3, 65, 66, 67, 2, 68, 69}).mapTo(Mapped.class);
+    final Mapped mapped = JBBPParser.prepare("stringj a; stringj b;").parse(new byte[] {3, 65, 66, 67, 2, 68, 69}).mapTo(new Mapped());
     assertEquals("ABC", mapped.a);
     assertEquals("DE", mapped.b);
   }
@@ -139,14 +137,14 @@ public class JBBPMapperTest {
       @Bin
       String[] a;
     }
-    final Mapped mapped = JBBPParser.prepare("stringj [_] a;").parse(new byte[] {3, 65, 66, 67, 2, 68, 69}).mapTo(Mapped.class);
+    final Mapped mapped = JBBPParser.prepare("stringj [_] a;").parse(new byte[] {3, 65, 66, 67, 2, 68, 69}).mapTo(new Mapped());
     assertArrayEquals(new String[] {"ABC", "DE"}, mapped.a);
   }
 
   @TestTemplate
   @ExtendWith(MapperTestProvider.class)
   public void testMap_IgnoreStaticField() throws Exception {
-    final MappedWithStaticField mapped = JBBPParser.prepare("int a;").parse(new byte[] {1, 2, 3, 4}).mapTo(MappedWithStaticField.class);
+    final MappedWithStaticField mapped = JBBPParser.prepare("int a;").parse(new byte[] {1, 2, 3, 4}).mapTo(new MappedWithStaticField());
     assertEquals(0x01020304, mapped.a);
     assertEquals(111, MappedWithStaticField.ignored);
   }
@@ -163,7 +161,7 @@ public class JBBPMapperTest {
       @Bin(type = BinType.BIT)
       byte c;
     }
-    final Mapped mapped = JBBPParser.prepare("bit:3 a; bit:2 b; bit:3 c; ").parse(new byte[] {(byte) 0xDD}).mapTo(Mapped.class);
+    final Mapped mapped = JBBPParser.prepare("bit:3 a; bit:2 b; bit:3 c; ").parse(new byte[] {(byte) 0xDD}).mapTo(new Mapped());
     assertEquals(5, mapped.a);
     assertEquals(3, mapped.b);
     assertEquals(6, mapped.c);
@@ -177,7 +175,7 @@ public class JBBPMapperTest {
       @Bin
       int a;
     }
-    assertEquals(0x01020304, JBBPParser.prepare("int a;").parse(new byte[] {1, 2, 3, 4}).mapTo(Mapped.class).a);
+    assertEquals(0x01020304, JBBPParser.prepare("int a;").parse(new byte[] {1, 2, 3, 4}).mapTo(new Mapped()).a);
   }
 
   @TestTemplate
@@ -190,9 +188,9 @@ public class JBBPMapperTest {
     }
 
     final byte[] max = JBBPOut.BeginBin().Int(Float.floatToIntBits(Float.MAX_VALUE)).End().toByteArray();
-    assertEquals(Float.MAX_VALUE, JBBPParser.prepare("int a;").parse(max).mapTo(Mapped.class).a, 0.005d);
+    assertEquals(Float.MAX_VALUE, JBBPParser.prepare("int a;").parse(max).mapTo(new Mapped()).a, 0.005d);
     final byte[] min = JBBPOut.BeginBin().Int(Float.floatToIntBits(Float.MIN_VALUE)).End().toByteArray();
-    assertEquals(Float.MIN_VALUE, JBBPParser.prepare("int a;").parse(min).mapTo(Mapped.class).a, 0.005d);
+    assertEquals(Float.MIN_VALUE, JBBPParser.prepare("int a;").parse(min).mapTo(new Mapped()).a, 0.005d);
   }
 
   @TestTemplate
@@ -205,7 +203,7 @@ public class JBBPMapperTest {
     }
 
     final byte[] max = JBBPOut.BeginBin().Float(Float.MAX_VALUE, Float.MIN_VALUE).End().toByteArray();
-    final Mapped result = JBBPParser.prepare("int [_] a;").parse(max).mapTo(Mapped.class);
+    final Mapped result = JBBPParser.prepare("int [_] a;").parse(max).mapTo(new Mapped());
     assertEquals(2, result.a.length);
     assertEquals(Float.MAX_VALUE, result.a[0], TestUtils.FLOAT_DELTA);
     assertEquals(Float.MIN_VALUE, result.a[1], TestUtils.FLOAT_DELTA);
@@ -221,7 +219,7 @@ public class JBBPMapperTest {
     }
 
     final byte[] max = JBBPOut.BeginBin().Double(Double.MAX_VALUE, Double.MIN_VALUE).End().toByteArray();
-    final Mapped result = JBBPParser.prepare("long [_] a;").parse(max).mapTo(Mapped.class);
+    final Mapped result = JBBPParser.prepare("long [_] a;").parse(max).mapTo(new Mapped());
     assertEquals(2, result.a.length);
     assertEquals(Double.MAX_VALUE, result.a[0], TestUtils.FLOAT_DELTA);
     assertEquals(Double.MIN_VALUE, result.a[1], TestUtils.FLOAT_DELTA);
@@ -237,7 +235,7 @@ public class JBBPMapperTest {
     }
 
     final byte[] max = JBBPOut.BeginBin().Float(-1.234567f).End().toByteArray();
-    assertEquals(-1.234567f, JBBPParser.prepare("floatj a;").parse(max).mapTo(Mapped.class).a, TestUtils.FLOAT_DELTA);
+    assertEquals(-1.234567f, JBBPParser.prepare("floatj a;").parse(max).mapTo(new Mapped()).a, TestUtils.FLOAT_DELTA);
   }
 
   @TestTemplate
@@ -250,7 +248,7 @@ public class JBBPMapperTest {
     }
 
     final byte[] max = JBBPOut.BeginBin().Float(-1.234567f, 1.234567f).End().toByteArray();
-    assertArrayEquals(new float[] {-1.234567f, 1.234567f}, JBBPParser.prepare("floatj [_] a;").parse(max).mapTo(Mapped.class).a, TestUtils.FLOAT_DELTA);
+    assertArrayEquals(new float[] {-1.234567f, 1.234567f}, JBBPParser.prepare("floatj [_] a;").parse(max).mapTo(new Mapped()).a, TestUtils.FLOAT_DELTA);
   }
 
   @TestTemplate
@@ -263,9 +261,9 @@ public class JBBPMapperTest {
     }
 
     final byte[] max = JBBPOut.BeginBin().Long(Double.doubleToLongBits(Double.MAX_VALUE)).End().toByteArray();
-    assertEquals(Double.MAX_VALUE, JBBPParser.prepare("long a;").parse(max).mapTo(Mapped.class).a, TestUtils.FLOAT_DELTA);
+    assertEquals(Double.MAX_VALUE, JBBPParser.prepare("long a;").parse(max).mapTo(new Mapped()).a, TestUtils.FLOAT_DELTA);
     final byte[] min = JBBPOut.BeginBin().Long(Double.doubleToLongBits(Double.MIN_VALUE)).End().toByteArray();
-    assertEquals(Double.MIN_VALUE, JBBPParser.prepare("long a;").parse(min).mapTo(Mapped.class).a, TestUtils.FLOAT_DELTA);
+    assertEquals(Double.MIN_VALUE, JBBPParser.prepare("long a;").parse(min).mapTo(new Mapped()).a, TestUtils.FLOAT_DELTA);
   }
 
   @TestTemplate
@@ -278,7 +276,7 @@ public class JBBPMapperTest {
     }
 
     final byte[] max = JBBPOut.BeginBin().Double(-1.2345678912345d).End().toByteArray();
-    assertEquals(-1.2345678912345d, JBBPParser.prepare("doublej a;").parse(max).mapTo(Mapped.class).a, TestUtils.FLOAT_DELTA);
+    assertEquals(-1.2345678912345d, JBBPParser.prepare("doublej a;").parse(max).mapTo(new Mapped()).a, TestUtils.FLOAT_DELTA);
   }
 
   @TestTemplate
@@ -291,7 +289,7 @@ public class JBBPMapperTest {
     }
 
     final byte[] max = JBBPOut.BeginBin().Double(-1.2345678912345d, 45.3334d).End().toByteArray();
-    assertArrayEquals(new double[] {-1.2345678912345d, 45.3334d}, JBBPParser.prepare("doublej [_] a;").parse(max).mapTo(Mapped.class).a, TestUtils.FLOAT_DELTA);
+    assertArrayEquals(new double[] {-1.2345678912345d, 45.3334d}, JBBPParser.prepare("doublej [_] a;").parse(max).mapTo(new Mapped()).a, TestUtils.FLOAT_DELTA);
   }
 
   @TestTemplate
@@ -302,7 +300,7 @@ public class JBBPMapperTest {
       @Bin
       long a;
     }
-    assertEquals(0x0102030405060708L, JBBPParser.prepare("long a;").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}).mapTo(Mapped.class).a);
+    assertEquals(0x0102030405060708L, JBBPParser.prepare("long a;").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}).mapTo(new Mapped()).a);
   }
 
   @TestTemplate
@@ -313,7 +311,7 @@ public class JBBPMapperTest {
       @Bin(type = BinType.UBYTE)
       int a;
     }
-    assertEquals(0xFE, JBBPParser.prepare("ubyte a;").parse(new byte[] {(byte) 0xFE}).mapTo(Mapped.class).a);
+    assertEquals(0xFE, JBBPParser.prepare("ubyte a;").parse(new byte[] {(byte) 0xFE}).mapTo(new Mapped()).a);
   }
 
   @TestTemplate
@@ -324,7 +322,7 @@ public class JBBPMapperTest {
       @Bin
       char a;
     }
-    assertEquals(0x0102, JBBPParser.prepare("ushort a;").parse(new byte[] {1, 2}).mapTo(Mapped.class).a);
+    assertEquals(0x0102, JBBPParser.prepare("ushort a;").parse(new byte[] {1, 2}).mapTo(new Mapped()).a);
   }
 
   @TestTemplate
@@ -335,7 +333,7 @@ public class JBBPMapperTest {
       @Bin
       byte[] a;
     }
-    assertArrayEquals(new byte[] {1, 2, 3, 4}, JBBPParser.prepare("byte [_] a;").parse(new byte[] {1, 2, 3, 4}).mapTo(Mapped.class).a);
+    assertArrayEquals(new byte[] {1, 2, 3, 4}, JBBPParser.prepare("byte [_] a;").parse(new byte[] {1, 2, 3, 4}).mapTo(new Mapped()).a);
   }
 
   @TestTemplate
@@ -346,7 +344,7 @@ public class JBBPMapperTest {
       @Bin(type = BinType.UBYTE_ARRAY)
       String a;
     }
-    assertEquals("JFIF", JBBPParser.prepare("ubyte [_] a;").parse(new byte[] {(byte) 0x4A, (byte) 0x46, (byte) 0x49, (byte) 0x46}).mapTo(Mapped.class).a);
+    assertEquals("JFIF", JBBPParser.prepare("ubyte [_] a;").parse(new byte[] {(byte) 0x4A, (byte) 0x46, (byte) 0x49, (byte) 0x46}).mapTo(new Mapped()).a);
   }
 
   @TestTemplate
@@ -357,7 +355,7 @@ public class JBBPMapperTest {
       @Bin(type = BinType.BIT_ARRAY)
       String a;
     }
-    assertEquals(new String(new char[] {0xA, 0x4, 0x6, 0x4, 0x9, 0x4, 0x6, 0x4}), JBBPParser.prepare("bit:4 [_] a;").parse(new byte[] {(byte) 0x4A, (byte) 0x46, (byte) 0x49, (byte) 0x46}).mapTo(Mapped.class).a);
+    assertEquals(new String(new char[] {0xA, 0x4, 0x6, 0x4, 0x9, 0x4, 0x6, 0x4}), JBBPParser.prepare("bit:4 [_] a;").parse(new byte[] {(byte) 0x4A, (byte) 0x46, (byte) 0x49, (byte) 0x46}).mapTo(new Mapped()).a);
   }
 
   @TestTemplate
@@ -368,7 +366,7 @@ public class JBBPMapperTest {
       @Bin(type = BinType.BIT_ARRAY)
       String a;
     }
-    assertEquals(new String(new char[] {0xFF, 0xED, 0x01, 0x36}), JBBPParser.prepare("bit:8 [_] a;").parse(new byte[] {(byte) 0xFF, (byte) 0xED, (byte) 0x01, (byte) 0x36}).mapTo(Mapped.class).a);
+    assertEquals(new String(new char[] {0xFF, 0xED, 0x01, 0x36}), JBBPParser.prepare("bit:8 [_] a;").parse(new byte[] {(byte) 0xFF, (byte) 0xED, (byte) 0x01, (byte) 0x36}).mapTo(new Mapped()).a);
   }
 
   @TestTemplate
@@ -379,7 +377,7 @@ public class JBBPMapperTest {
       @Bin(type = BinType.BYTE_ARRAY)
       String a;
     }
-    assertEquals("JFIF", JBBPParser.prepare("byte [_] a;").parse(new byte[] {(byte) 0x4A, (byte) 0x46, (byte) 0x49, (byte) 0x46}).mapTo(Mapped.class).a);
+    assertEquals("JFIF", JBBPParser.prepare("byte [_] a;").parse(new byte[] {(byte) 0x4A, (byte) 0x46, (byte) 0x49, (byte) 0x46}).mapTo(new Mapped()).a);
   }
 
   @TestTemplate
@@ -390,7 +388,7 @@ public class JBBPMapperTest {
       @Bin(type = BinType.SHORT_ARRAY)
       String a;
     }
-    assertEquals("JFIF", JBBPParser.prepare("short [_] a;").parse(new byte[] {0, (byte) 0x4A, 0, (byte) 0x46, 0, (byte) 0x49, 0, (byte) 0x46}).mapTo(Mapped.class).a);
+    assertEquals("JFIF", JBBPParser.prepare("short [_] a;").parse(new byte[] {0, (byte) 0x4A, 0, (byte) 0x46, 0, (byte) 0x49, 0, (byte) 0x46}).mapTo(new Mapped()).a);
   }
 
   @TestTemplate
@@ -402,7 +400,7 @@ public class JBBPMapperTest {
       String a;
     }
 
-    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int [_] a;").parse(new byte[] {0, (byte) 0x4A, 0, (byte) 0x46, 0, (byte) 0x49, 0, (byte) 0x46}).mapTo(Mapped.class));
+    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int [_] a;").parse(new byte[] {0, (byte) 0x4A, 0, (byte) 0x46, 0, (byte) 0x49, 0, (byte) 0x46}).mapTo(new Mapped()));
   }
 
   @TestTemplate
@@ -413,7 +411,7 @@ public class JBBPMapperTest {
       @Bin(type = BinType.USHORT_ARRAY)
       String a;
     }
-    assertEquals("JFIF", JBBPParser.prepare("ushort [_] a;").parse(new byte[] {0, (byte) 0x4A, 0, (byte) 0x46, 0, (byte) 0x49, 0, (byte) 0x46}).mapTo(Mapped.class).a);
+    assertEquals("JFIF", JBBPParser.prepare("ushort [_] a;").parse(new byte[] {0, (byte) 0x4A, 0, (byte) 0x46, 0, (byte) 0x49, 0, (byte) 0x46}).mapTo(new Mapped()).a);
   }
 
   @TestTemplate
@@ -424,7 +422,7 @@ public class JBBPMapperTest {
       @Bin(type = BinType.BIT_ARRAY)
       byte[] a;
     }
-    assertArrayEquals(new byte[] {2, 0, 3, 2}, JBBPParser.prepare("bit:2 [_] a;").parse(new byte[] {(byte) 0xB2}).mapTo(Mapped.class).a);
+    assertArrayEquals(new byte[] {2, 0, 3, 2}, JBBPParser.prepare("bit:2 [_] a;").parse(new byte[] {(byte) 0xB2}).mapTo(new Mapped()).a);
   }
 
   @TestTemplate
@@ -435,7 +433,7 @@ public class JBBPMapperTest {
       @Bin
       short[] a;
     }
-    assertArrayEquals(new short[] {0x0102, 0x0304}, JBBPParser.prepare("short [_] a;").parse(new byte[] {1, 2, 3, 4}).mapTo(Mapped.class).a);
+    assertArrayEquals(new short[] {0x0102, 0x0304}, JBBPParser.prepare("short [_] a;").parse(new byte[] {1, 2, 3, 4}).mapTo(new Mapped()).a);
   }
 
   @TestTemplate
@@ -446,7 +444,7 @@ public class JBBPMapperTest {
       @Bin
       boolean[] a;
     }
-    final Mapped mapped = JBBPParser.prepare("bool [_] a;").parse(new byte[] {1, 0, 0, 4, 8, 0}).mapTo(Mapped.class);
+    final Mapped mapped = JBBPParser.prepare("bool [_] a;").parse(new byte[] {1, 0, 0, 4, 8, 0}).mapTo(new Mapped());
     assertEquals(6, mapped.a.length);
     assertTrue(mapped.a[0]);
     assertFalse(mapped.a[1]);
@@ -464,7 +462,7 @@ public class JBBPMapperTest {
       @Bin
       char[] a;
     }
-    assertArrayEquals(new char[] {0x0102, 0x0304}, JBBPParser.prepare("ushort [_] a;").parse(new byte[] {1, 2, 3, 4}).mapTo(Mapped.class).a);
+    assertArrayEquals(new char[] {0x0102, 0x0304}, JBBPParser.prepare("ushort [_] a;").parse(new byte[] {1, 2, 3, 4}).mapTo(new Mapped()).a);
   }
 
   @TestTemplate
@@ -475,7 +473,7 @@ public class JBBPMapperTest {
       @Bin
       int[] a;
     }
-    assertArrayEquals(new int[] {0x01020304, 0x05060708}, JBBPParser.prepare("int [_] a;").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}).mapTo(Mapped.class).a);
+    assertArrayEquals(new int[] {0x01020304, 0x05060708}, JBBPParser.prepare("int [_] a;").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}).mapTo(new Mapped()).a);
   }
 
   @TestTemplate
@@ -486,7 +484,7 @@ public class JBBPMapperTest {
       @Bin
       long[] a;
     }
-    assertArrayEquals(new long[] {0x0102030405060708L, 0x1112131415161718L}, JBBPParser.prepare("long [_] a;").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18}).mapTo(Mapped.class).a);
+    assertArrayEquals(new long[] {0x0102030405060708L, 0x1112131415161718L}, JBBPParser.prepare("long [_] a;").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18}).mapTo(new Mapped()).a);
   }
 
   @TestTemplate
@@ -504,7 +502,10 @@ public class JBBPMapperTest {
       @Bin
       Inside a;
     }
-    final Mapped mapped = JBBPParser.prepare("byte b; a{ int a; }").parse(new byte[] {1, 2, 3, 4, 5}).mapTo(Mapped.class);
+    final Mapped mapped = JBBPParser.prepare("byte b; a{ int a; }").parse(new byte[] {1, 2, 3, 4, 5}).mapTo(new Mapped(), aClass -> {
+      if (aClass == Inside.class) return new Inside();
+      return null;
+    });
     assertEquals(0x02030405, mapped.a.a);
   }
 
@@ -523,7 +524,10 @@ public class JBBPMapperTest {
       @Bin
       Inside[] a;
     }
-    final Mapped mapped = JBBPParser.prepare("byte b; a [_]{ int a; }").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9}).mapTo(Mapped.class);
+    final Mapped mapped = JBBPParser.prepare("byte b; a [_]{ int a; }").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9}).mapTo(new Mapped(), aClass -> {
+      if (aClass == Inside.class) return new Inside();
+      return null;
+    });
     assertEquals(2, mapped.a.length);
     assertEquals(0x02030405, mapped.a[0].a);
     assertEquals(0x06070809, mapped.a[1].a);
@@ -531,14 +535,14 @@ public class JBBPMapperTest {
 
   @TestTemplate
   @ExtendWith(MapperTestProvider.class)
-  public void testMap_ErrorForMappingStructureToPrimitiveField() throws Exception {
+  public void testMap_ErrorForMappingStructureToPrimitiveField() {
     class Mapped {
 
       @Bin(name = "test", type = BinType.STRUCT)
       long a;
     }
 
-    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("test { byte [_] a;}").parse(new byte[] {1, 2, 3, 4}).mapTo(Mapped.class));
+    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("test { byte [_] a;}").parse(new byte[] {1, 2, 3, 4}).mapTo(new Mapped()));
   }
 
   @TestTemplate
@@ -549,7 +553,7 @@ public class JBBPMapperTest {
       @Bin
       long a;
     }
-    final Mapped mapped = JBBPParser.prepare("byte f; test { inside {long a;} }").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9}).mapTo("test.inside", Mapped.class);
+    final Mapped mapped = JBBPParser.prepare("byte f; test { inside {long a;} }").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9}).mapTo("test.inside", new Mapped());
     assertEquals(0x0203040506070809L, mapped.a);
   }
 
@@ -561,13 +565,13 @@ public class JBBPMapperTest {
       @Bin
       long a;
     }
-    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("byte f; test { inside {long a;} }").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9}).mapTo("f", Mapped.class));
+    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("byte f; test { inside {long a;} }").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9}).mapTo("f", new Mapped()));
   }
 
   @TestTemplate
   @ExtendWith(MapperTestProvider.class)
   public void testMap_privateFieldInPackagelevelClass() throws Exception {
-    final ClassWithPrivateFields fld = JBBPParser.prepare("int field;").parse(new byte[] {1, 2, 3, 4}).mapTo(ClassWithPrivateFields.class);
+    final ClassWithPrivateFields fld = JBBPParser.prepare("int field;").parse(new byte[] {1, 2, 3, 4}).mapTo(new ClassWithPrivateFields());
     assertNull(AccessController.doPrivileged(new PrivilegedAction<Void>() {
 
       @Override
@@ -598,7 +602,7 @@ public class JBBPMapperTest {
       @Bin
       int c;
     }
-    final Mapped mapped = JBBPParser.prepare("int a; int b; int c;").parse(new byte[] {1, 2, 3, 4, 0x4A, 0x46, 0x49, 0x46, 5, 6, 7, 8}).mapTo(Mapped.class, (parsedBlock, annotation, field) -> {
+    final Mapped mapped = JBBPParser.prepare("int a; int b; int c;").parse(new byte[] {1, 2, 3, 4, 0x4A, 0x46, 0x49, 0x46, 5, 6, 7, 8}).mapTo(new Mapped(), (parsedBlock, annotation, field) -> {
       if ("b".equals(field.getName()) && "TEST_TEXT".equals(annotation.extra())) {
         final int bvalue = parsedBlock.findFieldForNameAndType("b", JBBPFieldInt.class).getAsInt();
         return String.valueOf((char) ((bvalue >>> 24) & 0xFF)) + (char) ((bvalue >>> 16) & 0xFF) + (char) ((bvalue >>> 8) & 0xFF) + (char) (bvalue & 0xFF);
@@ -657,7 +661,7 @@ public class JBBPMapperTest {
       String c;
     }
 
-    final Parsed parsed = JBBPParser.prepare("int a; int b; byte [_] c;").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, (byte) 'a', (byte) 'b', (byte) 'c', (byte) 'd'}).mapTo(Parsed.class);
+    final Parsed parsed = JBBPParser.prepare("int a; int b; byte [_] c;").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, (byte) 'a', (byte) 'b', (byte) 'c', (byte) 'd'}).mapTo(new Parsed());
     assertEquals(0x01020304, parsed.a);
     assertEquals(0x05060708, parsed.b);
     assertEquals("abcd", parsed.c);
@@ -755,6 +759,10 @@ public class JBBPMapperTest {
         inner = new Outer.Inner[2];
       }
 
+      Inner makeInner(){
+        return new Inner();
+      }
+
       final class Inner {
 
         @Bin
@@ -769,7 +777,10 @@ public class JBBPMapperTest {
     assertNull(inner[0]);
     assertNull(inner[1]);
 
-    final Outer newouter = (Outer) JBBPParser.prepare("int value; inner [2] { byte a; byte b;}").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}).mapTo(oldouter);
+    final Outer newouter = JBBPParser.prepare("int value; inner [2] { byte a; byte b;}").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}).mapTo(oldouter, aClass -> {
+      if (aClass == Outer.Inner.class) return oldouter.makeInner();
+      return null;
+    });
 
     assertSame(oldouter, newouter);
     assertSame(inner, newouter.inner);
@@ -820,7 +831,7 @@ public class JBBPMapperTest {
       int b;
     }
 
-    final Successor successor = JBBPParser.prepare("int a; int b;").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}).mapTo(Successor.class);
+    final Successor successor = JBBPParser.prepare("int a; int b;").parse(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}).mapTo(new Successor());
 
     assertEquals(0x01020304, successor.a);
     assertEquals(0x05060708, successor.b);
@@ -837,7 +848,7 @@ public class JBBPMapperTest {
       String str;
     }
 
-    final Parsed parsed = JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(Parsed.class);
+    final Parsed parsed = JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(new Parsed());
     assertEquals(0x05, parsed.num);
     assertEquals("abc", parsed.str);
   }
@@ -853,7 +864,7 @@ public class JBBPMapperTest {
       String str;
     }
 
-    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(Parsed.class));
+    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(new Parsed()));
   }
 
   @TestTemplate
@@ -867,7 +878,7 @@ public class JBBPMapperTest {
       String str;
     }
 
-    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(Parsed.class));
+    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(new Parsed()));
   }
 
   @TestTemplate
@@ -881,7 +892,7 @@ public class JBBPMapperTest {
       String str;
     }
 
-    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(Parsed.class));
+    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(new Parsed()));
   }
 
   @TestTemplate
@@ -895,7 +906,7 @@ public class JBBPMapperTest {
       byte str;
     }
 
-    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(Parsed.class));
+    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(new Parsed()));
   }
 
   @TestTemplate
@@ -911,7 +922,7 @@ public class JBBPMapperTest {
       transient String ignored;
     }
 
-    final Parsed parsed = JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(Parsed.class);
+    final Parsed parsed = JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(new Parsed());
     assertEquals(0x05, parsed.num);
     assertEquals("abc", parsed.str);
   }
@@ -930,7 +941,7 @@ public class JBBPMapperTest {
       transient String ignored;
     }
 
-    final Parsed parsed = JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(Parsed.class);
+    final Parsed parsed = JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(new Parsed());
     assertEquals(0x05, parsed.num);
     assertEquals("abc", parsed.str);
   }
@@ -947,7 +958,7 @@ public class JBBPMapperTest {
       String ignored;
     }
 
-    final Parsed parsed = JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(Parsed.class);
+    final Parsed parsed = JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(new Parsed());
     assertEquals(0x05, parsed.num);
     assertEquals("abc", parsed.str);
   }
@@ -981,7 +992,10 @@ public class JBBPMapperTest {
     final byte[] array = new byte[1024];
     rnd.nextBytes(array);
 
-    final Parsed parsed = JBBPParser.prepare("struct [_] { byte a; byte b; }").parse(new ByteArrayInputStream(array)).mapTo(Parsed.class);
+    final Parsed parsed = JBBPParser.prepare("struct [_] { byte a; byte b; }").parse(new ByteArrayInputStream(array)).mapTo(new Parsed(null), aClass -> {
+      if (aClass == Struct.class) return new Struct((byte)0,(byte)0);
+      return null;
+    });
     assertEquals(array.length / 2, parsed.struct.length);
 
     for (int i = 0; i < array.length; i += 2) {
@@ -999,7 +1013,7 @@ public class JBBPMapperTest {
       @Bin(outBitNumber = JBBPBitNumber.BITS_5)
       byte field;
     }
-    final Parsed parsed = JBBPParser.prepare("int fieldint; bit:5 field;").parse(new byte[] {1, 2, 3, 4, 0x35}).mapTo(Parsed.class);
+    final Parsed parsed = JBBPParser.prepare("int fieldint; bit:5 field;").parse(new byte[] {1, 2, 3, 4, 0x35}).mapTo(new Parsed());
     assertEquals(0x15, parsed.field);
   }
 
@@ -1012,7 +1026,7 @@ public class JBBPMapperTest {
       byte field;
     }
 
-    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int fieldint; bit:6 field;").parse(new byte[] {1, 2, 3, 4, 0x35}).mapTo(Parsed.class));
+    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int fieldint; bit:6 field;").parse(new byte[] {1, 2, 3, 4, 0x35}).mapTo(new Parsed()));
   }
 
   @TestTemplate
@@ -1023,7 +1037,7 @@ public class JBBPMapperTest {
       @Bin(outBitNumber = JBBPBitNumber.BITS_4)
       byte[] field;
     }
-    final Parsed parsed = JBBPParser.prepare("int fieldint; bit:4 [2] field;").parse(new byte[] {1, 2, 3, 4, 0x35}).mapTo(Parsed.class);
+    final Parsed parsed = JBBPParser.prepare("int fieldint; bit:4 [2] field;").parse(new byte[] {1, 2, 3, 4, 0x35}).mapTo(new Parsed());
     assertArrayEquals(new byte[] {5, 3}, parsed.field);
   }
 
@@ -1035,7 +1049,7 @@ public class JBBPMapperTest {
       @Bin(type = BinType.INT_ARRAY, outBitNumber = JBBPBitNumber.BITS_4)
       int[] field;
     }
-    final Parsed parsed = JBBPParser.prepare("int fieldint; int [2] field;").parse(new byte[] {1, 2, 3, 4, 0x5, 0x6, 0x7, 0x8, 0x9, 0x0A, 0x0B, 0x0C}).mapTo(Parsed.class);
+    final Parsed parsed = JBBPParser.prepare("int fieldint; int [2] field;").parse(new byte[] {1, 2, 3, 4, 0x5, 0x6, 0x7, 0x8, 0x9, 0x0A, 0x0B, 0x0C}).mapTo(new Parsed());
     assertArrayEquals(new int[] {0x05060708, 0x090A0B0C}, parsed.field);
   }
 
@@ -1047,7 +1061,7 @@ public class JBBPMapperTest {
       @Bin(outBitNumber = JBBPBitNumber.BITS_4)
       byte field;
     }
-    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int fieldint; bit:3 [2] field;").parse(new byte[] {1, 2, 3, 4, 0x35}).mapTo(Parsed.class));
+    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int fieldint; bit:3 [2] field;").parse(new byte[] {1, 2, 3, 4, 0x35}).mapTo(new Parsed()));
   }
 
   @TestTemplate
@@ -1061,7 +1075,7 @@ public class JBBPMapperTest {
       int b;
     }
 
-    final Parsed parsed = JBBPParser.prepare("int a; int b;", JBBPParser.FLAG_SKIP_REMAINING_FIELDS_IF_EOF).parse(new byte[] {1, 2, 3, 4}).mapTo(Parsed.class, JBBPMapper.FLAG_IGNORE_MISSING_VALUES);
+    final Parsed parsed = JBBPParser.prepare("int a; int b;", JBBPParser.FLAG_SKIP_REMAINING_FIELDS_IF_EOF).parse(new byte[] {1, 2, 3, 4}).mapTo(new Parsed(), JBBPMapper.FLAG_IGNORE_MISSING_VALUES);
     assertEquals(0x01020304, parsed.a);
     assertEquals(0, parsed.b);
   }
