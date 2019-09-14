@@ -23,6 +23,7 @@ import com.igormaznitsa.jbbp.compiler.varlen.JBBPIntegerValueEvaluator;
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.mapper.BinType;
+import com.igormaznitsa.jbbp.mapper.JBBPMapper;
 import com.igormaznitsa.jbbp.utils.JavaSrcTextBuffer;
 
 import java.util.ArrayList;
@@ -226,7 +227,8 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     this.structStack.clear();
     this.specialMethods.clean();
 
-    this.structStack.add(new Struct(null, this.builder.mainClassName, "public"));
+    final Struct rootStruct = new Struct(null, this.builder.mainClassName, "public");
+    this.structStack.add(rootStruct);
   }
 
   /**
@@ -319,7 +321,26 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
     buffer.printJavaDocLinesWithIndent("Generated from JBBP script by internal JBBP Class Source Generator");
 
-    this.structStack.get(0).write(buffer,
+    final Struct rootStruct = this.structStack.get(0);
+
+    if (this.builder.genNewInstance) {
+      rootStruct.misc.println(String.format("public Object %s(Class aClass) {", JBBPMapper.MAKE_CLASS_INSTANCE_METHOD_NAME));
+      rootStruct.misc.incIndent();
+
+      for (final Struct c : rootStruct.children) {
+        rootStruct.misc.indent().println(String.format("if (aClass == %s.class) {", c.className));
+        rootStruct.misc.incIndent();
+        rootStruct.misc.indent().println(String.format("return new %s(this);", c.className));
+        rootStruct.misc.decIndent();
+        rootStruct.misc.indent().println("}");
+      }
+
+      rootStruct.misc.indent().println("return null;");
+      rootStruct.misc.decIndent();
+      rootStruct.misc.println("}");
+    }
+
+    rootStruct.write(buffer,
         hasAbstractMethods ? "abstract" : null,
         this.builder.superClass,
         this.builder.mainClassImplements,
@@ -435,7 +456,24 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
 
   @Override
   public void visitStructureEnd(final int offsetInCompiledBlock, final JBBPNamedFieldInfo nullableNameFieldInfo) {
-    this.structStack.remove(0);
+    final Struct struct = this.structStack.remove(0);
+
+    if (this.builder.genNewInstance) {
+      struct.misc.println(String.format("public Object %s(Class aClass) {", JBBPMapper.MAKE_CLASS_INSTANCE_METHOD_NAME));
+      struct.misc.incIndent();
+
+      for (final Struct c : struct.children) {
+        struct.misc.indent().println(String.format("if (aClass == %s.class) {", c.className));
+        struct.misc.incIndent();
+        struct.misc.indent().println(String.format("return new %s(this.%s);", c.className, NAME_ROOT_STRUCT));
+        struct.misc.decIndent();
+        struct.misc.indent().println("}");
+      }
+
+      struct.misc.indent().println("return null;");
+      struct.misc.decIndent();
+      struct.misc.println("}");
+    }
   }
 
   @Override
@@ -1205,6 +1243,13 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     private boolean addBinAnnotations;
 
     /**
+     * Flage to add newInstance methods into generated classes.
+     *
+     * @since 2.0.0
+     */
+    private boolean genNewInstance;
+
+    /**
      * The Package name for the result class.
      */
     private String mainClassPackage;
@@ -1341,10 +1386,23 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
      * Turn on adding of Bin annotations to generated fields.
      *
      * @return the builder instance, must not be null
+     * @since 2.0.0
      */
     public Builder addBinAnnotations() {
       assertNonLocked();
       this.addBinAnnotations = true;
+      return this;
+    }
+
+    /**
+     * Turn on generate newInstance methods compatible with JBBPMapper.
+     *
+     * @return the builder instance, must not be null
+     * @since 2.0.0
+     */
+    public Builder genNewInstance() {
+      assertNonLocked();
+      this.genNewInstance = true;
       return this;
     }
 
@@ -1476,6 +1534,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     private final JavaSrcTextBuffer readFunc = new JavaSrcTextBuffer();
     private final JavaSrcTextBuffer writeFunc = new JavaSrcTextBuffer();
     private final JavaSrcTextBuffer gettersSetters = new JavaSrcTextBuffer();
+    private final JavaSrcTextBuffer misc = new JavaSrcTextBuffer();
     private final String path;
 
     private Struct(final Struct parent, final String className, final String classModifiers) {
@@ -1594,6 +1653,12 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
         buffer.println();
       }
 
+      if (!this.misc.isEmpty()) {
+        buffer.println();
+        buffer.printLinesWithIndent(this.misc.toString());
+        buffer.println();
+      }
+
       if (customText != null && customText.length() != 0) {
         buffer.printCommentLinesWithIndent("------ Custom section START");
         buffer.printLinesWithIndent(customText);
@@ -1603,6 +1668,10 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
       buffer.decIndent();
       buffer.indent().println("}");
 
+    }
+
+    JavaSrcTextBuffer getMisc() {
+      return this.misc;
     }
 
     JavaSrcTextBuffer getWriteFunc() {
