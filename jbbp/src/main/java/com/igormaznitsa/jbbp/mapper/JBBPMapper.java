@@ -54,7 +54,7 @@ import java.util.List;
  */
 public final class JBBPMapper {
 
-  public static final String MAKE_CLASS_INSTANCE_METHOD_NAME = "makeClassInstance";
+  public static final String MAKE_CLASS_INSTANCE_METHOD_NAME = "newInstance";
 
   /**
    * Flag to not throw exception if structure doesn't have value for a field.
@@ -63,21 +63,35 @@ public final class JBBPMapper {
    */
   public static final int FLAG_IGNORE_MISSING_VALUES = 1;
 
-  private static final Function<Class<?>, Object> STATIC_MAKE_CLASS_INSTANCE_INSTANTIATOR = (Class<?> aClass) -> {
-    try {
-      final Method method = aClass.getMethod(MAKE_CLASS_INSTANCE_METHOD_NAME, Class.class);
-      if (Modifier.isStatic(method.getModifiers())) {
-        return method.invoke(null, aClass);
-      } else {
-        return null;
+  private static final Function<Class<?>, Object> STATIC_MAKE_CLASS_INSTANCE_INSTANTIATOR = (Class<?> klazz) -> {
+    Class<?> currentClass = klazz;
+    Object result = null;
+    boolean find;
+    do {
+      try {
+        final Method method = currentClass.getMethod(MAKE_CLASS_INSTANCE_METHOD_NAME, Class.class);
+        if (Modifier.isStatic(method.getModifiers())) {
+          result = method.invoke(null, klazz);
+        }
+      } catch (IllegalAccessException ex) {
+        throw new RuntimeException(String.format("Can't get access to static method %s(%ss) in %s", MAKE_CLASS_INSTANCE_METHOD_NAME, klazz, currentClass), ex);
+      } catch (InvocationTargetException ex) {
+        throw new RuntimeException(String.format("Can't call static method %s(%s) in %s", MAKE_CLASS_INSTANCE_METHOD_NAME, klazz, currentClass), ex);
+      } catch (NoSuchMethodException ex) {
+        // do nothing!
       }
-    } catch (IllegalAccessException ex) {
-      throw new RuntimeException(String.format("Can't get access to static method %s(Class aClass) in %s", MAKE_CLASS_INSTANCE_METHOD_NAME, aClass), ex);
-    } catch (InvocationTargetException ex) {
-      throw new RuntimeException(String.format("Can't call static method %s(Class aClass) in %s", MAKE_CLASS_INSTANCE_METHOD_NAME, aClass), ex);
-    } catch (NoSuchMethodException ex) {
-      return null;
-    }
+      if (result == null) {
+        if (currentClass.isLocalClass()) {
+          currentClass = currentClass.getEnclosingClass();
+          find = currentClass != null;
+        } else {
+          find = false;
+        }
+      } else {
+        find = false;
+      }
+    } while (find);
+    return result;
   };
 
   private static final Function<Class<?>, Object> DEFAULT_CONSTRUCTOR_INSTANTIATOR = (Class<?> aClass) -> {
@@ -442,7 +456,10 @@ public final class JBBPMapper {
     if (result == null) {
       Exception detectedException = null;
       try {
-        result = type.cast(mappingObject.getClass().getMethod(MAKE_CLASS_INSTANCE_METHOD_NAME, Class.class).invoke(mappingObject, type));
+        final Method method = mappingObject.getClass().getMethod(MAKE_CLASS_INSTANCE_METHOD_NAME, Class.class);
+        if (!Modifier.isStatic(method.getModifiers())) {
+          result = type.cast(mappingObject.getClass().getMethod(MAKE_CLASS_INSTANCE_METHOD_NAME, Class.class).invoke(mappingObject, type));
+        }
       } catch (NoSuchMethodException ex) {
         // do nothing
       } catch (IllegalAccessException ex) {
@@ -453,7 +470,7 @@ public final class JBBPMapper {
       }
 
       if (detectedException != null) {
-        throw new RuntimeException(String.format("Error during %s() call: %s", MAKE_CLASS_INSTANCE_METHOD_NAME, mappingObject.getClass()), detectedException);
+        throw new RuntimeException(String.format("Error during %s(%s) call", MAKE_CLASS_INSTANCE_METHOD_NAME, mappingObject.getClass()), detectedException);
       }
 
       if (result == null) {
