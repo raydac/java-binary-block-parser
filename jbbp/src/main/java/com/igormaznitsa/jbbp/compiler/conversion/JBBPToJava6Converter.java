@@ -358,7 +358,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     if (nullableArraySize == null) {
       structType = structBaseTypeName;
       if (this.builder.generateFields) {
-        printField(nullableNameFieldInfo, getCurrentStruct().getFields().indent(), null, fieldModifier, structType, structName);
+        printField(nullableNameFieldInfo, false, getCurrentStruct().getFields().indent(), null, fieldModifier, structType, structName);
       }
 
       processSkipRemainingFlag();
@@ -371,7 +371,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     } else {
       structType = structBaseTypeName + " []";
       if (this.builder.generateFields) {
-        printField(nullableNameFieldInfo, getCurrentStruct().getFields().indent(), null, fieldModifier, structType, structName);
+        printField(nullableNameFieldInfo, true, getCurrentStruct().getFields().indent(), null, fieldModifier, structType, structName);
       }
       processSkipRemainingFlag();
       processSkipRemainingFlagForWriting("this." + structName);
@@ -458,7 +458,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
           getCurrentStruct().getFields().printf("@Bin(name=\"%s\")", nameFieldInfo.getFieldName());
         }
       }
-      printField(nameFieldInfo, getCurrentStruct().getFields(), FieldType.VAL, fieldModifier, textFieldType, fieldName);
+      printField(nameFieldInfo, false, getCurrentStruct().getFields(), FieldType.VAL, fieldModifier, textFieldType, fieldName);
     }
 
     final String valIn = evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, expression, this.flagSet, false);
@@ -473,17 +473,29 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
   }
 
   private void printField(final JBBPNamedFieldInfo nullableFieldInfo,
+                          final boolean array,
                           final JavaSrcTextBuffer buffer,
-                          final FieldType fieldType,
+                          final FieldType nullableFieldType,
                           final String modifier,
                           final String type,
                           final String name) {
     if (this.builder.addBinAnnotations) {
       final String binName = nullableFieldInfo == null ? null : nullableFieldInfo.getFieldName();
-      if (binName == null) {
-        buffer.printf("@Bin%n");
+
+      if (nullableFieldType == null
+          || nullableFieldType.getBinType() == BinType.UNDEFINED
+          || nullableFieldType.getBinTypeArray() == BinType.UNDEFINED) {
+        if (binName == null) {
+          buffer.printf("@Bin%n");
+        } else {
+          buffer.printf("@Bin(name=\"%s\")%n", binName);
+        }
       } else {
-        buffer.printf("@Bin(name=\"%s\")%n", binName);
+        if (binName == null) {
+          buffer.printf("@Bin(type=BinType.%s)%n", array ? nullableFieldType.getBinTypeArray() : nullableFieldType.getBinType());
+        } else {
+          buffer.printf("@Bin(name=\"%s\",type=BinType.%s)%n", binName, array ? nullableFieldType.getBinTypeArray() : nullableFieldType.getBinType());
+        }
       }
     }
     buffer.printf("%s %s %s;%n", modifier, type, name);
@@ -556,6 +568,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
       if (this.builder.generateFields) {
         printField(
             nullableNameFieldInfo,
+            false,
             getCurrentStruct().getFields(),
             type,
             fieldModifier,
@@ -568,7 +581,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     } else {
       textFieldType = type.asJavaArrayFieldType() + " []";
       if (this.builder.generateFields) {
-        printField(nullableNameFieldInfo, getCurrentStruct().getFields(), type, fieldModifier, textFieldType, fieldName);
+        printField(nullableNameFieldInfo, true, getCurrentStruct().getFields(), type, fieldModifier, textFieldType, fieldName);
       }
       getCurrentStruct().getReadFunc().printf("this.%s = %s;%n", fieldName, type.makeReaderForArray(NAME_INPUT_STREAM, arraySizeIn, byteOrder));
       if (readWholeStreamAsArray) {
@@ -775,7 +788,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     if (readWholeStreamIntoArray || nullableArraySizeEvaluator != null) {
       fieldType = "JBBPAbstractArrayField<? extends JBBPAbstractField>";
       if (this.builder.generateFields) {
-        printField(nullableNameFieldInfo, getCurrentStruct().getFields(), FieldType.VAR, fieldModifier, fieldType, fieldName);
+        printField(nullableNameFieldInfo, true, getCurrentStruct().getFields(), FieldType.VAR, fieldModifier, fieldType, fieldName);
       }
 
       this.getCurrentStruct().getReadFunc().printf("%s = %s;%n",
@@ -802,7 +815,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     } else {
       fieldType = "JBBPAbstractField";
       if (this.builder.generateFields) {
-        printField(nullableNameFieldInfo, getCurrentStruct().getFields(), FieldType.VAR, fieldModifier, fieldType, fieldName);
+        printField(nullableNameFieldInfo, false, getCurrentStruct().getFields(), FieldType.VAR, fieldModifier, fieldType, fieldName);
       }
 
       this.getCurrentStruct().getReadFunc().printf("%s = %s;%n",
@@ -1046,22 +1059,24 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
   }
 
   private enum FieldType {
-    BOOL(CODE_BOOL, "boolean", "boolean", "%s.readBoolean()", "%s.readBoolArray(%s)", "%s.write(%s ? 1 : 0)", "for(int I=0;I<%3$s;I++){%1$s.write(%2$s[I] ? 1 : 0);}", "for(int I=0;I<%2$s.length;I++){%1$s.write(%2$s[I] ? 1 : 0);}"),
-    BYTE(CODE_BYTE, "byte", "byte", "(byte)%s.readByte()", "%s.readByteArray(%s, %s)", "%s.write(%s)", "%1$s.writeBytes(%2$s, %3$s, %4$s)", "%1$s.writeBytes(%2$s, %2$s.length, %3$s)"),
-    UBYTE(CODE_UBYTE, "char", "byte", "(char)(%s.readByte() & 0xFF)", "%s.readByteArray(%s, %s)", "%s.write(%s)", "%1$s.writeBytes(%2$s, %3$s, %4$s)", "%1$s.writeBytes(%2$s, %2$s.length, %3$s)"),
-    SHORT(CODE_SHORT, "short", "short", "(short)%s.readUnsignedShort(%s)", "%s.readShortArray(%s,%s)", "%s.writeShort(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeShort(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeShort(%2$s[I],%3$s);}"),
-    USHORT(CODE_USHORT, "char", "char", "(char)%s.readUnsignedShort(%s)", "%s.readUShortArray(%s,%s)", "%s.writeShort(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeShort(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeShort(%2$s[I],%3$s);}"),
-    INT(CODE_INT, "int", "int", "%s.readInt(%s)", "%s.readIntArray(%s,%s)", "%s.writeInt(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeInt(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeInt(%2$s[I],%3$s);}"),
-    LONG(CODE_LONG, "long", "long", "%s.readLong(%s)", "%s.readLongArray(%s,%s)", "%s.writeLong(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeLong(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeLong(%2$s[I],%3$s);}"),
-    CUSTOM(-1, "", "", "", "", "", "", ""),
-    VAR(-2, "", "", "", "", "", "", ""),
-    VAL(-3, "int", "", "", "", "", "", ""),
-    BIT(-4, "", "", "", "", "", "", ""),
-    FLOAT(-5, "float", "float", "%s.readFloat(%s)", "%s.readFloatArray(%s,%s)", "%s.writeFloat(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeFloat(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeFloat(%2$s[I],%3$s);}"),
-    DOUBLE(-6, "double", "double", "%s.readDouble(%s)", "%s.readDoubleArray(%s,%s)", "%s.writeDouble(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeDouble(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeDouble(%2$s[I],%3$s);}"),
-    STRING(-7, "String", "String", "%s.readString(%s)", "%s.readStringArray(%s,%s)", "%s.writeString(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeString(%2$s[I],%4$s);}", "%1$s.writeStringArray(%2$s,%3$s)"),
-    UNKNOWN(Integer.MIN_VALUE, "", "", "", "", "", "", "");
+    BOOL(BinType.BOOL, BinType.BOOL_ARRAY, CODE_BOOL, "boolean", "boolean", "%s.readBoolean()", "%s.readBoolArray(%s)", "%s.write(%s ? 1 : 0)", "for(int I=0;I<%3$s;I++){%1$s.write(%2$s[I] ? 1 : 0);}", "for(int I=0;I<%2$s.length;I++){%1$s.write(%2$s[I] ? 1 : 0);}"),
+    BYTE(BinType.BYTE, BinType.BYTE_ARRAY, CODE_BYTE, "byte", "byte", "(byte)%s.readByte()", "%s.readByteArray(%s, %s)", "%s.write(%s)", "%1$s.writeBytes(%2$s, %3$s, %4$s)", "%1$s.writeBytes(%2$s, %2$s.length, %3$s)"),
+    UBYTE(BinType.UBYTE, BinType.UBYTE_ARRAY, CODE_UBYTE, "char", "byte", "(char)(%s.readByte() & 0xFF)", "%s.readByteArray(%s, %s)", "%s.write(%s)", "%1$s.writeBytes(%2$s, %3$s, %4$s)", "%1$s.writeBytes(%2$s, %2$s.length, %3$s)"),
+    SHORT(BinType.SHORT, BinType.SHORT_ARRAY, CODE_SHORT, "short", "short", "(short)%s.readUnsignedShort(%s)", "%s.readShortArray(%s,%s)", "%s.writeShort(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeShort(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeShort(%2$s[I],%3$s);}"),
+    USHORT(BinType.USHORT, BinType.USHORT_ARRAY, CODE_USHORT, "char", "char", "(char)%s.readUnsignedShort(%s)", "%s.readUShortArray(%s,%s)", "%s.writeShort(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeShort(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeShort(%2$s[I],%3$s);}"),
+    INT(BinType.INT, BinType.INT_ARRAY, CODE_INT, "int", "int", "%s.readInt(%s)", "%s.readIntArray(%s,%s)", "%s.writeInt(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeInt(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeInt(%2$s[I],%3$s);}"),
+    LONG(BinType.LONG, BinType.LONG_ARRAY, CODE_LONG, "long", "long", "%s.readLong(%s)", "%s.readLongArray(%s,%s)", "%s.writeLong(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeLong(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeLong(%2$s[I],%3$s);}"),
+    CUSTOM(BinType.UNDEFINED, BinType.UNDEFINED, -1, "", "", "", "", "", "", ""),
+    VAR(BinType.UNDEFINED, BinType.UNDEFINED, -2, "", "", "", "", "", "", ""),
+    VAL(BinType.UNDEFINED, BinType.UNDEFINED, -3, "int", "", "", "", "", "", ""),
+    BIT(BinType.BIT, BinType.BIT_ARRAY, -4, "", "", "", "", "", "", ""),
+    FLOAT(BinType.FLOAT, BinType.FLOAT_ARRAY, -5, "float", "float", "%s.readFloat(%s)", "%s.readFloatArray(%s,%s)", "%s.writeFloat(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeFloat(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeFloat(%2$s[I],%3$s);}"),
+    DOUBLE(BinType.DOUBLE, BinType.DOUBLE_ARRAY, -6, "double", "double", "%s.readDouble(%s)", "%s.readDoubleArray(%s,%s)", "%s.writeDouble(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeDouble(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeDouble(%2$s[I],%3$s);}"),
+    STRING(BinType.UNDEFINED, BinType.UNDEFINED, -7, "String", "String", "%s.readString(%s)", "%s.readStringArray(%s,%s)", "%s.writeString(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeString(%2$s[I],%4$s);}", "%1$s.writeStringArray(%2$s,%3$s)"),
+    UNKNOWN(BinType.UNDEFINED, BinType.UNDEFINED, Integer.MIN_VALUE, "", "", "", "", "", "", "");
 
+    private final BinType binType;
+    private final BinType binTypeArray;
     private final int code;
     private final String javaSingleType;
     private final String javaArrayType;
@@ -1071,7 +1086,20 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     private final String methodWriteArray;
     private final String methodWriteArrayWithUnknownSize;
 
-    FieldType(final int code, final String javaSingleType, final String javaArrayType, final String readOne, final String readArray, final String writeOne, final String writeArray, final String writeArrayWithUnknownSize) {
+    FieldType(
+        final BinType binType,
+        final BinType binTypeArray,
+        final int code,
+        final String javaSingleType,
+        final String javaArrayType,
+        final String readOne,
+        final String readArray,
+        final String writeOne,
+        final String writeArray,
+        final String writeArrayWithUnknownSize
+    ) {
+      this.binTypeArray = binTypeArray;
+      this.binType = binType;
       this.code = code;
       this.methodWriteArrayWithUnknownSize = writeArrayWithUnknownSize;
       this.javaSingleType = javaSingleType;
@@ -1130,6 +1158,14 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     String makeWriterForArrayWithUnknownSize(final String streamName, final String fieldName, final JBBPByteOrder byteOrder) {
       assertNotUnknown();
       return String.format(this.methodWriteArrayWithUnknownSize, streamName, fieldName, "JBBPByteOrder." + byteOrder.name());
+    }
+
+    BinType getBinType() {
+      return this.binType;
+    }
+
+    BinType getBinTypeArray() {
+      return this.binTypeArray;
     }
   }
 
