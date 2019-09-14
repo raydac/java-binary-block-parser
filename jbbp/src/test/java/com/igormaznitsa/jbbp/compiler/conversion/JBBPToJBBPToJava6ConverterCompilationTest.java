@@ -25,7 +25,6 @@ import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJava6ConverterTest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
 import java.io.IOException;
 
@@ -33,8 +32,19 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class JBBPToJBBPToJava6ConverterCompilationTest extends AbstractJBBPToJava6ConverterTest {
 
-  private static String makeSources(final JBBPParser parser, final String classComment, final boolean useSetterGetter) {
-    return JBBPToJava6Converter.makeBuilder(parser).setMainClassPackage(PACKAGE_NAME).setMainClassName(CLASS_NAME).setHeadComment(classComment).setAddGettersSetters(useSetterGetter).build().convert();
+  private static String makeSources(final JBBPParser parser, final String classComment, final boolean useSetterGetter, final boolean addBinAnnotations) {
+    final JBBPToJava6Converter.Builder result = JBBPToJava6Converter.makeBuilder(parser)
+        .setMainClassPackage(PACKAGE_NAME)
+        .setMainClassName(CLASS_NAME)
+        .setHeadComment(classComment)
+        .setAddGettersSetters(useSetterGetter);
+
+    if (addBinAnnotations) {
+      result.addBinAnnotations();
+    }
+
+    return result.build()
+        .convert();
   }
 
   private void assertCompilation(final String classSrc) throws Exception {
@@ -45,14 +55,14 @@ public class JBBPToJBBPToJava6ConverterCompilationTest extends AbstractJBBPToJav
   @Test
   public void testVarNamesAsJavaTypes() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("ubyte;int integer; int number; int try; int byte; int _byte; int _byte_; int char; int short; int long; int double; int float; int [long+double+char] string;");
-    assertCompilation(makeSources(parser, "some multiline text\nto be added into header", true));
+    assertCompilation(makeSources(parser, "some multiline text\nto be added into header", true, true));
   }
 
   @Test
   public void testExpression() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("bit:8 bitf; var somevar; bool bbb; long aaa; ubyte kkk; {{int lrn; {int [(lrn/aaa*1*(2*somevar-4)&$joomla)/(100%9>>bitf)&56|~kkk^78&bbb];}}}");
-    assertCompilation(makeSources(parser, "some multiline text\nto be added into header", false));
-    assertCompilation(makeSources(parser, "some multiline text\nto be added into header", true));
+    assertCompilation(makeSources(parser, "some multiline text\nto be added into header", false, false));
+    assertCompilation(makeSources(parser, "some multiline text\nto be added into header", true, true));
   }
 
   @Test
@@ -196,57 +206,57 @@ public class JBBPToJBBPToJava6ConverterCompilationTest extends AbstractJBBPToJav
         + "<short reg_de; <short reg_bc_alt; <short reg_de_alt; <short reg_hl_alt; byte reg_a_alt; byte reg_f_alt; <short reg_iy; <short reg_ix; byte iff; byte iff2;"
         + "emulFlags{bit:2 interruptmode; bit:1 issue2emulation; bit:1 doubleintfreq; bit:2 videosync; bit:2 inputdevice;}"
         + "byte [_] data;");
-    assertCompilation(makeSources(parser, null, false));
-    assertCompilation(makeSources(parser, null, true));
+    assertCompilation(makeSources(parser, null, false, false));
+    assertCompilation(makeSources(parser, null, true, false));
   }
 
   @Test
   public void testSinglePrimitiveNamedFields() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("bit a;byte b;ubyte c;short d;ushort e;bool f;int g;long h;");
-    assertCompilation(makeSources(parser, null, false));
-    assertCompilation(makeSources(parser, null, true));
+    assertCompilation(makeSources(parser, null, false, false));
+    assertCompilation(makeSources(parser, null, true, false));
   }
 
   @Test
   public void testSinglePrimitiveAnonymousFields() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("bit;byte;ubyte;short;ushort;bool;int;long;");
-    assertCompilation(makeSources(parser, null, false));
-    assertCompilation(makeSources(parser, null, true));
+    assertCompilation(makeSources(parser, null, false, false));
+    assertCompilation(makeSources(parser, null, true, false));
   }
 
   @Test
   public void testSinglePrimitiveAnonymousArrayFields() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("bit[1];byte[2];ubyte[3];short[4];ushort[5];bool[6];int[7];long[8];");
-    assertCompilation(makeSources(parser, null, false));
-    assertCompilation(makeSources(parser, null, true));
+    assertCompilation(makeSources(parser, null, false, false));
+    assertCompilation(makeSources(parser, null, true, false));
   }
 
   @Test
   public void testActions() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("reset$$;skip:8;align:22;");
-    assertCompilation(makeSources(parser, null, false));
-    assertCompilation(makeSources(parser, null, true));
+    assertCompilation(makeSources(parser, null, false, false));
+    assertCompilation(makeSources(parser, null, true, false));
   }
 
   @Test
   public void testStruct() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("int;{byte;ubyte;{long;}}");
-    assertCompilation(makeSources(parser, null, false));
-    assertCompilation(makeSources(parser, null, true));
+    assertCompilation(makeSources(parser, null, false, false));
+    assertCompilation(makeSources(parser, null, true, true));
   }
 
   @Test
   public void testPrimitiveArrayInsideStructArray() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("ubyte len; {ubyte[len];} ubyte [_] rest;");
-    assertCompilation(makeSources(parser, null, false));
-    assertCompilation(makeSources(parser, null, true));
+    assertCompilation(makeSources(parser, null, false, false));
+    assertCompilation(makeSources(parser, null, true, false));
   }
 
   @Test
   public void testExternalValueInExpression() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("ubyte len; <int [len*2+$ex] hello;");
-    assertCompilation(makeSources(parser, null, false));
-    assertCompilation(makeSources(parser, null, true));
+    assertCompilation(makeSources(parser, null, false, false));
+    assertCompilation(makeSources(parser, null, true, false));
   }
 
   @Test
@@ -268,15 +278,15 @@ public class JBBPToJBBPToJava6ConverterCompilationTest extends AbstractJBBPToJav
       }
     });
 
-    assertCompilation(makeSources(parser, null, false));
-    assertCompilation(makeSources(parser, null, true));
+    assertCompilation(makeSources(parser, null, false, false));
+    assertCompilation(makeSources(parser, null, true, false));
   }
 
   @Test
   public void testVarType() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("var alpha; var [$$] beta;");
-    assertCompilation(makeSources(parser, null, false));
-    assertCompilation(makeSources(parser, null, true));
+    assertCompilation(makeSources(parser, null, false, false));
+    assertCompilation(makeSources(parser, null, true, false));
   }
 
   @Test
@@ -285,36 +295,36 @@ public class JBBPToJBBPToJava6ConverterCompilationTest extends AbstractJBBPToJav
         + "byte alpha; ubyte beta; short gamma; ushort delta; bool epsilon; int teta; long longField; var varField;"
         + "floatj flt1; doublej dbl1;"
         + "struct1 { byte someByte; struct2 {bit:3 [34*someByte<<1+$ext] data;} }");
-    assertCompilation(makeSources(parser, null, false));
-    assertCompilation(makeSources(parser, null, true));
+    assertCompilation(makeSources(parser, null, false, false));
+    assertCompilation(makeSources(parser, null, true, false));
   }
 
   @Test
   public void testValFields() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("ubyte a; ubyte b; val:(a+b*2) v; byte [v] data;");
-    assertCompilation(makeSources(parser, null, false));
-    assertCompilation(makeSources(parser, null, true));
+    assertCompilation(makeSources(parser, null, false, false));
+    assertCompilation(makeSources(parser, null, true, false));
   }
 
   @Test
   public void testStringFields() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("stringj str; stringj [5] strarr; stringj [_] all;");
-    assertCompilation(makeSources(parser, null, false));
-    assertCompilation(makeSources(parser, null, true));
+    assertCompilation(makeSources(parser, null, false, false));
+    assertCompilation(makeSources(parser, null, true, false));
   }
 
   @Test
   public void testStringFieldAsLength_CompilationErrorForStringFieldInArithmeticException() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("stringj str; stringj [str] strarr; stringj [_] all;");
-    assertThrows(Exception.class, () -> assertCompilation(makeSources(parser, null, false)));
-    assertThrows(Exception.class, () -> assertCompilation(makeSources(parser, null, true)));
+    assertThrows(Exception.class, () -> assertCompilation(makeSources(parser, null, false, false)));
+    assertThrows(Exception.class, () -> assertCompilation(makeSources(parser, null, true, false)));
   }
 
   @Test
   public void testStringFieldInExpression_CompilationErrorForStringFieldInArithmeticException() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("stringj str; byte a; stringj [str+a] strarr; stringj [_] all;");
-    assertThrows(Exception.class, () -> assertCompilation(makeSources(parser, null, false)));
-    assertThrows(Exception.class, () -> assertCompilation(makeSources(parser, null, true)));
+    assertThrows(Exception.class, () -> assertCompilation(makeSources(parser, null, false, false)));
+    assertThrows(Exception.class, () -> assertCompilation(makeSources(parser, null, true, false)));
   }
 
   @Test
@@ -329,15 +339,15 @@ public class JBBPToJBBPToJava6ConverterCompilationTest extends AbstractJBBPToJav
             + "   int crc;"
             + "}"
     );
-    assertCompilation(makeSources(parser, null, false));
-    assertCompilation(makeSources(parser, null, true));
+    assertCompilation(makeSources(parser, null, false, false));
+    assertCompilation(makeSources(parser, null, true, false));
   }
 
   @Test
   public void testPrimitiveFieldsInExpression() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("long lfield; int ifield; byte bfield; ggg {ubyte ubfield; short shfield;} ushort ushfield; bit:4 bitfield; byte [bfield*ggg.shfield<<bitfield-ggg.ubfield&ushfield%lfield/ifield] array;");
-    assertCompilation(makeSources(parser, null, false));
-    assertCompilation(makeSources(parser, null, true));
+    assertCompilation(makeSources(parser, null, false, false));
+    assertCompilation(makeSources(parser, null, true, false));
   }
 
   @Test
@@ -358,8 +368,8 @@ public class JBBPToJBBPToJava6ConverterCompilationTest extends AbstractJBBPToJav
         return null;
       }
     });
-    assertCompilation(makeSources(parser, null, false));
-    assertCompilation(makeSources(parser, null, true));
+    assertCompilation(makeSources(parser, null, false, false));
+    assertCompilation(makeSources(parser, null, true, false));
   }
 
   @Test
