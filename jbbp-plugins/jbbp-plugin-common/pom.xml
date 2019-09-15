@@ -18,7 +18,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>jbbp</artifactId>
-            <version>${project.version}</version>
+            <version>${jbbp.version}</version>
         </dependency>
     </dependencies>
 

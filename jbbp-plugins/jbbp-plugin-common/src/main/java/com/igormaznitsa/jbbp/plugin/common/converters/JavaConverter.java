@@ -1,7 +1,7 @@
 package com.igormaznitsa.jbbp.plugin.common.converters;
 
 import com.igormaznitsa.jbbp.JBBPParser;
-import com.igormaznitsa.jbbp.compiler.conversion.JBBPToJava6Converter;
+import com.igormaznitsa.jbbp.compiler.conversion.JBBPToJavaConverter;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.plugin.common.utils.CommonUtils;
 import com.igormaznitsa.meta.common.utils.Assertions;
@@ -17,7 +17,7 @@ import java.util.Set;
 
 import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_STRING_EMPTY;
 
-public class Java16Converter implements JBBPScriptTranslator {
+public class JavaConverter implements JBBPScriptTranslator {
   @Override
   @Nonnull
   public Set<File> translate(@Nonnull final Parameters parameters, final boolean dryRun) throws IOException {
@@ -38,7 +38,7 @@ public class Java16Converter implements JBBPScriptTranslator {
       final String[] implementsSorted = parameters.getClassImplements().toArray(ARRAY_STRING_EMPTY);
       Arrays.sort(implementsSorted);
 
-      final JBBPToJava6Converter.Builder builder = JBBPToJava6Converter.makeBuilder(parser)
+      final JBBPToJavaConverter.Builder builder = JBBPToJavaConverter.makeBuilder(parser)
           .setMapSubClassesInterfaces(parameters.getSubClassInterfaces())
           .setMapSubClassesSuperclasses(parameters.getSubClassSuperclasses())
           .setMainClassName(className)
@@ -50,6 +50,14 @@ public class Java16Converter implements JBBPScriptTranslator {
           .setMainClassImplements(implementsSorted)
           .setParserFlags(parameters.getParserFlags())
           .setSuperClass(parameters.superClass);
+
+      if (parameters.isAddBinAnnotations()) {
+        builder.addBinAnnotations();
+      }
+
+      if (parameters.isGenNewInstance()) {
+        builder.genNewInstance();
+      }
 
       if (parameters.isDoInternalClassesNonStatic()) {
         builder.doInternalClassesNonStatic();

@@ -3,7 +3,7 @@ package com.igormaznitsa.jbbp.plugin.common.converters;
 import javax.annotation.Nonnull;
 
 public enum Target {
-  JAVA_1_6(new Java16Converter());
+  JAVA(new JavaConverter());
 
   private final JBBPScriptTranslator JBBPScriptTranslator;
 

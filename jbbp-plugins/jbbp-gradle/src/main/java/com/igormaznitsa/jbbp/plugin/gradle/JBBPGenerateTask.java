@@ -46,7 +46,7 @@ public class JBBPGenerateTask extends AbstractJBBPTask {
 
   @Override
   protected void doTaskAction(@Nonnull final JBBPExtension ext) {
-    final Target target = GetUtils.ensureNonNull(ext.target, Target.JAVA_1_6);
+    final Target target = GetUtils.ensureNonNull(ext.target, Target.JAVA);
 
     final Set<String> normalizedCustomTypeNames = new HashSet<String>();
     if (ext.customTypes != null) {
@@ -99,6 +99,8 @@ public class JBBPGenerateTask extends AbstractJBBPTask {
         .setEncodingOut(CommonUtils.ensureEncodingName(ext.outEncoding))
         .setCustomFieldTypeProcessor(customFieldProcessor)
         .setSuperClass(ext.superClass)
+        .setGenNewInstance(ext.genNewInstance)
+        .setAddBinAnnotations(ext.addBinAnnotations)
         .setClassImplements(ext.interfaces)
         .setSubClassInterfaces(ext.mapSubClassInterfaces)
         .setSubClassSuperclasses(ext.mapSubClassSuperclasses)

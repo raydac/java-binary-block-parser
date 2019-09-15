@@ -27,7 +27,7 @@ public class JBBPExtension {
   /**
    * Target of translation.
    */
-  public Target target = Target.JAVA_1_6;
+  public Target target = Target.JAVA;
 
   /**
    * Flag to generate getters and setters in result class, all fields will be
@@ -133,6 +133,16 @@ public class JBBPExtension {
    * Source folder to find JBBP scripts.
    */
   public ConfigurableFileTree source;
+
+  /**
+   * Generate methods newInstance in generated classes.
+   */
+  public boolean genNewInstance;
+
+  /**
+   * Generate Bin annotations for fields
+   */
+  public boolean addBinAnnotations;
 
   public JBBPExtension(@Nonnull final Project project) {
     this.source = project.fileTree("src/jbbp");

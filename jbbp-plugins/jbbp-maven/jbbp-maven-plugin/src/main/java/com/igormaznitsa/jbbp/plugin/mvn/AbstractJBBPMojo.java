@@ -60,7 +60,7 @@ public abstract class AbstractJBBPMojo extends AbstractMojo {
    *
    * @see Target
    */
-  @Parameter(alias = "target", defaultValue = "JAVA_1_6")
+  @Parameter(alias = "target", defaultValue = "JAVA")
   protected String target;
   /**
    * Flag to skip processing of the plug-in.

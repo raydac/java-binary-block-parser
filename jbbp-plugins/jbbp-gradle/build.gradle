@@ -7,7 +7,7 @@ def getProp(name, dflt) {
     }
 }
 
-def jbbpVersion = getProp('jbbp_plugin_version', '1.4.2-SNAPSHOT')
+def jbbpVersion = getProp('jbbp_plugin_version', '2.0.0-SNAPSHOT')
 def metaLibVersion = getProp('meta_lib_version', '1.1.2')
 
 group = 'com.igormaznitsa'
@@ -17,8 +17,8 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: "com.gradle.plugin-publish"
 
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 dependencies {
     compile gradleApi()

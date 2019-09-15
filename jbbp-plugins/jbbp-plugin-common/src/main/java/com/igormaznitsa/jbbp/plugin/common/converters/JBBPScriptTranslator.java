@@ -123,6 +123,18 @@ public interface JBBPScriptTranslator {
      * Parser flags.
      */
     private int parserFlags;
+    /**
+     * Turn on generate Bin annotations for fields.
+     *
+     * @since 2.0.0
+     */
+    private boolean addBinAnnotations;
+    /**
+     * Generate newInstance methods in classes.
+     *
+     * @since 2.0.0
+     */
+    private boolean genNewInstance;
 
     @Nullable
     public String getPackageName() {
@@ -191,6 +203,26 @@ public interface JBBPScriptTranslator {
 
     public boolean isDoInternalClassesNonStatic() {
       return this.doInternalClassesNonStatic;
+    }
+
+    public boolean isGenNewInstance() {
+      return this.genNewInstance;
+    }
+
+    @Nonnull
+    public Parameters setGenNewInstance(final boolean flag) {
+      this.genNewInstance = flag;
+      return this;
+    }
+
+    public boolean isAddBinAnnotations() {
+      return this.addBinAnnotations;
+    }
+
+    @Nonnull
+    public Parameters setAddBinAnnotations(final boolean flag) {
+      this.addBinAnnotations = flag;
+      return this;
     }
 
     @Nonnull
@@ -311,5 +343,6 @@ public interface JBBPScriptTranslator {
       }
       return this;
     }
+
   }
 }

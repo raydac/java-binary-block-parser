@@ -79,7 +79,7 @@
                             <properties>
                                 <property>
                                     <name>gradle.prop.jbbp_plugin_version</name>
-                                    <value>${project.version}</value>
+                                    <value>${jbbp.plugin.version}</value>
                                 </property>
                                 <property>
                                     <name>gradle.prop.meta_lib_version</name>
