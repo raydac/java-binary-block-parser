@@ -47,7 +47,7 @@ import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.*;
  * @since 1.3.0
  */
 @SuppressWarnings("SpellCheckingInspection")
-public final class JBBPToJava6Converter extends CompiledBlockVisitor {
+public final class JBBPToJavaConverter extends CompiledBlockVisitor {
 
   private static final int FLAG_DETECTED_CUSTOM_FIELDS = 1;
   private static final int FLAG_DETECTED_EXTERNAL_FIELDS = 2;
@@ -179,7 +179,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
    *
    * @param builder a builder instance, must not be null
    */
-  private JBBPToJava6Converter(final Builder builder) {
+  private JBBPToJavaConverter(final Builder builder) {
     super(builder.parserFlags, builder.srcParser.getCompiledBlock());
     this.builder = builder;
   }
@@ -201,7 +201,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
    * @return generated class with needed parameters as text, must not be null.
    */
   public String convert() {
-    return ((JBBPToJava6Converter) this.visit()).getResult();
+    return ((JBBPToJavaConverter) this.visit()).getResult();
   }
 
   private void registerNamedField(final JBBPNamedFieldInfo fieldInfo, final FieldType fieldType) {
@@ -324,7 +324,7 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
     final Struct rootStruct = this.structStack.get(0);
 
     if (this.builder.genNewInstance) {
-      rootStruct.misc.println(String.format("public Object %s(Class aClass) {", JBBPMapper.MAKE_CLASS_INSTANCE_METHOD_NAME));
+      rootStruct.misc.println(String.format("public Object %s(Class<?> aClass) {", JBBPMapper.MAKE_CLASS_INSTANCE_METHOD_NAME));
       rootStruct.misc.incIndent();
 
       for (final Struct c : rootStruct.children) {
@@ -1515,12 +1515,12 @@ public final class JBBPToJava6Converter extends CompiledBlockVisitor {
      *
      * @return a converter instance.
      */
-    public JBBPToJava6Converter build() {
+    public JBBPToJavaConverter build() {
       this.lockBuilder = true;
       if (this.mainClassName == null) {
         throw new NullPointerException("Class name must not be null");
       }
-      return new JBBPToJava6Converter(this);
+      return new JBBPToJavaConverter(this);
     }
   }
 

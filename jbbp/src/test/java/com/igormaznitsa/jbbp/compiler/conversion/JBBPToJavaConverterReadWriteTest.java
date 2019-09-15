@@ -32,7 +32,6 @@ import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJava6ConverterTest;
 import com.igormaznitsa.jbbp.utils.ReflectUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -47,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test reading writing with converted classes from parser.
  */
-public class JBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6ConverterTest {
+public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJava6ConverterTest {
 
   private byte[] loadResource(final String name) throws Exception {
     try(final InputStream result = this.getClass().getClassLoader().getResourceAsStream("com/igormaznitsa/jbbp/it/" + name)){
@@ -105,9 +104,9 @@ public class JBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6Conver
     superclasses.put("ins",TestSuperclass.Ins.class.getCanonicalName());
     superclasses.put("ins.insins",TestSuperclass.Ins.InsIns.class.getCanonicalName());
 
-    final String thePackage = JBBPToJava6ConverterReadWriteTest.class.getPackage().getName();
+    final String thePackage = JBBPToJavaConverterReadWriteTest.class.getPackage().getName();
 
-    final String text = JBBPToJava6Converter.makeBuilder(parser)
+    final String text = JBBPToJavaConverter.makeBuilder(parser)
         .setMainClassName(CLASS_NAME)
         .setMainClassPackage(thePackage)
         .disableGenerateFields()
@@ -161,7 +160,7 @@ public class JBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6Conver
     final JBBPParser parser = JBBPParser.prepare("z { x { y [_] { byte a;}}}");
     final Map<String, String> interfaceMap = new HashMap<>();
     interfaceMap.put("z.x.y", ByteTestInterface.class.getCanonicalName());
-    final String text = JBBPToJava6Converter.makeBuilder(parser).setMainClassName(CLASS_NAME).setMainClassPackage(PACKAGE_NAME).setAddGettersSetters(true).setMapSubClassesInterfaces(interfaceMap).build().convert();
+    final String text = JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).setMainClassPackage(PACKAGE_NAME).setAddGettersSetters(true).setMapSubClassesInterfaces(interfaceMap).build().convert();
     final String fullClassName = PACKAGE_NAME + '.' + CLASS_NAME;
     final ClassLoader classLoader = saveAndCompile(new JavaClassContent(fullClassName, text));
 
@@ -180,7 +179,7 @@ public class JBBPToJava6ConverterReadWriteTest extends AbstractJBBPToJava6Conver
     final JBBPParser parser = JBBPParser.prepare("z { x { y { byte a;}}}");
     final Map<String, String> interfaceMap = new HashMap<>();
     interfaceMap.put("z.x.y", ByteTestInterface.class.getCanonicalName());
-    final String text = JBBPToJava6Converter.makeBuilder(parser).setMainClassName(CLASS_NAME).setMainClassPackage(PACKAGE_NAME).setAddGettersSetters(true).setMapSubClassesInterfaces(interfaceMap).build().convert();
+    final String text = JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).setMainClassPackage(PACKAGE_NAME).setAddGettersSetters(true).setMapSubClassesInterfaces(interfaceMap).build().convert();
     final String fullClassName = PACKAGE_NAME + '.' + CLASS_NAME;
     final ClassLoader classLoader = saveAndCompile(new JavaClassContent(fullClassName, text));
 

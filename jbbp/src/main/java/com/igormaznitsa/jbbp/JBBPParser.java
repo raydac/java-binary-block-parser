@@ -19,7 +19,7 @@ package com.igormaznitsa.jbbp;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiler;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
-import com.igormaznitsa.jbbp.compiler.conversion.JBBPToJava6Converter;
+import com.igormaznitsa.jbbp.compiler.conversion.JBBPToJavaConverter;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.compiler.varlen.JBBPIntegerValueEvaluator;
 import com.igormaznitsa.jbbp.exceptions.JBBPParsingException;
@@ -712,8 +712,8 @@ public final class JBBPParser {
    * @param name   name of result, depends on target, must not be null, for instance class name (example 'com.test.jbbp.Parser')
    * @return list of source items generated during operation, must not be null and must not be empty
    * @throws IllegalArgumentException if target is unsupported
-   * @see JBBPToJava6Converter
-   * @see JBBPToJava6Converter.Builder
+   * @see JBBPToJavaConverter
+   * @see JBBPToJavaConverter.Builder
    * @since 1.3.0
    */
   public List<ResultSrcItem> convertToSrc(final TargetSources target, final String name) {
@@ -724,7 +724,7 @@ public final class JBBPParser {
       metadata.setProperty("script", this.compiledBlock.getSource());
       metadata.setProperty("name", name);
       metadata.setProperty("target", target.name());
-      metadata.setProperty("converter", JBBPToJava6Converter.class.getCanonicalName());
+      metadata.setProperty("converter", JBBPToJavaConverter.class.getCanonicalName());
 
       final int nameStart = name.lastIndexOf('.');
       final String packageName;
@@ -737,7 +737,7 @@ public final class JBBPParser {
         className = name.substring(nameStart + 1);
       }
 
-      final String resultSources = JBBPToJava6Converter.makeBuilder(this).setMainClassPackage(packageName).setMainClassName(className).build().convert();
+      final String resultSources = JBBPToJavaConverter.makeBuilder(this).setMainClassPackage(packageName).setMainClassName(className).build().convert();
       final Map<String, String> resultMap = Collections.singletonMap(name.replace('.', '/') + ".java", resultSources);
 
       return Collections.singletonList(new ResultSrcItem() {

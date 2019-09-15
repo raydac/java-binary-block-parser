@@ -30,7 +30,7 @@ import java.util.Random;
 import static com.igormaznitsa.jbbp.TestUtils.getField;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class JBBPToJBBPToJava6ConverterExpressionTest extends AbstractJBBPToJava6ConverterTest {
+public class JBBPToJBBPToJavaConverterExpressionTest extends AbstractJBBPToJava6ConverterTest {
 
   private final JBBPBitInputStream UNLIMITED_STREAM = new JBBPBitInputStream(new InputStream() {
     @Override

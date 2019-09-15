@@ -16,14 +16,14 @@
 
 package com.igormaznitsa.jbbp.utils;
 
-import com.igormaznitsa.jbbp.compiler.conversion.JBBPToJava6ConverterReadWriteTest;
+import com.igormaznitsa.jbbp.compiler.conversion.JBBPToJavaConverterReadWriteTest;
 
 import java.util.Arrays;
 
 /**
  * Buffer to accumulate integer values. <b>NB!</b> It is being used in tests.
  *
- * @see JBBPToJava6ConverterReadWriteTest
+ * @see JBBPToJavaConverterReadWriteTest
  */
 public class DynamicIntBuffer {
   protected static final int INITIAL_CAPACITY_INCREASE = 128;
