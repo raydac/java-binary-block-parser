@@ -17,7 +17,7 @@
 package com.igormaznitsa.jbbp.compiler.conversion;
 
 import com.igormaznitsa.jbbp.JBBPParser;
-import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJava6ConverterTest;
+import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJavaConverterTest;
 import org.junit.jupiter.api.Test;
 
 import java.io.EOFException;
@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * Test parser flags for converted sources.
  */
-public class ParserToJBBPToJavaClassConverterJBBPFlagsTest extends AbstractJBBPToJava6ConverterTest {
+public class ParserToJBBPToJavaClassConverterJBBPFlagsTest extends AbstractJBBPToJavaConverterTest {
 
   @Test
   public void testFlag_SkipRemainingFieldsIfEOF() throws Exception {

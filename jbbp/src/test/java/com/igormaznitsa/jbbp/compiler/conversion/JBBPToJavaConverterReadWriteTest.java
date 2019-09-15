@@ -28,7 +28,7 @@ import com.igormaznitsa.jbbp.io.JBBPOut;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
-import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJava6ConverterTest;
+import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJavaConverterTest;
 import com.igormaznitsa.jbbp.utils.ReflectUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
@@ -46,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test reading writing with converted classes from parser.
  */
-public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJava6ConverterTest {
+public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverterTest {
 
   private byte[] loadResource(final String name) throws Exception {
     try(final InputStream result = this.getClass().getClassLoader().getResourceAsStream("com/igormaznitsa/jbbp/it/" + name)){
@@ -314,7 +314,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJava6Convert
     assertNull(getField(instance, "bitarray", byte[].class), "by default must be null");
 
     final byte[] etalon = new byte[1024];
-    RND.nextBytes(etalon);
+    testRandomGen.nextBytes(etalon);
 
     callRead(instance, etalon.clone());
 
@@ -720,7 +720,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJava6Convert
         + "}"));
 
     final byte[] etalonArray = new byte[6 + (0x7B + 0x1CB) * 3 + 112 * 3];
-    RND.nextBytes(etalonArray);
+    testRandomGen.nextBytes(etalonArray);
     etalonArray[0] = 0x00;
     etalonArray[1] = 0x00;
     etalonArray[2] = (byte) 0x7B;
@@ -844,7 +844,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJava6Convert
 
     final byte[] array = new byte[77];
 
-    RND.nextBytes(array);
+    testRandomGen.nextBytes(array);
     final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(array.clone()));
 
     callRead(klazz, in);

@@ -2,7 +2,7 @@ package com.igormaznitsa.jbbp.compiler.conversion;
 
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
-import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJava6ConverterTest;
+import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJavaConverterTest;
 import com.igormaznitsa.jbbp.utils.JBBPDslBuilder;
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +13,7 @@ import java.util.Random;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class RandomAutoTest extends AbstractJBBPToJava6ConverterTest {
+public class RandomAutoTest extends AbstractJBBPToJavaConverterTest {
 
   private final Random RND = new Random(12345);
 

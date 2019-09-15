@@ -18,7 +18,7 @@ package com.igormaznitsa.jbbp.compiler.conversion;
 
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
-import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJava6ConverterTest;
+import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJavaConverterTest;
 import com.igormaznitsa.jbbp.utils.TargetSources;
 import org.junit.jupiter.api.Test;
 
@@ -30,12 +30,12 @@ import java.util.Random;
 import static com.igormaznitsa.jbbp.TestUtils.getField;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class JBBPToJBBPToJavaConverterExpressionTest extends AbstractJBBPToJava6ConverterTest {
+public class JBBPToJBBPToJavaConverterExpressionTest extends AbstractJBBPToJavaConverterTest {
 
   private final JBBPBitInputStream UNLIMITED_STREAM = new JBBPBitInputStream(new InputStream() {
     @Override
     public int read() throws IOException {
-      return RND.nextInt();
+      return testRandomGen.nextInt();
     }
   });
 

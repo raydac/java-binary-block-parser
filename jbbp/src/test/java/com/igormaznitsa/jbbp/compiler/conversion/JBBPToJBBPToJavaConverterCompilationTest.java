@@ -24,14 +24,14 @@ import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.mapper.JBBPMapper;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
-import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJava6ConverterTest;
+import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJavaConverterTest;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class JBBPToJBBPToJavaConverterCompilationTest extends AbstractJBBPToJava6ConverterTest {
+class JBBPToJBBPToJavaConverterCompilationTest extends AbstractJBBPToJavaConverterTest {
 
   private static String makeSources(
       final JBBPParser parser,

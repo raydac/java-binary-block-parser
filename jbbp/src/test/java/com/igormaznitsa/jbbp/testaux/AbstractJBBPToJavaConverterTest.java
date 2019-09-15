@@ -52,12 +52,12 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public abstract class AbstractJBBPToJava6ConverterTest {
+public abstract class AbstractJBBPToJavaConverterTest {
 
   protected static final String PACKAGE_NAME = "com.igormaznitsa.test";
   protected static final String CLASS_NAME = "TestClass";
   protected static TemporaryFolder tempFolder = new TemporaryFolder();
-  protected final Random RND = new Random(123456);
+  protected final Random testRandomGen = new Random(123456);
 
   protected boolean printGeneratedClassText = false;
 

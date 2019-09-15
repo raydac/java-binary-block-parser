@@ -51,27 +51,13 @@ public final class ReflectUtils {
    * @param klazz class to be instantiated, must not be null
    * @param <T>   type of the class
    * @return instance of class, must not be null
+   * @throws RuntimeException if can't create instance for an error
    */
   public static <T> T newInstance(final Class<T> klazz) {
     try {
       return klazz.getConstructor().newInstance();
     } catch (Exception ex) {
-      throw new Error(String.format("Can't create instance of %s for error %s", klazz.getCanonicalName(), ex.getMessage()), ex);
-    }
-  }
-
-  /**
-   * Find class for name and make an instance through call of the default constructor.
-   *
-   * @param className the class name to be instantiated, must not be null
-   * @return new instance of the class, must not be null
-   * @throws Error if it is impossible to build instance for an exception
-   */
-  public static Object newInstanceForClassName(final String className) {
-    try {
-      return newInstance(Class.forName(className));
-    } catch (Exception ex) {
-      throw new Error(String.format("Can't create instance of %s for error %s", className, ex.getMessage()), ex);
+      throw new RuntimeException(String.format("Can't create instance of %s for error %s", klazz, ex.getMessage()), ex);
     }
   }
 
