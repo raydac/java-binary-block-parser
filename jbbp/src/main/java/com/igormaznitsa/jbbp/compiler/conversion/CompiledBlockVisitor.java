@@ -135,7 +135,7 @@ public class CompiledBlockVisitor {
           final JBBPIntegerValueEvaluator evaluator = extraFieldNumAsExpr ? extraFieldValueEvaluator : new IntConstValueEvaluator(JBBPUtils.unpackInt(compiledData, positionAtCompiledBlock));
           if (altFileType) {
             if (theCode == JBBPCompiler.CODE_SKIP) {
-              visitValField(theOffset, name, evaluator);
+              visitValField(theOffset, byteOrder, name, evaluator);
             } else {
               throw new Error("Unexpected code:" + theCode);
             }
@@ -147,7 +147,7 @@ public class CompiledBlockVisitor {
 
         case JBBPCompiler.CODE_BIT: {
           final JBBPIntegerValueEvaluator numberOfBits = extraFieldNumAsExpr ? extraFieldValueEvaluator : new IntConstValueEvaluator(JBBPUtils.unpackInt(compiledData, positionAtCompiledBlock));
-          visitBitField(theOffset, name, numberOfBits, arraySizeEvaluator);
+          visitBitField(theOffset, byteOrder, name, numberOfBits, arraySizeEvaluator);
         }
         break;
 
@@ -163,7 +163,7 @@ public class CompiledBlockVisitor {
         break;
 
         case JBBPCompiler.CODE_STRUCT_START: {
-          visitStructureStart(theOffset, name, arraySizeEvaluator);
+          visitStructureStart(theOffset, byteOrder, name, arraySizeEvaluator);
         }
         break;
 
@@ -212,11 +212,12 @@ public class CompiledBlockVisitor {
    * Visit field contains virtual field with VAL type.
    *
    * @param offsetInCompiledBlock offset in the compiled block
+   * @param byteOrder byteOrder
    * @param nameFieldInfo         name of the field, must not be null
    * @param expression            expression to calculate value
    * @since 1.4.0
    */
-  public void visitValField(int offsetInCompiledBlock, JBBPNamedFieldInfo nameFieldInfo, JBBPIntegerValueEvaluator expression) {
+  public void visitValField(int offsetInCompiledBlock, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nameFieldInfo, JBBPIntegerValueEvaluator expression) {
   }
 
   /**
@@ -257,10 +258,10 @@ public class CompiledBlockVisitor {
   public void visitCustomField(int offsetInCompiledBlock, JBBPFieldTypeParameterContainer notNullFieldType, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPByteOrder byteOrder, boolean readWholeStream, JBBPIntegerValueEvaluator nullableArraySizeEvaluator, JBBPIntegerValueEvaluator extraDataValueEvaluator) {
   }
 
-  public void visitBitField(int offsetInCompiledBlock, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPIntegerValueEvaluator notNullFieldSize, JBBPIntegerValueEvaluator nullableArraySize) {
+  public void visitBitField(int offsetInCompiledBlock, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPIntegerValueEvaluator notNullFieldSize, JBBPIntegerValueEvaluator nullableArraySize) {
   }
 
-  public void visitStructureStart(int offsetInCompiledBlock, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPIntegerValueEvaluator nullableArraySize) {
+  public void visitStructureStart(int offsetInCompiledBlock, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPIntegerValueEvaluator nullableArraySize) {
   }
 
   public void visitStructureEnd(int offsetInCompiledBlock, JBBPNamedFieldInfo nullableNameFieldInfo) {

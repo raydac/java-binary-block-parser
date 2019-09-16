@@ -44,10 +44,10 @@ import java.util.Map;
 public abstract class AbstractMappedClassFieldObserver {
 
   /**
-   * Inside cache to keep outOrder of fields for classes for data output. It is
+   * Internal cache to keep outOrder of fields for classes for data output. It is
    * lazy initialized field.
    */
-  private static volatile Map<Class<?>, Field[]> cachedClasses;
+  private static Map<Class<?>, Field[]> cachedClasses;
 
   /**
    * Inside auxiliary method to read object field value.
