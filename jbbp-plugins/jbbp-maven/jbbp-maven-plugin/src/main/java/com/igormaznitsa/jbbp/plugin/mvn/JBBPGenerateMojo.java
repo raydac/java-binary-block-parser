@@ -378,7 +378,9 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
           .setSubClassSuperclasses(this.getMapStructToSuperclasses())
           .setAddGettersSetters(this.getAddGettersSetters())
           .setDoAbstract(this.isDoAbstract())
-          .setDisableGenerateFields(this.isDisableGenerateFields());
+          .setDisableGenerateFields(this.isDisableGenerateFields())
+          .setAddBinAnnotations(this.isAddBinAnnotations())
+          .setAddNewInstanceMethods(this.isAddNewInstanceMethods());
 
       for (final File aScript : foundJBBPScripts) {
         parameters.setScriptFile(aScript).assertAllOk();

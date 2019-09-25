@@ -1,21 +1,21 @@
 package com.igormaznitsa.jbbp.plugin.common.converters;
 
+import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_STRING_EMPTY;
+
+
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.compiler.conversion.JBBPToJavaConverter;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.plugin.common.utils.CommonUtils;
 import com.igormaznitsa.meta.common.utils.Assertions;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
-
-import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_STRING_EMPTY;
+import javax.annotation.Nonnull;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 
 public class JavaConverter implements JBBPScriptTranslator {
   @Override
@@ -55,8 +55,8 @@ public class JavaConverter implements JBBPScriptTranslator {
         builder.addBinAnnotations();
       }
 
-      if (parameters.isGenNewInstance()) {
-        builder.genNewInstance();
+      if (parameters.isAddNewInstanceMethods()) {
+        builder.addNewInstanceMethods();
       }
 
       if (parameters.isDoInternalClassesNonStatic()) {

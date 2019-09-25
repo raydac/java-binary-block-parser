@@ -1,5 +1,8 @@
 package com.igormaznitsa.jbbp.plugin.gradle;
 
+import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_STRING_EMPTY;
+
+
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
@@ -13,22 +16,19 @@ import com.igormaznitsa.jbbp.plugin.common.utils.CommonUtils;
 import com.igormaznitsa.meta.annotation.MustNotContainNull;
 import com.igormaznitsa.meta.common.utils.Assertions;
 import com.igormaznitsa.meta.common.utils.GetUtils;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.gradle.api.GradleException;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.SourceSet;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.File;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
-
-import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_STRING_EMPTY;
 
 /**
  * Task to translate found JBBP scripts in source files.
@@ -99,7 +99,7 @@ public class JBBPGenerateTask extends AbstractJBBPTask {
         .setEncodingOut(CommonUtils.ensureEncodingName(ext.outEncoding))
         .setCustomFieldTypeProcessor(customFieldProcessor)
         .setSuperClass(ext.superClass)
-        .setGenNewInstance(ext.genNewInstance)
+        .setAddNewInstanceMethods(ext.addNewInstanceMethods)
         .setAddBinAnnotations(ext.addBinAnnotations)
         .setClassImplements(ext.interfaces)
         .setSubClassInterfaces(ext.mapSubClassInterfaces)

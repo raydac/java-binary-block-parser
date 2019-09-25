@@ -16,6 +16,18 @@
 
 package com.igormaznitsa.jbbp.compiler.conversion;
 
+import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.CODE_ALIGN;
+import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.CODE_BOOL;
+import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.CODE_BYTE;
+import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.CODE_INT;
+import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.CODE_LONG;
+import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.CODE_RESET_COUNTER;
+import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.CODE_SHORT;
+import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.CODE_SKIP;
+import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.CODE_UBYTE;
+import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.CODE_USHORT;
+
+
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
@@ -25,7 +37,6 @@ import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.mapper.BinType;
 import com.igormaznitsa.jbbp.mapper.JBBPMapper;
 import com.igormaznitsa.jbbp.utils.JavaSrcTextBuffer;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,8 +46,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.*;
 
 /**
  * Converter to produce Java class sources (1.6+) from JBBPParser. If a parser
@@ -323,7 +332,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
 
     final Struct rootStruct = this.structStack.get(0);
 
-    if (this.builder.genNewInstance) {
+    if (this.builder.addNewInstanceMethods) {
       rootStruct.misc.println(String.format("public Object %s(Class<?> aClass) {", JBBPMapper.MAKE_CLASS_INSTANCE_METHOD_NAME));
       rootStruct.misc.incIndent();
 
@@ -458,7 +467,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
   public void visitStructureEnd(final int offsetInCompiledBlock, final JBBPNamedFieldInfo nullableNameFieldInfo) {
     final Struct struct = this.structStack.remove(0);
 
-    if (this.builder.genNewInstance) {
+    if (this.builder.addNewInstanceMethods) {
       struct.misc.println(String.format("public Object %s(Class aClass) {", JBBPMapper.MAKE_CLASS_INSTANCE_METHOD_NAME));
       struct.misc.incIndent();
 
@@ -1258,7 +1267,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
      *
      * @since 2.0.0
      */
-    private boolean genNewInstance;
+    private boolean addNewInstanceMethods;
 
     /**
      * The Package name for the result class.
@@ -1411,9 +1420,9 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
      * @return the builder instance, must not be null
      * @since 2.0.0
      */
-    public Builder genNewInstance() {
+    public Builder addNewInstanceMethods() {
       assertNonLocked();
-      this.genNewInstance = true;
+      this.addNewInstanceMethods = true;
       return this;
     }
 

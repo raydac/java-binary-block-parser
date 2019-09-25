@@ -16,6 +16,12 @@
 
 package com.igormaznitsa.jbbp.compiler.conversion;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
@@ -25,11 +31,8 @@ import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.mapper.JBBPMapper;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJavaConverterTest;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class JBBPToJBBPToJavaConverterCompilationTest extends AbstractJBBPToJavaConverterTest {
 
@@ -50,7 +53,7 @@ class JBBPToJBBPToJavaConverterCompilationTest extends AbstractJBBPToJavaConvert
     }
 
     if (addBinAnnotations) {
-      result.addBinAnnotations().genNewInstance();
+      result.addBinAnnotations().addNewInstanceMethods();
     }
 
     return result.build()
@@ -86,7 +89,7 @@ class JBBPToJBBPToJavaConverterCompilationTest extends AbstractJBBPToJavaConvert
   void testGenNewInstanceMethod() {
     final JBBPParser parser = JBBPParser.prepare("bit:3 someBit; bit:4 [12] bitArray; some {int a; floatj b; doublej[23] darr;}");
     assertFalse(JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).build().convert().contains("Object " + JBBPMapper.MAKE_CLASS_INSTANCE_METHOD_NAME));
-    assertTrue(JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).genNewInstance().build().convert().contains("Object " + JBBPMapper.MAKE_CLASS_INSTANCE_METHOD_NAME));
+    assertTrue(JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).addNewInstanceMethods().build().convert().contains("Object " + JBBPMapper.MAKE_CLASS_INSTANCE_METHOD_NAME));
   }
 
   @Test

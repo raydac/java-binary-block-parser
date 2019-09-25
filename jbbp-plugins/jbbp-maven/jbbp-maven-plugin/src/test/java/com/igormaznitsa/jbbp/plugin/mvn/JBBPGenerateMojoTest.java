@@ -16,6 +16,13 @@
 
 package com.igormaznitsa.jbbp.plugin.mvn;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
@@ -25,13 +32,6 @@ import org.apache.maven.project.ProjectBuildingRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 public class JBBPGenerateMojoTest extends AbstractMojoTestCase {
 

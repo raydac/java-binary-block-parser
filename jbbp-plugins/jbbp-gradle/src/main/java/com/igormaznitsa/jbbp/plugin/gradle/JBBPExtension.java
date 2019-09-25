@@ -2,15 +2,14 @@ package com.igormaznitsa.jbbp.plugin.gradle;
 
 import com.igormaznitsa.jbbp.plugin.common.converters.ParserFlags;
 import com.igormaznitsa.jbbp.plugin.common.converters.Target;
-import org.gradle.api.Project;
-import org.gradle.api.file.ConfigurableFileTree;
-
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nonnull;
+import org.gradle.api.Project;
+import org.gradle.api.file.ConfigurableFileTree;
 
 /**
  * JBBP extension settings.
@@ -137,7 +136,7 @@ public class JBBPExtension {
   /**
    * Generate methods newInstance in generated classes.
    */
-  public boolean genNewInstance;
+  public boolean addNewInstanceMethods;
 
   /**
    * Generate Bin annotations for fields

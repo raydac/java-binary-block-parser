@@ -2,9 +2,6 @@ package com.igormaznitsa.jbbp.plugin.common.converters;
 
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.meta.common.utils.Assertions;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
@@ -12,6 +9,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Interface for auxiliary class to process found JBBP script and translate them into set of files.
@@ -134,7 +133,7 @@ public interface JBBPScriptTranslator {
      *
      * @since 2.0.0
      */
-    private boolean genNewInstance;
+    private boolean addNewInstanceMethods;
 
     @Nullable
     public String getPackageName() {
@@ -205,13 +204,13 @@ public interface JBBPScriptTranslator {
       return this.doInternalClassesNonStatic;
     }
 
-    public boolean isGenNewInstance() {
-      return this.genNewInstance;
+    public boolean isAddNewInstanceMethods() {
+      return this.addNewInstanceMethods;
     }
 
     @Nonnull
-    public Parameters setGenNewInstance(final boolean flag) {
-      this.genNewInstance = flag;
+    public Parameters setAddNewInstanceMethods(final boolean flag) {
+      this.addNewInstanceMethods = flag;
       return this;
     }
 

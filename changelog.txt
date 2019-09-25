@@ -2,7 +2,7 @@
  - __reworked mapping system, removed hacks to instantiate classes, now only objects allowed__
  - __minimal JDK version is increaded to 1.8+__
  - __minimal Android API is increased to 3.0+__
- - added creation of `makeFIELD()` method for structure types in Java6 converted classes
+ - added creation of `makeFIELD()` method for structure types in Java converted classes
  - refactoring
 
 1.4.1
