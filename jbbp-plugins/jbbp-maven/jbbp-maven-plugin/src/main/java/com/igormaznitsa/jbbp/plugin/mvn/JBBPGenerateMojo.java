@@ -16,25 +16,21 @@
 
 package com.igormaznitsa.jbbp.plugin.mvn;
 
+import static com.igormaznitsa.jbbp.plugin.common.utils.CommonUtils.ensureEncodingName;
+import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_STRING_EMPTY;
+
+
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
+import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.plugin.common.converters.JBBPScriptTranslator;
 import com.igormaznitsa.jbbp.plugin.common.converters.ParserFlags;
 import com.igormaznitsa.jbbp.plugin.common.converters.Target;
 import com.igormaznitsa.meta.annotation.MustNotContainNull;
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -42,9 +38,14 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
-import static com.igormaznitsa.jbbp.plugin.common.utils.CommonUtils.ensureEncodingName;
-import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_STRING_EMPTY;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * The Mojo looks for all JBBP scripts in source and generate sources.
@@ -162,6 +163,23 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
    */
   @Parameter(alias = "addToTestSourceFolders")
   private boolean addToTestSourceFolders;
+
+  /**
+   * Turn on generate of newInstance methods inside generated classes.
+   *
+   * @since 2.0.0
+   */
+  @Parameter(alias = "addNewInstanceMethods", defaultValue = "false")
+  private boolean addNewInstanceMethods;
+
+  /**
+   * Add Bin annotations
+   *
+   * @see Bin
+   * @since 2.0.0
+   */
+  @Parameter(alias = "addBinAnnotations", defaultValue = "false")
+  private boolean addBinAnnotations;
 
   public boolean isAddToSourceFolders() {
     return this.addToSourceFolders;
@@ -410,4 +428,19 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
     registerSourceRoot(this.output);
   }
 
+  public boolean isAddNewInstanceMethods() {
+    return this.addNewInstanceMethods;
+  }
+
+  public void setAddNewInstanceMethods(final boolean addNewInstanceMethods) {
+    this.addNewInstanceMethods = addNewInstanceMethods;
+  }
+
+  public boolean isAddBinAnnotations() {
+    return addBinAnnotations;
+  }
+
+  public void setAddBinAnnotations(boolean addBinAnnotations) {
+    this.addBinAnnotations = addBinAnnotations;
+  }
 }

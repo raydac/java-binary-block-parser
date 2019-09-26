@@ -27,7 +27,6 @@ import com.igormaznitsa.jbbp.model.JBBPFieldArrayLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldShort;
 import com.igormaznitsa.mvn.test.jbbp.VarCustom;
-
 import java.io.IOException;
 
 public class VarCustomImpl extends VarCustom {

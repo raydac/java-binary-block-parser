@@ -62,6 +62,17 @@ public class JBBPGenerateMojoTest extends AbstractMojoTestCase {
     return arr;
   }
 
+  private void assertPath(final String expected, final String check) {
+    final String normalized = expected.replace('/', File.separatorChar);
+    if (check.endsWith(normalized)) {
+      final String start = check.substring(0, check.length() - expected.length());
+      if (start.length() == 0 || start.endsWith(":")) {
+        return;
+      }
+    }
+    fail(String.format("Expected %s but detected %s", expected, check));
+  }
+
   @Test
   public void testConfig() throws Exception {
     final JBBPGenerateMojo mojo = findMojo("mojoConfig.xml", "generate");
@@ -70,13 +81,13 @@ public class JBBPGenerateMojoTest extends AbstractMojoTestCase {
     assertTrue(mojo.getGenerateTestSources());
     assertTrue(mojo.getSkip());
     assertTrue(mojo.getVerbose());
-    assertEquals("/some/custom/file", mojo.getCustomTextFile().getPath());
+    assertPath("/some/custom/file", mojo.getCustomTextFile().getPath());
     assertEquals("public void test(){}", mojo.getCustomText());
     assertEquals("uber.package", mojo.getPackageName());
-    assertEquals("/some/cap/file", mojo.getHeadCommentFile().getPath());
+    assertPath("/some/cap/file", mojo.getHeadCommentFile().getPath());
     assertEquals("some cap text", mojo.getHeadComment());
-    assertEquals("/some/source", mojo.getSource().getPath());
-    assertEquals("/some/output", mojo.getOutput().getPath());
+    assertPath("/some/source", mojo.getSource().getPath());
+    assertPath("/some/output", mojo.getOutput().getPath());
     assertEquals("IN-8", mojo.getInputEncoding());
     assertEquals("OUT-8", mojo.getOutputEncoding());
     assertEquals("com.igormaznitsa.Super", mojo.getSuperClass());

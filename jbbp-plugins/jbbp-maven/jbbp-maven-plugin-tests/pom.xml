@@ -17,7 +17,9 @@
     <modules>
         <module>jbbp-mvn-test-primitives</module>
         <module>jbbp-mvn-test-customvars</module>
-        <module>jbbp-mvn-getterssetters</module>
+        <module>jbbp-mvn-test-getterssetters</module>
+        <module>jbbp-mvn-test-genannotations</module>
+        <module>jbbp-mvn-test-genannotations-nonstatic</module>
     </modules>
 
     <dependencies>
