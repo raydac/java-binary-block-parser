@@ -1,6 +1,8 @@
 package com.igormaznitsa.jbbp.utils;
 
 import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Queue;
@@ -19,6 +21,19 @@ public final class ReflectUtils {
   private static final Queue<PrivilegedProcessor> PROCESSORS_QUEUE = new ArrayBlockingQueue<>(32);
 
   private ReflectUtils() {
+  }
+
+  public static boolean isPotentiallyAccessibleClass(final Class<?> klazz) {
+    if (klazz.isLocalClass() && !isPotentiallyAccessibleClass(klazz.getEnclosingClass())) {
+      return false;
+    }
+    return Modifier.isPublic(klazz.getModifiers());
+  }
+
+  public static boolean isPotentiallyAccessibleField(final Field field) {
+    return isPotentiallyAccessibleClass(field.getDeclaringClass())
+        && Modifier.isPublic(field.getModifiers())
+        && !Modifier.isFinal(field.getModifiers());
   }
 
   /**

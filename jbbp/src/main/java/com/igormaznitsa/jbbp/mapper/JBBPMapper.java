@@ -38,7 +38,6 @@ import com.igormaznitsa.jbbp.model.JBBPNumericField;
 import com.igormaznitsa.jbbp.utils.Function;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import com.igormaznitsa.jbbp.utils.ReflectUtils;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -314,7 +313,9 @@ public final class JBBPMapper {
           continue;
         }
 
-        mappingField = ReflectUtils.makeAccessible(mappingField);
+        if (!ReflectUtils.isPotentiallyAccessibleField(mappingField)) {
+          mappingField = ReflectUtils.makeAccessible(mappingField);
+        }
 
         final Bin fieldAnno = mappingField.getAnnotation(Bin.class);
         final Bin mappedAnno;

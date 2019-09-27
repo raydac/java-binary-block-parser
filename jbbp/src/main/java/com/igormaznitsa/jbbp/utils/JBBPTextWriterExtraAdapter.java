@@ -18,7 +18,6 @@ package com.igormaznitsa.jbbp.utils;
 
 import com.igormaznitsa.jbbp.exceptions.JBBPException;
 import com.igormaznitsa.jbbp.mapper.Bin;
-
 import java.io.IOException;
 import java.lang.reflect.Field;
 
@@ -97,7 +96,11 @@ public abstract class JBBPTextWriterExtraAdapter implements JBBPTextWriter.Extra
   public Object extractFieldValue(final Object instance, final Field field) {
     JBBPUtils.assertNotNull(field, "Field must not be null");
     try {
-      return ReflectUtils.makeAccessible(field).get(instance);
+      if (ReflectUtils.isPotentiallyAccessibleField(field)) {
+        return field.get(instance);
+      } else {
+        return ReflectUtils.makeAccessible(field).get(instance);
+      }
     } catch (Exception ex) {
       throw new JBBPException("Can't extract value from field for exception", ex);
     }

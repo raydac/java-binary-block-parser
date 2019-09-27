@@ -16,13 +16,10 @@
 
 package com.igormaznitsa.jbbp;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.Locale;
-import java.util.zip.CRC32;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+
+import java.util.Locale;
 import org.apache.commons.codec.digest.PureJavaCrc32;
 
 /**
@@ -35,27 +32,6 @@ public enum TestUtils {
    * Delta to be used for double and float compare.
    */
   public static final float FLOAT_DELTA = Float.MIN_VALUE;
-
-
-  /**
-   * Inject new value into final field
-   *
-   * @param klazz     a class which field must be injected, must not be null
-   * @param instance  the instance of the class, it can be null for static fields
-   * @param fieldName the field name, must not be null
-   * @param value     the value to be injected
-   * @throws Exception it will be thrown for any error
-   */
-  public static void injectDeclaredFinalFieldValue(final Class<?> klazz, final Object instance, final String fieldName, final Object value) throws Exception {
-    final Field field = klazz.getDeclaredField(fieldName);
-    field.setAccessible(true);
-
-    final Field modifiersField = Field.class.getDeclaredField("modifiers");
-    modifiersField.setAccessible(true);
-    modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-
-    field.set(instance, value);
-  }
 
   /**
    * Read field value, also allows to provide dot-separated chain of fields

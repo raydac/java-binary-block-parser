@@ -27,7 +27,6 @@ import com.igormaznitsa.jbbp.model.JBBPFieldString;
 import com.igormaznitsa.jbbp.utils.DslBinCustom;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import com.igormaznitsa.jbbp.utils.ReflectUtils;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -117,7 +116,9 @@ public abstract class AbstractMappedClassFieldObserver {
         final Bin clazzAnno = clazzToProcess.getAnnotation(Bin.class);
 
         for (Field f : clazzToProcess.getDeclaredFields()) {
-          f = ReflectUtils.makeAccessible(f);
+          if (!ReflectUtils.isPotentiallyAccessibleField(f)) {
+            f = ReflectUtils.makeAccessible(f);
+          }
 
           final int modifiers = f.getModifiers();
           if (Modifier.isTransient(modifiers) || Modifier.isStatic(modifiers) || f.getName().indexOf('$') >= 0) {
@@ -146,7 +147,9 @@ public abstract class AbstractMappedClassFieldObserver {
       }
     }
 
-    field = ReflectUtils.makeAccessible(field);
+    if (field != null && !ReflectUtils.isPotentiallyAccessibleField(field)) {
+      field = ReflectUtils.makeAccessible(field);
+    }
 
     final Bin clazzAnno = obj.getClass().getAnnotation(Bin.class);
     final DslBinCustom clazzCustomAnno = obj.getClass().getAnnotation(DslBinCustom.class);
@@ -472,7 +475,7 @@ public abstract class AbstractMappedClassFieldObserver {
               this.onArrayStart(obj, field, annotation, len);
               for (int i = 0; i < len; i++) {
                 final Object value = Array.get(array, i);
-                String nullableStrValue = value == null ? null : String.valueOf (value);
+                String nullableStrValue = value == null ? null : String.valueOf(value);
                 if (nullableStrValue != null && reverseBits) {
                   nullableStrValue = JBBPFieldString.reverseBits(nullableStrValue);
                 }
