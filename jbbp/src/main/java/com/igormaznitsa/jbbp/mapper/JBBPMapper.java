@@ -39,15 +39,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class JBBPMapper {
 
   public static final String MAKE_CLASS_INSTANCE_METHOD_NAME = "newInstance";
-
-  private static final Map<Class<?>, List<MappedFieldRecord>> CACHED_FIELDS = new ConcurrentHashMap<>();
-
   /**
    * Flag to not throw exception if structure doesn't have value for a field.
    *
    * @since 1.1
    */
   public static final int FLAG_IGNORE_MISSING_VALUES = 1;
+  private static final Map<Class<?>, List<MappedFieldRecord>> CACHED_FIELDS = new ConcurrentHashMap<>();
+
   /**
    * Create a class instance, map binary data of a structure for its path to its
    * fields and return the instance.
@@ -280,6 +279,25 @@ public final class JBBPMapper {
       );
     }
     return instance;
+  }
+
+  /**
+   * Get current number of classes which fields are cached in internal field cache.
+   *
+   * @return number of classes
+   * @since 2.0.0
+   */
+  public static int getClassCacheSize() {
+    return CACHED_FIELDS.size();
+  }
+
+  /**
+   * Clear internal class field cache.
+   *
+   * @since 2.0.0
+   */
+  public static void clearClassCache() {
+    CACHED_FIELDS.clear();
   }
 
   private static List<MappedFieldRecord> makeListOfRecords(final Object instance) {
