@@ -16,6 +16,13 @@
 
 package com.igormaznitsa.jbbp.it;
 
+import static com.igormaznitsa.jbbp.io.JBBPByteOrder.LITTLE_ENDIAN;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
@@ -29,19 +36,15 @@ import com.igormaznitsa.jbbp.mapper.JBBPMapperCustomFieldProcessor;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayByte;
 import com.igormaznitsa.jbbp.model.JBBPFieldBit;
 import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
+import com.igormaznitsa.jbbp.utils.Function;
 import com.igormaznitsa.jbbp.utils.JBBPTextWriter;
 import com.igormaznitsa.jbbp.utils.JBBPTextWriterExtraAdapter;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-import org.junit.jupiter.api.Test;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-
-import static com.igormaznitsa.jbbp.io.JBBPByteOrder.LITTLE_ENDIAN;
-import com.igormaznitsa.jbbp.utils.Function;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test to parse RLE encoded snapshots in well-known Z80 format (v.1) for
@@ -65,12 +68,30 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
     assertArrayEquals(new byte[] {(byte) 0xED, (byte) 0xED, 8, 5, 1, 2, 3, 0x00, (byte) 0xED, (byte) 0xED, 0x00}, JBBPOut.BeginBin().Var(new RLEDataEncoder(), 1, new byte[] {5, 5, 5, 5, 5, 5, 5, 5, 1, 2, 3}).End().toByteArray());
   }
 
+  private static final Function<Class<?>, Object> INSTANTIATOR = aClass -> {
+    if (aClass == Flags.class) {
+      return new Flags();
+    }
+    if (aClass == EmulFlags.class) {
+      return new EmulFlags();
+    }
+    return null;
+  };
+
+  @Test
+  public void testParseAndWriteTestZ80WithoutCheckOfFields() throws Exception {
+    assertParseAndPackBack("test1.z80", 16059);
+    assertParseAndPackBack("test2.z80", 29330);
+    assertParseAndPackBack("test3.z80", 5711);
+    assertParseAndPackBack("test4.z80", 9946);
+  }
+
   private Z80Snapshot assertParseAndPackBack(final String name, final long etalonLen) throws Exception {
     final Z80Snapshot z80sn;
 
     final InputStream resource = getResourceAsInputStream(name);
     try {
-      z80sn = z80Parser.parse(resource).mapTo(new Z80Snapshot(), new DataProcessor(),INSTANTIATOR);
+      z80sn = z80Parser.parse(resource).mapTo(new Z80Snapshot(), new DataProcessor(), INSTANTIATOR);
       assertEquals(etalonLen, z80Parser.getFinalStreamByteCounter());
     } finally {
       JBBPUtils.closeQuietly(resource);
@@ -104,14 +125,6 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
   }
 
   @Test
-  public void testParseAndWriteTestZ80WithoutCheckOfFields() throws Exception {
-    assertParseAndPackBack("test1.z80", 16059);
-    assertParseAndPackBack("test2.z80", 29330);
-    assertParseAndPackBack("test3.z80", 5711);
-    assertParseAndPackBack("test4.z80", 9946);
-  }
-
-  @Test
   public void testParseAndWriteTestZ80WithCheckOfFields() throws Exception {
     final Z80Snapshot z80sn = assertParseAndPackBack("test.z80", 12429);
 
@@ -119,8 +132,12 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
 
       @Override
       public String doConvertCustomField(JBBPTextWriter context, Object obj, Field field, Bin annotation) throws IOException {
-        final byte[] data = (byte[]) extractFieldValue(obj, field);
-        return "byte array length [" + data.length + ']';
+        try {
+          final byte[] data = (byte[]) field.get(obj);
+          return "byte array length [" + data.length + ']';
+        } catch (Exception ex) {
+          throw new RuntimeException(ex);
+        }
       }
 
     }).Bin(z80sn).Close().toString();
@@ -169,12 +186,6 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
     }
     assertTrue(summ > 0);
   }
-
-  private static final Function<Class<?>,Object> INSTANTIATOR = aClass -> {
-    if (aClass == Flags.class) return new Flags();
-    if (aClass == EmulFlags.class) return new EmulFlags();
-    return null;
-  };
 
   @Test
   public void testParseAndPackThrowMapping() throws Exception {
