@@ -32,8 +32,7 @@ public final class ReflectUtils {
 
   public static boolean isPotentiallyAccessibleField(final Field field) {
     return isPotentiallyAccessibleClass(field.getDeclaringClass())
-        && Modifier.isPublic(field.getModifiers())
-        && !Modifier.isFinal(field.getModifiers());
+        && Modifier.isPublic(field.getModifiers());
   }
 
   /**

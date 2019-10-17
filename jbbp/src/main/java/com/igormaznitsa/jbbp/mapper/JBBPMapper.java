@@ -313,7 +313,15 @@ public final class JBBPMapper {
       // make chain of ancestors till java.lang.Object
       final List<Class<?>> listOfClassHierarchy = new ArrayList<>();
       Class<?> current = instance.getClass();
-      while (current != java.lang.Object.class) {
+      while (current != null) {
+        final String packageName = current.getPackage().getName();
+        if (packageName.startsWith("java.")
+            || packageName.startsWith("com.sun.")
+            || packageName.startsWith("javax.")
+            || packageName.startsWith("android.")
+        ) {
+          break;
+        }
         listOfClassHierarchy.add(current);
         current = current.getSuperclass();
       }
@@ -321,7 +329,10 @@ public final class JBBPMapper {
       for (final Class<?> processingClazz : listOfClassHierarchy) {
         for (Field mappingField : processingClazz.getDeclaredFields()) {
           final int modifiers = mappingField.getModifiers();
-          if (Modifier.isTransient(modifiers) || Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers)) {
+
+          if (Modifier.isTransient(modifiers)
+              || Modifier.isStatic(modifiers)
+              || Modifier.isFinal(modifiers)) {
             continue;
           }
 
