@@ -27,6 +27,7 @@ import com.igormaznitsa.jbbp.utils.ReflectUtils;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -268,7 +269,7 @@ public final class JBBPMapper {
     JBBPUtils.assertNotNull(instance, "The Mapping class instance must not be null");
 
     // Don't use forEach() for Android compatibility!
-    for (final MappedFieldRecord record : makeListOfRecords(instance)) {
+    for (final MappedFieldRecord record : findAffectedFields(instance)) {
       processFieldOfMappedClass(
           record,
           rootStructure,
@@ -287,7 +288,7 @@ public final class JBBPMapper {
    * @return number of classes
    * @since 2.0.0
    */
-  public static int getClassCacheSize() {
+  public static int getFieldCacheSize() {
     return CACHED_FIELDS.size();
   }
 
@@ -296,11 +297,11 @@ public final class JBBPMapper {
    *
    * @since 2.0.0
    */
-  public static void clearClassCache() {
+  public static void clearFieldCache() {
     CACHED_FIELDS.clear();
   }
 
-  private static List<MappedFieldRecord> makeListOfRecords(final Object instance) {
+  public static List<MappedFieldRecord> findAffectedFields(final Object instance) {
     final Class<?> mappingClass = instance.getClass();
 
     List<MappedFieldRecord> result = CACHED_FIELDS.get(mappingClass);
@@ -320,7 +321,7 @@ public final class JBBPMapper {
       for (final Class<?> processingClazz : listOfClassHierarchy) {
         for (Field mappingField : processingClazz.getDeclaredFields()) {
           final int modifiers = mappingField.getModifiers();
-          if (Modifier.isTransient(modifiers) || Modifier.isStatic(modifiers)) {
+          if (Modifier.isTransient(modifiers) || Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers)) {
             continue;
           }
 
@@ -342,6 +343,8 @@ public final class JBBPMapper {
           }
         }
       }
+
+      Collections.sort(result);
 
       CACHED_FIELDS.put(mappingClass, result);
     }

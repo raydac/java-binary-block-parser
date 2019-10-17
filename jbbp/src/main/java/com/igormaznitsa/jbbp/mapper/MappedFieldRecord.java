@@ -28,7 +28,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-final class MappedFieldRecord {
+public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
   private static final Function<Class<?>, Object> STATIC_MAKE_CLASS_INSTANCE_INSTANTIATOR = (Class<?> klazz) -> {
     Class<?> currentClass = klazz;
     Object result = null;
@@ -143,15 +143,16 @@ final class MappedFieldRecord {
       }
     }
   };
-  final Field mappingField;
-  final Class<?> mappingClass;
-  final Bin binAnnotation;
-  final boolean bitWideField;
-  final String fieldName;
-  final String fieldPath;
-  final JBBPBitNumber mappedBitNumber;
-  final BinType fieldType;
-  final FieldProcessor proc;
+
+  public final Field mappingField;
+  public final Class<?> mappingClass;
+  public final Bin binAnnotation;
+  public final boolean bitWideField;
+  public final String fieldName;
+  public final String fieldPath;
+  public final JBBPBitNumber mappedBitNumber;
+  public final BinType fieldType;
+  public final FieldProcessor proc;
 
   MappedFieldRecord(final Field mappingField,
                     final Class<?> mappingClass,
@@ -421,4 +422,17 @@ final class MappedFieldRecord {
     );
   }
 
+  @Override
+  public int compareTo(final MappedFieldRecord o) {
+    final int thisOrder = this.binAnnotation.outOrder();
+    final int thatOrder = o.binAnnotation.outOrder();
+
+    final int result;
+    if (thisOrder == thatOrder) {
+      result = this.mappingField.getName().compareTo(o.mappingField.getName());
+    } else {
+      result = thisOrder < thatOrder ? -1 : 1;
+    }
+    return result;
+  }
 }

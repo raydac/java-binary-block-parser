@@ -20,33 +20,23 @@ import com.igormaznitsa.jbbp.exceptions.JBBPException;
 import com.igormaznitsa.jbbp.exceptions.JBBPIllegalArgumentException;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.mapper.BinType;
+import com.igormaznitsa.jbbp.mapper.JBBPMapper;
+import com.igormaznitsa.jbbp.mapper.MappedFieldRecord;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldShort;
 import com.igormaznitsa.jbbp.model.JBBPFieldString;
 import com.igormaznitsa.jbbp.utils.DslBinCustom;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-import com.igormaznitsa.jbbp.utils.ReflectUtils;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Abstract class to collect, order and process all fields in a mapped class.
  * since 1.1
  */
 public abstract class AbstractMappedClassFieldObserver {
-
-  /**
-   * Internal cache to keep outOrder of fields for classes for data output. It is
-   * lazy initialized field.
-   */
-  private static Map<Class<?>, Field[]> cachedClasses;
 
   /**
    * Inside auxiliary method to read object field value.
@@ -87,69 +77,7 @@ public abstract class AbstractMappedClassFieldObserver {
   protected void processObject(final Object obj, Field field, final Object customFieldProcessor) {
     JBBPUtils.assertNotNull(obj, "Object must not be null");
 
-    Field[] orderedFields = null;
-
-    final Map<Class<?>, Field[]> fieldz;
-    if (cachedClasses == null) {
-      fieldz = new HashMap<>();
-      cachedClasses = fieldz;
-    } else {
-      fieldz = cachedClasses;
-      synchronized (cachedClasses) {
-        orderedFields = fieldz.get(obj.getClass());
-      }
-    }
-
-    if (orderedFields == null) {
-      // find out the outOrder of fields and fields which should be serialized
-      final List<Class<?>> listOfClassHierarchy = new ArrayList<>();
-      final List<OrderedField> fields = new ArrayList<>();
-
-      Class<?> current = obj.getClass();
-      while (current != java.lang.Object.class) {
-        listOfClassHierarchy.add(current);
-        current = current.getSuperclass();
-      }
-
-      for (int i = listOfClassHierarchy.size() - 1; i >= 0; i--) {
-        final Class<?> clazzToProcess = listOfClassHierarchy.get(i);
-        final Bin clazzAnno = clazzToProcess.getAnnotation(Bin.class);
-
-        for (Field f : clazzToProcess.getDeclaredFields()) {
-          if (!ReflectUtils.isPotentiallyAccessibleField(f)) {
-            f = ReflectUtils.makeAccessible(f);
-          }
-
-          final int modifiers = f.getModifiers();
-          if (Modifier.isTransient(modifiers) || Modifier.isStatic(modifiers) || f.getName().indexOf('$') >= 0) {
-            continue;
-          }
-
-          Bin fieldAnno = f.getAnnotation(Bin.class);
-          fieldAnno = fieldAnno == null ? clazzAnno : fieldAnno;
-          if (fieldAnno == null) {
-            continue;
-          }
-
-          fields.add(new OrderedField(fieldAnno.outOrder(), f));
-        }
-      }
-
-      Collections.sort(fields);
-
-      orderedFields = new Field[fields.size()];
-      for (int i = 0; i < fields.size(); i++) {
-        orderedFields[i] = fields.get(i).field;
-      }
-
-      synchronized (fieldz) {
-        fieldz.put(obj.getClass(), orderedFields);
-      }
-    }
-
-    if (field != null && !ReflectUtils.isPotentiallyAccessibleField(field)) {
-      field = ReflectUtils.makeAccessible(field);
-    }
+    final List<MappedFieldRecord> orderedFields = JBBPMapper.findAffectedFields(obj);
 
     final Bin clazzAnno = obj.getClass().getAnnotation(Bin.class);
     final DslBinCustom clazzCustomAnno = obj.getClass().getAnnotation(DslBinCustom.class);
@@ -158,20 +86,14 @@ public abstract class AbstractMappedClassFieldObserver {
 
     this.onStructStart(obj, field, clazzAnno == null ? fieldAnno : clazzAnno);
 
-    for (final Field f : orderedFields) {
-      Bin binAnno = f.getAnnotation(Bin.class);
-      if (binAnno == null) {
-        binAnno = f.getDeclaringClass().getAnnotation(Bin.class);
-        if (binAnno == null) {
-          throw new JBBPIllegalArgumentException("Can't find any Bin annotation to use for " + f + " field");
-        }
-      }
+    for (final MappedFieldRecord rec : orderedFields) {
+      Bin binAnno = rec.binAnnotation;
 
       if (binAnno.custom() && customFieldProcessor == null) {
-        throw new JBBPIllegalArgumentException("The Class '" + obj.getClass().getName() + "' contains the field '" + f.getName() + "\' which is a custom one, you must provide a JBBPCustomFieldWriter instance to save the field.");
+        throw new JBBPIllegalArgumentException("The Class '" + obj.getClass().getName() + "' contains the field '" + rec.mappingField.getName() + "\' which is a custom one, you must provide a JBBPCustomFieldWriter instance to save the field.");
       }
 
-      processObjectField(obj, f, binAnno, customFieldProcessor);
+      processObjectField(obj, rec.mappingField, binAnno, customFieldProcessor);
     }
 
     this.onStructEnd(obj, field, clazzAnno == null ? fieldAnno : clazzAnno);
@@ -688,54 +610,6 @@ public abstract class AbstractMappedClassFieldObserver {
    */
   protected void onArrayEnd(final Object obj, final Field field, final Bin annotation) {
 
-  }
-
-  /**
-   * Inside JBBPOut.Bin command creates cached list of fields of a saved class,
-   * the method allows to reset the inside cache.
-   */
-  public void resetInsideClassCache() {
-    final Map<Class<?>, Field[]> fieldz = cachedClasses;
-    if (fieldz != null) {
-      synchronized (fieldz) {
-        fieldz.clear();
-      }
-    }
-  }
-
-  /**
-   * An Auxiliary class to be used for class field ordering in save operations.
-   */
-  private static final class OrderedField implements Comparable<OrderedField> {
-
-    final int order;
-    final Field field;
-
-    OrderedField(final int order, final Field field) {
-      this.order = order;
-      this.field = field;
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-      return obj != null && (obj == this || (obj instanceof OrderedField && this.field.equals(((OrderedField) obj).field)));
-    }
-
-    @Override
-    public int hashCode() {
-      return this.order;
-    }
-
-    @Override
-    public int compareTo(final OrderedField o) {
-      final int result;
-      if (this.order == o.order) {
-        result = this.field.getName().compareTo(o.field.getName());
-      } else {
-        result = this.order < o.order ? -1 : 1;
-      }
-      return result;
-    }
   }
 
 }

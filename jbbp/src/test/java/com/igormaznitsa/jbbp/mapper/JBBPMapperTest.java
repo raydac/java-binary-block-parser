@@ -16,21 +16,29 @@
 
 package com.igormaznitsa.jbbp.mapper;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.TestUtils;
 import com.igormaznitsa.jbbp.exceptions.JBBPMapperException;
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPOut;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
-import org.junit.jupiter.api.Test;
-
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Random;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class JBBPMapperTest {
 
@@ -904,7 +912,7 @@ public class JBBPMapperTest {
   }
 
   @Test
-  void testMap_Structure_WholeStream_LocalClassesNonDefaultConstructorsAndFinalFields() throws Exception {
+  void testMap_Structure_IgnoringFinalFieldsInMapping() throws Exception {
     @Bin
     class Struct {
 
@@ -932,18 +940,10 @@ public class JBBPMapperTest {
     rnd.nextBytes(array);
 
     final Parsed parsed = JBBPParser.prepare("struct [_] { byte a; byte b; }").parse(new ByteArrayInputStream(array)).mapTo(new Parsed(null), aClass -> {
-      if (aClass == Struct.class) {
-        return new Struct((byte) 0, (byte) 0);
-      }
+      fail("Must not be called");
       return null;
     });
-    assertEquals(array.length / 2, parsed.struct.length);
-
-    for (int i = 0; i < array.length; i += 2) {
-      final Struct s = parsed.struct[i / 2];
-      assertEquals(array[i], s.a);
-      assertEquals(array[i + 1], s.b);
-    }
+    assertNull(parsed.struct);
   }
 
   @Test
