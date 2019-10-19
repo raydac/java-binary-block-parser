@@ -331,6 +331,7 @@ public final class JBBPMapper {
           final int modifiers = mappingField.getModifiers();
 
           if (Modifier.isTransient(modifiers)
+              || Modifier.isPrivate(modifiers)
               || Modifier.isStatic(modifiers)
               || Modifier.isFinal(modifiers)) {
             continue;
