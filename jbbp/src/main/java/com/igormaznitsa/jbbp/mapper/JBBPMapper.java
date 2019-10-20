@@ -316,7 +316,6 @@ public final class JBBPMapper {
       while (current != null) {
         final String packageName = current.getPackage().getName();
         if (packageName.startsWith("java.")
-            || packageName.startsWith("com.sun.")
             || packageName.startsWith("javax.")
             || packageName.startsWith("android.")
         ) {
@@ -329,12 +328,6 @@ public final class JBBPMapper {
       for (final Class<?> processingClazz : listOfClassHierarchy) {
         for (Field mappingField : processingClazz.getDeclaredFields()) {
           final int fieldModifiers = mappingField.getModifiers();
-
-          if (Modifier.isTransient(fieldModifiers)
-              || Modifier.isStatic(fieldModifiers)
-              || Modifier.isFinal(fieldModifiers)) {
-            continue;
-          }
 
           final Bin fieldAnno = mappingField.getAnnotation(Bin.class);
           final Bin mappedAnno;
