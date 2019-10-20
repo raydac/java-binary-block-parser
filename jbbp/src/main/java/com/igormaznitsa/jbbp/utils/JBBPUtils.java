@@ -20,11 +20,9 @@ import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
-
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -39,21 +37,15 @@ import java.util.Locale;
  */
 public final class JBBPUtils {
 
-  public static final String [] ARRAY_STRING_EMPTY = new String[0];
+  public static final String[] ARRAY_STRING_EMPTY = new String[0];
   public static final JBBPAbstractField[] ARRAY_FIELD_EMPTY = new JBBPAbstractField[0];
 
+  // Don't replace by StandardCharsets for Android compatibility!
   private static final Charset CHARSET_UTF8 = Charset.forName("UTF-8");
 
   private JBBPUtils() {
   }
 
-  @SuppressWarnings("unchecked")
-  public static <T> T[] makeSingletoneArray(final T value) {
-      final Object[] result = (Object[])Array.newInstance(value.getClass(), 1);
-      result[0] = value;
-      return (T[])result; 
-  }
-  
   /**
    * Convert a string into its UTF8 representation.
    *

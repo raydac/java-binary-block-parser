@@ -411,6 +411,7 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
 
 
   interface FieldProcessor {
+    @SuppressWarnings("unchecked")
     void apply(
         MappedFieldRecord record,
         JBBPFieldStruct rootStructure,

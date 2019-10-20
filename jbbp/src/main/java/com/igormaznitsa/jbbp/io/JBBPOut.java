@@ -18,9 +18,9 @@ package com.igormaznitsa.jbbp.io;
 
 import com.igormaznitsa.jbbp.exceptions.JBBPIOException;
 import com.igormaznitsa.jbbp.mapper.Bin;
+import com.igormaznitsa.jbbp.mapper.JBBPMapper;
 import com.igormaznitsa.jbbp.model.JBBPFieldShort;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -998,12 +998,12 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    * Save fields of an object marked by Bin annotation. Fields will be ordered
    * through {@link Bin#outOrder()} field, NB! By default Java doesn't keep field
    * outOrder. Ordered fields of class will be saved into internal cache for speed
-   * but the cache can be reset through {@link #resetInsideClassCache()}
+   * but the cache can be reset through {@link JBBPMapper#clearFieldCache()}
    *
    * @param object an object to be saved into stream, must not be null
    * @return the context
    * @throws IOException it will be thrown for any transport error
-   * @see #resetInsideClassCache()
+   * @see JBBPMapper#clearFieldCache()
    * @see Bin
    * @since 1.1
    */
@@ -1015,14 +1015,14 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    * Save fields of an object marked by Bin annotation. Fields will be ordered
    * through {@link Bin#outOrder()} field, NB! By default Java doesn't keep field
    * outOrder. Ordered fields of class will be saved into internal cache for speed
-   * but the cache can be reset through {@link #resetInsideClassCache()}
+   * but the cache can be reset through {@link JBBPMapper#clearFieldCache()}
    *
    * @param object            an object to be saved into stream, must not be null
    * @param customFieldWriter a custom field writer to be used for saving of
    *                          custom fields of the object, it can be null
    * @return the context
    * @throws IOException it will be thrown for any transport error
-   * @see #resetInsideClassCache()
+   * @see JBBPMapper#clearFieldCache()
    * @see Bin
    * @since 1.1
    */
