@@ -336,25 +336,39 @@ public final class JBBPMapper {
             continue;
           }
 
-          if (!ReflectUtils.isPotentiallyAccessibleField(mappingField)) {
-            mappingField = ReflectUtils.makeAccessible(mappingField);
-          }
-
           final Bin fieldAnno = mappingField.getAnnotation(Bin.class);
           final Bin mappedAnno;
           if ((fieldAnno == null && defaultAnno == null) || mappingField.getName().indexOf('$') >= 0) {
             continue;
           }
+          mappedAnno = fieldAnno == null ? defaultAnno : fieldAnno;
 
-          if (Modifier.isPrivate(fieldModifiers)) {
-            if (fieldAnno == null) {
+          if (fieldAnno == null) {
+            if (Modifier.isTransient(fieldModifiers)
+                || Modifier.isStatic(fieldModifiers)
+                || Modifier.isPrivate(fieldModifiers)
+                || Modifier.isFinal(fieldModifiers)) {
               continue;
+            }
+          } else {
+            final String disallowedModifier;
+            if (Modifier.isStatic(fieldModifiers)) {
+              disallowedModifier = "STATIC";
+            } else if (Modifier.isFinal(fieldModifiers)) {
+              disallowedModifier = "FINAL";
+            } else if (Modifier.isPrivate(fieldModifiers)) {
+              disallowedModifier = "PRIVATE";
             } else {
-              throw new JBBPMapperException("Detected @Bin marked private field", null, processingClazz, mappingField, null);
+              disallowedModifier = null;
+            }
+            if (disallowedModifier != null) {
+              throw new JBBPMapperException("Detected @Bin marked " + disallowedModifier + " field", null, processingClazz, mappingField, null);
             }
           }
 
-          mappedAnno = fieldAnno == null ? defaultAnno : fieldAnno;
+          if (!ReflectUtils.isPotentiallyAccessibleField(mappingField)) {
+            mappingField = ReflectUtils.makeAccessible(mappingField);
+          }
 
           try {
             result.add(new MappedFieldRecord(mappingField, mappingClass, mappedAnno));
