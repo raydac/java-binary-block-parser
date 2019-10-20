@@ -863,7 +863,7 @@ public class JBBPMapperTest {
   }
 
   @Test
-  void testMap_IgnoreMarkedFieldForTransient() throws Exception {
+  void testMap_ParsedMarkedTransientField() throws Exception {
     @Bin
     class Parsed {
       @Bin(path = "struct.a")
@@ -871,12 +871,13 @@ public class JBBPMapperTest {
       @Bin(path = "struct.b", type = BinType.BYTE_ARRAY)
       String str;
       @Bin(path = "struct.c", type = BinType.BYTE_ARRAY)
-      transient String ignored;
+      transient String trans;
     }
 
-    final Parsed parsed = JBBPParser.prepare("int start; struct { byte a; byte [3] b; } int end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', 6, 7, 8, 9}).mapTo(new Parsed());
+    final Parsed parsed = JBBPParser.prepare("int start; struct { byte a; byte [3] b; byte [3] c; } byte end;").parse(new byte[] {1, 2, 3, 4, 5, (byte) 'a', (byte) 'b', (byte) 'c', (byte) 'd', (byte) 'e', (byte) 'f', 9}).mapTo(new Parsed());
     assertEquals(0x05, parsed.num);
     assertEquals("abc", parsed.str);
+    assertEquals("def", parsed.trans);
   }
 
   @Test
