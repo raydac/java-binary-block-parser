@@ -34,9 +34,6 @@ import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPOut;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import java.io.ByteArrayInputStream;
-import java.lang.reflect.Field;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Random;
 import org.junit.jupiter.api.Test;
 
@@ -541,21 +538,8 @@ public class JBBPMapperTest {
   }
 
   @Test
-  void testMap_privateFieldInPackagelevelClass() throws Exception {
-    final ClassWithPrivateFields fld = JBBPParser.prepare("int field;").parse(new byte[] {1, 2, 3, 4}).mapTo(new ClassWithPrivateFields());
-    assertNull(AccessController.doPrivileged(new PrivilegedAction<Void>() {
-      @Override
-      public Void run() {
-        try {
-          final Field field = fld.getClass().getDeclaredField("field");
-          field.setAccessible(true);
-          assertEquals(0x01020304, field.getInt(fld));
-        } catch (Exception ex) {
-          throw new RuntimeException(ex);
-        }
-        return null;
-      }
-    }));
+  void testMap_privateFieldInPackagelevelClass() {
+    assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int field;").parse(new byte[] {1, 2, 3, 4}).mapTo(new ClassWithPrivateFields()));
   }
 
   @Test

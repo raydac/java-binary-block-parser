@@ -328,12 +328,11 @@ public final class JBBPMapper {
 
       for (final Class<?> processingClazz : listOfClassHierarchy) {
         for (Field mappingField : processingClazz.getDeclaredFields()) {
-          final int modifiers = mappingField.getModifiers();
+          final int fieldModifiers = mappingField.getModifiers();
 
-          if (Modifier.isTransient(modifiers)
-              || Modifier.isPrivate(modifiers)
-              || Modifier.isStatic(modifiers)
-              || Modifier.isFinal(modifiers)) {
+          if (Modifier.isTransient(fieldModifiers)
+              || Modifier.isStatic(fieldModifiers)
+              || Modifier.isFinal(fieldModifiers)) {
             continue;
           }
 
@@ -346,6 +345,15 @@ public final class JBBPMapper {
           if ((fieldAnno == null && defaultAnno == null) || mappingField.getName().indexOf('$') >= 0) {
             continue;
           }
+
+          if (Modifier.isPrivate(fieldModifiers)) {
+            if (fieldAnno == null) {
+              continue;
+            } else {
+              throw new JBBPMapperException("Detected @Bin marked private field", null, processingClazz, mappingField, null);
+            }
+          }
+
           mappedAnno = fieldAnno == null ? defaultAnno : fieldAnno;
 
           try {
