@@ -114,17 +114,25 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
       mapNumericField(instance, record.setter, record.mappingField, (JBBPNumericField) binField, record.binAnnotation.bitOrder() == JBBPBitOrder.MSB0);
     } else if (binField instanceof JBBPFieldString) {
       if (record.mappingField.getType().isPrimitive()) {
-        throw new JBBPMapperException("Can't map a string to a primitive mapping field", binField, record.mappingClass, record.mappingField, null);
+        throw new JBBPMapperException("Can't map string to a primitive mapping field", binField, record.mappingClass, record.mappingField, null);
       } else {
         setFieldValue(instance, record.setter, record.mappingField, binField, ((JBBPFieldString) binField).getAsString());
       }
     } else if (binField instanceof JBBPFieldStruct) {
       if (record.mappingField.getType().isPrimitive()) {
-        throw new JBBPMapperException("Can't map a structure to a primitive mapping field", binField, record.mappingClass, record.mappingField, null);
+        throw new JBBPMapperException("Can't map structure to a primitive mapping field", binField, record.mappingClass, record.mappingField, null);
       } else {
         final Object curValue = getFieldValue(instance, record.getter, record.mappingField);
         if (curValue == null) {
-          setFieldValue(instance, record.setter, record.mappingField, binField, JBBPMapper.map((JBBPFieldStruct) binField, tryMakeInstance(record.mappingField.getType(), binField, instance, record.mappingField, instantiators), customFieldProcessor));
+          if (record.classMemberGenerator == null) {
+            setFieldValue(instance, record.setter, record.mappingField, binField, JBBPMapper.map((JBBPFieldStruct) binField, tryMakeInstance(record.mappingField.getType(), binField, instance, record.mappingField, instantiators), customFieldProcessor));
+          } else {
+            try {
+              JBBPMapper.map((JBBPFieldStruct) binField, record.classMemberGenerator.invoke(instance));
+            } catch (Exception ex) {
+              throw new JBBPMapperException("Can't map field which member generatet by instance", binField, record.mappingClass, record.mappingField, ex);
+            }
+          }
         } else {
           setFieldValue(instance, record.setter, record.mappingField, binField, JBBPMapper.map((JBBPFieldStruct) binField, curValue, customFieldProcessor));
         }
@@ -148,6 +156,7 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
   public final Class<?> mappingClass;
   public final Method setter;
   public final Method getter;
+  public final Method classMemberGenerator;
   public final Bin binAnnotation;
   public final boolean bitWideField;
   public final String fieldName;
@@ -157,10 +166,12 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
   public final FieldProcessor proc;
 
   MappedFieldRecord(final Field mappingField,
+                    final Method classMemberGenerator,
                     final Method setter,
                     final Method getter,
                     final Class<?> mappingClass,
                     final Bin binAnnotation) {
+    this.classMemberGenerator = classMemberGenerator;
     this.setter = setter;
     this.getter = getter;
 
@@ -393,9 +404,9 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
    */
   private static Object getFieldValue(final Object classInstance, final Method getter, final Field classField) {
     try {
-      if (getter == null)
+      if (getter == null) {
         return classField.get(classInstance);
-      else {
+      } else {
         return getter.invoke(classInstance);
       }
     } catch (IllegalArgumentException ex) {
@@ -412,7 +423,7 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
    * fields!
    *
    * @param classInstance a class instance
-   * @param setter setter for the field, can be null
+   * @param setter        setter for the field, can be null
    * @param classField    a mapping class field which should be set by the value,
    *                      must not be null
    * @param binField      a parsed bin field which value will be set, can be null
@@ -420,9 +431,9 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
    */
   static void setFieldValue(final Object classInstance, final Method setter, final Field classField, final JBBPAbstractField binField, final Object value) {
     try {
-      if (setter == null)
+      if (setter == null) {
         classField.set(classInstance, value);
-      else {
+      } else {
         setter.invoke(classInstance, value);
       }
     } catch (IllegalArgumentException ex) {

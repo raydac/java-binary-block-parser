@@ -543,6 +543,12 @@ public class JBBPMapperTest {
   }
 
   @Test
+  void testMap_privateFieldWithSetterInPackagelevelClass() throws Exception {
+    final ClassWithPrivateFieldsAndSetterGetter instance = JBBPParser.prepare("int field;").parse(new byte[] {1, 2, 3, 4}).mapTo(new ClassWithPrivateFieldsAndSetterGetter());
+    assertEquals(0x1020304, instance.getField());
+  }
+
+  @Test
   void testMap_customMappingFields_Class() throws Exception {
     final class Mapped {
 

@@ -23,12 +23,15 @@ import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import com.igormaznitsa.jbbp.utils.Function;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
+import com.igormaznitsa.jbbp.utils.NullableTriple;
 import com.igormaznitsa.jbbp.utils.ReflectUtils;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -339,7 +342,6 @@ public final class JBBPMapper {
           if (fieldAnno == null) {
             if (Modifier.isTransient(fieldModifiers)
                 || Modifier.isStatic(fieldModifiers)
-                || Modifier.isPrivate(fieldModifiers)
                 || Modifier.isFinal(fieldModifiers)) {
               continue;
             }
@@ -349,8 +351,6 @@ public final class JBBPMapper {
               disallowedModifier = "STATIC";
             } else if (Modifier.isFinal(fieldModifiers)) {
               disallowedModifier = "FINAL";
-            } else if (Modifier.isPrivate(fieldModifiers)) {
-              disallowedModifier = "PRIVATE";
             } else {
               disallowedModifier = null;
             }
@@ -359,12 +359,22 @@ public final class JBBPMapper {
             }
           }
 
-          if (!ReflectUtils.isPotentiallyAccessibleField(mappingField)) {
+          final NullableTriple<Method, Method, Method> auxMethods = findAuxFieldMethods(processingClazz, mappingField);
+
+          final Method fieldGenerator = auxMethods.getA();
+          final Method fieldGetter = auxMethods.getB();
+          final Method fieldSetter = auxMethods.getC();
+
+          if (fieldSetter == null && Modifier.isPrivate(mappingField.getModifiers())) {
+            throw new JBBPMapperException("Detected private field, there must be provided setter for mapping", null, processingClazz, mappingField, null);
+          }
+
+          if (fieldGetter == null && !ReflectUtils.isPotentiallyAccessibleField(mappingField)) {
             mappingField = ReflectUtils.makeAccessible(mappingField);
           }
 
           try {
-            result.add(new MappedFieldRecord(mappingField, null, null, mappingClass, mappedAnno));
+            result.add(new MappedFieldRecord(mappingField, fieldGenerator, fieldSetter, fieldGetter, mappingClass, mappedAnno));
           } catch (IllegalStateException ex) {
             throw new JBBPMapperException(ex.getMessage(), null, mappingClass, mappingField, ex);
           }
@@ -379,4 +389,42 @@ public final class JBBPMapper {
     return result;
   }
 
+  private static NullableTriple<Method, Method, Method> findAuxFieldMethods(final Class<?> klazz, final Field field) {
+    final String lowerCasedFieldName = field.getName().toLowerCase(Locale.ENGLISH);
+    final String generatorName = "make" + lowerCasedFieldName;
+    final String getterName = "get" + lowerCasedFieldName;
+    final String setterName = "set" + lowerCasedFieldName;
+
+    Method generator = null;
+    Method setter = null;
+    Method getter = null;
+
+    for (final Method m : klazz.getMethods()) {
+      final Class<?>[] args = m.getParameterTypes();
+      final String lcMethodName = m.getName().toLowerCase(Locale.ENGLISH);
+
+      if (!Modifier.isPublic(m.getModifiers()) || Modifier.isStatic(m.getModifiers())) {
+        continue;
+      }
+
+      if (args.length == 0) {
+        if (generator == null && lcMethodName.equals(generatorName)
+        ) {
+          generator = m;
+        }
+        if (getter == null && lcMethodName.equals(getterName)) {
+          getter = m;
+        }
+      }
+
+      if (args.length == 1 && setter == null && lcMethodName.equals(setterName) && field.getType().isAssignableFrom(args[0])) {
+        setter = m;
+      }
+
+      if (generator != null && setter != null && getter != null) {
+        break;
+      }
+    }
+    return new NullableTriple<>(generator, getter, setter);
+  }
 }
