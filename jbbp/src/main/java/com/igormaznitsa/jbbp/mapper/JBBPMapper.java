@@ -219,7 +219,7 @@ public final class JBBPMapper {
     if (record.binAnnotation.custom()) {
       JBBPUtils.assertNotNull(customFieldProcessor, "There is a custom mapping field, in the case you must provide a custom mapping field processor");
       final Object value = customFieldProcessor.prepareObjectForMapping(rootStructure, record.binAnnotation, record.mappingField);
-      MappedFieldRecord.setFieldValue(instance, record.mappingField, null, value);
+      MappedFieldRecord.setFieldValue(instance, record.setter, record.mappingField, null, value);
     } else {
       final JBBPAbstractField binField;
 
@@ -364,7 +364,7 @@ public final class JBBPMapper {
           }
 
           try {
-            result.add(new MappedFieldRecord(mappingField, mappingClass, mappedAnno));
+            result.add(new MappedFieldRecord(mappingField, null, null, mappingClass, mappedAnno));
           } catch (IllegalStateException ex) {
             throw new JBBPMapperException(ex.getMessage(), null, mappingClass, mappingField, ex);
           }
