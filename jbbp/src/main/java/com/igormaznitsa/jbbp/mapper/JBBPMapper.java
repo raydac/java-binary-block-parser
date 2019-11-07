@@ -365,11 +365,11 @@ public final class JBBPMapper {
           final Method fieldGetter = auxMethods.getB();
           final Method fieldSetter = auxMethods.getC();
 
-          if (fieldSetter == null && Modifier.isPrivate(mappingField.getModifiers())) {
-            throw new JBBPMapperException("Detected private field, there must be provided setter for mapping", null, processingClazz, mappingField, null);
+          if (mappingField.getType().isPrimitive() && fieldSetter == null && Modifier.isPrivate(mappingField.getModifiers())) {
+            throw new JBBPMapperException("Detected private primitive field, mapping requires setter", null, processingClazz, mappingField, null);
           }
 
-          if (fieldGetter == null && !ReflectUtils.isPotentiallyAccessibleField(mappingField)) {
+          if (fieldGetter == null && fieldGenerator == null && !ReflectUtils.isPotentiallyAccessibleField(mappingField)) {
             mappingField = ReflectUtils.makeAccessible(mappingField);
           }
 

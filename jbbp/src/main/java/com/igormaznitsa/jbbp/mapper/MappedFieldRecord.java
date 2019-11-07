@@ -124,11 +124,11 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
       } else {
         final Object curValue = getFieldValue(instance, record.getter, record.mappingField);
         if (curValue == null) {
-          if (record.classMemberGenerator == null) {
+          if (record.instanceMaker == null) {
             setFieldValue(instance, record.setter, record.mappingField, binField, JBBPMapper.map((JBBPFieldStruct) binField, tryMakeInstance(record.mappingField.getType(), binField, instance, record.mappingField, instantiators), customFieldProcessor));
           } else {
             try {
-              JBBPMapper.map((JBBPFieldStruct) binField, record.classMemberGenerator.invoke(instance));
+              JBBPMapper.map((JBBPFieldStruct) binField, record.instanceMaker.invoke(instance));
             } catch (Exception ex) {
               throw new JBBPMapperException("Can't map field which member generatet by instance", binField, record.mappingClass, record.mappingField, ex);
             }
@@ -156,7 +156,7 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
   public final Class<?> mappingClass;
   public final Method setter;
   public final Method getter;
-  public final Method classMemberGenerator;
+  public final Method instanceMaker;
   public final Bin binAnnotation;
   public final boolean bitWideField;
   public final String fieldName;
@@ -166,12 +166,12 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
   public final FieldProcessor proc;
 
   MappedFieldRecord(final Field mappingField,
-                    final Method classMemberGenerator,
+                    final Method instanceMaker,
                     final Method setter,
                     final Method getter,
                     final Class<?> mappingClass,
                     final Bin binAnnotation) {
-    this.classMemberGenerator = classMemberGenerator;
+    this.instanceMaker = instanceMaker;
     this.setter = setter;
     this.getter = getter;
 

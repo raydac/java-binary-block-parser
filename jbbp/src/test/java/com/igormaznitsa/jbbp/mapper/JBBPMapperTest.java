@@ -549,6 +549,20 @@ public class JBBPMapperTest {
   }
 
   @Test
+  public void testMap_classWithGettersSettersAndGenerator() throws Exception {
+    final ClassWithPFGSG instance = JBBPParser.prepare("byte a; byte b; i { byte c; ii { byte d;}}")
+        .parse(new byte[] {1, 2, 3, 4})
+        .mapTo(new ClassWithPFGSG());
+
+    assertEquals(1, instance.getA());
+    assertEquals(2, instance.getB());
+    assertEquals(3, instance.getI().getC());
+    assertEquals(4, instance.getI().getIi().getD());
+
+    assertArrayEquals(new byte[] {1, 2, 3, 4}, JBBPOut.BeginBin().Bin(instance).End().toByteArray());
+  }
+
+  @Test
   void testMap_customMappingFields_Class() throws Exception {
     final class Mapped {
 

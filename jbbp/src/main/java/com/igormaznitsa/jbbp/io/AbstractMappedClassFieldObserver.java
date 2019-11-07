@@ -42,16 +42,20 @@ public abstract class AbstractMappedClassFieldObserver {
    * Inside auxiliary method to read object field value.
    *
    * @param obj   an object which field is read
-   * @param field a field to be read
+   * @param record field record, must not be null
    * @return a value from the field of the object
    * @throws JBBPException if the field can't be read
-   * @since 1.1
+   * @since 2.0
    */
-  private static Object readFieldValue(final Object obj, final Field field) {
+  private static Object readFieldValue(final Object obj, final MappedFieldRecord record) {
     try {
-      return field.get(obj);
+      if (record.getter == null) {
+        return record.mappingField.get(obj);
+      } else {
+        return record.getter.invoke(obj);
+      }
     } catch (Exception ex) {
-      throw new JBBPException("Can't get value from field [" + field + ']', ex);
+      throw new JBBPException("Can't get value from field [" + record + ']', ex);
     }
   }
 
@@ -79,6 +83,7 @@ public abstract class AbstractMappedClassFieldObserver {
 
     final List<MappedFieldRecord> orderedFields = JBBPMapper.findAffectedFields(obj);
 
+    //TODO check DslBinCustom
     final Bin clazzAnno = obj.getClass().getAnnotation(Bin.class);
     final DslBinCustom clazzCustomAnno = obj.getClass().getAnnotation(DslBinCustom.class);
     final Bin fieldAnno = field == null ? null : field.getAnnotation(Bin.class);
@@ -93,7 +98,7 @@ public abstract class AbstractMappedClassFieldObserver {
         throw new JBBPIllegalArgumentException("The Class '" + obj.getClass().getName() + "' contains the field '" + rec.mappingField.getName() + "\' which is a custom one, you must provide a JBBPCustomFieldWriter instance to save the field.");
       }
 
-      processObjectField(obj, rec.mappingField, binAnno, customFieldProcessor);
+      processObjectField(obj, rec, binAnno, customFieldProcessor);
     }
 
     this.onStructEnd(obj, field, clazzAnno == null ? fieldAnno : clazzAnno);
@@ -103,15 +108,16 @@ public abstract class AbstractMappedClassFieldObserver {
    * Inside auxiliary method to process a field of an object.
    *
    * @param obj                  the object which field under processing, must not be null
-   * @param field                the field to be written, must not be null
+   * @param fieldRecord          internal record about the field, must not be null
    * @param annotation           the annotation to be used as data source about the field,
    *                             must not be null
    * @param customFieldProcessor an object which will be provided for processing
    *                             of custom fields, must not be null if object contains custom fields
    */
-  protected void processObjectField(final Object obj, final Field field, final Bin annotation, final Object customFieldProcessor) {
+  protected void processObjectField(final Object obj, final MappedFieldRecord fieldRecord, final Bin annotation, final Object customFieldProcessor) {
+    final Field field = fieldRecord.mappingField;
     if (annotation.custom()) {
-      this.onFieldCustom(obj, field, annotation, customFieldProcessor, readFieldValue(obj, field));
+      this.onFieldCustom(obj, field, annotation, customFieldProcessor, readFieldValue(obj, fieldRecord));
     } else {
       final Class<?> fieldType = field.getType();
 
@@ -128,9 +134,9 @@ public abstract class AbstractMappedClassFieldObserver {
         case BIT: {
           final JBBPBitNumber bitNumber = annotation.outBitNumber();
           if (fieldType == boolean.class) {
-            this.onFieldBits(obj, field, annotation, bitNumber, ((Boolean) readFieldValue(obj, field)) ? 0xFF : 0x00);
+            this.onFieldBits(obj, field, annotation, bitNumber, ((Boolean) readFieldValue(obj, fieldRecord)) ? 0xFF : 0x00);
           } else {
-            byte value = ((Number) readFieldValue(obj, field)).byteValue();
+            byte value = ((Number) readFieldValue(obj, fieldRecord)).byteValue();
             if (reverseBits) {
               value = JBBPUtils.reverseBitsInByte(bitNumber, value);
             }
@@ -140,15 +146,15 @@ public abstract class AbstractMappedClassFieldObserver {
         break;
         case BOOL: {
           if (fieldType == boolean.class) {
-            onFieldBool(obj, field, annotation, (Boolean) readFieldValue(obj, field));
+            onFieldBool(obj, field, annotation, (Boolean) readFieldValue(obj, fieldRecord));
           } else {
-            onFieldBool(obj, field, annotation, ((Number) readFieldValue(obj, field)).longValue() != 0);
+            onFieldBool(obj, field, annotation, ((Number) readFieldValue(obj, fieldRecord)).longValue() != 0);
           }
         }
         break;
         case BYTE:
         case UBYTE: {
-          byte value = ((Number) readFieldValue(obj, field)).byteValue();
+          byte value = ((Number) readFieldValue(obj, fieldRecord)).byteValue();
           if (reverseBits) {
             value = JBBPUtils.reverseBitsInByte(value);
           }
@@ -159,9 +165,9 @@ public abstract class AbstractMappedClassFieldObserver {
         case USHORT: {
           short value;
           if (fieldType == char.class) {
-            value = (short) ((Character) readFieldValue(obj, field)).charValue();
+            value = (short) ((Character) readFieldValue(obj, fieldRecord)).charValue();
           } else {
-            value = ((Number) readFieldValue(obj, field)).shortValue();
+            value = ((Number) readFieldValue(obj, fieldRecord)).shortValue();
           }
           if (reverseBits) {
             value = (short) JBBPFieldShort.reverseBits(value);
@@ -171,7 +177,7 @@ public abstract class AbstractMappedClassFieldObserver {
         break;
         case INT: {
           int value;
-          value = ((Number) readFieldValue(obj, field)).intValue();
+          value = ((Number) readFieldValue(obj, fieldRecord)).intValue();
           if (reverseBits) {
             value = (int) JBBPFieldInt.reverseBits(value);
           }
@@ -181,9 +187,9 @@ public abstract class AbstractMappedClassFieldObserver {
         case FLOAT: {
           float value;
           if (float.class == fieldType) {
-            value = (Float) readFieldValue(obj, field);
+            value = (Float) readFieldValue(obj, fieldRecord);
           } else {
-            value = ((Number) readFieldValue(obj, field)).floatValue();
+            value = ((Number) readFieldValue(obj, fieldRecord)).floatValue();
           }
           if (reverseBits) {
             value = Float.intBitsToFloat((int) JBBPFieldInt.reverseBits(Float.floatToIntBits(value)));
@@ -193,7 +199,7 @@ public abstract class AbstractMappedClassFieldObserver {
         break;
         case STRING: {
           String value;
-          final Object valueAsObject = readFieldValue(obj, field);
+          final Object valueAsObject = readFieldValue(obj, fieldRecord);
           if (valueAsObject != null) {
             value = String.valueOf(valueAsObject);
             if (reverseBits) {
@@ -206,7 +212,7 @@ public abstract class AbstractMappedClassFieldObserver {
         }
         break;
         case LONG: {
-          long value = ((Number) readFieldValue(obj, field)).longValue();
+          long value = ((Number) readFieldValue(obj, fieldRecord)).longValue();
           if (reverseBits) {
             value = JBBPFieldLong.reverseBits(value);
           }
@@ -216,11 +222,11 @@ public abstract class AbstractMappedClassFieldObserver {
         case DOUBLE: {
           double value;
           if (float.class == fieldType) {
-            value = (Float) readFieldValue(obj, field);
+            value = (Float) readFieldValue(obj, fieldRecord);
           } else if (double.class == fieldType) {
-            value = (Double) readFieldValue(obj, field);
+            value = (Double) readFieldValue(obj, fieldRecord);
           } else {
-            value = ((Number) readFieldValue(obj, field)).doubleValue();
+            value = ((Number) readFieldValue(obj, fieldRecord)).doubleValue();
           }
 
           if (reverseBits) {
@@ -230,11 +236,11 @@ public abstract class AbstractMappedClassFieldObserver {
         }
         break;
         case STRUCT: {
-          processObject(readFieldValue(obj, field), field, customFieldProcessor);
+          processObject(readFieldValue(obj, fieldRecord), field, customFieldProcessor);
         }
         break;
         default: {
-          final Object array = readFieldValue(obj, field);
+          final Object array = readFieldValue(obj, fieldRecord);
           switch (type) {
             case BIT_ARRAY: {
               assertFieldArray(field);
@@ -279,7 +285,7 @@ public abstract class AbstractMappedClassFieldObserver {
               final boolean signed = type == BinType.BYTE_ARRAY;
 
               if (fieldType == String.class) {
-                final String strValue = (String) readFieldValue(obj, field);
+                final String strValue = (String) readFieldValue(obj, fieldRecord);
                 this.onArrayStart(obj, field, annotation, strValue.length());
 
                 for (int i = 0; i < strValue.length(); i++) {
@@ -310,7 +316,7 @@ public abstract class AbstractMappedClassFieldObserver {
               final boolean signed = type == BinType.SHORT_ARRAY;
 
               if (fieldType == String.class) {
-                final String str = (String) readFieldValue(obj, field);
+                final String str = (String) readFieldValue(obj, fieldRecord);
                 this.onArrayStart(obj, field, annotation, str.length());
 
                 for (int i = 0; i < str.length(); i++) {
