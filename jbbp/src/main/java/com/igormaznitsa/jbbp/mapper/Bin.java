@@ -34,6 +34,7 @@ import java.lang.annotation.Target;
  * case be careful and use default name and path values. The Class is not thread safe.
  *
  * <b></>Since 2.0.0 was removed prefix 'out' for fields which contained it</b>.
+ *
  * @since 1.0
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -93,27 +94,28 @@ public @interface Bin {
   String extra() default "";
 
   /**
-   * The Value defines how many bytes are actual ones in the field, works for numeric field and arrays and allows make mapping to bit fields.The Property
-   * works only for save and logging.
+   * The Value defines how many bytes are actual ones in the field, works for numeric field and arrays and allows make mapping to bit fields.
    *
    * @return the number of lower bits, by default 8 bits
    * @see JBBPTextWriter#Bin(java.lang.Object...)
    * @see JBBPOut#Bin(java.lang.Object)
    * @see JBBPOut#Bin(java.lang.Object, com.igormaznitsa.jbbp.io.JBBPCustomFieldWriter)
+   * @see JBBPBitNumber
    * @since 2.0.0
    */
   JBBPBitNumber bitNumber() default JBBPBitNumber.BITS_8;
 
   /**
-   * Byte order to be used for write of the value.
+   * Byte order to be used for operations.
    *
-   * @return order of bytes to be used for field value write
+   * @return order of bytes to be used
+   * @see JBBPByteOrder
    * @since 2.0.0
    */
   JBBPByteOrder byteOrder() default JBBPByteOrder.BIG_ENDIAN;
 
   /**
-   * The Value defines the field order to sort fields of the class for save or logging. If -1then it is undefined.
+   * The Value defines the field order to show relative position in data stream. If -1then it is undefined.
    *
    * @return the outOrder of the field as number (the mapping will make ascending sorting)
    * @see JBBPTextWriter#Bin(java.lang.Object...)
