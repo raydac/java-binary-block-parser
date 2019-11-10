@@ -179,7 +179,7 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
     this.mappingClass = mappingClass;
     this.binAnnotation = binAnnotation;
 
-    this.mappedBitNumber = binAnnotation.outBitNumber();
+    this.mappedBitNumber = binAnnotation.bitNumber();
 
     if (binAnnotation.type() == BinType.UNDEFINED) {
       BinType thetype = BinType.findCompatible(mappingField.getType());
@@ -510,8 +510,8 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
 
   @Override
   public int compareTo(final MappedFieldRecord o) {
-    final int thisOrder = this.binAnnotation.outOrder();
-    final int thatOrder = o.binAnnotation.outOrder();
+    final int thisOrder = this.binAnnotation.order();
+    final int thatOrder = o.binAnnotation.order();
 
     final int result;
     if (thisOrder == thatOrder) {

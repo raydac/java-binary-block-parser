@@ -954,7 +954,7 @@ public class JBBPMapperTest {
   @Test
   void testMap_FieldWithDefinedBitNumberToBitField_FieldPresented() throws Exception {
     class Parsed {
-      @Bin(outBitNumber = JBBPBitNumber.BITS_5)
+      @Bin(bitNumber = JBBPBitNumber.BITS_5)
       byte field;
     }
     final Parsed parsed = JBBPParser.prepare("int fieldint; bit:5 field;").parse(new byte[] {1, 2, 3, 4, 0x35}).mapTo(new Parsed());
@@ -964,7 +964,7 @@ public class JBBPMapperTest {
   @Test
   void testMap_FieldWithDefinedBitNumberToBitField_FieldPresentedWithDifferentBitNumber() throws Exception {
     class Parsed {
-      @Bin(outBitNumber = JBBPBitNumber.BITS_5)
+      @Bin(bitNumber = JBBPBitNumber.BITS_5)
       byte field;
     }
     assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int fieldint; bit:6 field;").parse(new byte[] {1, 2, 3, 4, 0x35}).mapTo(new Parsed()));
@@ -973,7 +973,7 @@ public class JBBPMapperTest {
   @Test
   void testMap_ArrayFieldWithDefinedBitNumberToArrayBitField_FieldPresented() throws Exception {
     class Parsed {
-      @Bin(outBitNumber = JBBPBitNumber.BITS_4)
+      @Bin(bitNumber = JBBPBitNumber.BITS_4)
       byte[] field;
     }
 
@@ -984,7 +984,7 @@ public class JBBPMapperTest {
   @Test
   void testMap_ArrayFieldIgnoredBitNumberFieldForDefinedType() throws Exception {
     class Parsed {
-      @Bin(type = BinType.INT_ARRAY, outBitNumber = JBBPBitNumber.BITS_4)
+      @Bin(type = BinType.INT_ARRAY, bitNumber = JBBPBitNumber.BITS_4)
       int[] field;
     }
     final Parsed parsed = JBBPParser.prepare("int fieldint; int [2] field;").parse(new byte[] {1, 2, 3, 4, 0x5, 0x6, 0x7, 0x8, 0x9, 0x0A, 0x0B, 0x0C}).mapTo(new Parsed());
@@ -995,7 +995,7 @@ public class JBBPMapperTest {
   void testMap_ArrayFieldWithDefinedBitNumberToArrayBitField_FieldPresentedWithDifferentBitNumber() throws Exception {
     class Parsed {
 
-      @Bin(outBitNumber = JBBPBitNumber.BITS_4)
+      @Bin(bitNumber = JBBPBitNumber.BITS_4)
       byte field;
     }
     assertThrows(JBBPMapperException.class, () -> JBBPParser.prepare("int fieldint; bit:3 [2] field;").parse(new byte[] {1, 2, 3, 4, 0x35}).mapTo(new Parsed()));

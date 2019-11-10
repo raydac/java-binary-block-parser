@@ -16,6 +16,12 @@
 
 package com.igormaznitsa.jbbp.it;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
@@ -30,11 +36,8 @@ import com.igormaznitsa.jbbp.model.JBBPFieldUByte;
 import com.igormaznitsa.jbbp.model.JBBPFieldUShort;
 import com.igormaznitsa.jbbp.utils.JBBPTextWriter;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-import org.junit.jupiter.api.Test;
-
 import java.io.StringWriter;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class NetPacketParsingTest extends AbstractParserIntegrationTest {
 
@@ -183,15 +186,15 @@ public class NetPacketParsingTest extends AbstractParserIntegrationTest {
   public void testParseSomePacketGettedOverTCP_ExampleFromStackOverflow() throws Exception {
     final class Parsed {
 
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       byte begin;
-      @Bin(outOrder = 2, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_4)
+      @Bin(order = 2, type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_4)
       int version;
-      @Bin(outOrder = 3, type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_4)
+      @Bin(order = 3, type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_4)
       int returnType;
-      @Bin(outOrder = 4)
+      @Bin(order = 4)
       byte[] productCode;
-      @Bin(outOrder = 5, type = BinType.USHORT)
+      @Bin(order = 5, type = BinType.USHORT)
       int dataLength;
     }
 
@@ -214,15 +217,15 @@ public class NetPacketParsingTest extends AbstractParserIntegrationTest {
   public void testParseUDP() throws Exception {
     final class Parsed {
 
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       char source;
-      @Bin(outOrder = 2)
+      @Bin(order = 2)
       char destination;
-      @Bin(outOrder = 3)
+      @Bin(order = 3)
       char length;
-      @Bin(outOrder = 4)
+      @Bin(order = 4)
       char checksum;
-      @Bin(outOrder = 5)
+      @Bin(order = 5)
       byte[] data;
     }
 

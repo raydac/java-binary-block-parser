@@ -5,7 +5,6 @@ import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.mapper.BinType;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -2050,9 +2049,9 @@ public class JBBPDslBuilder {
         return this.binCustom.order();
       }
       if (this.bin != null) {
-        return this.bin.outOrder();
+        return this.bin.order();
       }
-      return 0;
+      return -1;
     }
 
     @Override
@@ -2110,7 +2109,7 @@ public class JBBPDslBuilder {
     }
 
     JBBPByteOrder getByteOrder(final BinField field) {
-      return field.binCustom == null ? field.bin.outByteOrder() : field.binCustom.byteOrder();
+      return field.binCustom == null ? field.bin.byteOrder() : field.binCustom.byteOrder();
     }
 
     String getName() {
@@ -2121,10 +2120,10 @@ public class JBBPDslBuilder {
     JBBPBitNumber getBitNumber(final BinField field) {
       assertNotCustomBin();
       final JBBPBitNumber result;
-      if (field.bin.outBitNumber() == JBBPBitNumber.BITS_8) {
-        result = this.bin == null ? JBBPBitNumber.BITS_8 : this.bin.outBitNumber();
+      if (field.bin.bitNumber() == JBBPBitNumber.BITS_8) {
+        result = this.bin == null ? JBBPBitNumber.BITS_8 : this.bin.bitNumber();
       } else {
-        result = field.bin.outBitNumber();
+        result = field.bin.bitNumber();
       }
       return result;
     }

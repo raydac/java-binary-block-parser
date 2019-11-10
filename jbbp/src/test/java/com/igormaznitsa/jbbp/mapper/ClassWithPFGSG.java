@@ -2,11 +2,11 @@ package com.igormaznitsa.jbbp.mapper;
 
 @Bin
 public class ClassWithPFGSG {
-  @Bin(outOrder = 1)
+  @Bin(order = 1)
   private byte a;
-  @Bin(outOrder = 2)
+  @Bin(order = 2)
   private byte b;
-  @Bin(outOrder = 3)
+  @Bin(order = 3)
   private Internal i;
 
   public Internal getI() {
@@ -36,9 +36,9 @@ public class ClassWithPFGSG {
 
   @Bin
   public class Internal {
-    @Bin(outOrder = 1)
+    @Bin(order = 1)
     private byte c;
-    @Bin(outOrder = 2)
+    @Bin(order = 2)
     private InternalInternal ii;
 
     public byte getC() {
@@ -60,7 +60,7 @@ public class ClassWithPFGSG {
 
     @Bin
     public class InternalInternal {
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       private byte d;
 
       public byte getD() {

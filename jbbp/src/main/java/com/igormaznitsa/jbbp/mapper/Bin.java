@@ -22,7 +22,6 @@ import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.io.JBBPCustomFieldWriter;
 import com.igormaznitsa.jbbp.io.JBBPOut;
 import com.igormaznitsa.jbbp.utils.JBBPTextWriter;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -100,28 +99,28 @@ public @interface Bin {
    * @see JBBPTextWriter#Bin(java.lang.Object...)
    * @see JBBPOut#Bin(java.lang.Object)
    * @see JBBPOut#Bin(java.lang.Object, com.igormaznitsa.jbbp.io.JBBPCustomFieldWriter)
-   * @since 1.1
+   * @since 2.0.0
    */
-  JBBPBitNumber outBitNumber() default JBBPBitNumber.BITS_8;
+  JBBPBitNumber bitNumber() default JBBPBitNumber.BITS_8;
 
   /**
    * Byte order to be used for write of the value.
    *
    * @return order of bytes to be used for field value write
-   * @since 1.4.0
+   * @since 2.0.0
    */
-  JBBPByteOrder outByteOrder() default JBBPByteOrder.BIG_ENDIAN;
+  JBBPByteOrder byteOrder() default JBBPByteOrder.BIG_ENDIAN;
 
   /**
-   * The Value defines the field order to sort fields of the class for save or logging.
+   * The Value defines the field order to sort fields of the class for save or logging. If -1then it is undefined.
    *
    * @return the outOrder of the field as number (the mapping will make ascending sorting)
    * @see JBBPTextWriter#Bin(java.lang.Object...)
    * @see JBBPOut#Bin(java.lang.Object)
    * @see JBBPOut#Bin(java.lang.Object, com.igormaznitsa.jbbp.io.JBBPCustomFieldWriter)
-   * @since 1.1
+   * @since 2.0.0
    */
-  int outOrder() default 0;
+  int order() default -1;
 
   /**
    * Just either description of the field or some remark.

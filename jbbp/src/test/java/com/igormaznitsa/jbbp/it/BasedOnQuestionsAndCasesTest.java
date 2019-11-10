@@ -16,6 +16,10 @@
 
 package com.igormaznitsa.jbbp.it;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
@@ -35,8 +39,6 @@ import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import com.igormaznitsa.jbbp.model.JBBPNumericField;
 import com.igormaznitsa.jbbp.utils.JBBPDslBuilder;
 import com.igormaznitsa.jbbp.utils.JBBPTextWriter;
-import org.junit.jupiter.api.Test;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,9 +47,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests based on questions and cases.
@@ -67,11 +67,11 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
   @Test
   public void testParseDayMonthYearFromBytePairInMSB0AndPackThemBack() throws Exception {
     class YearMonthDay {
-      @Bin(type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_6, outOrder = 1, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_6, order = 1, bitOrder = JBBPBitOrder.MSB0)
       byte year;
-      @Bin(type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_4, outOrder = 2, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_4, order = 2, bitOrder = JBBPBitOrder.MSB0)
       byte month;
-      @Bin(type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_5, outOrder = 3, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_5, order = 3, bitOrder = JBBPBitOrder.MSB0)
       byte day;
     }
     final YearMonthDay parsed = JBBPParser.prepare("bit:6 year; bit:4 month;  bit:5 day;", JBBPBitOrder.MSB0).parse(new byte[] {(byte) 0x3D, (byte) 0xF8}).mapTo(new YearMonthDay());
@@ -96,17 +96,17 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
     final byte[] TEST_DATA = new byte[] {0x2, 0x42, (byte) 0x81};
 
     class TetraTimestamp {
-      @Bin(type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_2, outOrder = 1, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_2, order = 1, bitOrder = JBBPBitOrder.MSB0)
       byte timezone;
-      @Bin(type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_2, outOrder = 2, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_2, order = 2, bitOrder = JBBPBitOrder.MSB0)
       byte reserved;
-      @Bin(type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_4, outOrder = 3, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_4, order = 3, bitOrder = JBBPBitOrder.MSB0)
       byte month;
-      @Bin(type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_5, outOrder = 4, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_5, order = 4, bitOrder = JBBPBitOrder.MSB0)
       byte day;
-      @Bin(type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_5, outOrder = 5, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_5, order = 5, bitOrder = JBBPBitOrder.MSB0)
       byte hour;
-      @Bin(type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_6, outOrder = 6, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_6, order = 6, bitOrder = JBBPBitOrder.MSB0)
       byte minute;
     }
 
@@ -221,7 +221,7 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
   @Test
   public void testParseBitsThroughDslBasedScriptAndMapping() throws Exception {
     class Bits {
-      @Bin(name = "a", type = BinType.BIT_ARRAY, outBitNumber = JBBPBitNumber.BITS_1, extra = "_")
+      @Bin(name = "a", type = BinType.BIT_ARRAY, bitNumber = JBBPBitNumber.BITS_1, extra = "_")
       byte[] bit;
     }
 

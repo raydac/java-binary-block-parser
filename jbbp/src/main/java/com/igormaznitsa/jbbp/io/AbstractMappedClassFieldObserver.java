@@ -132,7 +132,7 @@ public abstract class AbstractMappedClassFieldObserver {
 
       switch (type) {
         case BIT: {
-          final JBBPBitNumber bitNumber = annotation.outBitNumber();
+          final JBBPBitNumber bitNumber = annotation.bitNumber();
           if (fieldType == boolean.class) {
             this.onFieldBits(obj, field, annotation, bitNumber, ((Boolean) readFieldValue(obj, fieldRecord)) ? 0xFF : 0x00);
           } else {
@@ -248,7 +248,7 @@ public abstract class AbstractMappedClassFieldObserver {
               final int len = Array.getLength(array);
               this.onArrayStart(obj, field, annotation, len);
 
-              final JBBPBitNumber bitNumber = annotation.outBitNumber();
+              final JBBPBitNumber bitNumber = annotation.bitNumber();
 
               if (fieldType.getComponentType() == boolean.class) {
                 for (int i = 0; i < len; i++) {

@@ -996,7 +996,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
 
   /**
    * Save fields of an object marked by Bin annotation. Fields will be ordered
-   * through {@link Bin#outOrder()} field, NB! By default Java doesn't keep field
+   * through {@link Bin#order()} field, NB! By default Java doesn't keep field
    * outOrder. Ordered fields of class will be saved into internal cache for speed
    * but the cache can be reset through {@link JBBPMapper#clearFieldCache()}
    *
@@ -1013,7 +1013,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
 
   /**
    * Save fields of an object marked by Bin annotation. Fields will be ordered
-   * through {@link Bin#outOrder()} field, NB! By default Java doesn't keep field
+   * through {@link Bin#order()} field, NB! By default Java doesn't keep field
    * outOrder. Ordered fields of class will be saved into internal cache for speed
    * but the cache can be reset through {@link JBBPMapper#clearFieldCache()}
    *
@@ -1038,7 +1038,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   protected void onFieldFloat(final Object obj, final Field field, final Bin annotation, final float value) {
     final JBBPByteOrder old = this.byteOrder;
     try {
-      this.byteOrder = annotation.outByteOrder();
+      this.byteOrder = annotation.byteOrder();
       this.Float(value);
     } catch (IOException ex) {
       throw new JBBPIOException("Can't write float value", ex);
@@ -1051,7 +1051,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   protected void onFieldString(final Object obj, final Field field, final Bin annotation, final String value) {
     final JBBPByteOrder old = this.byteOrder;
     try {
-      this.byteOrder = annotation.outByteOrder();
+      this.byteOrder = annotation.byteOrder();
       this.String(value);
     } catch (IOException ex) {
       throw new JBBPIOException("Can't write string value", ex);
@@ -1064,7 +1064,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   protected void onFieldDouble(final Object obj, final Field field, final Bin annotation, final double value) {
     final JBBPByteOrder old = this.byteOrder;
     try {
-      this.byteOrder = annotation.outByteOrder();
+      this.byteOrder = annotation.byteOrder();
       this.Double(value);
     } catch (IOException ex) {
       throw new JBBPIOException("Can't write double value", ex);
@@ -1077,7 +1077,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   protected void onFieldLong(final Object obj, final Field field, final Bin annotation, final long value) {
     final JBBPByteOrder old = this.byteOrder;
     try {
-      this.byteOrder = annotation.outByteOrder();
+      this.byteOrder = annotation.byteOrder();
       this.Long(value);
     } catch (IOException ex) {
       throw new JBBPIOException("Can't write long value", ex);
@@ -1090,7 +1090,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   protected void onFieldInt(final Object obj, final Field field, final Bin annotation, final int value) {
     final JBBPByteOrder old = this.byteOrder;
     try {
-      this.byteOrder = annotation.outByteOrder();
+      this.byteOrder = annotation.byteOrder();
       this.Int(value);
     } catch (IOException ex) {
       throw new JBBPIOException("Can't write int value", ex);
@@ -1103,7 +1103,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   protected void onFieldShort(final Object obj, final Field field, final Bin annotation, final boolean signed, final int value) {
     final JBBPByteOrder old = this.byteOrder;
     try {
-      this.byteOrder = annotation.outByteOrder();
+      this.byteOrder = annotation.byteOrder();
       this.Short(value);
     } catch (IOException ex) {
       throw new JBBPIOException("Can't write short value", ex);

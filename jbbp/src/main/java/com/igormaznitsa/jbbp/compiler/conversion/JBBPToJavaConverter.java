@@ -388,7 +388,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
     if (nullableArraySize == null) {
       structType = structBaseTypeName;
       if (this.builder.generateFields) {
-        printField(nullableNameFieldInfo, byteOrder, false, getCurrentStruct().getFields().indent(), null, fieldModifier, structType, structName);
+        printField(nullableNameFieldInfo, byteOrder, false, offsetInCompiledBlock, getCurrentStruct().getFields().indent(), null, fieldModifier, structType, structName);
       }
 
       processSkipRemainingFlag();
@@ -401,7 +401,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
     } else {
       structType = structBaseTypeName + " []";
       if (this.builder.generateFields) {
-        printField(nullableNameFieldInfo, byteOrder, true, getCurrentStruct().getFields().indent(), null, fieldModifier, structType, structName);
+        printField(nullableNameFieldInfo, byteOrder, true, offsetInCompiledBlock, getCurrentStruct().getFields().indent(), null, fieldModifier, structType, structName);
       }
       processSkipRemainingFlag();
       processSkipRemainingFlagForWriting("this." + structName);
@@ -486,7 +486,12 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
   }
 
   @Override
-  public void visitValField(final int offsetInCompiledBlock, final JBBPByteOrder byteOrder, final JBBPNamedFieldInfo nameFieldInfo, final JBBPIntegerValueEvaluator expression) {
+  public void visitValField(
+      final int offsetInCompiledBlock,
+      final JBBPByteOrder byteOrder,
+      final JBBPNamedFieldInfo nameFieldInfo,
+      final JBBPIntegerValueEvaluator expression
+  ) {
     final String fieldName = prepFldName(nameFieldInfo.getFieldName());
     FieldType type = FieldType.VAL;
 
@@ -505,7 +510,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
           getCurrentStruct().getFields().printf("@Bin(name=\"%s\")", nameFieldInfo.getFieldName());
         }
       }
-      printField(nameFieldInfo, byteOrder, false, getCurrentStruct().getFields(), FieldType.VAL, fieldModifier, textFieldType, fieldName);
+      printField(nameFieldInfo, byteOrder, false, offsetInCompiledBlock, getCurrentStruct().getFields(), FieldType.VAL, fieldModifier, textFieldType, fieldName);
     }
 
     final String valIn = evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, expression, this.flagSet, false);
@@ -522,6 +527,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
   private void printField(final JBBPNamedFieldInfo nullableFieldInfo,
                           final JBBPByteOrder byteOrder,
                           final boolean array,
+                          final int fieldOrder,
                           final JavaSrcTextBuffer buffer,
                           final FieldType nullableFieldType,
                           final String modifier,
@@ -534,15 +540,15 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
           || nullableFieldType.getBinType() == BinType.UNDEFINED
           || nullableFieldType.getBinTypeArray() == BinType.UNDEFINED) {
         if (binName == null) {
-          buffer.printf("@Bin(outByteOrder=JBBPByteOrder.%s)%n", byteOrder.name());
+          buffer.printf("@Bin(byteOrder=JBBPByteOrder.%s,order=%s)%n", byteOrder.name(), Integer.toString(fieldOrder));
         } else {
-          buffer.printf("@Bin(name=\"%s\",outByteOrder=JBBPByteOrder.%s)%n", binName, byteOrder.name());
+          buffer.printf("@Bin(name=\"%s\",byteOrder=JBBPByteOrder.%s,order=%s)%n", binName, byteOrder.name(), Integer.toString(fieldOrder));
         }
       } else {
         if (binName == null) {
-          buffer.printf("@Bin(type=BinType.%s,outByteOrder=JBBPByteOrder.%s)%n", array ? nullableFieldType.getBinTypeArray() : nullableFieldType.getBinType(), byteOrder.name());
+          buffer.printf("@Bin(type=BinType.%s,byteOrder=JBBPByteOrder.%s,order=%s)%n", array ? nullableFieldType.getBinTypeArray() : nullableFieldType.getBinType(), byteOrder.name(), Integer.toString(fieldOrder));
         } else {
-          buffer.printf("@Bin(name=\"%s\",type=BinType.%s,outByteOrder=JBBPByteOrder.%s)%n", binName, array ? nullableFieldType.getBinTypeArray() : nullableFieldType.getBinType(), byteOrder.name());
+          buffer.printf("@Bin(name=\"%s\",type=BinType.%s,byteOrder=JBBPByteOrder.%s,order=%s)%n", binName, array ? nullableFieldType.getBinTypeArray() : nullableFieldType.getBinType(), byteOrder.name(), Integer.toString(fieldOrder));
         }
       }
     }
@@ -550,6 +556,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
   }
 
   private void printBitField(final boolean array,
+                             final int fieldOrder,
                              final JBBPByteOrder byteOrder,
                              final JBBPNamedFieldInfo nullableFieldInfo,
                              final String sizeOfFieldOut,
@@ -560,14 +567,16 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
     if (this.builder.addBinAnnotations) {
       final String binName = nullableFieldInfo == null ? null : nullableFieldInfo.getFieldName();
       if (binName == null) {
-        buffer.printf("@Bin(type=BinType.%s,outBitNumber=%s,outByteOrder=JBBPByteOrder.%s)%n",
+        buffer.printf("@Bin(type=BinType.%s,bitNumber=%s,byteOrder=JBBPByteOrder.%s,order=%s)%n",
             (array ? BinType.BIT_ARRAY : BinType.BIT).name(),
-            sizeOfFieldOut, byteOrder.name());
+            sizeOfFieldOut, byteOrder.name(),
+            Integer.toString(fieldOrder));
       } else {
-        buffer.printf("@Bin(name=\"%s\",type=BinType.%s,outBitNumber=%s,outByteOrder=JBBPByteOrder.%s)%n",
+        buffer.printf("@Bin(name=\"%s\",type=BinType.%s,bitNumber=%s,byteOrder=JBBPByteOrder.%s,order=%s)%n",
             binName,
             (array ? BinType.BIT_ARRAY : BinType.BIT).name(),
-            sizeOfFieldOut, byteOrder.name());
+            sizeOfFieldOut, byteOrder.name(),
+            Integer.toString(fieldOrder));
       }
     }
     buffer.printf("%s %s %s;%n", modifier, type, name);
@@ -619,6 +628,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
             nullableNameFieldInfo,
             byteOrder,
             false,
+            offsetInCompiledBlock,
             getCurrentStruct().getFields(),
             type,
             fieldModifier,
@@ -631,7 +641,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
     } else {
       textFieldType = type.asJavaArrayFieldType() + " []";
       if (this.builder.generateFields) {
-        printField(nullableNameFieldInfo, byteOrder, true, getCurrentStruct().getFields(), type, fieldModifier, textFieldType, fieldName);
+        printField(nullableNameFieldInfo, byteOrder, true, offsetInCompiledBlock, getCurrentStruct().getFields(), type, fieldModifier, textFieldType, fieldName);
       }
       getCurrentStruct().getReadFunc().printf("this.%s = %s;%n", fieldName, type.makeReaderForArray(NAME_INPUT_STREAM, arraySizeIn, byteOrder));
       if (readWholeStreamAsArray) {
@@ -725,6 +735,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
     if (this.builder.generateFields) {
       printBitField(
           nullableArraySize != null,
+          offsetInCompiledBlock,
           byteOrder,
           nullableNameFieldInfo,
           sizeOfFieldOut,
@@ -846,7 +857,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
     if (readWholeStreamIntoArray || nullableArraySizeEvaluator != null) {
       fieldType = "JBBPAbstractArrayField<? extends JBBPAbstractField>";
       if (this.builder.generateFields) {
-        printField(nullableNameFieldInfo, byteOrder, true, getCurrentStruct().getFields(), FieldType.VAR, fieldModifier, fieldType, fieldName);
+        printField(nullableNameFieldInfo, byteOrder, true, offsetInCompiledBlock, getCurrentStruct().getFields(), FieldType.VAR, fieldModifier, fieldType, fieldName);
       }
 
       this.getCurrentStruct().getReadFunc().printf("%s = %s;%n",
@@ -873,7 +884,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
     } else {
       fieldType = "JBBPAbstractField";
       if (this.builder.generateFields) {
-        printField(nullableNameFieldInfo, byteOrder, false, getCurrentStruct().getFields(), FieldType.VAR, fieldModifier, fieldType, fieldName);
+        printField(nullableNameFieldInfo, byteOrder, false, offsetInCompiledBlock, getCurrentStruct().getFields(), FieldType.VAR, fieldModifier, fieldType, fieldName);
       }
 
       this.getCurrentStruct().getReadFunc().printf("%s = %s;%n",

@@ -16,15 +16,21 @@
 
 package com.igormaznitsa.jbbp.utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.it.AbstractParserIntegrationTest;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.mapper.BinType;
 import com.igormaznitsa.jbbp.utils.JBBPTextWriter.Extra;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -32,8 +38,7 @@ import java.io.Writer;
 import java.lang.reflect.Field;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
 
@@ -682,19 +687,19 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
     @Bin(name = "some class")
     class SomeClass {
 
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       byte a;
-      @Bin(outOrder = 2, comment = "Short field")
+      @Bin(order = 2, comment = "Short field")
       short b;
-      @Bin(outOrder = 3)
+      @Bin(order = 3)
       int c;
-      @Bin(outOrder = 4, comment = "Long field")
+      @Bin(order = 4, comment = "Long field")
       long d;
-      @Bin(outOrder = 5, comment = "some array")
+      @Bin(order = 5, comment = "some array")
       byte[] arr = new byte[128];
-      @Bin(outOrder = 6, comment = "some string")
+      @Bin(order = 6, comment = "some string")
       String str = "Hello String";
-      @Bin(outOrder = 7, comment = "some string array")
+      @Bin(order = 7, comment = "some string array")
       String[] strs = new String[] {"Hello", null, "World"};
     }
 
@@ -732,21 +737,21 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
 
       class Chunk {
 
-        @Bin(outOrder = 1)
+        @Bin(order = 1)
         int Length;
-        @Bin(outOrder = 2)
+        @Bin(order = 2)
         int Type;
-        @Bin(outOrder = 3)
+        @Bin(order = 3)
         byte[] Data;
-        @Bin(outOrder = 4)
+        @Bin(order = 4)
         int CRC;
       }
 
       class Png {
 
-        @Bin(outOrder = 1)
+        @Bin(order = 1)
         long Header;
-        @Bin(outOrder = 2)
+        @Bin(order = 2)
         Chunk[] Chunks;
       }
 
@@ -903,9 +908,9 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
   public void testCustomFieldInMappedClass() throws Exception {
     class TestClass {
 
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       int a;
-      @Bin(outOrder = 2, custom = true)
+      @Bin(order = 2, custom = true)
       int b;
     }
 
@@ -935,9 +940,9 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
   public void testCustomArrayFieldInMappedClass() throws Exception {
     class TestClass {
 
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       int a;
-      @Bin(outOrder = 2, custom = true)
+      @Bin(order = 2, custom = true)
       int[] b = new int[3];
     }
 

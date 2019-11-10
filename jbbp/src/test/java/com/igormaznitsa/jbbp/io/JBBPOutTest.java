@@ -16,22 +16,26 @@
 
 package com.igormaznitsa.jbbp.io;
 
+import static com.igormaznitsa.jbbp.io.JBBPOut.BeginBin;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+
 import com.igormaznitsa.jbbp.exceptions.JBBPIllegalArgumentException;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.mapper.BinType;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
-
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
-import java.lang.reflect.Field;
-
-import static com.igormaznitsa.jbbp.io.JBBPOut.BeginBin;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class JBBPOutTest {
 
@@ -590,9 +594,9 @@ public class JBBPOutTest {
   public void testVar_ProcessRest() throws Exception {
     class Test {
 
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       byte a;
-      @Bin(outOrder = 2)
+      @Bin(order = 2)
       byte b;
 
       Test(int a, int b) {
@@ -621,9 +625,9 @@ public class JBBPOutTest {
   public void testVar_SkipRest() throws Exception {
     class Test {
 
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       byte a;
-      @Bin(outOrder = 2)
+      @Bin(order = 2)
       byte b;
 
       Test(int a, int b) {
@@ -712,11 +716,11 @@ public class JBBPOutTest {
   public void testBin_UndefinedType_Byte() throws Exception {
     class Test {
 
-      @Bin(outOrder = 3)
+      @Bin(order = 3)
       byte c;
-      @Bin(outOrder = 2, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(order = 2, bitOrder = JBBPBitOrder.MSB0)
       byte b;
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       byte a;
 
       Test(byte a, byte b, byte c) {
@@ -753,11 +757,11 @@ public class JBBPOutTest {
   public void testBin_UndefinedType_Boolean() throws Exception {
     class Test {
 
-      @Bin(outOrder = 3)
+      @Bin(order = 3)
       boolean c;
-      @Bin(outOrder = 2, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(order = 2, bitOrder = JBBPBitOrder.MSB0)
       boolean b;
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       boolean a;
 
       Test(boolean a, boolean b, boolean c) {
@@ -773,11 +777,11 @@ public class JBBPOutTest {
   public void testBin_BitType_Bits() throws Exception {
     class Test {
 
-      @Bin(outBitNumber = JBBPBitNumber.BITS_4, outOrder = 3, type = BinType.BIT)
+      @Bin(bitNumber = JBBPBitNumber.BITS_4, order = 3, type = BinType.BIT)
       byte c;
-      @Bin(outBitNumber = JBBPBitNumber.BITS_4, outOrder = 2, type = BinType.BIT, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(bitNumber = JBBPBitNumber.BITS_4, order = 2, type = BinType.BIT, bitOrder = JBBPBitOrder.MSB0)
       byte b;
-      @Bin(outBitNumber = JBBPBitNumber.BITS_4, type = BinType.BIT, outOrder = 1)
+      @Bin(bitNumber = JBBPBitNumber.BITS_4, type = BinType.BIT, order = 1)
       byte a;
 
       Test(byte a, byte b, byte c) {
@@ -793,11 +797,11 @@ public class JBBPOutTest {
   public void testBin_UndefinedType_Short() throws Exception {
     class Test {
 
-      @Bin(outOrder = 3)
+      @Bin(order = 3)
       short c;
-      @Bin(outOrder = 2, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(order = 2, bitOrder = JBBPBitOrder.MSB0)
       short b;
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       short a;
 
       Test(short a, short b, short c) {
@@ -814,11 +818,11 @@ public class JBBPOutTest {
   public void testBin_UndefinedType_Char() throws Exception {
     class Test {
 
-      @Bin(outOrder = 3)
+      @Bin(order = 3)
       char c;
-      @Bin(outOrder = 2, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(order = 2, bitOrder = JBBPBitOrder.MSB0)
       char b;
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       char a;
 
       Test(char a, char b, char c) {
@@ -835,11 +839,11 @@ public class JBBPOutTest {
   public void testBin_UndefinedType_Int() throws Exception {
     class Test {
 
-      @Bin(outOrder = 3)
+      @Bin(order = 3)
       int c;
-      @Bin(outOrder = 2, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(order = 2, bitOrder = JBBPBitOrder.MSB0)
       int b;
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       int a;
 
       Test(int a, int b, int c) {
@@ -856,11 +860,11 @@ public class JBBPOutTest {
   public void testBin_UndefinedType_Float() throws Exception {
     class Test {
 
-      @Bin(outOrder = 3)
+      @Bin(order = 3)
       float c;
-      @Bin(outOrder = 2, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(order = 2, bitOrder = JBBPBitOrder.MSB0)
       float b;
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       float a;
 
       Test(float a, float b, float c) {
@@ -881,11 +885,11 @@ public class JBBPOutTest {
   public void testBin_UndefinedType_Long() throws Exception {
     class Test {
 
-      @Bin(outOrder = 3)
+      @Bin(order = 3)
       long c;
-      @Bin(outOrder = 2, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(order = 2, bitOrder = JBBPBitOrder.MSB0)
       long b;
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       long a;
 
       Test(long a, long b, long c) {
@@ -906,11 +910,11 @@ public class JBBPOutTest {
   public void testBin_UndefinedType_Double() throws Exception {
     class Test {
 
-      @Bin(outOrder = 3)
+      @Bin(order = 3)
       double c;
-      @Bin(outOrder = 2, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(order = 2, bitOrder = JBBPBitOrder.MSB0)
       double b;
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       double a;
 
       Test(double a, double b, double c) {
@@ -931,9 +935,9 @@ public class JBBPOutTest {
   public void testBin_UndefinedType_Struct() throws Exception {
     class Inside {
 
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       byte a;
-      @Bin(outOrder = 2)
+      @Bin(order = 2)
       byte b;
 
       Inside(byte a, byte b) {
@@ -944,11 +948,11 @@ public class JBBPOutTest {
 
     class Test {
 
-      @Bin(outOrder = 2)
+      @Bin(order = 2)
       Inside c;
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       byte a;
-      @Bin(outOrder = 3)
+      @Bin(order = 3)
       byte b;
 
       Test(byte a, byte b, Inside c) {
@@ -965,11 +969,11 @@ public class JBBPOutTest {
   public void testBin_DefinedType_Array_Bits() throws Exception {
     class Test {
 
-      @Bin(outOrder = 2, outBitNumber = JBBPBitNumber.BITS_4, type = BinType.BIT_ARRAY)
+      @Bin(order = 2, bitNumber = JBBPBitNumber.BITS_4, type = BinType.BIT_ARRAY)
       byte[] array;
-      @Bin(outOrder = 3, outBitNumber = JBBPBitNumber.BITS_4, type = BinType.BIT_ARRAY, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(order = 3, bitNumber = JBBPBitNumber.BITS_4, type = BinType.BIT_ARRAY, bitOrder = JBBPBitOrder.MSB0)
       byte[] lsbarray;
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       byte prefix;
 
       Test(byte prefix, byte[] array, byte[] lsbarray) {
@@ -986,9 +990,9 @@ public class JBBPOutTest {
   public void testBin_UndefinedType_Array_Bytes() throws Exception {
     class Test {
 
-      @Bin(outOrder = 2, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(order = 2, bitOrder = JBBPBitOrder.MSB0)
       byte[] lsbarray;
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       byte[] array;
 
       Test(byte[] array, byte[] lsbarray) {
@@ -1004,9 +1008,9 @@ public class JBBPOutTest {
   public void testBin_UndefinedType_Array_Boolean() throws Exception {
     class Test {
 
-      @Bin(outOrder = 2, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(order = 2, bitOrder = JBBPBitOrder.MSB0)
       boolean[] lsbarray;
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       boolean[] array;
 
       Test(boolean[] array, boolean[] lsbarray) {
@@ -1022,9 +1026,9 @@ public class JBBPOutTest {
   public void testBin_UndefinedType_Array_Bytes_String() throws Exception {
     class Test {
 
-      @Bin(outOrder = 2, bitOrder = JBBPBitOrder.MSB0, type = BinType.BYTE_ARRAY)
+      @Bin(order = 2, bitOrder = JBBPBitOrder.MSB0, type = BinType.BYTE_ARRAY)
       String lsbarray;
-      @Bin(outOrder = 1, type = BinType.BYTE_ARRAY)
+      @Bin(order = 1, type = BinType.BYTE_ARRAY)
       String array;
 
       Test(String array, String lsbarray) {
@@ -1040,9 +1044,9 @@ public class JBBPOutTest {
   public void testBin_UndefinedType_Array_String_String() throws Exception {
     class Test {
 
-      @Bin(outOrder = 2, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(order = 2, bitOrder = JBBPBitOrder.MSB0)
       String lsbarray;
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       String array;
 
       Test(String array, String lsbarray) {
@@ -1059,9 +1063,9 @@ public class JBBPOutTest {
   public void testBin_UndefinedType_Array_Short() throws Exception {
     class Test {
 
-      @Bin(outOrder = 2, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(order = 2, bitOrder = JBBPBitOrder.MSB0)
       short[] lsbarray;
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       short[] array;
 
       Test(short[] array, short[] lsbarray) {
@@ -1077,9 +1081,9 @@ public class JBBPOutTest {
   public void testBin_DefinedType_Array_Short_String() throws Exception {
     class Test {
 
-      @Bin(outOrder = 2, bitOrder = JBBPBitOrder.MSB0, type = BinType.SHORT_ARRAY)
+      @Bin(order = 2, bitOrder = JBBPBitOrder.MSB0, type = BinType.SHORT_ARRAY)
       String lsbarray;
-      @Bin(outOrder = 1, type = BinType.SHORT_ARRAY)
+      @Bin(order = 1, type = BinType.SHORT_ARRAY)
       String array;
 
       Test(String array, String lsbarray) {
@@ -1095,9 +1099,9 @@ public class JBBPOutTest {
   public void testBin_UndefinedType_Array_Int() throws Exception {
     class Test {
 
-      @Bin(outOrder = 2, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(order = 2, bitOrder = JBBPBitOrder.MSB0)
       int[] lsbarray;
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       int[] array;
 
       Test(int[] array, int[] lsbarray) {
@@ -1114,9 +1118,9 @@ public class JBBPOutTest {
   public void testBin_UndefinedType_Array_Float() throws Exception {
     class Test {
 
-      @Bin(outOrder = 2, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(order = 2, bitOrder = JBBPBitOrder.MSB0)
       float[] lsbarray;
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       float[] array;
 
       Test(float[] array, float[] lsbarray) {
@@ -1136,9 +1140,9 @@ public class JBBPOutTest {
   public void testBin_UndefinedType_Array_Long() throws Exception {
     class Test {
 
-      @Bin(outOrder = 2, bitOrder = JBBPBitOrder.MSB0)
+      @Bin(order = 2, bitOrder = JBBPBitOrder.MSB0)
       long[] lsbarray;
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       long[] array;
 
       Test(long[] array, long[] lsbarray) {
@@ -1158,9 +1162,9 @@ public class JBBPOutTest {
   public void testBin_UndefinedType_Array_Object() throws Exception {
     class Inner {
 
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       byte a;
-      @Bin(outOrder = 2)
+      @Bin(order = 2)
       byte b;
 
       Inner(byte a, byte b) {
@@ -1171,9 +1175,9 @@ public class JBBPOutTest {
 
     class Test {
 
-      @Bin(outOrder = 2)
+      @Bin(order = 2)
       Inner[] inner;
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       byte prefix;
 
       Test(byte prefix, Inner[] inner) {
@@ -1190,9 +1194,9 @@ public class JBBPOutTest {
   public void testBin_TwoFieldWithTheSameorder() throws Exception {
     class Test {
 
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       byte a;
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       byte b;
 
       Test(byte a, byte b) {
@@ -1208,9 +1212,9 @@ public class JBBPOutTest {
   public void testBin_CustomField_ErrorBecauseNoCustomWriter() throws Exception {
     class Test {
 
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       byte a;
-      @Bin(outOrder = 2, custom = true)
+      @Bin(order = 2, custom = true)
       byte b;
 
       Test(byte a, byte b) {
@@ -1226,9 +1230,9 @@ public class JBBPOutTest {
   @Test
   public void testBin_CustomField_NoError() throws Exception {
     class Test {
-      @Bin(outOrder = 1)
+      @Bin(order = 1)
       byte a;
-      @Bin(outOrder = 2, custom = true)
+      @Bin(order = 2, custom = true)
       byte b;
 
       Test(byte a, byte b) {
@@ -1254,11 +1258,11 @@ public class JBBPOutTest {
   private static class TestWithStaticField {
     static int some = 111;
 
-    @Bin(outOrder = 3)
+    @Bin(order = 3)
     byte c;
-    @Bin(outOrder = 2, bitOrder = JBBPBitOrder.MSB0)
+    @Bin(order = 2, bitOrder = JBBPBitOrder.MSB0)
     byte b;
-    @Bin(outOrder = 1)
+    @Bin(order = 1)
     byte a;
 
     TestWithStaticField(byte a, byte b, byte c) {

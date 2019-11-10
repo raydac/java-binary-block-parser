@@ -16,6 +16,11 @@
 
 package com.igormaznitsa.jbbp.it;
 
+import static com.igormaznitsa.jbbp.TestUtils.assertPngChunk;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.io.JBBPOut;
 import com.igormaznitsa.jbbp.mapper.Bin;
@@ -25,14 +30,9 @@ import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
+import java.io.InputStream;
 import org.apache.commons.codec.digest.PureJavaCrc32;
 import org.junit.jupiter.api.Test;
-
-import java.io.InputStream;
-
-import static com.igormaznitsa.jbbp.TestUtils.assertPngChunk;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class PNGParsingTest extends AbstractParserIntegrationTest {
 
@@ -220,20 +220,20 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
 
       class Chunk {
 
-        @Bin(outOrder = 1)
+        @Bin(order = 1)
         int length;
-        @Bin(outOrder = 2)
+        @Bin(order = 2)
         int type;
-        @Bin(outOrder = 3)
+        @Bin(order = 3)
         byte[] data;
-        @Bin(outOrder = 4)
+        @Bin(order = 4)
         int crc;
       }
       class Png {
 
-        @Bin(outOrder = 1)
+        @Bin(order = 1)
         long hEAder;
-        @Bin(outOrder = 2)
+        @Bin(order = 2)
         Chunk[] chuNK;
 
         Chunk makeNewChunk() {
