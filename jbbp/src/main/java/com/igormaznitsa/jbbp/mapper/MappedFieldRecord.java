@@ -445,6 +445,7 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
     }
   }
 
+  @SuppressWarnings("TryWithIdenticalCatches")
   private static <T> T tryMakeInstance(
       final Class<T> type,
       final JBBPAbstractField binField,

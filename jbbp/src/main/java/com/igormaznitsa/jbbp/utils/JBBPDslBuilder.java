@@ -2071,7 +2071,7 @@ public class JBBPDslBuilder {
     final List<BinField> fields = new ArrayList<>();
     final Class<?> klazz;
 
-    static BinFieldContainer END_STRUCT = new BinFieldContainer(null, null);
+    static final BinFieldContainer END_STRUCT = new BinFieldContainer(null, null);
 
     BinFieldContainer(final Class<?> klazz, final Bin bin, final boolean fieldLocalAnnotation, final Field field) {
       super(bin, fieldLocalAnnotation, field);

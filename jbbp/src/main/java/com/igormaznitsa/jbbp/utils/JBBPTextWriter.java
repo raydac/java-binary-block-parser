@@ -48,7 +48,6 @@ import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import com.igormaznitsa.jbbp.model.JBBPFieldUByte;
 import com.igormaznitsa.jbbp.model.JBBPFieldUShort;
 import com.igormaznitsa.jbbp.model.JBBPNumericField;
-
 import java.io.FilterWriter;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -1058,9 +1057,8 @@ public class JBBPTextWriter extends FilterWriter {
    * Increase indent.
    *
    * @return the context
-   * @throws IOException it will be thrown for transport error
    */
-  public JBBPTextWriter IndentInc() throws IOException {
+  public JBBPTextWriter IndentInc() {
     this.indent += this.spacesInTab;
     return this;
   }
@@ -1083,9 +1081,8 @@ public class JBBPTextWriter extends FilterWriter {
    * Decrease indent.
    *
    * @return the context
-   * @throws IOException it will be thrown for transport error
    */
-  public JBBPTextWriter IndentDec() throws IOException {
+  public JBBPTextWriter IndentDec() {
     if (this.indent > 0) {
       this.indent = Math.max(0, this.indent - this.spacesInTab);
     }

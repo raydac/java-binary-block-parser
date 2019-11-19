@@ -258,9 +258,8 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    *
    * @param value the byte outOrder to be used in next operations, must not be null
    * @return the DSL session
-   * @throws IOException it will be thrown for transport errors
    */
-  public JBBPOut ByteOrder(final JBBPByteOrder value) throws IOException {
+  public JBBPOut ByteOrder(final JBBPByteOrder value) {
     assertNotEnded();
     JBBPUtils.assertNotNull(value, "Byte order must not be null");
     if (this.processCommands) {
@@ -1021,12 +1020,11 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    * @param customFieldWriter a custom field writer to be used for saving of
    *                          custom fields of the object, it can be null
    * @return the context
-   * @throws IOException it will be thrown for any transport error
    * @see JBBPMapper#clearFieldCache()
    * @see Bin
    * @since 1.1
    */
-  public JBBPOut Bin(final Object object, final JBBPCustomFieldWriter customFieldWriter) throws IOException {
+  public JBBPOut Bin(final Object object, final JBBPCustomFieldWriter customFieldWriter) {
     if (this.processCommands) {
       this.processObject(object, null, customFieldWriter);
     }

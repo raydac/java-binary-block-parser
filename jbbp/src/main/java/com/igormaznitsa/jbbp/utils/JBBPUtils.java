@@ -41,6 +41,7 @@ public final class JBBPUtils {
   public static final JBBPAbstractField[] ARRAY_FIELD_EMPTY = new JBBPAbstractField[0];
 
   // Don't replace by StandardCharsets for Android compatibility!
+  @SuppressWarnings("CharsetObjectCanBeUsed")
   private static final Charset CHARSET_UTF8 = Charset.forName("UTF-8");
 
   private JBBPUtils() {

@@ -1043,7 +1043,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
 
       class ExprTreeItem {
 
-        Operator op;
+        final Operator op;
         Object left;
         Object right;
 
