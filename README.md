@@ -15,7 +15,7 @@ For instance I have been very actively using the framework in [the ZX-Poly emula
 ![Use cases](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_mm.png)
 
 # Change log
- - **2.0.0-SNAPSHOT**
+- **2.0.0-SNAPSHOT**
   - __removed DslBinCustom annotation, use @Bin annotation instead__
   - __renamed attributes of @Bin annotation to their correct form__
   - __reworked object mapping system, removed hacks to instantiate classes, now only mapping to objects allowed, support of private fields mapping is removed__
