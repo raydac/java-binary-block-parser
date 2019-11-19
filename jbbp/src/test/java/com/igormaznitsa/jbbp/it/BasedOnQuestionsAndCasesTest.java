@@ -221,7 +221,7 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
   @Test
   public void testParseBitsThroughDslBasedScriptAndMapping() throws Exception {
     class Bits {
-      @Bin(name = "a", type = BinType.BIT_ARRAY, bitNumber = JBBPBitNumber.BITS_1, arraySizeExpression = "_")
+      @Bin(name = "a", type = BinType.BIT_ARRAY, bitNumber = JBBPBitNumber.BITS_1, arraySizeExpr = "_")
       byte[] bit;
     }
 

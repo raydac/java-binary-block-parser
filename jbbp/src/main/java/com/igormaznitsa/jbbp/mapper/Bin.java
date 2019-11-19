@@ -45,20 +45,20 @@ public @interface Bin {
   /**
    * Name of a structure element to be mapped to the field.
    *
-   * @return string name, if it is empty then the name of a field will be used
+   * @return string name, if it is empty then field name will be used
    * as name
    */
   String name() default "";
 
   /**
-   * Path inside structure to an element to be mapped to the field.
+   * Structure path inside to be mapped to the field.
    *
    * @return string path, if it is empty then the path is not used
    */
   String path() default "";
 
   /**
-   * Name of the custom type.
+   * Custom type. It plays role only if {@link #type()} is UNDEFINED
    *
    * @return type of the field, if empty then undefined
    * @since 2.0.0
@@ -71,7 +71,7 @@ public @interface Bin {
    * @return array size of the field, if empty then not defined
    * @since 2.0.0
    */
-  String arraySizeExpression() default "";
+  String arraySizeExpr() default "";
 
   /**
    * Type of mapped parsed structure element.
@@ -106,7 +106,7 @@ public @interface Bin {
    * @return extra value, if empty then undefined
    * @since 2.0.0
    */
-  String typeExtraPartExpression() default "";
+  String paramExpr() default "";
 
   /**
    * The Value defines how many bytes are actual ones in the field, works for numeric field and arrays and allows make mapping to bit fields.

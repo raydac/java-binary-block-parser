@@ -408,13 +408,13 @@ class JBBPDslBuilderTest {
       int c;
       @Bin(order = 2, byteOrder = JBBPByteOrder.LITTLE_ENDIAN)
       int b;
-      @Bin(order = 4, arraySizeExpression = "a+b")
+      @Bin(order = 4, arraySizeExpr = "a+b")
       Internal[] d;
 
       class Internal {
         @Bin(order = 1)
         short a;
-        @Bin(order = 2, arraySizeExpression = "8")
+        @Bin(order = 2, arraySizeExpr = "8")
         short[] b;
       }
     }
@@ -457,7 +457,7 @@ class JBBPDslBuilderTest {
   @Test
   public void testReportedIssue_20_NPEforOutBitNumber() throws Exception {
     class BreakJBBPDslBuilder {
-      @Bin(order = 1, comment = "Reserved", type = BinType.BIT_ARRAY, arraySizeExpression = "4")
+      @Bin(order = 1, comment = "Reserved", type = BinType.BIT_ARRAY, arraySizeExpr = "4")
       public byte[] reserved;
     }
 
@@ -499,7 +499,7 @@ class JBBPDslBuilderTest {
         int c;
       }
 
-      @Bin(arraySizeExpression = "_")
+      @Bin(arraySizeExpr = "_")
       Internal[] array;
     }
     assertEquals("Test{bit:5 a;array[_]{long a;long b;long c;}bit:5 b;bit:5 c;bool dd;}", Begin().AnnotatedClass(Test.class).End(false));
@@ -510,55 +510,55 @@ class JBBPDslBuilderTest {
     class Test {
       @Bin(order = 1, type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_4, comment = "bit field")
       byte a;
-      @Bin(order = 2, bitNumber = JBBPBitNumber.BITS_2, arraySizeExpression = "123")
+      @Bin(order = 2, bitNumber = JBBPBitNumber.BITS_2, arraySizeExpr = "123")
       byte[] a1;
       @Bin(order = 3)
       boolean b;
-      @Bin(order = 4, arraySizeExpression = "456")
+      @Bin(order = 4, arraySizeExpr = "456")
       boolean[] b1;
       @Bin(order = 5)
       byte c;
-      @Bin(order = 6, arraySizeExpression = "456")
+      @Bin(order = 6, arraySizeExpr = "456")
       byte[] c1;
       @Bin(order = 7, byteOrder = JBBPByteOrder.LITTLE_ENDIAN)
       short d;
-      @Bin(order = 8, arraySizeExpression = "2")
+      @Bin(order = 8, arraySizeExpr = "2")
       short[] d1;
       @Bin(order = 9, type = BinType.USHORT, byteOrder = JBBPByteOrder.LITTLE_ENDIAN)
       short e;
-      @Bin(order = 10, type = BinType.USHORT_ARRAY, arraySizeExpression = "21")
+      @Bin(order = 10, type = BinType.USHORT_ARRAY, arraySizeExpr = "21")
       short[] e1;
       @Bin(order = 11, byteOrder = JBBPByteOrder.LITTLE_ENDIAN)
       int f;
-      @Bin(order = 12, arraySizeExpression = "211")
+      @Bin(order = 12, arraySizeExpr = "211")
       int[] f1;
       @Bin(order = 13, byteOrder = JBBPByteOrder.LITTLE_ENDIAN)
       long g;
-      @Bin(order = 14, arraySizeExpression = "211")
+      @Bin(order = 14, arraySizeExpr = "211")
       long[] g1;
       @Bin(order = 15, byteOrder = JBBPByteOrder.LITTLE_ENDIAN)
       float h;
-      @Bin(order = 16, arraySizeExpression = "1211")
+      @Bin(order = 16, arraySizeExpr = "1211")
       float[] h1;
       @Bin(order = 17, byteOrder = JBBPByteOrder.LITTLE_ENDIAN)
       double i;
-      @Bin(order = 18, arraySizeExpression = "3")
+      @Bin(order = 18, arraySizeExpr = "3")
       double[] i1;
       @Bin(order = 19)
       String l;
-      @Bin(order = 20, arraySizeExpression = "a+b")
+      @Bin(order = 20, arraySizeExpr = "a+b")
       String[] l1;
-      @Bin(customType = "int9", typeExtraPartExpression = "a+b", arraySizeExpression = "c*d", byteOrder = JBBPByteOrder.LITTLE_ENDIAN, comment = "some comment")
+      @Bin(customType = "int9", paramExpr = "a+b", arraySizeExpr = "c*d", byteOrder = JBBPByteOrder.LITTLE_ENDIAN, comment = "some comment")
       int[] cus;
       @Bin(order = 21)
       Test.Some x;
-      @Bin(order = 22, arraySizeExpression = "998")
+      @Bin(order = 22, arraySizeExpr = "998")
       Test.Some[] x1;
 
       class Some {
         @Bin(order = 1, type = BinType.UBYTE)
         int a;
-        @Bin(order = 2, type = BinType.UBYTE_ARRAY, arraySizeExpression = "223")
+        @Bin(order = 2, type = BinType.UBYTE_ARRAY, arraySizeExpr = "223")
         byte[] a1;
 
         @Bin

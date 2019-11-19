@@ -1618,7 +1618,7 @@ public class JBBPDslBuilder {
     if ((bin.type() == BinType.UNDEFINED
         && field.getType().isArray()
         || bin.type().name().endsWith("_ARRAY"))
-        && bin.arraySizeExpression().isEmpty()) {
+        && bin.arraySizeExpr().isEmpty()) {
       throw new IllegalArgumentException(field.toString() + ": missing expression in Bin#arraySizeExpression");
     }
   }
@@ -1696,7 +1696,7 @@ public class JBBPDslBuilder {
             this.CloseStruct();
           } else {
             if (field.isArrayField()) {
-              this.StructArray(conty.getName(), conty.bin.arraySizeExpression());
+              this.StructArray(conty.getName(), conty.bin.arraySizeExpr());
             } else {
               this.Struct(conty.getName());
             }
@@ -1709,18 +1709,18 @@ public class JBBPDslBuilder {
           this.ByteOrder(pair.container.getByteOrder(field));
           switch (type) {
             case BIT_ARRAY: {
-              if (field.bin.typeExtraPartExpression().isEmpty()) {
-                this.BitArray(field.getName(), pair.container.getBitNumber(field), field.bin.arraySizeExpression());
+              if (field.bin.paramExpr().isEmpty()) {
+                this.BitArray(field.getName(), pair.container.getBitNumber(field), field.bin.arraySizeExpr());
               } else {
-                this.CustomArray("bit", field.getName(), field.bin.arraySizeExpression(), field.bin.typeExtraPartExpression());
+                this.CustomArray("bit", field.getName(), field.bin.arraySizeExpr(), field.bin.paramExpr());
               }
             }
             break;
             case BIT: {
-              if (field.bin.typeExtraPartExpression().isEmpty()) {
+              if (field.bin.paramExpr().isEmpty()) {
                 this.Bits(field.getName(), pair.container.getBitNumber(field));
               } else {
-                this.Custom("bit", field.getName(), field.bin.typeExtraPartExpression());
+                this.Custom("bit", field.getName(), field.bin.paramExpr());
               }
             }
             break;
@@ -1729,7 +1729,7 @@ public class JBBPDslBuilder {
             }
             break;
             case BOOL_ARRAY: {
-              this.BoolArray(field.getName(), field.bin.arraySizeExpression());
+              this.BoolArray(field.getName(), field.bin.arraySizeExpr());
             }
             break;
             case BYTE: {
@@ -1737,7 +1737,7 @@ public class JBBPDslBuilder {
             }
             break;
             case BYTE_ARRAY: {
-              this.ByteArray(field.getName(), field.bin.arraySizeExpression());
+              this.ByteArray(field.getName(), field.bin.arraySizeExpr());
             }
             break;
             case UBYTE: {
@@ -1745,7 +1745,7 @@ public class JBBPDslBuilder {
             }
             break;
             case UBYTE_ARRAY: {
-              this.UByteArray(field.getName(), field.bin.arraySizeExpression());
+              this.UByteArray(field.getName(), field.bin.arraySizeExpr());
             }
             break;
             case SHORT: {
@@ -1753,7 +1753,7 @@ public class JBBPDslBuilder {
             }
             break;
             case SHORT_ARRAY: {
-              this.ShortArray(field.getName(), field.bin.arraySizeExpression());
+              this.ShortArray(field.getName(), field.bin.arraySizeExpr());
             }
             break;
             case USHORT: {
@@ -1761,7 +1761,7 @@ public class JBBPDslBuilder {
             }
             break;
             case USHORT_ARRAY: {
-              this.UShortArray(field.getName(), field.bin.arraySizeExpression());
+              this.UShortArray(field.getName(), field.bin.arraySizeExpr());
             }
             break;
             case INT: {
@@ -1769,7 +1769,7 @@ public class JBBPDslBuilder {
             }
             break;
             case INT_ARRAY: {
-              this.IntArray(field.getName(), field.bin.arraySizeExpression());
+              this.IntArray(field.getName(), field.bin.arraySizeExpr());
             }
             break;
             case LONG: {
@@ -1777,7 +1777,7 @@ public class JBBPDslBuilder {
             }
             break;
             case LONG_ARRAY: {
-              this.LongArray(field.getName(), field.bin.arraySizeExpression());
+              this.LongArray(field.getName(), field.bin.arraySizeExpr());
             }
             break;
             case FLOAT: {
@@ -1785,7 +1785,7 @@ public class JBBPDslBuilder {
             }
             break;
             case FLOAT_ARRAY: {
-              this.FloatArray(field.getName(), field.bin.arraySizeExpression());
+              this.FloatArray(field.getName(), field.bin.arraySizeExpr());
             }
             break;
             case DOUBLE: {
@@ -1793,7 +1793,7 @@ public class JBBPDslBuilder {
             }
             break;
             case DOUBLE_ARRAY: {
-              this.DoubleArray(field.getName(), field.bin.arraySizeExpression());
+              this.DoubleArray(field.getName(), field.bin.arraySizeExpr());
             }
             break;
             case STRING: {
@@ -1801,16 +1801,16 @@ public class JBBPDslBuilder {
             }
             break;
             case STRING_ARRAY: {
-              this.StringArray(field.getName(), field.bin.arraySizeExpression());
+              this.StringArray(field.getName(), field.bin.arraySizeExpr());
             }
             break;
             case UNDEFINED: {
               if (!field.getCustomType().isEmpty()) {
                 this.ByteOrder(pair.container.getByteOrder(field));
-                if (field.isArrayField() || !field.bin.arraySizeExpression().isEmpty()) {
-                  this.CustomArray(field.bin.customType(), field.getName(), field.bin.arraySizeExpression(), field.bin.typeExtraPartExpression());
+                if (field.isArrayField() || !field.bin.arraySizeExpr().isEmpty()) {
+                  this.CustomArray(field.bin.customType(), field.getName(), field.bin.arraySizeExpr(), field.bin.paramExpr());
                 } else {
-                  this.Custom(field.bin.customType(), field.getName(), field.bin.arraySizeExpression());
+                  this.Custom(field.bin.customType(), field.getName(), field.bin.arraySizeExpr());
                 }
               }
             }
