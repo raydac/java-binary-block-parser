@@ -58,6 +58,22 @@ public @interface Bin {
   String path() default "";
 
   /**
+   * Name of the custom type.
+   *
+   * @return type of the field, if empty then undefined
+   * @since 2.0.0
+   */
+  String customType() default "";
+
+  /**
+   * Expression to represent array size of the field.
+   *
+   * @return array size of the field, if empty then not defined
+   * @since 2.0.0
+   */
+  String arraySizeExpression() default "";
+
+  /**
    * Type of mapped parsed structure element.
    *
    * @return the mapped parsed structure element type
@@ -86,12 +102,11 @@ public @interface Bin {
   boolean custom() default false;
 
   /**
-   * The Field is used by custom field processor and as expression to calculate array length.
-   *
-   * @return the extra field as String
-   * @see JBBPMapperCustomFieldProcessor
+   * Expression as extra part of type. It means take part in <b>type[:extra]</b>
+   * @return extra value, if empty then undefined
+   * @since 2.0.0
    */
-  String extra() default "";
+  String typeExtraPartExpression() default "";
 
   /**
    * The Value defines how many bytes are actual ones in the field, works for numeric field and arrays and allows make mapping to bit fields.

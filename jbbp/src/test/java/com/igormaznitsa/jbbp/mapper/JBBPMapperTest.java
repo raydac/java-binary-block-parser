@@ -568,14 +568,14 @@ public class JBBPMapperTest {
 
       @Bin
       int a;
-      @Bin(custom = true, extra = "TEST_TEXT")
+      @Bin(custom = true, typeExtraPartExpression = "TEST_TEXT")
       String b;
       @Bin
       int c;
     }
 
     final Mapped mapped = JBBPParser.prepare("int a; int b; int c;").parse(new byte[] {1, 2, 3, 4, 0x4A, 0x46, 0x49, 0x46, 5, 6, 7, 8}).mapTo(new Mapped(), (parsedBlock, annotation, field) -> {
-      if ("b".equals(field.getName()) && "TEST_TEXT".equals(annotation.extra())) {
+      if ("b".equals(field.getName()) && "TEST_TEXT".equals(annotation.typeExtraPartExpression())) {
         final int bvalue = parsedBlock.findFieldForNameAndType("b", JBBPFieldInt.class).getAsInt();
         return String.valueOf((char) ((bvalue >>> 24) & 0xFF)) + (char) ((bvalue >>> 16) & 0xFF) + (char) ((bvalue >>> 8) & 0xFF) + (char) (bvalue & 0xFF);
       } else {
@@ -594,7 +594,7 @@ public class JBBPMapperTest {
     final class Mapped {
       @Bin
       int a;
-      @Bin(custom = true, extra = "TEST_TEXT")
+      @Bin(custom = true, typeExtraPartExpression = "TEST_TEXT")
       String b;
       @Bin
       int c;
@@ -603,7 +603,7 @@ public class JBBPMapperTest {
     final Mapped mapped = new Mapped();
 
     final Mapped result = JBBPParser.prepare("int a; int b; int c;").parse(new byte[] {1, 2, 3, 4, 0x4A, 0x46, 0x49, 0x46, 5, 6, 7, 8}).mapTo(mapped, (parsedBlock, annotation, field) -> {
-      if ("b".equals(field.getName()) && "TEST_TEXT".equals(annotation.extra())) {
+      if ("b".equals(field.getName()) && "TEST_TEXT".equals(annotation.typeExtraPartExpression())) {
         final int bvalue = parsedBlock.findFieldForNameAndType("b", JBBPFieldInt.class).getAsInt();
         return String.valueOf((char) ((bvalue >>> 24) & 0xFF)) + (char) ((bvalue >>> 16) & 0xFF) + (char) ((bvalue >>> 8) & 0xFF) + (char) (bvalue & 0xFF);
       } else {

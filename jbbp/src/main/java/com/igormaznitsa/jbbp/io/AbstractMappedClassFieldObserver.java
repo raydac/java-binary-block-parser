@@ -26,7 +26,6 @@ import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldShort;
 import com.igormaznitsa.jbbp.model.JBBPFieldString;
-import com.igormaznitsa.jbbp.utils.DslBinCustom;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -41,7 +40,7 @@ public abstract class AbstractMappedClassFieldObserver {
   /**
    * Inside auxiliary method to read object field value.
    *
-   * @param obj   an object which field is read
+   * @param obj    an object which field is read
    * @param record field record, must not be null
    * @return a value from the field of the object
    * @throws JBBPException if the field can't be read
@@ -72,22 +71,20 @@ public abstract class AbstractMappedClassFieldObserver {
   }
 
   /**
-   * Process an object.
+   * Process an object. It works only with classes and fields marked by Bin annotations. <b>It doesn't process classes and fields marked by DslBinCustom annotations.</b>
    *
    * @param obj                  an object which is an instance of a mapped class, must not be null
    * @param field                a field where the object has been found, it can be null for first call
    * @param customFieldProcessor a processor for custom fields, it can be null
+   * @see Bin
    */
   protected void processObject(final Object obj, Field field, final Object customFieldProcessor) {
     JBBPUtils.assertNotNull(obj, "Object must not be null");
 
     final List<MappedFieldRecord> orderedFields = JBBPMapper.findAffectedFields(obj);
 
-    //TODO check DslBinCustom
     final Bin clazzAnno = obj.getClass().getAnnotation(Bin.class);
-    final DslBinCustom clazzCustomAnno = obj.getClass().getAnnotation(DslBinCustom.class);
     final Bin fieldAnno = field == null ? null : field.getAnnotation(Bin.class);
-    final DslBinCustom fieldCustomAnno = field == null ? null : field.getAnnotation(DslBinCustom.class);
 
     this.onStructStart(obj, field, clazzAnno == null ? fieldAnno : clazzAnno);
 
@@ -95,7 +92,7 @@ public abstract class AbstractMappedClassFieldObserver {
       Bin binAnno = rec.binAnnotation;
 
       if (binAnno.custom() && customFieldProcessor == null) {
-        throw new JBBPIllegalArgumentException("The Class '" + obj.getClass().getName() + "' contains the field '" + rec.mappingField.getName() + "\' which is a custom one, you must provide a JBBPCustomFieldWriter instance to save the field.");
+        throw new JBBPIllegalArgumentException("Class '" + obj.getClass().getName() + "' contains field '" + rec.mappingField.getName() + "\' which is custom one, you must provide JBBPCustomFieldWriter instance to save it.");
       }
 
       processObjectField(obj, rec, binAnno, customFieldProcessor);

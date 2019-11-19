@@ -16,10 +16,11 @@ For instance I have been very actively using the framework in [the ZX-Poly emula
 
 # Change log
 - **2.0.0-SNAPSHOT**
+ - __removed DslBinCustom annotation, use @Bin annotation instead__
+ - __renamed attributes of @Bin annotation to their correct form__
  - __reworked object mapping system, removed hacks to instantiate classes, now only mapping to objects allowed, support of private fields mapping is removed__
  - __minimal JDK version now 1.8+__
  - __minimal Android API now 3.0+__
- - __renamed attributes of @Bin annotation, removed `out` prefix__
  - added support of getters and setters into mapping
  - added `Object newInstance(Class)` method support of mapped classes to generate instances for local classes 
  - added generating of `makeFIELD()` method for structure types in Java class converter

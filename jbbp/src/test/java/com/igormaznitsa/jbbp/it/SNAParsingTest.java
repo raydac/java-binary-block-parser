@@ -139,7 +139,7 @@ public class SNAParsingTest extends AbstractParserIntegrationTest {
     int im;
     @Bin(type = BinType.UBYTE, order = 16, comment = "Border color")
     int borderColor;
-    @Bin(order = 17, comment = "Dump of memory since 16384 address", extra = "49152")
+    @Bin(order = 17, comment = "Dump of memory since 16384 address", arraySizeExpression = "49152")
     byte[] ramDump;
   }
 
