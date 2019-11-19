@@ -34,7 +34,7 @@ public interface JBBPScriptTranslator {
    *
    * @since 1.3.0
    */
-  final class Parameters {
+  public final class Parameters {
     /**
      * Map of interface names to be implemented by subclasses.
      */
@@ -63,7 +63,16 @@ public interface JBBPScriptTranslator {
      * Super class for main class.
      */
     @Nullable
-    protected String superClass = null;
+    private String superClass = null;
+
+    /**
+     * Destination file name.
+     *
+     * @since 2.0.0
+     */
+    @Nullable
+    private String destFileName = null;
+
     /**
      * Processor for custom types.
      */
@@ -88,6 +97,12 @@ public interface JBBPScriptTranslator {
      */
     @Nullable
     private File scriptFile = null;
+    /**
+     * Script text, it will be used only if {@link #scriptFile} is null
+     *
+     * @since 2.0.0
+     */
+    private String scriptText = null;
     /**
      * Package name for main class.
      */
@@ -159,6 +174,17 @@ public interface JBBPScriptTranslator {
     @Nonnull
     public Parameters setAddGettersSetters(final boolean value) {
       this.addGettersSetters = value;
+      return this;
+    }
+
+    @Nullable
+    public String getDestFileName() {
+      return this.destFileName;
+    }
+
+    @Nonnull
+    public Parameters setDestFileName(@Nullable final String name) {
+      this.destFileName = name;
       return this;
     }
 
@@ -269,14 +295,25 @@ public interface JBBPScriptTranslator {
       return this;
     }
 
-    @Nonnull
+    @Nullable
     public File getScriptFile() {
-      return Assertions.assertNotNull(this.scriptFile);
+      return this.scriptFile;
     }
 
     @Nonnull
-    public Parameters setScriptFile(@Nonnull final File file) {
-      this.scriptFile = Assertions.assertNotNull(file);
+    public Parameters setScriptFile(@Nullable final File file) {
+      this.scriptFile = file;
+      return this;
+    }
+
+    @Nullable
+    public String getScriptText() {
+      return this.scriptText;
+    }
+
+    @Nonnull
+    public Parameters setScriptText(@Nonnull final String text) {
+      this.scriptText = Assertions.assertNotNull(text);
       return this;
     }
 
@@ -343,5 +380,9 @@ public interface JBBPScriptTranslator {
       return this;
     }
 
+    @Nullable
+    public String getSuperClass() {
+      return this.superClass;
+    }
   }
 }

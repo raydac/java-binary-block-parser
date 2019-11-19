@@ -21,10 +21,16 @@ public class JavaConverter implements JBBPScriptTranslator {
   @Override
   @Nonnull
   public Set<File> translate(@Nonnull final Parameters parameters, final boolean dryRun) throws IOException {
-    final File scriptToProcess = Assertions.assertNotNull(parameters.getScriptFile());
-
-    final String text = FileUtils.readFileToString(scriptToProcess, parameters.getEncodingIn());
-    final String rawFileName = FilenameUtils.getBaseName(scriptToProcess.getName());
+    final String text;
+    final String rawFileName;
+    if (parameters.getScriptFile() == null) {
+      rawFileName = parameters.getDestFileName() == null ? "JbbpNoName" : parameters.getDestFileName();
+      text = Assertions.assertNotNull("Script file is null, expected script text", parameters.getScriptText());
+    } else {
+      final File scriptToProcess = parameters.getScriptFile();
+      rawFileName = FilenameUtils.getBaseName(scriptToProcess.getName());
+      text = FileUtils.readFileToString(scriptToProcess, parameters.getEncodingIn());
+    }
     final String className = CommonUtils.extractClassName(rawFileName);
     final String packageName = parameters.getPackageName() == null ? CommonUtils.extractPackageName(rawFileName) : parameters.getPackageName();
 
@@ -49,7 +55,7 @@ public class JavaConverter implements JBBPScriptTranslator {
           .setDoMainClassAbstract(parameters.isDoAbstract())
           .setMainClassImplements(implementsSorted)
           .setParserFlags(parameters.getParserFlags())
-          .setSuperClass(parameters.superClass);
+          .setSuperClass(parameters.getSuperClass());
 
       if (parameters.isAddBinAnnotations()) {
         builder.addBinAnnotations();
@@ -66,7 +72,7 @@ public class JavaConverter implements JBBPScriptTranslator {
       if (parameters.isDisableGenerateFields()) {
         builder.disableGenerateFields();
       }
-      
+
       FileUtils.write(resultJavaFile, builder.build().convert(), parameters.getEncodingOut());
     }
     return resultFiles;
