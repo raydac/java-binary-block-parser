@@ -33,32 +33,6 @@ For instance I have been very actively using the framework in [the ZX-Poly emula
   - naming of fields has been made more tolerant, now it is allowed to have field names with names similar to data types
   - improved check of field names in JBBPDslBuilder [#21](https://github.com/raydac/java-binary-block-parser/issues/21)
 
-- **1.4.0 (29-jul-2018)**
-  - added type `val` which allows to create virtual field with calculated value, can play role of variable in scripts
-  - `val` and `var` have been added into reserved words and can't be used as field names
-  - added field `outByteOrder` attribute to `Bin` annotation, it affects logic of `JBBPOut#Bin` for output of annotated objects which fields should be saved with different byte order
-  - removed deprecated method `JBBPFinderException#getNameOrPath`
-  - added [auxiliary class to build JBBP script](https://github.com/raydac/java-binary-block-parser/blob/master/jbbp/src/main/java/com/igormaznitsa/jbbp/utils/JBBPDslBuilder.java)
-  - added flag `JBBPParser#FLAG_NEGATIVE_EXPRESSION_RESULT_AS_ZERO` to recognize negative expression result as zero
-  - improved Java 6 class source generator to process FLAG_SKIP_REMAINING_FIELDS_IF_EOF for structure fields
-  - added stable automatic module name `igormaznitsa.jbbp` into manifest file 
-  - added support of float, double and string java types, as `floatj`,`doublej` and `stringj`
-  
-- **1.3.0 (02-sep-2017)**
-  - __Fixed issue [#16 NullPointerException when referencing a JBBPCustomFieldTypeProcessor parsed field"](https://github.com/raydac/java-binary-block-parser/issues/16), many thanks to @use-sparingly for the bug report__
-  - [added Maven plugin to generate sources from JBBP scripts](https://search.maven.org/#artifactdetails%7Ccom.igormaznitsa%7Cjbbp-maven-plugin%7C1.3.0%7Cmaven-plugin)
-  - [added Gradle plugin to generate sources from JBBP scripts](https://plugins.gradle.org/plugin/com.igormaznitsa.gradle.jbbp)
-  - added extra byte array reading writing methods with byte order support into JBBPBitInputStream and JBBPBitOutputStream
-  - added converter of compiled parser data into Java class sources (1.6+)
-  - added method to read unsigned short values as char [] into JBBPBitInputStream
-  - Class version target has been changed to Java 1.6
-  - fixed compatibiity of tests with Java 1.6
-  - Minor refactoring
-
-- **1.2.1 (28-JUL-2016)**
-  - __Fixed issue [#10 "assertArrayLength throws exception in multi-thread"](https://github.com/raydac/java-binary-block-parser/issues/10), many thanks to @sky4star for the bug report.__
-  - minor refactoring
-
 [Full changelog](https://github.com/raydac/java-binary-block-parser/blob/master/changelog.txt)   
 
 # Maven dependency
