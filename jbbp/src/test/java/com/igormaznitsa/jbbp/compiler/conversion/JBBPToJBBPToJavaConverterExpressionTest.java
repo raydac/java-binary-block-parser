@@ -16,19 +16,21 @@
 
 package com.igormaznitsa.jbbp.compiler.conversion;
 
+import static com.igormaznitsa.jbbp.TestUtils.getField;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJavaConverterTest;
 import com.igormaznitsa.jbbp.utils.TargetSources;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Random;
-
-import static com.igormaznitsa.jbbp.TestUtils.getField;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class JBBPToJBBPToJavaConverterExpressionTest extends AbstractJBBPToJavaConverterTest {
 
@@ -49,7 +51,7 @@ public class JBBPToJBBPToJavaConverterExpressionTest extends AbstractJBBPToJavaC
     final int detectedlength = getField(obj, "data", byte[].class).length;
 
     if (etalonValue != detectedlength) {
-      System.err.println(JBBPParser.prepare(String.format("byte [%s] data;", expression)).convertToSrc(TargetSources.JAVA_1_6, PACKAGE_NAME + "." + CLASS_NAME).get(0).getResult().values().iterator().next());
+      System.err.println(JBBPParser.prepare(String.format("byte [%s] data;", expression)).convertToSrc(TargetSources.JAVA, PACKAGE_NAME + "." + CLASS_NAME).get(0).getResult().values().iterator().next());
       fail(etalonValue + "!=" + detectedlength);
     }
   }

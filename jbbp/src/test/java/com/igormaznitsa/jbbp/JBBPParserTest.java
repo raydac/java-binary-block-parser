@@ -16,6 +16,16 @@
 
 package com.igormaznitsa.jbbp;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPParsingException;
@@ -49,15 +59,11 @@ import com.igormaznitsa.jbbp.model.JBBPFieldUByte;
 import com.igormaznitsa.jbbp.model.JBBPFieldUShort;
 import com.igormaznitsa.jbbp.utils.JBBPIntCounter;
 import com.igormaznitsa.jbbp.utils.TargetSources;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
-
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class JBBPParserTest {
 
@@ -2051,7 +2057,7 @@ public class JBBPParserTest {
   public void testConvertToSrc_Java16_NamedPackage() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("byte a;");
 
-    final List<ResultSrcItem> src = parser.convertToSrc(TargetSources.JAVA_1_6, "some.package.SomeClass");
+    final List<ResultSrcItem> src = parser.convertToSrc(TargetSources.JAVA, "some.package.SomeClass");
 
     assertEquals(1, src.size());
     assertEquals("byte a;", src.get(0).getMetadata().getProperty("script"));
@@ -2062,7 +2068,7 @@ public class JBBPParserTest {
   public void testConvertToSrc_Java16_DefaultPackage() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("byte a;");
 
-    final List<ResultSrcItem> src = parser.convertToSrc(TargetSources.JAVA_1_6, "SomeClass");
+    final List<ResultSrcItem> src = parser.convertToSrc(TargetSources.JAVA, "SomeClass");
 
     assertEquals(1, src.size());
     assertEquals("byte a;", src.get(0).getMetadata().getProperty("script"));

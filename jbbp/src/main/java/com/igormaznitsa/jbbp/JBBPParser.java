@@ -16,6 +16,9 @@
 
 package com.igormaznitsa.jbbp;
 
+import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_FIELD_EMPTY;
+
+
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiler;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
@@ -57,7 +60,6 @@ import com.igormaznitsa.jbbp.model.JBBPNumericField;
 import com.igormaznitsa.jbbp.utils.JBBPIntCounter;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import com.igormaznitsa.jbbp.utils.TargetSources;
-
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.IOException;
@@ -67,8 +69,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
-import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_FIELD_EMPTY;
 
 /**
  * the Main class allows a user to parse a binary stream or block for predefined
@@ -719,7 +719,7 @@ public final class JBBPParser {
   public List<ResultSrcItem> convertToSrc(final TargetSources target, final String name) {
     JBBPUtils.assertNotNull(name, "Name must not be null");
 
-    if (target == TargetSources.JAVA_1_6) {
+    if (target == TargetSources.JAVA) {
       final Properties metadata = new Properties();
       metadata.setProperty("script", this.compiledBlock.getSource());
       metadata.setProperty("name", name);

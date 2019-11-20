@@ -24,7 +24,7 @@ package com.igormaznitsa.jbbp.utils;
  */
 public enum TargetSources {
   /**
-   * Java 1.6 sources.
+   * Generate Java sources.
    */
-  JAVA_1_6
+  JAVA
 }
