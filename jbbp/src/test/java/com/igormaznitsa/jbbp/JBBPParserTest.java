@@ -2054,7 +2054,7 @@ public class JBBPParserTest {
   }
 
   @Test
-  public void testConvertToSrc_Java16_NamedPackage() throws Exception {
+  public void testConvertToSrc_Java_NamedPackage() {
     final JBBPParser parser = JBBPParser.prepare("byte a;");
 
     final List<ResultSrcItem> src = parser.convertToSrc(TargetSources.JAVA, "some.package.SomeClass");
@@ -2065,7 +2065,7 @@ public class JBBPParserTest {
   }
 
   @Test
-  public void testConvertToSrc_Java16_DefaultPackage() throws Exception {
+  public void testConvertToSrc_Java_DefaultPackage() {
     final JBBPParser parser = JBBPParser.prepare("byte a;");
 
     final List<ResultSrcItem> src = parser.convertToSrc(TargetSources.JAVA, "SomeClass");
