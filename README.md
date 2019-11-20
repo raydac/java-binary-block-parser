@@ -44,7 +44,7 @@ The Framework has been published in the Maven Central and can be easily added as
   <version>2.0.0</version>
 </dependency>
 ```
-the precompiled library jar, javadoc and sources also can be downloaded directly from [the Maven central.](http://search.maven.org/#browse|808871750)
+the precompiled library jar, javadoc and sources also can be downloaded directly from [the Maven central.](https://search.maven.org/artifact/com.igormaznitsa/jbbp/2.0.0/jar)
 
 # Hello world
 The Framework is very easy in use because it has only two main classes for its functionality com.igormaznitsa.jbbp.JBBPParser (for data parsing) and com.igormaznitsa.jbbp.io.JBBPOut (for binary block writing), both of them work over low-level IO classes com.igormaznitsa.jbbp.io.JBBPBitInputStream and com.igormaznitsa.jbbp.io.JBBPBitOutputStream which are the core for the framework.   
