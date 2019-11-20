@@ -325,6 +325,7 @@ public class JBBPTextWriter extends FilterWriter {
    * Auxiliary method allows to build writer over StringWriter with system-depended next line and hex radix.
    * The Method allows fast instance create.
    *
+   * @return the text writer instance, must not be null
    * @since 1.4.0
    */
   public static JBBPTextWriter makeStrWriter() {

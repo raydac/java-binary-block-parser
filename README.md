@@ -15,14 +15,14 @@ For instance I have been very actively using the framework in [the ZX-Poly emula
 ![Use cases](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_mm.png)
 
 # Change log
-- **2.0.0-SNAPSHOT**
+- **2.0.0 (20-nov-2019)**
   - __removed DslBinCustom annotation, use @Bin annotation instead__
   - __renamed attributes of @Bin annotation to their correct form__
   - __reworked object mapping system, removed hacks to instantiate classes, now only mapping to objects allowed, support of private fields mapping is removed__
   - __minimal JDK version now 1.8+__
   - __minimal Android API now 3.0+__
   - added support of getters and setters into mapping
-  - added `Object newInstance(Class)` method support of mapped classes to generate instances for local classes 
+  - added `Object newInstance(Class)` method support of mapped classes to generate local class member instances 
   - added generating of `makeFIELD()` method for structure types in Java class converter
   - refactoring
 
@@ -67,7 +67,7 @@ The Framework has been published in the Maven Central and can be easily added as
 <dependency>
   <groupId>com.igormaznitsa</groupId>
   <artifactId>jbbp</artifactId>
-  <version>1.4.1</version>
+  <version>2.0.0</version>
 </dependency>
 ```
 the precompiled library jar, javadoc and sources also can be downloaded directly from [the Maven central.](http://search.maven.org/#browse|808871750)
@@ -83,7 +83,7 @@ The Easiest case below shows how to parse byte array to bits.
 Of course sometime it is not a comfortable way to look for parsed fields in the result, so you can use mapping of parsed data to class fields.
 ```Java
 class Parsed {@Bin(type = BinType.BIT_ARRAY)byte[] parsed;}
-Parsed parsedBits = JBBPParser.prepare("bit:1 [_] parsed;").parse(new byte[]{1,2,3,4,5}).mapTo(Parsed.class);
+Parsed parsedBits = JBBPParser.prepare("bit:1 [_] parsed;").parse(new byte[]{1,2,3,4,5}).mapTo(new Parsed());
 ```
 
 # Relative speed of different approaches in parsing
@@ -100,7 +100,7 @@ Since 1.3.0 version, the framework can convert JBBP scripts into sources __(the 
 For instance you can use such simple snippet to generate Java classes from JBBP script, potentially it can generate many classes but usually only one class
 ```Java
   JBBPParser parser = JBBPParser.prepare("byte a; byte b; byte c;");
-  List<ResultSrcItem> generated = parser.convertToSrc(TargetSources.JAVA_1_6,"com.test.jbbp.gen.SomeClazz");
+  List<ResultSrcItem> generated = parser.convertToSrc(TargetSources.JAVA,"com.test.jbbp.gen.SomeClazz");
   for(ResultSrcItem i : generated) {
      for(Map.Entry<String,String> j :i.getResult().entrySet()) {
         System.out.println("Class file name "+j.getKey());                
@@ -114,7 +114,7 @@ in Maven you should just add such plugin execution
  <plugin>
    <groupId>com.igormaznitsa</groupId>
    <artifactId>jbbp-maven-plugin</artifactId>
-   <version>1.4.1</version>
+   <version>2.0.0</version>
    <executions>
      <execution>
        <id>gen-jbbp-src</id>
@@ -138,7 +138,7 @@ class Flags {
     }
 
     final int data = 0b10101010;
-    Flags parsed = JBBPParser.prepare("bit:1 f1; bit:2 f2; bit:1 f3; bit:4 f4;", JBBPBitOrder.MSB0).parse(new byte[]{(byte)data}).mapTo(Flags.class);
+    Flags parsed = JBBPParser.prepare("bit:1 f1; bit:2 f2; bit:1 f3; bit:4 f4;", JBBPBitOrder.MSB0).parse(new byte[]{(byte)data}).mapTo(new Flags());
     assertEquals(1,parsed.flag1);
     assertEquals(2,parsed.flag2);
     assertEquals(0,parsed.flag3);
@@ -302,9 +302,12 @@ final JBBPParser pngParser = JBBPParser.prepare(
       class Png {
         long header;
         Chunk [] chunk;
+        public Object newInstance(Class<?> klazz){
+          return klazz == Chunk.class ? new Chunk() : null;
+        }
       }
 
-      final Png png = pngParser.parse(pngStream).mapTo(Png.class);
+      final Png png = pngParser.parse(pngStream).mapTo(new Png());
 ```
 The Example from tests shows how to parse a tcp frame wrapped in a network frame
 ```Java

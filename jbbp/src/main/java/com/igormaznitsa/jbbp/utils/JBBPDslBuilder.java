@@ -432,6 +432,7 @@ public class JBBPDslBuilder {
   /**
    * Create named var array with fixed size.
    *
+   * @param name name of the array, can be null for anonymous one
    * @param size size of the array, if negative then read till end of stream.
    * @return the builder instance, must not be null
    */
@@ -1371,6 +1372,7 @@ public class JBBPDslBuilder {
   /**
    * Add named string field.
    *
+   * @param name name of field, can be null for anonymous one
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder String(final String name) {

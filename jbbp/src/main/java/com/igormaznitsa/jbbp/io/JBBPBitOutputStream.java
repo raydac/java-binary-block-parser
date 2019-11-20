@@ -17,7 +17,6 @@
 package com.igormaznitsa.jbbp.io;
 
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -418,6 +417,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
    * <b>the byte order in saved char data will be BIG_ENDIAN</b>
    *
    * @param value array to be written, must not be null but can contain null values
+   * @param order byte order to write char data, must not be null
    * @throws IOException it will be thrown for transport errors
    * @see #writeString(String, JBBPByteOrder)
    * @since 1.4.0

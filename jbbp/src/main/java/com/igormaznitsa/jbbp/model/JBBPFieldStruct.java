@@ -16,6 +16,9 @@
 
 package com.igormaznitsa.jbbp.model;
 
+import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_FIELD_EMPTY;
+
+
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.exceptions.JBBPFinderException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTooManyFieldsFoundException;
@@ -24,10 +27,7 @@ import com.igormaznitsa.jbbp.mapper.JBBPMapperCustomFieldProcessor;
 import com.igormaznitsa.jbbp.model.finder.JBBPFieldFinder;
 import com.igormaznitsa.jbbp.utils.Function;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-
 import java.util.List;
-
-import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_FIELD_EMPTY;
 
 /**
  * Describes a structure.
@@ -224,9 +224,10 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * Find a structure by its path and map the structure fields to a class
    * fields.
    *
-   * @param <T>      a class type
-   * @param path     the path to the structure to be mapped, must not be null
-   * @param instance object instance to be filled by values, must not be null
+   * @param <T>           a class type
+   * @param path          the path to the structure to be mapped, must not be null
+   * @param instance      object instance to be filled by values, must not be null
+   * @param instantiators array of functions which can instantiate object of required class, must not be null
    * @return a mapped instance of the class, must not be null
    * @since 2.0.0
    */
@@ -239,10 +240,11 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * Find a structure by its path and map the structure fields to a class
    * fields.
    *
-   * @param <T>      a class type
-   * @param path     the path to the structure to be mapped, must not be null
-   * @param instance object instance to be filled by values, must not be null
-   * @param flags    special flags to tune mapping process
+   * @param <T>           a class type
+   * @param path          the path to the structure to be mapped, must not be null
+   * @param instance      object instance to be filled by values, must not be null
+   * @param flags         special flags to tune mapping process
+   * @param instantiators array of functions which can instantiate object of required class, must not be null
    * @return a mapped instance of the class, must not be null
    * @see JBBPMapper#FLAG_IGNORE_MISSING_VALUES
    * @since 2.0.0
@@ -260,6 +262,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * @param path                 the path to the structure to be mapped, must not be null
    * @param instance             object instance to be filled by values, must not be null
    * @param customFieldProcessor a custom field processor to provide values for custom mapping fields, it can be null if there is not any custom field
+   * @param instantiators        array of functions which can instantiate object of required class, must not be null
    * @return a mapped instance of the class, must not be null
    * @since 2.0.0
    */
@@ -277,6 +280,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * @param instance             object instance to be filled by values, must not be null
    * @param customFieldProcessor a custom field processor to provide values for custom mapping fields, it can be null if there is not any custom field
    * @param flags                special flags to tune mapping process
+   * @param instantiators        array of functions which can instantiate object of required class, must not be null
    * @return a mapped instance of the class, must not be null
    * @see JBBPMapper#FLAG_IGNORE_MISSING_VALUES
    * @since 2.0.0
@@ -289,8 +293,10 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
   /**
    * Map the structure fields to object fields.
    *
-   * @param objectToMap an object to map fields of the structure, must not be
-   *                    null
+   * @param <T>           expected result type
+   * @param objectToMap   an object to map fields of the structure, must not be
+   *                      null
+   * @param instantiators array of functions which can instantiate object of required class, must not be null
    * @return the same object from the arguments but with filled fields by values
    * of the structure
    */
@@ -302,8 +308,10 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
   /**
    * Map the structure fields to object fields.
    *
-   * @param instance object instance to be filled by values, must not be null
-   * @param flags    special flags to tune mapping process
+   * @param <T>           expected result type
+   * @param instance      object instance to be filled by values, must not be null
+   * @param flags         special flags to tune mapping process
+   * @param instantiators array of functions which can instantiate object of required class, must not be null
    * @return the same object from the arguments but with filled fields by values
    * of the structure
    * @see JBBPMapper#FLAG_IGNORE_MISSING_VALUES
@@ -317,12 +325,12 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
   /**
    * Map the structure fields to object fields.
    *
-   * @param <T> the type of the input and the output to the function
+   * @param <T>                  expected result type
    * @param instance             an object to map fields of the structure, must not be
    *                             null
    * @param customFieldProcessor a custom field processor to provide values for
    *                             custom mapping fields, it can be null if there is not any custom field
-   * @param instantiators auxiliary functions to generate instances of classes by request
+   * @param instantiators        array of functions which can instantiate object of required class, must not be null
    * @return the same object from the arguments but with filled fields by values
    * of the structure
    */
@@ -334,14 +342,13 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
   /**
    * Map the structure fields to object fields.
    *
-   * @param <T> the type of the input and the output to the function
+   * @param <T>                  expected result type
    * @param objectToMap          an object to map fields of the structure, must not be
    *                             null
    * @param customFieldProcessor a custom field processor to provide values for
    *                             custom mapping fields, it can be null if there is not any custom field
    * @param flags                special flags to tune mapping process
-   * @param instantiators auxiliary functions to generate instances of
-   * classes by request
+   * @param instantiators        array of functions which can instantiate object of required class, must not be null
    * @return the same object from the arguments but with filled fields by values
    * of the structure
    * @see JBBPMapper#FLAG_IGNORE_MISSING_VALUES

@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
  * from parsed a JBBP structure. Also it can be used for whole class but in the
  * case be careful and use default name and path values. The Class is not thread safe.
  *
- * <b></>Since 2.0.0 was removed prefix 'out' for fields which contained it</b>.
+ * <b>Since 2.0.0 was removed prefix 'out' for fields which contained it</b>.
  *
  * @since 1.0
  */
