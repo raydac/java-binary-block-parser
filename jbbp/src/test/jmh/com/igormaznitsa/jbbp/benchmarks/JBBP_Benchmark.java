@@ -47,7 +47,7 @@ public class JBBP_Benchmark {
 
   @Benchmark
   public void measureParse_DynamicAndMapping() throws IOException {
-    parser.parse(DATA).mapTo(Data.class);
+    parser.parse(DATA).mapTo(new Data());
   }
 
   @Benchmark
@@ -75,5 +75,9 @@ public class JBBP_Benchmark {
 
     @Bin(name = "data")
     public InData[] data;
+
+    public Object newInstance(Class<?> klazz) {
+      return klazz == InData.class ? new InData() : null;
+    }
   }
 }
