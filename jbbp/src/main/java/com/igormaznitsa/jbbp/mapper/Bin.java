@@ -59,16 +59,20 @@ public @interface Bin {
 
   /**
    * Custom type. It plays role only if {@link #type()} is UNDEFINED
+   * <b>Keep attention! The value plays role only in build of script and it is not used in mapping!</b>
    *
    * @return type of the field, if empty then undefined
+   * @see com.igormaznitsa.jbbp.utils.JBBPDslBuilder
    * @since 2.0.0
    */
   String customType() default "";
 
   /**
    * Expression to represent array size of the field.
+   * <b>Keep attention! The value plays role only in build of script and it is not used in mapping!</b>
    *
    * @return array size of the field, if empty then not defined
+   * @see com.igormaznitsa.jbbp.utils.JBBPDslBuilder
    * @since 2.0.0
    */
   String arraySizeExpr() default "";
@@ -103,7 +107,10 @@ public @interface Bin {
 
   /**
    * Expression as extra part of type. It means take part in <b>type[:extra]</b>
+   * <b>Keep attention! The value plays role only in build of script and it is not used in mapping!</b>
+   *
    * @return extra value, if empty then undefined
+   * @see com.igormaznitsa.jbbp.utils.JBBPDslBuilder
    * @since 2.0.0
    */
   String paramExpr() default "";
