@@ -1,6 +1,5 @@
 [![License Apache 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-green.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.igormaznitsa/jbbp/badge.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|jbbp|2.0.0|jar)
-[![Codacy Badge](https://api.codacy.com/project/badge/grade/50b0281430a94eb6abe417409f99ed58)](https://www.codacy.com/app/rrg4400/java-binary-block-parser)
 [![Java 1.8+](https://img.shields.io/badge/java-1.8%2b-green.svg)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 [![Android 3.0+](https://img.shields.io/badge/android-3.0%2b-green.svg)](http://developer.android.com/sdk/index.html)
 [![PayPal donation](https://img.shields.io/badge/donation-PayPal-red.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=AHWJHJFBAWGL2)
@@ -9,9 +8,7 @@
 ![JBBP Logo](https://github.com/raydac/java-binary-block-parser/blob/master/logo.png)
 
 # Introduction
-Java has some embedded features to parse binary data (for instance ByteBuffer), but I wanted to work with separated bits and describe binary structure in some strong DSL(domain specific language). I was very impressed by the [the Python Struct package](https://docs.python.org/2/library/struct.html) package so that I decided to make something like that. So JBBP was born.<br>
-p.s.<br>
-For instance I have been very actively using the framework in [the ZX-Poly emulator](https://github.com/raydac/zxpoly) to parse snapshot files and save results.   
+Java has some embedded features to parse binary data (for instance ByteBuffer), but sometime it is needed to work on bit level and describe binary structures through some DSL(domain specific language). I was impressed by the [the Python Struct package](https://docs.python.org/2/library/struct.html) package and wanted to get something like that for Java. So I developed the JBBP library.<br>
 ![Use cases](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_mm.png)
 
 # Change log
@@ -47,31 +44,31 @@ The Framework has been published in the Maven Central and can be easily added as
 the precompiled library jar, javadoc and sources also can be downloaded directly from [the Maven central.](https://search.maven.org/artifact/com.igormaznitsa/jbbp/2.0.0/jar)
 
 # Hello world
-The Framework is very easy in use because it has only two main classes for its functionality com.igormaznitsa.jbbp.JBBPParser (for data parsing) and com.igormaznitsa.jbbp.io.JBBPOut (for binary block writing), both of them work over low-level IO classes com.igormaznitsa.jbbp.io.JBBPBitInputStream and com.igormaznitsa.jbbp.io.JBBPBitOutputStream which are the core for the framework.   
+The library is very easy in use because in many cases only two its classes are needed - com.igormaznitsa.jbbp.JBBPParser (for data parsing) and com.igormaznitsa.jbbp.io.JBBPOut (for binary block writing). Both these classes work over low-level IO classes - com.igormaznitsa.jbbp.io.JBBPBitInputStream and com.igormaznitsa.jbbp.io.JBBPBitOutputStream, those bit stream classes are the core of the library.   
 
-The Easiest case below shows how to parse byte array to bits.   
+The easiet use case shows parsing of whole byte array to bits.   
 ```Java
   byte [] parsedBits = JBBPParser.prepare("bit:1 [_];").parse(new byte[]{1,2,3,4,5}).
           findFieldForType(JBBPFieldArrayBit.class).getArray();
 ```
-Of course sometime it is not a comfortable way to look for parsed fields in the result, so you can use mapping of parsed data to class fields.
+On start it was the only functionality but then I found that it is no so comfort way to get result, so that added some mapping of parsed result to pre-instantiated object. It works slower, because uses a lot of Java reflection but much easy in some cases.
 ```Java
 class Parsed {@Bin(type = BinType.BIT_ARRAY)byte[] parsed;}
 Parsed parsedBits = JBBPParser.prepare("bit:1 [_] parsed;").parse(new byte[]{1,2,3,4,5}).mapTo(new Parsed());
 ```
 
 # Relative speed of different approaches in parsing
-On the start the framework was created to provide comfortable way to parse data, it was not developed for hight speed. But since 1.3.0 version there has been added way to generate Java class sources from JBBP parsers and it allows to increase parsing speed dramatically (keep in mind that JBBP generates Java class sources but not compile it automaticaly). I have made some microbenchmark testing of all parsing approaches to show relative productivity of each one
+Mainly I developed the library to help in my development of ZX-Spectrum emulator where I needed to work with data snapshots containing data on bit level. It didn't need much productivity in work. But since 1.3.0 version I added way to generate Java classes from JBBP scripts, such classes work in about five times faster than dynamic parsing and mapping approaches.  
 ![JMH results](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jmh_results.png)   
-The Chart shows three standard ways to parse data with JBBP
-* __Dynamic__ - parsing into inside structures through interpretation of script written in DSL. It is not very fast way but you can generate parsers on fly even from dynamically formed strings.
-* __Dynamic + map to class__ - Parsing into inside structures through interpretation of script and mapping parsed data directly into class instances. the way is very slow (because it uses reflections to fill fields) and recommended only if comfortable parsing is much more preffered than speed.
-* __Static class__ - parsing with Java sources generated from a JBBP parser. It is the fastest way because Java compiler and JIT can make optimizations. The Approach can be used in High-Load systems. It is possible to compile generated Java sources on fly, [you can take a look at auxiliary class which I use in tests](https://github.com/raydac/java-binary-block-parser/blob/master/jbbp/src/test/java/com/igormaznitsa/jbbp/testaux/AbstractJBBPToJava6ConverterTest.java).
+Chart below compares speed of three provided ways to parse data with JBBP:
+* __Dynamic__ - the basic parsing through interpretation of prepared JBBP DSL script. It is no so fast, but provide way to generate parsers on fly from text description.
+* __Dynamic + map to class__ - parsing through interpretation of parsed JBBP script and mapping of parsed data to pre-instantiated class instance. It provides compfortable way to work with data and get result but uses a lot of Java reflection features and so fast.
+* __Static class__ - the fastest way of JBBP use, some JBBP script is translated into Java class. There is no any interpretation or reflection operators so that it is very fast. [You can take a look at auxiliary class which I use in tests](https://github.com/raydac/java-binary-block-parser/blob/master/jbbp/src/test/java/com/igormaznitsa/jbbp/testaux/AbstractJBBPToJavaConverterTest.java).
 
 
 # Generate sources from JBBP scripts
-Since 1.3.0 version, the framework can convert JBBP scripts into sources __(the sources anyway need JBBP framework for work)__.
-For instance you can use such simple snippet to generate Java classes from JBBP script, potentially it can generate many classes but usually only one class
+Since 1.3.0 version, the library provides Java source generator for JBBP scripts, __(keep in mind that generated sources anyway depends on JBBP library and it is needed for their work)__.
+For instance such snippet can be used to generate Java classes from a JBBP script. It also can generate multiple classes.
 ```Java
   JBBPParser parser = JBBPParser.prepare("byte a; byte b; byte c;");
   List<ResultSrcItem> generated = parser.convertToSrc(TargetSources.JAVA,"com.test.jbbp.gen.SomeClazz");
@@ -82,8 +79,8 @@ For instance you can use such simple snippet to generate Java classes from JBBP 
      }
   }
 ```
-also there are special plugins for Maven and Gradle to generate sources from JBBP scripts during source generate phase   
-in Maven you should just add such plugin execution
+also there are developed plug-ins for both Maven and Gradle to generate sources from JBBP scripts during source generate phase.   
+in Maven it can be used through snippet:
 ```xml
  <plugin>
    <groupId>com.igormaznitsa</groupId>
@@ -99,16 +96,16 @@ in Maven you should just add such plugin execution
    </executions>
 </plugin>
 ```
-By default the maven plugin looks for files with `jbbp` extension in `src/jbbp` folder of project (it can be changed in options) and produces result java classes in `target/generated-sources/jbbp` folder. [I use such approach in ZX-Poly emulator](https://github.com/raydac/zxpoly/tree/master/zxpoly-emul/src/jbbp).
+By default the maven plug-in looks for files with `jbbp` extension in `src/jbbp` folder of the project (it can be changed through plug-in configuration) and produces resulting java classes into `target/generated-sources/jbbp` folder. [For instance, I use such approach in my ZX-Poly emulator](https://github.com/raydac/zxpoly/tree/master/zxpoly-emul/src/jbbp).
 
 # More complex example with features added as of 1.1.0
-The Example shows how to parse a byte written in non-standard MSB0 order (Java has LSB0 bit order) to bit fields, print its values and pack fields back
+Example below shows how to parse a byte stream written in non-standard MSB0 order (Java has LSB0 bit order) into bit fields, then print its values and pack fields back:
 ```Java
 class Flags {
-      @Bin(outOrder = 1, name = "f1", type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_1, comment = "It's flag one") byte flag1;
-      @Bin(outOrder = 2, name = "f2", type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_2, comment = "It's second flag") byte flag2;
-      @Bin(outOrder = 3, name = "f3", type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_1, comment = "It's 3th flag") byte flag3;
-      @Bin(outOrder = 4, name = "f4", type = BinType.BIT, outBitNumber = JBBPBitNumber.BITS_4, comment = "It's 4th flag") byte flag4;
+      @Bin(order = 1, name = "f1", type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_1, comment = "It's flag one") byte flag1;
+      @Bin(order = 2, name = "f2", type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_2, comment = "It's second flag") byte flag2;
+      @Bin(order = 3, name = "f3", type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_1, comment = "It's 3th flag") byte flag3;
+      @Bin(order = 4, name = "f4", type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_4, comment = "It's 4th flag") byte flag4;
     }
 
     final int data = 0b10101010;
@@ -136,8 +133,8 @@ The Example will print in console the text below
 ;--------------------------------------------------------------------------------
 ```
 # Fields
-Every field can have case insensitive name which should not contain '.' (because it is reserved for links to structure field values) and '#'(because it is also reserved for inside usage).
-Field name must not be started by a number or chars '$' and '_'. *Field names are case insensitive!*
+Each field can have case insensitive name which must not contain '.' (because dot is reserved for links to structure field values) and '#'(because it is also reserved for internal library use).
+A field name must not be started with either number or chars '$' and '_'. *Keep in mind that field names are case insensitive!*
 ```
 int someNamedField;
 byte field1;
@@ -147,43 +144,44 @@ byte field3;
 ![JBBP field format, types and examples](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_fields.png)
 
 ## Primitive types
-The Framework supports full set of Java numeric primitives with extra types like ubyte and bit.
+JBBP supports full set of Java numeric primitives with some extra types like ubyte and bit.
 ![JBBP field format, types and examples](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_primitives.png)
 ## Complex types
-The Framework provides support for arrays and structures. Just keep in mind that in expressions you can make links to field values only defined before expression.
+JBBP provides support both arrays and structures. __In expressions you can use links only to field values which already read!__
 ![JBBP field format, types and examples](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_complex_types.png)
 
 ## Custom types
-it is possible to define processors for own custom data types, for instance you can take a look at [case processing three byte unsigned integer types](https://github.com/raydac/java-binary-block-parser/blob/master/jbbp/src/test/java/com/igormaznitsa/jbbp/it/CustomThreeByteIntegerTypeTest.java).   
+It is possible to define processors for custom data types. For instance you can take a look at [case processing three byte unsigned integer types](https://github.com/raydac/java-binary-block-parser/blob/master/jbbp/src/test/java/com/igormaznitsa/jbbp/it/CustomThreeByteIntegerTypeTest.java).   
 
-### Float and Double types
-The Parser does not support Java float and double types out of the box. But it can be implemented through custom type processor. [there is written example and test and the code can be copy pasted](https://github.com/raydac/java-binary-block-parser/blob/master/src/test/java/com/igormaznitsa/jbbp/it/FloatAndDoubleTypesTest.java).
+### Support of float, double and String types
+Since 1.4.0 in JBBP was added support of Java float, double and String values. Because they have specific format, they are named as `doublej`, `floatj` and `stringj`.
 
 ## Variable fields
-If you have some data which structure is variable then you can use the `var` type for defined field and process reading of the data manually with custom [JBBPVarFieldProcessor](https://github.com/raydac/java-binary-block-parser/blob/master/src/main/java/com/igormaznitsa/jbbp/JBBPVarFieldProcessor.java) instance.
+If you have some data which internal structure is undefined and variable then you can use the `var` type to mark such field and provide custom processor to read data of such value. Processor should implement interface [JBBPVarFieldProcessor](https://github.com/raydac/java-binary-block-parser/blob/master/src/main/java/com/igormaznitsa/jbbp/JBBPVarFieldProcessor.java) instance.
 ```
     final JBBPParser parser = JBBPParser.prepare("short k; var; int;");
     final JBBPIntCounter counter = new JBBPIntCounter();
     final JBBPFieldStruct struct = parser.parse(new byte[]{9, 8, 33, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
 
-      public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+      public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(JBBPBitInputStream inStream, int arraySize, JBBPNamedFieldInfo fieldName, int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         fail("Must not be called");
         return null;
       }
 
-      public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+      public JBBPAbstractField readVarField(JBBPBitInputStream inStream, JBBPNamedFieldInfo fieldName, int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         final int value = inStream.readByte();
         return new JBBPFieldByte(fieldName, (byte) value);
       }
     }, null);
 ```
-*NB! Some programmers trying to use only parser for complex data, it is mistake. In the case it is much better to have several easy parsers working with the same [JBBPBitInputStream](https://github.com/raydac/java-binary-block-parser/blob/master/src/main/java/com/igormaznitsa/jbbp/io/JBBPBitInputStream.java) instance, it allows to keep decision points on Java level and make solution easier.*
+*NB! Some programmers trying to use only parser for complex data, it is a mistake. In the case it is much better to have several easy parsers working with the same [JBBPBitInputStream](https://github.com/raydac/java-binary-block-parser/blob/master/src/main/java/com/igormaznitsa/jbbp/io/JBBPBitInputStream.java) instance, it allows to keep decision points on Java level and make solution easier.*
 
 ## Special types
 Special types makes some actions to skip data in input stream
 ![JBBP field format, types and examples](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_special_fields.png)
+
 ## Byte order
-Every multi-byte type can be read with different byte order.
+Multi-byte types can be read with different byte order.
 ![JBBP field format, types and examples](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_byteorder.png)
 
 # Expressions
@@ -217,7 +215,7 @@ Inside expression you can use field names and field paths, also you can use the 
 The Result of parsing is an instance of com.igormaznitsa.jbbp.model.JBBPFieldStruct class which represents the root invisible structure for the parsed data and you can use its inside methods to find desired fields for their names, paths or classes. All Fields are successors of com.igormaznitsa.jbbp.model.JBBPAbstractField class. To increase comfort, it is easier to use mapping to classes when the mapper automatically places values to fields of a Java class.
 
 # Example
-The Example below shows how to parse a PNG file with the JBBP parser (the example taken from tests)
+Example below shows how to parse a PNG file through JBBP parser:
 ```Java
 final InputStream pngStream = getResourceAsInputStream("picture.png");
     try {
@@ -233,15 +231,14 @@ final InputStream pngStream = getResourceAsInputStream("picture.png");
               + "}"
       );
 
-      final JBBPFieldStruct result = pngParser.parse(pngStream);
+      JBBPFieldStruct result = pngParser.parse(pngStream);
 
       assertEquals(0x89504E470D0A1A0AL,result.findFieldForNameAndType("header",JBBPFieldLong.class).getAsLong());
 
-      final JBBPFieldArrayStruct chunks = result.findFieldForNameAndType("chunk", JBBPFieldArrayStruct.class);
+      JBBPFieldArrayStruct chunks = result.findFieldForNameAndType("chunk", JBBPFieldArrayStruct.class);
 
-
-      final String [] chunkNames = new String[]{"IHDR","gAMA","bKGD","pHYs","tIME","tEXt","IDAT","IEND"};
-      final int [] chunkSizes = new int[]{0x0D, 0x04, 0x06, 0x09, 0x07, 0x19, 0x0E5F, 0x00};
+      String [] chunkNames = new String[]{"IHDR","gAMA","bKGD","pHYs","tIME","tEXt","IDAT","IEND"};
+      int [] chunkSizes = new int[]{0x0D, 0x04, 0x06, 0x09, 0x07, 0x19, 0x0E5F, 0x00};
 
       assertEquals(chunkNames.length,chunks.size());
 
@@ -276,6 +273,7 @@ final JBBPParser pngParser = JBBPParser.prepare(
       class Png {
         long header;
         Chunk [] chunk;
+
         public Object newInstance(Class<?> klazz){
           return klazz == Chunk.class ? new Chunk() : null;
         }
@@ -283,7 +281,8 @@ final JBBPParser pngParser = JBBPParser.prepare(
 
       final Png png = pngParser.parse(pngStream).mapTo(new Png());
 ```
-The Example from tests shows how to parse a tcp frame wrapped in a network frame
+
+Example shows how to parse TCP frame:
 ```Java
 final JBBPParser tcpParser = JBBPParser.prepare(
               "skip:34; // skip bytes till the frame\n"
@@ -314,15 +313,19 @@ final JBBPParser tcpParser = JBBPParser.prepare(
 
       final JBBPFieldStruct result = pngParser.parse(tcpFrameStream);
 ```
+
 # F.A.Q.
 ## Is it possible to use `@Bin` annotations for parsing and not only mapping?
-No, `@Bin` annotations in classes are used only for mapping and data writing, but there is [the code snippet](https://gist.github.com/raydac/28d770307bd33683aa17ea3c39d5e2c4) allows to generate JBBP DSL based on detected @Bin annotations in class.
+`@Bin` annotations is used only for mapping and data writing, but there is special class [JBBPDslBuilder](/jbbp/src/main/java/com/igormaznitsa/jbbp/utils/JBBPDslBuilder.java) which can convert `@Bin` marked class into JBBP script, for instance:
+```java
+JBBPDslBuilder.Begin().AnnotatedClass(SomeBinAnnotatetClass.class).End(true);
+```
 
 ## My Binary data format is too complex one to be decoded by a JBBP script
-No problems! The Parser works over [com.igormaznitsa.jbbp.io.JBBPBitInputStream](https://github.com/raydac/java-binary-block-parser/blob/master/jbbp/src/main/java/com/igormaznitsa/jbbp/io/JBBPBitInputStream.java) class which can be used directly and allows read bits, bytes, count bytes and align data from a stream (for output there is similar class [JBBPBitOutputStream](https://github.com/raydac/java-binary-block-parser/blob/master/jbbp/src/main/java/com/igormaznitsa/jbbp/io/JBBPBitOutputStream.java))
+No problems! JBBP parser works over [com.igormaznitsa.jbbp.io.JBBPBitInputStream](/jbbp/src/main/java/com/igormaznitsa/jbbp/io/JBBPBitInputStream.java) class which can be used directly and allows read bits, bytes, count bytes and align data. For writing there is similar class [JBBPBitOutputStream](https://github.com/raydac/java-binary-block-parser/blob/master/jbbp/src/main/java/com/igormaznitsa/jbbp/io/JBBPBitOutputStream.java).
 
-## I want to make a bin block instead of parsing!
-The Framework contains a special helper as the class com.igormaznitsa.jbbp.io.JBBPOut which allows to build bin blocks with some kind of DSL
+## I want to make a binary data block instead of parsing!
+Library provides special helper [JBBPOut](/jbbp/src/main/java/com/igormaznitsa/jbbp/io/JBBPOut.java). The helper allows to generate binary blocks and provides some kind of DSL
 ```Java
 import static com.igormaznitsa.jbbp.io.JBBPOut.*;
 ...
