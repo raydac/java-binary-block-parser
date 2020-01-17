@@ -33,3 +33,10 @@
 /jbbp-plugins/jbbp-maven/jbbp-maven-plugin/target/jbbp-maven-plugin-2.0.0-SNAPSHOT.jar
 /jbbp-plugins/jbbp-maven/jbbp-maven-plugin/target/jbbp-maven-plugin-2.0.0-SNAPSHOT-bundle.jar
 /jbbp-plugins/jbbp-maven/jbbp-maven-plugin/target/maven-plugin-help.properties
+/jbbp/jmh-out.txt
+/jbbp/jmh-result.json
+/jbbp-plugins/jbbp-gradle/.settings/
+/jbbp-plugins/jbbp-gradle/bin/
+/jbbp-plugins/jbbp-gradle/.classpath
+/jbbp-plugins/jbbp-gradle/.project
+/.vscode/
