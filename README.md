@@ -12,6 +12,8 @@ Java has some embedded features to parse binary data (for instance ByteBuffer), 
 ![Use cases](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_mm.png)
 
 # Change log
+- **2.0.1 (SNAPSHOT)**
+
 - **2.0.0 (20-nov-2019)**
   - __removed DslBinCustom annotation, use @Bin annotation instead__
   - __renamed attributes of @Bin annotation to their correct form__
