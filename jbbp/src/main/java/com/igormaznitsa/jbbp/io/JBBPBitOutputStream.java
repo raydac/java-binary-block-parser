@@ -229,16 +229,16 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
   @SuppressWarnings("NullableProblems")
   @Override
   public void write(final byte[] b, final int off, final int len) throws IOException {
-    if (this.bitBufferCount == 0) {
-      out.write(b, off, len);
-      this.byteCounter += len;
-    } else {
+    if (this.msb0 || this.bitBufferCount != 0) {
       int i = off;
       int cnt = len;
       while (cnt > 0) {
         this.write(b[i++]);
         cnt--;
       }
+    } else {
+      out.write(b, off, len);
+      this.byteCounter += len;
     }
   }
 

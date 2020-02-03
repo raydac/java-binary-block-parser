@@ -16,17 +16,20 @@
 
 package com.igormaznitsa.jbbp.io;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+
 import com.igormaznitsa.jbbp.TestUtils;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
-
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.Random;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class JBBPBitInputStreamTest {
 
@@ -160,6 +163,11 @@ public class JBBPBitInputStreamTest {
   @Test
   public void testReadString_BigEndan_ShortString() throws Exception {
     assertEquals("ABC", asInputStream(0x03, 65, 66, 67).readString(JBBPByteOrder.BIG_ENDIAN));
+  }
+
+  @Test
+  public void testReadString_BigEndan_Msb0_ShortString() throws Exception {
+    assertEquals("zzzz", asInputStreamMSB0(0x20, '^', '^', '^', '^').readString(JBBPByteOrder.BIG_ENDIAN));
   }
 
   @Test

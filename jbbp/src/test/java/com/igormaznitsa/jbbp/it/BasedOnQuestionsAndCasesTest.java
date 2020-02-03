@@ -35,6 +35,7 @@ import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayByte;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
+import com.igormaznitsa.jbbp.model.JBBPFieldString;
 import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import com.igormaznitsa.jbbp.model.JBBPNumericField;
 import com.igormaznitsa.jbbp.utils.JBBPDslBuilder;
@@ -232,6 +233,19 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
     System.out.println(JBBPTextWriter.makeStrWriter().Bin(parsed).Close().toString());
 
     assertArrayEquals(new byte[] {1, 0, 0, 1, 0, 0, 1, 0}, parsed.bit);
+  }
+
+  /**
+   * Case 03-feb-2020
+   * <a href="https://github.com/raydac/java-binary-block-parser/issues/26">Issue #26, Bug in parsing of stringj written in MSB0</a>
+   *
+   * @throws Exception for any error
+   */
+  @Test
+  public void testStringMsb0() throws Exception {
+    JBBPOut joparam = JBBPOut.BeginBin(JBBPByteOrder.BIG_ENDIAN, JBBPBitOrder.MSB0).String("zzzz");
+    final JBBPFieldStruct bitflds = JBBPParser.prepare("stringj fin;", JBBPBitOrder.MSB0).parse(joparam.End().toByteArray());
+    assertEquals("zzzz", bitflds.findFieldForNameAndType("fin", JBBPFieldString.class).getAsString());
   }
 
   /**

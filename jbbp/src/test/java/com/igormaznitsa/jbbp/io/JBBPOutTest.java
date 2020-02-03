@@ -51,7 +51,7 @@ public class JBBPOutTest {
 
     assertArrayEquals(new byte[] {(byte) 0xFF}, BeginBin(JBBPBitOrder.MSB0).String(null).End().toByteArray());
     assertArrayEquals(new byte[] {0}, BeginBin(JBBPBitOrder.MSB0).String("").End().toByteArray());
-    assertArrayEquals(new byte[] {(byte) 0xc0, (byte) 0x41, (byte) 0x42, (byte) 0x43}, BeginBin(JBBPBitOrder.MSB0).String("ABC").End().toByteArray());
+    assertArrayEquals(new byte[] {(byte) 0xc0, (byte) 0x82, (byte) 0x42, (byte) 0xC2}, BeginBin(JBBPBitOrder.MSB0).String("ABC").End().toByteArray());
 
     assertArrayEquals(new byte[] {(byte) 0xFF}, BeginBin().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).String(null).End().toByteArray());
     assertArrayEquals(new byte[] {0}, BeginBin().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).String("").End().toByteArray());
