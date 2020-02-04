@@ -34,6 +34,7 @@ import com.igormaznitsa.jbbp.mapper.BinType;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayByte;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayLong;
+import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldString;
 import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
@@ -243,9 +244,12 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
    */
   @Test
   public void testStringMsb0() throws Exception {
-    JBBPOut joparam = JBBPOut.BeginBin(JBBPByteOrder.BIG_ENDIAN, JBBPBitOrder.MSB0).String("zzzz");
-    final JBBPFieldStruct bitflds = JBBPParser.prepare("stringj fin;", JBBPBitOrder.MSB0).parse(joparam.End().toByteArray());
+    JBBPOut joparam = JBBPOut.BeginBin(JBBPByteOrder.BIG_ENDIAN, JBBPBitOrder.MSB0).String("zzzz").Int(12345);
+    final byte[] array = joparam.End().toByteArray();
+    assertArrayEquals(new byte[] {32, 94, 94, 94, 94, 0, 0, 0x0C, (byte) 0x9C}, array);
+    final JBBPFieldStruct bitflds = JBBPParser.prepare("stringj fin; int i;", JBBPBitOrder.MSB0).parse(array);
     assertEquals("zzzz", bitflds.findFieldForNameAndType("fin", JBBPFieldString.class).getAsString());
+    assertEquals(12345, bitflds.findFieldForNameAndType("i", JBBPFieldInt.class).getAsInt());
   }
 
   /**
