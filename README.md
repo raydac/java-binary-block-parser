@@ -13,6 +13,7 @@ Java has some embedded features to parse binary data (for instance ByteBuffer), 
 
 # Change log
 - **2.0.1 (SNAPSHOT)**
+  - [#26](https://github.com/raydac/java-binary-block-parser/issues/26) fixed bug in array write with MSB0 
 
 - **2.0.0 (20-nov-2019)**
   - __removed DslBinCustom annotation, use @Bin annotation instead__

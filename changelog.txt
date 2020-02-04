@@ -1,3 +1,6 @@
+2.0.1
+ - [#26](https://github.com/raydac/java-binary-block-parser/issues/26) fixed bug in array write with MSB0
+
 2.0.0
  - __removed DslBinCustom annotation, use @Bin annotation instead__
  - __renamed attributes of @Bin annotation to their correct form__
