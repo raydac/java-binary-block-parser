@@ -34,6 +34,7 @@ import com.igormaznitsa.jbbp.mapper.BinType;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayByte;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayLong;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayString;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldString;
@@ -44,6 +45,7 @@ import com.igormaznitsa.jbbp.utils.JBBPTextWriter;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -250,6 +252,80 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
     final JBBPFieldStruct bitflds = JBBPParser.prepare("stringj fin; int i;", JBBPBitOrder.MSB0).parse(array);
     assertEquals("zzzz", bitflds.findFieldForNameAndType("fin", JBBPFieldString.class).getAsString());
     assertEquals(12345, bitflds.findFieldForNameAndType("i", JBBPFieldInt.class).getAsInt());
+  }
+
+  /**
+   * Case 18-feb-2020, #27 Strings in other codecs
+   * Example how to implement custom ASCII string format
+   *
+   * @throws Exception for any error
+   */
+  @Test
+  public void testAscIIPascalString() throws Exception {
+    final class AscIIPascalString implements JBBPCustomFieldTypeProcessor {
+      private final String[] TYPES = new String[] {"asciistr"};
+
+      @Override
+      public String[] getCustomFieldTypes() {
+        return TYPES;
+      }
+
+      @Override
+      public boolean isAllowed(
+          final JBBPFieldTypeParameterContainer fieldType,
+          final String fieldName,
+          final int extraData,
+          final boolean isArray
+      ) {
+        return extraData == 0;
+      }
+
+      @Override
+      public JBBPAbstractField readCustomFieldType(
+          final JBBPBitInputStream in,
+          final JBBPBitOrder bitOrder,
+          final int parserFlags,
+          final JBBPFieldTypeParameterContainer customTypeFieldInfo,
+          final JBBPNamedFieldInfo fieldName,
+          final int extraData,
+          final boolean readWholeStream,
+          final int arrayLength
+      ) throws IOException {
+        if (arrayLength < 0) {
+          return new JBBPFieldString(fieldName, readPascalAscIIString(in));
+        } else {
+          final String[] loadedStrings;
+          if (readWholeStream) {
+            final List<String> strings = new ArrayList<>();
+            while (in.hasAvailableData()) {
+              strings.add(readPascalAscIIString(in));
+            }
+            loadedStrings = strings.toArray(new String[0]);
+          } else {
+            loadedStrings = new String[arrayLength];
+            for (int i = 0; i < arrayLength; i++) {
+              loadedStrings[i] = readPascalAscIIString(in);
+            }
+          }
+          return new JBBPFieldArrayString(fieldName, loadedStrings);
+        }
+      }
+
+      private String readPascalAscIIString(final JBBPBitInputStream in) throws IOException {
+        final byte[] charArray = in.readByteArray(in.readByte());
+        return new String(charArray, StandardCharsets.US_ASCII);
+      }
+    }
+
+    final JBBPParser parserSingle = JBBPParser.prepare("asciistr str1; asciistr str2;", new AscIIPascalString());
+    final JBBPFieldStruct parsedSingle = parserSingle.parse(new byte[] {5, 65, 66, 67, 68, 69, 0});
+    assertEquals("ABCDE", parsedSingle.findFieldForNameAndType("str1", JBBPFieldString.class).getAsString());
+    assertEquals("", parsedSingle.findFieldForNameAndType("str2", JBBPFieldString.class).getAsString());
+
+    final JBBPParser parserArray = JBBPParser.prepare("asciistr [2] str1; asciistr [_] str2;", new AscIIPascalString());
+    final JBBPFieldStruct parsedArrays = parserArray.parse(new byte[] {2, 65, 66, 1, 67, 3, 68, 69, 70, 2, 71, 72, 1, 73});
+    assertArrayEquals(new String[] {"AB", "C"}, parsedArrays.findFieldForNameAndType("str1", JBBPFieldArrayString.class).getArray());
+    assertArrayEquals(new String[] {"DEF", "GH", "I"}, parsedArrays.findFieldForNameAndType("str2", JBBPFieldArrayString.class).getArray());
   }
 
   /**
