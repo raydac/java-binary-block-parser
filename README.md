@@ -12,6 +12,9 @@ Java has some embedded features to parse binary data (for instance ByteBuffer), 
 ![Use cases](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_mm.png)
 
 # Change log
+- **2.0.2 (SNAPSHOT)**
+  - [#28](https://github.com/raydac/java-binary-block-parser/issues/28) added `JBBPOut#BinForceByteOrder` to override byte order defined in `@Bin` annotations of written object.
+
 - **2.0.1 (04-feb-2020)**
   - [#26](https://github.com/raydac/java-binary-block-parser/issues/26) fixed bug in array write with MSB0 
 

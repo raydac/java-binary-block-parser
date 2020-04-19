@@ -26,6 +26,7 @@ import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldShort;
 import com.igormaznitsa.jbbp.model.JBBPFieldString;
+import com.igormaznitsa.jbbp.utils.BinAnnotationWrapper;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -75,10 +76,12 @@ public abstract class AbstractMappedClassFieldObserver {
    *
    * @param obj                  an object which is an instance of a mapped class, must not be null
    * @param field                a field where the object has been found, it can be null for first call
+   * @param forceByteOrder       value to replace all byte order values in processing oject, can be null
    * @param customFieldProcessor a processor for custom fields, it can be null
    * @see Bin
+   * @since 2.0.2
    */
-  protected void processObject(final Object obj, Field field, final Object customFieldProcessor) {
+  protected void processObject(final Object obj, Field field, final JBBPByteOrder forceByteOrder, final Object customFieldProcessor) {
     JBBPUtils.assertNotNull(obj, "Object must not be null");
 
     final List<MappedFieldRecord> orderedFields = JBBPMapper.findAffectedFields(obj);
@@ -95,7 +98,7 @@ public abstract class AbstractMappedClassFieldObserver {
         throw new JBBPIllegalArgumentException("Class '" + obj.getClass().getName() + "' contains field '" + rec.mappingField.getName() + "\' which is custom one, you must provide JBBPCustomFieldWriter instance to save it.");
       }
 
-      processObjectField(obj, rec, binAnno, customFieldProcessor);
+      processObjectField(obj, rec, forceByteOrder, binAnno, customFieldProcessor);
     }
 
     this.onStructEnd(obj, field, clazzAnno == null ? fieldAnno : clazzAnno);
@@ -106,13 +109,26 @@ public abstract class AbstractMappedClassFieldObserver {
    *
    * @param obj                  the object which field under processing, must not be null
    * @param fieldRecord          internal record about the field, must not be null
+   * @param forceByteOrder       byte order to replace byte order defined for field, can be null
    * @param annotation           the annotation to be used as data source about the field,
    *                             must not be null
    * @param customFieldProcessor an object which will be provided for processing
    *                             of custom fields, must not be null if object contains custom fields
+   * @since 2.0.2
    */
-  protected void processObjectField(final Object obj, final MappedFieldRecord fieldRecord, final Bin annotation, final Object customFieldProcessor) {
+  protected void processObjectField(
+      final Object obj,
+      final MappedFieldRecord fieldRecord,
+      final JBBPByteOrder forceByteOrder,
+      Bin annotation,
+      final Object customFieldProcessor
+  ) {
     final Field field = fieldRecord.mappingField;
+
+    if (forceByteOrder != null) {
+      annotation = new BinAnnotationWrapper(annotation).setByteOrder(forceByteOrder);
+    }
+
     if (annotation.custom()) {
       this.onFieldCustom(obj, field, annotation, customFieldProcessor, readFieldValue(obj, fieldRecord));
     } else {
@@ -233,7 +249,7 @@ public abstract class AbstractMappedClassFieldObserver {
         }
         break;
         case STRUCT: {
-          processObject(readFieldValue(obj, fieldRecord), field, customFieldProcessor);
+          processObject(readFieldValue(obj, fieldRecord), field, forceByteOrder, customFieldProcessor);
         }
         break;
         default: {
@@ -428,7 +444,7 @@ public abstract class AbstractMappedClassFieldObserver {
               final int len = Array.getLength(array);
               this.onArrayStart(obj, field, annotation, len);
               for (int i = 0; i < len; i++) {
-                this.processObject(Array.get(array, i), field, customFieldProcessor);
+                this.processObject(Array.get(array, i), field, forceByteOrder, customFieldProcessor);
               }
               this.onArrayEnd(obj, field, annotation);
             }

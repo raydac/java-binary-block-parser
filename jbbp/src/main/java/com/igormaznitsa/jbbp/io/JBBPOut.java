@@ -1026,9 +1026,40 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    */
   public JBBPOut Bin(final Object object, final JBBPCustomFieldWriter customFieldWriter) {
     if (this.processCommands) {
-      this.processObject(object, null, customFieldWriter);
+      this.processObject(object, null, null, customFieldWriter);
     }
+    return this;
+  }
 
+  /**
+   * Works like {@link #Bin(Object)} but forcing override of all annotation byte order values by the JBBPOut byte order.
+   *
+   * @param object an object to be saved into stream, must not be null
+   * @return the context
+   * @throws IOException it will be thrown for any transport error
+   * @see JBBPMapper#clearFieldCache()
+   * @see Bin
+   * @see Bin#byteOrder()
+   * @since 2.0.2
+   */
+  public JBBPOut BinForceByteOrder(final Object object) throws IOException {
+    return this.BinForceByteOrder(object, null);
+  }
+
+  /**
+   * Works like {@link #Bin(Object, JBBPCustomFieldWriter)} but forcing override of all annotation byte order values by the JBBPOut byte order.
+   *
+   * @param object            an object to be saved into stream, must not be null
+   * @param customFieldWriter a custom field writer to be used for saving of
+   *                          custom fields of the object, it can be null
+   * @return the context
+   * @see Bin#byteOrder()
+   * @since 2.0.2
+   */
+  public JBBPOut BinForceByteOrder(final Object object, final JBBPCustomFieldWriter customFieldWriter) {
+    if (this.processCommands) {
+      this.processObject(object, null, this.byteOrder, customFieldWriter);
+    }
     return this;
   }
 

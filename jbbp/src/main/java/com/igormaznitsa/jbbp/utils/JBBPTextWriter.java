@@ -2004,7 +2004,7 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     public void processObject(final Object obj) {
-      super.processObject(obj, null, this);
+      super.processObject(obj, null, null, this);
     }
   }
 

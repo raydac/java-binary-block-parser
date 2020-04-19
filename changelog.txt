@@ -1,3 +1,6 @@
+2.0.2 (SNAPSHOT)
+ - [#28](https://github.com/raydac/java-binary-block-parser/issues/28) added `JBBPOut#BinForceByteOrder` to override byte order defined in `@Bin` annotations of written object.
+
 2.0.1
  - [#26](https://github.com/raydac/java-binary-block-parser/issues/26) fixed bug in array write with MSB0
 

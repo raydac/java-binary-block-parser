@@ -774,6 +774,55 @@ public class JBBPOutTest {
   }
 
   @Test
+  public void testBin_ForceByteOrder() throws Exception {
+    class DefaultByteOrder {
+      @Bin
+      int value = 0x01020304;
+    }
+
+    class BigEndianByteOrder {
+      @Bin(byteOrder = JBBPByteOrder.BIG_ENDIAN)
+      int value = 0x01020304;
+    }
+
+    class LittleEndianByteOrder {
+      @Bin(byteOrder = JBBPByteOrder.LITTLE_ENDIAN)
+      int value = 0x01020304;
+    }
+
+    class LittleEndianByteOrderWithStructure {
+
+      @Bin(byteOrder = JBBPByteOrder.LITTLE_ENDIAN, order = 1)
+      int value = 0x01020304;
+      @Bin(order = 2)
+      Internal internal = new Internal();
+
+      class Internal {
+        @Bin(byteOrder = JBBPByteOrder.BIG_ENDIAN)
+        int value = 0x05060708;
+      }
+    }
+
+    final byte[] defaultOrder = JBBPOut.BeginBin().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).BinForceByteOrder(new DefaultByteOrder()).End().toByteArray();
+    assertArrayEquals(new byte[] {4, 3, 2, 1}, defaultOrder);
+
+    final byte[] bigEndianOrder = JBBPOut.BeginBin().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).BinForceByteOrder(new BigEndianByteOrder()).End().toByteArray();
+    assertArrayEquals(new byte[] {4, 3, 2, 1}, bigEndianOrder);
+
+    final byte[] littleEndianOrder = JBBPOut.BeginBin().ByteOrder(JBBPByteOrder.BIG_ENDIAN).BinForceByteOrder(new LittleEndianByteOrder()).End().toByteArray();
+    assertArrayEquals(new byte[] {1, 2, 3, 4}, littleEndianOrder);
+
+    final byte[] littleEndianOrderWithStruct = JBBPOut.BeginBin().ByteOrder(JBBPByteOrder.BIG_ENDIAN).BinForceByteOrder(new LittleEndianByteOrderWithStructure()).End().toByteArray();
+    assertArrayEquals(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}, littleEndianOrderWithStruct);
+
+    final byte[] littleEndianOrderWithStructBin = JBBPOut.BeginBin().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).Bin(new LittleEndianByteOrderWithStructure()).End().toByteArray();
+    assertArrayEquals(new byte[] {4, 3, 2, 1, 5, 6, 7, 8}, littleEndianOrderWithStructBin);
+
+    final byte[] littleEndianOrderWithStructLe = JBBPOut.BeginBin().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).BinForceByteOrder(new LittleEndianByteOrderWithStructure()).End().toByteArray();
+    assertArrayEquals(new byte[] {4, 3, 2, 1, 8, 7, 6, 5}, littleEndianOrderWithStructLe);
+  }
+
+  @Test
   public void testBin_BitType_Bits() throws Exception {
     class Test {
 
