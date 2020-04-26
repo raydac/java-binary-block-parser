@@ -1,7 +1,7 @@
 /**/target/
 /target/
 /nbproject/
-/.idea/
+/**/.idea/
 *.iml
 /jbbp-plugins/jbbp-gradle/.gradle/
 /jbbp-plugins/jbbp-gradle/build/
@@ -39,4 +39,4 @@
 /jbbp-plugins/jbbp-gradle/bin/
 /jbbp-plugins/jbbp-gradle/.classpath
 /jbbp-plugins/jbbp-gradle/.project
-/.vscode/
+/**/.vscode/

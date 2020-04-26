@@ -32,9 +32,12 @@ import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.mapper.BinType;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
+import com.igormaznitsa.jbbp.utils.BinAnnotationWrapper;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Field;
 import org.junit.jupiter.api.Test;
 
 public class JBBPOutTest {
@@ -840,6 +843,28 @@ public class JBBPOutTest {
       }
     }
     assertArrayEquals(new byte[] {(byte) 0x55, 0x0C}, BeginBin().Bin(new Test((byte) 0x05, (byte) 0x0A, (byte) 0x0C)).End().toByteArray());
+  }
+
+  @Test
+  public void testBin_OverrideAnnotationValues() throws Exception {
+    class Test {
+      @Bin(bitNumber = JBBPBitNumber.BITS_4, type = BinType.BIT)
+      byte a = (byte) 0b10101010;
+    }
+
+    assertArrayEquals(new byte[] {(byte) 0b00001010}, BeginBin().Bin(new Test(), null, null).End().toByteArray());
+    assertArrayEquals(new byte[] {(byte) 0b10101010}, BeginBin().Bin(new Test(), new BinAnnotationWrapper().setBitNumber(JBBPBitNumber.BITS_8), null).End().toByteArray());
+    assertArrayEquals(new byte[] {(byte) 0b00000101}, BeginBin().Bin(new Test(), new BinAnnotationWrapper().setBitOrder(JBBPBitOrder.MSB0), null).End().toByteArray());
+    assertArrayEquals(new byte[] {(byte) 0b10101010}, BeginBin().Bin(new Test(), new BinAnnotationWrapper().setType(BinType.BYTE), null).End().toByteArray());
+
+    final JBBPCustomFieldWriter customFieldWriter = new JBBPCustomFieldWriter() {
+      @Override
+      public void writeCustomField(JBBPOut context, JBBPBitOutputStream outStream, Object instanceToSave, Field instanceCustomField, Bin fieldAnnotation, Object value) throws IOException {
+        outStream.write(123);
+      }
+    };
+
+    assertArrayEquals(new byte[] {(byte) 123}, BeginBin().Bin(new Test(), new BinAnnotationWrapper().setCustom(true), customFieldWriter).End().toByteArray());
   }
 
   @Test

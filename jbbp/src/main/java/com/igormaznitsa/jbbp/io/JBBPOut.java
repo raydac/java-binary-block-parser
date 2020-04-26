@@ -20,6 +20,7 @@ import com.igormaznitsa.jbbp.exceptions.JBBPIOException;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.mapper.JBBPMapper;
 import com.igormaznitsa.jbbp.model.JBBPFieldShort;
+import com.igormaznitsa.jbbp.utils.BinAnnotationWrapper;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -998,16 +999,18 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    * through {@link Bin#order()} field, NB! By default Java doesn't keep field
    * outOrder. Ordered fields of class will be saved into internal cache for speed
    * but the cache can be reset through {@link JBBPMapper#clearFieldCache()}
+   * <b>Warning!</b> it doesn't affect byte order provided in Bin annotations of object.
    *
    * @param object an object to be saved into stream, must not be null
    * @return the context
    * @throws IOException it will be thrown for any transport error
    * @see JBBPMapper#clearFieldCache()
+   * @see #BinForceByteOrder(Object)
    * @see Bin
    * @since 1.1
    */
   public JBBPOut Bin(final Object object) throws IOException {
-    return this.Bin(object, null);
+    return this.Bin(object, null, null);
   }
 
   /**
@@ -1015,6 +1018,7 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    * through {@link Bin#order()} field, NB! By default Java doesn't keep field
    * outOrder. Ordered fields of class will be saved into internal cache for speed
    * but the cache can be reset through {@link JBBPMapper#clearFieldCache()}
+   * <b>Warning!</b> it doesn't affect byte order provided in Bin annotations of object.
    *
    * @param object            an object to be saved into stream, must not be null
    * @param customFieldWriter a custom field writer to be used for saving of
@@ -1022,11 +1026,26 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    * @return the context
    * @see JBBPMapper#clearFieldCache()
    * @see Bin
+   * @see #BinForceByteOrder(Object, JBBPCustomFieldWriter)
    * @since 1.1
    */
   public JBBPOut Bin(final Object object, final JBBPCustomFieldWriter customFieldWriter) {
+    return this.Bin(object, null, customFieldWriter);
+  }
+
+  /**
+   * Save fields of object but bin annotation wrapper can be provided to replace some annnotation field values in <b>all</b> field annotations.
+   *
+   * @param object               an object to be saved into stream, must not be null
+   * @param binAnnotationWrapper wrapper for all bin annotations, can be null
+   * @param customFieldWriter    a custom field writer to be used for saving of
+   *                             custom fields of the object, it can be null
+   * @return the context
+   * @since 2.0.2
+   */
+  public JBBPOut Bin(final Object object, final BinAnnotationWrapper binAnnotationWrapper, final JBBPCustomFieldWriter customFieldWriter) {
     if (this.processCommands) {
-      this.processObject(object, null, null, customFieldWriter);
+      this.processObject(object, null, binAnnotationWrapper, customFieldWriter);
     }
     return this;
   }
@@ -1047,20 +1066,18 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   }
 
   /**
-   * Works like {@link #Bin(Object, JBBPCustomFieldWriter)} but forcing override of all annotation byte order values by the JBBPOut byte order.
+   * Works like {@link #Bin(Object, JBBPCustomFieldWriter)} but forcing override of all annotation byte order values by the context byte order.
    *
    * @param object            an object to be saved into stream, must not be null
    * @param customFieldWriter a custom field writer to be used for saving of
    *                          custom fields of the object, it can be null
    * @return the context
+   * @see #ByteOrder(JBBPByteOrder)
    * @see Bin#byteOrder()
    * @since 2.0.2
    */
   public JBBPOut BinForceByteOrder(final Object object, final JBBPCustomFieldWriter customFieldWriter) {
-    if (this.processCommands) {
-      this.processObject(object, null, this.byteOrder, customFieldWriter);
-    }
-    return this;
+    return this.Bin(object, new BinAnnotationWrapper().setByteOrder(this.byteOrder), customFieldWriter);
   }
 
   @Override

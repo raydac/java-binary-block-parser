@@ -76,12 +76,17 @@ public abstract class AbstractMappedClassFieldObserver {
    *
    * @param obj                  an object which is an instance of a mapped class, must not be null
    * @param field                a field where the object has been found, it can be null for first call
-   * @param forceByteOrder       value to replace all byte order values in processing oject, can be null
+   * @param binAnnotationWrapper wrapper to replace Bin annotation values for processing fields, can be null to be ignored
    * @param customFieldProcessor a processor for custom fields, it can be null
    * @see Bin
    * @since 2.0.2
    */
-  protected void processObject(final Object obj, Field field, final JBBPByteOrder forceByteOrder, final Object customFieldProcessor) {
+  protected void processObject(
+      final Object obj,
+      final Field field,
+      final BinAnnotationWrapper binAnnotationWrapper,
+      final Object customFieldProcessor
+  ) {
     JBBPUtils.assertNotNull(obj, "Object must not be null");
 
     final List<MappedFieldRecord> orderedFields = JBBPMapper.findAffectedFields(obj);
@@ -92,13 +97,13 @@ public abstract class AbstractMappedClassFieldObserver {
     this.onStructStart(obj, field, clazzAnno == null ? fieldAnno : clazzAnno);
 
     for (final MappedFieldRecord rec : orderedFields) {
-      Bin binAnno = rec.binAnnotation;
+      final Bin binAnno = binAnnotationWrapper == null ? rec.binAnnotation : binAnnotationWrapper.setWrapped(rec.binAnnotation);
 
       if (binAnno.custom() && customFieldProcessor == null) {
-        throw new JBBPIllegalArgumentException("Class '" + obj.getClass().getName() + "' contains field '" + rec.mappingField.getName() + "\' which is custom one, you must provide JBBPCustomFieldWriter instance to save it.");
+        throw new JBBPIllegalArgumentException("Class '" + obj.getClass().getName() + "' contains field '" + rec.mappingField.getName() + "' which is custom one, you must provide JBBPCustomFieldWriter instance to save it.");
       }
 
-      processObjectField(obj, rec, forceByteOrder, binAnno, customFieldProcessor);
+      processObjectField(obj, rec, binAnno, customFieldProcessor);
     }
 
     this.onStructEnd(obj, field, clazzAnno == null ? fieldAnno : clazzAnno);
@@ -109,7 +114,6 @@ public abstract class AbstractMappedClassFieldObserver {
    *
    * @param obj                  the object which field under processing, must not be null
    * @param fieldRecord          internal record about the field, must not be null
-   * @param forceByteOrder       byte order to replace byte order defined for field, can be null
    * @param annotation           the annotation to be used as data source about the field,
    *                             must not be null
    * @param customFieldProcessor an object which will be provided for processing
@@ -119,21 +123,16 @@ public abstract class AbstractMappedClassFieldObserver {
   protected void processObjectField(
       final Object obj,
       final MappedFieldRecord fieldRecord,
-      final JBBPByteOrder forceByteOrder,
-      Bin annotation,
+      final Bin annotation,
       final Object customFieldProcessor
   ) {
     final Field field = fieldRecord.mappingField;
-
-    if (forceByteOrder != null) {
-      annotation = new BinAnnotationWrapper(annotation).setByteOrder(forceByteOrder);
-    }
 
     if (annotation.custom()) {
       this.onFieldCustom(obj, field, annotation, customFieldProcessor, readFieldValue(obj, fieldRecord));
     } else {
       final Class<?> fieldType = field.getType();
-
+      final BinAnnotationWrapper wrapper = annotation instanceof BinAnnotationWrapper ? (BinAnnotationWrapper) annotation : null;
       final BinType type;
       if (annotation.type() == BinType.UNDEFINED) {
         type = BinType.findCompatible(fieldType);
@@ -249,7 +248,7 @@ public abstract class AbstractMappedClassFieldObserver {
         }
         break;
         case STRUCT: {
-          processObject(readFieldValue(obj, fieldRecord), field, forceByteOrder, customFieldProcessor);
+          processObject(readFieldValue(obj, fieldRecord), field, wrapper, customFieldProcessor);
         }
         break;
         default: {
@@ -444,7 +443,7 @@ public abstract class AbstractMappedClassFieldObserver {
               final int len = Array.getLength(array);
               this.onArrayStart(obj, field, annotation, len);
               for (int i = 0; i < len; i++) {
-                this.processObject(Array.get(array, i), field, forceByteOrder, customFieldProcessor);
+                this.processObject(Array.get(array, i), field, wrapper, customFieldProcessor);
               }
               this.onArrayEnd(obj, field, annotation);
             }

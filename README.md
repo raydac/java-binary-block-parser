@@ -13,6 +13,7 @@ Java has some embedded features to parse binary data (for instance ByteBuffer), 
 
 # Change log
 - **2.0.2 (SNAPSHOT)**
+  - added `JBBPOut#Bin` variant to override `@Bin` annotation fields in written objects. 
   - [#28](https://github.com/raydac/java-binary-block-parser/issues/28) added `JBBPOut#BinForceByteOrder` to override byte order defined in `@Bin` annotations of written object.
 
 - **2.0.1 (04-feb-2020)**
@@ -28,13 +29,6 @@ Java has some embedded features to parse binary data (for instance ByteBuffer), 
   - added `Object newInstance(Class)` method support of mapped classes to generate local class member instances 
   - added generating of `makeFIELD()` method for structure types in Java class converter
   - refactoring
-
-- **1.4.1 (20-aug-2018)**
-  - fixed incompatibility in tokenizer regex syntax for Android SDK [#23](https://github.com/raydac/java-binary-block-parser/issues/23)
-  - added DslBinCustom annotation to provide way to mark custom type fields for JBBPDslBuilder
-  - fixed NPE in JBBPDslBuilder for not-provided outBitNumber attribute in annotated field  marked as type BIT or BIT_ARRAY [#20](https://github.com/raydac/java-binary-block-parser/issues/20)
-  - naming of fields has been made more tolerant, now it is allowed to have field names with names similar to data types
-  - improved check of field names in JBBPDslBuilder [#21](https://github.com/raydac/java-binary-block-parser/issues/21)
 
 [Full changelog](https://github.com/raydac/java-binary-block-parser/blob/master/changelog.txt)   
 

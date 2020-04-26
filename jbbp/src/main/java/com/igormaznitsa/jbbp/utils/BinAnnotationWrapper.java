@@ -8,12 +8,13 @@ import com.igormaznitsa.jbbp.mapper.BinType;
 import java.lang.annotation.Annotation;
 
 /**
- * Auxiliary class to replace Bin annotation fields during internal processing
+ * Auxiliary class to replace Bin annotation field values.
+ * <b>Not thread safe!</b>
  *
- * @since 2.0.
+ * @since 2.0.2
  */
-public class BinAnnotationWrapper implements Bin {
-  private final Bin bin;
+public final class BinAnnotationWrapper implements Bin {
+  private Bin bin;
   private String name;
   private String path;
   private String customType;
@@ -27,8 +28,12 @@ public class BinAnnotationWrapper implements Bin {
   private Integer order;
   private String comment;
 
-  public BinAnnotationWrapper(final Bin bin) {
+  public BinAnnotationWrapper() {
+  }
+
+  public BinAnnotationWrapper setWrapped(final Bin bin) {
     this.bin = bin;
+    return this;
   }
 
   public BinAnnotationWrapper setName(final String value) {
@@ -38,6 +43,7 @@ public class BinAnnotationWrapper implements Bin {
 
   @Override
   public String name() {
+    assert this.bin != null;
     return this.name == null ? this.bin.name() : this.name;
   }
 
@@ -48,6 +54,7 @@ public class BinAnnotationWrapper implements Bin {
 
   @Override
   public String path() {
+    assert this.bin != null;
     return this.path == null ? this.bin.path() : this.path;
   }
 
@@ -58,6 +65,7 @@ public class BinAnnotationWrapper implements Bin {
 
   @Override
   public String customType() {
+    assert this.bin != null;
     return this.customType == null ? this.bin.customType() : this.customType;
   }
 
@@ -68,6 +76,7 @@ public class BinAnnotationWrapper implements Bin {
 
   @Override
   public String arraySizeExpr() {
+    assert this.bin != null;
     return this.arraySizeExpr == null ? this.bin.arraySizeExpr() : this.arraySizeExpr;
   }
 
@@ -78,6 +87,7 @@ public class BinAnnotationWrapper implements Bin {
 
   @Override
   public BinType type() {
+    assert this.bin != null;
     return this.type == null ? this.bin.type() : this.type;
   }
 
@@ -88,6 +98,7 @@ public class BinAnnotationWrapper implements Bin {
 
   @Override
   public JBBPBitOrder bitOrder() {
+    assert this.bin != null;
     return this.bitOrder == null ? this.bin.bitOrder() : this.bitOrder;
   }
 
@@ -98,6 +109,7 @@ public class BinAnnotationWrapper implements Bin {
 
   @Override
   public boolean custom() {
+    assert this.bin != null;
     return this.custom == null ? this.bin.custom() : this.custom;
   }
 
@@ -108,6 +120,7 @@ public class BinAnnotationWrapper implements Bin {
 
   @Override
   public String paramExpr() {
+    assert this.bin != null;
     return this.paramExpr == null ? this.bin.paramExpr() : this.paramExpr;
   }
 
@@ -118,6 +131,7 @@ public class BinAnnotationWrapper implements Bin {
 
   @Override
   public JBBPBitNumber bitNumber() {
+    assert this.bin != null;
     return this.bitNumber == null ? this.bin.bitNumber() : this.bitNumber;
   }
 
@@ -128,6 +142,7 @@ public class BinAnnotationWrapper implements Bin {
 
   @Override
   public JBBPByteOrder byteOrder() {
+    assert this.bin != null;
     return this.byteOrder == null ? this.bin.byteOrder() : this.byteOrder;
   }
 
@@ -138,6 +153,7 @@ public class BinAnnotationWrapper implements Bin {
 
   @Override
   public int order() {
+    assert this.bin != null;
     return this.order == null ? this.bin.order() : this.order;
   }
 
@@ -148,11 +164,12 @@ public class BinAnnotationWrapper implements Bin {
 
   @Override
   public String comment() {
+    assert this.bin != null;
     return this.comment == null ? this.bin.comment() : this.comment;
   }
 
   @Override
   public Class<? extends Annotation> annotationType() {
-    return this.bin.getClass();
+    return Bin.class;
   }
 }
