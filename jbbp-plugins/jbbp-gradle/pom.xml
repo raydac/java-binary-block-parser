@@ -24,6 +24,7 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <gradle.executable>gradle</gradle.executable>
         <gradleGoal>install</gradleGoal>
     </properties>
 
@@ -93,29 +94,23 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.fortasoft</groupId>
-                <artifactId>gradle-maven-plugin</artifactId>
-                <version>1.0.8</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.gradle</groupId>
-                        <artifactId>gradle-tooling-api</artifactId>
-                        <version>5.2.1</version>
-                    </dependency>
-                </dependencies>
-
-                <configuration>
-                    <gradleVersion>5.4</gradleVersion>
-                    <tasks>
-                        <task>clean</task>
-                        <task>${gradleGoal}</task>
-                    </tasks>
-                </configuration>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>gradle</id>
                         <phase>compile</phase>
+                        <configuration>
+                            <executable>${gradle.executable}</executable>
+                            <arguments>
+                                <argument>${gradleGoal}</argument>
+                                <argument>-i</argument>
+                                <argument>-S</argument>
+                                <argument>--no-daemon</argument>
+                            </arguments>
+                        </configuration>
                         <goals>
-                            <goal>invoke</goal>
+                            <goal>exec</goal>
                         </goals>
                     </execution>
                 </executions>
