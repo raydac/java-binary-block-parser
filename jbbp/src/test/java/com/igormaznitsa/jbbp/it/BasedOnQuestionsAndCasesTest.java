@@ -18,6 +18,7 @@ package com.igormaznitsa.jbbp.it;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
@@ -27,14 +28,18 @@ import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
+import com.igormaznitsa.jbbp.io.JBBPBitOutputStream;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
+import com.igormaznitsa.jbbp.io.JBBPCustomFieldWriter;
 import com.igormaznitsa.jbbp.io.JBBPOut;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.mapper.BinType;
+import com.igormaznitsa.jbbp.mapper.JBBPMapperCustomFieldProcessor;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayByte;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayString;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayStruct;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldString;
@@ -45,10 +50,12 @@ import com.igormaznitsa.jbbp.utils.JBBPTextWriter;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.Test;
@@ -415,4 +422,174 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
     result = sasParser.parse(new byte[] {0, 0, 0, 2, 1, 2, 3, 4});
     assertEquals(2, ((JBBPNumericField) result.findFieldForName("keycount")).getAsInt());
   }
+
+  /**
+   * Case 09-jun-2020
+   * Example how to write custom field type read-write-mapping processor for nullable byte array.
+   *
+   * @throws Exception for any error
+   */
+  @Test
+  public void testNullableByteArrayField() throws Exception {
+    class NullableByteArrayProcessor
+        implements JBBPCustomFieldWriter, JBBPMapperCustomFieldProcessor,
+        JBBPCustomFieldTypeProcessor {
+
+      private final String TYPE = "nullableByteArray";
+      private final String[] CUSTOM_TYPE = new String[] {TYPE.toLowerCase(Locale.ENGLISH)};
+
+      @Override
+      public String[] getCustomFieldTypes() {
+        return CUSTOM_TYPE;
+      }
+
+      @Override
+      public boolean isAllowed(JBBPFieldTypeParameterContainer fieldType, String fieldName,
+                               int extraData, boolean isArray) {
+        return !isArray;
+      }
+
+      private byte[] readFromStream(JBBPByteOrder byteOrder, JBBPBitInputStream in)
+          throws IOException {
+        final int len = in.readInt(byteOrder);
+        return len < 0 ? null : in.readByteArray(len);
+      }
+
+      @Override
+      public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder,
+                                                   int parserFlags,
+                                                   JBBPFieldTypeParameterContainer customTypeFieldInfo,
+                                                   JBBPNamedFieldInfo fieldName, int extraData,
+                                                   boolean readWholeStream, int arrayLength)
+          throws IOException {
+        if (arrayLength < 0) {
+          return toStruct(fieldName, readFromStream(customTypeFieldInfo.getByteOrder(), in));
+        } else {
+          throw new IllegalArgumentException("Array of nullable byte arrays is unsupported");
+        }
+      }
+
+      private void writeTo(final JBBPBitOutputStream outStream, final JBBPByteOrder order,
+                           final byte[] data) throws IOException {
+        if (data == null) {
+          outStream.writeInt(-1, order);
+        } else {
+          outStream.writeInt(data.length, order);
+          outStream.write(data);
+        }
+      }
+
+      @Override
+      public void writeCustomField(JBBPOut context, JBBPBitOutputStream outStream,
+                                   Object instanceToSave, Field instanceCustomField,
+                                   Bin fieldAnnotation, Object value) throws IOException {
+        if (fieldAnnotation.customType().equals(TYPE)) {
+          writeTo(outStream, fieldAnnotation.byteOrder(), (byte[]) value);
+        } else {
+          throw new IllegalArgumentException(
+              "Unsupported custom type: " + fieldAnnotation.customType());
+        }
+      }
+
+      private JBBPFieldStruct toStruct(JBBPNamedFieldInfo fieldName, final byte[] array) {
+        if (array == null) {
+          return new JBBPFieldStruct(fieldName, new JBBPAbstractField[0]);
+        } else {
+          return new JBBPFieldStruct(fieldName,
+              new JBBPAbstractField[] {new JBBPFieldArrayByte(null, array)});
+        }
+      }
+
+      private byte[] fromStruct(final JBBPFieldStruct struct) {
+        final JBBPAbstractField[] fields = struct.getArray();
+        return fields.length == 0 ? null : ((JBBPFieldArrayByte) struct.getArray()[0]).getArray();
+      }
+
+      @Override
+      public Object prepareObjectForMapping(JBBPFieldStruct parsedBlock,
+                                            Bin annotation,
+                                            Field field) {
+        if (annotation.customType().equals(TYPE)) {
+          if (field.getType() == byte[][].class) {
+            final JBBPFieldArrayStruct structs =
+                parsedBlock.findFieldForNameAndType(field.getName(), JBBPFieldArrayStruct.class);
+            final byte[][] result = new byte[structs.size()][];
+            for (int i = 0; i < structs.size(); i++) {
+              result[i] = fromStruct(structs.getElementAt(i));
+            }
+            return result;
+          } else {
+            return fromStruct(
+                parsedBlock.findFieldForNameAndType(field.getName(), JBBPFieldStruct.class));
+          }
+        } else {
+          throw new IllegalArgumentException("Unexpected custom type: " + annotation.customType());
+        }
+      }
+    }
+    ;
+
+    final NullableByteArrayProcessor nullableByteArrayProcessor = new NullableByteArrayProcessor();
+
+    class Klazz {
+      @Bin
+      int a;
+      @Bin(custom = true, customType = "nullableByteArray")
+      byte[] b;
+      @Bin
+      int c;
+    }
+    ;
+
+    Klazz object = new Klazz();
+    object.a = 12345;
+    object.b = null;
+    object.c = 7890;
+
+    final byte[] withNullField =
+        JBBPOut.BeginBin().Bin(object, nullableByteArrayProcessor).End().toByteArray();
+
+    assertArrayEquals(
+        new byte[] {0, 0, 48, 57, (byte) -1, (byte) -1, (byte) -1, (byte) -1, 0, 0, 30, (byte) -46},
+        withNullField);
+
+    object = new Klazz();
+    object.a = 12345;
+    object.b = new byte[] {1, 2, 3};
+    object.c = 7890;
+
+    final byte[] withContent =
+        JBBPOut.BeginBin().Bin(object, nullableByteArrayProcessor).End().toByteArray();
+    assertArrayEquals(new byte[] {0, 0, 48, 57, 0, 0, 0, 3, 1, 2, 3, 0, 0, 30, (byte) -46},
+        withContent);
+
+    object = new Klazz();
+    object.a = 12345;
+    object.b = new byte[0];
+    object.c = 7890;
+
+    final byte[] withZeroLength =
+        JBBPOut.BeginBin().Bin(object, nullableByteArrayProcessor).End().toByteArray();
+    assertArrayEquals(new byte[] {0, 0, 48, 57, 0, 0, 0, 0, 0, 0, 30, (byte) -46}, withZeroLength);
+
+    JBBPParser parser =
+        JBBPParser.prepare("int a; nullableByteArray b; int c;", nullableByteArrayProcessor);
+
+    Klazz parsed = parser.parse(withNullField).mapTo(new Klazz(), nullableByteArrayProcessor);
+
+    assertEquals(12345, parsed.a);
+    assertNull(parsed.b);
+    assertEquals(7890, parsed.c);
+
+    parsed = parser.parse(withZeroLength).mapTo(new Klazz(), nullableByteArrayProcessor);
+    assertEquals(12345, parsed.a);
+    assertArrayEquals(new byte[0], parsed.b);
+    assertEquals(7890, parsed.c);
+
+    parsed = parser.parse(withContent).mapTo(new Klazz(), nullableByteArrayProcessor);
+    assertEquals(12345, parsed.a);
+    assertArrayEquals(new byte[] {1, 2, 3}, parsed.b);
+    assertEquals(7890, parsed.c);
+  }
+
 }
