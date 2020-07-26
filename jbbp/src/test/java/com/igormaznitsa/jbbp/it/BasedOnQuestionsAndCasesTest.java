@@ -22,7 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
+import com.igormaznitsa.jbbp.JBBPExternalValueProvider;
+import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
 import com.igormaznitsa.jbbp.JBBPParser;
+import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
@@ -85,13 +88,16 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
       @Bin(type = BinType.BIT, bitNumber = JBBPBitNumber.BITS_5, order = 3, bitOrder = JBBPBitOrder.MSB0)
       byte day;
     }
-    final YearMonthDay parsed = JBBPParser.prepare("bit:6 year; bit:4 month;  bit:5 day;", JBBPBitOrder.MSB0).parse(new byte[] {(byte) 0x3D, (byte) 0xF8}).mapTo(new YearMonthDay());
+    final YearMonthDay parsed =
+        JBBPParser.prepare("bit:6 year; bit:4 month;  bit:5 day;", JBBPBitOrder.MSB0)
+            .parse(new byte[] {(byte) 0x3D, (byte) 0xF8}).mapTo(new YearMonthDay());
 
     assertEquals(0x0F, parsed.year);
     assertEquals(0x07, parsed.month);
     assertEquals(0x1C, parsed.day & 0xFF);
 
-    assertArrayEquals(new byte[] {(byte) 0x3D, (byte) 0xF8}, JBBPOut.BeginBin(JBBPBitOrder.MSB0).Bin(parsed).End().toByteArray());
+    assertArrayEquals(new byte[] {(byte) 0x3D, (byte) 0xF8},
+        JBBPOut.BeginBin(JBBPBitOrder.MSB0).Bin(parsed).End().toByteArray());
   }
 
   /**
@@ -122,14 +128,17 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
     }
 
 
-    TetraTimestamp parsed = JBBPParser.prepare("bit:2 timezone; bit:2 reserved; bit:4 month; bit:5 day; bit:5 hour; bit:6 minute;", JBBPBitOrder.MSB0).parse(TEST_DATA).mapTo(new TetraTimestamp());
+    TetraTimestamp parsed = JBBPParser.prepare(
+        "bit:2 timezone; bit:2 reserved; bit:4 month; bit:5 day; bit:5 hour; bit:6 minute;",
+        JBBPBitOrder.MSB0).parse(TEST_DATA).mapTo(new TetraTimestamp());
 
     assertEquals(2, parsed.month);
     assertEquals(8, parsed.day);
     assertEquals(10, parsed.hour);
     assertEquals(1, parsed.minute);
 
-    assertArrayEquals(TEST_DATA, JBBPOut.BeginBin(JBBPBitOrder.MSB0).Bin(parsed).End().toByteArray());
+    assertArrayEquals(TEST_DATA,
+        JBBPOut.BeginBin(JBBPBitOrder.MSB0).Bin(parsed).End().toByteArray());
   }
 
   /**
@@ -200,9 +209,13 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
       for (int i = 0; i < ITERATIONS; i++) {
         try {
           Thread.sleep(System.nanoTime() & 0xF);
-          final byte[] ippacket = parserTCP.parse(theData).findFieldForNameAndType("Data", JBBPFieldArrayByte.class).getArray();
+          final byte[] ippacket =
+              parserTCP.parse(theData).findFieldForNameAndType("Data", JBBPFieldArrayByte.class)
+                  .getArray();
           assertEquals(119, ippacket.length);
-          final byte[] optionsip = parserIP.parse(ippacket).findFieldForNameAndType("Options", JBBPFieldArrayByte.class).getArray();
+          final byte[] optionsip =
+              parserIP.parse(ippacket).findFieldForNameAndType("Options", JBBPFieldArrayByte.class)
+                  .getArray();
           assertEquals(4, optionsip.length);
           parsingCounter.incrementAndGet();
         } catch (Exception ex) {
@@ -236,7 +249,8 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
       byte[] bit;
     }
 
-    JBBPParser parser = JBBPParser.prepare(JBBPDslBuilder.Begin().AnnotatedClassFields(Bits.class).End());
+    JBBPParser parser =
+        JBBPParser.prepare(JBBPDslBuilder.Begin().AnnotatedClassFields(Bits.class).End());
 
     Bits parsed = parser.parse(new byte[] {73}).mapTo(new Bits());
 
@@ -253,11 +267,14 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
    */
   @Test
   public void testStringMsb0() throws Exception {
-    JBBPOut joparam = JBBPOut.BeginBin(JBBPByteOrder.BIG_ENDIAN, JBBPBitOrder.MSB0).String("zzzz").Int(12345);
+    JBBPOut joparam =
+        JBBPOut.BeginBin(JBBPByteOrder.BIG_ENDIAN, JBBPBitOrder.MSB0).String("zzzz").Int(12345);
     final byte[] array = joparam.End().toByteArray();
     assertArrayEquals(new byte[] {32, 94, 94, 94, 94, 0, 0, 0x0C, (byte) 0x9C}, array);
-    final JBBPFieldStruct bitflds = JBBPParser.prepare("stringj fin; int i;", JBBPBitOrder.MSB0).parse(array);
-    assertEquals("zzzz", bitflds.findFieldForNameAndType("fin", JBBPFieldString.class).getAsString());
+    final JBBPFieldStruct bitflds =
+        JBBPParser.prepare("stringj fin; int i;", JBBPBitOrder.MSB0).parse(array);
+    assertEquals("zzzz",
+        bitflds.findFieldForNameAndType("fin", JBBPFieldString.class).getAsString());
     assertEquals(12345, bitflds.findFieldForNameAndType("i", JBBPFieldInt.class).getAsInt());
   }
 
@@ -324,15 +341,22 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
       }
     }
 
-    final JBBPParser parserSingle = JBBPParser.prepare("asciistr str1; asciistr str2;", new AscIIPascalString());
+    final JBBPParser parserSingle =
+        JBBPParser.prepare("asciistr str1; asciistr str2;", new AscIIPascalString());
     final JBBPFieldStruct parsedSingle = parserSingle.parse(new byte[] {5, 65, 66, 67, 68, 69, 0});
-    assertEquals("ABCDE", parsedSingle.findFieldForNameAndType("str1", JBBPFieldString.class).getAsString());
-    assertEquals("", parsedSingle.findFieldForNameAndType("str2", JBBPFieldString.class).getAsString());
+    assertEquals("ABCDE",
+        parsedSingle.findFieldForNameAndType("str1", JBBPFieldString.class).getAsString());
+    assertEquals("",
+        parsedSingle.findFieldForNameAndType("str2", JBBPFieldString.class).getAsString());
 
-    final JBBPParser parserArray = JBBPParser.prepare("asciistr [2] str1; asciistr [_] str2;", new AscIIPascalString());
-    final JBBPFieldStruct parsedArrays = parserArray.parse(new byte[] {2, 65, 66, 1, 67, 3, 68, 69, 70, 2, 71, 72, 1, 73});
-    assertArrayEquals(new String[] {"AB", "C"}, parsedArrays.findFieldForNameAndType("str1", JBBPFieldArrayString.class).getArray());
-    assertArrayEquals(new String[] {"DEF", "GH", "I"}, parsedArrays.findFieldForNameAndType("str2", JBBPFieldArrayString.class).getArray());
+    final JBBPParser parserArray =
+        JBBPParser.prepare("asciistr [2] str1; asciistr [_] str2;", new AscIIPascalString());
+    final JBBPFieldStruct parsedArrays =
+        parserArray.parse(new byte[] {2, 65, 66, 1, 67, 3, 68, 69, 70, 2, 71, 72, 1, 73});
+    assertArrayEquals(new String[] {"AB", "C"},
+        parsedArrays.findFieldForNameAndType("str1", JBBPFieldArrayString.class).getArray());
+    assertArrayEquals(new String[] {"DEF", "GH", "I"},
+        parsedArrays.findFieldForNameAndType("str2", JBBPFieldArrayString.class).getArray());
   }
 
   /**
@@ -349,7 +373,8 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
 
       private final String[] TYPES = new String[] {"uint32"};
 
-      private long uint32_read(final JBBPBitInputStream in, final JBBPByteOrder byteOrder, final JBBPBitOrder bitOrder) throws IOException {
+      private long uint32_read(final JBBPBitInputStream in, final JBBPByteOrder byteOrder,
+                               final JBBPBitOrder bitOrder) throws IOException {
         final int signedInt = in.readInt(byteOrder);
         return signedInt & 0xffffffffL;
       }
@@ -360,7 +385,8 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
       }
 
       @Override
-      public boolean isAllowed(final JBBPFieldTypeParameterContainer fieldType, final String fieldName, final int extraData, final boolean isArray) {
+      public boolean isAllowed(final JBBPFieldTypeParameterContainer fieldType,
+                               final String fieldName, final int extraData, final boolean isArray) {
         return extraData == 0;
       }
 
@@ -374,10 +400,14 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
       }
 
       @Override
-      public JBBPAbstractField readCustomFieldType(final JBBPBitInputStream in, final JBBPBitOrder bitOrder,
-                                                   final int parserFlags, final JBBPFieldTypeParameterContainer customTypeFieldInfo,
-                                                   final JBBPNamedFieldInfo fieldName, final int extraData,
-                                                   final boolean readWholeStream, final int arrayLength) throws IOException {
+      public JBBPAbstractField readCustomFieldType(final JBBPBitInputStream in,
+                                                   final JBBPBitOrder bitOrder,
+                                                   final int parserFlags,
+                                                   final JBBPFieldTypeParameterContainer customTypeFieldInfo,
+                                                   final JBBPNamedFieldInfo fieldName,
+                                                   final int extraData,
+                                                   final boolean readWholeStream,
+                                                   final int arrayLength) throws IOException {
         if (arrayLength < 0) {
           final long uint32_val = uint32_read(in, customTypeFieldInfo.getByteOrder(), bitOrder);
           return new JBBPFieldLong(fieldName, uint32_val);
@@ -421,6 +451,48 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
 
     result = sasParser.parse(new byte[] {0, 0, 0, 2, 1, 2, 3, 4});
     assertEquals(2, ((JBBPNumericField) result.findFieldForName("keycount")).getAsInt());
+  }
+
+  /**
+   * Case 09-jun-2020
+   * Example how to use external variable value provider.
+   *
+   * @throws Exception for any error
+   */
+  @Test
+  public void testByteArrayWhichLengthProvidedExternally() throws Exception {
+    class BKlazz {
+      @Bin(order = 1, type = BinType.BYTE_ARRAY)
+      byte[] a;
+      @Bin(order = 2, type = BinType.BYTE_ARRAY)
+      byte[] b;
+      @Bin(order = 3, type = BinType.BYTE_ARRAY)
+      byte[] c;
+    }
+
+    JBBPParser parser = JBBPParser.prepare("byte [$alen] a; byte [$blen] b; byte [$clen] c;");
+
+    BKlazz parsed = parser.parse(new byte[] {1,2,3}, null, new JBBPExternalValueProvider() {
+      @Override
+      public int provideArraySize(String fieldName,
+                                  JBBPNamedNumericFieldMap numericFieldMap,
+                                  JBBPCompiledBlock compiledBlock) {
+          if ("alen".equals(fieldName)) {
+            return 0;
+          } else if ("blen".equals(fieldName)) {
+            return 3;
+          } else if ("clen".equals(fieldName)) {
+            return 0;
+          } else {
+            throw new IllegalArgumentException("Unknown name: " + fieldName);
+          }
+
+      }
+    }).mapTo(new BKlazz());
+
+    assertArrayEquals(new byte[0], parsed.a);
+    assertArrayEquals(new byte[]{1,2,3}, parsed.b);
+    assertArrayEquals(new byte[0], parsed.c);
   }
 
   /**
