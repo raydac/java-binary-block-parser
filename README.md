@@ -1,5 +1,5 @@
 [![License Apache 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-green.svg)](http://www.apache.org/licenses/LICENSE-2.0)
-[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.igormaznitsa/jbbp/badge.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|jbbp|2.0.1|jar)
+[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.igormaznitsa/jbbp/badge.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|jbbp|2.0.2|jar)
 [![Java 1.8+](https://img.shields.io/badge/java-1.8%2b-green.svg)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 [![Android 3.0+](https://img.shields.io/badge/android-3.0%2b-green.svg)](http://developer.android.com/sdk/index.html)
 [![PayPal donation](https://img.shields.io/badge/donation-PayPal-red.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=AHWJHJFBAWGL2)
@@ -27,10 +27,10 @@ The Framework has been published in the Maven Central and can be easily added as
 <dependency>
   <groupId>com.igormaznitsa</groupId>
   <artifactId>jbbp</artifactId>
-  <version>2.0.1</version>
+  <version>2.0.2</version>
 </dependency>
 ```
-the precompiled library jar, javadoc and sources also can be downloaded directly from [the Maven central.](https://search.maven.org/artifact/com.igormaznitsa/jbbp/2.0.1/jar)
+the precompiled library jar, javadoc and sources also can be downloaded directly from [the Maven central.](https://search.maven.org/artifact/com.igormaznitsa/jbbp/2.0.2/jar)
 
 # Hello world
 The library is very easy in use because in many cases only two its classes are needed - com.igormaznitsa.jbbp.JBBPParser (for data parsing) and com.igormaznitsa.jbbp.io.JBBPOut (for binary block writing). Both these classes work over low-level IO classes - com.igormaznitsa.jbbp.io.JBBPBitInputStream and com.igormaznitsa.jbbp.io.JBBPBitOutputStream, those bit stream classes are the core of the library.   
@@ -74,7 +74,7 @@ in Maven it can be used through snippet:
  <plugin>
    <groupId>com.igormaznitsa</groupId>
    <artifactId>jbbp-maven-plugin</artifactId>
-   <version>2.0.1</version>
+   <version>2.0.2</version>
    <executions>
      <execution>
        <id>gen-jbbp-src</id>
