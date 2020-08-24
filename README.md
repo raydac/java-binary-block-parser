@@ -1,11 +1,11 @@
+![JBBP Logo](https://github.com/raydac/java-binary-block-parser/blob/master/logo.png)
+
 [![License Apache 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-green.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.igormaznitsa/jbbp/badge.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|jbbp|2.0.2|jar)
 [![Java 1.8+](https://img.shields.io/badge/java-1.8%2b-green.svg)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 [![Android 3.0+](https://img.shields.io/badge/android-3.0%2b-green.svg)](http://developer.android.com/sdk/index.html)
 [![PayPal donation](https://img.shields.io/badge/donation-PayPal-red.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=AHWJHJFBAWGL2)
 [![Yandex.Money donation](https://img.shields.io/badge/donation-Я.деньги-yellow.svg)](http://yasobe.ru/na/iamoss)
-
-![JBBP Logo](https://github.com/raydac/java-binary-block-parser/blob/master/logo.png)
 
 # Introduction
 Java has some embedded features to parse binary data (for instance ByteBuffer), but sometime it is needed to work on bit level and describe binary structures through some DSL(domain specific language). I was impressed by the [the Python Struct package](https://docs.python.org/2/library/struct.html) package and wanted to get something like that for Java. So I developed the JBBP library.<br>
