@@ -29,7 +29,7 @@ dependencies {
     compile "com.igormaznitsa:meta-annotations:" + metaLibVersion
     compile "com.igormaznitsa:meta-utils:" + metaLibVersion
 
-    testCompile 'junit:junit:4.12'
+    testCompile 'junit:junit:4.13.1'
 }
 
 repositories {
