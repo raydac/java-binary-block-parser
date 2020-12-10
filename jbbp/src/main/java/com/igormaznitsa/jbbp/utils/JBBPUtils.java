@@ -23,6 +23,8 @@ import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -109,7 +111,8 @@ public final class JBBPUtils {
     } else if ((value & 0xFFFF0000) == 0) {
       return new byte[] {(byte) 0x80, (byte) (value >>> 8), (byte) value};
     } else {
-      return new byte[] {(byte) 0x81, (byte) (value >>> 24), (byte) (value >>> 16), (byte) (value >>> 8), (byte) value};
+      return new byte[] {(byte) 0x81, (byte) (value >>> 24), (byte) (value >>> 16),
+          (byte) (value >>> 8), (byte) value};
     }
   }
 
@@ -159,7 +162,8 @@ public final class JBBPUtils {
     final int result;
     switch (code) {
       case 0x80: {
-        result = ((array[position.getAndIncrement()] & 0xFF) << 8) | (array[position.getAndIncrement()] & 0xFF);
+        result = ((array[position.getAndIncrement()] & 0xFF) << 8) |
+            (array[position.getAndIncrement()] & 0xFF);
       }
       break;
       case 0x81: {
@@ -170,7 +174,8 @@ public final class JBBPUtils {
       }
       break;
       default:
-        throw new IllegalArgumentException("Unsupported packed integer prefix [0x" + Integer.toHexString(code).toUpperCase(Locale.ENGLISH) + ']');
+        throw new IllegalArgumentException("Unsupported packed integer prefix [0x"
+            + Integer.toHexString(code).toUpperCase(Locale.ENGLISH) + ']');
     }
     return result;
   }
@@ -215,7 +220,9 @@ public final class JBBPUtils {
    * @param radix     the base for conversion
    * @return the string representation of the byte array
    */
-  public static String byteArray2String(final byte[] array, final String prefix, final String delimiter, final boolean brackets, final int radix) {
+  public static String byteArray2String(final byte[] array, final String prefix,
+                                        final String delimiter, final boolean brackets,
+                                        final int radix) {
     if (array == null) {
       return null;
     }
@@ -312,7 +319,8 @@ public final class JBBPUtils {
    * @param separateBytes if true then bytes will be separated by spaces
    * @return the string representation of the array
    */
-  public static String bin2str(final byte[] values, final JBBPBitOrder bitOrder, final boolean separateBytes) {
+  public static String bin2str(final byte[] values, final JBBPBitOrder bitOrder,
+                               final boolean separateBytes) {
     if (values == null) {
       return null;
     }
@@ -489,7 +497,8 @@ public final class JBBPUtils {
    * @return a string with human readable hexadecimal number representation
    */
   public static String int2msg(final int number) {
-    return number + " (0x" + Long.toHexString((long) number & 0xFFFFFFFFL).toUpperCase(Locale.ENGLISH) + ')';
+    return number + " (0x"
+        + Long.toHexString((long) number & 0xFFFFFFFFL).toUpperCase(Locale.ENGLISH) + ')';
   }
 
   /**
@@ -586,7 +595,8 @@ public final class JBBPUtils {
    * the provided buffer is null or has not enough size
    * @since 1.1
    */
-  public static byte[] splitInteger(final int value, final boolean valueInLittleEndian, final byte[] buffer) {
+  public static byte[] splitInteger(final int value, final boolean valueInLittleEndian,
+                                    final byte[] buffer) {
     final byte[] result;
     if (buffer == null || buffer.length < 4) {
       result = new byte[4];
@@ -620,7 +630,8 @@ public final class JBBPUtils {
    * the provided buffer is null or has not enough size
    * @since 1.1
    */
-  public static byte[] splitLong(final long value, final boolean valueInLittleEndian, final byte[] buffer) {
+  public static byte[] splitLong(final long value, final boolean valueInLittleEndian,
+                                 final byte[] buffer) {
     final byte[] result;
     if (buffer == null || buffer.length < 8) {
       result = new byte[8];
@@ -783,7 +794,8 @@ public final class JBBPUtils {
       if (ulongValue > 0) {
         result = Long.toString(ulongValue, radix).toUpperCase(Locale.ENGLISH);
       } else {
-        final char[] buffer = charBuffer == null || charBuffer.length < 64 ? new char[64] : charBuffer;
+        final char[] buffer =
+            charBuffer == null || charBuffer.length < 64 ? new char[64] : charBuffer;
         int pos = buffer.length;
         long topPart = ulongValue >>> 32;
         long bottomPart = (ulongValue & 0xFFFFFFFFL) + ((topPart % radix) << 32);
@@ -812,7 +824,8 @@ public final class JBBPUtils {
    * text has equals or greater length.
    * @since 1.1
    */
-  public static String ensureMinTextLength(final String text, final int neededLen, final char ch, final int mode) {
+  public static String ensureMinTextLength(final String text, final int neededLen, final char ch,
+                                           final int mode) {
     final int number = neededLen - text.length();
     if (number <= 0) {
       return text;
@@ -972,8 +985,7 @@ public final class JBBPUtils {
     int msk = 1;
     do {
       msk <<= 1;
-    }
-    while (msk <= value);
+    } while (msk <= value);
     return msk - 1;
   }
 
@@ -993,6 +1005,119 @@ public final class JBBPUtils {
       return false;
     }
     return o1.equals(o2);
+  }
+
+  public static String toHexString(final long value, final int charsNum) {
+    String result = Long.toHexString(value).toUpperCase(Locale.ENGLISH);
+    if (charsNum >= result.length()) {
+      final StringBuilder buffer = new StringBuilder(charsNum);
+      for (int i = 0; i < charsNum - result.length(); i++) {
+        buffer.append('0');
+      }
+      buffer.append(result);
+      result = buffer.toString();
+    }
+    return result;
+  }
+
+  /**
+   * Trace an input stream into a print writer.
+   *
+   * @param inStream input stream to be traced, must not be null
+   * @param out      destination print stream, must not be null
+   * @throws IOException thrown if transport error
+   * @see #traceData(InputStream, int, String, String, String, String, char, boolean, PrintStream)
+   * @since 2.0.3
+   */
+  public static void traceData(final InputStream inStream, final PrintStream out)
+      throws IOException {
+    traceData(
+        inStream,
+        4,
+        8,
+        " ",
+        " ",
+        " | ",
+        " ",
+        '.',
+        true,
+        out
+    );
+  }
+
+  /**
+   * Trace an input stream into a print writer.
+   *
+   * @param inStream              an input stream to be traced, must not be null
+   * @param valuesPerColumn       number of value in one shown column
+   * @param columnsNumber         number of eight byte columns
+   * @param afterAddressDelimiter string to be written after address section, must not be null
+   * @param interValueDelimiter   string to be written after each value, must not be null
+   * @param interColumnDelimiter  string to be written to show column, must not be null
+   * @param delimiterBeforeChars  string to be written before chars section, must not be null
+   * @param nonPrintableChar      char to be used for non-printable chars in chars section
+   * @param printAsChars          true if char section is required, false otherwise
+   * @param out                   destination writer, must not be null
+   * @throws IOException thrown if any transport error
+   * @since 2.0.3
+   */
+  public static void traceData(final InputStream inStream,
+                               int valuesPerColumn,
+                               final int columnsNumber,
+                               final String afterAddressDelimiter,
+                               final String interValueDelimiter,
+                               final String interColumnDelimiter,
+                               final String delimiterBeforeChars,
+                               final char nonPrintableChar,
+                               final boolean printAsChars,
+                               final PrintStream out)
+      throws IOException {
+    long address = 0L;
+    valuesPerColumn = valuesPerColumn <= 0 ? 1 : valuesPerColumn;
+    final int bytesPerLine = columnsNumber <= 0 ? 8 : columnsNumber * valuesPerColumn;
+
+    final StringBuilder charBuffer = printAsChars ? new StringBuilder(bytesPerLine) : null;
+
+    int lineByteCounter = 0;
+
+    boolean ending = false;
+
+    while (!Thread.currentThread().isInterrupted()) {
+      final int nextData;
+      if (ending) {
+        nextData = -1;
+      } else {
+        nextData = inStream.read();
+        ending = nextData < 0;
+      }
+
+      if (lineByteCounter == 0) {
+        out.print(toHexString(address, 8));
+        out.print(afterAddressDelimiter);
+      }
+      if (charBuffer != null) {
+        charBuffer.append(nextData > 0x1F && nextData < 0xFF ? (char) nextData : nonPrintableChar);
+      }
+      out.print(nextData < 0 ? "--" : toHexString(nextData, 2));
+      lineByteCounter++;
+      if (lineByteCounter == bytesPerLine) {
+        if (charBuffer != null) {
+          out.print(delimiterBeforeChars);
+          out.print(charBuffer.toString());
+          charBuffer.setLength(0);
+        }
+        lineByteCounter = 0;
+        address += bytesPerLine;
+        out.println();
+        if (ending) {
+          break;
+        }
+      } else if (lineByteCounter % valuesPerColumn == 0) {
+        out.print(interColumnDelimiter);
+      } else {
+        out.print(interValueDelimiter);
+      }
+    }
   }
 
 }

@@ -16,22 +16,33 @@
 
 package com.igormaznitsa.jbbp.utils;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
-
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Random;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class JBBPUtilsTest {
 
   @Test
   public void testUtf8EncdeDecode() {
-    assertEquals("78634двлфодйукйДЛОД wdf", JBBPUtils.utf8ToStr(JBBPUtils.strToUtf8("78634двлфодйукйДЛОД wdf")));
+    assertEquals("78634двлфодйукйДЛОД wdf",
+        JBBPUtils.utf8ToStr(JBBPUtils.strToUtf8("78634двлфодйукйДЛОД wdf")));
   }
 
   @Test
@@ -150,7 +161,8 @@ public class JBBPUtilsTest {
 
   @Test
   public void testUnpackInt_IAEForWrongPrefix() {
-    assertThrows(IllegalArgumentException.class, () -> JBBPUtils.unpackInt(new byte[] {(byte) 0xAA, 0, 0, 0, 0, 0}, new JBBPIntCounter()));
+    assertThrows(IllegalArgumentException.class,
+        () -> JBBPUtils.unpackInt(new byte[] {(byte) 0xAA, 0, 0, 0, 0, 0}, new JBBPIntCounter()));
   }
 
   @Test
@@ -163,7 +175,8 @@ public class JBBPUtilsTest {
     int counter2 = 0;
     int counter3 = 0;
 
-    final int[] etalons = new int[] {0, -1, -89, 234, 123124, 1223112, 34323, Integer.MIN_VALUE, Integer.MAX_VALUE};
+    final int[] etalons =
+        new int[] {0, -1, -89, 234, 123124, 1223112, 34323, Integer.MIN_VALUE, Integer.MAX_VALUE};
 
     for (final int generated : etalons) {
       pos.set(0);
@@ -195,19 +208,22 @@ public class JBBPUtilsTest {
   @Test
   public void testArray2Hex() {
     assertNull(JBBPUtils.array2hex(null));
-    assertEquals("[0x01, 0x02, 0x03, 0xFF]", JBBPUtils.array2hex(new byte[] {1, 2, 3, (byte) 0xFF}));
+    assertEquals("[0x01, 0x02, 0x03, 0xFF]",
+        JBBPUtils.array2hex(new byte[] {1, 2, 3, (byte) 0xFF}));
   }
 
   @Test
   public void testArray2Oct() {
     assertNull(JBBPUtils.array2hex(null));
-    assertEquals("[0o001, 0o002, 0o003, 0o377]", JBBPUtils.array2oct(new byte[] {1, 2, 3, (byte) 0xFF}));
+    assertEquals("[0o001, 0o002, 0o003, 0o377]",
+        JBBPUtils.array2oct(new byte[] {1, 2, 3, (byte) 0xFF}));
   }
 
   @Test
   public void testArray2Bin() {
     assertNull(JBBPUtils.array2bin(null));
-    assertEquals("[0b00000001, 0b00000010, 0b00000011, 0b11111111]", JBBPUtils.array2bin(new byte[] {1, 2, 3, (byte) 0xFF}));
+    assertEquals("[0b00000001, 0b00000010, 0b00000011, 0b11111111]",
+        JBBPUtils.array2bin(new byte[] {1, 2, 3, (byte) 0xFF}));
   }
 
   @Test
@@ -240,7 +256,8 @@ public class JBBPUtilsTest {
     assertEquals("01010101 10101010", JBBPUtils.bin2str(new byte[] {0x55, (byte) 0xAA}, true));
     assertEquals("0101010110101010", JBBPUtils.bin2str(new byte[] {0x55, (byte) 0xAA}, false));
     assertEquals("00001001", JBBPUtils.bin2str(new byte[] {0x9}, false));
-    assertEquals("1010101001010101", JBBPUtils.bin2str(new byte[] {0x55, (byte) 0xAA}, JBBPBitOrder.MSB0, false));
+    assertEquals("1010101001010101",
+        JBBPUtils.bin2str(new byte[] {0x55, (byte) 0xAA}, JBBPBitOrder.MSB0, false));
     assertEquals("0101010110101010", JBBPUtils.bin2str(new byte[] {0x55, (byte) 0xAA}));
   }
 
@@ -251,8 +268,10 @@ public class JBBPUtilsTest {
     assertArrayEquals(new byte[] {(byte) 0x80}, JBBPUtils.str2bin("10000000"));
     assertArrayEquals(new byte[] {(byte) 0x01}, JBBPUtils.str2bin("1"));
     assertArrayEquals(new byte[] {(byte) 0x80, 0x01}, JBBPUtils.str2bin("10000000X00x0Zz1"));
-    assertArrayEquals(new byte[] {(byte) 0x80, 0x01, 0x07}, JBBPUtils.str2bin("10000000000000010111"));
-    assertArrayEquals(new byte[] {(byte) 0x80, 0x01, 0x07}, JBBPUtils.str2bin("10000000_00000001_0111"));
+    assertArrayEquals(new byte[] {(byte) 0x80, 0x01, 0x07},
+        JBBPUtils.str2bin("10000000000000010111"));
+    assertArrayEquals(new byte[] {(byte) 0x80, 0x01, 0x07},
+        JBBPUtils.str2bin("10000000_00000001_0111"));
 
     try {
       JBBPUtils.str2bin("10001021");
@@ -269,9 +288,12 @@ public class JBBPUtilsTest {
     assertArrayEquals(new byte[] {(byte) 0x80}, JBBPUtils.str2bin("10000000", JBBPBitOrder.LSB0));
     assertArrayEquals(new byte[] {(byte) 0x01}, JBBPUtils.str2bin("1", JBBPBitOrder.LSB0));
     assertArrayEquals(new byte[] {(byte) 0x01}, JBBPUtils.str2bin("00000001", JBBPBitOrder.LSB0));
-    assertArrayEquals(new byte[] {(byte) 0x80, (byte) 0x01}, JBBPUtils.str2bin("10000000X00x0Zz1", JBBPBitOrder.LSB0));
-    assertArrayEquals(new byte[] {(byte) 0x80, (byte) 0x01, (byte) 0x07}, JBBPUtils.str2bin("10000000000000010111", JBBPBitOrder.LSB0));
-    assertArrayEquals(new byte[] {(byte) 0x80, (byte) 0x01, (byte) 0x07}, JBBPUtils.str2bin("10000000_00000001_0111", JBBPBitOrder.LSB0));
+    assertArrayEquals(new byte[] {(byte) 0x80, (byte) 0x01},
+        JBBPUtils.str2bin("10000000X00x0Zz1", JBBPBitOrder.LSB0));
+    assertArrayEquals(new byte[] {(byte) 0x80, (byte) 0x01, (byte) 0x07},
+        JBBPUtils.str2bin("10000000000000010111", JBBPBitOrder.LSB0));
+    assertArrayEquals(new byte[] {(byte) 0x80, (byte) 0x01, (byte) 0x07},
+        JBBPUtils.str2bin("10000000_00000001_0111", JBBPBitOrder.LSB0));
 
     try {
       JBBPUtils.str2bin("10001021", JBBPBitOrder.MSB0);
@@ -283,9 +305,11 @@ public class JBBPUtilsTest {
 
   @Test
   public void testStr2Bin_LSB0_1bitShift() {
-    final byte[] array = JBBPUtils.str2bin("0 11111111 01010101 00011000 00000001", JBBPBitOrder.LSB0);
+    final byte[] array =
+        JBBPUtils.str2bin("0 11111111 01010101 00011000 00000001", JBBPBitOrder.LSB0);
 
-    assertArrayEquals(new byte[] {(byte) 0x7F, (byte) 0xAA, (byte) 0x8C, (byte) 0x0, (byte) 0x01}, array);
+    assertArrayEquals(new byte[] {(byte) 0x7F, (byte) 0xAA, (byte) 0x8C, (byte) 0x0, (byte) 0x01},
+        array);
 
   }
 
@@ -297,10 +321,14 @@ public class JBBPUtilsTest {
     assertArrayEquals(new byte[] {(byte) 0x80}, JBBPUtils.str2bin("00000001", JBBPBitOrder.MSB0));
     assertArrayEquals(new byte[] {(byte) 0x01}, JBBPUtils.str2bin("10000000", JBBPBitOrder.MSB0));
     assertArrayEquals(new byte[] {(byte) 0xA9}, JBBPUtils.str2bin("10010101", JBBPBitOrder.MSB0));
-    assertArrayEquals(new byte[] {(byte) 0x01, (byte) 0x80}, JBBPUtils.str2bin("10000000X00x0Zz1", JBBPBitOrder.MSB0));
-    assertArrayEquals(new byte[] {(byte) 0x01, (byte) 0x80, (byte) 0x0E}, JBBPUtils.str2bin("1000000000000001 0111", JBBPBitOrder.MSB0));
-    assertArrayEquals(new byte[] {(byte) 0x01, (byte) 0x80, (byte) 0x0E}, JBBPUtils.str2bin("10000000_00000001_0111", JBBPBitOrder.MSB0));
-    assertArrayEquals(new byte[] {(byte) 0x03, (byte) 0x00, (byte) 0x01, (byte) 0x01}, JBBPUtils.str2bin("1_10000000_00000001_00000001", JBBPBitOrder.MSB0));
+    assertArrayEquals(new byte[] {(byte) 0x01, (byte) 0x80},
+        JBBPUtils.str2bin("10000000X00x0Zz1", JBBPBitOrder.MSB0));
+    assertArrayEquals(new byte[] {(byte) 0x01, (byte) 0x80, (byte) 0x0E},
+        JBBPUtils.str2bin("1000000000000001 0111", JBBPBitOrder.MSB0));
+    assertArrayEquals(new byte[] {(byte) 0x01, (byte) 0x80, (byte) 0x0E},
+        JBBPUtils.str2bin("10000000_00000001_0111", JBBPBitOrder.MSB0));
+    assertArrayEquals(new byte[] {(byte) 0x03, (byte) 0x00, (byte) 0x01, (byte) 0x01},
+        JBBPUtils.str2bin("1_10000000_00000001_00000001", JBBPBitOrder.MSB0));
 
     try {
       JBBPUtils.str2bin("10001021", JBBPBitOrder.MSB0);
@@ -347,8 +375,10 @@ public class JBBPUtilsTest {
 
     assertArrayEquals(new byte[] {1}, JBBPUtils.reverseArray(new byte[] {1}));
     assertArrayEquals(new byte[] {2, 1}, JBBPUtils.reverseArray(new byte[] {1, 2}));
-    assertArrayEquals(new byte[] {5, 4, 3, 2, 1}, JBBPUtils.reverseArray(new byte[] {1, 2, 3, 4, 5}));
-    assertArrayEquals(new byte[] {6, 5, 4, 3, 2, 1}, JBBPUtils.reverseArray(new byte[] {1, 2, 3, 4, 5, 6}));
+    assertArrayEquals(new byte[] {5, 4, 3, 2, 1},
+        JBBPUtils.reverseArray(new byte[] {1, 2, 3, 4, 5}));
+    assertArrayEquals(new byte[] {6, 5, 4, 3, 2, 1},
+        JBBPUtils.reverseArray(new byte[] {1, 2, 3, 4, 5, 6}));
   }
 
   @Test
@@ -363,7 +393,8 @@ public class JBBPUtilsTest {
     assertArrayEquals(new byte[] {1, 2, 3, 4}, JBBPUtils.splitInteger(0x01020304, false, buff));
 
     buff = new byte[8];
-    assertArrayEquals(new byte[] {1, 2, 3, 4, 0, 0, 0, 0}, JBBPUtils.splitInteger(0x01020304, false, buff));
+    assertArrayEquals(new byte[] {1, 2, 3, 4, 0, 0, 0, 0},
+        JBBPUtils.splitInteger(0x01020304, false, buff));
 
     buff = null;
     assertArrayEquals(new byte[] {4, 3, 2, 1}, JBBPUtils.splitInteger(0x01020304, true, buff));
@@ -375,40 +406,51 @@ public class JBBPUtilsTest {
     assertArrayEquals(new byte[] {4, 3, 2, 1}, JBBPUtils.splitInteger(0x01020304, true, buff));
 
     buff = new byte[8];
-    assertArrayEquals(new byte[] {4, 3, 2, 1, 0, 0, 0, 0}, JBBPUtils.splitInteger(0x01020304, true, buff));
+    assertArrayEquals(new byte[] {4, 3, 2, 1, 0, 0, 0, 0},
+        JBBPUtils.splitInteger(0x01020304, true, buff));
 
   }
 
   @Test
   public void testSplitLong() {
     byte[] buff = null;
-    assertArrayEquals(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}, JBBPUtils.splitLong(0x0102030405060708L, false, buff));
+    assertArrayEquals(new byte[] {1, 2, 3, 4, 5, 6, 7, 8},
+        JBBPUtils.splitLong(0x0102030405060708L, false, buff));
 
     buff = new byte[2];
-    assertArrayEquals(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}, JBBPUtils.splitLong(0x0102030405060708L, false, buff));
+    assertArrayEquals(new byte[] {1, 2, 3, 4, 5, 6, 7, 8},
+        JBBPUtils.splitLong(0x0102030405060708L, false, buff));
 
     buff = new byte[8];
-    assertArrayEquals(new byte[] {1, 2, 3, 4, 5, 6, 7, 8}, JBBPUtils.splitLong(0x0102030405060708L, false, buff));
+    assertArrayEquals(new byte[] {1, 2, 3, 4, 5, 6, 7, 8},
+        JBBPUtils.splitLong(0x0102030405060708L, false, buff));
 
     buff = new byte[10];
-    assertArrayEquals(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 0, 0}, JBBPUtils.splitLong(0x0102030405060708L, false, buff));
+    assertArrayEquals(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 0, 0},
+        JBBPUtils.splitLong(0x0102030405060708L, false, buff));
 
     buff = null;
-    assertArrayEquals(new byte[] {8, 7, 6, 5, 4, 3, 2, 1}, JBBPUtils.splitLong(0x0102030405060708L, true, buff));
+    assertArrayEquals(new byte[] {8, 7, 6, 5, 4, 3, 2, 1},
+        JBBPUtils.splitLong(0x0102030405060708L, true, buff));
 
     buff = new byte[2];
-    assertArrayEquals(new byte[] {8, 7, 6, 5, 4, 3, 2, 1}, JBBPUtils.splitLong(0x0102030405060708L, true, buff));
+    assertArrayEquals(new byte[] {8, 7, 6, 5, 4, 3, 2, 1},
+        JBBPUtils.splitLong(0x0102030405060708L, true, buff));
 
     buff = new byte[8];
-    assertArrayEquals(new byte[] {8, 7, 6, 5, 4, 3, 2, 1}, JBBPUtils.splitLong(0x0102030405060708L, true, buff));
+    assertArrayEquals(new byte[] {8, 7, 6, 5, 4, 3, 2, 1},
+        JBBPUtils.splitLong(0x0102030405060708L, true, buff));
 
     buff = new byte[10];
-    assertArrayEquals(new byte[] {8, 7, 6, 5, 4, 3, 2, 1, 0, 0}, JBBPUtils.splitLong(0x0102030405060708L, true, buff));
+    assertArrayEquals(new byte[] {8, 7, 6, 5, 4, 3, 2, 1, 0, 0},
+        JBBPUtils.splitLong(0x0102030405060708L, true, buff));
   }
 
   @Test
   public void testConcat() {
-    assertArrayEquals(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, JBBPUtils.concat(new byte[] {1, 2, 3, 4}, new byte[] {5}, new byte[] {6, 7, 8, 9}, new byte[0], new byte[] {10}));
+    assertArrayEquals(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, JBBPUtils
+        .concat(new byte[] {1, 2, 3, 4}, new byte[] {5}, new byte[] {6, 7, 8, 9}, new byte[0],
+            new byte[] {10}));
   }
 
   @Test
@@ -543,5 +585,36 @@ public class JBBPUtilsTest {
     assertEquals(3, JBBPUtils.makeMask(2));
     assertEquals(0x7F, JBBPUtils.makeMask(100));
     assertEquals(0xFFFF, JBBPUtils.makeMask(65535));
+  }
+
+  @Test
+  public void testTraceData() throws Exception {
+    final byte[] testData = new byte[211];
+    for (int i = 0; i < 111; i++) {
+      testData[i] = (byte) i;
+    }
+    final InputStream stream = new ByteArrayInputStream(testData);
+    final ByteArrayOutputStream outArray = new ByteArrayOutputStream();
+    final PrintStream out = new PrintStream(outArray, true, "UTF-8");
+    JBBPUtils.traceData(stream, out);
+    out.close();
+    final String asString =
+        new String(outArray.toByteArray(), StandardCharsets.UTF_8).replace("\r\n", "\n")
+            .replace("\r", "\n");
+    assertEquals(
+        "00000000 00 01 02 03 | 04 05 06 07 | 08 09 0A 0B | 0C 0D 0E 0F | 10 11 12 13 | 14 15 16 17 | 18 19 1A 1B | 1C 1D 1E 1F ................................\n"
+            +
+            "00000020 20 21 22 23 | 24 25 26 27 | 28 29 2A 2B | 2C 2D 2E 2F | 30 31 32 33 | 34 35 36 37 | 38 39 3A 3B | 3C 3D 3E 3F  !\"#$%&'()*+,-./0123456789:;<=>?\n"
+            +
+            "00000040 40 41 42 43 | 44 45 46 47 | 48 49 4A 4B | 4C 4D 4E 4F | 50 51 52 53 | 54 55 56 57 | 58 59 5A 5B | 5C 5D 5E 5F @ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_\n"
+            +
+            "00000060 60 61 62 63 | 64 65 66 67 | 68 69 6A 6B | 6C 6D 6E 00 | 00 00 00 00 | 00 00 00 00 | 00 00 00 00 | 00 00 00 00 `abcdefghijklmn.................\n"
+            +
+            "00000080 00 00 00 00 | 00 00 00 00 | 00 00 00 00 | 00 00 00 00 | 00 00 00 00 | 00 00 00 00 | 00 00 00 00 | 00 00 00 00 ................................\n"
+            +
+            "000000A0 00 00 00 00 | 00 00 00 00 | 00 00 00 00 | 00 00 00 00 | 00 00 00 00 | 00 00 00 00 | 00 00 00 00 | 00 00 00 00 ................................\n"
+            +
+            "000000C0 00 00 00 00 | 00 00 00 00 | 00 00 00 00 | 00 00 00 00 | 00 00 00 -- | -- -- -- -- | -- -- -- -- | -- -- -- -- ................................\n",
+        asString);
   }
 }
