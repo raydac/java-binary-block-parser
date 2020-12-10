@@ -1,6 +1,6 @@
 2.0.3 (SNAPSHOT)
  - added service methods `JBBPUtils.traceData` to print dump of an input stream into a PrintStream
- - improved JBBPTokenizerException to show marked error position [#30](https://github.com/raydac/java-binary-block-parser/issues/30)
+ - improved `JBBPTokenizerException` to show marked error position [#30](https://github.com/raydac/java-binary-block-parser/issues/30)
 
 2.0.2 (22-aug-2020)
  - added `JBBPOut#Bin` variant to override `@Bin` annotation fields in written objects.

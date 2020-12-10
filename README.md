@@ -14,7 +14,7 @@ Java has some embedded features to parse binary data (for instance ByteBuffer), 
 # Change log
 - __2.0.3 (SNAPSHOT)__
   - added service methods `JBBPUtils.traceData` to print dump of an input stream into a PrintStream
-  - improved JBBPTokenizerException to show marked error position [#30](https://github.com/raydac/java-binary-block-parser/issues/30)
+  - improved `JBBPTokenizerException` to show marked error position [#30](https://github.com/raydac/java-binary-block-parser/issues/30)
 
 - __2.0.2 (22-aug-2020)__
   - added `JBBPOut#Bin` variant to override `@Bin` annotation fields in written objects. 
