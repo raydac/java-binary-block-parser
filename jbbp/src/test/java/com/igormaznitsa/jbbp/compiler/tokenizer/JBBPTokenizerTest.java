@@ -16,14 +16,20 @@
 
 package com.igormaznitsa.jbbp.compiler.tokenizer;
 
-import com.igormaznitsa.jbbp.exceptions.JBBPTokenizerException;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
+
+import com.igormaznitsa.jbbp.JBBPParser;
+import com.igormaznitsa.jbbp.exceptions.JBBPTokenizerException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class JBBPTokenizerTest {
 
@@ -57,6 +63,7 @@ public class JBBPTokenizerTest {
       fail("Must throw Tokenizer exception");
     } catch (JBBPTokenizerException ex) {
       assertEquals(1, ex.getPosition());
+      assertEquals("->[<- 123] hello;", ex.getErrorPart());
     }
   }
 
@@ -72,6 +79,7 @@ public class JBBPTokenizerTest {
       fail("Must throw Tokenizer exception");
     } catch (JBBPTokenizerException ex) {
       assertEquals(2, ex.getPosition());
+      assertEquals("}  ->[<- 123] hello;", ex.getErrorPart());
     }
   }
 
@@ -128,6 +136,7 @@ public class JBBPTokenizerTest {
       fail("Must throw parser exception");
     } catch (JBBPTokenizerException ex) {
       assertEquals(0, ex.getPosition());
+      assertEquals("-> <-   some", ex.getErrorPart());
     }
   }
 
@@ -222,6 +231,7 @@ public class JBBPTokenizerTest {
       fail("Must throw parser exception for wrong symbol of byte order");
     } catch (JBBPTokenizerException ex) {
       assertEquals(3, ex.getPosition());
+      assertEquals("->!<- int hello;", ex.getErrorPart());
     }
   }
 
@@ -240,6 +250,7 @@ public class JBBPTokenizerTest {
       fail("Must throw parser exception for disabled dot char at name");
     } catch (JBBPTokenizerException ex) {
       assertEquals(3, ex.getPosition());
+      assertEquals("->s<- truct.a {", ex.getErrorPart());
     }
   }
 
@@ -253,6 +264,7 @@ public class JBBPTokenizerTest {
       fail("Must throw parser exception for disabled dot char at name");
     } catch (JBBPTokenizerException ex) {
       assertEquals(3, ex.getPosition());
+      assertEquals("->i<- nt.a;", ex.getErrorPart());
     }
   }
 
@@ -266,6 +278,7 @@ public class JBBPTokenizerTest {
       fail("Must throw parser exception for disabled dot char at name");
     } catch (JBBPTokenizerException ex) {
       assertEquals(3, ex.getPosition());
+      assertEquals("->$<- struct {", ex.getErrorPart());
     }
   }
 
@@ -279,6 +292,7 @@ public class JBBPTokenizerTest {
       fail("Must throw parser exception for disabled dot char at name");
     } catch (JBBPTokenizerException ex) {
       assertEquals(3, ex.getPosition());
+      assertEquals("->$<- int;", ex.getErrorPart());
     }
   }
 
@@ -361,6 +375,7 @@ public class JBBPTokenizerTest {
       fail("Must throw parser exception");
     } catch (JBBPTokenizerException ex) {
       assertEquals(2, ex.getPosition());
+      assertEquals("->[<- 333] test", ex.getErrorPart());
     }
   }
 
@@ -398,6 +413,7 @@ public class JBBPTokenizerTest {
       fail("Must throw parser exception for wrong struct end definition");
     } catch (JBBPTokenizerException ex) {
       assertEquals(0, ex.getPosition());
+      assertEquals("-> <-    int", ex.getErrorPart());
     }
   }
 
@@ -412,6 +428,7 @@ public class JBBPTokenizerTest {
       fail("Must throw parser exception for wrong struct end definition");
     } catch (JBBPTokenizerException ex) {
       assertEquals(4, ex.getPosition());
+      assertEquals("->i<- nt struct{", ex.getErrorPart());
     }
   }
 
@@ -429,6 +446,7 @@ public class JBBPTokenizerTest {
       fail("Must throw exception");
     } catch (JBBPTokenizerException ex) {
       assertEquals(8, ex.getPosition());
+      assertEquals("test  ->\\u000a<-  wrong", ex.getErrorPart());
     }
   }
 
@@ -490,7 +508,9 @@ public class JBBPTokenizerTest {
     }
   }
 
-  private void assertParsedItem(final JBBPToken item, final JBBPTokenType itemType, final String fieldType, final String length, final String fieldName) {
+  private void assertParsedItem(final JBBPToken item, final JBBPTokenType itemType,
+                                final String fieldType, final String length,
+                                final String fieldName) {
     assertNotNull(item);
     assertEquals(itemType, item.getType());
     if (fieldType == null) {
@@ -521,10 +541,28 @@ public class JBBPTokenizerTest {
 
   @Test
   public void testParse_StructureArrayStartWithComplexExpressionAsSize() {
-    final JBBPTokenizer parser = new JBBPTokenizer("ColorMap [ (Header.ColorMapType & 1) * Header.CMapLength] {");
+    final JBBPTokenizer parser =
+        new JBBPTokenizer("ColorMap [ (Header.ColorMapType & 1) * Header.CMapLength] {");
     final Iterator<JBBPToken> iterator = parser.iterator();
-    assertParsedItem(iterator.next(), JBBPTokenType.STRUCT_START, null, "(Header.ColorMapType & 1) * Header.CMapLength", "ColorMap");
+    assertParsedItem(iterator.next(), JBBPTokenType.STRUCT_START, null,
+        "(Header.ColorMapType & 1) * Header.CMapLength", "ColorMap");
     assertFalse(iterator.hasNext());
+  }
+
+  @Test
+  public void testParse_wrongEndOfStruct() {
+    try {
+      JBBPParser.prepare(
+          "byte[5] blob5; "
+              + "accountFlags {"
+              + " byte[32] address; "
+              + "}; "
+              + "byte[7] blob7;"
+      );
+    } catch (JBBPTokenizerException ex) {
+      assertEquals(49, ex.getPosition());
+      assertEquals("address; } ->;<-  byte[7]", ex.getErrorPart());
+    }
   }
 
   @Test

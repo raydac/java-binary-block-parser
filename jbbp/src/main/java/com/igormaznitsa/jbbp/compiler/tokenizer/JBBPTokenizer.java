@@ -23,7 +23,6 @@ import com.igormaznitsa.jbbp.model.JBBPFieldDouble;
 import com.igormaznitsa.jbbp.model.JBBPFieldFloat;
 import com.igormaznitsa.jbbp.model.JBBPFieldString;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -44,11 +43,14 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
    * The Pattern to break a string to tokens.
    * <b>WARNING! DO NOT UNESCAPE '}' AND '{' CHARS BECAUSE IT MAKES INCOMPATIBILITY WITH ANDROID!</b>
    */
-  private static final Pattern PATTERN = Pattern.compile("\\s*//.*$|\\s*(\\})|\\s*([^\\s;\\[\\]\\}\\{]+)?\\s*(?:\\[\\s*([^\\[\\]\\{\\};]+)\\s*\\])?\\s*([^\\d\\s;\\[\\]\\}\\{/][^\\s;\\[\\]\\}\\{/]*)?\\s*([\\{;])", Pattern.MULTILINE);
+  private static final Pattern PATTERN = Pattern.compile(
+      "\\s*//.*$|\\s*(\\})|\\s*([^\\s;\\[\\]\\}\\{]+)?\\s*(?:\\[\\s*([^\\[\\]\\{\\};]+)\\s*\\])?\\s*([^\\d\\s;\\[\\]\\}\\{/][^\\s;\\[\\]\\}\\{/]*)?\\s*([\\{;])",
+      Pattern.MULTILINE);
   /**
    * The Pattern to break field type to parameters.
    */
-  private static final Pattern FIELD_TYPE_BREAK_PATTERN = Pattern.compile("^([<>])?([\\w][\\w$]*)(?::((?:[-]?\\d+)|(?:\\(.+\\))))?$");
+  private static final Pattern FIELD_TYPE_BREAK_PATTERN =
+      Pattern.compile("^([<>])?([\\w][\\w$]*)(?::((?:[-]?\\d+)|(?:\\(.+\\))))?$");
   /**
    * Inside table to keep disabled names for fields.
    */
@@ -102,7 +104,8 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
    * @param str                      a string to be parsed, must not be null.
    * @param customFieldTypeProcessor custom field type processor, it can be null
    */
-  public JBBPTokenizer(final String str, final JBBPCustomFieldTypeProcessor customFieldTypeProcessor) {
+  public JBBPTokenizer(final String str,
+                       final JBBPCustomFieldTypeProcessor customFieldTypeProcessor) {
     JBBPUtils.assertNotNull(str, "String must not be null");
 
     if (customFieldTypeProcessor == null) {
@@ -145,9 +148,12 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
       final String groupName = this.matcher.group(4);
       final String groupEnder = this.matcher.group(5);
 
-      final String skipString = this.processingString.substring(Math.max(this.lastCharSubstringFound, 0), matcher.start()).trim();
+      final String skipString =
+          this.processingString.substring(Math.max(this.lastCharSubstringFound, 0), matcher.start())
+              .trim();
       if (skipString.length() != 0 && !skipString.startsWith("//")) {
-        this.detectedException = new JBBPTokenizerException(skipString, Math.max(this.lastCharSubstringFound, 0));
+        this.detectedException =
+            new JBBPTokenizerException(skipString, this.processingString, Math.max(this.lastCharSubstringFound, 0));
       } else {
         JBBPTokenType type = JBBPTokenType.ATOM;
 
@@ -157,15 +163,21 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
           // {
           type = JBBPTokenType.STRUCT_START;
           if (groupName != null) {
-            final int position = matcher.start() + groupWholeFound.length() - groupWholeFoundTrimmed.length();
-            this.detectedException = new JBBPTokenizerException("Wrong structure format, it must have only name (and may be array definition)", position);
+            final int position =
+                matcher.start() + groupWholeFound.length() - groupWholeFoundTrimmed.length();
+            this.detectedException = new JBBPTokenizerException(
+                "Wrong structure format, it must have only name (and may be array definition)",
+                this.processingString,
+                position);
             return;
           }
         } else if (groupCloseStruct != null) {
           type = JBBPTokenType.STRUCT_END;
         } else if (groupTypeOrName == null) {
-          final int position = matcher.start() + groupWholeFound.length() - groupWholeFoundTrimmed.length();
-          this.detectedException = new JBBPTokenizerException("Detected atomic field definition without type", position);
+          final int position =
+              matcher.start() + groupWholeFound.length() - groupWholeFoundTrimmed.length();
+          this.detectedException =
+              new JBBPTokenizerException("Detected atomic field definition without type", this.processingString, position);
           return;
         }
 
@@ -213,17 +225,23 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
               } else if ("<".equals(groupTypeByteOrder)) {
                 byteOrder = JBBPByteOrder.LITTLE_ENDIAN;
               } else {
-                throw new Error("Illegal byte order char, unexpected error, contact developer please [" + fieldType + ']');
+                throw new Error(
+                    "Illegal byte order char, unexpected error, contact developer please ["
+                        + fieldType + ']');
               }
             } else {
               byteOrder = JBBPByteOrder.BIG_ENDIAN;
             }
 
-            parsedType = new JBBPFieldTypeParameterContainer(byteOrder, groupTypeName, groupTypeExtraField);
+            parsedType =
+                new JBBPFieldTypeParameterContainer(byteOrder, groupTypeName, groupTypeExtraField);
           }
 
           if (wrongFormat) {
-            this.detectedException = new JBBPTokenizerException("Wrong format of type definition [" + fieldType + ']', position);
+            this.detectedException =
+                new JBBPTokenizerException("Wrong format of type definition [" + fieldType + ']',
+                    this.processingString,
+                    position);
             return;
           }
         }
@@ -233,11 +251,14 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
       }
     } else {
       if (this.lastCharSubstringFound < 0) {
-        this.detectedException = new JBBPTokenizerException("Wrong format of whole string", 0);
+        this.detectedException = new JBBPTokenizerException("Wrong format of whole string", this.processingString, 0);
       } else {
         final String restOfString = this.processingString.substring(this.lastCharSubstringFound);
         if (restOfString.trim().length() != 0) {
-          throw new JBBPTokenizerException("Can't recognize a part of script [" + restOfString + ']', this.lastCharSubstringFound);
+          throw new JBBPTokenizerException(
+              "Can't recognize a part of script [" + restOfString + ']',
+              this.processingString,
+              this.lastCharSubstringFound);
         }
       }
       this.nextItem = null;
@@ -256,7 +277,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
     if (name != null) {
       final String normalized = JBBPUtils.normalizeFieldNameOrPath(name);
       if (normalized.indexOf('.') >= 0) {
-        return new JBBPTokenizerException("Field name must not contain '.' char", position);
+        return new JBBPTokenizerException("Field name must not contain '.' char", this.processingString, position);
       }
 
       if (normalized.length() > 0) {
@@ -265,13 +286,13 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
             || normalized.startsWith("$")
             || Character.isDigit(normalized.charAt(0))
         ) {
-          return new JBBPTokenizerException("'" + name + "' can't be field name", position);
+          return new JBBPTokenizerException("'" + name + "' can't be field name", this.processingString, position);
         }
 
         for (int i = 1; i < normalized.length(); i++) {
           final char chr = normalized.charAt(i);
           if (chr != '_' && !Character.isLetterOrDigit(chr)) {
-            return new JBBPTokenizerException("Char '" + chr + "' not allowed in name", position);
+            return new JBBPTokenizerException("Char '" + chr + "' not allowed in name", this.processingString, position);
           }
         }
       }
