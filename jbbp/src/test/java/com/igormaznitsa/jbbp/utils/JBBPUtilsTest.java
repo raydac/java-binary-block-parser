@@ -588,7 +588,7 @@ public class JBBPUtilsTest {
   }
 
   @Test
-  public void testTraceData() throws Exception {
+  public void testTraceData_Defaults() throws Exception {
     final byte[] testData = new byte[211];
     for (int i = 0; i < 111; i++) {
       testData[i] = (byte) i;
@@ -615,6 +615,68 @@ public class JBBPUtilsTest {
             "000000A0 00 00 00 00 | 00 00 00 00 | 00 00 00 00 | 00 00 00 00 | 00 00 00 00 | 00 00 00 00 | 00 00 00 00 | 00 00 00 00 ................................\n"
             +
             "000000C0 00 00 00 00 | 00 00 00 00 | 00 00 00 00 | 00 00 00 00 | 00 00 00 -- | -- -- -- -- | -- -- -- -- | -- -- -- -- ................................\n",
+        asString);
+  }
+
+  @Test
+  public void testTraceData_CustomWithChars() throws Exception {
+    final byte[] testData = new byte[211];
+    for (int i = 0; i < 111; i++) {
+      testData[i] = (byte) i;
+    }
+    final InputStream stream = new ByteArrayInputStream(testData);
+    final ByteArrayOutputStream outArray = new ByteArrayOutputStream();
+    final PrintStream out = new PrintStream(outArray, true, "UTF-8");
+    JBBPUtils.traceData(stream, 8, 4, "#", "_", "$", "Z", '&', true, out);
+    out.close();
+    final String asString =
+        new String(outArray.toByteArray(), StandardCharsets.UTF_8).replace("\r\n", "\n")
+            .replace("\r", "\n");
+    assertEquals(
+        "00000000#00_01_02_03_04_05_06_07$08_09_0A_0B_0C_0D_0E_0F$10_11_12_13_14_15_16_17$18_19_1A_1B_1C_1D_1E_1FZ&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\n"
+            +
+            "00000020#20_21_22_23_24_25_26_27$28_29_2A_2B_2C_2D_2E_2F$30_31_32_33_34_35_36_37$38_39_3A_3B_3C_3D_3E_3FZ !\"#$%&'()*+,-./0123456789:;<=>?\n"
+            +
+            "00000040#40_41_42_43_44_45_46_47$48_49_4A_4B_4C_4D_4E_4F$50_51_52_53_54_55_56_57$58_59_5A_5B_5C_5D_5E_5FZ@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_\n"
+            +
+            "00000060#60_61_62_63_64_65_66_67$68_69_6A_6B_6C_6D_6E_00$00_00_00_00_00_00_00_00$00_00_00_00_00_00_00_00Z`abcdefghijklmn&&&&&&&&&&&&&&&&&\n"
+            +
+            "00000080#00_00_00_00_00_00_00_00$00_00_00_00_00_00_00_00$00_00_00_00_00_00_00_00$00_00_00_00_00_00_00_00Z&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\n"
+            +
+            "000000A0#00_00_00_00_00_00_00_00$00_00_00_00_00_00_00_00$00_00_00_00_00_00_00_00$00_00_00_00_00_00_00_00Z&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\n"
+            +
+            "000000C0#00_00_00_00_00_00_00_00$00_00_00_00_00_00_00_00$00_00_00_--_--_--_--_--$--_--_--_--_--_--_--_--Z&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\n",
+        asString);
+  }
+
+  @Test
+  public void testTraceData_CustomNoChars() throws Exception {
+    final byte[] testData = new byte[211];
+    for (int i = 0; i < 111; i++) {
+      testData[i] = (byte) i;
+    }
+    final InputStream stream = new ByteArrayInputStream(testData);
+    final ByteArrayOutputStream outArray = new ByteArrayOutputStream();
+    final PrintStream out = new PrintStream(outArray, true, "UTF-8");
+    JBBPUtils.traceData(stream, 8, 4, "#", "_", "$", "Z", '&', false, out);
+    out.close();
+    final String asString =
+        new String(outArray.toByteArray(), StandardCharsets.UTF_8).replace("\r\n", "\n")
+            .replace("\r", "\n");
+    assertEquals(
+        "00000000#00_01_02_03_04_05_06_07$08_09_0A_0B_0C_0D_0E_0F$10_11_12_13_14_15_16_17$18_19_1A_1B_1C_1D_1E_1F\n"
+            +
+            "00000020#20_21_22_23_24_25_26_27$28_29_2A_2B_2C_2D_2E_2F$30_31_32_33_34_35_36_37$38_39_3A_3B_3C_3D_3E_3F\n"
+            +
+            "00000040#40_41_42_43_44_45_46_47$48_49_4A_4B_4C_4D_4E_4F$50_51_52_53_54_55_56_57$58_59_5A_5B_5C_5D_5E_5F\n"
+            +
+            "00000060#60_61_62_63_64_65_66_67$68_69_6A_6B_6C_6D_6E_00$00_00_00_00_00_00_00_00$00_00_00_00_00_00_00_00\n"
+            +
+            "00000080#00_00_00_00_00_00_00_00$00_00_00_00_00_00_00_00$00_00_00_00_00_00_00_00$00_00_00_00_00_00_00_00\n"
+            +
+            "000000A0#00_00_00_00_00_00_00_00$00_00_00_00_00_00_00_00$00_00_00_00_00_00_00_00$00_00_00_00_00_00_00_00\n"
+            +
+            "000000C0#00_00_00_00_00_00_00_00$00_00_00_00_00_00_00_00$00_00_00_--_--_--_--_--$--_--_--_--_--_--_--_--\n",
         asString);
   }
 }
