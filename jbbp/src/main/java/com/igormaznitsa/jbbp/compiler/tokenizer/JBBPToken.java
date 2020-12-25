@@ -17,7 +17,6 @@
 package com.igormaznitsa.jbbp.compiler.tokenizer;
 
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-
 import java.io.Serializable;
 
 /**
@@ -59,7 +58,9 @@ public final class JBBPToken implements Serializable {
    * @param arrayLength         the string value of array size, it can be null
    * @param fieldName           the field name, it can be null
    */
-  JBBPToken(final JBBPTokenType type, final int position, final JBBPFieldTypeParameterContainer fieldTypeParameters, final String arrayLength, final String fieldName) {
+  JBBPToken(final JBBPTokenType type, final int position,
+            final JBBPFieldTypeParameterContainer fieldTypeParameters, final String arrayLength,
+            final String fieldName) {
     JBBPUtils.assertNotNull(type, "Type must not be null");
     this.type = type;
     this.position = position;

@@ -1,11 +1,10 @@
 package com.igormaznitsa.jbbp.plugin.gradle;
 
 import com.igormaznitsa.jbbp.plugin.common.converters.JBBPScriptTranslator;
-import org.gradle.api.GradleException;
-
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
+import javax.annotation.Nonnull;
+import org.gradle.api.GradleException;
 
 /**
  * Task allows to delete generated files.

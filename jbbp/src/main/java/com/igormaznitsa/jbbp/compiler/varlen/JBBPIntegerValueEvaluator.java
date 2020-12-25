@@ -20,7 +20,6 @@ import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.compiler.conversion.ExpressionEvaluatorVisitor;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
-
 import java.io.Serializable;
 
 /**
@@ -38,7 +37,8 @@ public interface JBBPIntegerValueEvaluator extends Serializable {
    * @param fieldMap                   a named numeric field map
    * @return calculated value as integer
    */
-  int eval(JBBPBitInputStream inStream, int currentCompiledBlockOffset, JBBPCompiledBlock block, JBBPNamedNumericFieldMap fieldMap);
+  int eval(JBBPBitInputStream inStream, int currentCompiledBlockOffset, JBBPCompiledBlock block,
+           JBBPNamedNumericFieldMap fieldMap);
 
   /**
    * Visit all expression items
@@ -48,5 +48,6 @@ public interface JBBPIntegerValueEvaluator extends Serializable {
    * @param visitor                    the visitor to visit items, must not be null
    * @since 1.3.0
    */
-  void visitItems(JBBPCompiledBlock block, int currentCompiledBlockOffset, ExpressionEvaluatorVisitor visitor);
+  void visitItems(JBBPCompiledBlock block, int currentCompiledBlockOffset,
+                  ExpressionEvaluatorVisitor visitor);
 }

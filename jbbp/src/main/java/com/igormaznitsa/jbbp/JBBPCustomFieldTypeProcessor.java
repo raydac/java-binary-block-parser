@@ -21,7 +21,6 @@ import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
-
 import java.io.IOException;
 
 /**
@@ -46,7 +45,8 @@ public interface JBBPCustomFieldTypeProcessor {
    * @param isArray   flag shows that the field describes an array
    * @return true if such configuration allowed, false otherwise
    */
-  boolean isAllowed(JBBPFieldTypeParameterContainer fieldType, String fieldName, int extraData, boolean isArray);
+  boolean isAllowed(JBBPFieldTypeParameterContainer fieldType, String fieldName, int extraData,
+                    boolean isArray);
 
   /**
    * Read custom field from stream and return the data as a JBBP field.
@@ -62,5 +62,10 @@ public interface JBBPCustomFieldTypeProcessor {
    * @return parsed data as JBBP field, must not be null
    * @throws IOException it can be thrown for transport errors
    */
-  JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer customTypeFieldInfo, JBBPNamedFieldInfo fieldName, int extraData, boolean readWholeStream, int arrayLength) throws IOException;
+  JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder,
+                                        int parserFlags,
+                                        JBBPFieldTypeParameterContainer customTypeFieldInfo,
+                                        JBBPNamedFieldInfo fieldName, int extraData,
+                                        boolean readWholeStream, int arrayLength)
+      throws IOException;
 }

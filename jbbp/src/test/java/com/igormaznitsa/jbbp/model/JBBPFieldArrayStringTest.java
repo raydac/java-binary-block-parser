@@ -1,15 +1,19 @@
 package com.igormaznitsa.jbbp.model;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
+
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import java.io.Serializable;
 import org.junit.jupiter.api.Test;
 
-import java.io.Serializable;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 public class JBBPFieldArrayStringTest {
-  private final String [] array = new String[] {"012",null,"ABC"};
-  private final JBBPFieldArrayString test = new JBBPFieldArrayString(new JBBPNamedFieldInfo("test.field", "field", 999), array);
+  private final String[] array = new String[] {"012", null, "ABC"};
+  private final JBBPFieldArrayString test =
+      new JBBPFieldArrayString(new JBBPNamedFieldInfo("test.field", "field", 999), array);
 
   @Test
   public void testNameAndOffset() {
@@ -26,12 +30,12 @@ public class JBBPFieldArrayStringTest {
 
   @Test
   public void testGetArray() {
-    assertArrayEquals(new String[] {"012",null,"ABC"}, test.getArray());
+    assertArrayEquals(new String[] {"012", null, "ABC"}, test.getArray());
   }
 
   @Test
   public void testGetElementAt() {
-    final String[] etalon = new String[] {"012",null,"ABC"};
+    final String[] etalon = new String[] {"012", null, "ABC"};
     final Serializable payload = new FakePayload();
     test.setPayload(payload);
     for (int i = 0; i < etalon.length; i++) {
@@ -43,7 +47,7 @@ public class JBBPFieldArrayStringTest {
 
   @Test
   public void testIterable() {
-    final String[] etalon = new String[] {"012",null,"ABC"};
+    final String[] etalon = new String[] {"012", null, "ABC"};
     int index = 0;
     for (final JBBPFieldString f : test) {
       assertEquals(etalon[index++], f.getAsString());

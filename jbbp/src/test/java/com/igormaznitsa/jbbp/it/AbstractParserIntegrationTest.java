@@ -16,31 +16,32 @@
 
 package com.igormaznitsa.jbbp.it;
 
-import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
-import org.apache.commons.io.IOUtils;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+
+import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.apache.commons.io.IOUtils;
 
 public abstract class AbstractParserIntegrationTest {
+
+  public static String normalizeEol(final String text) {
+    return text
+        .replace("\r\n", "\n")
+        .replace("\n\r", "\n")
+        .replace("\r", "");
+  }
 
   public void assertFileContent(final String fileName, final String content) throws Exception {
     final String fileText;
 
-    try(InputStream inStream = this.getResourceAsInputStream(fileName)) {
+    try (InputStream inStream = this.getResourceAsInputStream(fileName)) {
       fileText = IOUtils.toString(inStream, StandardCharsets.UTF_8);
     }
 
     assertEquals(normalizeEol(fileText), normalizeEol(content), "File content must be equals");
-  }
-
-  public static String normalizeEol(final String text) {
-    return text
-            .replace("\r\n","\n")
-            .replace("\n\r","\n")
-            .replace("\r","");
   }
 
   public InputStream getResourceAsInputStream(final String resourceName) {
@@ -52,8 +53,9 @@ public abstract class AbstractParserIntegrationTest {
   }
 
   public void assertResource(final String resourceName, final byte[] content) throws Exception {
-    try(InputStream in = this.getResourceAsInputStream(resourceName)) {
-      assertArrayEquals(new JBBPBitInputStream(in).readByteArray(-1), content, "Content of '" + resourceName + "'");
+    try (InputStream in = this.getResourceAsInputStream(resourceName)) {
+      assertArrayEquals(new JBBPBitInputStream(in).readByteArray(-1), content,
+          "Content of '" + resourceName + "'");
     }
   }
 }

@@ -40,12 +40,14 @@ final class IntConstValueEvaluator implements JBBPIntegerValueEvaluator {
   }
 
   @Override
-  public int eval(final JBBPBitInputStream inStream, final int currentCompiledBlockOffset, final JBBPCompiledBlock block, final JBBPNamedNumericFieldMap fieldMap) {
+  public int eval(final JBBPBitInputStream inStream, final int currentCompiledBlockOffset,
+                  final JBBPCompiledBlock block, final JBBPNamedNumericFieldMap fieldMap) {
     return this.value;
   }
 
   @Override
-  public void visitItems(JBBPCompiledBlock block, int currentCompiledBlockOffset, ExpressionEvaluatorVisitor visitor) {
+  public void visitItems(JBBPCompiledBlock block, int currentCompiledBlockOffset,
+                         ExpressionEvaluatorVisitor visitor) {
     visitor.visitStart();
     visitor.visitConstant(this.value);
     visitor.visitEnd();

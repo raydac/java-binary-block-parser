@@ -32,5 +32,6 @@ public interface JBBPExternalValueProvider {
    * @param compiledBlock   the compiled block for the script to provide extra information
    * @return the size of an array
    */
-  int provideArraySize(final String fieldName, final JBBPNamedNumericFieldMap numericFieldMap, final JBBPCompiledBlock compiledBlock);
+  int provideArraySize(final String fieldName, final JBBPNamedNumericFieldMap numericFieldMap,
+                       final JBBPCompiledBlock compiledBlock);
 }

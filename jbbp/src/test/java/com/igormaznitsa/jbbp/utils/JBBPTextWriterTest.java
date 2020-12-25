@@ -43,13 +43,15 @@ import org.junit.jupiter.api.Test;
 public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
 
   private static JBBPTextWriter makeWriter() {
-    return new JBBPTextWriter(new StringWriter(), JBBPByteOrder.BIG_ENDIAN, "\n", 16, "0x", ".", ";", "~", ",");
+    return new JBBPTextWriter(new StringWriter(), JBBPByteOrder.BIG_ENDIAN, "\n", 16, "0x", ".",
+        ";", "~", ",");
   }
 
   @Test
   public void testMakeStrWriter() throws Exception {
-    final String generated = JBBPTextWriter.makeStrWriter().Int(12).Byte(34).BR().Comment("Huzzaaa").Close().toString();
-    assertEquals(String.format(".0x0000000C,0x22%n;Huzzaaa"),generated);
+    final String generated =
+        JBBPTextWriter.makeStrWriter().Int(12).Byte(34).BR().Comment("Huzzaaa").Close().toString();
+    assertEquals(String.format(".0x0000000C,0x22%n;Huzzaaa"), generated);
   }
 
   @Test
@@ -87,47 +89,57 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
 
   @Test
   public void testMultilineCommentAfterValue() throws Exception {
-    assertEquals(".0x12345678;Hello\n           ;World", makeWriter().Int(0x12345678).Comment("Hello\nWorld").Close().toString());
+    assertEquals(".0x12345678;Hello\n           ;World",
+        makeWriter().Int(0x12345678).Comment("Hello\nWorld").Close().toString());
   }
 
   @Test
   public void testCommentAndValue() throws Exception {
-    assertEquals(";Hello World\n.0x01,0x00000001,0x0000000000000001", makeWriter().Comment("Hello World").Byte(1).Int(1).Long(1).Close().toString());
+    assertEquals(";Hello World\n.0x01,0x00000001,0x0000000000000001",
+        makeWriter().Comment("Hello World").Byte(1).Int(1).Long(1).Close().toString());
   }
 
   @Test
   public void testComment_DisableEnable() throws Exception {
-    assertEquals(";Hrum\n.0x01,0x00000001,0x0000000000000001", makeWriter().DisableComments().Comment("Hello World").EnableComments().Comment("Hrum").Byte(1).Int(1).Long(1).Close().toString());
+    assertEquals(";Hrum\n.0x01,0x00000001,0x0000000000000001",
+        makeWriter().DisableComments().Comment("Hello World").EnableComments().Comment("Hrum")
+            .Byte(1).Int(1).Long(1).Close().toString());
   }
 
   @Test
   public void testDouble_Max_radix10() throws Exception {
-    assertEquals(".1.7976931348623157E308", makeWriter().SetValuePrefix("").Radix(10).Double(Double.MAX_VALUE).Close().toString());
+    assertEquals(".1.7976931348623157E308",
+        makeWriter().SetValuePrefix("").Radix(10).Double(Double.MAX_VALUE).Close().toString());
   }
 
   @Test
   public void testDouble_Max_radix16() throws Exception {
-    assertEquals(".1.FFFFFFFFFFFFFP1023", makeWriter().SetValuePrefix("").Radix(16).Double(Double.MAX_VALUE).Close().toString());
+    assertEquals(".1.FFFFFFFFFFFFFP1023",
+        makeWriter().SetValuePrefix("").Radix(16).Double(Double.MAX_VALUE).Close().toString());
   }
 
   @Test
   public void testFloat_Max_radix10() throws Exception {
-    assertEquals(".3.4028234663852886E38", makeWriter().SetValuePrefix("").Radix(10).Float(Float.MAX_VALUE).Close().toString());
+    assertEquals(".3.4028234663852886E38",
+        makeWriter().SetValuePrefix("").Radix(10).Float(Float.MAX_VALUE).Close().toString());
   }
 
   @Test
   public void testFloat_Min_radix10() throws Exception {
-    assertEquals(".-1.401298464324817E-45", makeWriter().SetValuePrefix("").Radix(10).Float(-Float.MIN_VALUE).Close().toString());
+    assertEquals(".-1.401298464324817E-45",
+        makeWriter().SetValuePrefix("").Radix(10).Float(-Float.MIN_VALUE).Close().toString());
   }
 
   @Test
   public void testFloat_Max_radix16() throws Exception {
-    assertEquals(".1.FFFFFEP127", makeWriter().SetValuePrefix("").Radix(16).Float(Float.MAX_VALUE).Close().toString());
+    assertEquals(".1.FFFFFEP127",
+        makeWriter().SetValuePrefix("").Radix(16).Float(Float.MAX_VALUE).Close().toString());
   }
 
   @Test
   public void testFloat_Min_radix16() throws Exception {
-    assertEquals(".-1.0P-149", makeWriter().SetValuePrefix("").Radix(16).Float(-Float.MIN_VALUE).Close().toString());
+    assertEquals(".-1.0P-149",
+        makeWriter().SetValuePrefix("").Radix(16).Float(-Float.MIN_VALUE).Close().toString());
   }
 
   @Test
@@ -175,7 +187,8 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
     final JBBPTextWriter writer = makeWriter();
     writer.AddExtras(new JBBPTextWriterExtraAdapter() {
       @Override
-      public String doConvertObjToStr(JBBPTextWriter context, int id, Object obj) throws IOException {
+      public String doConvertObjToStr(JBBPTextWriter context, int id, Object obj)
+          throws IOException {
         return null;
       }
     }).Obj(1, new Object());
@@ -216,7 +229,8 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
     final JBBPTextWriter writer = makeWriter();
     writer.SetMaxValuesPerLine(16).AddExtras(new JBBPTextWriterExtraAdapter() {
       @Override
-      public String doConvertObjToStr(final JBBPTextWriter context, final int id, final Object obj) throws IOException {
+      public String doConvertObjToStr(final JBBPTextWriter context, final int id, final Object obj)
+          throws IOException {
         context
             .BR()
             .Comment("Complex object")
@@ -248,34 +262,40 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
     final AtomicInteger bytePrintCounter = new AtomicInteger(0);
     final AtomicInteger closeCounter = new AtomicInteger(0);
 
-    writer.SetMaxValuesPerLine(32).SetCommentPrefix(" // ").AddExtras(new JBBPTextWriterExtraAdapter() {
-      @Override
-      public void onClose(final JBBPTextWriter context) throws IOException {
-        context.Comment("The Last Line");
-        closeCounter.incrementAndGet();
-      }
+    writer.SetMaxValuesPerLine(32).SetCommentPrefix(" // ")
+        .AddExtras(new JBBPTextWriterExtraAdapter() {
+          @Override
+          public void onClose(final JBBPTextWriter context) throws IOException {
+            context.Comment("The Last Line");
+            closeCounter.incrementAndGet();
+          }
 
-      @Override
-      public void onNewLine(final JBBPTextWriter context, final int lineNumber) throws IOException {
-        newLineCounter.incrementAndGet();
-      }
+          @Override
+          public void onNewLine(final JBBPTextWriter context, final int lineNumber)
+              throws IOException {
+            newLineCounter.incrementAndGet();
+          }
 
-      @Override
-      public void onBeforeFirstValue(final JBBPTextWriter context) throws IOException {
-        context.write(JBBPUtils.ensureMinTextLength(Integer.toString(context.getLine()), 8, '0', 0) + ' ');
-      }
+          @Override
+          public void onBeforeFirstValue(final JBBPTextWriter context) throws IOException {
+            context.write(
+                JBBPUtils.ensureMinTextLength(Integer.toString(context.getLine()), 8, '0', 0) +
+                    ' ');
+          }
 
-      @Override
-      public String doConvertByteToStr(final JBBPTextWriter context, final int value) throws IOException {
-        bytePrintCounter.incrementAndGet();
-        return null;
-      }
+          @Override
+          public String doConvertByteToStr(final JBBPTextWriter context, final int value)
+              throws IOException {
+            bytePrintCounter.incrementAndGet();
+            return null;
+          }
 
-      @Override
-      public void onReachedMaxValueNumberForLine(final JBBPTextWriter context) throws IOException {
-        context.Comment("End of line");
-      }
-    });
+          @Override
+          public void onReachedMaxValueNumberForLine(final JBBPTextWriter context)
+              throws IOException {
+            context.Comment("End of line");
+          }
+        });
 
     for (int i = 0; i < 130; i++) {
       writer.Byte(i);
@@ -317,7 +337,8 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
     writer.AddExtras(new JBBPTextWriterExtraAdapter() {
 
       @Override
-      public String doConvertObjToStr(JBBPTextWriter context, int id, Object obj) throws IOException {
+      public String doConvertObjToStr(JBBPTextWriter context, int id, Object obj)
+          throws IOException {
         assertEquals(1234, id);
         assertNotNull(obj);
         assertSame(writer, context);
@@ -325,7 +346,9 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
       }
     });
 
-    assertEquals(".0xHello,0xWorld,0xHurraaa", writer.Obj(1234, new Object[] {1, 2, "Hello", "World", "Hurraaa", 3}, 2, 3).Close().toString());
+    assertEquals(".0xHello,0xWorld,0xHurraaa",
+        writer.Obj(1234, new Object[] {1, 2, "Hello", "World", "Hurraaa", 3}, 2, 3).Close()
+            .toString());
   }
 
   @Test
@@ -335,7 +358,8 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
     writer.SetValuePrefix("").AddExtras(new JBBPTextWriterExtraAdapter() {
 
       @Override
-      public String doConvertObjToStr(JBBPTextWriter context, int id, Object obj) throws IOException {
+      public String doConvertObjToStr(JBBPTextWriter context, int id, Object obj)
+          throws IOException {
         return obj.toString();
       }
 
@@ -495,12 +519,15 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
     writer.Radix(12);
     assertEquals(12, writer.getRadix());
     writer.SetValuePrefix("").Radix(16).Int(0x12345).Radix(2).Int(0x12345).Radix(10).Int(0x12345);
-    assertEquals(".00012345,00000000000000010010001101000101,0000074565", writer.Close().toString());
+    assertEquals(".00012345,00000000000000010010001101000101,0000074565",
+        writer.Close().toString());
   }
 
   @Test
   public void testGetLineSeparator() throws Exception {
-    assertEquals("hello", new JBBPTextWriter(makeWriter(), JBBPByteOrder.BIG_ENDIAN, "hello", 11, "", "", "", "", "").getLineSeparator());
+    assertEquals("hello",
+        new JBBPTextWriter(makeWriter(), JBBPByteOrder.BIG_ENDIAN, "hello", 11, "", "", "", "", "")
+            .getLineSeparator());
   }
 
   @Test
@@ -539,7 +566,8 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
 
   @Test
   public void testStr() throws Exception {
-    assertEquals(".0x01,Hello,World,<NULL>,0x02", makeWriter().Byte(1).Str("Hello", "World", null).Byte(2).Close().toString());
+    assertEquals(".0x01,Hello,World,<NULL>,0x02",
+        makeWriter().Byte(1).Str("Hello", "World", null).Byte(2).Close().toString());
   }
 
   @Test
@@ -615,7 +643,8 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
 
   @Test
   public void testSetValuePrefixPostfix() throws Exception {
-    assertEquals(".0x01,$02^", makeWriter().Byte(1).SetValuePrefix("$").SetValuePostfix("^").Byte(2).Close().toString());
+    assertEquals(".0x01,$02^",
+        makeWriter().Byte(1).SetValuePrefix("$").SetValuePostfix("^").Byte(2).Close().toString());
   }
 
   @Test
@@ -640,7 +669,8 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
     final JBBPTextWriter writer = makeWriter();
     writer.AddExtras(new JBBPTextWriterExtraAdapter() {
       @Override
-      public String doConvertObjToStr(JBBPTextWriter context, int id, Object obj) throws IOException {
+      public String doConvertObjToStr(JBBPTextWriter context, int id, Object obj)
+          throws IOException {
         assertEquals(234, id);
         return "obj" + obj;
       }
@@ -677,9 +707,11 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
 
     });
 
-    writer.SetValuePrefix("").Byte(1).Short(2).Int(3).Long(4).Obj(234, "Str").Float(Float.MIN_VALUE).Double(Double.MAX_VALUE);
+    writer.SetValuePrefix("").Byte(1).Short(2).Int(3).Long(4).Obj(234, "Str").Float(Float.MIN_VALUE)
+        .Double(Double.MAX_VALUE);
 
-    assertEquals(".byte1,short2,int3,long4,objStr,float1.4E-45,double1.7976931348623157E308", writer.Close().toString());
+    assertEquals(".byte1,short2,int3,long4,objStr,float1.4E-45,double1.7976931348623157E308",
+        writer.Close().toString());
   }
 
   @Test
@@ -756,7 +788,9 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
       }
 
       final Png png = pngParser.parse(pngStream).mapTo(new Png(), aClass -> {
-        if (aClass == Chunk.class) return new Chunk();
+        if (aClass == Chunk.class) {
+          return new Chunk();
+        }
         return null;
       });
 
@@ -775,7 +809,8 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
     final JBBPTextWriter writer = makeWriter();
 
     final InputStream pngStream = getResourceAsInputStream("picture.png");
-    final JBBPParser parser = JBBPParser.prepare("floatj f; doublej d; floatj [2] fa; doublej [2] da;");
+    final JBBPParser parser =
+        JBBPParser.prepare("floatj f; doublej d; floatj [2] fa; doublej [2] da;");
 
     class Klazz {
 
@@ -816,7 +851,8 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
               + "}"
       );
 
-      final String text = makeWriter().SetMaxValuesPerLine(16).Bin(pngParser.parse(pngStream)).Close().toString();
+      final String text =
+          makeWriter().SetMaxValuesPerLine(16).Bin(pngParser.parse(pngStream)).Close().toString();
       System.out.println(text);
       assertFileContent("testwriterbin2b.txt", text);
     } finally {
@@ -826,10 +862,16 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
 
   @Test
   public void testBin_AllEasyTypes_NonMappedRawStruct() throws Exception {
-    final JBBPParser parser = JBBPParser.prepare("bit:2 a1; bit:6 a2; byte a; ubyte b; short c; ushort d; int e; long f; bool g;");
-    final byte[] testArray = new byte[] {(byte) 0xDE, (byte) 0x12, (byte) 0xFE, (byte) 0x23, (byte) 0x11, (byte) 0x45, (byte) 0xDA, (byte) 0x82, (byte) 0xA0, (byte) 0x33, (byte) 0x7F, (byte) 0x99, (byte) 0x04, (byte) 0x10, (byte) 0x45, (byte) 0xBD, (byte) 0xCA, (byte) 0xFE, (byte) 0x12, (byte) 0x11, (byte) 0xBA, (byte) 0xBE};
+    final JBBPParser parser = JBBPParser
+        .prepare("bit:2 a1; bit:6 a2; byte a; ubyte b; short c; ushort d; int e; long f; bool g;");
+    final byte[] testArray =
+        new byte[] {(byte) 0xDE, (byte) 0x12, (byte) 0xFE, (byte) 0x23, (byte) 0x11, (byte) 0x45,
+            (byte) 0xDA, (byte) 0x82, (byte) 0xA0, (byte) 0x33, (byte) 0x7F, (byte) 0x99,
+            (byte) 0x04, (byte) 0x10, (byte) 0x45, (byte) 0xBD, (byte) 0xCA, (byte) 0xFE,
+            (byte) 0x12, (byte) 0x11, (byte) 0xBA, (byte) 0xBE};
 
-    final String text = makeWriter().SetMaxValuesPerLine(16).Bin(parser.parse(testArray)).Close().toString();
+    final String text =
+        makeWriter().SetMaxValuesPerLine(16).Bin(parser.parse(testArray)).Close().toString();
     System.out.println(text);
     assertFileContent("txtwrtrjbbpobj1.txt", text);
   }
@@ -837,19 +879,23 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
   @Test
   public void testBin_ValField() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("val:123 a;");
-    final String text = makeWriter().SetMaxValuesPerLine(16).Bin(parser.parse(new byte[0])).Close().toString();
-    assertEquals("~--------------------------------------------------------------------------------\n" +
-        "; Start {} \n" +
+    final String text =
+        makeWriter().SetMaxValuesPerLine(16).Bin(parser.parse(new byte[0])).Close().toString();
+    assertEquals(
         "~--------------------------------------------------------------------------------\n" +
-        "    .0x0000007B; int a\n" +
-        "~--------------------------------------------------------------------------------\n" +
-        "; End {} \n" +
-        "~--------------------------------------------------------------------------------\n", text);
+            "; Start {} \n" +
+            "~--------------------------------------------------------------------------------\n" +
+            "    .0x0000007B; int a\n" +
+            "~--------------------------------------------------------------------------------\n" +
+            "; End {} \n" +
+            "~--------------------------------------------------------------------------------\n",
+        text);
   }
 
   @Test
   public void testBin_AllEasyTypes_Anonymous_NonMappedRawStruct() throws Exception {
-    final JBBPParser parser = JBBPParser.prepare("bit:2; bit:6; byte; ubyte; short; ushort; int; long; bool; stringj;");
+    final JBBPParser parser =
+        JBBPParser.prepare("bit:2; bit:6; byte; ubyte; short; ushort; int; long; bool; stringj;");
     final byte[] testArray = new byte[] {
         (byte) 0xDE, (byte) 0x12, (byte) 0xFE, (byte) 0x23, (byte) 0x11,
         (byte) 0x45, (byte) 0xDA, (byte) 0x82, (byte) 0xA0, (byte) 0x33,
@@ -858,7 +904,8 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
         3, 65, 66, 67
     };
 
-    final String text = makeWriter().SetMaxValuesPerLine(16).Bin(parser.parse(testArray)).Close().toString();
+    final String text =
+        makeWriter().SetMaxValuesPerLine(16).Bin(parser.parse(testArray)).Close().toString();
     System.out.println(text);
     assertFileContent("txtwrtrjbbpobj2.txt", text);
   }
@@ -872,7 +919,8 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
         3, 71, 72, 73
     };
 
-    final String text = makeWriter().SetMaxValuesPerLine(16).Bin(parser.parse(testArray)).Close().toString();
+    final String text =
+        makeWriter().SetMaxValuesPerLine(16).Bin(parser.parse(testArray)).Close().toString();
     System.out.println(text);
     assertFileContent("txtwrtrjbbpobj3.txt", text);
   }
@@ -880,9 +928,14 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
   @Test
   public void testBin_BooleanArray_NonMappedRawStruct() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("bool [_] array;");
-    final byte[] testArray = new byte[] {(byte) 0xDE, (byte) 0x00, (byte) 0xFE, (byte) 0x00, (byte) 0x11, (byte) 0x45, (byte) 0xDA, (byte) 0x82, (byte) 0xA0, (byte) 0x33, (byte) 0x7F, (byte) 0x99, (byte) 0x04, (byte) 0x10, (byte) 0x45, (byte) 0xBD, (byte) 0xCA, (byte) 0xFE, (byte) 0x12, (byte) 0x11, (byte) 0x00, (byte) 0xBE};
+    final byte[] testArray =
+        new byte[] {(byte) 0xDE, (byte) 0x00, (byte) 0xFE, (byte) 0x00, (byte) 0x11, (byte) 0x45,
+            (byte) 0xDA, (byte) 0x82, (byte) 0xA0, (byte) 0x33, (byte) 0x7F, (byte) 0x99,
+            (byte) 0x04, (byte) 0x10, (byte) 0x45, (byte) 0xBD, (byte) 0xCA, (byte) 0xFE,
+            (byte) 0x12, (byte) 0x11, (byte) 0x00, (byte) 0xBE};
 
-    final String text = makeWriter().SetMaxValuesPerLine(16).Bin(parser.parse(testArray)).Close().toString();
+    final String text =
+        makeWriter().SetMaxValuesPerLine(16).Bin(parser.parse(testArray)).Close().toString();
     System.out.println(text);
     assertFileContent("boolarrayraw.txt", text);
   }
@@ -896,7 +949,8 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
       String str2;
     }
 
-    final Parsed parsed = JBBPParser.prepare("byte [5] str1; ubyte [4] str2;").parse(new byte[] {49, 50, 51, 52, 53, 54, 55, 56, 57}).mapTo(new Parsed());
+    final Parsed parsed = JBBPParser.prepare("byte [5] str1; ubyte [4] str2;")
+        .parse(new byte[] {49, 50, 51, 52, 53, 54, 55, 56, 57}).mapTo(new Parsed());
     final String text = makeWriter().Bin(parsed).Close().toString();
 
     System.out.println(text);
@@ -919,19 +973,23 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
     writer.AddExtras(new JBBPTextWriterExtraAdapter() {
 
       @Override
-      public String doConvertObjToStr(JBBPTextWriter context, int id, Object obj) throws IOException {
+      public String doConvertObjToStr(JBBPTextWriter context, int id, Object obj)
+          throws IOException {
         fail("Must not be called");
         return null;
       }
 
       @Override
-      public String doConvertCustomField(final JBBPTextWriter context, final Object obj, final Field field, final Bin annotation) throws IOException {
+      public String doConvertCustomField(final JBBPTextWriter context, final Object obj,
+                                         final Field field, final Bin annotation)
+          throws IOException {
         return "test" + field.getName();
       }
 
     });
 
-    final String text = writer.SetHR("~", 3, '-').SetValuePrefix("").Bin(new TestClass()).Close().toString();
+    final String text =
+        writer.SetHR("~", 3, '-').SetValuePrefix("").Bin(new TestClass()).Close().toString();
     System.out.println(text);
     assertFileContent("testwriterbin3.txt", text);
   }
@@ -951,20 +1009,24 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
     writer.AddExtras(new JBBPTextWriterExtraAdapter() {
 
       @Override
-      public String doConvertObjToStr(JBBPTextWriter context, int id, Object obj) throws IOException {
+      public String doConvertObjToStr(JBBPTextWriter context, int id, Object obj)
+          throws IOException {
         fail("Must not be called");
         return null;
       }
 
       @Override
-      public String doConvertCustomField(JBBPTextWriter context, Object obj, Field field, Bin annotation) throws IOException {
-        context.HR().Str(field.getType().isArray() ? "See on array" : "Error").Comment("Line one", "Line two").HR();
+      public String doConvertCustomField(JBBPTextWriter context, Object obj, Field field,
+                                         Bin annotation) throws IOException {
+        context.HR().Str(field.getType().isArray() ? "See on array" : "Error")
+            .Comment("Line one", "Line two").HR();
         return null;
       }
 
     });
 
-    final String text = writer.SetHR("~", 3, '-').SetValuePrefix("").Bin(new TestClass()).Close().toString();
+    final String text =
+        writer.SetHR("~", 3, '-').SetValuePrefix("").Bin(new TestClass()).Close().toString();
     System.out.println(text);
     assertFileContent("testwriterbin4.txt", text);
   }

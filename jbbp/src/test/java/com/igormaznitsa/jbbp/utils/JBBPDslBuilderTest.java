@@ -59,7 +59,8 @@ class JBBPDslBuilderTest {
     final JBBPDslBuilder builder2 = JBBPDslBuilder.Begin().Int("test");
     assertThrows(IllegalArgumentException.class, () -> builder2.Struct("test"));
 
-    final JBBPDslBuilder builder3 = JBBPDslBuilder.Begin().Struct("test").Int("a").CloseStruct().Bool("b");
+    final JBBPDslBuilder builder3 =
+        JBBPDslBuilder.Begin().Struct("test").Int("a").CloseStruct().Bool("b");
     assertThrows(IllegalArgumentException.class, () -> builder3.Struct("test"));
 
   }
@@ -67,19 +68,23 @@ class JBBPDslBuilderTest {
   @Test
   public void testCheckForDuplicatedNameInDifferentStructures() {
     JBBPDslBuilder.Begin().Int("test").Struct().Bool("test").CloseStruct().End();
-    JBBPDslBuilder.Begin().Int("test").Struct().Int("test").Struct().Bool("test").CloseStruct().CloseStruct().End();
-    JBBPDslBuilder.Begin().Struct().Int("test").Struct().Bool("test").CloseStruct().CloseStruct().Int("test").End();
+    JBBPDslBuilder.Begin().Int("test").Struct().Int("test").Struct().Bool("test").CloseStruct()
+        .CloseStruct().End();
+    JBBPDslBuilder.Begin().Struct().Int("test").Struct().Bool("test").CloseStruct().CloseStruct()
+        .Int("test").End();
     JBBPDslBuilder.Begin().Struct("test").Int("test").CloseStruct().End();
   }
 
   @Test
   public void testNonFormatted() {
-    assertEquals("bool test;{int field1;}", Begin().Bool("test").Struct().Int("field1").CloseStruct().End(false));
+    assertEquals("bool test;{int field1;}",
+        Begin().Bool("test").Struct().Int("field1").CloseStruct().End(false));
   }
 
   @Test
   public void testFormatted() {
-    assertEquals("bool test;\n{\n\tint field1;\n}\n", Begin().Bool("test").Struct().Int("field1").CloseStruct().End(true));
+    assertEquals("bool test;\n{\n\tint field1;\n}\n",
+        Begin().Bool("test").Struct().Int("field1").CloseStruct().End(true));
   }
 
   @Test
@@ -103,9 +108,12 @@ class JBBPDslBuilderTest {
     assertEquals("// Test\n", Begin().Comment("Test").End());
     assertEquals("// //\n// Test\n", Begin().Comment("//").Comment("Test").End());
     assertEquals("// Test\n// Test2\n", Begin().Comment("Test").Comment("Test2").End());
-    assertEquals("int a;// Test\n// Test2\n", Begin().Int("a").Comment("Test").Comment("Test2").End());
-    assertEquals("int a;\n// Test\n// Test2\n", Begin().Int("a").NewLineComment("Test").NewLineComment("Test2").End());
-    assertEquals("int a;hello{// hello\n}// end hello\n", Begin().Int("a").Struct("hello").Comment("hello").CloseStruct().Comment("end hello").End());
+    assertEquals("int a;// Test\n// Test2\n",
+        Begin().Int("a").Comment("Test").Comment("Test2").End());
+    assertEquals("int a;\n// Test\n// Test2\n",
+        Begin().Int("a").NewLineComment("Test").NewLineComment("Test2").End());
+    assertEquals("int a;hello{// hello\n}// end hello\n",
+        Begin().Int("a").Struct("hello").Comment("hello").CloseStruct().Comment("end hello").End());
   }
 
   @Test
@@ -125,7 +133,8 @@ class JBBPDslBuilderTest {
     assertEquals("some[1234] lupus;", Begin().CustomArray("some", "lupus", 1234).End());
     assertEquals("some[a+1234] lupus;", Begin().CustomArray("some", "lupus", "a+1234").End());
     assertEquals("some:(c/2)[_] huzzaa;", Begin().CustomArray("some", "huzzaa", -1, "c/2").End());
-    assertEquals("some:(c/2)[a+b] huzzaa;", Begin().CustomArray("some", "huzzaa", "a+b", "c/2").End());
+    assertEquals("some:(c/2)[a+b] huzzaa;",
+        Begin().CustomArray("some", "huzzaa", "a+b", "c/2").End());
   }
 
   @Test
@@ -368,13 +377,15 @@ class JBBPDslBuilderTest {
 
   @Test
   public void testStruct_CloseStruct() {
-    assertEquals("{{{}}}", Begin().Struct().Struct().Struct().CloseStruct().CloseStruct().CloseStruct().End());
+    assertEquals("{{{}}}",
+        Begin().Struct().Struct().Struct().CloseStruct().CloseStruct().CloseStruct().End());
     assertEquals("{\n" +
-        "\t{\n" +
-        "\t\t{\n" +
-        "\t\t}\n" +
-        "\t}\n" +
-        "}\n", Begin().Struct().Struct().Struct().CloseStruct().CloseStruct().CloseStruct().End(true));
+            "\t{\n" +
+            "\t\t{\n" +
+            "\t\t}\n" +
+            "\t}\n" +
+            "}\n",
+        Begin().Struct().Struct().Struct().CloseStruct().CloseStruct().CloseStruct().End(true));
 
     assertThrows(IllegalStateException.class, () -> Begin().CloseStruct());
   }
@@ -419,7 +430,8 @@ class JBBPDslBuilderTest {
       }
     }
 
-    assertEquals("Test{int a;<int b;int c;d[a+b]{short a;short[8] b;}}", Begin().AnnotatedClass(Test.class).End());
+    assertEquals("Test{int a;<int b;int c;d[a+b]{short a;short[8] b;}}",
+        Begin().AnnotatedClass(Test.class).End());
   }
 
   @Test
@@ -466,7 +478,9 @@ class JBBPDslBuilderTest {
     assertEquals("BreakJBBPDslBuilder{bit:8[4] reserved;// Reserved\n}", dsl);
 
     JBBPFieldStruct struct = JBBPParser.prepare(dsl).parse(new byte[] {1, 2, 3, 4});
-    assertArrayEquals(new byte[] {1, 2, 3, 4}, struct.findFieldForType(JBBPFieldStruct.class).findFieldForType(JBBPFieldArrayBit.class).getArray());
+    assertArrayEquals(new byte[] {1, 2, 3, 4},
+        struct.findFieldForType(JBBPFieldStruct.class).findFieldForType(JBBPFieldArrayBit.class)
+            .getArray());
   }
 
   @Test
@@ -479,7 +493,8 @@ class JBBPDslBuilderTest {
       @Bin(name = "dd", type = BinType.BOOL)
       int d;
     }
-    assertEquals("Test{bit:5 a;bit:5 b;bit:5 c;bool dd;}", Begin().AnnotatedClass(Test.class).End(false));
+    assertEquals("Test{bit:5 a;bit:5 b;bit:5 c;bool dd;}",
+        Begin().AnnotatedClass(Test.class).End(false));
   }
 
   @Test
@@ -491,6 +506,8 @@ class JBBPDslBuilderTest {
       byte c;
       @Bin(name = "dd", type = BinType.BOOL)
       int d;
+      @Bin(arraySizeExpr = "_")
+      Internal[] array;
 
       @Bin(type = BinType.LONG)
       class Internal {
@@ -498,11 +515,9 @@ class JBBPDslBuilderTest {
         int b;
         int c;
       }
-
-      @Bin(arraySizeExpr = "_")
-      Internal[] array;
     }
-    assertEquals("Test{bit:5 a;array[_]{long a;long b;long c;}bit:5 b;bit:5 c;bool dd;}", Begin().AnnotatedClass(Test.class).End(false));
+    assertEquals("Test{bit:5 a;array[_]{long a;long b;long c;}bit:5 b;bit:5 c;bool dd;}",
+        Begin().AnnotatedClass(Test.class).End(false));
   }
 
   @Test
@@ -560,14 +575,13 @@ class JBBPDslBuilderTest {
         int a;
         @Bin(order = 2, type = BinType.UBYTE_ARRAY, arraySizeExpr = "223")
         byte[] a1;
+        @Bin(order = 3)
+        Internal jjj;
 
         @Bin
         class Internal {
           int a;
         }
-
-        @Bin(order = 3)
-        Internal jjj;
       }
     }
 

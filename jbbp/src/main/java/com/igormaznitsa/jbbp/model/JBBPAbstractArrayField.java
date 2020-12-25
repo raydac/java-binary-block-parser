@@ -17,7 +17,6 @@
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -27,7 +26,8 @@ import java.util.NoSuchElementException;
  * @param <T> type of field which can be contained in the array
  * @since 1.0
  */
-public abstract class JBBPAbstractArrayField<T extends JBBPAbstractField> extends JBBPAbstractField implements Iterable<T> {
+public abstract class JBBPAbstractArrayField<T extends JBBPAbstractField> extends JBBPAbstractField
+    implements Iterable<T> {
   private static final long serialVersionUID = -9007994400543951290L;
 
   /**

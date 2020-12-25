@@ -88,12 +88,16 @@ public class CompiledBlockVisitor {
       final boolean extraFieldNumAsExpr = (ec & JBBPCompiler.EXT_FLAG_EXTRA_AS_EXPRESSION) != 0;
       final int code = (ec << 8) | c;
 
-      final JBBPNamedFieldInfo name = (code & JBBPCompiler.FLAG_NAMED) == 0 ? null : this.compiledBlock.getNamedFields()[positionAtNamedFieldList++];
-      final JBBPByteOrder byteOrder = (code & JBBPCompiler.FLAG_LITTLE_ENDIAN) == 0 ? JBBPByteOrder.BIG_ENDIAN : JBBPByteOrder.LITTLE_ENDIAN;
+      final JBBPNamedFieldInfo name = (code & JBBPCompiler.FLAG_NAMED) == 0 ? null :
+          this.compiledBlock.getNamedFields()[positionAtNamedFieldList++];
+      final JBBPByteOrder byteOrder =
+          (code & JBBPCompiler.FLAG_LITTLE_ENDIAN) == 0 ? JBBPByteOrder.BIG_ENDIAN :
+              JBBPByteOrder.LITTLE_ENDIAN;
 
       final JBBPIntegerValueEvaluator extraFieldValueEvaluator;
       if (extraFieldNumAsExpr) {
-        extraFieldValueEvaluator = this.compiledBlock.getArraySizeEvaluators()[positionAtVarLengthProcessors++];
+        extraFieldValueEvaluator =
+            this.compiledBlock.getArraySizeEvaluators()[positionAtVarLengthProcessors++];
       } else {
         extraFieldValueEvaluator = null;
       }
@@ -102,9 +106,11 @@ public class CompiledBlockVisitor {
 
       boolean readWholeStream = false;
 
-      switch (code & (JBBPCompiler.FLAG_ARRAY | (JBBPCompiler.EXT_FLAG_EXPRESSION_OR_WHOLESTREAM << 8))) {
+      switch (code &
+          (JBBPCompiler.FLAG_ARRAY | (JBBPCompiler.EXT_FLAG_EXPRESSION_OR_WHOLESTREAM << 8))) {
         case JBBPCompiler.FLAG_ARRAY: {
-          arraySizeEvaluator = new IntConstValueEvaluator(JBBPUtils.unpackInt(compiledData, positionAtCompiledBlock));
+          arraySizeEvaluator = new IntConstValueEvaluator(
+              JBBPUtils.unpackInt(compiledData, positionAtCompiledBlock));
         }
         break;
         case (JBBPCompiler.EXT_FLAG_EXPRESSION_OR_WHOLESTREAM << 8): {
@@ -113,7 +119,8 @@ public class CompiledBlockVisitor {
         }
         break;
         case JBBPCompiler.FLAG_ARRAY | (JBBPCompiler.EXT_FLAG_EXPRESSION_OR_WHOLESTREAM << 8): {
-          arraySizeEvaluator = this.compiledBlock.getArraySizeEvaluators()[positionAtVarLengthProcessors++];
+          arraySizeEvaluator =
+              this.compiledBlock.getArraySizeEvaluators()[positionAtVarLengthProcessors++];
         }
         break;
         default: {
@@ -132,7 +139,9 @@ public class CompiledBlockVisitor {
         break;
         case JBBPCompiler.CODE_SKIP:
         case JBBPCompiler.CODE_ALIGN: {
-          final JBBPIntegerValueEvaluator evaluator = extraFieldNumAsExpr ? extraFieldValueEvaluator : new IntConstValueEvaluator(JBBPUtils.unpackInt(compiledData, positionAtCompiledBlock));
+          final JBBPIntegerValueEvaluator evaluator =
+              extraFieldNumAsExpr ? extraFieldValueEvaluator : new IntConstValueEvaluator(
+                  JBBPUtils.unpackInt(compiledData, positionAtCompiledBlock));
           if (altFileType) {
             if (theCode == JBBPCompiler.CODE_SKIP) {
               visitValField(theOffset, byteOrder, name, evaluator);
@@ -146,7 +155,9 @@ public class CompiledBlockVisitor {
         break;
 
         case JBBPCompiler.CODE_BIT: {
-          final JBBPIntegerValueEvaluator numberOfBits = extraFieldNumAsExpr ? extraFieldValueEvaluator : new IntConstValueEvaluator(JBBPUtils.unpackInt(compiledData, positionAtCompiledBlock));
+          final JBBPIntegerValueEvaluator numberOfBits =
+              extraFieldNumAsExpr ? extraFieldValueEvaluator : new IntConstValueEvaluator(
+                  JBBPUtils.unpackInt(compiledData, positionAtCompiledBlock));
           visitBitField(theOffset, byteOrder, name, numberOfBits, arraySizeEvaluator);
         }
         break;
@@ -158,7 +169,8 @@ public class CompiledBlockVisitor {
         case JBBPCompiler.CODE_USHORT:
         case JBBPCompiler.CODE_INT:
         case JBBPCompiler.CODE_LONG: {
-          visitPrimitiveField(theOffset, theCode, name, byteOrder, readWholeStream, altFileType, arraySizeEvaluator);
+          visitPrimitiveField(theOffset, theCode, name, byteOrder, readWholeStream, altFileType,
+              arraySizeEvaluator);
         }
         break;
 
@@ -174,15 +186,23 @@ public class CompiledBlockVisitor {
         break;
 
         case JBBPCompiler.CODE_VAR: {
-          final JBBPIntegerValueEvaluator extraDataValueEvaluator = extraFieldNumAsExpr ? extraFieldValueEvaluator : new IntConstValueEvaluator(JBBPUtils.unpackInt(compiledData, positionAtCompiledBlock));
-          visitVarField(theOffset, name, byteOrder, readWholeStream, arraySizeEvaluator, extraDataValueEvaluator);
+          final JBBPIntegerValueEvaluator extraDataValueEvaluator =
+              extraFieldNumAsExpr ? extraFieldValueEvaluator : new IntConstValueEvaluator(
+                  JBBPUtils.unpackInt(compiledData, positionAtCompiledBlock));
+          visitVarField(theOffset, name, byteOrder, readWholeStream, arraySizeEvaluator,
+              extraDataValueEvaluator);
         }
         break;
 
         case JBBPCompiler.CODE_CUSTOMTYPE: {
-          final JBBPIntegerValueEvaluator extraDataValueEvaluator = extraFieldNumAsExpr ? extraFieldValueEvaluator : new IntConstValueEvaluator(JBBPUtils.unpackInt(compiledData, positionAtCompiledBlock));
-          final JBBPFieldTypeParameterContainer fieldTypeInfo = this.compiledBlock.getCustomTypeFields()[JBBPUtils.unpackInt(compiledData, positionAtCompiledBlock)];
-          visitCustomField(theOffset, fieldTypeInfo, name, byteOrder, readWholeStream, arraySizeEvaluator, extraDataValueEvaluator);
+          final JBBPIntegerValueEvaluator extraDataValueEvaluator =
+              extraFieldNumAsExpr ? extraFieldValueEvaluator : new IntConstValueEvaluator(
+                  JBBPUtils.unpackInt(compiledData, positionAtCompiledBlock));
+          final JBBPFieldTypeParameterContainer fieldTypeInfo =
+              this.compiledBlock.getCustomTypeFields()[JBBPUtils
+                  .unpackInt(compiledData, positionAtCompiledBlock)];
+          visitCustomField(theOffset, fieldTypeInfo, name, byteOrder, readWholeStream,
+              arraySizeEvaluator, extraDataValueEvaluator);
         }
         break;
         default:
@@ -205,19 +225,22 @@ public class CompiledBlockVisitor {
    * @see JBBPCompiler#CODE_ALIGN
    * @see JBBPCompiler#CODE_SKIP
    */
-  public void visitActionItem(int offsetInCompiledBlock, int actionType, JBBPIntegerValueEvaluator nullableArgument) {
+  public void visitActionItem(int offsetInCompiledBlock, int actionType,
+                              JBBPIntegerValueEvaluator nullableArgument) {
   }
 
   /**
    * Visit field contains virtual field with VAL type.
    *
    * @param offsetInCompiledBlock offset in the compiled block
-   * @param byteOrder byteOrder
+   * @param byteOrder             byteOrder
    * @param nameFieldInfo         name of the field, must not be null
    * @param expression            expression to calculate value
    * @since 1.4.0
    */
-  public void visitValField(int offsetInCompiledBlock, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nameFieldInfo, JBBPIntegerValueEvaluator expression) {
+  public void visitValField(int offsetInCompiledBlock, JBBPByteOrder byteOrder,
+                            JBBPNamedFieldInfo nameFieldInfo,
+                            JBBPIntegerValueEvaluator expression) {
   }
 
   /**
@@ -239,7 +262,10 @@ public class CompiledBlockVisitor {
    * @see JBBPCompiler#CODE_LONG
    * @see JBBPCompiler#CODE_SKIP
    */
-  public void visitPrimitiveField(int offsetInCompiledBlock, int primitiveType, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPByteOrder byteOrder, boolean readWholeStreamAsArray, boolean altFieldType, JBBPIntegerValueEvaluator nullableArraySize) {
+  public void visitPrimitiveField(int offsetInCompiledBlock, int primitiveType,
+                                  JBBPNamedFieldInfo nullableNameFieldInfo, JBBPByteOrder byteOrder,
+                                  boolean readWholeStreamAsArray, boolean altFieldType,
+                                  JBBPIntegerValueEvaluator nullableArraySize) {
   }
 
   /**
@@ -252,19 +278,33 @@ public class CompiledBlockVisitor {
    * @param nullableArraySize        if not null then evaluator of array size to be read from stream
    * @param extraDataValueEvaluator  if not null then extra data evaluator for the var field
    */
-  public void visitVarField(int offsetInCompiledBlock, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPByteOrder byteOrder, boolean readWholeStreamIntoArray, JBBPIntegerValueEvaluator nullableArraySize, JBBPIntegerValueEvaluator extraDataValueEvaluator) {
+  public void visitVarField(int offsetInCompiledBlock, JBBPNamedFieldInfo nullableNameFieldInfo,
+                            JBBPByteOrder byteOrder, boolean readWholeStreamIntoArray,
+                            JBBPIntegerValueEvaluator nullableArraySize,
+                            JBBPIntegerValueEvaluator extraDataValueEvaluator) {
   }
 
-  public void visitCustomField(int offsetInCompiledBlock, JBBPFieldTypeParameterContainer notNullFieldType, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPByteOrder byteOrder, boolean readWholeStream, JBBPIntegerValueEvaluator nullableArraySizeEvaluator, JBBPIntegerValueEvaluator extraDataValueEvaluator) {
+  public void visitCustomField(int offsetInCompiledBlock,
+                               JBBPFieldTypeParameterContainer notNullFieldType,
+                               JBBPNamedFieldInfo nullableNameFieldInfo, JBBPByteOrder byteOrder,
+                               boolean readWholeStream,
+                               JBBPIntegerValueEvaluator nullableArraySizeEvaluator,
+                               JBBPIntegerValueEvaluator extraDataValueEvaluator) {
   }
 
-  public void visitBitField(int offsetInCompiledBlock, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPIntegerValueEvaluator notNullFieldSize, JBBPIntegerValueEvaluator nullableArraySize) {
+  public void visitBitField(int offsetInCompiledBlock, JBBPByteOrder byteOrder,
+                            JBBPNamedFieldInfo nullableNameFieldInfo,
+                            JBBPIntegerValueEvaluator notNullFieldSize,
+                            JBBPIntegerValueEvaluator nullableArraySize) {
   }
 
-  public void visitStructureStart(int offsetInCompiledBlock, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNameFieldInfo, JBBPIntegerValueEvaluator nullableArraySize) {
+  public void visitStructureStart(int offsetInCompiledBlock, JBBPByteOrder byteOrder,
+                                  JBBPNamedFieldInfo nullableNameFieldInfo,
+                                  JBBPIntegerValueEvaluator nullableArraySize) {
   }
 
-  public void visitStructureEnd(int offsetInCompiledBlock, JBBPNamedFieldInfo nullableNameFieldInfo) {
+  public void visitStructureEnd(int offsetInCompiledBlock,
+                                JBBPNamedFieldInfo nullableNameFieldInfo) {
   }
 
   public void visitStart() {

@@ -1,16 +1,18 @@
 package com.igormaznitsa.jbbp.model;
 
-import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+
+
+import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import org.junit.jupiter.api.Test;
 
 public class JBBPFieldStringTest {
 
   @Test
   public void testNameField() {
-    final JBBPFieldString field = new JBBPFieldString(new JBBPNamedFieldInfo("test.field", "field", 123), "Huzzaa");
+    final JBBPFieldString field =
+        new JBBPFieldString(new JBBPNamedFieldInfo("test.field", "field", 123), "Huzzaa");
     final JBBPNamedFieldInfo namedField = field.getNameInfo();
     assertEquals("test.field", namedField.getFieldPath());
     assertEquals("field", namedField.getFieldName());
@@ -30,13 +32,15 @@ public class JBBPFieldStringTest {
 
   @Test
   public void testGetAsString_NotNull() {
-    final JBBPFieldString field = new JBBPFieldString(new JBBPNamedFieldInfo("test.field", "field", 123), "Huzzaa");
+    final JBBPFieldString field =
+        new JBBPFieldString(new JBBPNamedFieldInfo("test.field", "field", 123), "Huzzaa");
     assertEquals("Huzzaa", field.getAsString());
   }
 
   @Test
   public void testGetAsString_Null() {
-    final JBBPFieldString field = new JBBPFieldString(new JBBPNamedFieldInfo("test.field", "field", 123), null);
+    final JBBPFieldString field =
+        new JBBPFieldString(new JBBPNamedFieldInfo("test.field", "field", 123), null);
     assertNull(field.getAsString());
   }
 

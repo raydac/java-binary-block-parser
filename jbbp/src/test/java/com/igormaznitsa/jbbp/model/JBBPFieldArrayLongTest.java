@@ -16,16 +16,21 @@
 
 package com.igormaznitsa.jbbp.model;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
+
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import java.io.Serializable;
 import org.junit.jupiter.api.Test;
 
-import java.io.Serializable;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 public class JBBPFieldArrayLongTest {
-  private final long[] array = new long[] {-278349872364L, 12223423987439324L, 0L, -2782346872343L, 37238468273412L};
-  private final JBBPFieldArrayLong test = new JBBPFieldArrayLong(new JBBPNamedFieldInfo("test.field", "field", 999), array);
+  private final long[] array =
+      new long[] {-278349872364L, 12223423987439324L, 0L, -2782346872343L, 37238468273412L};
+  private final JBBPFieldArrayLong test =
+      new JBBPFieldArrayLong(new JBBPNamedFieldInfo("test.field", "field", 999), array);
 
   @Test
   public void testNameAndOffset() {
@@ -42,7 +47,9 @@ public class JBBPFieldArrayLongTest {
 
   @Test
   public void testGetArray() {
-    assertArrayEquals(new long[] {-278349872364L, 12223423987439324L, 0L, -2782346872343L, 37238468273412L}, test.getArray());
+    assertArrayEquals(
+        new long[] {-278349872364L, 12223423987439324L, 0L, -2782346872343L, 37238468273412L},
+        test.getArray());
   }
 
   @Test
@@ -55,7 +62,9 @@ public class JBBPFieldArrayLongTest {
 
   @Test
   public void testGetAsInt() {
-    final int[] etalon = new int[] {(int) -278349872364L, (int) 12223423987439324L, (int) 0L, (int) -2782346872343L, (int) 37238468273412L};
+    final int[] etalon =
+        new int[] {(int) -278349872364L, (int) 12223423987439324L, (int) 0L, (int) -2782346872343L,
+            (int) 37238468273412L};
     for (int i = 0; i < etalon.length; i++) {
       assertEquals(etalon[i], test.getAsInt(i));
     }
@@ -63,7 +72,8 @@ public class JBBPFieldArrayLongTest {
 
   @Test
   public void testGetAsLong() {
-    final long[] etalon = new long[] {-278349872364L, 12223423987439324L, 0L, -2782346872343L, 37238468273412L};
+    final long[] etalon =
+        new long[] {-278349872364L, 12223423987439324L, 0L, -2782346872343L, 37238468273412L};
     for (int i = 0; i < etalon.length; i++) {
       assertEquals(etalon[i], test.getAsLong(i));
     }
@@ -71,7 +81,8 @@ public class JBBPFieldArrayLongTest {
 
   @Test
   public void testGetElementAt() {
-    final long[] etalon = new long[] {-278349872364L, 12223423987439324L, 0L, -2782346872343L, 37238468273412L};
+    final long[] etalon =
+        new long[] {-278349872364L, 12223423987439324L, 0L, -2782346872343L, 37238468273412L};
     final Serializable payload = new FakePayload();
     test.setPayload(payload);
     for (int i = 0; i < etalon.length; i++) {
@@ -84,7 +95,8 @@ public class JBBPFieldArrayLongTest {
 
   @Test
   public void testIterable() {
-    final long[] etalon = new long[] {-278349872364L, 12223423987439324L, 0L, -2782346872343L, 37238468273412L};
+    final long[] etalon =
+        new long[] {-278349872364L, 12223423987439324L, 0L, -2782346872343L, 37238468273412L};
     int index = 0;
     for (final JBBPFieldLong f : test) {
       assertEquals(etalon[index++], f.getAsLong());

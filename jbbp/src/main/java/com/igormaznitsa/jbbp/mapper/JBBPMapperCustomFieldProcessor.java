@@ -17,7 +17,6 @@
 package com.igormaznitsa.jbbp.mapper;
 
 import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
-
 import java.lang.reflect.Field;
 
 /**
@@ -34,5 +33,6 @@ public interface JBBPMapperCustomFieldProcessor {
    * @param field       the mapping field in a mapping class, must not be null
    * @return an object which will be set to the field in a mapping class instance, it can be null for non-primitive fields
    */
-  Object prepareObjectForMapping(final JBBPFieldStruct parsedBlock, final Bin annotation, final Field field);
+  Object prepareObjectForMapping(final JBBPFieldStruct parsedBlock, final Bin annotation,
+                                 final Field field);
 }

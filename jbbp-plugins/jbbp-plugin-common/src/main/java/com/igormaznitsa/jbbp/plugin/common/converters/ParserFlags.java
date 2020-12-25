@@ -1,9 +1,8 @@
 package com.igormaznitsa.jbbp.plugin.common.converters;
 
 import com.igormaznitsa.jbbp.JBBPParser;
-
-import javax.annotation.Nullable;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 /**
  * Allowed parser flags.

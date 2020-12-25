@@ -17,7 +17,6 @@
 package com.igormaznitsa.jbbp.io;
 
 import com.igormaznitsa.jbbp.mapper.Bin;
-
 import java.io.IOException;
 import java.lang.reflect.Field;
 
@@ -40,5 +39,7 @@ public interface JBBPCustomFieldWriter {
    * @param value               the value found in the field, can be null
    * @throws IOException it will be thrown if it is impossible to process field data and save them into the stream
    */
-  void writeCustomField(final JBBPOut context, final JBBPBitOutputStream outStream, final Object instanceToSave, final Field instanceCustomField, final Bin fieldAnnotation, final Object value) throws IOException;
+  void writeCustomField(final JBBPOut context, final JBBPBitOutputStream outStream,
+                        final Object instanceToSave, final Field instanceCustomField,
+                        final Bin fieldAnnotation, final Object value) throws IOException;
 }

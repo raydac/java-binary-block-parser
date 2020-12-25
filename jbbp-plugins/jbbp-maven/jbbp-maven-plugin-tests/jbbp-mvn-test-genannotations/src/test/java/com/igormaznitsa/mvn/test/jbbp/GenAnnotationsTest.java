@@ -32,7 +32,8 @@ class GenAnnotationsTest {
   void testReadWrite() throws IOException {
     final byte[] testData = new byte[] {4, (byte) 0x12, (byte) 0x34, 3, 5, 6, 7};
 
-    final GenAnnotations result = new GenAnnotations().read(new JBBPBitInputStream(new ByteArrayInputStream(testData)));
+    final GenAnnotations result =
+        new GenAnnotations().read(new JBBPBitInputStream(new ByteArrayInputStream(testData)));
     assertEquals(4, result.getLEN());
     assertEquals(3, result.getSOME1().getSOME2().getFIELD().length);
 
@@ -45,10 +46,12 @@ class GenAnnotationsTest {
         + " }"
         + "}";
 
-    final GenAnnotations instance = JBBPParser.prepare(script).parse(testData).mapTo(new GenAnnotations());
+    final GenAnnotations instance =
+        JBBPParser.prepare(script).parse(testData).mapTo(new GenAnnotations());
     assertEquals(result.getLEN(), instance.getLEN());
     assertEquals(result.getSOME1().getLEN(), instance.getSOME1().getLEN());
     assertArrayEquals(result.getSOME1().getSOMEFIELD(), instance.getSOME1().getSOMEFIELD());
-    assertArrayEquals(result.getSOME1().getSOME2().getFIELD(), instance.getSOME1().getSOME2().getFIELD());
+    assertArrayEquals(result.getSOME1().getSOME2().getFIELD(),
+        instance.getSOME1().getSOME2().getFIELD());
   }
 }

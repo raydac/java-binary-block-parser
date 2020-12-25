@@ -17,7 +17,6 @@
 package com.igormaznitsa.jbbp.compiler;
 
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-
 import java.io.Serializable;
 
 /**
@@ -49,7 +48,8 @@ public final class JBBPNamedFieldInfo implements Serializable {
    * @param fieldName             the field name
    * @param offsetInCompiledBlock the offset in the compiled block for the field
    */
-  public JBBPNamedFieldInfo(final String fieldPath, final String fieldName, final int offsetInCompiledBlock) {
+  public JBBPNamedFieldInfo(final String fieldPath, final String fieldName,
+                            final int offsetInCompiledBlock) {
     this.fieldPath = JBBPUtils.normalizeFieldNameOrPath(fieldPath);
     this.fieldName = JBBPUtils.normalizeFieldNameOrPath(fieldName);
     this.offsetInCompiledBlock = offsetInCompiledBlock;
@@ -95,7 +95,8 @@ public final class JBBPNamedFieldInfo implements Serializable {
 
     if (obj instanceof JBBPNamedFieldInfo) {
       final JBBPNamedFieldInfo that = (JBBPNamedFieldInfo) obj;
-      result = this.fieldPath.equals(that.fieldPath) && this.offsetInCompiledBlock == that.offsetInCompiledBlock;
+      result = this.fieldPath.equals(that.fieldPath) &&
+          this.offsetInCompiledBlock == that.offsetInCompiledBlock;
     }
     return result;
   }
@@ -107,7 +108,8 @@ public final class JBBPNamedFieldInfo implements Serializable {
 
   @Override
   public String toString() {
-    return this.getClass().getSimpleName() + "[fieldPath=" + this.fieldPath + ", fieldName=" + this.fieldName + ", offsetInCompiledBlock=" + this.offsetInCompiledBlock + ']';
+    return this.getClass().getSimpleName() + "[fieldPath=" + this.fieldPath + ", fieldName=" +
+        this.fieldName + ", offsetInCompiledBlock=" + this.offsetInCompiledBlock + ']';
   }
 
 }

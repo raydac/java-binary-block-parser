@@ -16,15 +16,15 @@
 
 package com.igormaznitsa.jbbp.compiler.conversion;
 
-import com.igormaznitsa.jbbp.JBBPParser;
-import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJavaConverterTest;
-import org.junit.jupiter.api.Test;
-
-import java.io.EOFException;
-
 import static com.igormaznitsa.jbbp.TestUtils.getField;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+
+
+import com.igormaznitsa.jbbp.JBBPParser;
+import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJavaConverterTest;
+import java.io.EOFException;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test parser flags for converted sources.
@@ -41,7 +41,8 @@ public class ParserToJBBPToJavaClassConverterJBBPFlagsTest extends AbstractJBBPT
     } catch (EOFException ex) {
     }
 
-    instance = compileAndMakeInstance("byte a; byte b;", JBBPParser.FLAG_SKIP_REMAINING_FIELDS_IF_EOF);
+    instance =
+        compileAndMakeInstance("byte a; byte b;", JBBPParser.FLAG_SKIP_REMAINING_FIELDS_IF_EOF);
     try {
       callRead(instance, new byte[] {11});
       assertEquals(11, getField(instance, "a", Byte.class).intValue());

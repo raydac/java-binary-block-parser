@@ -47,7 +47,16 @@ public interface JBBPScriptTranslator {
      */
     @Nonnull
     private final Map<String, String> subClassSuperclasses = new HashMap<String, String>();
-
+    /**
+     * Set of interface names to be implemented by the main class.
+     */
+    @Nonnull
+    private final Set<String> classImplements = new HashSet<String>();
+    /**
+     * Processor for custom types.
+     */
+    @Nullable
+    JBBPCustomFieldTypeProcessor customFieldTypeProcessor = null;
     /**
      * Flag to not make generated subclasses as static ones.
      *
@@ -55,16 +64,10 @@ public interface JBBPScriptTranslator {
      */
     private boolean doInternalClassesNonStatic;
     /**
-     * Set of interface names to be implemented by the main class.
-     */
-    @Nonnull
-    private final Set<String> classImplements = new HashSet<String>();
-    /**
      * Super class for main class.
      */
     @Nullable
     private String superClass = null;
-
     /**
      * Destination file name.
      *
@@ -72,12 +75,6 @@ public interface JBBPScriptTranslator {
      */
     @Nullable
     private String destFileName = null;
-
-    /**
-     * Processor for custom types.
-     */
-    @Nullable
-    JBBPCustomFieldTypeProcessor customFieldTypeProcessor = null;
     /**
      * Disable generate class fields.
      *
@@ -161,12 +158,6 @@ public interface JBBPScriptTranslator {
       return this;
     }
 
-    @Nonnull
-    public Parameters setSuperClass(@Nullable final String value) {
-      this.superClass = value;
-      return this;
-    }
-
     public boolean isAddGettersSetters() {
       return this.addGettersSetters;
     }
@@ -216,18 +207,32 @@ public interface JBBPScriptTranslator {
     }
 
     @Nonnull
+    public Parameters setSubClassInterfaces(@Nonnull final Map<String, String> value) {
+      this.subClassInterfaces.clear();
+      this.subClassInterfaces.putAll(value);
+      return this;
+    }
+
+    @Nonnull
     public Map<String, String> getSubClassSuperclasses() {
       return Collections.unmodifiableMap(this.subClassSuperclasses);
+    }
+
+    @Nonnull
+    public Parameters setSubClassSuperclasses(@Nonnull final Map<String, String> value) {
+      this.subClassSuperclasses.clear();
+      this.subClassSuperclasses.putAll(value);
+      return this;
+    }
+
+    public boolean isDoInternalClassesNonStatic() {
+      return this.doInternalClassesNonStatic;
     }
 
     @Nonnull
     public Parameters setDoInternalClassesNonStatic(final boolean flag) {
       this.doInternalClassesNonStatic = flag;
       return this;
-    }
-
-    public boolean isDoInternalClassesNonStatic() {
-      return this.doInternalClassesNonStatic;
     }
 
     public boolean isAddNewInstanceMethods() {
@@ -247,20 +252,6 @@ public interface JBBPScriptTranslator {
     @Nonnull
     public Parameters setAddBinAnnotations(final boolean flag) {
       this.addBinAnnotations = flag;
-      return this;
-    }
-
-    @Nonnull
-    public Parameters setSubClassSuperclasses(@Nonnull final Map<String, String> value) {
-      this.subClassSuperclasses.clear();
-      this.subClassSuperclasses.putAll(value);
-      return this;
-    }
-
-    @Nonnull
-    public Parameters setSubClassInterfaces(@Nonnull final Map<String, String> value) {
-      this.subClassInterfaces.clear();
-      this.subClassInterfaces.putAll(value);
       return this;
     }
 
@@ -367,7 +358,8 @@ public interface JBBPScriptTranslator {
     }
 
     @Nonnull
-    public Parameters setCustomFieldTypeProcessor(@Nullable final JBBPCustomFieldTypeProcessor customProcessor) {
+    public Parameters setCustomFieldTypeProcessor(
+        @Nullable final JBBPCustomFieldTypeProcessor customProcessor) {
       this.customFieldTypeProcessor = customProcessor;
       return this;
     }
@@ -383,6 +375,12 @@ public interface JBBPScriptTranslator {
     @Nullable
     public String getSuperClass() {
       return this.superClass;
+    }
+
+    @Nonnull
+    public Parameters setSuperClass(@Nullable final String value) {
+      this.superClass = value;
+      return this;
     }
   }
 }

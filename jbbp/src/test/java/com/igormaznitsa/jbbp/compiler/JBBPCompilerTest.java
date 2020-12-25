@@ -16,15 +16,21 @@
 
 package com.igormaznitsa.jbbp.compiler;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPTokenType;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTokenizerException;
 import com.igormaznitsa.jbbp.utils.JBBPIntCounter;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class JBBPCompilerTest {
 
@@ -48,12 +54,17 @@ public class JBBPCompilerTest {
 
   @Test
   public void testCompile_ErrorSituationsReadTillEnd() {
-    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("ubyte [_]; ubyte [_];"));
-    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("ubyte [_]; a {byte;};"));
-    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("byte;test [_] {byte;} int error;"));
+    assertThrows(JBBPCompilationException.class,
+        () -> JBBPCompiler.compile("ubyte [_]; ubyte [_];"));
+    assertThrows(JBBPCompilationException.class,
+        () -> JBBPCompiler.compile("ubyte [_]; a {byte;};"));
+    assertThrows(JBBPCompilationException.class,
+        () -> JBBPCompiler.compile("byte;test [_] {byte;} int error;"));
     assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("ubyte [_]; byte;"));
-    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("a [_] { byte a; } b [_] { byte a;}"));
-    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("a [_] { b [_] { byte a;}}"));
+    assertThrows(JBBPCompilationException.class,
+        () -> JBBPCompiler.compile("a [_] { byte a; } b [_] { byte a;}"));
+    assertThrows(JBBPCompilationException.class,
+        () -> JBBPCompiler.compile("a [_] { b [_] { byte a;}}"));
   }
 
   @Test
@@ -61,8 +72,10 @@ public class JBBPCompilerTest {
     final JBBPCompiledBlock block = JBBPCompiler.compile("byte;test [_] {byte;}");
     assertEquals(6, block.getCompiledData().length);
     assertEquals(JBBPCompiler.CODE_BYTE, block.getCompiledData()[0]);
-    assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_WIDE | JBBPCompiler.FLAG_NAMED, block.getCompiledData()[1] & 0xFF);
-    assertEquals(JBBPCompiler.EXT_FLAG_EXPRESSION_OR_WHOLESTREAM, block.getCompiledData()[2] & 0xFF);
+    assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_WIDE | JBBPCompiler.FLAG_NAMED,
+        block.getCompiledData()[1] & 0xFF);
+    assertEquals(JBBPCompiler.EXT_FLAG_EXPRESSION_OR_WHOLESTREAM,
+        block.getCompiledData()[2] & 0xFF);
     assertEquals(JBBPCompiler.CODE_BYTE, block.getCompiledData()[3]);
     assertEquals(JBBPCompiler.CODE_STRUCT_END, block.getCompiledData()[4]);
     assertEquals(1, block.getCompiledData()[5]);
@@ -72,9 +85,12 @@ public class JBBPCompilerTest {
   public void testCompile_WholeStreamArrayInsideStructure() throws Exception {
     final JBBPCompiledBlock block = JBBPCompiler.compile("test {byte [_];}");
     assertEquals(5, block.getCompiledData().length);
-    assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_NAMED, block.getCompiledData()[0]);
-    assertEquals(JBBPCompiler.CODE_BYTE | JBBPCompiler.FLAG_WIDE, block.getCompiledData()[1] & 0xFF);
-    assertEquals(JBBPCompiler.EXT_FLAG_EXPRESSION_OR_WHOLESTREAM, block.getCompiledData()[2] & 0xFF);
+    assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_NAMED,
+        block.getCompiledData()[0]);
+    assertEquals(JBBPCompiler.CODE_BYTE | JBBPCompiler.FLAG_WIDE,
+        block.getCompiledData()[1] & 0xFF);
+    assertEquals(JBBPCompiler.EXT_FLAG_EXPRESSION_OR_WHOLESTREAM,
+        block.getCompiledData()[2] & 0xFF);
     assertEquals(JBBPCompiler.CODE_STRUCT_END, block.getCompiledData()[3]);
     assertEquals(0, block.getCompiledData()[4]);
   }
@@ -83,9 +99,12 @@ public class JBBPCompilerTest {
   public void testCompile_WholeStreamStructureArrayInsideStructure() throws Exception {
     final JBBPCompiledBlock block = JBBPCompiler.compile("test { whole[_]{ byte;}}");
     assertEquals(8, block.getCompiledData().length);
-    assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_NAMED, block.getCompiledData()[0]);
-    assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_WIDE, block.getCompiledData()[1] & 0xFF);
-    assertEquals(JBBPCompiler.EXT_FLAG_EXPRESSION_OR_WHOLESTREAM, block.getCompiledData()[2] & 0xFF);
+    assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_NAMED,
+        block.getCompiledData()[0]);
+    assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_WIDE,
+        block.getCompiledData()[1] & 0xFF);
+    assertEquals(JBBPCompiler.EXT_FLAG_EXPRESSION_OR_WHOLESTREAM,
+        block.getCompiledData()[2] & 0xFF);
     assertEquals(JBBPCompiler.CODE_BYTE, block.getCompiledData()[3]);
     assertEquals(JBBPCompiler.CODE_STRUCT_END, block.getCompiledData()[4]);
     assertEquals(1, block.getCompiledData()[5]);
@@ -148,7 +167,8 @@ public class JBBPCompilerTest {
 
   @Test
   public void testCompile_ZeroSkipValueIsAllowed() throws Exception {
-    assertArrayEquals(new byte[] {JBBPCompiler.CODE_SKIP, 0}, JBBPCompiler.compile("skip:0;").getCompiledData());
+    assertArrayEquals(new byte[] {JBBPCompiler.CODE_SKIP, 0},
+        JBBPCompiler.compile("skip:0;").getCompiledData());
   }
 
   @Test
@@ -173,7 +193,8 @@ public class JBBPCompilerTest {
   }
 
   @Test
-  public void testCompile_ExtraFieldData_ExpressionWithAllOperators_NoExceptions() throws Exception {
+  public void testCompile_ExtraFieldData_ExpressionWithAllOperators_NoExceptions()
+      throws Exception {
     assertNotNull(JBBPCompiler.compile("bit:((1+2-3)*4/(5<<6>>7)>>>3%1&89|22^34-~45) a;"));
   }
 
@@ -265,7 +286,9 @@ public class JBBPCompilerTest {
   @Test
   public void testCompile_NonamedVarWithNegativeExtra() throws Exception {
     final byte[] compiled = JBBPCompiler.compile("var:-1;").getCompiledData();
-    assertArrayEquals(new byte[] {JBBPCompiler.CODE_VAR, (byte) 0x81, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF}, compiled);
+    assertArrayEquals(
+        new byte[] {JBBPCompiler.CODE_VAR, (byte) 0x81, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+            (byte) 0xFF}, compiled);
   }
 
   @Test
@@ -283,25 +306,33 @@ public class JBBPCompilerTest {
   @Test
   public void testCompile_NamedVarWithNegativeExtra() throws Exception {
     final byte[] compiled = JBBPCompiler.compile("var:-1 VVV;").getCompiledData();
-    assertArrayEquals(new byte[] {JBBPCompiler.CODE_VAR | JBBPCompiler.FLAG_NAMED, (byte) 0x81, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF}, compiled);
+    assertArrayEquals(
+        new byte[] {JBBPCompiler.CODE_VAR | JBBPCompiler.FLAG_NAMED, (byte) 0x81, (byte) 0xFF,
+            (byte) 0xFF, (byte) 0xFF, (byte) 0xFF}, compiled);
   }
 
   @Test
   public void testCompile_NamedVarArrayWithoutExtra() throws Exception {
     final byte[] compiled = JBBPCompiler.compile("var [98] VVV;").getCompiledData();
-    assertArrayEquals(new byte[] {JBBPCompiler.CODE_VAR | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_ARRAY, 98, 0}, compiled);
+    assertArrayEquals(
+        new byte[] {JBBPCompiler.CODE_VAR | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_ARRAY, 98,
+            0}, compiled);
   }
 
   @Test
   public void testCompile_NamedVarArrayWithPositiveExtra() throws Exception {
     final byte[] compiled = JBBPCompiler.compile("var:12 [98] VVV;").getCompiledData();
-    assertArrayEquals(new byte[] {JBBPCompiler.CODE_VAR | JBBPCompiler.FLAG_ARRAY | JBBPCompiler.FLAG_NAMED, 98, 12}, compiled);
+    assertArrayEquals(
+        new byte[] {JBBPCompiler.CODE_VAR | JBBPCompiler.FLAG_ARRAY | JBBPCompiler.FLAG_NAMED, 98,
+            12}, compiled);
   }
 
   @Test
   public void testCompile_NamedVarArrayWithNegativeExtra() throws Exception {
     final byte[] compiled = JBBPCompiler.compile("var:-1 [98] VVV;").getCompiledData();
-    assertArrayEquals(new byte[] {JBBPCompiler.CODE_VAR | JBBPCompiler.FLAG_ARRAY | JBBPCompiler.FLAG_NAMED, 98, (byte) 0x81, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF}, compiled);
+    assertArrayEquals(
+        new byte[] {JBBPCompiler.CODE_VAR | JBBPCompiler.FLAG_ARRAY | JBBPCompiler.FLAG_NAMED, 98,
+            (byte) 0x81, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF}, compiled);
   }
 
   @Test
@@ -408,7 +439,8 @@ public class JBBPCompilerTest {
     final JBBPCompiledBlock block = JBBPCompiler.compile("<int HeLLo;");
     final byte[] compiled = block.getCompiledData();
     assertEquals(1, compiled.length);
-    assertEquals(JBBPCompiler.CODE_INT | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_LITTLE_ENDIAN, compiled[0] & 0xFF);
+    assertEquals(JBBPCompiler.CODE_INT | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_LITTLE_ENDIAN,
+        compiled[0] & 0xFF);
     assertEquals(0, block.findFieldOffsetForPath("hello"));
   }
 
@@ -424,7 +456,8 @@ public class JBBPCompilerTest {
     final JBBPCompiledBlock block = JBBPCompiler.compile("<int [768] HeLLo;");
     final byte[] compiled = block.getCompiledData();
     assertEquals(4, compiled.length);
-    assertEquals(JBBPCompiler.CODE_INT | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_LITTLE_ENDIAN | JBBPCompiler.FLAG_ARRAY, compiled[0] & 0xFF);
+    assertEquals(JBBPCompiler.CODE_INT | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_LITTLE_ENDIAN |
+        JBBPCompiler.FLAG_ARRAY, compiled[0] & 0xFF);
     assertEquals(0, block.findFieldOffsetForPath("hello"));
     assertEquals(768, JBBPUtils.unpackInt(compiled, new JBBPIntCounter(1)));
   }
@@ -443,7 +476,8 @@ public class JBBPCompilerTest {
   }
 
   @Test
-  public void testCompile_ByteFieldAndNamedStructureWithIncludedStructureWithSingleNamedIntField() throws Exception {
+  public void testCompile_ByteFieldAndNamedStructureWithIncludedStructureWithSingleNamedIntField()
+      throws Exception {
     final JBBPCompiledBlock block = JBBPCompiler.compile("byte ; out{ some {int HeLLo;} }");
     final byte[] compiled = block.getCompiledData();
     assertEquals(8, compiled.length);
@@ -465,7 +499,8 @@ public class JBBPCompilerTest {
     assertEquals(8, compiled.length);
     assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_NAMED, compiled[0]);
     assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_NAMED, compiled[1]);
-    assertEquals(JBBPCompiler.CODE_BYTE | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_ARRAY, compiled[2] & 0xFF);
+    assertEquals(JBBPCompiler.CODE_BYTE | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_ARRAY,
+        compiled[2] & 0xFF);
     assertEquals(3, compiled[3]);
     assertEquals(JBBPCompiler.CODE_STRUCT_END, compiled[4]);
     assertEquals(1, compiled[5]);
@@ -479,13 +514,15 @@ public class JBBPCompilerTest {
 
   @Test
   public void testCompile_VarLengthByteArrayInStructure() throws Exception {
-    final JBBPCompiledBlock block = JBBPCompiler.compile("out { int len; some {byte [len] HeLLo;} }");
+    final JBBPCompiledBlock block =
+        JBBPCompiler.compile("out { int len; some {byte [len] HeLLo;} }");
     final byte[] compiled = block.getCompiledData();
     assertEquals(9, compiled.length);
     assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_NAMED, compiled[0]);
     assertEquals(JBBPCompiler.CODE_INT | JBBPCompiler.FLAG_NAMED, compiled[1] & 0xFF);
     assertEquals(JBBPCompiler.CODE_STRUCT_START | JBBPCompiler.FLAG_NAMED, compiled[2]);
-    assertEquals(JBBPCompiler.CODE_BYTE | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_ARRAY | JBBPCompiler.FLAG_WIDE, compiled[3] & 0xFF);
+    assertEquals(JBBPCompiler.CODE_BYTE | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_ARRAY |
+        JBBPCompiler.FLAG_WIDE, compiled[3] & 0xFF);
     assertEquals(JBBPCompiler.EXT_FLAG_EXPRESSION_OR_WHOLESTREAM, compiled[4] & 0xFF);
     assertEquals(JBBPCompiler.CODE_STRUCT_END, compiled[5]);
     assertEquals(2, compiled[6]);
@@ -500,22 +537,26 @@ public class JBBPCompilerTest {
 
   @Test
   public void testCompile_ErrorForArrayAsVarLength() throws Exception {
-    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("out { int [4] len; some {byte [len] HeLLo;} }"));
+    assertThrows(JBBPCompilationException.class,
+        () -> JBBPCompiler.compile("out { int [4] len; some {byte [len] HeLLo;} }"));
   }
 
   @Test
   public void testCompile_ErrorForFieldInStructArrayAsVarLength() throws Exception {
-    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("struct [10] {int [4] len;} some {byte [struct.len] HeLLo;} "));
+    assertThrows(JBBPCompilationException.class,
+        () -> JBBPCompiler.compile("struct [10] {int [4] len;} some {byte [struct.len] HeLLo;} "));
   }
 
   @Test
   public void testCompile_ErrorForFieldInStructAsVarLength() throws Exception {
-    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("struct [10] {int len;} some {byte [struct.len] HeLLo;} "));
+    assertThrows(JBBPCompilationException.class,
+        () -> JBBPCompiler.compile("struct [10] {int len;} some {byte [struct.len] HeLLo;} "));
   }
 
   @Test
   public void testCompile_ErrorForUnknownFieldAsArrayLength() throws Exception {
-    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("some {byte [struct.len] HeLLo;} "));
+    assertThrows(JBBPCompilationException.class,
+        () -> JBBPCompiler.compile("some {byte [struct.len] HeLLo;} "));
   }
 
   @Test
@@ -525,8 +566,10 @@ public class JBBPCompilerTest {
     assertEquals(2, compiled.getCompiledData().length);
     assertNotNull(field);
     assertEquals(0, field.getFieldOffsetInCompiledBlock());
-    assertEquals(JBBPCompiler.CODE_BYTE | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_WIDE, compiled.getCompiledData()[0] & 0xFF);
-    assertEquals(JBBPCompiler.EXT_FLAG_EXPRESSION_OR_WHOLESTREAM, compiled.getCompiledData()[1] & 0xFF);
+    assertEquals(JBBPCompiler.CODE_BYTE | JBBPCompiler.FLAG_NAMED | JBBPCompiler.FLAG_WIDE,
+        compiled.getCompiledData()[0] & 0xFF);
+    assertEquals(JBBPCompiler.EXT_FLAG_EXPRESSION_OR_WHOLESTREAM,
+        compiled.getCompiledData()[1] & 0xFF);
   }
 
   @Test
@@ -538,7 +581,8 @@ public class JBBPCompilerTest {
 
   @Test
   public void testCompile_FixedStructArray() throws Exception {
-    final JBBPCompiledBlock compiled = JBBPCompiler.compile("int value; inner [2] { byte a; byte b;}");
+    final JBBPCompiledBlock compiled =
+        JBBPCompiler.compile("int value; inner [2] { byte a; byte b;}");
 
     assertArrayEquals(new byte[] {
         JBBPCompiler.CODE_INT | JBBPCompiler.FLAG_NAMED,
@@ -563,7 +607,8 @@ public class JBBPCompilerTest {
     assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("reset$$:1;"));
     assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("reset$$ hello;"));
     assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("reset$$ [445];"));
-    assertThrows(JBBPCompilationException.class, () -> JBBPCompiler.compile("reset$$ [445] hello;"));
+    assertThrows(JBBPCompilationException.class,
+        () -> JBBPCompiler.compile("reset$$ [445] hello;"));
   }
 
   @Test
@@ -573,7 +618,8 @@ public class JBBPCompilerTest {
 
   @Test
   public void testCompile_Reset() throws Exception {
-    assertArrayEquals(new byte[] {JBBPCompiler.CODE_RESET_COUNTER}, JBBPCompiler.compile("reset$$;").getCompiledData());
+    assertArrayEquals(new byte[] {JBBPCompiler.CODE_RESET_COUNTER},
+        JBBPCompiler.compile("reset$$;").getCompiledData());
   }
 
 }

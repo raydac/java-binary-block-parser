@@ -29,7 +29,6 @@ import com.igormaznitsa.jbbp.model.JBBPFieldDouble;
 import com.igormaznitsa.jbbp.model.JBBPFieldFloat;
 import com.igormaznitsa.jbbp.model.JBBPFieldString;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -157,7 +156,8 @@ public final class JBBPCompiler {
   private static void assertTokenNotArray(final String fieldType, final JBBPToken token) {
     if (token.getArraySizeAsString() != null) {
       final String fieldName = token.getFieldName() == null ? "<ANONYM>" : token.getFieldName();
-      throw new JBBPCompilationException('\'' + fieldType + "' can't be array (" + fieldName + ')', token);
+      throw new JBBPCompilationException('\'' + fieldType + "' can't be array (" + fieldName + ')',
+          token);
     }
   }
 
@@ -169,7 +169,8 @@ public final class JBBPCompiler {
 
   private static void assertTokenNotNamed(final String fieldType, final JBBPToken token) {
     if (token.getFieldName() != null) {
-      throw new JBBPCompilationException('\'' + fieldType + "' must not be named (" + token.getFieldName() + ')', token);
+      throw new JBBPCompilationException(
+          '\'' + fieldType + "' must not be named (" + token.getFieldName() + ')', token);
     }
   }
 
@@ -179,7 +180,8 @@ public final class JBBPCompiler {
     }
   }
 
-  private static void assertTokenDoesntHaveExtraData(final String fieldType, final JBBPToken token) {
+  private static void assertTokenDoesntHaveExtraData(final String fieldType,
+                                                     final JBBPToken token) {
     if (token.getFieldTypeParameters().getExtraData() != null) {
       throw new JBBPCompilationException('\'' + fieldType + "\' has extra value", token);
     }
@@ -196,7 +198,9 @@ public final class JBBPCompiler {
    * @throws JBBPException it will be thrown for any logical or work exception
    *                       for the parser and compiler
    */
-  public static JBBPCompiledBlock compile(final String script, final JBBPCustomFieldTypeProcessor customTypeFieldProcessor) throws IOException {
+  public static JBBPCompiledBlock compile(final String script,
+                                          final JBBPCustomFieldTypeProcessor customTypeFieldProcessor)
+      throws IOException {
     JBBPUtils.assertNotNull(script, "Script must not be null");
 
     final JBBPCompiledBlock.Builder builder = JBBPCompiledBlock.prepare().setSource(script);
@@ -238,7 +242,8 @@ public final class JBBPCompiler {
       int extraFieldNumberAsInt = -1;
       int customTypeFieldIndex = -1;
 
-      final boolean extraFieldNumericDataAsExpression = ((code >>> 8) & EXT_FLAG_EXTRA_AS_EXPRESSION) != 0;
+      final boolean extraFieldNumericDataAsExpression =
+          ((code >>> 8) & EXT_FLAG_EXTRA_AS_EXPRESSION) != 0;
       final boolean fieldTypeDiff = ((code >>> 8) & EXT_FLAG_EXTRA_DIFF_TYPE) != 0;
 
       switch (code & 0xF) {
@@ -252,7 +257,9 @@ public final class JBBPCompiler {
         case CODE_LONG: {
           if ((code & 0x0F) == CODE_CUSTOMTYPE) {
             if (extraFieldNumericDataAsExpression) {
-              varLengthEvaluators.add(JBBPEvaluatorFactory.getInstance().make(token.getFieldTypeParameters().getExtraDataExpression(), namedFields, out.toByteArray()));
+              varLengthEvaluators.add(JBBPEvaluatorFactory.getInstance()
+                  .make(token.getFieldTypeParameters().getExtraDataExpression(), namedFields,
+                      out.toByteArray()));
             } else {
               final String extraDataAsStr = token.getFieldTypeParameters().getExtraData();
               if (extraDataAsStr == null) {
@@ -261,12 +268,15 @@ public final class JBBPCompiler {
                 try {
                   extraFieldNumberAsInt = Integer.parseInt(extraDataAsStr);
                 } catch (NumberFormatException ex) {
-                  throw new JBBPCompilationException("Can't parse extra data, must be numeric", token);
+                  throw new JBBPCompilationException("Can't parse extra data, must be numeric",
+                      token);
                 }
               }
               writeExtraFieldNumberInCompiled = true;
             }
-            if (customTypeFieldProcessor.isAllowed(token.getFieldTypeParameters(), token.getFieldName(), extraFieldNumberAsInt, token.isArray())) {
+            if (customTypeFieldProcessor
+                .isAllowed(token.getFieldTypeParameters(), token.getFieldName(),
+                    extraFieldNumberAsInt, token.isArray())) {
               customTypeFieldIndex = customTypeFields.size();
               customTypeFields.add(token.getFieldTypeParameters());
             } else {
@@ -285,7 +295,9 @@ public final class JBBPCompiler {
             assertTokenNotNamed("skip", token);
           }
           if (extraFieldNumericDataAsExpression) {
-            varLengthEvaluators.add(JBBPEvaluatorFactory.getInstance().make(token.getFieldTypeParameters().getExtraDataExpression(), namedFields, out.toByteArray()));
+            varLengthEvaluators.add(JBBPEvaluatorFactory.getInstance()
+                .make(token.getFieldTypeParameters().getExtraDataExpression(), namedFields,
+                    out.toByteArray()));
           } else {
             final String extraNumberAsStr = token.getFieldTypeParameters().getExtraData();
             writeExtraFieldNumberInCompiled = true;
@@ -309,7 +321,9 @@ public final class JBBPCompiler {
           assertTokenNotNamed("align", token);
 
           if (extraFieldNumericDataAsExpression) {
-            varLengthEvaluators.add(JBBPEvaluatorFactory.getInstance().make(token.getFieldTypeParameters().getExtraDataExpression(), namedFields, out.toByteArray()));
+            varLengthEvaluators.add(JBBPEvaluatorFactory.getInstance()
+                .make(token.getFieldTypeParameters().getExtraDataExpression(), namedFields,
+                    out.toByteArray()));
           } else {
             final String extraNumberAsStr = token.getFieldTypeParameters().getExtraData();
             writeExtraFieldNumberInCompiled = true;
@@ -323,7 +337,8 @@ public final class JBBPCompiler {
                 extraFieldNumberAsInt = -1;
               }
               if (extraFieldNumberAsInt <= 0) {
-                throw new JBBPCompilationException("'align' size must be greater than zero [" + token.getFieldTypeParameters().getExtraData() + ']', token);
+                throw new JBBPCompilationException("'align' size must be greater than zero [" +
+                    token.getFieldTypeParameters().getExtraData() + ']', token);
               }
             }
           }
@@ -331,7 +346,9 @@ public final class JBBPCompiler {
         break;
         case CODE_BIT: {
           if (extraFieldNumericDataAsExpression) {
-            varLengthEvaluators.add(JBBPEvaluatorFactory.getInstance().make(token.getFieldTypeParameters().getExtraDataExpression(), namedFields, out.toByteArray()));
+            varLengthEvaluators.add(JBBPEvaluatorFactory.getInstance()
+                .make(token.getFieldTypeParameters().getExtraDataExpression(), namedFields,
+                    out.toByteArray()));
           } else {
             final String extraFieldNumAsStr = token.getFieldTypeParameters().getExtraData();
             writeExtraFieldNumberInCompiled = true;
@@ -345,7 +362,9 @@ public final class JBBPCompiler {
                 extraFieldNumberAsInt = -1;
               }
               if (extraFieldNumberAsInt < 1 || extraFieldNumberAsInt > 8) {
-                throw new JBBPCompilationException("Bit-width must be 1..8 [" + token.getFieldTypeParameters().getExtraData() + ']', token);
+                throw new JBBPCompilationException(
+                    "Bit-width must be 1..8 [" + token.getFieldTypeParameters().getExtraData() +
+                        ']', token);
               }
             }
           }
@@ -354,7 +373,9 @@ public final class JBBPCompiler {
         case CODE_VAR: {
           hasVarFields = true;
           if (extraFieldNumericDataAsExpression) {
-            varLengthEvaluators.add(JBBPEvaluatorFactory.getInstance().make(token.getFieldTypeParameters().getExtraDataExpression(), namedFields, out.toByteArray()));
+            varLengthEvaluators.add(JBBPEvaluatorFactory.getInstance()
+                .make(token.getFieldTypeParameters().getExtraDataExpression(), namedFields,
+                    out.toByteArray()));
           } else {
             final String extraFieldNumStr = token.getFieldTypeParameters().getExtraData();
             writeExtraFieldNumberInCompiled = true;
@@ -364,7 +385,9 @@ public final class JBBPCompiler {
               try {
                 extraFieldNumberAsInt = Integer.parseInt(extraFieldNumStr);
               } catch (NumberFormatException ex) {
-                throw new JBBPCompilationException("Can't parse the extra value of a VAR field, must be integer [" + token.getFieldTypeParameters().getExtraData() + ']', token);
+                throw new JBBPCompilationException(
+                    "Can't parse the extra value of a VAR field, must be integer [" +
+                        token.getFieldTypeParameters().getExtraData() + ']', token);
               }
             }
           }
@@ -377,18 +400,26 @@ public final class JBBPCompiler {
         }
         break;
         case CODE_STRUCT_START: {
-          final boolean arrayReadTillEnd = (code & FLAG_ARRAY) != 0 && (extraCode & EXT_FLAG_EXPRESSION_OR_WHOLESTREAM) != 0 && "_".equals(token.getArraySizeAsString());
-          structureStack.add(new StructStackItem(namedFields.size() + ((code & JBBPCompiler.FLAG_NAMED) == 0 ? 0 : 1), startFieldOffset, arrayReadTillEnd, code, token));
+          final boolean arrayReadTillEnd =
+              (code & FLAG_ARRAY) != 0 && (extraCode & EXT_FLAG_EXPRESSION_OR_WHOLESTREAM) != 0 &&
+                  "_".equals(token.getArraySizeAsString());
+          structureStack.add(new StructStackItem(
+              namedFields.size() + ((code & JBBPCompiler.FLAG_NAMED) == 0 ? 0 : 1),
+              startFieldOffset, arrayReadTillEnd, code, token));
         }
         break;
         case CODE_STRUCT_END: {
           if (structureStack.isEmpty()) {
-            throw new JBBPCompilationException("Detected structure close tag without opening one", token);
+            throw new JBBPCompilationException("Detected structure close tag without opening one",
+                token);
           } else {
             if (fieldUnrestrictedArrayOffset >= 0) {
               final StructStackItem startOfStruct = structureStack.get(structureStack.size() - 1);
-              if (startOfStruct.arrayToReadTillEndOfStream && fieldUnrestrictedArrayOffset != startOfStruct.startStructureOffset) {
-                throw new JBBPCompilationException("Detected unlimited array of structures but there is already presented one", token);
+              if (startOfStruct.arrayToReadTillEndOfStream &&
+                  fieldUnrestrictedArrayOffset != startOfStruct.startStructureOffset) {
+                throw new JBBPCompilationException(
+                    "Detected unlimited array of structures but there is already presented one",
+                    token);
               }
             }
 
@@ -398,28 +429,33 @@ public final class JBBPCompiler {
         }
         break;
         default:
-          throw new Error("Detected unsupported compiled code, notify the developer please [" + code + ']');
+          throw new Error(
+              "Detected unsupported compiled code, notify the developer please [" + code + ']');
       }
 
       if ((code & FLAG_ARRAY) == 0) {
-        if (structureStack.isEmpty() && (code & 0x0F) != CODE_STRUCT_END && fieldUnrestrictedArrayOffset >= 0) {
-           throw new JBBPCompilationException("Detected field defined after unlimited array", token);
+        if (structureStack.isEmpty() && (code & 0x0F) != CODE_STRUCT_END &&
+            fieldUnrestrictedArrayOffset >= 0) {
+          throw new JBBPCompilationException("Detected field defined after unlimited array", token);
         }
       } else {
         if ((extraCode & EXT_FLAG_EXPRESSION_OR_WHOLESTREAM) != 0) {
           if ("_".equals(token.getArraySizeAsString())) {
             if (fieldUnrestrictedArrayOffset >= 0) {
-              throw new JBBPCompilationException("Detected two or more unlimited arrays [" + script + ']', token);
+              throw new JBBPCompilationException(
+                  "Detected two or more unlimited arrays [" + script + ']', token);
             } else {
               fieldUnrestrictedArrayOffset = startFieldOffset;
             }
           } else {
-            varLengthEvaluators.add(JBBPEvaluatorFactory.getInstance().make(token.getArraySizeAsString(), namedFields, out.toByteArray()));
+            varLengthEvaluators.add(JBBPEvaluatorFactory.getInstance()
+                .make(token.getArraySizeAsString(), namedFields, out.toByteArray()));
           }
         } else {
           final int fixedArraySize = token.getArraySizeAsInt();
           if (fixedArraySize <= 0) {
-            throw new JBBPCompilationException("Detected an array with negative or zero fixed length", token);
+            throw new JBBPCompilationException(
+                "Detected an array with negative or zero fixed length", token);
           }
           offset += writePackedInt(out, fixedArraySize);
         }
@@ -436,31 +472,37 @@ public final class JBBPCompiler {
       if ((code & FLAG_NAMED) != 0) {
         final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(token.getFieldName());
         assertName(normalizedName, token);
-        registerNamedField(normalizedName, structureStack.isEmpty() ? 0 : structureStack.get(structureStack.size() - 1).namedFieldCounter, startFieldOffset, namedFields, token);
+        registerNamedField(normalizedName, structureStack.isEmpty() ? 0 :
+                structureStack.get(structureStack.size() - 1).namedFieldCounter, startFieldOffset,
+            namedFields, token);
       } else {
         if (currentClosedStructure != null && (currentClosedStructure.code & FLAG_NAMED) != 0) {
           // it is structure, process field names
-          final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(currentClosedStructure.token.getFieldName());
+          final String normalizedName =
+              JBBPUtils.normalizeFieldNameOrPath(currentClosedStructure.token.getFieldName());
           for (int i = namedFields.size() - 1; i >= 0; i--) {
             final JBBPNamedFieldInfo f = namedFields.get(i);
             if (f.getFieldOffsetInCompiledBlock() <= currentClosedStructure.startStructureOffset) {
               break;
             }
             final String newFullName = normalizedName + '.' + f.getFieldPath();
-            namedFields.set(i, new JBBPNamedFieldInfo(newFullName, f.getFieldName(), f.getFieldOffsetInCompiledBlock()));
+            namedFields.set(i, new JBBPNamedFieldInfo(newFullName, f.getFieldName(),
+                f.getFieldOffsetInCompiledBlock()));
           }
         }
       }
     }
 
     if (!structureStack.isEmpty()) {
-      throw new JBBPCompilationException("Detected non-closed " + structureStack.size() + " structure(s)");
+      throw new JBBPCompilationException(
+          "Detected non-closed " + structureStack.size() + " structure(s)");
     }
 
     final byte[] compiledBlock = out.toByteArray();
 
     if (fieldUnrestrictedArrayOffset >= 0) {
-      compiledBlock[fieldUnrestrictedArrayOffset] = (byte) (compiledBlock[fieldUnrestrictedArrayOffset] & ~FLAG_ARRAY);
+      compiledBlock[fieldUnrestrictedArrayOffset] =
+          (byte) (compiledBlock[fieldUnrestrictedArrayOffset] & ~FLAG_ARRAY);
     }
 
     return builder
@@ -481,7 +523,9 @@ public final class JBBPCompiler {
    */
   private static void assertNonNegativeValue(final int value, final JBBPToken token) {
     if (value < 0) {
-      throw new JBBPCompilationException("Detected unsupported negative value for a field must have only zero or a positive one", token);
+      throw new JBBPCompilationException(
+          "Detected unsupported negative value for a field must have only zero or a positive one",
+          token);
     }
   }
 
@@ -494,7 +538,8 @@ public final class JBBPCompiler {
    */
   private static void assertName(final String name, final JBBPToken token) {
     if (name.indexOf('.') >= 0) {
-      throw new JBBPCompilationException("Detected disallowed char '.' in name [" + name + ']', token);
+      throw new JBBPCompilationException("Detected disallowed char '.' in name [" + name + ']',
+          token);
     }
   }
 
@@ -508,11 +553,15 @@ public final class JBBPCompiler {
    * @throws JBBPCompilationException if there is already a registered field for
    *                                  the path
    */
-  private static void registerNamedField(final String normalizedName, final int structureBorder, final int offset, final List<JBBPNamedFieldInfo> namedFields, final JBBPToken token) {
+  private static void registerNamedField(final String normalizedName, final int structureBorder,
+                                         final int offset,
+                                         final List<JBBPNamedFieldInfo> namedFields,
+                                         final JBBPToken token) {
     for (int i = namedFields.size() - 1; i >= structureBorder; i--) {
       final JBBPNamedFieldInfo info = namedFields.get(i);
       if (info.getFieldPath().equals(normalizedName)) {
-        throw new JBBPCompilationException("Duplicated named field detected [" + normalizedName + ']', token);
+        throw new JBBPCompilationException(
+            "Duplicated named field detected [" + normalizedName + ']', token);
       }
     }
     namedFields.add(new JBBPNamedFieldInfo(normalizedName, normalizedName, offset));
@@ -540,7 +589,8 @@ public final class JBBPCompiler {
    *                                 it can be null
    * @return the prepared byte code for the token
    */
-  private static int prepareCodeForToken(final JBBPToken token, final JBBPCustomFieldTypeProcessor customTypeFieldProcessor) {
+  private static int prepareCodeForToken(final JBBPToken token,
+                                         final JBBPCustomFieldTypeProcessor customTypeFieldProcessor) {
     int result = -1;
     switch (token.getType()) {
       case ATOM: {
@@ -550,9 +600,11 @@ public final class JBBPCompiler {
 
         final boolean hasExpressionAsExtraNumber = descriptor.hasExpressionAsExtraData();
 
-        result |= token.getArraySizeAsString() == null ? 0 : (token.isVarArrayLength() ? FLAG_ARRAY | FLAG_WIDE | (EXT_FLAG_EXPRESSION_OR_WHOLESTREAM << 8) : FLAG_ARRAY);
+        result |= token.getArraySizeAsString() == null ? 0 : (token.isVarArrayLength() ?
+            FLAG_ARRAY | FLAG_WIDE | (EXT_FLAG_EXPRESSION_OR_WHOLESTREAM << 8) : FLAG_ARRAY);
         result |= hasExpressionAsExtraNumber ? FLAG_WIDE | (EXT_FLAG_EXTRA_AS_EXPRESSION << 8) : 0;
-        result |= token.getFieldTypeParameters().isSpecialField() ? FLAG_WIDE | (EXT_FLAG_EXTRA_DIFF_TYPE << 8) : 0;
+        result |= token.getFieldTypeParameters().isSpecialField() ?
+            FLAG_WIDE | (EXT_FLAG_EXTRA_DIFF_TYPE << 8) : 0;
         result |= token.getFieldName() == null ? 0 : FLAG_NAMED;
 
         final String name = descriptor.getTypeName().toLowerCase(Locale.ENGLISH);
@@ -609,7 +661,8 @@ public final class JBBPCompiler {
               }
             }
             if (unsupportedType) {
-              throw new JBBPCompilationException("Unsupported type [" + descriptor.getTypeName() + ']', token);
+              throw new JBBPCompilationException(
+                  "Unsupported type [" + descriptor.getTypeName() + ']', token);
             }
             break;
         }
@@ -620,7 +673,8 @@ public final class JBBPCompiler {
       }
       break;
       case STRUCT_START: {
-        result = token.getArraySizeAsString() == null ? 0 : (token.isVarArrayLength() ? FLAG_ARRAY | FLAG_WIDE | (EXT_FLAG_EXPRESSION_OR_WHOLESTREAM << 8) : FLAG_ARRAY);
+        result = token.getArraySizeAsString() == null ? 0 : (token.isVarArrayLength() ?
+            FLAG_ARRAY | FLAG_WIDE | (EXT_FLAG_EXPRESSION_OR_WHOLESTREAM << 8) : FLAG_ARRAY);
         result |= token.getFieldName() == null ? 0 : FLAG_NAMED;
         result |= CODE_STRUCT_START;
       }
@@ -674,7 +728,9 @@ public final class JBBPCompiler {
      * @param code                 the start byte code
      * @param token                the token
      */
-    private StructStackItem(final int namedFieldCounter, final int startStructureOffset, final boolean arrayToReadTillEnd, final int code, final JBBPToken token) {
+    private StructStackItem(final int namedFieldCounter, final int startStructureOffset,
+                            final boolean arrayToReadTillEnd, final int code,
+                            final JBBPToken token) {
       this.namedFieldCounter = namedFieldCounter;
       this.arrayToReadTillEndOfStream = arrayToReadTillEnd;
       this.startStructureOffset = startStructureOffset;

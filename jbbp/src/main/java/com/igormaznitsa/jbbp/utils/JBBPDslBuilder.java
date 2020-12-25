@@ -52,38 +52,6 @@ public class JBBPDslBuilder {
     return new JBBPDslBuilder();
   }
 
-  protected void addItem(final Item item) {
-    if (item instanceof ItemComment || item.name == null || item.name.length() == 0) {
-      this.items.add(item);
-    } else {
-      int structCounter = 0;
-      for (int i = this.items.size() - 1; i >= 0; i--) {
-        final Item itm = this.items.get(i);
-
-        if (itm instanceof ItemComment) {
-          continue;
-        }
-
-        if (itm.type == BinType.STRUCT || itm.type == BinType.STRUCT_ARRAY) {
-          if (structCounter == 0) {
-            break;
-          }
-          structCounter++;
-        } else if (itm instanceof ItemStructEnd) {
-          structCounter--;
-        }
-
-        if (structCounter == 0) {
-          final String thatName = itm.name;
-          if (thatName != null && thatName.length() > 0 && item.name.equalsIgnoreCase(thatName)) {
-            throw new IllegalArgumentException("Duplicated item name '" + item.name + '\'');
-          }
-        }
-      }
-      this.items.add(item);
-    }
-  }
-
   protected static String assertTextNotNullAndTrimmedNotEmpty(final String text) {
     if (text == null) {
       throw new NullPointerException("Must not be null");
@@ -107,7 +75,8 @@ public class JBBPDslBuilder {
         }
 
         if (!Character.isLetterOrDigit(c) && c != '_') {
-          throw new IllegalArgumentException("Only letters, digits and underscore allowed: " + name);
+          throw new IllegalArgumentException(
+              "Only letters, digits and underscore allowed: " + name);
         }
       }
     }
@@ -154,7 +123,8 @@ public class JBBPDslBuilder {
     return value;
   }
 
-  protected static StringBuilder doTabs(final boolean enable, final StringBuilder buffer, int tabs) {
+  protected static StringBuilder doTabs(final boolean enable, final StringBuilder buffer,
+                                        int tabs) {
     if (enable) {
       while (tabs > 0) {
         buffer.append('\t');
@@ -162,6 +132,38 @@ public class JBBPDslBuilder {
       }
     }
     return buffer;
+  }
+
+  protected void addItem(final Item item) {
+    if (item instanceof ItemComment || item.name == null || item.name.length() == 0) {
+      this.items.add(item);
+    } else {
+      int structCounter = 0;
+      for (int i = this.items.size() - 1; i >= 0; i--) {
+        final Item itm = this.items.get(i);
+
+        if (itm instanceof ItemComment) {
+          continue;
+        }
+
+        if (itm.type == BinType.STRUCT || itm.type == BinType.STRUCT_ARRAY) {
+          if (structCounter == 0) {
+            break;
+          }
+          structCounter++;
+        } else if (itm instanceof ItemStructEnd) {
+          structCounter--;
+        }
+
+        if (structCounter == 0) {
+          final String thatName = itm.name;
+          if (thatName != null && thatName.length() > 0 && item.name.equalsIgnoreCase(thatName)) {
+            throw new IllegalArgumentException("Duplicated item name '" + item.name + '\'');
+          }
+        }
+      }
+      this.items.add(item);
+    }
   }
 
   /**
@@ -471,7 +473,8 @@ public class JBBPDslBuilder {
    * @param param          optional parameter for the field, can be null
    * @return the builder instance, must not be null
    */
-  public JBBPDslBuilder VarArray(final String name, final String sizeExpression, final String param) {
+  public JBBPDslBuilder VarArray(final String name, final String sizeExpression,
+                                 final String param) {
     return this.CustomArray("var", name, sizeExpression, param);
   }
 
@@ -530,7 +533,8 @@ public class JBBPDslBuilder {
    * @param param optional parameter for the field, can be null
    * @return the builder instance, must not be null
    */
-  public JBBPDslBuilder CustomArray(final String type, final String name, final int size, final String param) {
+  public JBBPDslBuilder CustomArray(final String type, final String name, final int size,
+                                    final String param) {
     return this.CustomArray(type, name, arraySizeToString(size), param);
   }
 
@@ -543,7 +547,8 @@ public class JBBPDslBuilder {
    * @param param          optional parameter for the field, can be null
    * @return the builder instance, must not be null
    */
-  public JBBPDslBuilder CustomArray(final String type, final String name, final String sizeExpression, final String param) {
+  public JBBPDslBuilder CustomArray(final String type, final String name,
+                                    final String sizeExpression, final String param) {
     final ItemCustom item = new ItemCustom(type, name, this.byteOrder);
     item.array = true;
     item.bitLenExpression = param == null ? null : assertExpressionChars(param);
@@ -719,7 +724,8 @@ public class JBBPDslBuilder {
    * @param sizeExpression expression to be used to calculate array size, must not be null
    * @return the builder instance, must not be null
    */
-  public JBBPDslBuilder BitArray(final String name, final JBBPBitNumber bits, final String sizeExpression) {
+  public JBBPDslBuilder BitArray(final String name, final JBBPBitNumber bits,
+                                 final String sizeExpression) {
     final Item item = new Item(BinType.BIT_ARRAY, name, this.byteOrder);
     item.bitNumber = bits;
     item.sizeExpression = assertExpressionChars(sizeExpression);
@@ -735,7 +741,8 @@ public class JBBPDslBuilder {
    * @param sizeExpression   expression to be used to calculate array size, must not be null
    * @return the builder instance, must not be null
    */
-  public JBBPDslBuilder BitArray(final String name, final String bitLenExpression, final String sizeExpression) {
+  public JBBPDslBuilder BitArray(final String name, final String bitLenExpression,
+                                 final String sizeExpression) {
     final Item item = new Item(BinType.BIT_ARRAY, name, this.byteOrder);
     item.bitLenExpression = assertExpressionChars(bitLenExpression);
     item.sizeExpression = assertExpressionChars(sizeExpression);
@@ -1466,12 +1473,14 @@ public class JBBPDslBuilder {
     for (final Item item : this.items) {
       switch (item.type) {
         case STRUCT: {
-          doTabs(format, buffer, structCounter).append(item.name == null ? "" : item.name).append('{');
+          doTabs(format, buffer, structCounter).append(item.name == null ? "" : item.name)
+              .append('{');
           structCounter++;
         }
         break;
         case STRUCT_ARRAY: {
-          doTabs(format, buffer, structCounter).append(item.name == null ? "" : item.name).append('[').append(item.sizeExpression).append(']').append('{');
+          doTabs(format, buffer, structCounter).append(item.name == null ? "" : item.name)
+              .append('[').append(item.sizeExpression).append(']').append('{');
           structCounter++;
         }
         break;
@@ -1493,13 +1502,19 @@ public class JBBPDslBuilder {
           } else if (item instanceof ItemCustom) {
             doTabs(format, buffer, structCounter).append(item.toString());
           } else if (item instanceof ItemAlign) {
-            doTabs(format, buffer, structCounter).append("align").append(item.sizeExpression == null ? "" : ':' + item.makeExpressionForExtraField(item.sizeExpression)).append(';');
+            doTabs(format, buffer, structCounter).append("align").append(
+                item.sizeExpression == null ? "" :
+                    ':' + item.makeExpressionForExtraField(item.sizeExpression)).append(';');
           } else if (item instanceof ItemVal) {
-            doTabs(format, buffer, structCounter).append("val").append(':').append(item.makeExpressionForExtraField(item.sizeExpression)).append(' ').append(item.name).append(';');
+            doTabs(format, buffer, structCounter).append("val").append(':')
+                .append(item.makeExpressionForExtraField(item.sizeExpression)).append(' ')
+                .append(item.name).append(';');
           } else if (item instanceof ItemResetCounter) {
             doTabs(format, buffer, structCounter).append("reset$$;");
           } else if (item instanceof ItemSkip) {
-            doTabs(format, buffer, structCounter).append("skip").append(item.sizeExpression == null ? "" : ':' + item.makeExpressionForExtraField(item.sizeExpression)).append(';');
+            doTabs(format, buffer, structCounter).append("skip").append(
+                item.sizeExpression == null ? "" :
+                    ':' + item.makeExpressionForExtraField(item.sizeExpression)).append(';');
           } else if (item instanceof ItemComment) {
             final ItemComment comment = (ItemComment) item;
             final String commentText = comment.getComment().replace("\n", " ");
@@ -1570,13 +1585,16 @@ public class JBBPDslBuilder {
     }
 
     for (final Field f : annotatedClass.getDeclaredFields()) {
-      if ((f.getModifiers() & (Modifier.NATIVE | Modifier.STATIC | Modifier.FINAL | Modifier.PRIVATE | Modifier.TRANSIENT)) == 0) {
+      if ((f.getModifiers() &
+          (Modifier.NATIVE | Modifier.STATIC | Modifier.FINAL | Modifier.PRIVATE |
+              Modifier.TRANSIENT)) == 0) {
         final Bin foundFieldBin = f.getAnnotation(Bin.class);
 
         if (foundFieldBin != null || defautBin != null) {
           validateAnnotatedField(defautBin, foundFieldBin, f);
 
-          final Class<?> type = f.getType().isArray() ? f.getType().getComponentType() : f.getType();
+          final Class<?> type =
+              f.getType().isArray() ? f.getType().getComponentType() : f.getType();
           if (type.isPrimitive() || type == String.class) {
             if (foundFieldBin != null) {
               result.addBinField(foundFieldBin, true, f);
@@ -1621,7 +1639,8 @@ public class JBBPDslBuilder {
         && field.getType().isArray()
         || bin.type().name().endsWith("_ARRAY"))
         && bin.arraySizeExpr().isEmpty()) {
-      throw new IllegalArgumentException(field.toString() + ": missing expression in Bin#arraySizeExpression");
+      throw new IllegalArgumentException(
+          field.toString() + ": missing expression in Bin#arraySizeExpression");
     }
   }
 
@@ -1652,7 +1671,8 @@ public class JBBPDslBuilder {
     return addAnnotatedClass(annotatedClass, true);
   }
 
-  protected JBBPDslBuilder addAnnotatedClass(final Class<?> annotatedClass, final boolean onlyFields) {
+  protected JBBPDslBuilder addAnnotatedClass(final Class<?> annotatedClass,
+                                             final boolean onlyFields) {
     final BinFieldContainer collected = collectAnnotatedFields(annotatedClass);
 
     final JBBPByteOrder old = this.byteOrder;
@@ -1712,9 +1732,11 @@ public class JBBPDslBuilder {
           switch (type) {
             case BIT_ARRAY: {
               if (field.bin.paramExpr().isEmpty()) {
-                this.BitArray(field.getName(), pair.container.getBitNumber(field), field.bin.arraySizeExpr());
+                this.BitArray(field.getName(), pair.container.getBitNumber(field),
+                    field.bin.arraySizeExpr());
               } else {
-                this.CustomArray("bit", field.getName(), field.bin.arraySizeExpr(), field.bin.paramExpr());
+                this.CustomArray("bit", field.getName(), field.bin.arraySizeExpr(),
+                    field.bin.paramExpr());
               }
             }
             break;
@@ -1810,7 +1832,8 @@ public class JBBPDslBuilder {
               if (!field.getCustomType().isEmpty()) {
                 this.ByteOrder(pair.container.getByteOrder(field));
                 if (field.isArrayField() || !field.bin.arraySizeExpr().isEmpty()) {
-                  this.CustomArray(field.bin.customType(), field.getName(), field.bin.arraySizeExpr(), field.bin.paramExpr());
+                  this.CustomArray(field.bin.customType(), field.getName(),
+                      field.bin.arraySizeExpr(), field.bin.paramExpr());
                 } else {
                   this.Custom(field.bin.customType(), field.getName(), field.bin.arraySizeExpr());
                 }
@@ -1854,7 +1877,8 @@ public class JBBPDslBuilder {
 
     Item(final BinType type, final String name, final JBBPByteOrder byteOrder) {
       this.type = type;
-      this.name = name == null ? null : assertNameIfNotNull(assertTextNotNullAndTrimmedNotEmpty(name)).trim();
+      this.name = name == null ? null :
+          assertNameIfNotNull(assertTextNotNullAndTrimmedNotEmpty(name)).trim();
       this.byteOrder = byteOrder;
     }
 
@@ -1969,7 +1993,8 @@ public class JBBPDslBuilder {
         return BinType.STRUCT;
       }
       if (this.bin.type() == BinType.UNDEFINED) {
-        return this.bin.customType().isEmpty() ? BinType.findCompatible(this.field.getType()) : this.bin.type();
+        return this.bin.customType().isEmpty() ? BinType.findCompatible(this.field.getType()) :
+            this.bin.type();
       } else {
         return this.bin.type();
       }
@@ -2039,12 +2064,12 @@ public class JBBPDslBuilder {
   }
 
   protected static class BinFieldContainer extends BinField {
+    static final BinFieldContainer END_STRUCT = new BinFieldContainer(null, null);
     final List<BinField> fields = new ArrayList<>();
     final Class<?> klazz;
 
-    static final BinFieldContainer END_STRUCT = new BinFieldContainer(null, null);
-
-    BinFieldContainer(final Class<?> klazz, final Bin bin, final boolean fieldLocalAnnotation, final Field field) {
+    BinFieldContainer(final Class<?> klazz, final Bin bin, final boolean fieldLocalAnnotation,
+                      final Field field) {
       super(bin, fieldLocalAnnotation, field);
       this.klazz = klazz;
     }
@@ -2119,7 +2144,8 @@ public class JBBPDslBuilder {
   protected static class ItemVal extends Item {
     ItemVal(final String name, final String sizeExpression) {
       super(BinType.UNDEFINED, assertTextNotNullAndTrimmedNotEmpty(name), JBBPByteOrder.BIG_ENDIAN);
-      this.sizeExpression = assertExpressionChars(assertTextNotNullAndTrimmedNotEmpty(sizeExpression).trim());
+      this.sizeExpression =
+          assertExpressionChars(assertTextNotNullAndTrimmedNotEmpty(sizeExpression).trim());
     }
   }
 

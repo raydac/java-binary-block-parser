@@ -202,12 +202,12 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
     return this.superClass;
   }
 
-  public void setDoAbstract(final boolean value) {
-    this.doAbstract = value;
-  }
-
   public boolean isDoAbstract() {
     return this.doAbstract;
+  }
+
+  public void setDoAbstract(final boolean value) {
+    this.doAbstract = value;
   }
 
   @Nonnull
@@ -280,12 +280,12 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
     this.disableGenerateFields = value;
   }
 
-  public void setDoInnerClassesNonStatic(final boolean value) {
-    this.doInnerClassesNonStatic = value;
-  }
-
   public boolean isDoInnerClassesNonStatic() {
     return this.doInnerClassesNonStatic;
+  }
+
+  public void setDoInnerClassesNonStatic(final boolean value) {
+    this.doInnerClassesNonStatic = value;
   }
 
   @Nullable
@@ -343,7 +343,8 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
       final String trimmed = s.trim();
       final String normalized = trimmed.toLowerCase(Locale.ENGLISH);
       if (!normalized.equals(trimmed)) {
-        getLog().warn(String.format("Custom type name '%s' in JBBP normal form is '%s' ", trimmed, normalized));
+        getLog().warn(String
+            .format("Custom type name '%s' in JBBP normal form is '%s' ", trimmed, normalized));
       }
       normalizedCustomTypeNames.add(normalized);
     }
@@ -360,7 +361,9 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
       }
 
       @Override
-      public boolean isAllowed(@Nonnull final JBBPFieldTypeParameterContainer fieldType, @Nullable final String fieldName, final int extraData, final boolean isArray) {
+      public boolean isAllowed(@Nonnull final JBBPFieldTypeParameterContainer fieldType,
+                               @Nullable final String fieldName, final int extraData,
+                               final boolean isArray) {
         final boolean result = normalizedCustomTypeNames.contains(fieldType.getTypeName());
         if (!result) {
           getLog().warn("Detected not allowed custom type name : " + fieldType.getTypeName());
@@ -370,7 +373,14 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
 
       @Override
       @Nonnull
-      public JBBPAbstractField readCustomFieldType(@Nonnull final JBBPBitInputStream in, @Nonnull final JBBPBitOrder bitOrder, final int parserFlags, @Nonnull final JBBPFieldTypeParameterContainer customTypeFieldInfo, @Nullable final JBBPNamedFieldInfo fieldName, final int extraData, final boolean readWholeStream, final int arrayLength) throws IOException {
+      public JBBPAbstractField readCustomFieldType(@Nonnull final JBBPBitInputStream in,
+                                                   @Nonnull final JBBPBitOrder bitOrder,
+                                                   final int parserFlags, @Nonnull
+                                                   final JBBPFieldTypeParameterContainer customTypeFieldInfo,
+                                                   @Nullable final JBBPNamedFieldInfo fieldName,
+                                                   final int extraData,
+                                                   final boolean readWholeStream,
+                                                   final int arrayLength) throws IOException {
         throw new Error("Must not be called");
       }
     };
@@ -407,20 +417,24 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
           final Set<File> files = theTarget.getTranslator().translate(parameters, false);
           getLog().debug("Converted " + aScript + " into " + files);
           for (final File f : files) {
-            logInfo(String.format("JBBP script '%s' has been converted into '%s'", aScript.getName(), f.getName()), false);
+            logInfo(String
+                .format("JBBP script '%s' has been converted into '%s'", aScript.getName(),
+                    f.getName()), false);
           }
         } catch (IOException ex) {
-          throw new MojoExecutionException("Error during JBBP script translation : " + aScript.getAbsolutePath(), ex);
+          throw new MojoExecutionException(
+              "Error during JBBP script translation : " + aScript.getAbsolutePath(), ex);
         }
       }
 
       if (this.isAddToSourceFolders()) {
-        getLog().info("Add folder to compile source root: "+ this.getOutput().getAbsolutePath());
+        getLog().info("Add folder to compile source root: " + this.getOutput().getAbsolutePath());
         this.project.addCompileSourceRoot(this.getOutput().getAbsolutePath());
       }
 
       if (this.isAddToTestSourceFolders()) {
-        getLog().info("Add folder to test compile source root: "+ this.getOutput().getAbsolutePath());
+        getLog()
+            .info("Add folder to test compile source root: " + this.getOutput().getAbsolutePath());
         this.project.addTestCompileSourceRoot(this.getOutput().getAbsolutePath());
       }
     }

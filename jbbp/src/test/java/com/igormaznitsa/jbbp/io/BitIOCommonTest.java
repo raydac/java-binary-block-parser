@@ -16,13 +16,13 @@
 
 package com.igormaznitsa.jbbp.io;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Random;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
 public class BitIOCommonTest {
 
@@ -51,15 +51,17 @@ public class BitIOCommonTest {
       final byte[] writtenBig = buffBig.toByteArray();
       final byte[] writtenLittl = buffLittl.toByteArray();
 
-      final String restoredBig = new JBBPBitInputStream(new ByteArrayInputStream(writtenBig)).readString(JBBPByteOrder.BIG_ENDIAN);
-      final String restoredLittl = new JBBPBitInputStream(new ByteArrayInputStream(writtenLittl)).readString(JBBPByteOrder.LITTLE_ENDIAN);
+      final String restoredBig = new JBBPBitInputStream(new ByteArrayInputStream(writtenBig))
+          .readString(JBBPByteOrder.BIG_ENDIAN);
+      final String restoredLittl = new JBBPBitInputStream(new ByteArrayInputStream(writtenLittl))
+          .readString(JBBPByteOrder.LITTLE_ENDIAN);
 
 
       assertEquals(text, restoredBig, "Iteration#" + i);
       assertEquals(text, restoredLittl, "Iteration#" + i);
 
-      buffer.append((char)('A' + rnd.nextInt(11)));
-      buffer.append((char)('Б' + rnd.nextInt(22)));
+      buffer.append((char) ('A' + rnd.nextInt(11)));
+      buffer.append((char) ('Б' + rnd.nextInt(22)));
     }
   }
 
@@ -90,7 +92,8 @@ public class BitIOCommonTest {
 
     out.close();
 
-    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(buff.toByteArray()));
+    final JBBPBitInputStream in =
+        new JBBPBitInputStream(new ByteArrayInputStream(buff.toByteArray()));
     for (int i = 0; i < LEN; i++) {
       assertEquals(array[i] & 0xFF, in.readBits(JBBPBitNumber.decode(len[i])), "Index i=" + i);
     }
@@ -129,7 +132,8 @@ public class BitIOCommonTest {
 
     out.close();
 
-    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(buff.toByteArray()), JBBPBitOrder.MSB0);
+    final JBBPBitInputStream in =
+        new JBBPBitInputStream(new ByteArrayInputStream(buff.toByteArray()), JBBPBitOrder.MSB0);
     for (int i = 0; i < LEN; i++) {
       assertEquals(array[i] & 0xFF, in.readBits(JBBPBitNumber.decode(len[i])), "Index i=" + i);
     }
@@ -154,7 +158,8 @@ public class BitIOCommonTest {
     out.writeBits(0, JBBPBitNumber.BITS_1);
     out.flush();
 
-    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(buffer.toByteArray()), JBBPBitOrder.MSB0);
+    final JBBPBitInputStream in =
+        new JBBPBitInputStream(new ByteArrayInputStream(buffer.toByteArray()), JBBPBitOrder.MSB0);
     assertEquals(0, in.readBits(JBBPBitNumber.BITS_1));
     assertEquals(0, in.readBits(JBBPBitNumber.BITS_1));
     assertEquals(0, in.readBits(JBBPBitNumber.BITS_1));
@@ -195,7 +200,8 @@ public class BitIOCommonTest {
 
     out.close();
 
-    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(buff.toByteArray()), JBBPBitOrder.LSB0);
+    final JBBPBitInputStream in =
+        new JBBPBitInputStream(new ByteArrayInputStream(buff.toByteArray()), JBBPBitOrder.LSB0);
     for (int i = 0; i < LEN; i++) {
       assertEquals(array[i] & 0xFF, in.readBits(JBBPBitNumber.decode(len[i])), "Index i=" + i);
     }

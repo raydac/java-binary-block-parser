@@ -24,7 +24,8 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
  *
  * @since 1.4.0
  */
-public final class JBBPFieldArrayDouble extends JBBPAbstractArrayField<JBBPFieldDouble> implements JBBPNumericArray {
+public final class JBBPFieldArrayDouble extends JBBPAbstractArrayField<JBBPFieldDouble>
+    implements JBBPNumericArray {
   private static final long serialVersionUID = -2146959311724853264L;
   /**
    * Inside value storage.
@@ -89,7 +90,8 @@ public final class JBBPFieldArrayDouble extends JBBPAbstractArrayField<JBBPField
     if (reverseBits) {
       result = this.array.clone();
       for (int i = 0; i < result.length; i++) {
-        result[i] = Double.longBitsToDouble(JBBPFieldLong.reverseBits(Double.doubleToLongBits(result[i])));
+        result[i] =
+            Double.longBitsToDouble(JBBPFieldLong.reverseBits(Double.doubleToLongBits(result[i])));
       }
     } else {
       result = this.array.clone();

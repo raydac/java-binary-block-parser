@@ -32,7 +32,8 @@ import java.util.Random;
  */
 public class JBBP_Benchmark {
 
-  private static final JBBPParser parser = JBBPParser.prepare("ubyte value; data [(value>>1)*(value+3)]{ bit:3 a; bit:3 b; bit:2 c; skip:1; }");
+  private static final JBBPParser parser = JBBPParser
+      .prepare("ubyte value; data [(value>>1)*(value+3)]{ bit:3 a; bit:3 b; bit:2 c; skip:1; }");
 
   private static final Random RND = new Random(12345);
 

@@ -16,6 +16,19 @@
 
 package com.igormaznitsa.jbbp.compiler.conversion;
 
+import static com.igormaznitsa.jbbp.TestUtils.assertPngChunk;
+import static com.igormaznitsa.jbbp.TestUtils.getField;
+import static com.igormaznitsa.jbbp.TestUtils.getFieldThroughGetters;
+import static com.igormaznitsa.jbbp.TestUtils.wavInt2Str;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.TestUtils;
@@ -30,18 +43,14 @@ import com.igormaznitsa.jbbp.model.JBBPFieldArrayInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJavaConverterTest;
 import com.igormaznitsa.jbbp.utils.ReflectUtils;
-import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.Test;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.igormaznitsa.jbbp.TestUtils.*;
-import static org.junit.jupiter.api.Assertions.*;
+import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test reading writing with converted classes from parser.
@@ -49,33 +58,10 @@ import static org.junit.jupiter.api.Assertions.*;
 public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverterTest {
 
   private byte[] loadResource(final String name) throws Exception {
-    try(final InputStream result = this.getClass().getClassLoader().getResourceAsStream("com/igormaznitsa/jbbp/it/" + name)){
+    try (final InputStream result = this.getClass().getClassLoader()
+        .getResourceAsStream("com/igormaznitsa/jbbp/it/" + name)) {
       return IOUtils.toByteArray(result);
     }
-  }
-
-  public static class TestSuperclass {
-    public String str;
-    public String[] strarr;
-    public float flt;
-    public float[] fltarr;
-    public double dbl;
-    public double[] dblarr;
-    public char len;
-
-    public class Ins {
-      public byte[] a;
-      public byte b;
-      public byte c;
-
-      public class InsIns {
-        public byte a;
-      }
-
-      public InsIns insins;
-    }
-
-    public Ins[] ins;
   }
 
   @Test
@@ -100,9 +86,9 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
     this.printGeneratedClassText = true;
 
-    final Map<String,String> superclasses = new HashMap<>();
-    superclasses.put("ins",TestSuperclass.Ins.class.getCanonicalName());
-    superclasses.put("ins.insins",TestSuperclass.Ins.InsIns.class.getCanonicalName());
+    final Map<String, String> superclasses = new HashMap<>();
+    superclasses.put("ins", TestSuperclass.Ins.class.getCanonicalName());
+    superclasses.put("ins.insins", TestSuperclass.Ins.InsIns.class.getCanonicalName());
 
     final String thePackage = JBBPToJavaConverterReadWriteTest.class.getPackage().getName();
 
@@ -123,7 +109,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
     final Object instance = ReflectUtils.newInstance(classLoader.loadClass(fullClassName));
     assertTrue(instance instanceof TestSuperclass);
 
-    final byte [] etalon = new byte[] {
+    final byte[] etalon = new byte[] {
         0,
         2, 49, 50, 1, 51,
         1, 2, 3, 4,
@@ -131,8 +117,8 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
         1, 2, 3, 4, 5, 6, 7, 8,
         9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
         2,
-        1,2,
-        3,4,5
+        1, 2,
+        3, 4, 5
     };
 
     callRead(instance, etalon);
@@ -144,10 +130,11 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
     assertEquals(2.3879393E-38f, parsed.flt);
     assertArrayEquals(new float[] {6.301941E-36f, 1.661634E-33f}, parsed.fltarr);
     assertEquals(8.20788039913184E-304d, parsed.dbl);
-    assertArrayEquals(new double[] {4.0383818836028145E-265d, 1.9074368412237584E-226d}, parsed.dblarr);
+    assertArrayEquals(new double[] {4.0383818836028145E-265d, 1.9074368412237584E-226d},
+        parsed.dblarr);
 
     assertEquals(1, parsed.ins.length);
-    assertArrayEquals(new byte[]{1,2}, parsed.ins[0].a);
+    assertArrayEquals(new byte[] {1, 2}, parsed.ins[0].a);
     assertEquals(3, parsed.ins[0].b);
     assertEquals(4, parsed.ins[0].c);
     assertEquals(5, parsed.ins[0].insins.a);
@@ -160,13 +147,16 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
     final JBBPParser parser = JBBPParser.prepare("z { x { y [_] { byte a;}}}");
     final Map<String, String> interfaceMap = new HashMap<>();
     interfaceMap.put("z.x.y", ByteTestInterface.class.getCanonicalName());
-    final String text = JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).setMainClassPackage(PACKAGE_NAME).setAddGettersSetters(true).setMapSubClassesInterfaces(interfaceMap).build().convert();
+    final String text = JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME)
+        .setMainClassPackage(PACKAGE_NAME).setAddGettersSetters(true)
+        .setMapSubClassesInterfaces(interfaceMap).build().convert();
     final String fullClassName = PACKAGE_NAME + '.' + CLASS_NAME;
     final ClassLoader classLoader = saveAndCompile(new JavaClassContent(fullClassName, text));
 
     final Object instance = ReflectUtils.newInstance(classLoader.loadClass(fullClassName));
     callRead(instance, new byte[] {0, 1, 2, 3, 4, 5});
-    final ByteTestInterface[] data = getFieldThroughGetters(instance, "z.x.y", ByteTestInterface[].class);
+    final ByteTestInterface[] data =
+        getFieldThroughGetters(instance, "z.x.y", ByteTestInterface[].class);
     for (int i = 0; i < 6; i++) {
       assertEquals(i, data[i].getA());
     }
@@ -179,13 +169,16 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
     final JBBPParser parser = JBBPParser.prepare("z { x { y { byte a;}}}");
     final Map<String, String> interfaceMap = new HashMap<>();
     interfaceMap.put("z.x.y", ByteTestInterface.class.getCanonicalName());
-    final String text = JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).setMainClassPackage(PACKAGE_NAME).setAddGettersSetters(true).setMapSubClassesInterfaces(interfaceMap).build().convert();
+    final String text = JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME)
+        .setMainClassPackage(PACKAGE_NAME).setAddGettersSetters(true)
+        .setMapSubClassesInterfaces(interfaceMap).build().convert();
     final String fullClassName = PACKAGE_NAME + '.' + CLASS_NAME;
     final ClassLoader classLoader = saveAndCompile(new JavaClassContent(fullClassName, text));
 
     final Object instance = ReflectUtils.newInstance(classLoader.loadClass(fullClassName));
     callRead(instance, new byte[] {42});
-    final ByteTestInterface data = getFieldThroughGetters(instance, "z.x.y", ByteTestInterface.class);
+    final ByteTestInterface data =
+        getFieldThroughGetters(instance, "z.x.y", ByteTestInterface.class);
     assertEquals(42, data.getA());
 
     assertArrayEquals(new byte[] {42}, callWrite(instance));
@@ -197,7 +190,9 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
     assertNull(getField(instance, "boolarray", boolean[].class), "by default must be null");
     final byte[] etalon = new byte[] {1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1};
     callRead(instance, etalon.clone());
-    assertArrayEquals(new boolean[] {true, false, true, true, false, true, true, true, false, false, false, true, true, true, true}, getField(instance, "boolarray", boolean[].class));
+    assertArrayEquals(
+        new boolean[] {true, false, true, true, false, true, true, true, false, false, false, true,
+            true, true, true}, getField(instance, "boolarray", boolean[].class));
     assertArrayEquals(etalon, callWrite(instance));
   }
 
@@ -221,7 +216,8 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
     callRead(instance, etalon.clone());
 
-    assertEquals(2.3879393E-38f, getField(instance, "value", Float.class).floatValue(), TestUtils.FLOAT_DELTA);
+    assertEquals(2.3879393E-38f, getField(instance, "value", Float.class).floatValue(),
+        TestUtils.FLOAT_DELTA);
     assertArrayEquals(etalon, callWrite(instance));
   }
 
@@ -234,7 +230,8 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
     callRead(instance, etalon.clone());
 
-    assertArrayEquals(new float[] {2.3879393E-38f, 6.301941E-36f, 1.5417845E-33f, 2.6042668E-12f}, getField(instance, "floatarray", float[].class), TestUtils.FLOAT_DELTA);
+    assertArrayEquals(new float[] {2.3879393E-38f, 6.301941E-36f, 1.5417845E-33f, 2.6042668E-12f},
+        getField(instance, "floatarray", float[].class), TestUtils.FLOAT_DELTA);
     assertArrayEquals(etalon, callWrite(instance));
   }
 
@@ -251,7 +248,8 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
   @Test
   public void testReadWite_Val_CalculatedLength() throws Exception {
-    final Object instance = compileAndMakeInstance("ubyte a; ubyte b; val:(a-b) c; val:(c+8) d; byte [d] data;");
+    final Object instance =
+        compileAndMakeInstance("ubyte a; ubyte b; val:(a-b) c; val:(c+8) d; byte [d] data;");
     final byte[] etalon = new byte[] {2, 8, 33, 44};
 
     callRead(instance, etalon.clone());
@@ -280,7 +278,8 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
     callRead(instance, etalon.clone());
 
-    assertArrayEquals(new String[] {"ABC", null, "123"}, getField(instance, "strarray", String[].class));
+    assertArrayEquals(new String[] {"ABC", null, "123"},
+        getField(instance, "strarray", String[].class));
     assertArrayEquals(etalon, callWrite(instance));
   }
 
@@ -291,7 +290,8 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
     callRead(instance, etalon.clone());
 
-    assertEquals(8.20788039913184E-304d, getField(instance, "value", Double.class).doubleValue(), TestUtils.FLOAT_DELTA);
+    assertEquals(8.20788039913184E-304d, getField(instance, "value", Double.class).doubleValue(),
+        TestUtils.FLOAT_DELTA);
     assertArrayEquals(etalon, callWrite(instance));
   }
 
@@ -300,11 +300,15 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
     final Object instance = compileAndMakeInstance("doublej [_] doubleArray;");
     assertNull(getField(instance, "doublearray", double[].class), "by default must be null");
 
-    final byte[] etalon = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 22, 33, 44, 55, 66, 77, 3, 5, 9, 11, 33, 12, 10, 45};
+    final byte[] etalon =
+        new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 22, 33, 44, 55, 66, 77, 3, 5, 9, 11, 33, 12, 10,
+            45};
 
     callRead(instance, etalon.clone());
 
-    assertArrayEquals(new double[] {8.20788039913184E-304d, 2.494444648262547E-265d, 4.117024896955411E-294d}, getField(instance, "doublearray", double[].class), TestUtils.FLOAT_DELTA);
+    assertArrayEquals(
+        new double[] {8.20788039913184E-304d, 2.494444648262547E-265d, 4.117024896955411E-294d},
+        getField(instance, "doublearray", double[].class), TestUtils.FLOAT_DELTA);
     assertArrayEquals(etalon, callWrite(instance));
   }
 
@@ -359,7 +363,8 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
     callRead(instance, data.clone());
 
-    assertEquals(3.3d, getField(instance, "len", Double.class).doubleValue(), TestUtils.FLOAT_DELTA);
+    assertEquals(3.3d, getField(instance, "len", Double.class).doubleValue(),
+        TestUtils.FLOAT_DELTA);
     assertArrayEquals(new byte[] {1, 2, 3}, getField(instance, "data", byte[].class));
     assertArrayEquals(data, callWrite(instance));
   }
@@ -373,14 +378,17 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
     callRead(instance, data.clone());
 
-    assertEquals(4.3d, getField(instance, "len", Double.class).doubleValue(), TestUtils.FLOAT_DELTA);
+    assertEquals(4.3d, getField(instance, "len", Double.class).doubleValue(),
+        TestUtils.FLOAT_DELTA);
     assertArrayEquals(new byte[] {1, 2}, getField(instance, "data", byte[].class));
     assertArrayEquals(data, callWrite(instance));
   }
 
   @Test
   public void testReadWriteWithOptionallyIgnoredStructure() throws Exception {
-    final Object instance = compileAndMakeInstance(PACKAGE_NAME + '.' + CLASS_NAME, "byte a; optional { byte b; }", JBBPParser.FLAG_SKIP_REMAINING_FIELDS_IF_EOF, null);
+    final Object instance =
+        compileAndMakeInstance(PACKAGE_NAME + '.' + CLASS_NAME, "byte a; optional { byte b; }",
+            JBBPParser.FLAG_SKIP_REMAINING_FIELDS_IF_EOF, null);
 
     callRead(instance, new byte[] {1});
     assertEquals(1, getField(instance, "a", Byte.class).byteValue());
@@ -391,7 +399,9 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
   @Test
   public void testReadWriteWithOptionallyIgnoredStructureArray() throws Exception {
-    final Object instance = compileAndMakeInstance(PACKAGE_NAME + '.' + CLASS_NAME, "byte a; optional [_] { byte b; }", JBBPParser.FLAG_SKIP_REMAINING_FIELDS_IF_EOF, null);
+    final Object instance =
+        compileAndMakeInstance(PACKAGE_NAME + '.' + CLASS_NAME, "byte a; optional [_] { byte b; }",
+            JBBPParser.FLAG_SKIP_REMAINING_FIELDS_IF_EOF, null);
 
     callRead(instance, new byte[] {1});
     assertEquals(1, getField(instance, "a", Byte.class).byteValue());
@@ -411,7 +421,8 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
         + "   int crc;"
         + "}");
     final byte[] pngEtalon = loadResource("picture.png");
-    final String[] chunkNames = new String[] {"IHDR", "gAMA", "bKGD", "pHYs", "tIME", "tEXt", "IDAT", "IEND"};
+    final String[] chunkNames =
+        new String[] {"IHDR", "gAMA", "bKGD", "pHYs", "tIME", "tEXt", "IDAT", "IEND"};
     final int[] chunkSizes = new int[] {0x0D, 0x04, 0x06, 0x09, 0x07, 0x19, 0x0E5F, 0x00};
 
     callRead(instance, pngEtalon.clone());
@@ -421,7 +432,9 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
     int i = 0;
     for (final Object chunk : getField(instance, "chunk", Object[].class)) {
-      assertPngChunk(chunkNames[i], chunkSizes[i], getField(chunk, "type", Integer.class), getField(chunk, "length", Integer.class), getField(chunk, "crc", Integer.class), getField(chunk, "data", byte[].class));
+      assertPngChunk(chunkNames[i], chunkSizes[i], getField(chunk, "type", Integer.class),
+          getField(chunk, "length", Integer.class), getField(chunk, "crc", Integer.class),
+          getField(chunk, "data", byte[].class));
       i++;
     }
 
@@ -449,16 +462,19 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
     assertEquals(0x45564157, getField(instance, "format", Integer.class).intValue());
 
     final Object[] subchunks = getField(instance, "subchunks", Object[].class);
-    assertEquals(subchunkNames.length, subchunks.length, "Number of parsed subchunks must be [" + subchunkNames.length + ']');
+    assertEquals(subchunkNames.length, subchunks.length,
+        "Number of parsed subchunks must be [" + subchunkNames.length + ']');
 
     int calculatedSize = 4;
     int index = 0;
     for (final Object subchunk : subchunks) {
       final String strChunkId = subchunkNames[index++];
-      assertEquals(4, strChunkId.length(), "WAV subchunk must have 4 char length [" + strChunkId + ']');
+      assertEquals(4, strChunkId.length(),
+          "WAV subchunk must have 4 char length [" + strChunkId + ']');
       assertEquals(strChunkId, wavInt2Str(getField(subchunk, "subchunkid", Integer.class)));
       final int subChunkSize = getField(subchunk, "subchunksize", Integer.class);
-      assertEquals(subChunkSize, getField(subchunk, "data", byte[].class).length, "Data array must have the same size as described in sub-chunk size field");
+      assertEquals(subChunkSize, getField(subchunk, "data", byte[].class).length,
+          "Data array must have the same size as described in sub-chunk size field");
       calculatedSize += subChunkSize + 8 + (subChunkSize & 1);
     }
 
@@ -538,7 +554,8 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
     callRead(instance, tgaEtalon.clone());
 
-    assertEquals("Truevision(R) Sample Image".length(), getField(instance, "imageid", byte[].class).length);
+    assertEquals("Truevision(R) Sample Image".length(),
+        getField(instance, "imageid", byte[].class).length);
     assertEquals(128, getField(instance, "header.width", Character.class).charValue());
     assertEquals(128, getField(instance, "header.height", Character.class).charValue());
     assertEquals(8, getField(instance, "header.pixeldepth", Character.class).charValue());
@@ -590,11 +607,15 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
   @Test
   public void testReadWrite_Z80v1() throws Exception {
-    final Object instance = compileAndMakeInstance("byte reg_a; byte reg_f; <short reg_bc; <short reg_hl; <short reg_pc; <short reg_sp; byte reg_ir; byte reg_r; "
-        + "flags{ bit:1 reg_r_bit7; bit:3 bordercolor; bit:1 basic_samrom; bit:1 compressed; bit:2 nomeaning;}"
-        + "<short reg_de; <short reg_bc_alt; <short reg_de_alt; <short reg_hl_alt; byte reg_a_alt; byte reg_f_alt; <short reg_iy; <short reg_ix; byte iff; byte iff2;"
-        + "emulFlags{bit:2 interruptmode; bit:1 issue2emulation; bit:1 doubleintfreq; bit:2 videosync; bit:2 inputdevice;}"
-        + "byte [_] data;");
+    final Object instance = compileAndMakeInstance(
+        "byte reg_a; byte reg_f; <short reg_bc; <short reg_hl; <short reg_pc; <short reg_sp; byte reg_ir; byte reg_r; "
+            +
+            "flags{ bit:1 reg_r_bit7; bit:3 bordercolor; bit:1 basic_samrom; bit:1 compressed; bit:2 nomeaning;}"
+            +
+            "<short reg_de; <short reg_bc_alt; <short reg_de_alt; <short reg_hl_alt; byte reg_a_alt; byte reg_f_alt; <short reg_iy; <short reg_ix; byte iff; byte iff2;"
+            +
+            "emulFlags{bit:2 interruptmode; bit:1 issue2emulation; bit:1 doubleintfreq; bit:2 videosync; bit:2 inputdevice;}"
+            + "byte [_] data;");
 
     final byte[] z80Etalon = loadResource("test.z80");
 
@@ -644,80 +665,102 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
   @Test
   public void testReadWrite_CustomField() throws Exception {
-    final Object klazz = compileAndMakeInstance("com.igormaznitsa.jbbp.test.CustomFieldParser", "threebyte one;<threebyte two; threebyte:2 [one+two] arrayone; <threebyte:3 [_] arraytwo;", new JBBPCustomFieldTypeProcessor() {
-      private final String[] names = new String[] {"threebyte"};
+    final Object klazz = compileAndMakeInstance("com.igormaznitsa.jbbp.test.CustomFieldParser",
+        "threebyte one;<threebyte two; threebyte:2 [one+two] arrayone; <threebyte:3 [_] arraytwo;",
+        new JBBPCustomFieldTypeProcessor() {
+          private final String[] names = new String[] {"threebyte"};
 
-      @Override
-      public String[] getCustomFieldTypes() {
-        return names;
-      }
+          @Override
+          public String[] getCustomFieldTypes() {
+            return names;
+          }
 
-      @Override
-      public boolean isAllowed(JBBPFieldTypeParameterContainer fieldType, String fieldName, int extraData, boolean isArray) {
-        return true;
-      }
+          @Override
+          public boolean isAllowed(JBBPFieldTypeParameterContainer fieldType, String fieldName,
+                                   int extraData, boolean isArray) {
+            return true;
+          }
 
-      @Override
-      public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer customTypeFieldInfo, JBBPNamedFieldInfo fieldName, int extraData, boolean readWholeStream, int arrayLength) throws IOException {
-        fail("Must not be called");
-        return null;
-      }
-    }, new JavaClassContent("com.igormaznitsa.jbbp.test.CustomFieldParser", "package com.igormaznitsa.jbbp.test;\n"
-        + "import com.igormaznitsa.jbbp.model.*;\n"
-        + "import com.igormaznitsa.jbbp.io.*;\n"
-        + "import com.igormaznitsa.jbbp.compiler.*;\n"
-        + "import com.igormaznitsa.jbbp.compiler.tokenizer.*;\n"
-        + "import java.io.IOException;\n"
-        + "import java.util.*;\n"
-        + ""
-        + "public class CustomFieldParser extends " + PACKAGE_NAME + '.' + CLASS_NAME + "{"
-        + " private int readThree(JBBPBitInputStream in, JBBPByteOrder byteOrder) throws IOException {"
-        + "   int a = in.readByte();"
-        + "   int b = in.readByte();"
-        + "   int c = in.readByte();"
-        + "   return byteOrder == JBBPByteOrder.BIG_ENDIAN ? (a << 16) | (b << 8) | c : (c << 16) | (b << 8) | a;"
-        + " }"
-        + " private void writeThree(JBBPBitOutputStream out, JBBPByteOrder byteOrder, int value) throws IOException {"
-        + "   int c = value & 0xFF; int b = (value >> 8) & 0xFF; int a = (value >> 16) & 0xFF;"
-        + "   if (byteOrder == JBBPByteOrder.BIG_ENDIAN) {"
-        + "     out.write(a); out.write(b); out.write(c);"
-        + "   } else {"
-        + "      out.write(c); out.write(b); out.write(a);"
-        + "   }"
-        + " }"
-        + " public JBBPAbstractField readCustomFieldType(Object sourceStruct, JBBPBitInputStream inStream, JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean readWholeStream, int arraySize) throws IOException{"
-        + "   if (sourceStruct == null) throw new Error(\"Struct must not be null\");"
-        + "   if (readWholeStream || arraySize>=0) {"
-        + "      if (readWholeStream) {"
-        + "         if (extraValue!=3) throw new Error(\"must be 3\");"
-        + "         com.igormaznitsa.jbbp.utils.DynamicIntBuffer buffer = new com.igormaznitsa.jbbp.utils.DynamicIntBuffer();"
-        + "         while(inStream.hasAvailableData()){ buffer.write(readThree(inStream, typeParameterContainer.getByteOrder())); }"
-        + "         return new JBBPFieldArrayInt(nullableNamedFieldInfo, buffer.toIntArray());"
-        + "      } else {"
-        + "         if (extraValue!=2) throw new Error(\"must be 2\");"
-        + "        int [] arra = new int[arraySize];"
-        + "        for (int i=0;i<arraySize;i++){ arra [i] = readThree(inStream, typeParameterContainer.getByteOrder()); }"
-        + "        return new JBBPFieldArrayInt(nullableNamedFieldInfo, arra);"
-        + "      }"
-        + "   } else {"
-        + "      if (extraValue!=0) throw new Error(\"must be 0\");"
-        + "      return new JBBPFieldInt(nullableNamedFieldInfo, readThree(inStream, typeParameterContainer.getByteOrder()));"
-        + "   }"
-        + " }"
-        + " public void writeCustomFieldType(Object sourceStruct, JBBPBitOutputStream outStream, JBBPAbstractField fieldValue, JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean wholeArray, int arraySize) throws IOException {"
-        + "   if (sourceStruct == null) throw new Error(\"Struct must not be null\");"
-        + "   if (arraySize>=0 || wholeArray) {"
-        + "     if (wholeArray && extraValue!=3) throw new Error(\"wrong extra\");"
-        + "     if (arraySize>=0 && extraValue!=2) throw new Error(\"wrong extra\");"
-        + "     int [] arra = ((JBBPFieldArrayInt) fieldValue).getArray();"
-        + "     int len = wholeArray ? arra.length : arraySize;"
-        + "     for(int i=0;i<len;i++) { writeThree(outStream, typeParameterContainer.getByteOrder(), arra[i]);}"
-        + "   } else {"
-        + "     if (extraValue!=0) throw new Error(\"must be 0\");"
-        + "     writeThree(outStream, typeParameterContainer.getByteOrder(), ((JBBPFieldInt)fieldValue).getAsInt());"
-        + "   }"
-        + " }"
-        + "}"));
+          @Override
+          public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder,
+                                                       int parserFlags,
+                                                       JBBPFieldTypeParameterContainer customTypeFieldInfo,
+                                                       JBBPNamedFieldInfo fieldName, int extraData,
+                                                       boolean readWholeStream, int arrayLength)
+              throws IOException {
+            fail("Must not be called");
+            return null;
+          }
+        }, new JavaClassContent("com.igormaznitsa.jbbp.test.CustomFieldParser",
+            "package com.igormaznitsa.jbbp.test;\n"
+                + "import com.igormaznitsa.jbbp.model.*;\n"
+                + "import com.igormaznitsa.jbbp.io.*;\n"
+                + "import com.igormaznitsa.jbbp.compiler.*;\n"
+                + "import com.igormaznitsa.jbbp.compiler.tokenizer.*;\n"
+                + "import java.io.IOException;\n"
+                + "import java.util.*;\n"
+                + ""
+                + "public class CustomFieldParser extends " + PACKAGE_NAME + '.' + CLASS_NAME + "{"
+                +
+                " private int readThree(JBBPBitInputStream in, JBBPByteOrder byteOrder) throws IOException {"
+                + "   int a = in.readByte();"
+                + "   int b = in.readByte();"
+                + "   int c = in.readByte();"
+                +
+                "   return byteOrder == JBBPByteOrder.BIG_ENDIAN ? (a << 16) | (b << 8) | c : (c << 16) | (b << 8) | a;"
+                + " }"
+                +
+                " private void writeThree(JBBPBitOutputStream out, JBBPByteOrder byteOrder, int value) throws IOException {"
+                +
+                "   int c = value & 0xFF; int b = (value >> 8) & 0xFF; int a = (value >> 16) & 0xFF;"
+                + "   if (byteOrder == JBBPByteOrder.BIG_ENDIAN) {"
+                + "     out.write(a); out.write(b); out.write(c);"
+                + "   } else {"
+                + "      out.write(c); out.write(b); out.write(a);"
+                + "   }"
+                + " }"
+                +
+                " public JBBPAbstractField readCustomFieldType(Object sourceStruct, JBBPBitInputStream inStream, JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean readWholeStream, int arraySize) throws IOException{"
+                + "   if (sourceStruct == null) throw new Error(\"Struct must not be null\");"
+                + "   if (readWholeStream || arraySize>=0) {"
+                + "      if (readWholeStream) {"
+                + "         if (extraValue!=3) throw new Error(\"must be 3\");"
+                +
+                "         com.igormaznitsa.jbbp.utils.DynamicIntBuffer buffer = new com.igormaznitsa.jbbp.utils.DynamicIntBuffer();"
+                +
+                "         while(inStream.hasAvailableData()){ buffer.write(readThree(inStream, typeParameterContainer.getByteOrder())); }"
+                +
+                "         return new JBBPFieldArrayInt(nullableNamedFieldInfo, buffer.toIntArray());"
+                + "      } else {"
+                + "         if (extraValue!=2) throw new Error(\"must be 2\");"
+                + "        int [] arra = new int[arraySize];"
+                +
+                "        for (int i=0;i<arraySize;i++){ arra [i] = readThree(inStream, typeParameterContainer.getByteOrder()); }"
+                + "        return new JBBPFieldArrayInt(nullableNamedFieldInfo, arra);"
+                + "      }"
+                + "   } else {"
+                + "      if (extraValue!=0) throw new Error(\"must be 0\");"
+                +
+                "      return new JBBPFieldInt(nullableNamedFieldInfo, readThree(inStream, typeParameterContainer.getByteOrder()));"
+                + "   }"
+                + " }"
+                +
+                " public void writeCustomFieldType(Object sourceStruct, JBBPBitOutputStream outStream, JBBPAbstractField fieldValue, JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean wholeArray, int arraySize) throws IOException {"
+                + "   if (sourceStruct == null) throw new Error(\"Struct must not be null\");"
+                + "   if (arraySize>=0 || wholeArray) {"
+                + "     if (wholeArray && extraValue!=3) throw new Error(\"wrong extra\");"
+                + "     if (arraySize>=0 && extraValue!=2) throw new Error(\"wrong extra\");"
+                + "     int [] arra = ((JBBPFieldArrayInt) fieldValue).getArray();"
+                + "     int len = wholeArray ? arra.length : arraySize;"
+                +
+                "     for(int i=0;i<len;i++) { writeThree(outStream, typeParameterContainer.getByteOrder(), arra[i]);}"
+                + "   } else {"
+                + "     if (extraValue!=0) throw new Error(\"must be 0\");"
+                +
+                "     writeThree(outStream, typeParameterContainer.getByteOrder(), ((JBBPFieldInt)fieldValue).getAsInt());"
+                + "   }"
+                + " }"
+                + "}"));
 
     final byte[] etalonArray = new byte[6 + (0x7B + 0x1CB) * 3 + 112 * 3];
     testRandomGen.nextBytes(etalonArray);
@@ -747,59 +790,75 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
   @Test
   public void testReadWrite_VarFields() throws Exception {
-    final Object klazz = compileAndMakeInstance("com.igormaznitsa.jbbp.test.VarFieldParser", "var:12 one;<var:12 two; var:4 [18] arrayone; <var:4 [_] arraytwo;", null, new JavaClassContent("com.igormaznitsa.jbbp.test.VarFieldParser", "package com.igormaznitsa.jbbp.test;\n"
-        + "import com.igormaznitsa.jbbp.model.*;\n"
-        + "import com.igormaznitsa.jbbp.io.*;\n"
-        + "import com.igormaznitsa.jbbp.compiler.*;\n"
-        + "import com.igormaznitsa.jbbp.compiler.tokenizer.*;\n"
-        + "import java.io.IOException;\n"
-        + "import java.util.*;\n"
-        + ""
-        + "public class VarFieldParser extends " + PACKAGE_NAME + '.' + CLASS_NAME + "{"
-        + " private int readThree(JBBPBitInputStream in, JBBPByteOrder byteOrder) throws IOException {"
-        + "   int a = in.readByte();"
-        + "   int b = in.readByte();"
-        + "   int c = in.readByte();"
-        + "   return byteOrder == JBBPByteOrder.BIG_ENDIAN ? (a << 16) | (b << 8) | c : (c << 16) | (b << 8) | a;"
-        + " }"
-        + " private void writeThree(JBBPBitOutputStream out, JBBPByteOrder byteOrder, int value) throws IOException {"
-        + "   int c = value & 0xFF; int b = (value >> 8) & 0xFF; int a = (value >> 16) & 0xFF;"
-        + "   if (byteOrder == JBBPByteOrder.BIG_ENDIAN) {"
-        + "     out.write(a); out.write(b); out.write(c);"
-        + "   } else {"
-        + "      out.write(c); out.write(b); out.write(a);"
-        + "   }"
-        + " }"
-        + "public JBBPAbstractField readVarField(Object sourceStruct, JBBPBitInputStream inStream, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue) throws IOException{"
-        + "   if (extraValue!=12) throw new Error(\"wrong extra\");"
-        + "   return new JBBPFieldInt(nullableNamedFieldInfo, readThree(inStream, byteOrder));"
-        + "}"
-        + "public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(Object sourceStruct, JBBPBitInputStream inStream, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean readWholeStream, int arraySize) throws IOException {"
-        + "   if (sourceStruct == null) throw new Error(\"Struct must not be null\");"
-        + "   if (extraValue!=4) throw new Error(\"wrong extra\");"
-        + "   if (readWholeStream) {"
-        + "         com.igormaznitsa.jbbp.utils.DynamicIntBuffer buffer = new com.igormaznitsa.jbbp.utils.DynamicIntBuffer();"
-        + "         while(inStream.hasAvailableData()){ buffer.write(readThree(inStream, byteOrder)); }"
-        + "         return new JBBPFieldArrayInt(nullableNamedFieldInfo, buffer.toIntArray());"
-        + "      } else {"
-        + "        int [] arra = new int[arraySize];"
-        + "        for (int i=0;i<arraySize;i++){ arra [i] = readThree(inStream, byteOrder); }"
-        + "        return new JBBPFieldArrayInt(nullableNamedFieldInfo, arra);"
-        + "      }"
-        + "}"
-        + "public void writeVarField(Object sourceStruct, JBBPAbstractField value, JBBPBitOutputStream outStream, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue) throws IOException{"
-        + "   if (sourceStruct == null) throw new Error(\"Struct must not be null\");"
-        + "   if (extraValue!=12) throw new Error(\"wrong extra\");"
-        + "     writeThree(outStream, byteOrder, ((JBBPFieldInt)value).getAsInt());"
-        + "}"
-        + "public void writeVarArray(Object sourceStruct, JBBPAbstractArrayField<? extends JBBPAbstractField> array, JBBPBitOutputStream outStream, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, int arraySizeToWrite) throws IOException{"
-        + "   if (sourceStruct == null) throw new Error(\"Struct must not be null\");"
-        + "   if (extraValue!=4) throw new Error(\"wrong extra\");"
-        + "     int [] arra = ((JBBPFieldArrayInt) array).getArray();"
-        + "     int len = arraySizeToWrite < 0 ? arra.length : arraySizeToWrite;"
-        + "     for(int i=0;i<len;i++) { writeThree(outStream, byteOrder, arra[i]);}"
-        + "}"
-        + "}"));
+    final Object klazz = compileAndMakeInstance("com.igormaznitsa.jbbp.test.VarFieldParser",
+        "var:12 one;<var:12 two; var:4 [18] arrayone; <var:4 [_] arraytwo;", null,
+        new JavaClassContent("com.igormaznitsa.jbbp.test.VarFieldParser",
+            "package com.igormaznitsa.jbbp.test;\n"
+                + "import com.igormaznitsa.jbbp.model.*;\n"
+                + "import com.igormaznitsa.jbbp.io.*;\n"
+                + "import com.igormaznitsa.jbbp.compiler.*;\n"
+                + "import com.igormaznitsa.jbbp.compiler.tokenizer.*;\n"
+                + "import java.io.IOException;\n"
+                + "import java.util.*;\n"
+                + ""
+                + "public class VarFieldParser extends " + PACKAGE_NAME + '.' + CLASS_NAME + "{"
+                +
+                " private int readThree(JBBPBitInputStream in, JBBPByteOrder byteOrder) throws IOException {"
+                + "   int a = in.readByte();"
+                + "   int b = in.readByte();"
+                + "   int c = in.readByte();"
+                +
+                "   return byteOrder == JBBPByteOrder.BIG_ENDIAN ? (a << 16) | (b << 8) | c : (c << 16) | (b << 8) | a;"
+                + " }"
+                +
+                " private void writeThree(JBBPBitOutputStream out, JBBPByteOrder byteOrder, int value) throws IOException {"
+                +
+                "   int c = value & 0xFF; int b = (value >> 8) & 0xFF; int a = (value >> 16) & 0xFF;"
+                + "   if (byteOrder == JBBPByteOrder.BIG_ENDIAN) {"
+                + "     out.write(a); out.write(b); out.write(c);"
+                + "   } else {"
+                + "      out.write(c); out.write(b); out.write(a);"
+                + "   }"
+                + " }"
+                +
+                "public JBBPAbstractField readVarField(Object sourceStruct, JBBPBitInputStream inStream, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue) throws IOException{"
+                + "   if (extraValue!=12) throw new Error(\"wrong extra\");"
+                +
+                "   return new JBBPFieldInt(nullableNamedFieldInfo, readThree(inStream, byteOrder));"
+                + "}"
+                +
+                "public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(Object sourceStruct, JBBPBitInputStream inStream, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean readWholeStream, int arraySize) throws IOException {"
+                + "   if (sourceStruct == null) throw new Error(\"Struct must not be null\");"
+                + "   if (extraValue!=4) throw new Error(\"wrong extra\");"
+                + "   if (readWholeStream) {"
+                +
+                "         com.igormaznitsa.jbbp.utils.DynamicIntBuffer buffer = new com.igormaznitsa.jbbp.utils.DynamicIntBuffer();"
+                +
+                "         while(inStream.hasAvailableData()){ buffer.write(readThree(inStream, byteOrder)); }"
+                +
+                "         return new JBBPFieldArrayInt(nullableNamedFieldInfo, buffer.toIntArray());"
+                + "      } else {"
+                + "        int [] arra = new int[arraySize];"
+                +
+                "        for (int i=0;i<arraySize;i++){ arra [i] = readThree(inStream, byteOrder); }"
+                + "        return new JBBPFieldArrayInt(nullableNamedFieldInfo, arra);"
+                + "      }"
+                + "}"
+                +
+                "public void writeVarField(Object sourceStruct, JBBPAbstractField value, JBBPBitOutputStream outStream, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue) throws IOException{"
+                + "   if (sourceStruct == null) throw new Error(\"Struct must not be null\");"
+                + "   if (extraValue!=12) throw new Error(\"wrong extra\");"
+                + "     writeThree(outStream, byteOrder, ((JBBPFieldInt)value).getAsInt());"
+                + "}"
+                +
+                "public void writeVarArray(Object sourceStruct, JBBPAbstractArrayField<? extends JBBPAbstractField> array, JBBPBitOutputStream outStream, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, int arraySizeToWrite) throws IOException{"
+                + "   if (sourceStruct == null) throw new Error(\"Struct must not be null\");"
+                + "   if (extraValue!=4) throw new Error(\"wrong extra\");"
+                + "     int [] arra = ((JBBPFieldArrayInt) array).getArray();"
+                + "     int len = arraySizeToWrite < 0 ? arra.length : arraySizeToWrite;"
+                + "     for(int i=0;i<len;i++) { writeThree(outStream, byteOrder, arra[i]);}"
+                + "}"
+                + "}"));
 
     final byte[] etalonArray = new byte[1000 * 3];
     int v = 1;
@@ -826,21 +885,24 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
   @Test
   public void testReadWrite_NamedExternalFieldInExpression() throws Exception {
-    final Object klazz = compileAndMakeInstance("com.igormaznitsa.jbbp.test.ExtraFieldParser", "byte [$one*$two] data;", null, new JavaClassContent("com.igormaznitsa.jbbp.test.ExtraFieldParser", "package com.igormaznitsa.jbbp.test;\n"
-        + "import com.igormaznitsa.jbbp.model.*;\n"
-        + "import com.igormaznitsa.jbbp.io.*;\n"
-        + "import com.igormaznitsa.jbbp.compiler.*;\n"
-        + "import com.igormaznitsa.jbbp.compiler.tokenizer.*;\n"
-        + "import java.io.IOException;\n"
-        + "import java.util.*;\n"
-        + "public class ExtraFieldParser extends " + PACKAGE_NAME + '.' + CLASS_NAME + "{"
-        + "    public int getNamedValue(Object sourceStruct, String valueName){"
-        + "      if (sourceStruct == null) throw new Error(\"Struct must not be null\");"
-        + "      if (\"one\".equals(valueName)) return 11;"
-        + "      if (\"two\".equals(valueName)) return 7;"
-        + "      throw new Error(\"Unexpected value \"+valueName);"
-        + "   }"
-        + "}"));
+    final Object klazz = compileAndMakeInstance("com.igormaznitsa.jbbp.test.ExtraFieldParser",
+        "byte [$one*$two] data;", null,
+        new JavaClassContent("com.igormaznitsa.jbbp.test.ExtraFieldParser",
+            "package com.igormaznitsa.jbbp.test;\n"
+                + "import com.igormaznitsa.jbbp.model.*;\n"
+                + "import com.igormaznitsa.jbbp.io.*;\n"
+                + "import com.igormaznitsa.jbbp.compiler.*;\n"
+                + "import com.igormaznitsa.jbbp.compiler.tokenizer.*;\n"
+                + "import java.io.IOException;\n"
+                + "import java.util.*;\n"
+                + "public class ExtraFieldParser extends " + PACKAGE_NAME + '.' + CLASS_NAME + "{"
+                + "    public int getNamedValue(Object sourceStruct, String valueName){"
+                + "      if (sourceStruct == null) throw new Error(\"Struct must not be null\");"
+                + "      if (\"one\".equals(valueName)) return 11;"
+                + "      if (\"two\".equals(valueName)) return 7;"
+                + "      throw new Error(\"Unexpected value \"+valueName);"
+                + "   }"
+                + "}"));
 
     final byte[] array = new byte[77];
 
@@ -863,7 +925,8 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
   @Test
   public void testRead_ExpressionResult_OnlyField_NegativeResultAsZero() throws Exception {
-    final Object instance = compileAndMakeInstance("byte len; byte [len] arr;", JBBPParser.FLAG_NEGATIVE_EXPRESSION_RESULT_AS_ZERO);
+    final Object instance = compileAndMakeInstance("byte len; byte [len] arr;",
+        JBBPParser.FLAG_NEGATIVE_EXPRESSION_RESULT_AS_ZERO);
     final byte[] etalon = new byte[] {(byte) 0xFE, 1, 2, 3, 4};
     callRead(instance, etalon.clone());
     assertEquals((byte) 0xFE, getField(instance, "len", Byte.class).byteValue());
@@ -871,7 +934,8 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
   }
 
   @Test
-  public void testRead_ExpressionResult_NegativeExpression_NegativeResultNotAllowed() throws Exception {
+  public void testRead_ExpressionResult_NegativeExpression_NegativeResultNotAllowed()
+      throws Exception {
     final Object instance = compileAndMakeInstance("byte len; byte [len-9] arr;");
     final byte[] etalon = new byte[] {8, 1, 2, 3, 4};
     assertThrows(IllegalArgumentException.class, () -> callRead(instance, etalon.clone()));
@@ -879,7 +943,8 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
   @Test
   public void testRead_ExpressionResult_NegativeExpression_NegativeResultAsZero() throws Exception {
-    final Object instance = compileAndMakeInstance("byte len; byte [len-9] arr;", JBBPParser.FLAG_NEGATIVE_EXPRESSION_RESULT_AS_ZERO);
+    final Object instance = compileAndMakeInstance("byte len; byte [len-9] arr;",
+        JBBPParser.FLAG_NEGATIVE_EXPRESSION_RESULT_AS_ZERO);
     final byte[] etalon = new byte[] {8, 1, 2, 3, 4};
     callRead(instance, etalon.clone());
     assertEquals(8, getField(instance, "len", Byte.class).byteValue());
@@ -928,11 +993,16 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
     final byte[] netPacketEtalon = loadResource("tcppacket.bin");
 
-    final JBBPBitInputStream inStream = new JBBPBitInputStream(new ByteArrayInputStream(netPacketEtalon));
+    final JBBPBitInputStream inStream =
+        new JBBPBitInputStream(new ByteArrayInputStream(netPacketEtalon));
 
     callRead(ethernetHeader, inStream);
-    assertArrayEquals(new byte[] {(byte) 0x60, (byte) 0x67, (byte) 0x20, (byte) 0xE1, (byte) 0xF9, (byte) 0xF8}, getField(ethernetHeader, "macdestination", byte[].class), "Destination MAC");
-    assertArrayEquals(new byte[] {(byte) 0x00, (byte) 0x26, (byte) 0x44, (byte) 0x74, (byte) 0xFE, (byte) 0x66}, getField(ethernetHeader, "macsource", byte[].class), "Source MAC");
+    assertArrayEquals(
+        new byte[] {(byte) 0x60, (byte) 0x67, (byte) 0x20, (byte) 0xE1, (byte) 0xF9, (byte) 0xF8},
+        getField(ethernetHeader, "macdestination", byte[].class), "Destination MAC");
+    assertArrayEquals(
+        new byte[] {(byte) 0x00, (byte) 0x26, (byte) 0x44, (byte) 0x74, (byte) 0xFE, (byte) 0x66},
+        getField(ethernetHeader, "macsource", byte[].class), "Source MAC");
     final int etherTypeOrLength = getField(ethernetHeader, "ethertypeorlength", Character.class);
     assertEquals(0x800, etherTypeOrLength, "Ethernet type or length");
 
@@ -941,26 +1011,36 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
     assertEquals(4, getField(ipHeader, "version", Byte.class).intValue(), "IP Version");
 
-    final int internetHeaderLength = getField(ipHeader, "internetheaderlength", Byte.class).intValue();
+    final int internetHeaderLength =
+        getField(ipHeader, "internetheaderlength", Byte.class).intValue();
     assertEquals(5, internetHeaderLength, "Length of the IP header (in 4 byte items)");
-    assertEquals(0, getField(ipHeader, "dscp", Byte.class).intValue(), "Differentiated Services Code Point");
-    assertEquals(0, getField(ipHeader, "ecn", Byte.class).intValue(), "Explicit Congestion Notification");
+    assertEquals(0, getField(ipHeader, "dscp", Byte.class).intValue(),
+        "Differentiated Services Code Point");
+    assertEquals(0, getField(ipHeader, "ecn", Byte.class).intValue(),
+        "Explicit Congestion Notification");
 
     final int ipTotalPacketLength = getField(ipHeader, "totalpacketlength", Character.class);
 
-    assertEquals(159, ipTotalPacketLength, "Entire IP packet size, including header and data, in bytes");
-    assertEquals(30810, getField(ipHeader, "identification", Character.class).charValue(), "Identification");
+    assertEquals(159, ipTotalPacketLength,
+        "Entire IP packet size, including header and data, in bytes");
+    assertEquals(30810, getField(ipHeader, "identification", Character.class).charValue(),
+        "Identification");
 
-    final int ipFlagsAndFragmentOffset = getField(ipHeader, "ipflagsandfragmentoffset", Character.class);
+    final int ipFlagsAndFragmentOffset =
+        getField(ipHeader, "ipflagsandfragmentoffset", Character.class);
 
     assertEquals(0x2, ipFlagsAndFragmentOffset >>> 13, "Extracted IP flags");
     assertEquals(0x00, ipFlagsAndFragmentOffset & 0x1FFF, "Extracted Fragment offset");
 
     assertEquals(0x39, getField(ipHeader, "ttl", Character.class).charValue(), "Time To Live");
-    assertEquals(0x06, getField(ipHeader, "protocol", Character.class).charValue(), "Protocol (RFC-790)");
-    assertEquals(0x7DB6, getField(ipHeader, "headerchecksum", Character.class).charValue(), "IPv4 Header Checksum");
-    assertEquals(0xD5C7B393, getField(ipHeader, "sourceaddress", Integer.class).intValue(), "Source IP address");
-    assertEquals(0xC0A80145, getField(ipHeader, "destinationaddress", Integer.class).intValue(), "Destination IP address");
+    assertEquals(0x06, getField(ipHeader, "protocol", Character.class).charValue(),
+        "Protocol (RFC-790)");
+    assertEquals(0x7DB6, getField(ipHeader, "headerchecksum", Character.class).charValue(),
+        "IPv4 Header Checksum");
+    assertEquals(0xD5C7B393, getField(ipHeader, "sourceaddress", Integer.class).intValue(),
+        "Source IP address");
+    assertEquals(0xC0A80145, getField(ipHeader, "destinationaddress", Integer.class).intValue(),
+        "Destination IP address");
 
     assertEquals(0, getField(ipHeader, "options", byte[].class).length);
 
@@ -970,7 +1050,8 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
     assertEquals(40018, getField(tcpHeader, "sourceport", Character.class).charValue());
     assertEquals(56344, getField(tcpHeader, "destinationport", Character.class).charValue());
     assertEquals(0xE0084171, getField(tcpHeader, "sequencenumber", Integer.class).intValue());
-    assertEquals(0xAB616F71, getField(tcpHeader, "acknowledgementnumber", Integer.class).intValue());
+    assertEquals(0xAB616F71,
+        getField(tcpHeader, "acknowledgementnumber", Integer.class).intValue());
 
     assertEquals(0, getField(tcpHeader, "fin", Byte.class).intValue());
     assertEquals(0, getField(tcpHeader, "syn", Byte.class).intValue());
@@ -991,7 +1072,8 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
     assertEquals(0, getField(tcpHeader, "option", byte[].class).length);
 
-    final int payloadDataLength = ipTotalPacketLength - (internetHeaderLength * 4) - (int) inStream.getCounter();
+    final int payloadDataLength =
+        ipTotalPacketLength - (internetHeaderLength * 4) - (int) inStream.getCounter();
     final byte[] data = inStream.readByteArray(payloadDataLength);
     assertEquals(119, data.length);
 
@@ -1014,6 +1096,28 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
   public interface ByteTestInterface {
     byte getA();
+  }
+
+  public static class TestSuperclass {
+    public String str;
+    public String[] strarr;
+    public float flt;
+    public float[] fltarr;
+    public double dbl;
+    public double[] dblarr;
+    public char len;
+    public Ins[] ins;
+
+    public class Ins {
+      public byte[] a;
+      public byte b;
+      public byte c;
+      public InsIns insins;
+
+      public class InsIns {
+        public byte a;
+      }
+    }
   }
 
 }

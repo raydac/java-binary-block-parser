@@ -24,7 +24,8 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
  *
  * @since 1.4.0
  */
-public final class JBBPFieldArrayFloat extends JBBPAbstractArrayField<JBBPFieldFloat> implements JBBPNumericArray {
+public final class JBBPFieldArrayFloat extends JBBPAbstractArrayField<JBBPFieldFloat>
+    implements JBBPNumericArray {
   private static final long serialVersionUID = 6839868800303265190L;
   /**
    * Inside storage.
@@ -89,7 +90,8 @@ public final class JBBPFieldArrayFloat extends JBBPAbstractArrayField<JBBPFieldF
     if (reverseBits) {
       result = this.array.clone();
       for (int i = 0; i < result.length; i++) {
-        result[i] = Float.intBitsToFloat((int) JBBPFieldInt.reverseBits(Float.floatToIntBits(result[i])));
+        result[i] =
+            Float.intBitsToFloat((int) JBBPFieldInt.reverseBits(Float.floatToIntBits(result[i])));
       }
     } else {
       result = this.array.clone();

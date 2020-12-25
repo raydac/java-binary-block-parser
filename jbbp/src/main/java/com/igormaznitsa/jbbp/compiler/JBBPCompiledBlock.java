@@ -21,7 +21,6 @@ import com.igormaznitsa.jbbp.compiler.varlen.JBBPIntegerValueEvaluator;
 import com.igormaznitsa.jbbp.exceptions.JBBPException;
 import com.igormaznitsa.jbbp.exceptions.JBBPIllegalArgumentException;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,8 +33,10 @@ import java.util.List;
 public final class JBBPCompiledBlock {
 
   private static final JBBPNamedFieldInfo[] ARRAY_FIELDINFO_EMPTY = new JBBPNamedFieldInfo[0];
-  private static final JBBPIntegerValueEvaluator[] ARRAY_INTEVALUATOR_EMPTY = new JBBPIntegerValueEvaluator[0];
-  private static final JBBPFieldTypeParameterContainer[] ARRAY_FIELDTYPE_EMPTY = new JBBPFieldTypeParameterContainer[0];
+  private static final JBBPIntegerValueEvaluator[] ARRAY_INTEVALUATOR_EMPTY =
+      new JBBPIntegerValueEvaluator[0];
+  private static final JBBPFieldTypeParameterContainer[] ARRAY_FIELDTYPE_EMPTY =
+      new JBBPFieldTypeParameterContainer[0];
 
   /**
    * The Array of named field info items.
@@ -74,7 +75,10 @@ public final class JBBPCompiledBlock {
    * @param compiledData        compiled data block
    * @param hasVarFields        the flag shows that te block contains var fields
    */
-  private JBBPCompiledBlock(final String source, final JBBPNamedFieldInfo[] namedFields, final JBBPIntegerValueEvaluator[] arraySizeEvaluators, final byte[] compiledData, final boolean hasVarFields, final JBBPFieldTypeParameterContainer[] customTypeFields) {
+  private JBBPCompiledBlock(final String source, final JBBPNamedFieldInfo[] namedFields,
+                            final JBBPIntegerValueEvaluator[] arraySizeEvaluators,
+                            final byte[] compiledData, final boolean hasVarFields,
+                            final JBBPFieldTypeParameterContainer[] customTypeFields) {
     this.source = source;
     this.namedFieldData = namedFields;
     this.hasVarFields = hasVarFields;
@@ -215,7 +219,10 @@ public final class JBBPCompiledBlock {
       JBBPUtils.assertNotNull(source, "Source is not defined");
       JBBPUtils.assertNotNull(compiledData, "Compiled data is not defined");
 
-      return new JBBPCompiledBlock(this.source, this.namedFields.toArray(ARRAY_FIELDINFO_EMPTY), this.varLenProcessors.isEmpty() ? null : this.varLenProcessors.toArray(ARRAY_INTEVALUATOR_EMPTY), this.compiledData, this.hasVarFields, this.customTypeFields.toArray(ARRAY_FIELDTYPE_EMPTY));
+      return new JBBPCompiledBlock(this.source, this.namedFields.toArray(ARRAY_FIELDINFO_EMPTY),
+          this.varLenProcessors.isEmpty() ? null :
+              this.varLenProcessors.toArray(ARRAY_INTEVALUATOR_EMPTY), this.compiledData,
+          this.hasVarFields, this.customTypeFields.toArray(ARRAY_FIELDTYPE_EMPTY));
     }
 
     /**

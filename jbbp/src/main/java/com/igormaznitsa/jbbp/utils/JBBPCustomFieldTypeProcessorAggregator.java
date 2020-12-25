@@ -16,18 +16,18 @@
 
 package com.igormaznitsa.jbbp.utils;
 
+import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_STRING_EMPTY;
+
+
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_STRING_EMPTY;
 
 /**
  * The Aggregator allows to join several custom field type processors.
@@ -63,12 +63,21 @@ public class JBBPCustomFieldTypeProcessorAggregator implements JBBPCustomFieldTy
   }
 
   @Override
-  public boolean isAllowed(final JBBPFieldTypeParameterContainer fieldType, final String fieldName, final int extraData, final boolean isArray) {
-    return this.customTypeMap.get(fieldType.getTypeName()).isAllowed(fieldType, fieldName, extraData, isArray);
+  public boolean isAllowed(final JBBPFieldTypeParameterContainer fieldType, final String fieldName,
+                           final int extraData, final boolean isArray) {
+    return this.customTypeMap.get(fieldType.getTypeName())
+        .isAllowed(fieldType, fieldName, extraData, isArray);
   }
 
   @Override
-  public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer fieldType, JBBPNamedFieldInfo fieldName, int extraData, boolean readWholeStream, int arrayLength) throws IOException {
-    return this.customTypeMap.get(fieldType.getTypeName()).readCustomFieldType(in, bitOrder, parserFlags, fieldType, fieldName, extraData, readWholeStream, arrayLength);
+  public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder,
+                                               int parserFlags,
+                                               JBBPFieldTypeParameterContainer fieldType,
+                                               JBBPNamedFieldInfo fieldName, int extraData,
+                                               boolean readWholeStream, int arrayLength)
+      throws IOException {
+    return this.customTypeMap.get(fieldType.getTypeName())
+        .readCustomFieldType(in, bitOrder, parserFlags, fieldType, fieldName, extraData,
+            readWholeStream, arrayLength);
   }
 }

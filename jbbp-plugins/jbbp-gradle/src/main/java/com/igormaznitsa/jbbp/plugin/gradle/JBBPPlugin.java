@@ -1,9 +1,8 @@
 package com.igormaznitsa.jbbp.plugin.gradle;
 
+import javax.annotation.Nonnull;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-
-import javax.annotation.Nonnull;
 
 public class JBBPPlugin implements Plugin<Project> {
 

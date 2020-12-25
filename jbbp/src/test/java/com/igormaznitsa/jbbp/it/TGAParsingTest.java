@@ -16,6 +16,9 @@
 
 package com.igormaznitsa.jbbp.it;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayByte;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayStruct;
@@ -24,11 +27,8 @@ import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import com.igormaznitsa.jbbp.model.JBBPFieldUByte;
 import com.igormaznitsa.jbbp.model.JBBPFieldUShort;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-import org.junit.jupiter.api.Test;
-
 import java.io.InputStream;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
 public class TGAParsingTest extends AbstractParserIntegrationTest {
 
@@ -58,8 +58,11 @@ public class TGAParsingTest extends AbstractParserIntegrationTest {
           "byte [_] ImageData;"
   );
 
-  private void assertTgaFile(final JBBPFieldStruct parsedTga, final String imageId, final int width, final int height, final int pixelDepth, final int colorTableItems, final int imageDataSize) {
-    final JBBPFieldArrayByte imageIdArray = parsedTga.findFieldForNameAndType("ImageID", JBBPFieldArrayByte.class);
+  private void assertTgaFile(final JBBPFieldStruct parsedTga, final String imageId, final int width,
+                             final int height, final int pixelDepth, final int colorTableItems,
+                             final int imageDataSize) {
+    final JBBPFieldArrayByte imageIdArray =
+        parsedTga.findFieldForNameAndType("ImageID", JBBPFieldArrayByte.class);
     if (imageId == null || imageId.length() == 0) {
       assertEquals(0, imageIdArray.size());
     } else {
@@ -69,11 +72,16 @@ public class TGAParsingTest extends AbstractParserIntegrationTest {
       }
     }
 
-    assertEquals(width, parsedTga.findFieldForPathAndType("header.Width", JBBPFieldUShort.class).getAsInt());
-    assertEquals(height, parsedTga.findFieldForPathAndType("header.Height", JBBPFieldUShort.class).getAsInt());
-    assertEquals(pixelDepth, parsedTga.findFieldForPathAndType("header.PixelDepth", JBBPFieldUByte.class).getAsInt());
-    assertEquals(colorTableItems, parsedTga.findFieldForNameAndType("ColorMap", JBBPFieldArrayStruct.class).size());
-    assertEquals(imageDataSize, parsedTga.findFieldForNameAndType("ImageData", JBBPFieldArrayByte.class).size());
+    assertEquals(width,
+        parsedTga.findFieldForPathAndType("header.Width", JBBPFieldUShort.class).getAsInt());
+    assertEquals(height,
+        parsedTga.findFieldForPathAndType("header.Height", JBBPFieldUShort.class).getAsInt());
+    assertEquals(pixelDepth,
+        parsedTga.findFieldForPathAndType("header.PixelDepth", JBBPFieldUByte.class).getAsInt());
+    assertEquals(colorTableItems,
+        parsedTga.findFieldForNameAndType("ColorMap", JBBPFieldArrayStruct.class).size());
+    assertEquals(imageDataSize,
+        parsedTga.findFieldForNameAndType("ImageData", JBBPFieldArrayByte.class).size());
   }
 
   @Test
@@ -104,8 +112,10 @@ public class TGAParsingTest extends AbstractParserIntegrationTest {
     try {
       final JBBPFieldStruct result = TGAParser.parse(tgaStream);
       assertTgaFile(result, "", 319, 165, 32, 0, 116944);
-      assertEquals(0, result.findFieldForPathAndType("Header.XOffset", JBBPFieldShort.class).getAsInt());
-      assertEquals(165, result.findFieldForPathAndType("Header.YOffset", JBBPFieldShort.class).getAsInt());
+      assertEquals(0,
+          result.findFieldForPathAndType("Header.XOffset", JBBPFieldShort.class).getAsInt());
+      assertEquals(165,
+          result.findFieldForPathAndType("Header.YOffset", JBBPFieldShort.class).getAsInt());
     } finally {
       JBBPUtils.closeQuietly(tgaStream);
     }

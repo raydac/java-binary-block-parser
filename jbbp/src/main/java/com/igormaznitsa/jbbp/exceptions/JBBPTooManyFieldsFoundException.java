@@ -39,7 +39,9 @@ public class JBBPTooManyFieldsFoundException extends JBBPFinderException {
    * @param nameOrPath        the name or the path used for search
    * @param fieldType         the field type used for search
    */
-  public JBBPTooManyFieldsFoundException(final int numberOfInstances, final String message, final String nameOrPath, final Class<? extends JBBPAbstractField> fieldType) {
+  public JBBPTooManyFieldsFoundException(final int numberOfInstances, final String message,
+                                         final String nameOrPath,
+                                         final Class<? extends JBBPAbstractField> fieldType) {
     super(message, nameOrPath, fieldType);
     this.numberOfInstances = numberOfInstances;
   }

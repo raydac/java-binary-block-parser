@@ -153,7 +153,8 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
               .trim();
       if (skipString.length() != 0 && !skipString.startsWith("//")) {
         this.detectedException =
-            new JBBPTokenizerException(skipString, this.processingString, Math.max(this.lastCharSubstringFound, 0));
+            new JBBPTokenizerException(skipString, this.processingString,
+                Math.max(this.lastCharSubstringFound, 0));
       } else {
         JBBPTokenType type = JBBPTokenType.ATOM;
 
@@ -177,7 +178,8 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
           final int position =
               matcher.start() + groupWholeFound.length() - groupWholeFoundTrimmed.length();
           this.detectedException =
-              new JBBPTokenizerException("Detected atomic field definition without type", this.processingString, position);
+              new JBBPTokenizerException("Detected atomic field definition without type",
+                  this.processingString, position);
           return;
         }
 
@@ -251,7 +253,8 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
       }
     } else {
       if (this.lastCharSubstringFound < 0) {
-        this.detectedException = new JBBPTokenizerException("Wrong format of whole string", this.processingString, 0);
+        this.detectedException =
+            new JBBPTokenizerException("Wrong format of whole string", this.processingString, 0);
       } else {
         final String restOfString = this.processingString.substring(this.lastCharSubstringFound);
         if (restOfString.trim().length() != 0) {
@@ -277,7 +280,8 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
     if (name != null) {
       final String normalized = JBBPUtils.normalizeFieldNameOrPath(name);
       if (normalized.indexOf('.') >= 0) {
-        return new JBBPTokenizerException("Field name must not contain '.' char", this.processingString, position);
+        return new JBBPTokenizerException("Field name must not contain '.' char",
+            this.processingString, position);
       }
 
       if (normalized.length() > 0) {
@@ -286,13 +290,15 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
             || normalized.startsWith("$")
             || Character.isDigit(normalized.charAt(0))
         ) {
-          return new JBBPTokenizerException("'" + name + "' can't be field name", this.processingString, position);
+          return new JBBPTokenizerException("'" + name + "' can't be field name",
+              this.processingString, position);
         }
 
         for (int i = 1; i < normalized.length(); i++) {
           final char chr = normalized.charAt(i);
           if (chr != '_' && !Character.isLetterOrDigit(chr)) {
-            return new JBBPTokenizerException("Char '" + chr + "' not allowed in name", this.processingString, position);
+            return new JBBPTokenizerException("Char '" + chr + "' not allowed in name",
+                this.processingString, position);
           }
         }
       }

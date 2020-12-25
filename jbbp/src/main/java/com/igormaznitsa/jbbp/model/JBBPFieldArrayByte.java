@@ -23,7 +23,8 @@ import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
  *
  * @since 1.0
  */
-public final class JBBPFieldArrayByte extends AbstractFieldByteArray<JBBPFieldByte> implements JBBPNumericArray {
+public final class JBBPFieldArrayByte extends AbstractFieldByteArray<JBBPFieldByte>
+    implements JBBPNumericArray {
   private static final long serialVersionUID = -8100947416351943918L;
 
   /**

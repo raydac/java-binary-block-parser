@@ -78,15 +78,19 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    * @throws IllegalArgumentException if defined a bit stream which parameters
    *                                  incompatible with defined ones
    */
-  private JBBPOut(final OutputStream outStream, final JBBPByteOrder byteOrder, final JBBPBitOrder bitOrder) {
+  private JBBPOut(final OutputStream outStream, final JBBPByteOrder byteOrder,
+                  final JBBPBitOrder bitOrder) {
     JBBPUtils.assertNotNull(outStream, "Out stream must not be null");
     JBBPUtils.assertNotNull(byteOrder, "Byte order must not be null");
     JBBPUtils.assertNotNull(bitOrder, "Bit order must not be null");
 
-    this.outStream = outStream instanceof JBBPBitOutputStream ? (JBBPBitOutputStream) outStream : new JBBPBitOutputStream(outStream, bitOrder);
+    this.outStream = outStream instanceof JBBPBitOutputStream ? (JBBPBitOutputStream) outStream :
+        new JBBPBitOutputStream(outStream, bitOrder);
     this.bitOrder = this.outStream.getBitOrder();
     if (this.bitOrder != bitOrder) {
-      throw new IllegalArgumentException("Detected JBBPBitOutputStream as argument with already defined different bit order [" + this.bitOrder + ']');
+      throw new IllegalArgumentException(
+          "Detected JBBPBitOutputStream as argument with already defined different bit order [" +
+              this.bitOrder + ']');
     }
     this.byteOrder = byteOrder;
 
@@ -117,7 +121,8 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    * @param bitOrder  the bit outOrder for the session
    * @return the new DSL session generated for the stream with parameters
    */
-  public static JBBPOut BeginBin(final OutputStream out, final JBBPByteOrder byteOrder, final JBBPBitOrder bitOrder) {
+  public static JBBPOut BeginBin(final OutputStream out, final JBBPByteOrder byteOrder,
+                                 final JBBPBitOrder bitOrder) {
     return new JBBPOut(out, byteOrder, bitOrder);
   }
 
@@ -141,7 +146,8 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    * inside byte array stream.
    */
   public static JBBPOut BeginBin(final int initialSize) {
-    return new JBBPOut(new ByteArrayOutputStream(initialSize), DEFAULT_BYTE_ORDER, DEFAULT_BIT_ORDER);
+    return new JBBPOut(new ByteArrayOutputStream(initialSize), DEFAULT_BYTE_ORDER,
+        DEFAULT_BIT_ORDER);
   }
 
   /**
@@ -1043,7 +1049,8 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    * @return the context
    * @since 2.0.2
    */
-  public JBBPOut Bin(final Object object, final BinAnnotationWrapper binAnnotationWrapper, final JBBPCustomFieldWriter customFieldWriter) {
+  public JBBPOut Bin(final Object object, final BinAnnotationWrapper binAnnotationWrapper,
+                     final JBBPCustomFieldWriter customFieldWriter) {
     if (this.processCommands) {
       this.processObject(object, null, binAnnotationWrapper, customFieldWriter);
     }
@@ -1076,12 +1083,15 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
    * @see Bin#byteOrder()
    * @since 2.0.2
    */
-  public JBBPOut BinForceByteOrder(final Object object, final JBBPCustomFieldWriter customFieldWriter) {
-    return this.Bin(object, new BinAnnotationWrapper().setByteOrder(this.byteOrder), customFieldWriter);
+  public JBBPOut BinForceByteOrder(final Object object,
+                                   final JBBPCustomFieldWriter customFieldWriter) {
+    return this
+        .Bin(object, new BinAnnotationWrapper().setByteOrder(this.byteOrder), customFieldWriter);
   }
 
   @Override
-  protected void onFieldFloat(final Object obj, final Field field, final Bin annotation, final float value) {
+  protected void onFieldFloat(final Object obj, final Field field, final Bin annotation,
+                              final float value) {
     final JBBPByteOrder old = this.byteOrder;
     try {
       this.byteOrder = annotation.byteOrder();
@@ -1094,7 +1104,8 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   }
 
   @Override
-  protected void onFieldString(final Object obj, final Field field, final Bin annotation, final String value) {
+  protected void onFieldString(final Object obj, final Field field, final Bin annotation,
+                               final String value) {
     final JBBPByteOrder old = this.byteOrder;
     try {
       this.byteOrder = annotation.byteOrder();
@@ -1107,7 +1118,8 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   }
 
   @Override
-  protected void onFieldDouble(final Object obj, final Field field, final Bin annotation, final double value) {
+  protected void onFieldDouble(final Object obj, final Field field, final Bin annotation,
+                               final double value) {
     final JBBPByteOrder old = this.byteOrder;
     try {
       this.byteOrder = annotation.byteOrder();
@@ -1120,7 +1132,8 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   }
 
   @Override
-  protected void onFieldLong(final Object obj, final Field field, final Bin annotation, final long value) {
+  protected void onFieldLong(final Object obj, final Field field, final Bin annotation,
+                             final long value) {
     final JBBPByteOrder old = this.byteOrder;
     try {
       this.byteOrder = annotation.byteOrder();
@@ -1133,7 +1146,8 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   }
 
   @Override
-  protected void onFieldInt(final Object obj, final Field field, final Bin annotation, final int value) {
+  protected void onFieldInt(final Object obj, final Field field, final Bin annotation,
+                            final int value) {
     final JBBPByteOrder old = this.byteOrder;
     try {
       this.byteOrder = annotation.byteOrder();
@@ -1146,7 +1160,8 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   }
 
   @Override
-  protected void onFieldShort(final Object obj, final Field field, final Bin annotation, final boolean signed, final int value) {
+  protected void onFieldShort(final Object obj, final Field field, final Bin annotation,
+                              final boolean signed, final int value) {
     final JBBPByteOrder old = this.byteOrder;
     try {
       this.byteOrder = annotation.byteOrder();
@@ -1159,7 +1174,8 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   }
 
   @Override
-  protected void onFieldByte(final Object obj, final Field field, final Bin annotation, final boolean signed, final int value) {
+  protected void onFieldByte(final Object obj, final Field field, final Bin annotation,
+                             final boolean signed, final int value) {
     try {
       this.Byte(value);
     } catch (IOException ex) {
@@ -1168,7 +1184,8 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   }
 
   @Override
-  protected void onFieldBool(final Object obj, final Field field, final Bin annotation, final boolean value) {
+  protected void onFieldBool(final Object obj, final Field field, final Bin annotation,
+                             final boolean value) {
     try {
       this.Bool(value, annotation.bitOrder());
     } catch (IOException ex) {
@@ -1177,7 +1194,8 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   }
 
   @Override
-  protected void onFieldBits(final Object obj, final Field field, final Bin annotation, final JBBPBitNumber bitNumber, final int value) {
+  protected void onFieldBits(final Object obj, final Field field, final Bin annotation,
+                             final JBBPBitNumber bitNumber, final int value) {
     try {
       this.Bits(bitNumber, value);
     } catch (IOException ex) {
@@ -1186,7 +1204,8 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
   }
 
   @Override
-  protected void onFieldCustom(final Object obj, final Field field, final Bin annotation, final Object customFieldProcessor, final Object value) {
+  protected void onFieldCustom(final Object obj, final Field field, final Bin annotation,
+                               final Object customFieldProcessor, final Object value) {
     try {
       final JBBPCustomFieldWriter writer = (JBBPCustomFieldWriter) customFieldProcessor;
       writer.writeCustomField(this, this.outStream, obj, field, annotation, value);

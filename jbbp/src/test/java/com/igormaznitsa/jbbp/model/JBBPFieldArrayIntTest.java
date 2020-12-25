@@ -16,16 +16,20 @@
 
 package com.igormaznitsa.jbbp.model;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
+
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
-import org.junit.jupiter.api.Test;
-
 import java.io.Serializable;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class JBBPFieldArrayIntTest {
   private final int[] array = new int[] {-278349, 12223423, 0, -2, 3};
-  private final JBBPFieldArrayInt test = new JBBPFieldArrayInt(new JBBPNamedFieldInfo("test.field", "field", 999), array);
+  private final JBBPFieldArrayInt test =
+      new JBBPFieldArrayInt(new JBBPNamedFieldInfo("test.field", "field", 999), array);
 
   @Test
   public void testNameAndOffset() {

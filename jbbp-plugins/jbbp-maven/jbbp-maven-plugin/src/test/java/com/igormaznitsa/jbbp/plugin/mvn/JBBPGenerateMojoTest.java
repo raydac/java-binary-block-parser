@@ -98,9 +98,12 @@ public class JBBPGenerateMojoTest extends AbstractMojoTestCase {
     assertTrue(mojo.isAddToTestSourceFolders());
     assertTrue(mojo.getAddGettersSetters());
     assertArrayEquals(new String[] {"abc", "def"}, set2array(mojo.getCustomTypes()));
-    assertArrayEquals(new String[] {"com.igormaznitsa.InterfaceA", "com.igormaznitsa.InterfaceB"}, set2array(mojo.getInterfaces()));
-    assertArrayEquals(new String[] {"path1/**/*.jbbp", "path2/**/*.jbbp"}, set2array(mojo.getIncludes()));
-    assertArrayEquals(new String[] {"path3/**/*.jbbp", "path4/**/*.jbbp"}, set2array(mojo.getExcludes()));
+    assertArrayEquals(new String[] {"com.igormaznitsa.InterfaceA", "com.igormaznitsa.InterfaceB"},
+        set2array(mojo.getInterfaces()));
+    assertArrayEquals(new String[] {"path1/**/*.jbbp", "path2/**/*.jbbp"},
+        set2array(mojo.getIncludes()));
+    assertArrayEquals(new String[] {"path3/**/*.jbbp", "path4/**/*.jbbp"},
+        set2array(mojo.getExcludes()));
 
     assertTrue(mojo.isDoInnerClassesNonStatic());
     assertTrue(mojo.isDisableGenerateFields());

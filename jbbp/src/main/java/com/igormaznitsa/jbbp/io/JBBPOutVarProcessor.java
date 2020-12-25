@@ -33,5 +33,6 @@ public interface JBBPOutVarProcessor {
    * @return true is to continue processing of DSL commands, false skip all commands till the End()
    * @throws IOException it should be thrown for transport errors
    */
-  boolean processVarOut(JBBPOut context, JBBPBitOutputStream outStream, Object... args) throws IOException;
+  boolean processVarOut(JBBPOut context, JBBPBitOutputStream outStream, Object... args)
+      throws IOException;
 }

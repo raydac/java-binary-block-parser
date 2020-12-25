@@ -18,7 +18,6 @@ package com.igormaznitsa.jbbp.io;
 
 import com.igormaznitsa.jbbp.utils.JBBPSystemProperty;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-
 import java.io.EOFException;
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -36,7 +35,8 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   /**
    * The Initial an Array buffer size for whole stream read.
    */
-  protected static final int INITIAL_ARRAY_BUFFER_SIZE = JBBPSystemProperty.PROPERTY_INPUT_INITIAL_ARRAY_BUFFER_SIZE.getAsInteger(32);
+  protected static final int INITIAL_ARRAY_BUFFER_SIZE =
+      JBBPSystemProperty.PROPERTY_INPUT_INITIAL_ARRAY_BUFFER_SIZE.getAsInteger(32);
   /**
    * Flag shows that bit operations must be processed for MSB0 (most significant
    * bit 0) mode.
@@ -169,7 +169,8 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       if (readByteArray) {
         final int read = this.read(buffer, 0, items);
         if (read != items) {
-          throw new EOFException("Have read only " + read + " byte(s) instead of " + items + " byte(s)");
+          throw new EOFException(
+              "Have read only " + read + " byte(s) instead of " + items + " byte(s)");
         }
       } else {
         for (int i = 0; i < items; i++) {
@@ -456,7 +457,8 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * @see JBBPByteOrder#LITTLE_ENDIAN
    * @since 1.4.0
    */
-  public double[] readDoubleArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
+  public double[] readDoubleArray(final int items, final JBBPByteOrder byteOrder)
+      throws IOException {
     int pos = 0;
     if (items < 0) {
       double[] buffer = new double[INITIAL_ARRAY_BUFFER_SIZE];
@@ -563,9 +565,11 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    */
   public long readLong(final JBBPByteOrder byteOrder) throws IOException {
     if (byteOrder == JBBPByteOrder.BIG_ENDIAN) {
-      return (((long) readInt(byteOrder) & 0xFFFFFFFFL) << 32) | ((long) readInt(byteOrder) & 0xFFFFFFFFL);
+      return (((long) readInt(byteOrder) & 0xFFFFFFFFL) << 32) |
+          ((long) readInt(byteOrder) & 0xFFFFFFFFL);
     } else {
-      return ((long) readInt(byteOrder) & 0xFFFFFFFFL) | (((long) readInt(byteOrder) & 0xFFFFFFFFL) << 32);
+      return ((long) readInt(byteOrder) & 0xFFFFFFFFL) |
+          (((long) readInt(byteOrder) & 0xFFFFFFFFL) << 32);
     }
   }
 
@@ -584,9 +588,11 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   public double readDouble(final JBBPByteOrder byteOrder) throws IOException {
     final long value;
     if (byteOrder == JBBPByteOrder.BIG_ENDIAN) {
-      value = (((long) readInt(byteOrder) & 0xFFFFFFFFL) << 32) | ((long) readInt(byteOrder) & 0xFFFFFFFFL);
+      value = (((long) readInt(byteOrder) & 0xFFFFFFFFL) << 32) |
+          ((long) readInt(byteOrder) & 0xFFFFFFFFL);
     } else {
-      value = ((long) readInt(byteOrder) & 0xFFFFFFFFL) | (((long) readInt(byteOrder) & 0xFFFFFFFFL) << 32);
+      value = ((long) readInt(byteOrder) & 0xFFFFFFFFL) |
+          (((long) readInt(byteOrder) & 0xFFFFFFFFL) << 32);
     }
     return Double.longBitsToDouble(value);
   }
@@ -716,7 +722,9 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       this.bitBuffer = theBitBuffer;
       this.bitsInBuffer = theBitBufferCounter;
 
-      return JBBPUtils.reverseBitsInByte(JBBPBitNumber.decode(numOfBitsAsNumber - i), (byte) result) & 0xFF;
+      return
+          JBBPUtils.reverseBitsInByte(JBBPBitNumber.decode(numOfBitsAsNumber - i), (byte) result) &
+              0xFF;
     }
   }
 
@@ -1027,7 +1035,8 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * @see JBBPBitOutputStream#writeStringArray(String[], JBBPByteOrder)
    * @since 1.4.0
    */
-  public String[] readStringArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
+  public String[] readStringArray(final int items, final JBBPByteOrder byteOrder)
+      throws IOException {
     int pos = 0;
     if (items < 0) {
       String[] buffer = new String[INITIAL_ARRAY_BUFFER_SIZE];

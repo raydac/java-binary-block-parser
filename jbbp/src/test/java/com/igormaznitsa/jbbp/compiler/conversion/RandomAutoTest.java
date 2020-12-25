@@ -1,62 +1,21 @@
 package com.igormaznitsa.jbbp.compiler.conversion;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJavaConverterTest;
 import com.igormaznitsa.jbbp.utils.JBBPDslBuilder;
-import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
 
 public class RandomAutoTest extends AbstractJBBPToJavaConverterTest {
 
   private final Random RND = new Random(12345);
-
-  private static class StructLen {
-    final int arrayLength;
-
-    int bitLength = 0;
-
-    StructLen() {
-      this(1);
-    }
-
-    StructLen(final int arrayLength) {
-      this.arrayLength = arrayLength;
-    }
-
-    void add(final int bitLength) {
-      this.bitLength += bitLength;
-    }
-
-    int make() {
-      return this.arrayLength * bitLength;
-    }
-
-  }
-
-  static class Result {
-    final String script;
-    final int bitLength;
-    final int fieldsNumber;
-    final int structNumber;
-    final int booleanDataItemCounter;
-    final long typeFlags;
-
-    Result(final String script, final int bitLength, final int fieldsNumber, final int structNumber, final int booleanDtaItemCounter, final long typeFlags) {
-      this.script = script;
-      this.bitLength = bitLength;
-      this.fieldsNumber = fieldsNumber;
-      this.structNumber = structNumber;
-      this.booleanDataItemCounter = booleanDtaItemCounter;
-      this.typeFlags = typeFlags;
-    }
-  }
 
   int makeArrayLengthNumber() {
     return RND.nextInt(16) + 1;
@@ -93,8 +52,8 @@ public class RandomAutoTest extends AbstractJBBPToJavaConverterTest {
 
   String genRandomString(final int length) {
     final StringBuilder builder = new StringBuilder(length);
-    for(int i=0;i<length;i++){
-      builder.append((char)(' '+this.RND.nextInt(100)));
+    for (int i = 0; i < length; i++) {
+      builder.append((char) (' ' + this.RND.nextInt(100)));
     }
     return builder.toString();
   }
@@ -179,7 +138,7 @@ public class RandomAutoTest extends AbstractJBBPToJavaConverterTest {
             builder.Bool(generateNames ? makeRndName() : null);
             counterStack.get(0).add(8);
             fieldsTotal++;
-            booleanDataItems ++;
+            booleanDataItems++;
           }
           break;
           case 6: { // BOOL_ARRAY
@@ -327,7 +286,8 @@ public class RandomAutoTest extends AbstractJBBPToJavaConverterTest {
       counterStack.get(0).add(len.make());
     }
 
-    return new Result(builder.End(), counterStack.get(0).make(), fieldsTotal, structsTotal, booleanDataItems, typeFlags);
+    return new Result(builder.End(), counterStack.get(0).make(), fieldsTotal, structsTotal,
+        booleanDataItems, typeFlags);
   }
 
   private byte[] makeRandomDataArray(final int bitLength) {
@@ -352,7 +312,9 @@ public class RandomAutoTest extends AbstractJBBPToJavaConverterTest {
 
       generatedFields |= result.typeFlags;
 
-      System.out.println(String.format("Test %d, data bit length = %d, fields = %d, sructs = %d", testIndex, result.bitLength, result.fieldsNumber, result.structNumber));
+      System.out.println(String
+          .format("Test %d, data bit length = %d, fields = %d, sructs = %d", testIndex,
+              result.bitLength, result.fieldsNumber, result.structNumber));
 
       final byte[] testData = makeRandomDataArray(result.bitLength);
       final Object clazzInstance = compileAndMakeInstance(result.script);
@@ -363,6 +325,48 @@ public class RandomAutoTest extends AbstractJBBPToJavaConverterTest {
     }
 
     assertEquals(0x7FFFFFFL, generatedFields, "All field types must be presented");
+  }
+
+  private static class StructLen {
+    final int arrayLength;
+
+    int bitLength = 0;
+
+    StructLen() {
+      this(1);
+    }
+
+    StructLen(final int arrayLength) {
+      this.arrayLength = arrayLength;
+    }
+
+    void add(final int bitLength) {
+      this.bitLength += bitLength;
+    }
+
+    int make() {
+      return this.arrayLength * bitLength;
+    }
+
+  }
+
+  static class Result {
+    final String script;
+    final int bitLength;
+    final int fieldsNumber;
+    final int structNumber;
+    final int booleanDataItemCounter;
+    final long typeFlags;
+
+    Result(final String script, final int bitLength, final int fieldsNumber, final int structNumber,
+           final int booleanDtaItemCounter, final long typeFlags) {
+      this.script = script;
+      this.bitLength = bitLength;
+      this.fieldsNumber = fieldsNumber;
+      this.structNumber = structNumber;
+      this.booleanDataItemCounter = booleanDtaItemCounter;
+      this.typeFlags = typeFlags;
+    }
   }
 
 

@@ -259,7 +259,9 @@ public class JBBPTextWriter extends FilterWriter {
    * The Default constructor. A StringWriter will be used inside.
    */
   public JBBPTextWriter() {
-    this(new StringWriter(1024), JBBPByteOrder.BIG_ENDIAN, System.getProperty("line.separator"), DEFAULT_RADIX, DEFAULT_VALUE_PREFIX, DEFAULT_FIRST_VALUE_LINE_PREFIX, DEFAULT_COMMENT_PREFIX, DEFAULT_HR_PREFIX, DEFAULT_VALUE_DELIMITER);
+    this(new StringWriter(1024), JBBPByteOrder.BIG_ENDIAN, System.getProperty("line.separator"),
+        DEFAULT_RADIX, DEFAULT_VALUE_PREFIX, DEFAULT_FIRST_VALUE_LINE_PREFIX,
+        DEFAULT_COMMENT_PREFIX, DEFAULT_HR_PREFIX, DEFAULT_VALUE_DELIMITER);
   }
 
   /**
@@ -268,7 +270,9 @@ public class JBBPTextWriter extends FilterWriter {
    * @param out a writer to be wrapped, must not be null.
    */
   public JBBPTextWriter(final Writer out) {
-    this(out, JBBPByteOrder.BIG_ENDIAN, System.getProperty("line.separator"), DEFAULT_RADIX, DEFAULT_VALUE_PREFIX, DEFAULT_FIRST_VALUE_LINE_PREFIX, DEFAULT_COMMENT_PREFIX, DEFAULT_HR_PREFIX, DEFAULT_VALUE_DELIMITER);
+    this(out, JBBPByteOrder.BIG_ENDIAN, System.getProperty("line.separator"), DEFAULT_RADIX,
+        DEFAULT_VALUE_PREFIX, DEFAULT_FIRST_VALUE_LINE_PREFIX, DEFAULT_COMMENT_PREFIX,
+        DEFAULT_HR_PREFIX, DEFAULT_VALUE_DELIMITER);
   }
 
   /**
@@ -278,7 +282,9 @@ public class JBBPTextWriter extends FilterWriter {
    * @param byteOrder a byte order to be used, it must not be null.
    */
   public JBBPTextWriter(final Writer out, final JBBPByteOrder byteOrder) {
-    this(out, byteOrder, System.getProperty("line.separator"), DEFAULT_RADIX, DEFAULT_VALUE_PREFIX, DEFAULT_FIRST_VALUE_LINE_PREFIX, DEFAULT_COMMENT_PREFIX, DEFAULT_HR_PREFIX, DEFAULT_VALUE_DELIMITER);
+    this(out, byteOrder, System.getProperty("line.separator"), DEFAULT_RADIX, DEFAULT_VALUE_PREFIX,
+        DEFAULT_FIRST_VALUE_LINE_PREFIX, DEFAULT_COMMENT_PREFIX, DEFAULT_HR_PREFIX,
+        DEFAULT_VALUE_DELIMITER);
   }
 
   /**
@@ -330,7 +336,8 @@ public class JBBPTextWriter extends FilterWriter {
    */
   public static JBBPTextWriter makeStrWriter() {
     final String lineSeparator = System.setProperty("line.separator", "\n");
-    return new JBBPTextWriter(new StringWriter(), JBBPByteOrder.BIG_ENDIAN, lineSeparator, 16, "0x", ".", ";", "~", ",");
+    return new JBBPTextWriter(new StringWriter(), JBBPByteOrder.BIG_ENDIAN, lineSeparator, 16, "0x",
+        ".", ";", "~", ",");
   }
 
   protected static String makeFieldComment(final JBBPAbstractField field) {
@@ -579,7 +586,9 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     if (convertedByExtras == null) {
-      printValueString(JBBPUtils.ensureMinTextLength(JBBPUtils.ulong2str(value & 0xFF, this.radix, CHAR_BUFFER), this.maxCharsRadixForByte, '0', 0));
+      printValueString(JBBPUtils
+          .ensureMinTextLength(JBBPUtils.ulong2str(value & 0xFF, this.radix, CHAR_BUFFER),
+              this.maxCharsRadixForByte, '0', 0));
     } else {
       printValueString(convertedByExtras);
     }
@@ -762,7 +771,8 @@ public class JBBPTextWriter extends FilterWriter {
    */
   public JBBPTextWriter SetTabSpaces(final int numberOfSpacesPerTab) {
     if (numberOfSpacesPerTab <= 0) {
-      throw new IllegalArgumentException("Tab must contains positive number of space chars [" + numberOfSpacesPerTab + ']');
+      throw new IllegalArgumentException(
+          "Tab must contains positive number of space chars [" + numberOfSpacesPerTab + ']');
     }
     final int currentIdentSteps = this.indent / this.spacesInTab;
     this.spacesInTab = numberOfSpacesPerTab;
@@ -796,7 +806,8 @@ public class JBBPTextWriter extends FilterWriter {
     this.maxCharsRadixForByte = JBBPUtils.ulong2str(0xFFL, this.radix, CHAR_BUFFER).length();
     this.maxCharsRadixForShort = JBBPUtils.ulong2str(0xFFFFL, this.radix, CHAR_BUFFER).length();
     this.maxCharsRadixForInt = JBBPUtils.ulong2str(0xFFFFFFFFL, this.radix, CHAR_BUFFER).length();
-    this.maxCharsRadixForLong = JBBPUtils.ulong2str(0xFFFFFFFFFFFFFFFFL, this.radix, CHAR_BUFFER).length();
+    this.maxCharsRadixForLong =
+        JBBPUtils.ulong2str(0xFFFFFFFFFFFFFFFFL, this.radix, CHAR_BUFFER).length();
 
     return this;
   }
@@ -825,7 +836,9 @@ public class JBBPTextWriter extends FilterWriter {
       } else {
         valueToWrite = value;
       }
-      printValueString(JBBPUtils.ensureMinTextLength(JBBPUtils.ulong2str(valueToWrite & 0xFFFFL, this.radix, CHAR_BUFFER), this.maxCharsRadixForShort, '0', 0));
+      printValueString(JBBPUtils
+          .ensureMinTextLength(JBBPUtils.ulong2str(valueToWrite & 0xFFFFL, this.radix, CHAR_BUFFER),
+              this.maxCharsRadixForShort, '0', 0));
     } else {
       printValueString(convertedByExtras);
     }
@@ -853,11 +866,13 @@ public class JBBPTextWriter extends FilterWriter {
     if (convertedByExtras == null) {
       final float valueToWrite;
       if (this.byteOrder == JBBPByteOrder.LITTLE_ENDIAN) {
-        valueToWrite = Float.intBitsToFloat((int) JBBPFieldInt.reverseBits(Float.floatToIntBits(value)));
+        valueToWrite =
+            Float.intBitsToFloat((int) JBBPFieldInt.reverseBits(Float.floatToIntBits(value)));
       } else {
         valueToWrite = value;
       }
-      printValueString(JBBPUtils.ensureMinTextLength(JBBPUtils.float2str(valueToWrite, this.radix), this.maxCharsRadixForShort, '0', 0));
+      printValueString(JBBPUtils.ensureMinTextLength(JBBPUtils.float2str(valueToWrite, this.radix),
+          this.maxCharsRadixForShort, '0', 0));
     } else {
       printValueString(convertedByExtras);
     }
@@ -885,11 +900,13 @@ public class JBBPTextWriter extends FilterWriter {
     if (convertedByExtras == null) {
       final double valueToWrite;
       if (this.byteOrder == JBBPByteOrder.LITTLE_ENDIAN) {
-        valueToWrite = Double.longBitsToDouble(JBBPFieldLong.reverseBits(Double.doubleToLongBits(value)));
+        valueToWrite =
+            Double.longBitsToDouble(JBBPFieldLong.reverseBits(Double.doubleToLongBits(value)));
       } else {
         valueToWrite = value;
       }
-      printValueString(JBBPUtils.ensureMinTextLength(JBBPUtils.double2str(valueToWrite, this.radix), this.maxCharsRadixForShort, '0', 0));
+      printValueString(JBBPUtils.ensureMinTextLength(JBBPUtils.double2str(valueToWrite, this.radix),
+          this.maxCharsRadixForShort, '0', 0));
     } else {
       printValueString(convertedByExtras);
     }
@@ -1020,7 +1037,9 @@ public class JBBPTextWriter extends FilterWriter {
       } else {
         valueToWrite = value;
       }
-      printValueString(JBBPUtils.ensureMinTextLength(JBBPUtils.ulong2str(valueToWrite & 0xFFFFFFFFL, this.radix, CHAR_BUFFER), this.maxCharsRadixForInt, '0', 0));
+      printValueString(JBBPUtils.ensureMinTextLength(
+          JBBPUtils.ulong2str(valueToWrite & 0xFFFFFFFFL, this.radix, CHAR_BUFFER),
+          this.maxCharsRadixForInt, '0', 0));
     } else {
       printValueString(convertedByExtras);
     }
@@ -1129,7 +1148,9 @@ public class JBBPTextWriter extends FilterWriter {
       } else {
         valueToWrite = value;
       }
-      printValueString(JBBPUtils.ensureMinTextLength(JBBPUtils.ulong2str(valueToWrite, this.radix, CHAR_BUFFER), this.maxCharsRadixForLong, '0', 0));
+      printValueString(JBBPUtils
+          .ensureMinTextLength(JBBPUtils.ulong2str(valueToWrite, this.radix, CHAR_BUFFER),
+              this.maxCharsRadixForLong, '0', 0));
     } else {
       printValueString(convertedByExtras);
     }
@@ -1255,7 +1276,8 @@ public class JBBPTextWriter extends FilterWriter {
     if (this.out instanceof StringWriter) {
       result = this.out.toString();
     } else {
-      result = JBBPTextWriter.class.getName() + '(' + this.out.getClass().getName() + ")@" + System.identityHashCode(this);
+      result = JBBPTextWriter.class.getName() + '(' + this.out.getClass().getName() + ")@" +
+          System.identityHashCode(this);
     }
     return result;
   }
@@ -1300,7 +1322,8 @@ public class JBBPTextWriter extends FilterWriter {
    * @return the context
    * @throws IOException it will be thrown for transport errors
    */
-  public JBBPTextWriter Obj(final int objId, final Object[] array, int off, int len) throws IOException {
+  public JBBPTextWriter Obj(final int objId, final Object[] array, int off, int len)
+      throws IOException {
     while (len-- > 0) {
       this.Obj(objId, array[off++]);
     }
@@ -1340,7 +1363,8 @@ public class JBBPTextWriter extends FilterWriter {
     return this;
   }
 
-  protected void printAbstractFieldObject(final String postText, final JBBPAbstractField field) throws IOException {
+  protected void printAbstractFieldObject(final String postText, final JBBPAbstractField field)
+      throws IOException {
     final String postfix = (postText == null ? "" : " " + postText);
 
     if (field instanceof JBBPAbstractArrayField || field instanceof JBBPFieldStruct) {
@@ -1349,7 +1373,8 @@ public class JBBPTextWriter extends FilterWriter {
       HR();
       IndentInc();
       if (field instanceof JBBPAbstractArrayField) {
-        final JBBPAbstractArrayField<? extends JBBPAbstractField> array = (JBBPAbstractArrayField<? extends JBBPAbstractField>) field;
+        final JBBPAbstractArrayField<? extends JBBPAbstractField> array =
+            (JBBPAbstractArrayField<? extends JBBPAbstractField>) field;
         if (array.size() > 0) {
           if (array instanceof JBBPFieldArrayBit) {
             Byte(((JBBPFieldArrayBit) array).getArray());
@@ -1735,7 +1760,8 @@ public class JBBPTextWriter extends FilterWriter {
      * anything
      * @throws IOException it will be thrown for transport error
      */
-    String doConvertCustomField(JBBPTextWriter context, final Object obj, final Field field, final Bin annotation) throws IOException;
+    String doConvertCustomField(JBBPTextWriter context, final Object obj, final Field field,
+                                final Bin annotation) throws IOException;
   }
 
   private final class MappedObjectLogger extends AbstractMappedClassFieldObserver {
@@ -1761,7 +1787,8 @@ public class JBBPTextWriter extends FilterWriter {
       return result.toString();
     }
 
-    private String makeStructDescription(final Object obj, final Field field, final Bin annotation) {
+    private String makeStructDescription(final Object obj, final Field field,
+                                         final Bin annotation) {
       final StringBuilder result = new StringBuilder();
 
       final Class<?> objClass = obj.getClass();
@@ -1776,12 +1803,16 @@ public class JBBPTextWriter extends FilterWriter {
         typeName = obj.getClass().getSimpleName();
       } else {
         final Class<?> fieldType = field.getType();
-        typeName = fieldType.isArray() ? fieldType.getComponentType().getSimpleName() : fieldType.getSimpleName();
+        typeName = fieldType.isArray() ? fieldType.getComponentType().getSimpleName() :
+            fieldType.getSimpleName();
       }
 
-      final String name = annotation == null || annotation.name().length() == 0 ? typeName : annotation.name();
-      final String fieldComment = annotation == null || annotation.comment().length() == 0 ? null : annotation.comment();
-      final String objectComment = classAnno == null || classAnno.comment().length() == 0 ? null : classAnno.comment();
+      final String name =
+          annotation == null || annotation.name().length() == 0 ? typeName : annotation.name();
+      final String fieldComment =
+          annotation == null || annotation.comment().length() == 0 ? null : annotation.comment();
+      final String objectComment =
+          classAnno == null || classAnno.comment().length() == 0 ? null : classAnno.comment();
 
       result.append(name);
       if (fieldComment != null) {
@@ -1822,13 +1853,15 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     @Override
-    protected void onArrayStart(final Object obj, final Field field, final Bin annotation, final int length) {
+    protected void onArrayStart(final Object obj, final Field field, final Bin annotation,
+                                final int length) {
       try {
         HR();
         if (field.getType() == String.class) {
           Comment("STRING: " + makeFieldDescription(field, annotation));
         } else {
-          Comment("START ARRAY : " + makeArrayDescription(field, annotation) + " OF " + field.getType().getComponentType().getSimpleName() + " [" + length + ']');
+          Comment("START ARRAY : " + makeArrayDescription(field, annotation) + " OF " +
+              field.getType().getComponentType().getSimpleName() + " [" + length + ']');
         }
         HR();
         IndentInc();
@@ -1867,7 +1900,8 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     @Override
-    protected void onFieldLong(final Object obj, final Field field, final Bin annotation, final long value) {
+    protected void onFieldLong(final Object obj, final Field field, final Bin annotation,
+                               final long value) {
       try {
         Long(value);
         if (this.arrayCounter == 0) {
@@ -1879,7 +1913,8 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     @Override
-    protected void onFieldInt(final Object obj, final Field field, final Bin annotation, final int value) {
+    protected void onFieldInt(final Object obj, final Field field, final Bin annotation,
+                              final int value) {
       try {
         Int(value);
         if (this.arrayCounter == 0) {
@@ -1891,7 +1926,8 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     @Override
-    protected void onFieldFloat(final Object obj, final Field field, final Bin annotation, final float value) {
+    protected void onFieldFloat(final Object obj, final Field field, final Bin annotation,
+                                final float value) {
       try {
         Float(value);
         if (this.arrayCounter == 0) {
@@ -1903,7 +1939,8 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     @Override
-    protected void onFieldString(final Object obj, final Field field, final Bin annotation, final String value) {
+    protected void onFieldString(final Object obj, final Field field, final Bin annotation,
+                                 final String value) {
       try {
         ensureValueMode();
         final String prefix = prefixValue;
@@ -1919,7 +1956,8 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     @Override
-    protected void onFieldDouble(final Object obj, final Field field, final Bin annotation, final double value) {
+    protected void onFieldDouble(final Object obj, final Field field, final Bin annotation,
+                                 final double value) {
       try {
         Double(value);
         if (this.arrayCounter == 0) {
@@ -1931,7 +1969,8 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     @Override
-    protected void onFieldShort(final Object obj, final Field field, final Bin annotation, final boolean signed, final int value) {
+    protected void onFieldShort(final Object obj, final Field field, final Bin annotation,
+                                final boolean signed, final int value) {
       try {
         Short(value);
         if (this.arrayCounter == 0) {
@@ -1943,7 +1982,8 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     @Override
-    protected void onFieldByte(final Object obj, final Field field, final Bin annotation, final boolean signed, final int value) {
+    protected void onFieldByte(final Object obj, final Field field, final Bin annotation,
+                               final boolean signed, final int value) {
       try {
         Byte(value);
         if (this.arrayCounter == 0) {
@@ -1955,7 +1995,8 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     @Override
-    protected void onFieldBool(final Object obj, final Field field, final Bin annotation, final boolean value) {
+    protected void onFieldBool(final Object obj, final Field field, final Bin annotation,
+                               final boolean value) {
       try {
         Byte(value ? 0x01 : 0x00);
         if (this.arrayCounter == 0) {
@@ -1967,7 +2008,8 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     @Override
-    protected void onFieldBits(final Object obj, final Field field, final Bin annotation, final JBBPBitNumber bitNumber, final int value) {
+    protected void onFieldBits(final Object obj, final Field field, final Bin annotation,
+                               final JBBPBitNumber bitNumber, final int value) {
       try {
         Byte(value & bitNumber.getMask());
         if (this.arrayCounter == 0) {
@@ -1979,7 +2021,8 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     @Override
-    protected void onFieldCustom(final Object obj, final Field field, final Bin annotation, final Object customFieldProcessor, final Object value) {
+    protected void onFieldCustom(final Object obj, final Field field, final Bin annotation,
+                                 final Object customFieldProcessor, final Object value) {
       try {
         if (extras.isEmpty()) {
           throw new IllegalStateException("There is not any registered extras");

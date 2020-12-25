@@ -3,6 +3,11 @@ package com.igormaznitsa.jbbp.plugin.mvn;
 import com.igormaznitsa.jbbp.plugin.common.converters.Target;
 import com.igormaznitsa.meta.annotation.MustNotContainNull;
 import com.igormaznitsa.meta.common.utils.Assertions;
+import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -12,12 +17,6 @@ import org.codehaus.plexus.compiler.util.scan.InclusionScanException;
 import org.codehaus.plexus.compiler.util.scan.SimpleSourceInclusionScanner;
 import org.codehaus.plexus.compiler.util.scan.SourceInclusionScanner;
 import org.codehaus.plexus.compiler.util.scan.mapping.SuffixMapping;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
 
 public abstract class AbstractJBBPMojo extends AbstractMojo {
   /**
@@ -170,7 +169,8 @@ public abstract class AbstractJBBPMojo extends AbstractMojo {
   @Nonnull
   public Set<File> findSources(@Nonnull final File targetDirectory) throws MojoExecutionException {
     try {
-      final SourceInclusionScanner scanner = new SimpleSourceInclusionScanner(this.includes, this.excludes);
+      final SourceInclusionScanner scanner =
+          new SimpleSourceInclusionScanner(this.includes, this.excludes);
       scanner.addSourceMapping(new SuffixMapping("JBBP", "jbbp"));
       return scanner.getIncludedSources(this.source, targetDirectory);
     } catch (InclusionScanException ex) {

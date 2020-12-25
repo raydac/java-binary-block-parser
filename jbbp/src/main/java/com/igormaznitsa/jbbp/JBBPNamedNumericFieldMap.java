@@ -26,7 +26,6 @@ import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.model.JBBPNumericField;
 import com.igormaznitsa.jbbp.model.finder.JBBPFieldFinder;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -168,14 +167,16 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
   }
 
   @Override
-  public <T extends JBBPAbstractField> T findFieldForNameAndType(final String fieldName, final Class<T> fieldType) {
+  public <T extends JBBPAbstractField> T findFieldForNameAndType(final String fieldName,
+                                                                 final Class<T> fieldType) {
     final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(fieldName);
     JBBPUtils.assertNotNull(fieldType, "Field type must not be null");
 
     T result = null;
 
     for (final Map.Entry<JBBPNamedFieldInfo, JBBPNumericField> f : fieldMap.entrySet()) {
-      if (normalizedName.equals(f.getKey().getFieldName()) && fieldType.isAssignableFrom(f.getValue().getClass())) {
+      if (normalizedName.equals(f.getKey().getFieldName()) &&
+          fieldType.isAssignableFrom(f.getValue().getClass())) {
         result = fieldType.cast(f.getValue());
         break;
       }
@@ -184,14 +185,16 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
   }
 
   @Override
-  public <T extends JBBPAbstractField> T findFieldForPathAndType(final String fieldPath, final Class<T> fieldType) {
+  public <T extends JBBPAbstractField> T findFieldForPathAndType(final String fieldPath,
+                                                                 final Class<T> fieldType) {
     final String normalizedPath = JBBPUtils.normalizeFieldNameOrPath(fieldPath);
     JBBPUtils.assertNotNull(fieldType, "Field type must not be null");
 
     T result = null;
 
     for (final Map.Entry<JBBPNamedFieldInfo, JBBPNumericField> f : fieldMap.entrySet()) {
-      if (normalizedPath.equals(f.getKey().getFieldPath()) && fieldType.isAssignableFrom(f.getValue().getClass())) {
+      if (normalizedPath.equals(f.getKey().getFieldPath()) &&
+          fieldType.isAssignableFrom(f.getValue().getClass())) {
         result = fieldType.cast(f.getValue());
         break;
       }
@@ -293,10 +296,13 @@ public final class JBBPNamedNumericFieldMap implements JBBPFieldFinder {
    * @return integer value for the field
    * @throws JBBPException if there is not any external value provider
    */
-  public int getExternalFieldValue(final String externalFieldName, final JBBPCompiledBlock compiledBlock, final JBBPIntegerValueEvaluator evaluator) {
+  public int getExternalFieldValue(final String externalFieldName,
+                                   final JBBPCompiledBlock compiledBlock,
+                                   final JBBPIntegerValueEvaluator evaluator) {
     final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(externalFieldName);
     if (this.externalValueProvider == null) {
-      throw new JBBPEvalException("Request for '" + externalFieldName + "' but there is not any value provider", evaluator);
+      throw new JBBPEvalException(
+          "Request for '" + externalFieldName + "' but there is not any value provider", evaluator);
     } else {
       return this.externalValueProvider.provideArraySize(normalizedName, this, compiledBlock);
     }

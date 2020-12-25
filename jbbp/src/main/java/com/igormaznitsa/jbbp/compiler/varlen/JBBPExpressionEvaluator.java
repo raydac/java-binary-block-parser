@@ -16,6 +16,9 @@
 
 package com.igormaznitsa.jbbp.compiler.varlen;
 
+import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_STRING_EMPTY;
+
+
 import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.compiler.JBBPCompilerUtils;
@@ -27,15 +30,12 @@ import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.model.JBBPNumericField;
 import com.igormaznitsa.jbbp.utils.JBBPIntCounter;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_STRING_EMPTY;
 
 /**
  * The Class implements an evaluator which can calculate an expression.
@@ -122,19 +122,25 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
   /**
    * Array of operator priorities for their codes.
    */
-  private static final int[] PRIORITIES = new int[] {0, 1000, 1000, 1000, 500, 500, 500, 200, 200, 300, 300, 300, 50, 100, 150, 175, 175, 175};
+  private static final int[] PRIORITIES =
+      new int[] {0, 1000, 1000, 1000, 500, 500, 500, 200, 200, 300, 300, 300, 50, 100, 150, 175,
+          175, 175};
   /**
    * Array of operator symbols mapped to their codes.
    */
-  private static final String[] SYMBOLS = new String[] {"(", "", "", "", "~", "-", "+", "+", "-", "*", "/", "%", "|", "^", "&", "<<", ">>", ">>>"};
+  private static final String[] SYMBOLS =
+      new String[] {"(", "", "", "", "~", "-", "+", "+", "-", "*", "/", "%", "|", "^", "&", "<<",
+          ">>", ">>>"};
   /**
    * Array of first chars of operators to recognize a string as possible expression.
    */
-  private static final char[] OPERATOR_FIRST_CHARS = new char[] {'(', '+', '-', '*', '/', '%', '|', '&', '^', '~', ')', '>', '<'};
+  private static final char[] OPERATOR_FIRST_CHARS =
+      new char[] {'(', '+', '-', '*', '/', '%', '|', '&', '^', '~', ')', '>', '<'};
   /**
    * The Pattern to parse an expression.
    */
-  private static final Pattern PATTERN = Pattern.compile("([0-9]+)|([()])|(<<|>>>|>>|[%*+\\-/&|^~])|([\\S][^<>\\s+%*\\-/()&|^~]*)");
+  private static final Pattern PATTERN =
+      Pattern.compile("([0-9]+)|([()])|(<<|>>>|>>|[%*+\\-/&|^~])|([\\S][^<>\\s+%*\\-/()&|^~]*)");
   /**
    * The Array contains byte code of compiled expression.
    */
@@ -162,7 +168,9 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
    * @param compiledData the current compiled data block of JBBP parent script for the expression, must not be null
    * @throws JBBPCompilationException if any problem in compilation
    */
-  public JBBPExpressionEvaluator(final String expression, final List<JBBPNamedFieldInfo> namedFields, final byte[] compiledData) {
+  public JBBPExpressionEvaluator(final String expression,
+                                 final List<JBBPNamedFieldInfo> namedFields,
+                                 final byte[] compiledData) {
     this.expressionSource = expression;
 
     final Matcher matcher = PATTERN.matcher(expression);
@@ -187,7 +195,8 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
         // check for skipped substring
         final String substr = expression.substring(lastFound, matcher.start());
         if (substr.trim().length() != 0) {
-          throw new JBBPCompilationException("Can't recognize part of expression '" + substr + "' [" + expression + ']');
+          throw new JBBPCompilationException(
+              "Can't recognize part of expression '" + substr + "' [" + expression + ']');
         }
       }
 
@@ -215,7 +224,8 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
           if (nameIndex < 0) {
             throw new JBBPCompilationException("Unknown variable [" + variable + ']');
           }
-          JBBPCompilerUtils.assertFieldIsNotArrayOrInArray(namedFields.get(nameIndex), namedFields, compiledData);
+          JBBPCompilerUtils.assertFieldIsNotArrayOrInArray(namedFields.get(nameIndex), namedFields,
+              compiledData);
         }
 
         try {
@@ -341,10 +351,12 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
             }
           }
           if (!metLeftPart) {
-            throw new JBBPCompilationException("Detected unclosed bracket [" + this.expressionSource + ']');
+            throw new JBBPCompilationException(
+                "Detected unclosed bracket [" + this.expressionSource + ']');
           }
         } else {
-          throw new Error("Detected unsupported bracket, connect developer for the error [" + bracket + ']');
+          throw new Error(
+              "Detected unsupported bracket, connect developer for the error [" + bracket + ']');
         }
       } else if (number != null) {
         counterVarsAndConstants++;
@@ -383,14 +395,18 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
             throw new RuntimeException("Unexpected IO exception", ex);
           }
         } catch (NumberFormatException ex) {
-          throw new JBBPCompilationException("Can't parse a numeric constant, only decimal integers are supported '" + number + "' [" + this.expressionSource + ']', null, ex);
+          throw new JBBPCompilationException(
+              "Can't parse a numeric constant, only decimal integers are supported '" + number +
+                  "' [" + this.expressionSource + ']', null, ex);
         }
         theFirstInTheSubExpression = false;
       }
     }
 
     if (unaryOperatorCode > 0) {
-      throw new JBBPCompilationException("Unary operator without argument '" + SYMBOLS[unaryOperatorCode] + "' [" + this.expressionSource + ']');
+      throw new JBBPCompilationException(
+          "Unary operator without argument '" + SYMBOLS[unaryOperatorCode] + "' [" +
+              this.expressionSource + ']');
     }
 
     if (counterOperators == 0) {
@@ -404,17 +420,20 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
     while (!operationStack.isEmpty()) {
       final int top = operationStack.remove(operationStack.size() - 1);
       if (top == PSEUDOCODE_LEFT_BRACKET) {
-        throw new JBBPCompilationException("Detected unclosed bracket [" + this.expressionSource + ']');
+        throw new JBBPCompilationException(
+            "Detected unclosed bracket [" + this.expressionSource + ']');
       }
       compiledScript.write(top);
     }
 
     if (lastFound < 0) {
-      throw new JBBPCompilationException("Can't extract expression [" + this.expressionSource + ']');
+      throw new JBBPCompilationException(
+          "Can't extract expression [" + this.expressionSource + ']');
     }
 
     this.compiledExpression = compiledScript.toByteArray();
-    this.externalValueNames = externalValueNameList.isEmpty() ? null : externalValueNameList.toArray(ARRAY_STRING_EMPTY);
+    this.externalValueNames =
+        externalValueNameList.isEmpty() ? null : externalValueNameList.toArray(ARRAY_STRING_EMPTY);
 
     this.maxStackDepth = calculateMaxStackDepth();
   }
@@ -514,7 +533,8 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
    */
   private void assertUnaryOperator(final String operator) {
     if (!("+".equals(operator) || "-".equals(operator) || "~".equals(operator))) {
-      throw new JBBPCompilationException("Wrong unary operator '" + operator + "' [" + this.expressionSource + ']');
+      throw new JBBPCompilationException(
+          "Wrong unary operator '" + operator + "' [" + this.expressionSource + ']');
     }
   }
 
@@ -547,7 +567,8 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
         case CODE_MINUS:
         case CODE_XOR: {
           if (stackPosition < 2) {
-            throw new JBBPEvalException("Operator '" + code2operator(code) + "' needs two operands", this);
+            throw new JBBPEvalException("Operator '" + code2operator(code) + "' needs two operands",
+                this);
           }
           // decrease for one position
           stackPosition--;
@@ -558,7 +579,8 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
         case CODE_NOT: {
           // stack not changed
           if (stackPosition < 1) {
-            throw new JBBPEvalException("Operator '" + code2operator(code) + "' needs operand", this);
+            throw new JBBPEvalException("Operator '" + code2operator(code) + "' needs operand",
+                this);
           }
         }
         break;
@@ -568,7 +590,9 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
     }
 
     if (stackPosition != 1) {
-      throw new JBBPEvalException("Wrong expression [" + this.expressionSource + "] (" + stackPosition + ':' + stackMaxPosition + ')', this);
+      throw new JBBPEvalException(
+          "Wrong expression [" + this.expressionSource + "] (" + stackPosition + ':' +
+              stackMaxPosition + ')', this);
     }
     return stackMaxPosition;
   }
@@ -594,7 +618,9 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
    * @throws JBBPEvalException if there is any problem during processing
    */
   @Override
-  public int eval(final JBBPBitInputStream inStream, final int currentCompiledBlockOffset, final JBBPCompiledBlock compiledBlockData, final JBBPNamedNumericFieldMap fieldMap) {
+  public int eval(final JBBPBitInputStream inStream, final int currentCompiledBlockOffset,
+                  final JBBPCompiledBlock compiledBlockData,
+                  final JBBPNamedNumericFieldMap fieldMap) {
     final int[] stack = new int[this.maxStackDepth];
 
     int stackDepth = 0;
@@ -610,12 +636,15 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
 
           final int value;
           if (code == CODE_EXTVAR) {
-            value = "$".equals(this.externalValueNames[index]) ? (int) inStream.getCounter() : fieldMap.getExternalFieldValue(this.externalValueNames[index], compiledBlockData, this);
+            value = "$".equals(this.externalValueNames[index]) ? (int) inStream.getCounter() :
+                fieldMap
+                    .getExternalFieldValue(this.externalValueNames[index], compiledBlockData, this);
           } else {
             final JBBPNamedFieldInfo namedField = compiledBlockData.getNamedFields()[index];
             final JBBPNumericField numericField = fieldMap.get(namedField);
             if (numericField == null) {
-              throw new java.lang.ArithmeticException("Can't find field '" + namedField.getFieldName() + "' among numeric fields");
+              throw new java.lang.ArithmeticException(
+                  "Can't find field '" + namedField.getFieldName() + "' among numeric fields");
             } else {
               value = fieldMap.get(namedField).getAsInt();
             }
@@ -703,7 +732,8 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
   }
 
   @Override
-  public void visitItems(final JBBPCompiledBlock block, final int currentCompiledBlockOffset, final ExpressionEvaluatorVisitor visitor) {
+  public void visitItems(final JBBPCompiledBlock block, final int currentCompiledBlockOffset,
+                         final ExpressionEvaluatorVisitor visitor) {
     visitor.visitStart();
 
     final JBBPIntCounter counter = new JBBPIntCounter();

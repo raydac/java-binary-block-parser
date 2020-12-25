@@ -47,7 +47,8 @@ public interface ExpressionEvaluatorVisitor {
    * @param nullableExternalFieldName name of external field, it will be null for regular field
    * @return the visitor instance, must not be null
    */
-  ExpressionEvaluatorVisitor visitField(JBBPNamedFieldInfo nullableNameFieldInfo, String nullableExternalFieldName);
+  ExpressionEvaluatorVisitor visitField(JBBPNamedFieldInfo nullableNameFieldInfo,
+                                        String nullableExternalFieldName);
 
   /**
    * Visit operator

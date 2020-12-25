@@ -16,13 +16,12 @@
 
 package com.igormaznitsa.jbbp.plugin.common.utils;
 
-import org.apache.commons.io.FilenameUtils;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import org.apache.commons.io.FilenameUtils;
 
 /**
  * Misc auxiliary methods.
@@ -44,7 +43,8 @@ public final class CommonUtils {
   public static String ensureEncodingName(@Nullable final String charsetName) {
     final Charset defaultCharset = Charset.defaultCharset();
     try {
-      return (charsetName == null) ? defaultCharset.name() : Charset.forName(charsetName.trim()).name();
+      return (charsetName == null) ? defaultCharset.name() :
+          Charset.forName(charsetName.trim()).name();
     } catch (IllegalCharsetNameException ex) {
       throw new IllegalArgumentException("Can't recognize charset for name '" + charsetName + '\'');
     }
@@ -89,10 +89,13 @@ public final class CommonUtils {
    * @return java source file for the script file
    */
   @Nonnull
-  public static File scriptFileToJavaFile(@Nullable final File targetDir, @Nullable final String classPackage, @Nonnull final File scriptFile) {
+  public static File scriptFileToJavaFile(@Nullable final File targetDir,
+                                          @Nullable final String classPackage,
+                                          @Nonnull final File scriptFile) {
     final String rawFileName = FilenameUtils.getBaseName(scriptFile.getName());
     final String className = CommonUtils.extractClassName(rawFileName);
-    final String packageName = classPackage == null ? CommonUtils.extractPackageName(rawFileName) : classPackage;
+    final String packageName =
+        classPackage == null ? CommonUtils.extractPackageName(rawFileName) : classPackage;
 
     String fullClassName = packageName.isEmpty() ? className : packageName + '.' + className;
     fullClassName = fullClassName.replace('.', File.separatorChar) + ".java";

@@ -32,9 +32,12 @@ class JavaConverterTest {
     assertTrue(parameters.setDoInternalClassesNonStatic(true).isDoInternalClassesNonStatic());
     assertFalse(parameters.setDoInternalClassesNonStatic(false).isDoInternalClassesNonStatic());
 
-    assertEquals(new File("some_test"), parameters.setOutputDir(new File("some_test")).getOutputDir());
-    assertEquals(new File("some_test.script"), parameters.setScriptFile(new File("some_test.script")).getScriptFile());
-    assertEquals("some.test.package", parameters.setPackageName("some.test.package").getPackageName());
+    assertEquals(new File("some_test"),
+        parameters.setOutputDir(new File("some_test")).getOutputDir());
+    assertEquals(new File("some_test.script"),
+        parameters.setScriptFile(new File("some_test.script")).getScriptFile());
+    assertEquals("some.test.package",
+        parameters.setPackageName("some.test.package").getPackageName());
     assertEquals("bit a;", parameters.setScriptText("bit a;").getScriptText());
     assertEquals("SomeSuperClass", parameters.setSuperClass("SomeSuperClass").getSuperClass());
     assertEquals(1234, parameters.setParserFlags(1234).getParserFlags());

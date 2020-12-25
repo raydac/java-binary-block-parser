@@ -36,11 +36,15 @@ import org.junit.jupiter.api.Test;
 
 public class PNGParsingTest extends AbstractParserIntegrationTest {
 
-  private static void assertChunk(final String name, final int length, final JBBPFieldStruct chunk) {
-    final int chunkName = (name.charAt(0) << 24) | (name.charAt(1) << 16) | (name.charAt(2) << 8) | name.charAt(3);
+  private static void assertChunk(final String name, final int length,
+                                  final JBBPFieldStruct chunk) {
+    final int chunkName =
+        (name.charAt(0) << 24) | (name.charAt(1) << 16) | (name.charAt(2) << 8) | name.charAt(3);
 
-    assertEquals(chunkName, chunk.findFieldForNameAndType("type", JBBPFieldInt.class).getAsInt(), "Chunk must be " + name);
-    assertEquals(length, chunk.findFieldForNameAndType("length", JBBPFieldInt.class).getAsInt(), "Chunk length must be " + length);
+    assertEquals(chunkName, chunk.findFieldForNameAndType("type", JBBPFieldInt.class).getAsInt(),
+        "Chunk must be " + name);
+    assertEquals(length, chunk.findFieldForNameAndType("length", JBBPFieldInt.class).getAsInt(),
+        "Chunk length must be " + length);
 
     final PureJavaCrc32 crc32 = new PureJavaCrc32();
     crc32.update(name.charAt(0));
@@ -57,7 +61,8 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
     }
 
     final int crc = (int) crc32.getValue();
-    assertEquals(crc, chunk.findLastFieldForType(JBBPFieldInt.class).getAsInt(), "CRC32 for " + name + " must be " + crc);
+    assertEquals(crc, chunk.findLastFieldForType(JBBPFieldInt.class).getAsInt(),
+        "CRC32 for " + name + " must be " + crc);
 
   }
 
@@ -106,13 +111,15 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
 
       assertEquals(0x89504E470D0A1A0AL, png.hEAder);
 
-      final String[] chunkNames = new String[] {"IHDR", "gAMA", "bKGD", "pHYs", "tIME", "tEXt", "IDAT", "IEND"};
+      final String[] chunkNames =
+          new String[] {"IHDR", "gAMA", "bKGD", "pHYs", "tIME", "tEXt", "IDAT", "IEND"};
       final int[] chunkSizes = new int[] {0x0D, 0x04, 0x06, 0x09, 0x07, 0x19, 0x0E5F, 0x00};
 
       assertEquals(chunkNames.length, png.chuNK.length);
 
       for (int i = 0; i < png.chuNK.length; i++) {
-        assertPngChunk(chunkNames[i], chunkSizes[i], png.chuNK[i].type, png.chuNK[i].length, png.chuNK[i].crc, png.chuNK[i].data);
+        assertPngChunk(chunkNames[i], chunkSizes[i], png.chuNK[i].type, png.chuNK[i].length,
+            png.chuNK[i].crc, png.chuNK[i].data);
       }
 
       assertEquals(3847, pngParser.getFinalStreamByteCounter());
@@ -140,11 +147,14 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
 
       final JBBPFieldStruct result = pngParser.parse(pngStream);
 
-      assertEquals(0x89504E470D0A1A0AL, result.findFieldForNameAndType("header", JBBPFieldLong.class).getAsLong());
+      assertEquals(0x89504E470D0A1A0AL,
+          result.findFieldForNameAndType("header", JBBPFieldLong.class).getAsLong());
 
-      final JBBPFieldArrayStruct chunks = result.findFieldForNameAndType("chunk", JBBPFieldArrayStruct.class);
+      final JBBPFieldArrayStruct chunks =
+          result.findFieldForNameAndType("chunk", JBBPFieldArrayStruct.class);
 
-      final String[] chunkNames = new String[] {"IHDR", "gAMA", "bKGD", "pHYs", "tIME", "tEXt", "IDAT", "IEND"};
+      final String[] chunkNames =
+          new String[] {"IHDR", "gAMA", "bKGD", "pHYs", "tIME", "tEXt", "IDAT", "IEND"};
       final int[] chunkSizes = new int[] {0x0D, 0x04, 0x06, 0x09, 0x07, 0x19, 0x0E5F, 0x00};
 
       assertEquals(chunkNames.length, chunks.size());
@@ -175,19 +185,24 @@ public class PNGParsingTest extends AbstractParserIntegrationTest {
               + "}"
       );
 
-      final JBBPFieldStruct result = pngParser.parse(pngStream, null, (fieldName, numericFieldMap, compiledBlock) -> {
-        if ("value".equals(fieldName)) {
-          return numericFieldMap.findFieldForPathAndType("chunk.length", JBBPFieldInt.class).getAsInt();
-        }
-        fail("Unexpected variable '" + fieldName + '\'');
-        return -1;
-      });
+      final JBBPFieldStruct result =
+          pngParser.parse(pngStream, null, (fieldName, numericFieldMap, compiledBlock) -> {
+            if ("value".equals(fieldName)) {
+              return numericFieldMap.findFieldForPathAndType("chunk.length", JBBPFieldInt.class)
+                  .getAsInt();
+            }
+            fail("Unexpected variable '" + fieldName + '\'');
+            return -1;
+          });
 
-      assertEquals(0x89504E470D0A1A0AL, result.findFieldForNameAndType("header", JBBPFieldLong.class).getAsLong());
+      assertEquals(0x89504E470D0A1A0AL,
+          result.findFieldForNameAndType("header", JBBPFieldLong.class).getAsLong());
 
-      final JBBPFieldArrayStruct chunks = result.findFieldForNameAndType("chunk", JBBPFieldArrayStruct.class);
+      final JBBPFieldArrayStruct chunks =
+          result.findFieldForNameAndType("chunk", JBBPFieldArrayStruct.class);
 
-      final String[] chunkNames = new String[] {"IHDR", "gAMA", "bKGD", "pHYs", "tIME", "tEXt", "IDAT", "IEND"};
+      final String[] chunkNames =
+          new String[] {"IHDR", "gAMA", "bKGD", "pHYs", "tIME", "tEXt", "IDAT", "IEND"};
       final int[] chunkSizes = new int[] {0x0D, 0x04, 0x06, 0x09, 0x07, 0x19, 0x0E5F, 0x00};
 
       assertEquals(chunkNames.length, chunks.size());

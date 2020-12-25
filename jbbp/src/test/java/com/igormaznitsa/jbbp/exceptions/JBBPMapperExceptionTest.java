@@ -16,17 +16,20 @@
 
 package com.igormaznitsa.jbbp.exceptions;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.model.JBBPFieldByte;
+import java.lang.reflect.Field;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Field;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 public class JBBPMapperExceptionTest {
-  private final JBBPAbstractField field = new JBBPFieldByte(new JBBPNamedFieldInfo("test.test", "test", 0), (byte) 1);
+  private final JBBPAbstractField field =
+      new JBBPFieldByte(new JBBPNamedFieldInfo("test.test", "test", 0), (byte) 1);
   private final Exception cause = new Exception();
   private final String message = "Message";
 
@@ -37,7 +40,8 @@ public class JBBPMapperExceptionTest {
 
     assertNotNull(clazzField);
 
-    final JBBPMapperException ex = new JBBPMapperException(this.message, this.field, clazz, clazzField, this.cause);
+    final JBBPMapperException ex =
+        new JBBPMapperException(this.message, this.field, clazz, clazzField, this.cause);
     assertSame(this.message, ex.getMessage());
     assertSame(this.field, ex.getField());
     assertSame(clazz, ex.getMappingClass());
@@ -49,7 +53,8 @@ public class JBBPMapperExceptionTest {
     final Class<?> clazz = Integer.class;
     final Field clazzField = Integer.class.getDeclaredFields()[0];
     assertNotNull(clazzField);
-    final JBBPMapperException ex = new JBBPMapperException(this.message, this.field, clazz, clazzField, this.cause);
+    final JBBPMapperException ex =
+        new JBBPMapperException(this.message, this.field, clazz, clazzField, this.cause);
     assertTrue(ex.toString().contains(clazzField.toString()));
   }
 

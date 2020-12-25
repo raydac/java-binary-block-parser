@@ -82,14 +82,17 @@ public class SNAParsingTest extends AbstractParserIntegrationTest {
     final byte[] packed = JBBPOut.BeginBin(LITTLE_ENDIAN).Bin(sna).End().toByteArray();
     assertResource("zexall.sna", packed);
 
-    final String text = new JBBPTextWriter().ByteOrder(LITTLE_ENDIAN).SetMaxValuesPerLine(32).Bin(sna).Close().toString();
+    final String text =
+        new JBBPTextWriter().ByteOrder(LITTLE_ENDIAN).SetMaxValuesPerLine(32).Bin(sna).Close()
+            .toString();
     assertTrue(text.length() > 10000);
     System.out.println(text);
   }
 
   @Test
   public void testParseAndSave_ThroughDslBuilder() throws Exception {
-    final JBBPParser parser = JBBPParser.prepare(JBBPDslBuilder.Begin().AnnotatedClass(SNA.class).End());
+    final JBBPParser parser =
+        JBBPParser.prepare(JBBPDslBuilder.Begin().AnnotatedClass(SNA.class).End());
 
     final InputStream in = getResourceAsInputStream("zexall.sna");
 
@@ -100,7 +103,8 @@ public class SNAParsingTest extends AbstractParserIntegrationTest {
       JBBPUtils.closeQuietly(in);
     }
 
-    final SNA mapped = parsed.findFieldForNameAndType("SNA", JBBPFieldStruct.class).mapTo(new SNA());
+    final SNA mapped =
+        parsed.findFieldForNameAndType("SNA", JBBPFieldStruct.class).mapTo(new SNA());
     assertResource("zexall.sna", JBBPOut.BeginBin().Bin(mapped).End().toByteArray());
   }
 

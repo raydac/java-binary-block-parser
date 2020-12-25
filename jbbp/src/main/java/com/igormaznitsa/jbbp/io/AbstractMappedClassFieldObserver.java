@@ -67,7 +67,8 @@ public abstract class AbstractMappedClassFieldObserver {
    */
   private static void assertFieldArray(final Field field) {
     if (!field.getType().isArray()) {
-      throw new IllegalArgumentException("Detected non-array field marked to be written as an array [" + field + ']');
+      throw new IllegalArgumentException(
+          "Detected non-array field marked to be written as an array [" + field + ']');
     }
   }
 
@@ -97,10 +98,14 @@ public abstract class AbstractMappedClassFieldObserver {
     this.onStructStart(obj, field, clazzAnno == null ? fieldAnno : clazzAnno);
 
     for (final MappedFieldRecord rec : orderedFields) {
-      final Bin binAnno = binAnnotationWrapper == null ? rec.binAnnotation : binAnnotationWrapper.setWrapped(rec.binAnnotation);
+      final Bin binAnno = binAnnotationWrapper == null ? rec.binAnnotation :
+          binAnnotationWrapper.setWrapped(rec.binAnnotation);
 
       if (binAnno.custom() && customFieldProcessor == null) {
-        throw new JBBPIllegalArgumentException("Class '" + obj.getClass().getName() + "' contains field '" + rec.mappingField.getName() + "' which is custom one, you must provide JBBPCustomFieldWriter instance to save it.");
+        throw new JBBPIllegalArgumentException(
+            "Class '" + obj.getClass().getName() + "' contains field '" +
+                rec.mappingField.getName() +
+                "' which is custom one, you must provide JBBPCustomFieldWriter instance to save it.");
       }
 
       processObjectField(obj, rec, binAnno, customFieldProcessor);
@@ -129,10 +134,12 @@ public abstract class AbstractMappedClassFieldObserver {
     final Field field = fieldRecord.mappingField;
 
     if (annotation.custom()) {
-      this.onFieldCustom(obj, field, annotation, customFieldProcessor, readFieldValue(obj, fieldRecord));
+      this.onFieldCustom(obj, field, annotation, customFieldProcessor,
+          readFieldValue(obj, fieldRecord));
     } else {
       final Class<?> fieldType = field.getType();
-      final BinAnnotationWrapper wrapper = annotation instanceof BinAnnotationWrapper ? (BinAnnotationWrapper) annotation : null;
+      final BinAnnotationWrapper wrapper =
+          annotation instanceof BinAnnotationWrapper ? (BinAnnotationWrapper) annotation : null;
       final BinType type;
       if (annotation.type() == BinType.UNDEFINED) {
         type = BinType.findCompatible(fieldType);
@@ -146,7 +153,8 @@ public abstract class AbstractMappedClassFieldObserver {
         case BIT: {
           final JBBPBitNumber bitNumber = annotation.bitNumber();
           if (fieldType == boolean.class) {
-            this.onFieldBits(obj, field, annotation, bitNumber, ((Boolean) readFieldValue(obj, fieldRecord)) ? 0xFF : 0x00);
+            this.onFieldBits(obj, field, annotation, bitNumber,
+                ((Boolean) readFieldValue(obj, fieldRecord)) ? 0xFF : 0x00);
           } else {
             byte value = ((Number) readFieldValue(obj, fieldRecord)).byteValue();
             if (reverseBits) {
@@ -160,7 +168,8 @@ public abstract class AbstractMappedClassFieldObserver {
           if (fieldType == boolean.class) {
             onFieldBool(obj, field, annotation, (Boolean) readFieldValue(obj, fieldRecord));
           } else {
-            onFieldBool(obj, field, annotation, ((Number) readFieldValue(obj, fieldRecord)).longValue() != 0);
+            onFieldBool(obj, field, annotation,
+                ((Number) readFieldValue(obj, fieldRecord)).longValue() != 0);
           }
         }
         break;
@@ -204,7 +213,8 @@ public abstract class AbstractMappedClassFieldObserver {
             value = ((Number) readFieldValue(obj, fieldRecord)).floatValue();
           }
           if (reverseBits) {
-            value = Float.intBitsToFloat((int) JBBPFieldInt.reverseBits(Float.floatToIntBits(value)));
+            value =
+                Float.intBitsToFloat((int) JBBPFieldInt.reverseBits(Float.floatToIntBits(value)));
           }
           this.onFieldFloat(obj, field, annotation, value);
         }
@@ -242,7 +252,8 @@ public abstract class AbstractMappedClassFieldObserver {
           }
 
           if (reverseBits) {
-            value = Double.longBitsToDouble(JBBPFieldLong.reverseBits(Double.doubleToLongBits(value)));
+            value =
+                Double.longBitsToDouble(JBBPFieldLong.reverseBits(Double.doubleToLongBits(value)));
           }
           this.onFieldDouble(obj, field, annotation, value);
         }
@@ -264,7 +275,8 @@ public abstract class AbstractMappedClassFieldObserver {
 
               if (fieldType.getComponentType() == boolean.class) {
                 for (int i = 0; i < len; i++) {
-                  this.onFieldBits(obj, field, annotation, bitNumber, (Boolean) Array.get(array, i) ? 0xFF : 0x00);
+                  this.onFieldBits(obj, field, annotation, bitNumber,
+                      (Boolean) Array.get(array, i) ? 0xFF : 0x00);
                 }
               } else {
                 for (int i = 0; i < len; i++) {
@@ -373,7 +385,8 @@ public abstract class AbstractMappedClassFieldObserver {
               for (int i = 0; i < len; i++) {
                 float value = Array.getFloat(array, i);
                 if (reverseBits) {
-                  value = Float.intBitsToFloat((int) JBBPFieldInt.reverseBits(Float.floatToIntBits(value)));
+                  value = Float
+                      .intBitsToFloat((int) JBBPFieldInt.reverseBits(Float.floatToIntBits(value)));
                 }
                 this.onFieldFloat(obj, field, annotation, value);
               }
@@ -431,7 +444,8 @@ public abstract class AbstractMappedClassFieldObserver {
               for (int i = 0; i < len; i++) {
                 double value = ((Number) Array.get(array, i)).doubleValue();
                 if (reverseBits) {
-                  value = Double.longBitsToDouble(JBBPFieldLong.reverseBits(Double.doubleToLongBits(value)));
+                  value = Double
+                      .longBitsToDouble(JBBPFieldLong.reverseBits(Double.doubleToLongBits(value)));
                 }
                 this.onFieldDouble(obj, field, annotation, value);
               }
@@ -449,7 +463,8 @@ public abstract class AbstractMappedClassFieldObserver {
             }
             break;
             default: {
-              throw new Error("Unexpected situation for field type, contact developer [" + type + ']');
+              throw new Error(
+                  "Unexpected situation for field type, contact developer [" + type + ']');
             }
           }
         }
@@ -467,7 +482,8 @@ public abstract class AbstractMappedClassFieldObserver {
    * @param customFieldProcessor processor for custom fields, must not be null
    * @param value                the value of the custom field
    */
-  protected void onFieldCustom(final Object obj, final Field field, final Bin annotation, final Object customFieldProcessor, final Object value) {
+  protected void onFieldCustom(final Object obj, final Field field, final Bin annotation,
+                               final Object customFieldProcessor, final Object value) {
 
   }
 
@@ -480,7 +496,8 @@ public abstract class AbstractMappedClassFieldObserver {
    * @param bitNumber  number of bits for the field, must not be null
    * @param value      the value of the field
    */
-  protected void onFieldBits(final Object obj, final Field field, final Bin annotation, final JBBPBitNumber bitNumber, final int value) {
+  protected void onFieldBits(final Object obj, final Field field, final Bin annotation,
+                             final JBBPBitNumber bitNumber, final int value) {
 
   }
 
@@ -492,7 +509,8 @@ public abstract class AbstractMappedClassFieldObserver {
    * @param annotation the annotation for field, must not be null
    * @param value      the value of the field
    */
-  protected void onFieldBool(final Object obj, final Field field, final Bin annotation, final boolean value) {
+  protected void onFieldBool(final Object obj, final Field field, final Bin annotation,
+                             final boolean value) {
 
   }
 
@@ -505,7 +523,8 @@ public abstract class AbstractMappedClassFieldObserver {
    * @param signed     flag shows that the field id signed
    * @param value      the value of the field
    */
-  protected void onFieldByte(final Object obj, final Field field, final Bin annotation, final boolean signed, final int value) {
+  protected void onFieldByte(final Object obj, final Field field, final Bin annotation,
+                             final boolean signed, final int value) {
 
   }
 
@@ -518,7 +537,8 @@ public abstract class AbstractMappedClassFieldObserver {
    * @param signed     flag shows that the field id signed
    * @param value      the value of the field
    */
-  protected void onFieldShort(final Object obj, final Field field, final Bin annotation, final boolean signed, final int value) {
+  protected void onFieldShort(final Object obj, final Field field, final Bin annotation,
+                              final boolean signed, final int value) {
 
   }
 
@@ -530,7 +550,8 @@ public abstract class AbstractMappedClassFieldObserver {
    * @param annotation the annotation for field, must not be null
    * @param value      the value of the field
    */
-  protected void onFieldInt(final Object obj, final Field field, final Bin annotation, final int value) {
+  protected void onFieldInt(final Object obj, final Field field, final Bin annotation,
+                            final int value) {
 
   }
 
@@ -543,7 +564,8 @@ public abstract class AbstractMappedClassFieldObserver {
    * @param value      the value of the field
    * @since 1.4.0
    */
-  protected void onFieldFloat(final Object obj, final Field field, final Bin annotation, final float value) {
+  protected void onFieldFloat(final Object obj, final Field field, final Bin annotation,
+                              final float value) {
 
   }
 
@@ -556,7 +578,8 @@ public abstract class AbstractMappedClassFieldObserver {
    * @param value      the value of the field
    * @since 1.4.0
    */
-  protected void onFieldString(final Object obj, final Field field, final Bin annotation, final String value) {
+  protected void onFieldString(final Object obj, final Field field, final Bin annotation,
+                               final String value) {
 
   }
 
@@ -569,7 +592,8 @@ public abstract class AbstractMappedClassFieldObserver {
    * @param value      the value of the field
    * @since 1.4.0
    */
-  protected void onFieldDouble(final Object obj, final Field field, final Bin annotation, final double value) {
+  protected void onFieldDouble(final Object obj, final Field field, final Bin annotation,
+                               final double value) {
 
   }
 
@@ -581,7 +605,8 @@ public abstract class AbstractMappedClassFieldObserver {
    * @param annotation the annotation for field, must not be null
    * @param value      the value of the field
    */
-  protected void onFieldLong(final Object obj, final Field field, final Bin annotation, final long value) {
+  protected void onFieldLong(final Object obj, final Field field, final Bin annotation,
+                             final long value) {
 
   }
 
@@ -615,7 +640,8 @@ public abstract class AbstractMappedClassFieldObserver {
    * @param annotation the annotation for field, must not be null
    * @param length     the length of the array
    */
-  protected void onArrayStart(final Object obj, final Field field, final Bin annotation, final int length) {
+  protected void onArrayStart(final Object obj, final Field field, final Bin annotation,
+                              final int length) {
 
   }
 

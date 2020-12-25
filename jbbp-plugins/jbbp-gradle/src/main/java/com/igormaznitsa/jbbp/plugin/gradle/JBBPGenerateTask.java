@@ -54,7 +54,8 @@ public class JBBPGenerateTask extends AbstractJBBPTask {
         final String trimmed = s.trim();
         final String normalized = trimmed.toLowerCase(Locale.ENGLISH);
         if (!normalized.equals(trimmed)) {
-          getLogger().warn(String.format("Custom type name '%s' in JBBP normal form is '%s' ", trimmed, normalized));
+          getLogger().warn(String
+              .format("Custom type name '%s' in JBBP normal form is '%s' ", trimmed, normalized));
         }
         normalizedCustomTypeNames.add(normalized);
       }
@@ -71,7 +72,9 @@ public class JBBPGenerateTask extends AbstractJBBPTask {
       }
 
       @Override
-      public boolean isAllowed(@Nonnull final JBBPFieldTypeParameterContainer fieldType, @Nullable final String fieldName, final int extraData, final boolean isArray) {
+      public boolean isAllowed(@Nonnull final JBBPFieldTypeParameterContainer fieldType,
+                               @Nullable final String fieldName, final int extraData,
+                               final boolean isArray) {
         final boolean result = normalizedCustomTypeNames.contains(fieldType.getTypeName());
         if (!result) {
           getLogger().warn("Detected not allowed custom type name : " + fieldType.getTypeName());
@@ -81,7 +84,14 @@ public class JBBPGenerateTask extends AbstractJBBPTask {
 
       @Override
       @Nonnull
-      public JBBPAbstractField readCustomFieldType(@Nonnull final JBBPBitInputStream in, @Nonnull final JBBPBitOrder bitOrder, final int parserFlags, @Nonnull final JBBPFieldTypeParameterContainer customTypeFieldInfo, @Nullable final JBBPNamedFieldInfo fieldName, final int extraData, final boolean readWholeStream, final int arrayLength) throws IOException {
+      public JBBPAbstractField readCustomFieldType(@Nonnull final JBBPBitInputStream in,
+                                                   @Nonnull final JBBPBitOrder bitOrder,
+                                                   final int parserFlags, @Nonnull
+                                                   final JBBPFieldTypeParameterContainer customTypeFieldInfo,
+                                                   @Nullable final JBBPNamedFieldInfo fieldName,
+                                                   final int extraData,
+                                                   final boolean readWholeStream,
+                                                   final int arrayLength) throws IOException {
         throw new Error("Must not be called");
       }
     };
@@ -117,19 +127,25 @@ public class JBBPGenerateTask extends AbstractJBBPTask {
         final Set<File> files = target.getTranslator().translate(parameters, false);
         getLogger().debug("Converted " + aScript + " into " + files);
         for (final File f : files) {
-          getLogger().info(String.format("JBBP script '%s' has been converted into '%s'", aScript.getName(), f.getName()));
+          getLogger().info(String
+              .format("JBBP script '%s' has been converted into '%s'", aScript.getName(),
+                  f.getName()));
         }
       } catch (IOException ex) {
-        throw new GradleException("Error during JBBP script translation : " + aScript.getAbsolutePath(), ex);
+        throw new GradleException(
+            "Error during JBBP script translation : " + aScript.getAbsolutePath(), ex);
       }
     }
 
 
     if (this.addSource) {
-      getLogger().debug("Registering path to java sources : " + Assertions.assertNotNull("Output must not be null", ext.output));
+      getLogger().debug("Registering path to java sources : " +
+          Assertions.assertNotNull("Output must not be null", ext.output));
       if (getProject().getPlugins().hasPlugin(JavaPlugin.class)) {
-        final JavaPluginConvention javaPluginConvention = getProject().getConvention().getPlugin(JavaPluginConvention.class);
-        final SourceSet main = javaPluginConvention.getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
+        final JavaPluginConvention javaPluginConvention =
+            getProject().getConvention().getPlugin(JavaPluginConvention.class);
+        final SourceSet main =
+            javaPluginConvention.getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
         main.getJava().srcDir(ext.output);
         getLogger().info("Source folder has been added into Java  task : " + ext.output);
       } else {

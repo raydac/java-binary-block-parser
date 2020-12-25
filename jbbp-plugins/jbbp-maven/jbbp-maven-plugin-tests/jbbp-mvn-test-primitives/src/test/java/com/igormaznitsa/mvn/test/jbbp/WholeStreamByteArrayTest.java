@@ -16,22 +16,23 @@
 
 package com.igormaznitsa.mvn.test.jbbp;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+
+
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOutputStream;
-import org.junit.jupiter.api.Test;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import org.junit.jupiter.api.Test;
 
 
 public class WholeStreamByteArrayTest {
 
   @Test
   public void testRead_DefaultBitOrder() throws IOException {
-    final WholeStreamByteArray struct = new WholeStreamByteArray().read(new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10})));
+    final WholeStreamByteArray struct = new WholeStreamByteArray().read(new JBBPBitInputStream(
+        new ByteArrayInputStream(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10})));
     assertArrayEquals(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, struct.array);
   }
 

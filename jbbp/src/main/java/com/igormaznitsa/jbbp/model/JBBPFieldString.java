@@ -25,28 +25,19 @@ import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
  */
 public final class JBBPFieldString extends JBBPAbstractField {
 
-  private static final long serialVersionUID = -2861961302858335702L;
   public static final String TYPE_NAME = "stringj";
-
+  private static final long serialVersionUID = -2861961302858335702L;
   private final String str;
 
   /**
    * A Constructor.
    *
-   * @param name   a field name info, it can be null
+   * @param name          a field name info, it can be null
    * @param nullableValue a value, it can be null
    */
   public JBBPFieldString(final JBBPNamedFieldInfo name, final String nullableValue) {
     super(name);
     this.str = nullableValue;
-  }
-
-  /**
-   * Get the saved value.
-   * @return the value as String, it can be null
-   */
-  public String getAsString() {
-    return this.str;
   }
 
   /**
@@ -60,13 +51,22 @@ public final class JBBPFieldString extends JBBPAbstractField {
     if (value != null) {
       final char[] chars = value.toCharArray();
 
-      for(int i=0; i<chars.length; i++) {
-        chars [i] = (char)JBBPFieldUShort.reverseBits((short)chars[i]);
+      for (int i = 0; i < chars.length; i++) {
+        chars[i] = (char) JBBPFieldUShort.reverseBits((short) chars[i]);
       }
 
       result = String.valueOf(chars);
     }
     return result;
+  }
+
+  /**
+   * Get the saved value.
+   *
+   * @return the value as String, it can be null
+   */
+  public String getAsString() {
+    return this.str;
   }
 
   @Override

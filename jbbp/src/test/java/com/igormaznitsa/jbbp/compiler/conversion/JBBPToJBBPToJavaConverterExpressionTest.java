@@ -51,7 +51,9 @@ public class JBBPToJBBPToJavaConverterExpressionTest extends AbstractJBBPToJavaC
     final int detectedlength = getField(obj, "data", byte[].class).length;
 
     if (etalonValue != detectedlength) {
-      System.err.println(JBBPParser.prepare(String.format("byte [%s] data;", expression)).convertToSrc(TargetSources.JAVA, PACKAGE_NAME + "." + CLASS_NAME).get(0).getResult().values().iterator().next());
+      System.err.println(JBBPParser.prepare(String.format("byte [%s] data;", expression))
+          .convertToSrc(TargetSources.JAVA, PACKAGE_NAME + "." + CLASS_NAME).get(0).getResult()
+          .values().iterator().next());
       fail(etalonValue + "!=" + detectedlength);
     }
   }
@@ -69,7 +71,8 @@ public class JBBPToJBBPToJavaConverterExpressionTest extends AbstractJBBPToJavaC
     assertExpression((123 | 883) ^ 345 & 767, "(123 | 883) ^ 345 & 767");
     assertExpression(123 & 345 | 234 ^ ~123 & 255, "123&345|234^~123&255");
     assertExpression(-123 & 345 | 234 ^ ~-123 & 255, "-123&345|234^~-123&255");
-    assertExpression((-123 & (345 | (234 ^ ~-123))) & 1023, "(-123 & (345 | (234 ^ ~-123))) & 1023");
+    assertExpression((-123 & (345 | (234 ^ ~-123))) & 1023,
+        "(-123 & (345 | (234 ^ ~-123))) & 1023");
   }
 
   @Test
@@ -93,13 +96,16 @@ public class JBBPToJBBPToJavaConverterExpressionTest extends AbstractJBBPToJavaC
     assertExpression(3 * 2 + 8 << 4 - 3, "3*2+8<<4-3");
     assertExpression(3 * 2 + 8 << 4 - 3 & 7, "3*2+8<<4-3&7");
     assertExpression(60 | 7 - ~17 % 1, "60|7-~17%1");
-    assertExpression((11 * (8 - 7)) % 13 + (1234 >> 3 << 2) >>> 1 + (13 - 1) / 2 + ((11 + 22) * 33 / 44 % 55) - (123 & 345 | 234 ^ ~123) & 255, "(11 * (8 - 7)) % 13 + ( 1234>>3<<2)>>>1 + (13 - 1) / 2 + ((11 + 22) * 33 / 44 % 55) - (123 & 345 | 234 ^ ~123) & 255");
+    assertExpression((11 * (8 - 7)) % 13 + (1234 >> 3 << 2) >>>
+            1 + (13 - 1) / 2 + ((11 + 22) * 33 / 44 % 55) - (123 & 345 | 234 ^ ~123) & 255,
+        "(11 * (8 - 7)) % 13 + ( 1234>>3<<2)>>>1 + (13 - 1) / 2 + ((11 + 22) * 33 / 44 % 55) - (123 & 345 | 234 ^ ~123) & 255");
   }
 
   @Test
   public void testSynthesidExpression() throws Exception {
     final Random rnd = new Random(5111975);
-    final String[] operatorsTwo = new String[] {"-", "+", "*", "/", "%", ">>", ">>>", "<<", "^", "|", "&"};
+    final String[] operatorsTwo =
+        new String[] {"-", "+", "*", "/", "%", ">>", ">>>", "<<", "^", "|", "&"};
     final String[] operatorsOne = new String[] {"-", "+", "~"};
 
     int rightCounter = 0;
@@ -141,17 +147,21 @@ public class JBBPToJBBPToJavaConverterExpressionTest extends AbstractJBBPToJavaC
       Object theInstance;
       final StringBuilder src = new StringBuilder();
       try {
-        theInstance = compileAndMakeInstanceSrc("byte [" + expression + "] array;", " public static int makeExpressionResult(){ return " + expression + ";}", src);
+        theInstance = compileAndMakeInstanceSrc("byte [" + expression + "] array;",
+            " public static int makeExpressionResult(){ return " + expression + ";}", src);
       } catch (Exception ex) {
         fail("Can't compile : " + expression);
         return;
       }
 
       try {
-        final int etalon = (Integer) theInstance.getClass().getMethod("makeExpressionResult").invoke(null);
+        final int etalon =
+            (Integer) theInstance.getClass().getMethod("makeExpressionResult").invoke(null);
         if (etalon > 0 && etalon < 100000) {
           System.out.println("Testing expression : " + expression);
-          assertEquals(etalon, getField(callRead(theInstance, new JBBPBitInputStream(UNLIMITED_STREAM)), "array", byte[].class).length, src.toString());
+          assertEquals(etalon,
+              getField(callRead(theInstance, new JBBPBitInputStream(UNLIMITED_STREAM)), "array",
+                  byte[].class).length, src.toString());
           rightCounter++;
         }
       } catch (InvocationTargetException ex) {

@@ -44,7 +44,8 @@ public final class JBBPFieldBit extends JBBPAbstractField implements JBBPNumeric
    * @param value     the field value
    * @param bitNumber number of valuable bits in the value, must not be null
    */
-  public JBBPFieldBit(final JBBPNamedFieldInfo name, final int value, final JBBPBitNumber bitNumber) {
+  public JBBPFieldBit(final JBBPNamedFieldInfo name, final int value,
+                      final JBBPBitNumber bitNumber) {
     super(name);
     JBBPUtils.assertNotNull(bitNumber, "Number of bits must not be null");
     this.bitNumber = bitNumber;

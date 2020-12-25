@@ -16,22 +16,29 @@
 
 package com.igormaznitsa.jbbp.model;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
-
 import java.io.Serializable;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class JBBPFieldArrayBitTest {
   private final byte[] array = new byte[] {(byte) -1, 0, 1, 2, 3};
-  private final JBBPFieldArrayBit test = new JBBPFieldArrayBit(new JBBPNamedFieldInfo("test.field", "field", 999), array, JBBPBitNumber.BITS_1);
+  private final JBBPFieldArrayBit test =
+      new JBBPFieldArrayBit(new JBBPNamedFieldInfo("test.field", "field", 999), array,
+          JBBPBitNumber.BITS_1);
 
   @Test
   public void testConstructor_NPEForNullBitNumber() {
-    assertThrows(NullPointerException.class, () -> new JBBPFieldArrayBit(new JBBPNamedFieldInfo("test.field", "field", 999), new byte[] {(byte) -1, 0, 1, 2, 3}, null));
+    assertThrows(NullPointerException.class,
+        () -> new JBBPFieldArrayBit(new JBBPNamedFieldInfo("test.field", "field", 999),
+            new byte[] {(byte) -1, 0, 1, 2, 3}, null));
   }
 
   @Test
@@ -102,7 +109,9 @@ public class JBBPFieldArrayBitTest {
   public void testGetValueArrayAsObject() {
     final byte[] array = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
 
-    final JBBPFieldArrayBit test = new JBBPFieldArrayBit(new JBBPNamedFieldInfo("test.field", "field", 999), array, JBBPBitNumber.BITS_4);
+    final JBBPFieldArrayBit test =
+        new JBBPFieldArrayBit(new JBBPNamedFieldInfo("test.field", "field", 999), array,
+            JBBPBitNumber.BITS_4);
 
     assertArrayEquals(array, (byte[]) test.getValueArrayAsObject(false));
 

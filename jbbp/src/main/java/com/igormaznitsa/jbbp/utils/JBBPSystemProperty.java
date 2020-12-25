@@ -90,7 +90,8 @@ public enum JBBPSystemProperty {
       try {
         result = Integer.parseInt(value);
       } catch (NumberFormatException ex) {
-        throw new Error("Can't get the system property '" + this.propertyName + "' as integer value, may be wrong format [" + value + ']', ex);
+        throw new Error("Can't get the system property '" + this.propertyName +
+            "' as integer value, may be wrong format [" + value + ']', ex);
       }
     }
     return result;

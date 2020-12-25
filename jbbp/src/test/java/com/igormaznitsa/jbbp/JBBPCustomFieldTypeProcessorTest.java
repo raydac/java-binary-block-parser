@@ -16,6 +16,14 @@
 
 package com.igormaznitsa.jbbp;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
@@ -28,12 +36,9 @@ import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldShort;
 import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class JBBPCustomFieldTypeProcessorTest {
 
@@ -50,7 +55,8 @@ public class JBBPCustomFieldTypeProcessorTest {
       }
 
       @Override
-      public boolean isAllowed(final JBBPFieldTypeParameterContainer fieldType, final String fieldName, final int extraData, final boolean isArray) {
+      public boolean isAllowed(final JBBPFieldTypeParameterContainer fieldType,
+                               final String fieldName, final int extraData, final boolean isArray) {
         callCounter.incrementAndGet();
 
         assertNotNull(fieldType);
@@ -83,13 +89,21 @@ public class JBBPCustomFieldTypeProcessorTest {
       }
 
       @Override
-      public JBBPAbstractField readCustomFieldType(final JBBPBitInputStream in, final JBBPBitOrder bitOrder, final int parserFlags, final JBBPFieldTypeParameterContainer customFieldTypeInfo, final JBBPNamedFieldInfo fieldName, final int extraData, final boolean readWholeStream, final int arrayLength) throws IOException {
+      public JBBPAbstractField readCustomFieldType(final JBBPBitInputStream in,
+                                                   final JBBPBitOrder bitOrder,
+                                                   final int parserFlags,
+                                                   final JBBPFieldTypeParameterContainer customFieldTypeInfo,
+                                                   final JBBPNamedFieldInfo fieldName,
+                                                   final int extraData,
+                                                   final boolean readWholeStream,
+                                                   final int arrayLength) throws IOException {
         final String type = customFieldTypeInfo.getTypeName();
 
         assertEquals(JBBPBitOrder.LSB0, bitOrder);
 
         assertEquals(JBBPParser.FLAG_SKIP_REMAINING_FIELDS_IF_EOF, parserFlags);
-        assertEquals(type.equals("some1") ? JBBPByteOrder.LITTLE_ENDIAN : JBBPByteOrder.BIG_ENDIAN, customFieldTypeInfo.getByteOrder());
+        assertEquals(type.equals("some1") ? JBBPByteOrder.LITTLE_ENDIAN : JBBPByteOrder.BIG_ENDIAN,
+            customFieldTypeInfo.getByteOrder());
 
         switch (type) {
           case "some1":
@@ -103,7 +117,8 @@ public class JBBPCustomFieldTypeProcessorTest {
             assertEquals("c", fieldName.getFieldName());
             assertFalse(readWholeStream);
             assertEquals(-1, arrayLength);
-            return new JBBPFieldShort(fieldName, (short) in.readUnsignedShort(customFieldTypeInfo.getByteOrder()));
+            return new JBBPFieldShort(fieldName,
+                (short) in.readUnsignedShort(customFieldTypeInfo.getByteOrder()));
           case "some3":
             assertEquals(0, extraData);
             assertEquals("e", fieldName.getFieldName());
@@ -117,23 +132,29 @@ public class JBBPCustomFieldTypeProcessorTest {
       }
     };
 
-    final JBBPParser parser = JBBPParser.prepare("int a; <some1 b; some2:345 c; long d; some3 [5] e;", JBBPBitOrder.LSB0, testProcessor, JBBPParser.FLAG_SKIP_REMAINING_FIELDS_IF_EOF);
+    final JBBPParser parser = JBBPParser
+        .prepare("int a; <some1 b; some2:345 c; long d; some3 [5] e;", JBBPBitOrder.LSB0,
+            testProcessor, JBBPParser.FLAG_SKIP_REMAINING_FIELDS_IF_EOF);
     assertEquals(3, callCounter.get());
 
     final JBBPFieldStruct parsed = parser.parse(new byte[] {
         (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
         (byte) 0xAB,
         (byte) 0xCD, (byte) 0xDE,
-        (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x05, (byte) 0x06, (byte) 0x07, (byte) 0x08,
+        (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x05, (byte) 0x06, (byte) 0x07,
+        (byte) 0x08,
         (byte) 0xAA, (byte) 0xBB, (byte) 0xCC, (byte) 0xDD, (byte) 0xEE,
         (byte) 0xFF, (byte) 0xFF
     });
 
     assertEquals(0x12345678, parsed.findFieldForNameAndType("a", JBBPFieldInt.class).getAsInt());
     assertEquals((byte) 0xAB, parsed.findFieldForNameAndType("b", JBBPFieldByte.class).getAsInt());
-    assertEquals((short) 0xCDDE, parsed.findFieldForNameAndType("c", JBBPFieldShort.class).getAsInt());
-    assertEquals(0x0102030405060708L, parsed.findFieldForNameAndType("d", JBBPFieldLong.class).getAsLong());
-    assertArrayEquals(new byte[] {(byte) 0xAA, (byte) 0xBB, (byte) 0xCC, (byte) 0xDD, (byte) 0xEE,}, parsed.findFieldForNameAndType("e", JBBPFieldArrayByte.class).getArray());
+    assertEquals((short) 0xCDDE,
+        parsed.findFieldForNameAndType("c", JBBPFieldShort.class).getAsInt());
+    assertEquals(0x0102030405060708L,
+        parsed.findFieldForNameAndType("d", JBBPFieldLong.class).getAsLong());
+    assertArrayEquals(new byte[] {(byte) 0xAA, (byte) 0xBB, (byte) 0xCC, (byte) 0xDD, (byte) 0xEE,},
+        parsed.findFieldForNameAndType("e", JBBPFieldArrayByte.class).getArray());
   }
 
   @Test
@@ -149,7 +170,8 @@ public class JBBPCustomFieldTypeProcessorTest {
       }
 
       @Override
-      public boolean isAllowed(final JBBPFieldTypeParameterContainer fieldType, final String fieldName, final int extraData, final boolean isArray) {
+      public boolean isAllowed(final JBBPFieldTypeParameterContainer fieldType,
+                               final String fieldName, final int extraData, final boolean isArray) {
         callCounter.incrementAndGet();
 
         assertNotNull(fieldType);
@@ -178,7 +200,14 @@ public class JBBPCustomFieldTypeProcessorTest {
       }
 
       @Override
-      public JBBPAbstractField readCustomFieldType(final JBBPBitInputStream in, final JBBPBitOrder bitOrder, final int parserFlags, final JBBPFieldTypeParameterContainer customFieldTypeInfo, final JBBPNamedFieldInfo fieldName, final int extraData, final boolean readWholeStream, final int arrayLength) throws IOException {
+      public JBBPAbstractField readCustomFieldType(final JBBPBitInputStream in,
+                                                   final JBBPBitOrder bitOrder,
+                                                   final int parserFlags,
+                                                   final JBBPFieldTypeParameterContainer customFieldTypeInfo,
+                                                   final JBBPNamedFieldInfo fieldName,
+                                                   final int extraData,
+                                                   final boolean readWholeStream,
+                                                   final int arrayLength) throws IOException {
         final String type = customFieldTypeInfo.getTypeName();
 
         if (type.equals("some1")) {
@@ -187,7 +216,8 @@ public class JBBPCustomFieldTypeProcessorTest {
         }
         if (type.equals("some2")) {
           assertEquals(0x12345678 * 3, extraData);
-          return new JBBPFieldShort(fieldName, (short) in.readUnsignedShort(customFieldTypeInfo.getByteOrder()));
+          return new JBBPFieldShort(fieldName,
+              (short) in.readUnsignedShort(customFieldTypeInfo.getByteOrder()));
         }
         if (type.equals("some3")) {
           assertEquals(0x12345678 * 4, extraData);
@@ -199,23 +229,29 @@ public class JBBPCustomFieldTypeProcessorTest {
       }
     };
 
-    final JBBPParser parser = JBBPParser.prepare("int a; some1:(a*2) b; some2:(a*3) c; long d; some3:(a*4) [5] e;", JBBPBitOrder.LSB0, testProcessor, JBBPParser.FLAG_SKIP_REMAINING_FIELDS_IF_EOF);
+    final JBBPParser parser = JBBPParser
+        .prepare("int a; some1:(a*2) b; some2:(a*3) c; long d; some3:(a*4) [5] e;",
+            JBBPBitOrder.LSB0, testProcessor, JBBPParser.FLAG_SKIP_REMAINING_FIELDS_IF_EOF);
     assertEquals(3, callCounter.get());
 
     final JBBPFieldStruct parsed = parser.parse(new byte[] {
         (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
         (byte) 0xAB,
         (byte) 0xCD, (byte) 0xDE,
-        (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x05, (byte) 0x06, (byte) 0x07, (byte) 0x08,
+        (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x05, (byte) 0x06, (byte) 0x07,
+        (byte) 0x08,
         (byte) 0xAA, (byte) 0xBB, (byte) 0xCC, (byte) 0xDD, (byte) 0xEE,
         (byte) 0xFF, (byte) 0xFF
     });
 
     assertEquals(0x12345678, parsed.findFieldForNameAndType("a", JBBPFieldInt.class).getAsInt());
     assertEquals((byte) 0xAB, parsed.findFieldForNameAndType("b", JBBPFieldByte.class).getAsInt());
-    assertEquals((short) 0xCDDE, parsed.findFieldForNameAndType("c", JBBPFieldShort.class).getAsInt());
-    assertEquals(0x0102030405060708L, parsed.findFieldForNameAndType("d", JBBPFieldLong.class).getAsLong());
-    assertArrayEquals(new byte[] {(byte) 0xAA, (byte) 0xBB, (byte) 0xCC, (byte) 0xDD, (byte) 0xEE,}, parsed.findFieldForNameAndType("e", JBBPFieldArrayByte.class).getArray());
+    assertEquals((short) 0xCDDE,
+        parsed.findFieldForNameAndType("c", JBBPFieldShort.class).getAsInt());
+    assertEquals(0x0102030405060708L,
+        parsed.findFieldForNameAndType("d", JBBPFieldLong.class).getAsLong());
+    assertArrayEquals(new byte[] {(byte) 0xAA, (byte) 0xBB, (byte) 0xCC, (byte) 0xDD, (byte) 0xEE,},
+        parsed.findFieldForNameAndType("e", JBBPFieldArrayByte.class).getArray());
   }
 
 }

@@ -53,13 +53,15 @@ public final class JBBPOnlyFieldEvaluator implements JBBPIntegerValueEvaluator {
   }
 
   @Override
-  public int eval(final JBBPBitInputStream inStream, final int currentCompiledBlockOffset, final JBBPCompiledBlock block, final JBBPNamedNumericFieldMap fieldMap) {
+  public int eval(final JBBPBitInputStream inStream, final int currentCompiledBlockOffset,
+                  final JBBPCompiledBlock block, final JBBPNamedNumericFieldMap fieldMap) {
     final int result;
     if (this.externalFieldName == null) {
       final JBBPNamedFieldInfo namedField = block.getNamedFields()[this.namedFieldIndex];
       final JBBPNumericField numericField = fieldMap.get(namedField);
       if (numericField == null) {
-        throw new java.lang.ArithmeticException("Can't find field '" + namedField.getFieldName() + "' among numeric fields");
+        throw new java.lang.ArithmeticException(
+            "Can't find field '" + namedField.getFieldName() + "' among numeric fields");
       } else {
         result = numericField.getAsInt();
       }
@@ -73,11 +75,13 @@ public final class JBBPOnlyFieldEvaluator implements JBBPIntegerValueEvaluator {
 
   @Override
   public String toString() {
-    return this.externalFieldName == null ? "NamedFieldIndex=" + this.namedFieldIndex : this.externalFieldName;
+    return this.externalFieldName == null ? "NamedFieldIndex=" + this.namedFieldIndex :
+        this.externalFieldName;
   }
 
   @Override
-  public void visitItems(final JBBPCompiledBlock block, final int currentCompiledBlockOffset, final ExpressionEvaluatorVisitor visitor) {
+  public void visitItems(final JBBPCompiledBlock block, final int currentCompiledBlockOffset,
+                         final ExpressionEvaluatorVisitor visitor) {
     visitor.visitStart();
 
     if (this.externalFieldName == null) {

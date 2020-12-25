@@ -20,7 +20,6 @@ import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.model.JBBPFieldDouble;
 import com.igormaznitsa.jbbp.model.JBBPFieldFloat;
 import com.igormaznitsa.jbbp.model.JBBPFieldString;
-
 import java.io.Serializable;
 
 /**
@@ -52,7 +51,8 @@ public final class JBBPFieldTypeParameterContainer implements Serializable {
    * @param typeName  the type of the field, can be null
    * @param extraData the extra data placed after ':' char, can be null
    */
-  public JBBPFieldTypeParameterContainer(final JBBPByteOrder byteOrder, final String typeName, final String extraData) {
+  public JBBPFieldTypeParameterContainer(final JBBPByteOrder byteOrder, final String typeName,
+                                         final String extraData) {
     this.byteOrder = byteOrder;
     this.typeName = typeName;
     this.extraData = extraData;
@@ -117,7 +117,9 @@ public final class JBBPFieldTypeParameterContainer implements Serializable {
    * @since 1.4.0
    */
   public boolean isSpecialField() {
-    return this.typeName.equals(JBBPFieldFloat.TYPE_NAME) || this.typeName.equals(JBBPFieldDouble.TYPE_NAME) || this.typeName.equals(JBBPFieldString.TYPE_NAME) || this.typeName.equals("val");
+    return this.typeName.equals(JBBPFieldFloat.TYPE_NAME) ||
+        this.typeName.equals(JBBPFieldDouble.TYPE_NAME) ||
+        this.typeName.equals(JBBPFieldString.TYPE_NAME) || this.typeName.equals("val");
   }
 
   @Override

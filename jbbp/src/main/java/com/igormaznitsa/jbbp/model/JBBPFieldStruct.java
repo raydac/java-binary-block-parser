@@ -76,7 +76,8 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
 
   @Override
   public JBBPAbstractField findFieldForPath(final String fieldPath) {
-    final String[] parsedName = JBBPUtils.splitString(JBBPUtils.normalizeFieldNameOrPath(fieldPath), '.');
+    final String[] parsedName =
+        JBBPUtils.splitString(JBBPUtils.normalizeFieldNameOrPath(fieldPath), '.');
 
     JBBPAbstractField found = this;
     final int firstIndex;
@@ -94,7 +95,9 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
       if (found instanceof JBBPFieldStruct) {
         found = ((JBBPFieldStruct) found).findFieldForName(parsedName[i]);
       } else {
-        throw new JBBPFinderException("Detected a field instead of a structure as one of nodes in the path '" + fieldPath + '\'', fieldPath, null);
+        throw new JBBPFinderException(
+            "Detected a field instead of a structure as one of nodes in the path '" + fieldPath +
+                '\'', fieldPath, null);
       }
     }
 
@@ -131,7 +134,8 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
       }
     }
     if (counter > 1) {
-      throw new JBBPTooManyFieldsFoundException(counter, "Detected more than one field", null, fieldType);
+      throw new JBBPTooManyFieldsFoundException(counter, "Detected more than one field", null,
+          fieldType);
     }
     return result;
   }
@@ -164,7 +168,8 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
   }
 
   @Override
-  public <T extends JBBPAbstractField> T findFieldForNameAndType(final String fieldName, final Class<T> fieldType) {
+  public <T extends JBBPAbstractField> T findFieldForNameAndType(final String fieldName,
+                                                                 final Class<T> fieldType) {
     final String normalizedName = JBBPUtils.normalizeFieldNameOrPath(fieldName);
 
     T result = null;
@@ -209,7 +214,8 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
   }
 
   @Override
-  public <T extends JBBPAbstractField> T findFieldForPathAndType(final String fieldPath, final Class<T> fieldType) {
+  public <T extends JBBPAbstractField> T findFieldForPathAndType(final String fieldPath,
+                                                                 final Class<T> fieldType) {
     final JBBPAbstractField field = this.findFieldForPath(fieldPath);
 
     T result = null;
@@ -232,7 +238,8 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * @since 2.0.0
    */
   @SafeVarargs
-  public final <T> T mapTo(final String path, final T instance, final Function<Class<?>, Object>... instantiators) {
+  public final <T> T mapTo(final String path, final T instance,
+                           final Function<Class<?>, Object>... instantiators) {
     return JBBPMapper.map(this, path, instance, instantiators);
   }
 
@@ -250,7 +257,8 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * @since 2.0.0
    */
   @SafeVarargs
-  public final <T> T mapTo(final String path, final T instance, final int flags, final Function<Class<?>, Object>... instantiators) {
+  public final <T> T mapTo(final String path, final T instance, final int flags,
+                           final Function<Class<?>, Object>... instantiators) {
     return JBBPMapper.map(this, path, instance, flags, instantiators);
   }
 
@@ -267,7 +275,9 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * @since 2.0.0
    */
   @SafeVarargs
-  public final <T> T mapTo(final String path, final T instance, final JBBPMapperCustomFieldProcessor customFieldProcessor, final Function<Class<?>, Object>... instantiators) {
+  public final <T> T mapTo(final String path, final T instance,
+                           final JBBPMapperCustomFieldProcessor customFieldProcessor,
+                           final Function<Class<?>, Object>... instantiators) {
     return JBBPMapper.map(this, path, instance, customFieldProcessor, instantiators);
   }
 
@@ -286,7 +296,9 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * @since 2.0.0
    */
   @SafeVarargs
-  public final <T> T mapTo(final String path, final T instance, final JBBPMapperCustomFieldProcessor customFieldProcessor, final int flags, final Function<Class<?>, Object>... instantiators) {
+  public final <T> T mapTo(final String path, final T instance,
+                           final JBBPMapperCustomFieldProcessor customFieldProcessor,
+                           final int flags, final Function<Class<?>, Object>... instantiators) {
     return JBBPMapper.map(this, path, instance, customFieldProcessor, flags, instantiators);
   }
 
@@ -318,7 +330,8 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * @since 2.0.0
    */
   @SafeVarargs
-  public final <T> T mapTo(final T instance, final int flags, final Function<Class<?>, Object>... instantiators) {
+  public final <T> T mapTo(final T instance, final int flags,
+                           final Function<Class<?>, Object>... instantiators) {
     return this.mapTo(instance, null, flags, instantiators);
   }
 
@@ -335,7 +348,9 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * of the structure
    */
   @SafeVarargs
-  public final <T> T mapTo(final T instance, final JBBPMapperCustomFieldProcessor customFieldProcessor, final Function<Class<?>, Object>... instantiators) {
+  public final <T> T mapTo(final T instance,
+                           final JBBPMapperCustomFieldProcessor customFieldProcessor,
+                           final Function<Class<?>, Object>... instantiators) {
     return JBBPMapper.map(this, instance, customFieldProcessor, instantiators);
   }
 
@@ -355,7 +370,9 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * @since 1.1
    */
   @SafeVarargs
-  public final <T> T mapTo(final T objectToMap, final JBBPMapperCustomFieldProcessor customFieldProcessor, final int flags, final Function<Class<?>, Object>... instantiators) {
+  public final <T> T mapTo(final T objectToMap,
+                           final JBBPMapperCustomFieldProcessor customFieldProcessor,
+                           final int flags, final Function<Class<?>, Object>... instantiators) {
     return JBBPMapper.map(this, objectToMap, customFieldProcessor, flags, instantiators);
   }
 

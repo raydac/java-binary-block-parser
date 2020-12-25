@@ -93,7 +93,8 @@ public abstract class AbstractJBBPToJavaConverterTest {
     }
   }
 
-  protected Object callRead(final Object instance, final JBBPBitInputStream inStream) throws Exception {
+  protected Object callRead(final Object instance, final JBBPBitInputStream inStream)
+      throws Exception {
     try {
       instance.getClass().getMethod("read", JBBPBitInputStream.class).invoke(instance, inStream);
       return instance;
@@ -122,16 +123,22 @@ public abstract class AbstractJBBPToJavaConverterTest {
     }
   }
 
-  protected void callWrite(final Object instance, final JBBPBitOutputStream outStream) throws Exception {
+  protected void callWrite(final Object instance, final JBBPBitOutputStream outStream)
+      throws Exception {
     instance.getClass().getMethod("write", JBBPBitOutputStream.class).invoke(instance, outStream);
   }
 
-  protected Object compileAndMakeInstanceSrc(final String script, final String classCustomText, final StringBuilder srcBuffer) throws Exception {
-    final String classBody = JBBPToJavaConverter.makeBuilder(JBBPParser.prepare(script)).setMainClassName(CLASS_NAME).setMainClassPackage(PACKAGE_NAME).setMainClassCustomText(classCustomText).build().convert();
+  protected Object compileAndMakeInstanceSrc(final String script, final String classCustomText,
+                                             final StringBuilder srcBuffer) throws Exception {
+    final String classBody =
+        JBBPToJavaConverter.makeBuilder(JBBPParser.prepare(script)).setMainClassName(CLASS_NAME)
+            .setMainClassPackage(PACKAGE_NAME).setMainClassCustomText(classCustomText).build()
+            .convert();
     if (srcBuffer != null) {
       srcBuffer.append(classBody);
     }
-    final ClassLoader cloader = saveAndCompile(new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, classBody));
+    final ClassLoader cloader =
+        saveAndCompile(new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, classBody));
     return ReflectUtils.newInstance(cloader.loadClass(PACKAGE_NAME + '.' + CLASS_NAME));
   }
 
@@ -139,17 +146,27 @@ public abstract class AbstractJBBPToJavaConverterTest {
     return this.compileAndMakeInstance(PACKAGE_NAME + '.' + CLASS_NAME, script, null);
   }
 
-  protected Object compileAndMakeInstance(final String script, final int parserFlags) throws Exception {
+  protected Object compileAndMakeInstance(final String script, final int parserFlags)
+      throws Exception {
     return this.compileAndMakeInstance(PACKAGE_NAME + '.' + CLASS_NAME, script, parserFlags, null);
   }
 
-  protected Object compileAndMakeInstance(final String instanceClassName, final String script, final JBBPCustomFieldTypeProcessor customFieldProcessor, final JavaClassContent... extraClasses) throws Exception {
-    return this.compileAndMakeInstance(instanceClassName, script, 0, customFieldProcessor, extraClasses);
+  protected Object compileAndMakeInstance(final String instanceClassName, final String script,
+                                          final JBBPCustomFieldTypeProcessor customFieldProcessor,
+                                          final JavaClassContent... extraClasses) throws Exception {
+    return this
+        .compileAndMakeInstance(instanceClassName, script, 0, customFieldProcessor, extraClasses);
   }
 
-  protected Object compileAndMakeInstance(final String instanceClassName, final String script, final int parserFlags, final JBBPCustomFieldTypeProcessor customFieldProcessor, final JavaClassContent... extraClasses) throws Exception {
+  protected Object compileAndMakeInstance(final String instanceClassName, final String script,
+                                          final int parserFlags,
+                                          final JBBPCustomFieldTypeProcessor customFieldProcessor,
+                                          final JavaClassContent... extraClasses) throws Exception {
     final List<JavaClassContent> klazzes = new ArrayList<>(Arrays.asList(extraClasses));
-    final JavaClassContent klazzContent = new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME, JBBPParser.prepare(script, JBBPBitOrder.LSB0, customFieldProcessor, parserFlags).convertToSrc(TargetSources.JAVA, PACKAGE_NAME + "." + CLASS_NAME).get(0).getResult().values().iterator().next());
+    final JavaClassContent klazzContent = new JavaClassContent(PACKAGE_NAME + '.' + CLASS_NAME,
+        JBBPParser.prepare(script, JBBPBitOrder.LSB0, customFieldProcessor, parserFlags)
+            .convertToSrc(TargetSources.JAVA, PACKAGE_NAME + "." + CLASS_NAME).get(0).getResult()
+            .values().iterator().next());
     if (this.printGeneratedClassText) {
       System.out.println(klazzContent.classText);
     }
@@ -162,7 +179,8 @@ public abstract class AbstractJBBPToJavaConverterTest {
     return this.saveAndCompile(null, klasses);
   }
 
-  public ClassLoader saveAndCompile(final ClassLoader classLoader, final JavaClassContent... klasses) throws IOException {
+  public ClassLoader saveAndCompile(final ClassLoader classLoader,
+                                    final JavaClassContent... klasses) throws IOException {
     final File folder = tempFolder.newFolder();
 
     final List<File> classFiles = new ArrayList<>();
@@ -180,12 +198,15 @@ public abstract class AbstractJBBPToJavaConverterTest {
 
     final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
     final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
-    final StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
-    final Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(classFiles);
+    final StandardJavaFileManager fileManager =
+        compiler.getStandardFileManager(diagnostics, null, null);
+    final Iterable<? extends JavaFileObject> compilationUnits =
+        fileManager.getJavaFileObjectsFromFiles(classFiles);
 
     if (!compiler.getTask(null, fileManager, null, null, null, compilationUnits).call()) {
       for (final Diagnostic<?> diagnostic : diagnostics.getDiagnostics()) {
-        System.err.format("Error on line %d in %s%n", diagnostic.getLineNumber(), diagnostic.getSource());
+        System.err
+            .format("Error on line %d in %s%n", diagnostic.getLineNumber(), diagnostic.getSource());
       }
 
       for (final File f : classFiles) {
@@ -197,7 +218,8 @@ public abstract class AbstractJBBPToJavaConverterTest {
       throw new IOException("Error during compilation");
     }
 
-    return classLoader == null ? new URLClassLoader(new URL[] {folder.toURI().toURL()}) : classLoader;
+    return classLoader == null ? new URLClassLoader(new URL[] {folder.toURI().toURL()}) :
+        classLoader;
   }
 
   protected static class TemporaryFolder {
@@ -234,7 +256,8 @@ public abstract class AbstractJBBPToJavaConverterTest {
         result.deleteOnExit();
         return result;
       } catch (IOException ex) {
-        throw new Error("Can't make new sub-folder in temp folder : " + this.folder.getAbsolutePath(), ex);
+        throw new Error(
+            "Can't make new sub-folder in temp folder : " + this.folder.getAbsolutePath(), ex);
       }
     }
 

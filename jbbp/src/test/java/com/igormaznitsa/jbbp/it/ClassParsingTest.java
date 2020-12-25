@@ -16,6 +16,11 @@
 
 package com.igormaznitsa.jbbp.it;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+
 import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.JBBPVarFieldProcessor;
@@ -27,13 +32,10 @@ import com.igormaznitsa.jbbp.model.JBBPAbstractArrayField;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayByte;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class ClassParsingTest extends AbstractParserIntegrationTest {
 
@@ -88,7 +90,8 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
           + "ushort minor_version;"
           + "ushort major_version;"
           + "ushort constant_pool_count;"
-          + "constant_pool_item [constant_pool_count - 1] { var [1] cp_item; //we can make any array size because the field will be processed by a custom processor\n }"
+          +
+          "constant_pool_item [constant_pool_count - 1] { var [1] cp_item; //we can make any array size because the field will be processed by a custom processor\n }"
           + "ushort access_flags;"
           + "ushort this_class;"
           + "ushort super_class;"
@@ -131,7 +134,10 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
     return new JBBPVarFieldProcessor() {
 
       @Override
-      public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(final JBBPBitInputStream inStream, final int arraySize, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+      public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(
+          final JBBPBitInputStream inStream, final int arraySize,
+          final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder,
+          final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
         if ("cp_item".equals(fieldName.getFieldName())) {
           final int tagItem = inStream.readByte();
           final JBBPFieldArrayByte result;
@@ -139,7 +145,9 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
             case CONSTANT_Class:
             case CONSTANT_String:
             case CONSTANT_MethodType: {
-              result = new JBBPFieldArrayByte(fieldName, new byte[] {(byte) tagItem, (byte) inStream.readByte(), (byte) inStream.readByte()});
+              result = new JBBPFieldArrayByte(fieldName,
+                  new byte[] {(byte) tagItem, (byte) inStream.readByte(),
+                      (byte) inStream.readByte()});
             }
             break;
             case CONSTANT_InterfaceMethodref:
@@ -148,12 +156,20 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
             case CONSTANT_Float:
             case CONSTANT_Integer:
             case CONSTANT_NameAndType: {
-              result = new JBBPFieldArrayByte(fieldName, new byte[] {(byte) tagItem, (byte) inStream.readByte(), (byte) inStream.readByte(), (byte) inStream.readByte(), (byte) inStream.readByte()});
+              result = new JBBPFieldArrayByte(fieldName,
+                  new byte[] {(byte) tagItem, (byte) inStream.readByte(),
+                      (byte) inStream.readByte(), (byte) inStream.readByte(),
+                      (byte) inStream.readByte()});
             }
             break;
             case CONSTANT_Double:
             case CONSTANT_Long: {
-              result = new JBBPFieldArrayByte(fieldName, new byte[] {(byte) tagItem, (byte) inStream.readByte(), (byte) inStream.readByte(), (byte) inStream.readByte(), (byte) inStream.readByte(), (byte) inStream.readByte(), (byte) inStream.readByte(), (byte) inStream.readByte(), (byte) inStream.readByte()});
+              result = new JBBPFieldArrayByte(fieldName,
+                  new byte[] {(byte) tagItem, (byte) inStream.readByte(),
+                      (byte) inStream.readByte(), (byte) inStream.readByte(),
+                      (byte) inStream.readByte(), (byte) inStream.readByte(),
+                      (byte) inStream.readByte(), (byte) inStream.readByte(),
+                      (byte) inStream.readByte()});
             }
             break;
             case CONSTANT_Utf8: {
@@ -171,7 +187,9 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
             break;
             case CONSTANT_MethodHandle:
             case CONSTANT_InvokeDynamic: {
-              result = new JBBPFieldArrayByte(fieldName, new byte[] {(byte) tagItem, (byte) inStream.readByte(), (byte) inStream.readByte(), (byte) inStream.readByte()});
+              result = new JBBPFieldArrayByte(fieldName,
+                  new byte[] {(byte) tagItem, (byte) inStream.readByte(),
+                      (byte) inStream.readByte(), (byte) inStream.readByte()});
             }
             break;
             default: {
@@ -186,20 +204,26 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
       }
 
       @Override
-      public JBBPAbstractField readVarField(final JBBPBitInputStream inStream, final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+      public JBBPAbstractField readVarField(final JBBPBitInputStream inStream,
+                                            final JBBPNamedFieldInfo fieldName,
+                                            final int extraValue, final JBBPByteOrder byteOrder,
+                                            final JBBPNamedNumericFieldMap numericFieldMap)
+          throws IOException {
         fail("Must not be called");
         return null;
       }
     };
   }
 
-  private String extractClassNameFromConstantPool(final ClassFile klazz, final int classInfoIndex) throws Exception {
+  private String extractClassNameFromConstantPool(final ClassFile klazz, final int classInfoIndex)
+      throws Exception {
     final byte[] constantClassInfo = klazz.constant_pool_item[classInfoIndex - 1].cp_item;
     final int utf8Index = (constantClassInfo[1] << 8) | (constantClassInfo[2] & 0xFF);
     return extractUtf8FromConstantPool(klazz, utf8Index);
   }
 
-  private String extractUtf8FromConstantPool(final ClassFile klazz, final int utf8Index) throws Exception {
+  private String extractUtf8FromConstantPool(final ClassFile klazz, final int utf8Index)
+      throws Exception {
     final byte[] utf8data = klazz.constant_pool_item[utf8Index - 1].cp_item;
     return new String(utf8data, 3, utf8data.length - 3, StandardCharsets.UTF_8);
   }
@@ -214,7 +238,9 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
     fail("Disallowed attribute '" + attrName + '\'');
   }
 
-  private void assertClass(final ClassFile klazz, final int majorVersion, final String className, final String superclass, final int interfaces, final int fields, final int methods) throws Exception {
+  private void assertClass(final ClassFile klazz, final int majorVersion, final String className,
+                           final String superclass, final int interfaces, final int fields,
+                           final int methods) throws Exception {
     assertEquals(0xCAFEBABE, klazz.magic);
     assertEquals(0, klazz.minor_version);
     assertEquals(majorVersion, klazz.major_version);
@@ -252,7 +278,8 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
   public void testParseClassFile_TestClass() throws Exception {
     final InputStream in = getResourceAsInputStream("test.clazz");
     try {
-      final ClassFile klazz = classParser.parse(in, getVarFieldProcessor(), null).mapTo(new ClassFile());
+      final ClassFile klazz =
+          classParser.parse(in, getVarFieldProcessor(), null).mapTo(new ClassFile());
       assertClass(klazz, FORMAT_J2SE7, "Test", "java/lang/Object", 0, 2, 4);
       assertEquals(831, classParser.getFinalStreamByteCounter());
     } finally {
@@ -264,8 +291,10 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
   public void testParseClassFile_HexEngineClass() throws Exception {
     final InputStream in = getResourceAsInputStream("hexengine.clazz");
     try {
-      final ClassFile klazz = classParser.parse(in, getVarFieldProcessor(), null).mapTo(new ClassFile());
-      assertClass(klazz, FORMAT_J2SE5, "com/igormaznitsa/jhexed/engine/HexEngine", "java/lang/Object", 0, 22, 44);
+      final ClassFile klazz =
+          classParser.parse(in, getVarFieldProcessor(), null).mapTo(new ClassFile());
+      assertClass(klazz, FORMAT_J2SE5, "com/igormaznitsa/jhexed/engine/HexEngine",
+          "java/lang/Object", 0, 22, 44);
       assertEquals(21364, classParser.getFinalStreamByteCounter());
     } finally {
       JBBPUtils.closeQuietly(in);
@@ -299,7 +328,7 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
   }
 
   @Bin
-  public static  class ClassFile {
+  public static class ClassFile {
     int magic;
     char minor_version;
     char major_version;

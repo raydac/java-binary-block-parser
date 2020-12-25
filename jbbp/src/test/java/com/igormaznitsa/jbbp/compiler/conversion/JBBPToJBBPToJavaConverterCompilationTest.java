@@ -67,36 +67,53 @@ class JBBPToJBBPToJavaConverterCompilationTest extends AbstractJBBPToJavaConvert
 
   @Test
   void testVarNamesAsJavaTypes() throws Exception {
-    final JBBPParser parser = JBBPParser.prepare("ubyte;int integer; int number; int try; int byte; int _byte; int _byte_; int char; int short; int long; int double; int float; int [long+double+char] string;");
-    assertCompilation(makeSources(parser, "some multiline text\nto be added into header", true, true, false));
+    final JBBPParser parser = JBBPParser.prepare(
+        "ubyte;int integer; int number; int try; int byte; int _byte; int _byte_; int char; int short; int long; int double; int float; int [long+double+char] string;");
+    assertCompilation(
+        makeSources(parser, "some multiline text\nto be added into header", true, true, false));
   }
 
   @Test
   void testExpression() throws Exception {
-    final JBBPParser parser = JBBPParser.prepare("bit:8 bitf; var somevar; bool bbb; long aaa; ubyte kkk; {{int lrn; {int [(lrn/aaa*1*(2*somevar-4)&$joomla)/(100%9>>bitf)&56|~kkk^78&bbb];}}}");
-    assertCompilation(makeSources(parser, "some multiline text\nto be added into header", false, false, false));
-    assertCompilation(makeSources(parser, "some multiline text\nto be added into header", true, true, true));
+    final JBBPParser parser = JBBPParser.prepare(
+        "bit:8 bitf; var somevar; bool bbb; long aaa; ubyte kkk; {{int lrn; {int [(lrn/aaa*1*(2*somevar-4)&$joomla)/(100%9>>bitf)&56|~kkk^78&bbb];}}}");
+    assertCompilation(
+        makeSources(parser, "some multiline text\nto be added into header", false, false, false));
+    assertCompilation(
+        makeSources(parser, "some multiline text\nto be added into header", true, true, true));
   }
 
   @Test
   void testGenerateBinAnnotation() {
-    final JBBPParser parser = JBBPParser.prepare("bit:3 someBit; bit:4 [12] bitArray; some {int a; floatj b; doublej[23] darr;}");
-    assertFalse(JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).build().convert().contains("@Bin"));
-    assertTrue(JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).addBinAnnotations().build().convert().contains("@Bin"));
+    final JBBPParser parser = JBBPParser
+        .prepare("bit:3 someBit; bit:4 [12] bitArray; some {int a; floatj b; doublej[23] darr;}");
+    assertFalse(
+        JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).build().convert()
+            .contains("@Bin"));
+    assertTrue(
+        JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).addBinAnnotations()
+            .build().convert().contains("@Bin"));
   }
 
   @Test
   void testGenNewInstanceMethod() {
-    final JBBPParser parser = JBBPParser.prepare("bit:3 someBit; bit:4 [12] bitArray; some {int a; floatj b; doublej[23] darr;}");
-    assertFalse(JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).build().convert().contains("Object " + JBBPMapper.MAKE_CLASS_INSTANCE_METHOD_NAME));
-    assertTrue(JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).addNewInstanceMethods().build().convert().contains("Object " + JBBPMapper.MAKE_CLASS_INSTANCE_METHOD_NAME));
+    final JBBPParser parser = JBBPParser
+        .prepare("bit:3 someBit; bit:4 [12] bitArray; some {int a; floatj b; doublej[23] darr;}");
+    assertFalse(
+        JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).build().convert()
+            .contains("Object " + JBBPMapper.MAKE_CLASS_INSTANCE_METHOD_NAME));
+    assertTrue(
+        JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).addNewInstanceMethods()
+            .build().convert().contains("Object " + JBBPMapper.MAKE_CLASS_INSTANCE_METHOD_NAME));
   }
 
   @Test
   void testForceAbstract() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("byte a;");
-    assertFalse(JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).setDoMainClassAbstract(false).build().convert().contains("abstract"));
-    assertTrue(JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).setDoMainClassAbstract(true).build().convert().contains("abstract"));
+    assertFalse(JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME)
+        .setDoMainClassAbstract(false).build().convert().contains("abstract"));
+    assertTrue(JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME)
+        .setDoMainClassAbstract(true).build().convert().contains("abstract"));
   }
 
   @Test
@@ -110,7 +127,8 @@ class JBBPToJBBPToJavaConverterCompilationTest extends AbstractJBBPToJavaConvert
         .convert();
     assertTrue(text.contains("public A makeA(){ this.a = new A(this); return this.a; }"));
     assertTrue(text.contains("public B makeB(){ this.b = new B(_Root_); return this.b; }"));
-    assertTrue(text.contains("public C[] makeC(int _Len_){ this.c = new C[_Len_]; for(int i=0;i < _Len_;i++) this.c[i]=new C(_Root_); return this.c; }"));
+    assertTrue(text.contains(
+        "public C[] makeC(int _Len_){ this.c = new C[_Len_]; for(int i=0;i < _Len_;i++) this.c[i]=new C(_Root_); return this.c; }"));
   }
 
   @Test
@@ -124,7 +142,8 @@ class JBBPToJBBPToJavaConverterCompilationTest extends AbstractJBBPToJavaConvert
         .convert();
     assertFalse(text.contains("public A makeA(){ this.a = new A(this); return this.a; }"));
     assertFalse(text.contains("public B makeB(){ this.b = new B(_Root_); return this.b; }"));
-    assertFalse(text.contains("public C[] makeC(int _Len_){ this.c = new C[_Len_]; for(int i=0;i < _Len_;i++) this.c[i]=new C(_Root_); return this.c; }"));
+    assertFalse(text.contains(
+        "public C[] makeC(int _Len_){ this.c = new C[_Len_]; for(int i=0;i < _Len_;i++) this.c[i]=new C(_Root_); return this.c; }"));
   }
 
   @Test
@@ -139,7 +158,8 @@ class JBBPToJBBPToJavaConverterCompilationTest extends AbstractJBBPToJavaConvert
         .convert();
     assertTrue(text.contains("public A makeA(){ this.a = new A(this); return this.a; }"));
     assertTrue(text.contains("public B makeB(){ this.b = new B(_Root_); return this.b; }"));
-    assertTrue(text.contains("public C[] makeC(int _Len_){ this.c = new C[_Len_]; for(int i=0;i < _Len_;i++) this.c[i]=new C(_Root_); return this.c; }"));
+    assertTrue(text.contains(
+        "public C[] makeC(int _Len_){ this.c = new C[_Len_]; for(int i=0;i < _Len_;i++) this.c[i]=new C(_Root_); return this.c; }"));
   }
 
   @Test
@@ -187,38 +207,52 @@ class JBBPToJBBPToJavaConverterCompilationTest extends AbstractJBBPToJavaConvert
   @Test
   void testCustomText() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("byte a;");
-    assertTrue(JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).setMainClassCustomText("public void test(){}").build().convert().contains("public void test(){}"));
+    assertTrue(JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME)
+        .setMainClassCustomText("public void test(){}").build().convert()
+        .contains("public void test(){}"));
   }
 
   @Test
   void testSuperclass() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("byte a;");
-    assertTrue(JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).setSuperClass("com.igormaznitsa.Super").build().convert().contains("extends com.igormaznitsa.Super "));
+    assertTrue(JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME)
+        .setSuperClass("com.igormaznitsa.Super").build().convert()
+        .contains("extends com.igormaznitsa.Super "));
   }
 
   @Test
   void testInterfaces() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("byte a;");
-    assertTrue(JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).setMainClassImplements("com.igormaznitsa.InterfaceA", "com.igormaznitsa.InterfaceB").build().convert().contains("implements com.igormaznitsa.InterfaceA,com.igormaznitsa.InterfaceB "));
+    assertTrue(JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME)
+        .setMainClassImplements("com.igormaznitsa.InterfaceA", "com.igormaznitsa.InterfaceB")
+        .build().convert()
+        .contains("implements com.igormaznitsa.InterfaceA,com.igormaznitsa.InterfaceB "));
   }
 
   @Test
   void testClassPackage() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("byte a;");
-    assertFalse(JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).build().convert().contains("package "));
-    assertFalse(JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).setMainClassPackage("").build().convert().contains("package "));
-    assertTrue(JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).setMainClassPackage("hello.world").build().convert().contains("package hello.world;"));
+    assertFalse(
+        JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).build().convert()
+            .contains("package "));
+    assertFalse(
+        JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).setMainClassPackage("")
+            .build().convert().contains("package "));
+    assertTrue(JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME)
+        .setMainClassPackage("hello.world").build().convert().contains("package hello.world;"));
   }
 
   @Test
   void testGettersSetters() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("byte a;");
-    String text = JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).build().convert();
+    String text =
+        JBBPToJavaConverter.makeBuilder(parser).setMainClassName(CLASS_NAME).build().convert();
     assertTrue(text.contains("public byte a;"));
     assertFalse(text.contains("public void setA(byte value) {"));
     assertFalse(text.contains("public byte getA() {"));
 
-    text = JBBPToJavaConverter.makeBuilder(parser).setAddGettersSetters(true).setMainClassName(CLASS_NAME).build().convert();
+    text = JBBPToJavaConverter.makeBuilder(parser).setAddGettersSetters(true)
+        .setMainClassName(CLASS_NAME).build().convert();
 
     assertFalse(text.contains("public byte a;"));
     assertTrue(text.contains("protected byte a;"));
@@ -228,18 +262,23 @@ class JBBPToJBBPToJavaConverterCompilationTest extends AbstractJBBPToJavaConvert
 
   @Test
   void testZ80snap1() throws Exception {
-    final JBBPParser parser = JBBPParser.prepare("byte reg_a; byte reg_f; <short reg_bc; <short reg_hl; <short reg_pc; <short reg_sp; byte reg_ir; byte reg_r; "
-        + "flags{ bit:1 reg_r_bit7; bit:3 bordercolor; bit:1 basic_samrom; bit:1 compressed; bit:2 nomeaning;}"
-        + "<short reg_de; <short reg_bc_alt; <short reg_de_alt; <short reg_hl_alt; byte reg_a_alt; byte reg_f_alt; <short reg_iy; <short reg_ix; byte iff; byte iff2;"
-        + "emulFlags{bit:2 interruptmode; bit:1 issue2emulation; bit:1 doubleintfreq; bit:2 videosync; bit:2 inputdevice;}"
-        + "byte [_] data;");
+    final JBBPParser parser = JBBPParser.prepare(
+        "byte reg_a; byte reg_f; <short reg_bc; <short reg_hl; <short reg_pc; <short reg_sp; byte reg_ir; byte reg_r; "
+            +
+            "flags{ bit:1 reg_r_bit7; bit:3 bordercolor; bit:1 basic_samrom; bit:1 compressed; bit:2 nomeaning;}"
+            +
+            "<short reg_de; <short reg_bc_alt; <short reg_de_alt; <short reg_hl_alt; byte reg_a_alt; byte reg_f_alt; <short reg_iy; <short reg_ix; byte iff; byte iff2;"
+            +
+            "emulFlags{bit:2 interruptmode; bit:1 issue2emulation; bit:1 doubleintfreq; bit:2 videosync; bit:2 inputdevice;}"
+            + "byte [_] data;");
     assertCompilation(makeSources(parser, null, false, false, false));
     assertCompilation(makeSources(parser, null, true, false, false));
   }
 
   @Test
   void testSinglePrimitiveNamedFields() throws Exception {
-    final JBBPParser parser = JBBPParser.prepare("bit a;byte b;ubyte c;short d;ushort e;bool f;int g;long h;");
+    final JBBPParser parser =
+        JBBPParser.prepare("bit a;byte b;ubyte c;short d;ushort e;bool f;int g;long h;");
     assertCompilation(makeSources(parser, null, false, false, false));
     assertCompilation(makeSources(parser, null, true, false, false));
   }
@@ -253,7 +292,8 @@ class JBBPToJBBPToJavaConverterCompilationTest extends AbstractJBBPToJavaConvert
 
   @Test
   void testSinglePrimitiveAnonymousArrayFields() throws Exception {
-    final JBBPParser parser = JBBPParser.prepare("bit[1];byte[2];ubyte[3];short[4];ushort[5];bool[6];int[7];long[8];");
+    final JBBPParser parser =
+        JBBPParser.prepare("bit[1];byte[2];ubyte[3];short[4];ushort[5];bool[6];int[7];long[8];");
     assertCompilation(makeSources(parser, null, false, false, false));
     assertCompilation(makeSources(parser, null, true, false, false));
   }
@@ -288,22 +328,29 @@ class JBBPToJBBPToJavaConverterCompilationTest extends AbstractJBBPToJavaConvert
 
   @Test
   void testCustomType() throws Exception {
-    final JBBPParser parser = JBBPParser.prepare("some alpha; some:1 beta;", new JBBPCustomFieldTypeProcessor() {
-      @Override
-      public String[] getCustomFieldTypes() {
-        return new String[] {"some"};
-      }
+    final JBBPParser parser =
+        JBBPParser.prepare("some alpha; some:1 beta;", new JBBPCustomFieldTypeProcessor() {
+          @Override
+          public String[] getCustomFieldTypes() {
+            return new String[] {"some"};
+          }
 
-      @Override
-      public boolean isAllowed(JBBPFieldTypeParameterContainer fieldType, String fieldName, int extraData, boolean isArray) {
-        return true;
-      }
+          @Override
+          public boolean isAllowed(JBBPFieldTypeParameterContainer fieldType, String fieldName,
+                                   int extraData, boolean isArray) {
+            return true;
+          }
 
-      @Override
-      public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer customTypeFieldInfo, JBBPNamedFieldInfo fieldName, int extraData, boolean readWholeStream, int arrayLength) throws IOException {
-        return null;
-      }
-    });
+          @Override
+          public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder,
+                                                       int parserFlags,
+                                                       JBBPFieldTypeParameterContainer customTypeFieldInfo,
+                                                       JBBPNamedFieldInfo fieldName, int extraData,
+                                                       boolean readWholeStream, int arrayLength)
+              throws IOException {
+            return null;
+          }
+        });
 
     assertCompilation(makeSources(parser, null, false, false, false));
     assertCompilation(makeSources(parser, null, true, false, false));
@@ -318,10 +365,12 @@ class JBBPToJBBPToJavaConverterCompilationTest extends AbstractJBBPToJavaConvert
 
   @Test
   void testAllVariantsWithLinksToExternalStructures() throws Exception {
-    final JBBPParser parser = JBBPParser.prepare("bit:1 bit1; bit:2 bit2; bit:3 bit3; bit:4 bit4; bit:5 bit5; bit:6 bit6; bit:7 bit7; bit:8 bit8;"
-        + "byte alpha; ubyte beta; short gamma; ushort delta; bool epsilon; int teta; long longField; var varField;"
-        + "floatj flt1; doublej dbl1;"
-        + "struct1 { byte someByte; struct2 {bit:3 [34*someByte<<1+$ext] data;} }");
+    final JBBPParser parser = JBBPParser.prepare(
+        "bit:1 bit1; bit:2 bit2; bit:3 bit3; bit:4 bit4; bit:5 bit5; bit:6 bit6; bit:7 bit7; bit:8 bit8;"
+            +
+            "byte alpha; ubyte beta; short gamma; ushort delta; bool epsilon; int teta; long longField; var varField;"
+            + "floatj flt1; doublej dbl1;"
+            + "struct1 { byte someByte; struct2 {bit:3 [34*someByte<<1+$ext] data;} }");
     assertCompilation(makeSources(parser, null, false, false, false));
     assertCompilation(makeSources(parser, null, true, false, false));
   }
@@ -335,23 +384,32 @@ class JBBPToJBBPToJavaConverterCompilationTest extends AbstractJBBPToJavaConvert
 
   @Test
   void testStringFields() throws Exception {
-    final JBBPParser parser = JBBPParser.prepare("stringj str; stringj [5] strarr; stringj [_] all;");
+    final JBBPParser parser =
+        JBBPParser.prepare("stringj str; stringj [5] strarr; stringj [_] all;");
     assertCompilation(makeSources(parser, null, false, false, false));
     assertCompilation(makeSources(parser, null, true, false, false));
   }
 
   @Test
-  void testStringFieldAsLength_CompilationErrorForStringFieldInArithmeticException() throws Exception {
-    final JBBPParser parser = JBBPParser.prepare("stringj str; stringj [str] strarr; stringj [_] all;");
-    assertThrows(Exception.class, () -> assertCompilation(makeSources(parser, null, false, false, false)));
-    assertThrows(Exception.class, () -> assertCompilation(makeSources(parser, null, true, false, false)));
+  void testStringFieldAsLength_CompilationErrorForStringFieldInArithmeticException()
+      throws Exception {
+    final JBBPParser parser =
+        JBBPParser.prepare("stringj str; stringj [str] strarr; stringj [_] all;");
+    assertThrows(Exception.class,
+        () -> assertCompilation(makeSources(parser, null, false, false, false)));
+    assertThrows(Exception.class,
+        () -> assertCompilation(makeSources(parser, null, true, false, false)));
   }
 
   @Test
-  void testStringFieldInExpression_CompilationErrorForStringFieldInArithmeticException() throws Exception {
-    final JBBPParser parser = JBBPParser.prepare("stringj str; byte a; stringj [str+a] strarr; stringj [_] all;");
-    assertThrows(Exception.class, () -> assertCompilation(makeSources(parser, null, false, false, false)));
-    assertThrows(Exception.class, () -> assertCompilation(makeSources(parser, null, true, false, false)));
+  void testStringFieldInExpression_CompilationErrorForStringFieldInArithmeticException()
+      throws Exception {
+    final JBBPParser parser =
+        JBBPParser.prepare("stringj str; byte a; stringj [str+a] strarr; stringj [_] all;");
+    assertThrows(Exception.class,
+        () -> assertCompilation(makeSources(parser, null, false, false, false)));
+    assertThrows(Exception.class,
+        () -> assertCompilation(makeSources(parser, null, true, false, false)));
   }
 
   @Test
@@ -372,29 +430,38 @@ class JBBPToJBBPToJavaConverterCompilationTest extends AbstractJBBPToJavaConvert
 
   @Test
   void testPrimitiveFieldsInExpression() throws Exception {
-    final JBBPParser parser = JBBPParser.prepare("long lfield; int ifield; byte bfield; ggg {ubyte ubfield; short shfield;} ushort ushfield; bit:4 bitfield; byte [bfield*ggg.shfield<<bitfield-ggg.ubfield&ushfield%lfield/ifield] array;");
+    final JBBPParser parser = JBBPParser.prepare(
+        "long lfield; int ifield; byte bfield; ggg {ubyte ubfield; short shfield;} ushort ushfield; bit:4 bitfield; byte [bfield*ggg.shfield<<bitfield-ggg.ubfield&ushfield%lfield/ifield] array;");
     assertCompilation(makeSources(parser, null, false, false, false));
     assertCompilation(makeSources(parser, null, true, false, false));
   }
 
   @Test
   void testAllTypes() throws Exception {
-    final JBBPParser parser = JBBPParser.prepare("custom alpha; custom [123] beta; {{ var [alpha*$extr] variarr; var fld;}}", new JBBPCustomFieldTypeProcessor() {
-      @Override
-      public String[] getCustomFieldTypes() {
-        return new String[] {"custom"};
-      }
+    final JBBPParser parser = JBBPParser
+        .prepare("custom alpha; custom [123] beta; {{ var [alpha*$extr] variarr; var fld;}}",
+            new JBBPCustomFieldTypeProcessor() {
+              @Override
+              public String[] getCustomFieldTypes() {
+                return new String[] {"custom"};
+              }
 
-      @Override
-      public boolean isAllowed(JBBPFieldTypeParameterContainer fieldType, String fieldName, int extraData, boolean isArray) {
-        return true;
-      }
+              @Override
+              public boolean isAllowed(JBBPFieldTypeParameterContainer fieldType, String fieldName,
+                                       int extraData, boolean isArray) {
+                return true;
+              }
 
-      @Override
-      public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder, int parserFlags, JBBPFieldTypeParameterContainer customTypeFieldInfo, JBBPNamedFieldInfo fieldName, int extraData, boolean readWholeStream, int arrayLength) throws IOException {
-        return null;
-      }
-    });
+              @Override
+              public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in,
+                                                           JBBPBitOrder bitOrder, int parserFlags,
+                                                           JBBPFieldTypeParameterContainer customTypeFieldInfo,
+                                                           JBBPNamedFieldInfo fieldName,
+                                                           int extraData, boolean readWholeStream,
+                                                           int arrayLength) throws IOException {
+                return null;
+              }
+            });
     assertCompilation(makeSources(parser, null, false, false, false));
     assertCompilation(makeSources(parser, null, true, false, false));
   }

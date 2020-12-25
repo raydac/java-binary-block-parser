@@ -1,19 +1,18 @@
 package com.igormaznitsa.jbbp.plugin.gradle;
 
 import com.igormaznitsa.meta.common.utils.GetUtils;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.FileVisitDetails;
 import org.gradle.api.file.FileVisitor;
 import org.gradle.api.tasks.TaskAction;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.File;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
 public abstract class AbstractJBBPTask extends DefaultTask {
 
@@ -22,13 +21,16 @@ public abstract class AbstractJBBPTask extends DefaultTask {
   }
 
   @Nullable
-  public static String getTextOrFileContent(@Nonnull final JBBPExtension extension, @Nullable final String text, @Nullable final File file) {
+  public static String getTextOrFileContent(@Nonnull final JBBPExtension extension,
+                                            @Nullable final String text,
+                                            @Nullable final File file) {
     String result = null;
     if (text != null) {
       result = text;
     } else if (file != null) {
       try {
-        result = FileUtils.readFileToString(file, GetUtils.ensureNonNull(extension.inEncoding, "UTF-8"));
+        result =
+            FileUtils.readFileToString(file, GetUtils.ensureNonNull(extension.inEncoding, "UTF-8"));
       } catch (IOException ex) {
         throw new GradleException("Can't read file " + file, ex);
       }

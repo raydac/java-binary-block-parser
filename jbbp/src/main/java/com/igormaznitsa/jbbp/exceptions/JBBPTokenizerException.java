@@ -47,25 +47,6 @@ public class JBBPTokenizerException extends JBBPCompilationException {
   }
 
   /**
-   * Get error part of script where error position marked by !>..<!
-   *
-   * @return error part of the script in position, or empty if it was impossible to extract the part
-   * @since 2.0.3
-   */
-  public String getErrorPart() {
-    return this.errorPart;
-  }
-
-  /**
-   * get the position in sources of the problematic token.
-   *
-   * @return the position or -1 if the position is unknown.
-   */
-  public int getPosition() {
-    return this.position;
-  }
-
-  /**
    * Auxiliary internal method to extract error part from script around specific position.
    *
    * @param script        the error script to be processed, must not be null
@@ -126,8 +107,28 @@ public class JBBPTokenizerException extends JBBPCompilationException {
     return buffer.toString().trim();
   }
 
+  /**
+   * Get error part of script where error position marked by !>..<!
+   *
+   * @return error part of the script in position, or empty if it was impossible to extract the part
+   * @since 2.0.3
+   */
+  public String getErrorPart() {
+    return this.errorPart;
+  }
+
+  /**
+   * get the position in sources of the problematic token.
+   *
+   * @return the position or -1 if the position is unknown.
+   */
+  public int getPosition() {
+    return this.position;
+  }
+
   @Override
   public String toString() {
-    return this.getLocalizedMessage() + " (pos=" + this.position + ", errorPart=\"" + this.errorPart + "\")";
+    return this.getLocalizedMessage() + " (pos=" + this.position + ", errorPart=\"" +
+        this.errorPart + "\")";
   }
 }

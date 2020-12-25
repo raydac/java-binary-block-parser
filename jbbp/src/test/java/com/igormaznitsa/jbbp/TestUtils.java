@@ -44,7 +44,8 @@ public enum TestUtils {
    * @return value, can be null
    * @throws Exception it will be thrown if any error
    */
-  public static <T> T getField(final Object instance, final String fieldName, final Class<T> klazz) throws Exception {
+  public static <T> T getField(final Object instance, final String fieldName, final Class<T> klazz)
+      throws Exception {
     final String[] fields = fieldName.split("\\.");
     Object result = instance;
     for (final String f : fields) {
@@ -64,7 +65,8 @@ public enum TestUtils {
    * @return value, can be null
    * @throws Exception it will be thrown if any error
    */
-  public static <T> T getFieldThroughGetters(final Object instance, final String fieldName, final Class<T> klazz) throws Exception {
+  public static <T> T getFieldThroughGetters(final Object instance, final String fieldName,
+                                             final Class<T> klazz) throws Exception {
     final String[] fields = fieldName.split("\\.");
     Object result = instance;
     for (final String f : fields) {
@@ -83,8 +85,12 @@ public enum TestUtils {
    * @param chunkCrc     chunk crc field value
    * @param chunkData    chunk data, must not be null
    */
-  public static void assertPngChunk(final String etalonName, final int etalonLength, final int chunkType, final int chunkLength, final int chunkCrc, final byte[] chunkData) {
-    final int chunkEtalonName = (etalonName.charAt(0) << 24) | (etalonName.charAt(1) << 16) | (etalonName.charAt(2) << 8) | etalonName.charAt(3);
+  public static void assertPngChunk(final String etalonName, final int etalonLength,
+                                    final int chunkType, final int chunkLength, final int chunkCrc,
+                                    final byte[] chunkData) {
+    final int chunkEtalonName =
+        (etalonName.charAt(0) << 24) | (etalonName.charAt(1) << 16) | (etalonName.charAt(2) << 8) |
+            etalonName.charAt(3);
 
     assertEquals(chunkEtalonName, chunkType, "Chunk must be " + etalonName);
     assertEquals(etalonLength, chunkLength, "Chunk length must be " + etalonLength);
@@ -96,8 +102,9 @@ public enum TestUtils {
     crc32.update(etalonName.charAt(3));
 
     if (etalonLength != 0) {
-      assertEquals(etalonLength, chunkData.length, "Data array " + etalonName + " must be " + etalonLength);
-      for(final byte b : chunkData) {
+      assertEquals(etalonLength, chunkData.length,
+          "Data array " + etalonName + " must be " + etalonLength);
+      for (final byte b : chunkData) {
         crc32.update(b & 0xFF);
       }
     }
@@ -107,6 +114,7 @@ public enum TestUtils {
   }
 
   public static String wavInt2Str(final int value) {
-    return new String(new char[] {(char) (value & 0xFF), (char) ((value >>> 8) & 0xFF), (char) ((value >>> 16) & 0xFF), (char) (value >>> 24)});
+    return new String(new char[] {(char) (value & 0xFF), (char) ((value >>> 8) & 0xFF),
+        (char) ((value >>> 16) & 0xFF), (char) (value >>> 24)});
   }
 }

@@ -17,7 +17,6 @@
 package com.igormaznitsa.jbbp.utils;
 
 import com.igormaznitsa.jbbp.compiler.conversion.JBBPToJavaConverterReadWriteTest;
-
 import java.util.Arrays;
 
 /**

@@ -16,6 +16,9 @@
 
 package com.igormaznitsa.jbbp.it;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.model.JBBPAbstractArrayField;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
@@ -37,14 +40,11 @@ import com.igormaznitsa.jbbp.model.JBBPFieldShort;
 import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import com.igormaznitsa.jbbp.model.JBBPFieldUByte;
 import com.igormaznitsa.jbbp.model.JBBPFieldUShort;
+import java.io.InputStream;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONStyle;
 import org.junit.jupiter.api.Test;
-
-import java.io.InputStream;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ConvertToJSONTest extends AbstractParserIntegrationTest {
 
@@ -135,14 +135,14 @@ public class ConvertToJSONTest extends AbstractParserIntegrationTest {
     try (InputStream pngStream = getResourceAsInputStream("picture.png")) {
 
       final JBBPParser pngParser = JBBPParser.prepare(
-              "long header;"
-                      + "// chunks\n"
-                      + "chunk [_]{"
-                      + "   int length; "
-                      + "   int type; "
-                      + "   byte[length] data; "
-                      + "   int crc;"
-                      + "}"
+          "long header;"
+              + "// chunks\n"
+              + "chunk [_]{"
+              + "   int length; "
+              + "   int type; "
+              + "   byte[length] data; "
+              + "   int crc;"
+              + "}"
       );
 
       final JSONObject json = convertToJSon(null, pngParser.parse(pngStream));

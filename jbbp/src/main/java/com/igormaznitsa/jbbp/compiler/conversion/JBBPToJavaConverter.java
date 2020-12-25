@@ -64,6 +64,23 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
   private static final int FLAG_ADD_ASSERT_NOT_NEGATIVE_EXPR = 8;
 
   private static final Set<String> RESERVED_JAVA_KEYWORDS;
+  /**
+   * Name of the field to be used as link to the root structure instance in
+   * child structures.
+   */
+  private static final String NAME_ROOT_STRUCT = "_Root_";
+  /**
+   * Name of the field to keep information about parser flags.
+   */
+  private static final String NAME_PARSER_FLAGS = "_ParserFlags_";
+  /**
+   * Name of the input stream argument.
+   */
+  private static final String NAME_INPUT_STREAM = "In";
+  /**
+   * Name of the output stream argument.
+   */
+  private static final String NAME_OUTPUT_STREAM = "Out";
 
   static {
     final Set<String> reserved = new HashSet<>();
@@ -126,23 +143,6 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
     RESERVED_JAVA_KEYWORDS = Collections.unmodifiableSet(reserved);
   }
 
-  /**
-   * Name of the field to be used as link to the root structure instance in
-   * child structures.
-   */
-  private static final String NAME_ROOT_STRUCT = "_Root_";
-  /**
-   * Name of the field to keep information about parser flags.
-   */
-  private static final String NAME_PARSER_FLAGS = "_ParserFlags_";
-  /**
-   * Name of the input stream argument.
-   */
-  private static final String NAME_INPUT_STREAM = "In";
-  /**
-   * Name of the output stream argument.
-   */
-  private static final String NAME_OUTPUT_STREAM = "Out";
   /**
    * Detected flags.
    */
@@ -218,7 +218,8 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
       if (this.foundNamedFields.containsKey(fieldInfo)) {
         throw new Error("Detected duplication of named field : " + fieldInfo);
       }
-      this.foundNamedFields.put(fieldInfo, new NamedFieldInfo(fieldInfo, this.getCurrentStruct(), fieldType));
+      this.foundNamedFields
+          .put(fieldInfo, new NamedFieldInfo(fieldInfo, this.getCurrentStruct(), fieldType));
     }
   }
 
@@ -279,61 +280,82 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
     buffer.println();
 
     this.specialSection.println();
-    this.specialSection.printJavaDocLinesWithIndent("The Constant contains parser flags\n@see JBBPParser#FLAG_SKIP_REMAINING_FIELDS_IF_EOF\n@see JBBPParser#FLAG_NEGATIVE_EXPRESSION_RESULT_AS_ZERO");
-    this.specialSection.indent().printf("protected static final int %s = %d;", NAME_PARSER_FLAGS, this.parserFlags);
+    this.specialSection.printJavaDocLinesWithIndent(
+        "The Constant contains parser flags\n@see JBBPParser#FLAG_SKIP_REMAINING_FIELDS_IF_EOF\n@see JBBPParser#FLAG_NEGATIVE_EXPRESSION_RESULT_AS_ZERO");
+    this.specialSection.indent()
+        .printf("protected static final int %s = %d;", NAME_PARSER_FLAGS, this.parserFlags);
 
     final int detected = this.flagSet.get();
 
     if ((detected & FLAG_DETECTED_CUSTOM_FIELDS) != 0) {
-      this.specialMethods.printJavaDocLinesWithIndent("Reading of custom fields\n@param sourceStruct source structure holding the field, must not be null\n@param inStream the input stream, must not be null\n@param typeParameterContainer info about field type, must not be null\n@param nullableNamedFieldInfo info abut field name, it can be null\n@param extraValue value from extra field part, default value 0\n@param readWholeStream flag to read the stream as array till the stream end if true\n@param arraySize if array then it is zero or great\n@exception IOException if data can't be read\n@return read value as abstract field, must not be null");
-      this.specialMethods.println("public abstract JBBPAbstractField readCustomFieldType(Object sourceStruct, JBBPBitInputStream inStream, JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean readWholeStream, int arraySize) throws IOException;");
+      this.specialMethods.printJavaDocLinesWithIndent(
+          "Reading of custom fields\n@param sourceStruct source structure holding the field, must not be null\n@param inStream the input stream, must not be null\n@param typeParameterContainer info about field type, must not be null\n@param nullableNamedFieldInfo info abut field name, it can be null\n@param extraValue value from extra field part, default value 0\n@param readWholeStream flag to read the stream as array till the stream end if true\n@param arraySize if array then it is zero or great\n@exception IOException if data can't be read\n@return read value as abstract field, must not be null");
+      this.specialMethods.println(
+          "public abstract JBBPAbstractField readCustomFieldType(Object sourceStruct, JBBPBitInputStream inStream, JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean readWholeStream, int arraySize) throws IOException;");
       this.specialMethods.println();
-      this.specialMethods.printJavaDocLinesWithIndent("Writing custom fields\n@param sourceStruct source structure holding the field, must not be null\n@param outStream the output stream, must not be null\n@param fieldValue value to be written\n@param typeParameterContainer info about field type, must not be null\n@param nullableNamedFieldInfo info abut field name, it can be null\n@param extraValue value from extra field part, default value is 0\n@param wholeArray true if to write whole array\n@param arraySize if array then it is zero or great\n@exception IOException if data can't be written");
-      this.specialMethods.println("public abstract void writeCustomFieldType(Object sourceStruct, JBBPBitOutputStream outStream, JBBPAbstractField fieldValue, JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean wholeArray, int arraySize) throws IOException;");
+      this.specialMethods.printJavaDocLinesWithIndent(
+          "Writing custom fields\n@param sourceStruct source structure holding the field, must not be null\n@param outStream the output stream, must not be null\n@param fieldValue value to be written\n@param typeParameterContainer info about field type, must not be null\n@param nullableNamedFieldInfo info abut field name, it can be null\n@param extraValue value from extra field part, default value is 0\n@param wholeArray true if to write whole array\n@param arraySize if array then it is zero or great\n@exception IOException if data can't be written");
+      this.specialMethods.println(
+          "public abstract void writeCustomFieldType(Object sourceStruct, JBBPBitOutputStream outStream, JBBPAbstractField fieldValue, JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean wholeArray, int arraySize) throws IOException;");
     }
 
     if ((detected & FLAG_DETECTED_EXTERNAL_FIELDS) != 0) {
       if (!this.specialMethods.isEmpty()) {
         this.specialMethods.println();
       }
-      this.specialMethods.printJavaDocLinesWithIndent("Method is called from expressions to provide value\n@param sourceStruct source structure holding the field, must not be null\n@param valueName name of value to be provided, must not be null\n@return integer value for the named parameter");
-      this.specialMethods.println("public abstract int getNamedValue(Object sourceStruct, String valueName);");
+      this.specialMethods.printJavaDocLinesWithIndent(
+          "Method is called from expressions to provide value\n@param sourceStruct source structure holding the field, must not be null\n@param valueName name of value to be provided, must not be null\n@return integer value for the named parameter");
+      this.specialMethods
+          .println("public abstract int getNamedValue(Object sourceStruct, String valueName);");
     }
 
     if ((detected & FLAG_DETECTED_VAR_FIELDS) != 0) {
       if (!this.specialMethods.isEmpty()) {
         this.specialMethods.println();
       }
-      this.specialMethods.printJavaDocLinesWithIndent("Read variable field\n@param sourceStruct source structure holding the field, must not be null\n@param inStream the input stream, must not be null\n@param byteOrder\n@param nullableNamedFieldInfo info abut field name, it can be null\n@param extraValue value from extra field part, -1 if not defined\n@return\n@exception IOException");
-      this.specialMethods.println("public abstract JBBPAbstractField readVarField(Object sourceStruct, JBBPBitInputStream inStream, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue) throws IOException;");
+      this.specialMethods.printJavaDocLinesWithIndent(
+          "Read variable field\n@param sourceStruct source structure holding the field, must not be null\n@param inStream the input stream, must not be null\n@param byteOrder\n@param nullableNamedFieldInfo info abut field name, it can be null\n@param extraValue value from extra field part, -1 if not defined\n@return\n@exception IOException");
+      this.specialMethods.println(
+          "public abstract JBBPAbstractField readVarField(Object sourceStruct, JBBPBitInputStream inStream, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue) throws IOException;");
       this.specialMethods.println();
-      this.specialMethods.printJavaDocLinesWithIndent("Read variable array field\n@param sourceStruct source structure holding the field, must not be null\n@param inStream the input stream, must not be null\n@param byteOrder byte order to be used for reading, must not be null\n@param nullableNamedFieldInfo info abut field name, it can be null\n@param extraValue value from extra field part, -1 if not defined\n@param readWholeStream if true then whole stream should be read\n@param arraySize size of array to read (if whole stream flag is false)\n@return array object contains read data, must not be null\n@exception IOException if error during data reading");
-      this.specialMethods.println("public abstract JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(Object sourceStruct, JBBPBitInputStream inStream, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean readWholeStream, int arraySize) throws IOException;");
+      this.specialMethods.printJavaDocLinesWithIndent(
+          "Read variable array field\n@param sourceStruct source structure holding the field, must not be null\n@param inStream the input stream, must not be null\n@param byteOrder byte order to be used for reading, must not be null\n@param nullableNamedFieldInfo info abut field name, it can be null\n@param extraValue value from extra field part, -1 if not defined\n@param readWholeStream if true then whole stream should be read\n@param arraySize size of array to read (if whole stream flag is false)\n@return array object contains read data, must not be null\n@exception IOException if error during data reading");
+      this.specialMethods.println(
+          "public abstract JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(Object sourceStruct, JBBPBitInputStream inStream, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, boolean readWholeStream, int arraySize) throws IOException;");
       this.specialMethods.println();
-      this.specialMethods.printJavaDocLinesWithIndent("Read variable field\n@param sourceStruct source structure holding the field, must not be null\n@param value field value, must not be null\n@param outStream the output stream, must not be null,\n@param byteOrder byte order to be used for reading, must not be null\n@param nullableNamedFieldInfo info abut field name, it can be null\n@param extraValue value from extra field part, -1 if not defined\n@exception IOException  it is thrown if any transport error during operation");
-      this.specialMethods.println("public abstract void writeVarField(Object sourceStruct, JBBPAbstractField value, JBBPBitOutputStream outStream, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue) throws IOException;");
+      this.specialMethods.printJavaDocLinesWithIndent(
+          "Read variable field\n@param sourceStruct source structure holding the field, must not be null\n@param value field value, must not be null\n@param outStream the output stream, must not be null,\n@param byteOrder byte order to be used for reading, must not be null\n@param nullableNamedFieldInfo info abut field name, it can be null\n@param extraValue value from extra field part, -1 if not defined\n@exception IOException  it is thrown if any transport error during operation");
+      this.specialMethods.println(
+          "public abstract void writeVarField(Object sourceStruct, JBBPAbstractField value, JBBPBitOutputStream outStream, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue) throws IOException;");
       this.specialMethods.println();
-      this.specialMethods.printJavaDocLinesWithIndent("Write variable array\n@param sourceStruct source structure holding the field, must not be null\n@param array array value to be written, must not be null\n@param outStream the output stream, must not be null\n@param byteOrder byte order to be used for reading, must not be null\n@param nullableNamedFieldInfo info abut field name, it can be null\n@param extraValue value from extra field part, -1 if not defined\n@param arraySizeToWrite\n@exception IOException it is thrown if any transport error during operation");
-      this.specialMethods.println("public abstract void writeVarArray(Object sourceStruct, JBBPAbstractArrayField<? extends JBBPAbstractField> array, JBBPBitOutputStream outStream, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, int arraySizeToWrite) throws IOException;");
+      this.specialMethods.printJavaDocLinesWithIndent(
+          "Write variable array\n@param sourceStruct source structure holding the field, must not be null\n@param array array value to be written, must not be null\n@param outStream the output stream, must not be null\n@param byteOrder byte order to be used for reading, must not be null\n@param nullableNamedFieldInfo info abut field name, it can be null\n@param extraValue value from extra field part, -1 if not defined\n@param arraySizeToWrite\n@exception IOException it is thrown if any transport error during operation");
+      this.specialMethods.println(
+          "public abstract void writeVarArray(Object sourceStruct, JBBPAbstractArrayField<? extends JBBPAbstractField> array, JBBPBitOutputStream outStream, JBBPByteOrder byteOrder, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue, int arraySizeToWrite) throws IOException;");
     }
 
     if ((detected & FLAG_ADD_ASSERT_NOT_NEGATIVE_EXPR) != 0) {
       if (!this.specialMethods.isEmpty()) {
         this.specialMethods.println();
       }
-      this.specialMethods.println("private static int assrtExprNotNeg(final int value) { if (value<0) throw new IllegalArgumentException(\"Negative value in expression\"); return value; }");
+      this.specialMethods.println(
+          "private static int assrtExprNotNeg(final int value) { if (value<0) throw new IllegalArgumentException(\"Negative value in expression\"); return value; }");
     }
 
     final String specialMethodsText = this.specialMethods.toString();
 
-    final boolean hasAbstractMethods = (this.flagSet.get() & (FLAG_DETECTED_CUSTOM_FIELDS | FLAG_DETECTED_VAR_FIELDS | FLAG_DETECTED_EXTERNAL_FIELDS)) != 0 || this.builder.doMainClassAbstract;
+    final boolean hasAbstractMethods = (this.flagSet.get() &
+        (FLAG_DETECTED_CUSTOM_FIELDS | FLAG_DETECTED_VAR_FIELDS | FLAG_DETECTED_EXTERNAL_FIELDS)) !=
+        0 || this.builder.doMainClassAbstract;
 
-    buffer.printJavaDocLinesWithIndent("Generated from JBBP script by internal JBBP Class Source Generator");
+    buffer.printJavaDocLinesWithIndent(
+        "Generated from JBBP script by internal JBBP Class Source Generator");
 
     final Struct rootStruct = this.structStack.get(0);
 
     if (this.builder.addNewInstanceMethods) {
-      rootStruct.misc.println(String.format("public Object %s(Class<?> aClass) {", JBBPMapper.MAKE_CLASS_INSTANCE_METHOD_NAME));
+      rootStruct.misc.println(String.format("public Object %s(Class<?> aClass) {",
+          JBBPMapper.MAKE_CLASS_INSTANCE_METHOD_NAME));
       rootStruct.misc.incIndent();
 
       for (final Struct c : rootStruct.children) {
@@ -365,12 +387,20 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
   }
 
   @Override
-  public void visitStructureStart(final int offsetInCompiledBlock, final JBBPByteOrder byteOrder, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPIntegerValueEvaluator nullableArraySize) {
-    final String structName = (nullableNameFieldInfo == null ? makeAnonymousStructName() : prepFldName(nullableNameFieldInfo.getFieldName())).toLowerCase(Locale.ENGLISH);
+  public void visitStructureStart(final int offsetInCompiledBlock, final JBBPByteOrder byteOrder,
+                                  final JBBPNamedFieldInfo nullableNameFieldInfo,
+                                  final JBBPIntegerValueEvaluator nullableArraySize) {
+    final String structName = (nullableNameFieldInfo == null ? makeAnonymousStructName() :
+        prepFldName(nullableNameFieldInfo.getFieldName())).toLowerCase(Locale.ENGLISH);
     final String structBaseTypeName = structName.toUpperCase(Locale.ENGLISH);
-    final String arraySizeIn = nullableArraySize == null ? null : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.flagSet, true);
-    final String arraySizeOut = nullableArraySize == null ? null : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.flagSet, true);
-    final Struct newStruct = new Struct(this.getCurrentStruct(), structBaseTypeName, "public" + (builder.internalClassesNotStatic ? "" : " static"));
+    final String arraySizeIn = nullableArraySize == null ? null :
+        evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.flagSet,
+            true);
+    final String arraySizeOut = nullableArraySize == null ? null :
+        evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArraySize,
+            this.flagSet, true);
+    final Struct newStruct = new Struct(this.getCurrentStruct(), structBaseTypeName,
+        "public" + (builder.internalClassesNotStatic ? "" : " static"));
 
     final String fieldModifier = makeModifier(nullableNameFieldInfo);
 
@@ -388,43 +418,60 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
     if (nullableArraySize == null) {
       structType = structBaseTypeName;
       if (this.builder.generateFields) {
-        printField(nullableNameFieldInfo, byteOrder, false, offsetInCompiledBlock, getCurrentStruct().getFields().indent(), null, fieldModifier, structType, structName);
+        printField(nullableNameFieldInfo, byteOrder, false, offsetInCompiledBlock,
+            getCurrentStruct().getFields().indent(), null, fieldModifier, structType, structName);
       }
 
       processSkipRemainingFlag();
       processSkipRemainingFlagForWriting("this." + structName);
 
       this.getCurrentStruct().getReadFunc().indent()
-          .printf("if ( this.%1$s == null) { this.%1$s = new %2$s(%3$s);}", structName, structType, pathToRootObject)
-          .printf(" %s.read(%s);%n", toType.length() == 0 ? "this." + structName : '(' + toType + "this." + structName + ')', NAME_INPUT_STREAM);
-      this.getCurrentStruct().getWriteFunc().indent().print(toType.length() == 0 ? structName : '(' + toType + structName + ')').println(".write(Out);");
+          .printf("if ( this.%1$s == null) { this.%1$s = new %2$s(%3$s);}", structName, structType,
+              pathToRootObject)
+          .printf(" %s.read(%s);%n", toType.length() == 0 ? "this." + structName :
+              '(' + toType + "this." + structName + ')', NAME_INPUT_STREAM);
+      this.getCurrentStruct().getWriteFunc().indent()
+          .print(toType.length() == 0 ? structName : '(' + toType + structName + ')')
+          .println(".write(Out);");
     } else {
       structType = structBaseTypeName + " []";
       if (this.builder.generateFields) {
-        printField(nullableNameFieldInfo, byteOrder, true, offsetInCompiledBlock, getCurrentStruct().getFields().indent(), null, fieldModifier, structType, structName);
+        printField(nullableNameFieldInfo, byteOrder, true, offsetInCompiledBlock,
+            getCurrentStruct().getFields().indent(), null, fieldModifier, structType, structName);
       }
       processSkipRemainingFlag();
       processSkipRemainingFlagForWriting("this." + structName);
       if ("-1".equals(arraySizeIn)) {
         this.getCurrentStruct().getReadFunc().indent()
-            .printf("List<%3$s> __%1$s_tmplst__ = new ArrayList<%3$s>(); while (%5$s.hasAvailableData()){ __%1$s_tmplst__.add(new %3$s(%4$s).read(%5$s));} this.%1$s = __%1$s_tmplst__.toArray(new %3$s[__%1$s_tmplst__.size()]);__%1$s_tmplst__ = null;%n",
+            .printf(
+                "List<%3$s> __%1$s_tmplst__ = new ArrayList<%3$s>(); while (%5$s.hasAvailableData()){ __%1$s_tmplst__.add(new %3$s(%4$s).read(%5$s));} this.%1$s = __%1$s_tmplst__.toArray(new %3$s[__%1$s_tmplst__.size()]);__%1$s_tmplst__ = null;%n",
                 structName,
                 arraySizeIn,
                 structBaseTypeName,
                 pathToRootObject,
                 NAME_INPUT_STREAM);
-        this.getCurrentStruct().getWriteFunc().indent().printf("for (int I=0;I<this.%1$s.length;I++){ %2$s.write(%3$s); }%n", structName, toType.length() == 0 ? "this." + structName + "[I]" : '(' + toType + "this." + structName + "[I])", NAME_OUTPUT_STREAM);
+        this.getCurrentStruct().getWriteFunc().indent()
+            .printf("for (int I=0;I<this.%1$s.length;I++){ %2$s.write(%3$s); }%n", structName,
+                toType.length() == 0 ? "this." + structName + "[I]" :
+                    '(' + toType + "this." + structName + "[I])", NAME_OUTPUT_STREAM);
       } else {
         this.getCurrentStruct().getReadFunc().indent()
-            .printf("if (this.%1$s == null || this.%1$s.length != %2$s){ this.%1$s = new %3$s[%2$s]; for(int I=0;I<%2$s;I++){ this.%1$s[I] = new %3$s(%4$s);}}", structName, arraySizeIn, structBaseTypeName, pathToRootObject)
-            .printf("for (int I=0;I<%2$s;I++){ this.%1$s[I].read(%3$s); }%n", toType + structName, arraySizeIn, NAME_INPUT_STREAM);
-        this.getCurrentStruct().getWriteFunc().indent().printf("for (int I=0;I<%2$s;I++){ this.%1$s[I].write(%3$s); }", toType + structName, arraySizeOut, NAME_OUTPUT_STREAM);
+            .printf(
+                "if (this.%1$s == null || this.%1$s.length != %2$s){ this.%1$s = new %3$s[%2$s]; for(int I=0;I<%2$s;I++){ this.%1$s[I] = new %3$s(%4$s);}}",
+                structName, arraySizeIn, structBaseTypeName, pathToRootObject)
+            .printf("for (int I=0;I<%2$s;I++){ this.%1$s[I].read(%3$s); }%n", toType + structName,
+                arraySizeIn, NAME_INPUT_STREAM);
+        this.getCurrentStruct().getWriteFunc().indent()
+            .printf("for (int I=0;I<%2$s;I++){ this.%1$s[I].write(%3$s); }", toType + structName,
+                arraySizeOut, NAME_OUTPUT_STREAM);
       }
     }
 
     if (nullableNameFieldInfo != null && this.builder.addGettersSetters) {
-      final String interfaceForGetter = this.builder.mapSubClassesInterfaces.get(newStruct.getPath());
-      registerGetterSetter(interfaceForGetter == null ? structType : interfaceForGetter + (nullableArraySize == null ? "" : " []"), structName, false);
+      final String interfaceForGetter =
+          this.builder.mapSubClassesInterfaces.get(newStruct.getPath());
+      registerGetterSetter(interfaceForGetter == null ? structType :
+          interfaceForGetter + (nullableArraySize == null ? "" : " []"), structName, false);
       registerMaker(structBaseTypeName, structName, pathToRootObject, nullableArraySize != null);
     }
 
@@ -433,13 +480,15 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
 
   private void processSkipRemainingFlag() {
     if (this.isFlagSkipRemainingFieldsIfEOF()) {
-      this.getCurrentStruct().getReadFunc().indent().println(String.format("if (!%s.hasAvailableData()) return this;", NAME_INPUT_STREAM));
+      this.getCurrentStruct().getReadFunc().indent()
+          .println(String.format("if (!%s.hasAvailableData()) return this;", NAME_INPUT_STREAM));
     }
   }
 
   private void processSkipRemainingFlagForWriting(final String structFieldName) {
     if (this.isFlagSkipRemainingFieldsIfEOF()) {
-      this.getCurrentStruct().getWriteFunc().indent().println(String.format("if (%s == null) return this;", structFieldName));
+      this.getCurrentStruct().getWriteFunc().indent()
+          .println(String.format("if (%s == null) return this;", structFieldName));
     }
   }
 
@@ -464,17 +513,20 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
   }
 
   @Override
-  public void visitStructureEnd(final int offsetInCompiledBlock, final JBBPNamedFieldInfo nullableNameFieldInfo) {
+  public void visitStructureEnd(final int offsetInCompiledBlock,
+                                final JBBPNamedFieldInfo nullableNameFieldInfo) {
     final Struct struct = this.structStack.remove(0);
 
     if (this.builder.addNewInstanceMethods) {
-      struct.misc.println(String.format("public Object %s(Class aClass) {", JBBPMapper.MAKE_CLASS_INSTANCE_METHOD_NAME));
+      struct.misc.println(String
+          .format("public Object %s(Class aClass) {", JBBPMapper.MAKE_CLASS_INSTANCE_METHOD_NAME));
       struct.misc.incIndent();
 
       for (final Struct c : struct.children) {
         struct.misc.indent().println(String.format("if (aClass == %s.class) {", c.className));
         struct.misc.incIndent();
-        struct.misc.indent().println(String.format("return new %s(this.%s);", c.className, NAME_ROOT_STRUCT));
+        struct.misc.indent()
+            .println(String.format("return new %s(this.%s);", c.className, NAME_ROOT_STRUCT));
         struct.misc.decIndent();
         struct.misc.indent().println("}");
       }
@@ -510,11 +562,16 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
           getCurrentStruct().getFields().printf("@Bin(name=\"%s\")", nameFieldInfo.getFieldName());
         }
       }
-      printField(nameFieldInfo, byteOrder, false, offsetInCompiledBlock, getCurrentStruct().getFields(), FieldType.VAL, fieldModifier, textFieldType, fieldName);
+      printField(nameFieldInfo, byteOrder, false, offsetInCompiledBlock,
+          getCurrentStruct().getFields(), FieldType.VAL, fieldModifier, textFieldType, fieldName);
     }
 
-    final String valIn = evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, expression, this.flagSet, false);
-    final String valOut = evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, expression, this.flagSet, false);
+    final String valIn =
+        evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, expression, this.flagSet,
+            false);
+    final String valOut =
+        evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, expression, this.flagSet,
+            false);
 
     getCurrentStruct().getReadFunc().println(String.format("this.%s = %s;", fieldName, valIn));
     getCurrentStruct().getWriteFunc().println(String.format("this.%s = %s;", fieldName, valOut));
@@ -540,15 +597,21 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
           || nullableFieldType.getBinType() == BinType.UNDEFINED
           || nullableFieldType.getBinTypeArray() == BinType.UNDEFINED) {
         if (binName == null) {
-          buffer.printf("@Bin(byteOrder=JBBPByteOrder.%s,order=%s)%n", byteOrder.name(), Integer.toString(fieldOrder));
+          buffer.printf("@Bin(byteOrder=JBBPByteOrder.%s,order=%s)%n", byteOrder.name(),
+              Integer.toString(fieldOrder));
         } else {
-          buffer.printf("@Bin(name=\"%s\",byteOrder=JBBPByteOrder.%s,order=%s)%n", binName, byteOrder.name(), Integer.toString(fieldOrder));
+          buffer.printf("@Bin(name=\"%s\",byteOrder=JBBPByteOrder.%s,order=%s)%n", binName,
+              byteOrder.name(), Integer.toString(fieldOrder));
         }
       } else {
         if (binName == null) {
-          buffer.printf("@Bin(type=BinType.%s,byteOrder=JBBPByteOrder.%s,order=%s)%n", array ? nullableFieldType.getBinTypeArray() : nullableFieldType.getBinType(), byteOrder.name(), Integer.toString(fieldOrder));
+          buffer.printf("@Bin(type=BinType.%s,byteOrder=JBBPByteOrder.%s,order=%s)%n",
+              array ? nullableFieldType.getBinTypeArray() : nullableFieldType.getBinType(),
+              byteOrder.name(), Integer.toString(fieldOrder));
         } else {
-          buffer.printf("@Bin(name=\"%s\",type=BinType.%s,byteOrder=JBBPByteOrder.%s,order=%s)%n", binName, array ? nullableFieldType.getBinTypeArray() : nullableFieldType.getBinType(), byteOrder.name(), Integer.toString(fieldOrder));
+          buffer.printf("@Bin(name=\"%s\",type=BinType.%s,byteOrder=JBBPByteOrder.%s,order=%s)%n",
+              binName, array ? nullableFieldType.getBinTypeArray() : nullableFieldType.getBinType(),
+              byteOrder.name(), Integer.toString(fieldOrder));
         }
       }
     }
@@ -572,7 +635,8 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
             sizeOfFieldOut, byteOrder.name(),
             Integer.toString(fieldOrder));
       } else {
-        buffer.printf("@Bin(name=\"%s\",type=BinType.%s,bitNumber=%s,byteOrder=JBBPByteOrder.%s,order=%s)%n",
+        buffer.printf(
+            "@Bin(name=\"%s\",type=BinType.%s,bitNumber=%s,byteOrder=JBBPByteOrder.%s,order=%s)%n",
             binName,
             (array ? BinType.BIT_ARRAY : BinType.BIT).name(),
             sizeOfFieldOut, byteOrder.name(),
@@ -592,7 +656,8 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
       final boolean altFieldType,
       final JBBPIntegerValueEvaluator nullableArraySize
   ) {
-    final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() : prepFldName(nullableNameFieldInfo.getFieldName());
+    final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() :
+        prepFldName(nullableNameFieldInfo.getFieldName());
     FieldType type = FieldType.findForCode(primitiveType);
 
     if (altFieldType) {
@@ -613,8 +678,12 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
 
     registerNamedField(nullableNameFieldInfo, type);
 
-    final String arraySizeIn = nullableArraySize == null ? null : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.flagSet, true);
-    final String arraySizeOut = nullableArraySize == null ? null : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.flagSet, true);
+    final String arraySizeIn = nullableArraySize == null ? null :
+        evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.flagSet,
+            true);
+    final String arraySizeOut = nullableArraySize == null ? null :
+        evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArraySize,
+            this.flagSet, true);
 
     final String fieldModifier = makeModifier(nullableNameFieldInfo);
     processSkipRemainingFlag();
@@ -636,18 +705,27 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
             fieldName
         );
       }
-      getCurrentStruct().getReadFunc().println(String.format("this.%s = %s;", fieldName, type.makeReaderForSingleField(NAME_INPUT_STREAM, byteOrder)));
-      getCurrentStruct().getWriteFunc().print(type.makeWriterForSingleField(NAME_OUTPUT_STREAM, "this." + fieldName, byteOrder)).println(";");
+      getCurrentStruct().getReadFunc().println(String.format("this.%s = %s;", fieldName,
+          type.makeReaderForSingleField(NAME_INPUT_STREAM, byteOrder)));
+      getCurrentStruct().getWriteFunc()
+          .print(type.makeWriterForSingleField(NAME_OUTPUT_STREAM, "this." + fieldName, byteOrder))
+          .println(";");
     } else {
       textFieldType = type.asJavaArrayFieldType() + " []";
       if (this.builder.generateFields) {
-        printField(nullableNameFieldInfo, byteOrder, true, offsetInCompiledBlock, getCurrentStruct().getFields(), type, fieldModifier, textFieldType, fieldName);
+        printField(nullableNameFieldInfo, byteOrder, true, offsetInCompiledBlock,
+            getCurrentStruct().getFields(), type, fieldModifier, textFieldType, fieldName);
       }
-      getCurrentStruct().getReadFunc().printf("this.%s = %s;%n", fieldName, type.makeReaderForArray(NAME_INPUT_STREAM, arraySizeIn, byteOrder));
+      getCurrentStruct().getReadFunc().printf("this.%s = %s;%n", fieldName,
+          type.makeReaderForArray(NAME_INPUT_STREAM, arraySizeIn, byteOrder));
       if (readWholeStreamAsArray) {
-        getCurrentStruct().getWriteFunc().print(type.makeWriterForArrayWithUnknownSize(NAME_OUTPUT_STREAM, "this." + fieldName, byteOrder)).println(";");
+        getCurrentStruct().getWriteFunc().print(
+            type.makeWriterForArrayWithUnknownSize(NAME_OUTPUT_STREAM, "this." + fieldName,
+                byteOrder)).println(";");
       } else {
-        getCurrentStruct().getWriteFunc().print(type.makeWriterForArray(NAME_OUTPUT_STREAM, "this." + fieldName, arraySizeOut, byteOrder)).println(";");
+        getCurrentStruct().getWriteFunc().print(
+            type.makeWriterForArray(NAME_OUTPUT_STREAM, "this." + fieldName, arraySizeOut,
+                byteOrder)).println(";");
       }
     }
 
@@ -656,19 +734,25 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
     }
   }
 
-  private void registerGetterSetter(final String fieldType, final String fieldName, final boolean makeSetter) {
+  private void registerGetterSetter(final String fieldType, final String fieldName,
+                                    final boolean makeSetter) {
     if (!this.getCurrentStruct().getGettersSetters().isEmpty()) {
       this.getCurrentStruct().getGettersSetters().println();
     }
 
     if (makeSetter) {
-      this.getCurrentStruct().getGettersSetters().indent().printf("public void set%s(%s value) { this.%s = value;}%n", fieldName.toUpperCase(Locale.ENGLISH), fieldType, fieldName);
+      this.getCurrentStruct().getGettersSetters().indent()
+          .printf("public void set%s(%s value) { this.%s = value;}%n",
+              fieldName.toUpperCase(Locale.ENGLISH), fieldType, fieldName);
     }
 
-    this.getCurrentStruct().getGettersSetters().indent().printf("public %s get%s() { return this.%s;}%n", fieldType, fieldName.toUpperCase(Locale.ENGLISH), fieldName);
+    this.getCurrentStruct().getGettersSetters().indent()
+        .printf("public %s get%s() { return this.%s;}%n", fieldType,
+            fieldName.toUpperCase(Locale.ENGLISH), fieldName);
   }
 
-  private void registerMaker(final String rawFieldType, final String fieldName, final String pathToRootObject, final boolean array) {
+  private void registerMaker(final String rawFieldType, final String fieldName,
+                             final String pathToRootObject, final boolean array) {
     if (!this.getCurrentStruct().getGettersSetters().isEmpty()) {
       this.getCurrentStruct().getGettersSetters().println();
     }
@@ -689,45 +773,65 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
   }
 
   @Override
-  public void visitBitField(final int offsetInCompiledBlock, final JBBPByteOrder byteOrder, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPIntegerValueEvaluator notNullFieldSize, final JBBPIntegerValueEvaluator nullableArraySize) {
-    final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() : prepFldName(nullableNameFieldInfo.getFieldName());
+  public void visitBitField(final int offsetInCompiledBlock, final JBBPByteOrder byteOrder,
+                            final JBBPNamedFieldInfo nullableNameFieldInfo,
+                            final JBBPIntegerValueEvaluator notNullFieldSize,
+                            final JBBPIntegerValueEvaluator nullableArraySize) {
+    final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() :
+        prepFldName(nullableNameFieldInfo.getFieldName());
 
     registerNamedField(nullableNameFieldInfo, FieldType.BIT);
 
-    String sizeOfFieldIn = evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, notNullFieldSize, this.flagSet, true);
-    String sizeOfFieldOut = evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, notNullFieldSize, this.flagSet, true);
+    String sizeOfFieldIn =
+        evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, notNullFieldSize, this.flagSet,
+            true);
+    String sizeOfFieldOut =
+        evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, notNullFieldSize, this.flagSet,
+            true);
     try {
-      sizeOfFieldIn = "JBBPBitNumber." + JBBPBitNumber.decode(Integer.parseInt(sizeOfFieldIn)).name();
+      sizeOfFieldIn =
+          "JBBPBitNumber." + JBBPBitNumber.decode(Integer.parseInt(sizeOfFieldIn)).name();
     } catch (NumberFormatException ex) {
       sizeOfFieldIn = "JBBPBitNumber.decode(" + sizeOfFieldIn + ')';
     }
 
     try {
-      sizeOfFieldOut = "JBBPBitNumber." + JBBPBitNumber.decode(Integer.parseInt(sizeOfFieldOut)).name();
+      sizeOfFieldOut =
+          "JBBPBitNumber." + JBBPBitNumber.decode(Integer.parseInt(sizeOfFieldOut)).name();
     } catch (NumberFormatException ex) {
       sizeOfFieldOut = "JBBPBitNumber.decode(" + sizeOfFieldOut + ')';
     }
 
-    final String arraySizeIn = nullableArraySize == null ? null : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.flagSet, true);
-    final String arraySizeOut = nullableArraySize == null ? null : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.flagSet, true);
+    final String arraySizeIn = nullableArraySize == null ? null :
+        evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArraySize, this.flagSet,
+            true);
+    final String arraySizeOut = nullableArraySize == null ? null :
+        evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArraySize,
+            this.flagSet, true);
 
     final String fieldModifier = makeModifier(nullableNameFieldInfo);
 
     processSkipRemainingFlag();
 
     if (arraySizeIn == null) {
-      getCurrentStruct().getReadFunc().indent().printf("this.%s = In.readBitField(%s);%n", fieldName, sizeOfFieldIn);
+      getCurrentStruct().getReadFunc().indent()
+          .printf("this.%s = In.readBitField(%s);%n", fieldName, sizeOfFieldIn);
     } else {
-      getCurrentStruct().getReadFunc().indent().print(fieldName).print(" = In.readBitsArray(").print(arraySizeIn).print(",").print(sizeOfFieldIn).println(");");
+      getCurrentStruct().getReadFunc().indent().print(fieldName).print(" = In.readBitsArray(")
+          .print(arraySizeIn).print(",").print(sizeOfFieldIn).println(");");
     }
 
     if (arraySizeOut == null) {
-      getCurrentStruct().getWriteFunc().indent().printf("%s.writeBits(this.%s,%s);%n", NAME_OUTPUT_STREAM, fieldName, sizeOfFieldOut);
+      getCurrentStruct().getWriteFunc().indent()
+          .printf("%s.writeBits(this.%s,%s);%n", NAME_OUTPUT_STREAM, fieldName, sizeOfFieldOut);
     } else {
       if ("-1".equals(arraySizeIn)) {
-        getCurrentStruct().getWriteFunc().indent().printf("for(int I=0; I<%s.length; I++)", fieldName).printf(" Out.writeBits(this.%s[I],%s);%n", fieldName, sizeOfFieldOut);
+        getCurrentStruct().getWriteFunc().indent()
+            .printf("for(int I=0; I<%s.length; I++)", fieldName)
+            .printf(" Out.writeBits(this.%s[I],%s);%n", fieldName, sizeOfFieldOut);
       } else {
-        getCurrentStruct().getWriteFunc().indent().printf("for(int I=0; I<%s; I++)", arraySizeOut).printf(" Out.writeBits(this.%s[I],%s);%n", fieldName, sizeOfFieldOut);
+        getCurrentStruct().getWriteFunc().indent().printf("for(int I=0; I<%s; I++)", arraySizeOut)
+            .printf(" Out.writeBits(this.%s[I],%s);%n", fieldName, sizeOfFieldOut);
       }
     }
 
@@ -768,12 +872,18 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
   }
 
   @Override
-  public void visitCustomField(final int offsetInCompiledBlock, final JBBPFieldTypeParameterContainer notNullFieldType, final JBBPNamedFieldInfo nullableNameFieldInfo, final JBBPByteOrder byteOrder, final boolean readWholeStream, final JBBPIntegerValueEvaluator nullableArraySizeEvaluator, final JBBPIntegerValueEvaluator extraDataValueEvaluator) {
+  public void visitCustomField(final int offsetInCompiledBlock,
+                               final JBBPFieldTypeParameterContainer notNullFieldType,
+                               final JBBPNamedFieldInfo nullableNameFieldInfo,
+                               final JBBPByteOrder byteOrder, final boolean readWholeStream,
+                               final JBBPIntegerValueEvaluator nullableArraySizeEvaluator,
+                               final JBBPIntegerValueEvaluator extraDataValueEvaluator) {
     this.flagSet.set(this.flagSet.get() | FLAG_DETECTED_CUSTOM_FIELDS);
 
     registerNamedField(nullableNameFieldInfo, FieldType.CUSTOM);
 
-    final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() : prepFldName(nullableNameFieldInfo.getFieldName());
+    final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() :
+        prepFldName(nullableNameFieldInfo.getFieldName());
     final String fieldModifier = makeModifier(nullableNameFieldInfo);
 
     final String specialFieldName = makeSpecialFieldName();
@@ -781,19 +891,25 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
     final String specialFieldName_typeParameterContainer = specialFieldName + "TypeParameter";
 
     if (this.builder.generateFields) {
-      this.getCurrentStruct().getFields().printf("%s JBBPAbstractField %s;%n", fieldModifier, fieldName);
+      this.getCurrentStruct().getFields()
+          .printf("%s JBBPAbstractField %s;%n", fieldModifier, fieldName);
     }
 
     if (nullableNameFieldInfo != null) {
       this.specialSection.printf("private static final JBBPNamedFieldInfo %s = %s;%n",
           specialFieldName_fieldNameInfo,
-          "new JBBPNamedFieldInfo(\"" + prepFldName(nullableNameFieldInfo.getFieldName()) + "\",\"" + nullableNameFieldInfo.getFieldPath() + "\"," + nullableNameFieldInfo.getFieldOffsetInCompiledBlock() + ")"
+          "new JBBPNamedFieldInfo(\"" + prepFldName(nullableNameFieldInfo.getFieldName()) +
+              "\",\"" + nullableNameFieldInfo.getFieldPath() + "\"," +
+              nullableNameFieldInfo.getFieldOffsetInCompiledBlock() + ")"
       );
     }
 
     this.specialSection.printf("private static final JBBPFieldTypeParameterContainer %s = %s;%n",
         specialFieldName_typeParameterContainer,
-        "new JBBPFieldTypeParameterContainer(JBBPByteOrder." + notNullFieldType.getByteOrder().name() + ",\"" + notNullFieldType.getTypeName() + "\"," + (notNullFieldType.getExtraData() == null ? "null" : "\"" + notNullFieldType.getExtraData() + "\"") + ")"
+        "new JBBPFieldTypeParameterContainer(JBBPByteOrder." +
+            notNullFieldType.getByteOrder().name() + ",\"" + notNullFieldType.getTypeName() +
+            "\"," + (notNullFieldType.getExtraData() == null ? "null" :
+            "\"" + notNullFieldType.getExtraData() + "\"") + ")"
     );
 
     processSkipRemainingFlag();
@@ -803,9 +919,13 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
             this.getCurrentStruct().isRoot() ? "this" : "this." + NAME_ROOT_STRUCT,
             specialFieldName_typeParameterContainer,
             nullableNameFieldInfo == null ? "null" : specialFieldName_fieldNameInfo,
-            extraDataValueEvaluator == null ? "0" : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, extraDataValueEvaluator, this.flagSet, true),
+            extraDataValueEvaluator == null ? "0" :
+                evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, extraDataValueEvaluator,
+                    this.flagSet, true),
             readWholeStream,
-            nullableArraySizeEvaluator == null ? "-1" : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArraySizeEvaluator, this.flagSet, true)
+            nullableArraySizeEvaluator == null ? "-1" :
+                evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock,
+                    nullableArraySizeEvaluator, this.flagSet, true)
         )
     );
 
@@ -815,9 +935,13 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
             "this." + fieldName,
             specialFieldName_typeParameterContainer,
             nullableNameFieldInfo == null ? "null" : specialFieldName_fieldNameInfo,
-            extraDataValueEvaluator == null ? "0" : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, extraDataValueEvaluator, this.flagSet, true),
+            extraDataValueEvaluator == null ? "0" :
+                evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock,
+                    extraDataValueEvaluator, this.flagSet, true),
             readWholeStream,
-            nullableArraySizeEvaluator == null ? "-1" : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArraySizeEvaluator, this.flagSet, true)
+            nullableArraySizeEvaluator == null ? "-1" :
+                evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock,
+                    nullableArraySizeEvaluator, this.flagSet, true)
         )
     );
 
@@ -839,7 +963,8 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
 
     registerNamedField(nullableNameFieldInfo, FieldType.VAR);
 
-    final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() : prepFldName(nullableNameFieldInfo.getFieldName());
+    final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() :
+        prepFldName(nullableNameFieldInfo.getFieldName());
     final String fieldModifier = makeModifier(nullableNameFieldInfo);
 
     final String specialFieldName = makeSpecialFieldName();
@@ -848,7 +973,9 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
     if (nullableNameFieldInfo != null) {
       this.specialSection.printf("private static final JBBPNamedFieldInfo %s = %s;%n",
           specialFieldName_fieldNameInfo,
-          "new JBBPNamedFieldInfo(\"" + prepFldName(nullableNameFieldInfo.getFieldName()) + "\",\"" + nullableNameFieldInfo.getFieldPath() + "\"," + nullableNameFieldInfo.getFieldOffsetInCompiledBlock() + ")"
+          "new JBBPNamedFieldInfo(\"" + prepFldName(nullableNameFieldInfo.getFieldName()) +
+              "\",\"" + nullableNameFieldInfo.getFieldPath() + "\"," +
+              nullableNameFieldInfo.getFieldOffsetInCompiledBlock() + ")"
       );
     }
 
@@ -857,7 +984,8 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
     if (readWholeStreamIntoArray || nullableArraySizeEvaluator != null) {
       fieldType = "JBBPAbstractArrayField<? extends JBBPAbstractField>";
       if (this.builder.generateFields) {
-        printField(nullableNameFieldInfo, byteOrder, true, offsetInCompiledBlock, getCurrentStruct().getFields(), FieldType.VAR, fieldModifier, fieldType, fieldName);
+        printField(nullableNameFieldInfo, byteOrder, true, offsetInCompiledBlock,
+            getCurrentStruct().getFields(), FieldType.VAR, fieldModifier, fieldType, fieldName);
       }
 
       this.getCurrentStruct().getReadFunc().printf("%s = %s;%n",
@@ -866,25 +994,35 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
               this.getCurrentStruct().isRoot() ? "this" : "this." + NAME_ROOT_STRUCT,
               "JBBPByteOrder." + byteOrder.name(),
               nullableNameFieldInfo == null ? "null" : specialFieldName_fieldNameInfo,
-              extraDataValueEvaluator == null ? "-1" : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, extraDataValueEvaluator, this.flagSet, true),
+              extraDataValueEvaluator == null ? "-1" :
+                  evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock,
+                      extraDataValueEvaluator, this.flagSet, true),
               readWholeStreamIntoArray,
-              nullableArraySizeEvaluator == null ? "-1" : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArraySizeEvaluator, this.flagSet, true)
+              nullableArraySizeEvaluator == null ? "-1" :
+                  evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock,
+                      nullableArraySizeEvaluator, this.flagSet, true)
           )
       );
 
-      this.getCurrentStruct().getWriteFunc().printf("%s.writeVarArray(this, this.%s, Out, %s, %s, %s, %s);%n",
-          this.getCurrentStruct().isRoot() ? "this" : "this." + NAME_ROOT_STRUCT,
-          fieldName,
-          "JBBPByteOrder." + byteOrder.name(),
-          nullableNameFieldInfo == null ? "null" : specialFieldName_fieldNameInfo,
-          extraDataValueEvaluator == null ? "-1" : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, extraDataValueEvaluator, this.flagSet, true),
-          nullableArraySizeEvaluator == null ? "-1" : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArraySizeEvaluator, this.flagSet, true)
-      );
+      this.getCurrentStruct().getWriteFunc()
+          .printf("%s.writeVarArray(this, this.%s, Out, %s, %s, %s, %s);%n",
+              this.getCurrentStruct().isRoot() ? "this" : "this." + NAME_ROOT_STRUCT,
+              fieldName,
+              "JBBPByteOrder." + byteOrder.name(),
+              nullableNameFieldInfo == null ? "null" : specialFieldName_fieldNameInfo,
+              extraDataValueEvaluator == null ? "-1" :
+                  evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock,
+                      extraDataValueEvaluator, this.flagSet, true),
+              nullableArraySizeEvaluator == null ? "-1" :
+                  evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock,
+                      nullableArraySizeEvaluator, this.flagSet, true)
+          );
 
     } else {
       fieldType = "JBBPAbstractField";
       if (this.builder.generateFields) {
-        printField(nullableNameFieldInfo, byteOrder, false, offsetInCompiledBlock, getCurrentStruct().getFields(), FieldType.VAR, fieldModifier, fieldType, fieldName);
+        printField(nullableNameFieldInfo, byteOrder, false, offsetInCompiledBlock,
+            getCurrentStruct().getFields(), FieldType.VAR, fieldModifier, fieldType, fieldName);
       }
 
       this.getCurrentStruct().getReadFunc().printf("%s = %s;%n",
@@ -893,16 +1031,21 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
               this.getCurrentStruct().isRoot() ? "this" : "this." + NAME_ROOT_STRUCT,
               "JBBPByteOrder." + byteOrder.name(),
               nullableNameFieldInfo == null ? "null" : specialFieldName_fieldNameInfo,
-              extraDataValueEvaluator == null ? "-1" : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, extraDataValueEvaluator, this.flagSet, true))
+              extraDataValueEvaluator == null ? "-1" :
+                  evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock,
+                      extraDataValueEvaluator, this.flagSet, true))
       );
 
-      this.getCurrentStruct().getWriteFunc().printf("%s.writeVarField(this, this.%s, Out, %s, %s, %s);%n",
-          this.getCurrentStruct().isRoot() ? "this" : "this." + NAME_ROOT_STRUCT,
-          fieldName,
-          "JBBPByteOrder." + byteOrder.name(),
-          nullableNameFieldInfo == null ? "null" : specialFieldName_fieldNameInfo,
-          extraDataValueEvaluator == null ? "-1" : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, extraDataValueEvaluator, this.flagSet, true)
-      );
+      this.getCurrentStruct().getWriteFunc()
+          .printf("%s.writeVarField(this, this.%s, Out, %s, %s, %s);%n",
+              this.getCurrentStruct().isRoot() ? "this" : "this." + NAME_ROOT_STRUCT,
+              fieldName,
+              "JBBPByteOrder." + byteOrder.name(),
+              nullableNameFieldInfo == null ? "null" : specialFieldName_fieldNameInfo,
+              extraDataValueEvaluator == null ? "-1" :
+                  evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock,
+                      extraDataValueEvaluator, this.flagSet, true)
+          );
     }
 
     if (nullableNameFieldInfo != null && this.builder.addGettersSetters) {
@@ -920,7 +1063,10 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
    * @param doResultPostprocessing do postprocessing of result value
    * @return the evaluator string representation, must not be null
    */
-  private String evaluatorToString(final String streamName, final int offsetInBlock, final JBBPIntegerValueEvaluator evaluator, final AtomicInteger detectedFlagsSet, final boolean doResultPostprocessing) {
+  private String evaluatorToString(final String streamName, final int offsetInBlock,
+                                   final JBBPIntegerValueEvaluator evaluator,
+                                   final AtomicInteger detectedFlagsSet,
+                                   final boolean doResultPostprocessing) {
     final StringBuilder buffer = new StringBuilder();
 
     final ExpressionEvaluatorVisitor visitor = new ExpressionEvaluatorVisitor() {
@@ -939,7 +1085,8 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
       }
 
       @Override
-      public ExpressionEvaluatorVisitor visitField(final JBBPNamedFieldInfo nullableNameFieldInfo, final String nullableExternalFieldName) {
+      public ExpressionEvaluatorVisitor visitField(final JBBPNamedFieldInfo nullableNameFieldInfo,
+                                                   final String nullableExternalFieldName) {
         if (nullableNameFieldInfo != null) {
           this.stack.add(nullableNameFieldInfo);
         } else if (nullableExternalFieldName != null) {
@@ -976,7 +1123,8 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
             return obj.toString();
           }
         } else if (obj instanceof String) {
-          return String.format("%s.getNamedValue(this, \"%s\")", (getCurrentStruct().isRoot() ? "this" : "this." + NAME_ROOT_STRUCT), obj.toString());
+          return String.format("%s.getNamedValue(this, \"%s\")",
+              (getCurrentStruct().isRoot() ? "this" : "this." + NAME_ROOT_STRUCT), obj.toString());
         } else if (obj instanceof JBBPNamedFieldInfo) {
           final NamedFieldInfo namedFieldInfo = foundNamedFields.get(obj);
           final String fieldPath = namedFieldInfo.makeSrcPath(getCurrentStruct());
@@ -1057,7 +1205,11 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
           }
           final ExprTreeItem that = (ExprTreeItem) obj;
 
-          return that.op.priority <= this.op.priority || ((that.op == Operator.LSHIFT || that.op == Operator.RSHIFT || that.op == Operator.URSHIFT) && (this.op == Operator.LSHIFT || this.op == Operator.RSHIFT || this.op == Operator.URSHIFT));
+          return that.op.priority <= this.op.priority ||
+              ((that.op == Operator.LSHIFT || that.op == Operator.RSHIFT ||
+                  that.op == Operator.URSHIFT) &&
+                  (this.op == Operator.LSHIFT || this.op == Operator.RSHIFT ||
+                      this.op == Operator.URSHIFT));
         }
 
         @Override
@@ -1070,7 +1222,8 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
           if (doesNeedBrackets(this.right)) {
             rightStr = '(' + rightStr + ')';
           }
-          return (leftStr == null ? "" : leftStr) + this.op.text + (rightStr == null ? "" : rightStr);
+          return (leftStr == null ? "" : leftStr) + this.op.text +
+              (rightStr == null ? "" : rightStr);
         }
       }
     };
@@ -1080,7 +1233,8 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
     String result = buffer.toString();
     if (result.startsWith("(") && result.endsWith(")")) {
       try {
-        result = Integer.toString(Integer.parseInt(result.substring(1, result.length() - 1).trim()));
+        result =
+            Integer.toString(Integer.parseInt(result.substring(1, result.length() - 1).trim()));
       } catch (NumberFormatException ex) {
         // ignore the excepton because it is checking exception
       }
@@ -1101,9 +1255,14 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
   }
 
   @Override
-  public void visitActionItem(final int offsetInCompiledBlock, final int actionType, final JBBPIntegerValueEvaluator nullableArgument) {
-    final String valueTxtIn = nullableArgument == null ? "1" : evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArgument, this.flagSet, true);
-    final String valueTxtOut = nullableArgument == null ? "1" : evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArgument, this.flagSet, true);
+  public void visitActionItem(final int offsetInCompiledBlock, final int actionType,
+                              final JBBPIntegerValueEvaluator nullableArgument) {
+    final String valueTxtIn = nullableArgument == null ? "1" :
+        evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock, nullableArgument, this.flagSet,
+            true);
+    final String valueTxtOut = nullableArgument == null ? "1" :
+        evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock, nullableArgument, this.flagSet,
+            true);
 
     switch (actionType) {
       case CODE_RESET_COUNTER: {
@@ -1112,13 +1271,17 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
       }
       break;
       case CODE_ALIGN: {
-        getCurrentStruct().getReadFunc().indent().print(NAME_INPUT_STREAM + ".align(").print(valueTxtIn).println(");");
-        getCurrentStruct().getWriteFunc().indent().print(NAME_OUTPUT_STREAM + ".align(").print(valueTxtOut).println(");");
+        getCurrentStruct().getReadFunc().indent().print(NAME_INPUT_STREAM + ".align(")
+            .print(valueTxtIn).println(");");
+        getCurrentStruct().getWriteFunc().indent().print(NAME_OUTPUT_STREAM + ".align(")
+            .print(valueTxtOut).println(");");
       }
       break;
       case CODE_SKIP: {
-        getCurrentStruct().getReadFunc().indent().print(NAME_INPUT_STREAM + ".skip(").print(valueTxtIn).println(");");
-        getCurrentStruct().getWriteFunc().indent().printf("for(int I=0; I<%s; I++) %s.write(0);%n", valueTxtOut, NAME_OUTPUT_STREAM);
+        getCurrentStruct().getReadFunc().indent().print(NAME_INPUT_STREAM + ".skip(")
+            .print(valueTxtIn).println(");");
+        getCurrentStruct().getWriteFunc().indent()
+            .printf("for(int I=0; I<%s; I++) %s.write(0);%n", valueTxtOut, NAME_OUTPUT_STREAM);
       }
       break;
       default: {
@@ -1128,20 +1291,48 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
   }
 
   private enum FieldType {
-    BOOL(BinType.BOOL, BinType.BOOL_ARRAY, CODE_BOOL, "boolean", "boolean", "%s.readBoolean()", "%s.readBoolArray(%s)", "%s.write(%s ? 1 : 0)", "for(int I=0;I<%3$s;I++){%1$s.write(%2$s[I] ? 1 : 0);}", "for(int I=0;I<%2$s.length;I++){%1$s.write(%2$s[I] ? 1 : 0);}"),
-    BYTE(BinType.BYTE, BinType.BYTE_ARRAY, CODE_BYTE, "byte", "byte", "(byte)%s.readByte()", "%s.readByteArray(%s, %s)", "%s.write(%s)", "%1$s.writeBytes(%2$s, %3$s, %4$s)", "%1$s.writeBytes(%2$s, %2$s.length, %3$s)"),
-    UBYTE(BinType.UBYTE, BinType.UBYTE_ARRAY, CODE_UBYTE, "char", "byte", "(char)(%s.readByte() & 0xFF)", "%s.readByteArray(%s, %s)", "%s.write(%s)", "%1$s.writeBytes(%2$s, %3$s, %4$s)", "%1$s.writeBytes(%2$s, %2$s.length, %3$s)"),
-    SHORT(BinType.SHORT, BinType.SHORT_ARRAY, CODE_SHORT, "short", "short", "(short)%s.readUnsignedShort(%s)", "%s.readShortArray(%s,%s)", "%s.writeShort(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeShort(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeShort(%2$s[I],%3$s);}"),
-    USHORT(BinType.USHORT, BinType.USHORT_ARRAY, CODE_USHORT, "char", "char", "(char)%s.readUnsignedShort(%s)", "%s.readUShortArray(%s,%s)", "%s.writeShort(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeShort(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeShort(%2$s[I],%3$s);}"),
-    INT(BinType.INT, BinType.INT_ARRAY, CODE_INT, "int", "int", "%s.readInt(%s)", "%s.readIntArray(%s,%s)", "%s.writeInt(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeInt(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeInt(%2$s[I],%3$s);}"),
-    LONG(BinType.LONG, BinType.LONG_ARRAY, CODE_LONG, "long", "long", "%s.readLong(%s)", "%s.readLongArray(%s,%s)", "%s.writeLong(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeLong(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeLong(%2$s[I],%3$s);}"),
+    BOOL(BinType.BOOL, BinType.BOOL_ARRAY, CODE_BOOL, "boolean", "boolean", "%s.readBoolean()",
+        "%s.readBoolArray(%s)", "%s.write(%s ? 1 : 0)",
+        "for(int I=0;I<%3$s;I++){%1$s.write(%2$s[I] ? 1 : 0);}",
+        "for(int I=0;I<%2$s.length;I++){%1$s.write(%2$s[I] ? 1 : 0);}"),
+    BYTE(BinType.BYTE, BinType.BYTE_ARRAY, CODE_BYTE, "byte", "byte", "(byte)%s.readByte()",
+        "%s.readByteArray(%s, %s)", "%s.write(%s)", "%1$s.writeBytes(%2$s, %3$s, %4$s)",
+        "%1$s.writeBytes(%2$s, %2$s.length, %3$s)"),
+    UBYTE(BinType.UBYTE, BinType.UBYTE_ARRAY, CODE_UBYTE, "char", "byte",
+        "(char)(%s.readByte() & 0xFF)", "%s.readByteArray(%s, %s)", "%s.write(%s)",
+        "%1$s.writeBytes(%2$s, %3$s, %4$s)", "%1$s.writeBytes(%2$s, %2$s.length, %3$s)"),
+    SHORT(BinType.SHORT, BinType.SHORT_ARRAY, CODE_SHORT, "short", "short",
+        "(short)%s.readUnsignedShort(%s)", "%s.readShortArray(%s,%s)", "%s.writeShort(%s,%s)",
+        "for(int I=0;I<%3$s;I++){%1$s.writeShort(%2$s[I],%4$s);}",
+        "for(int I=0;I<%2$s.length;I++){%1$s.writeShort(%2$s[I],%3$s);}"),
+    USHORT(BinType.USHORT, BinType.USHORT_ARRAY, CODE_USHORT, "char", "char",
+        "(char)%s.readUnsignedShort(%s)", "%s.readUShortArray(%s,%s)", "%s.writeShort(%s,%s)",
+        "for(int I=0;I<%3$s;I++){%1$s.writeShort(%2$s[I],%4$s);}",
+        "for(int I=0;I<%2$s.length;I++){%1$s.writeShort(%2$s[I],%3$s);}"),
+    INT(BinType.INT, BinType.INT_ARRAY, CODE_INT, "int", "int", "%s.readInt(%s)",
+        "%s.readIntArray(%s,%s)", "%s.writeInt(%s,%s)",
+        "for(int I=0;I<%3$s;I++){%1$s.writeInt(%2$s[I],%4$s);}",
+        "for(int I=0;I<%2$s.length;I++){%1$s.writeInt(%2$s[I],%3$s);}"),
+    LONG(BinType.LONG, BinType.LONG_ARRAY, CODE_LONG, "long", "long", "%s.readLong(%s)",
+        "%s.readLongArray(%s,%s)", "%s.writeLong(%s,%s)",
+        "for(int I=0;I<%3$s;I++){%1$s.writeLong(%2$s[I],%4$s);}",
+        "for(int I=0;I<%2$s.length;I++){%1$s.writeLong(%2$s[I],%3$s);}"),
     CUSTOM(BinType.UNDEFINED, BinType.UNDEFINED, -1, "", "", "", "", "", "", ""),
     VAR(BinType.UNDEFINED, BinType.UNDEFINED, -2, "", "", "", "", "", "", ""),
     VAL(BinType.UNDEFINED, BinType.UNDEFINED, -3, "int", "", "", "", "", "", ""),
     BIT(BinType.BIT, BinType.BIT_ARRAY, -4, "", "", "", "", "", "", ""),
-    FLOAT(BinType.FLOAT, BinType.FLOAT_ARRAY, -5, "float", "float", "%s.readFloat(%s)", "%s.readFloatArray(%s,%s)", "%s.writeFloat(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeFloat(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeFloat(%2$s[I],%3$s);}"),
-    DOUBLE(BinType.DOUBLE, BinType.DOUBLE_ARRAY, -6, "double", "double", "%s.readDouble(%s)", "%s.readDoubleArray(%s,%s)", "%s.writeDouble(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeDouble(%2$s[I],%4$s);}", "for(int I=0;I<%2$s.length;I++){%1$s.writeDouble(%2$s[I],%3$s);}"),
-    STRING(BinType.UNDEFINED, BinType.UNDEFINED, -7, "String", "String", "%s.readString(%s)", "%s.readStringArray(%s,%s)", "%s.writeString(%s,%s)", "for(int I=0;I<%3$s;I++){%1$s.writeString(%2$s[I],%4$s);}", "%1$s.writeStringArray(%2$s,%3$s)"),
+    FLOAT(BinType.FLOAT, BinType.FLOAT_ARRAY, -5, "float", "float", "%s.readFloat(%s)",
+        "%s.readFloatArray(%s,%s)", "%s.writeFloat(%s,%s)",
+        "for(int I=0;I<%3$s;I++){%1$s.writeFloat(%2$s[I],%4$s);}",
+        "for(int I=0;I<%2$s.length;I++){%1$s.writeFloat(%2$s[I],%3$s);}"),
+    DOUBLE(BinType.DOUBLE, BinType.DOUBLE_ARRAY, -6, "double", "double", "%s.readDouble(%s)",
+        "%s.readDoubleArray(%s,%s)", "%s.writeDouble(%s,%s)",
+        "for(int I=0;I<%3$s;I++){%1$s.writeDouble(%2$s[I],%4$s);}",
+        "for(int I=0;I<%2$s.length;I++){%1$s.writeDouble(%2$s[I],%3$s);}"),
+    STRING(BinType.UNDEFINED, BinType.UNDEFINED, -7, "String", "String", "%s.readString(%s)",
+        "%s.readStringArray(%s,%s)", "%s.writeString(%s,%s)",
+        "for(int I=0;I<%3$s;I++){%1$s.writeString(%2$s[I],%4$s);}",
+        "%1$s.writeStringArray(%2$s,%3$s)"),
     UNKNOWN(BinType.UNDEFINED, BinType.UNDEFINED, Integer.MIN_VALUE, "", "", "", "", "", "", "");
 
     private final BinType binType;
@@ -1209,24 +1400,32 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
       return String.format(this.methodReadOne, streamName, "JBBPByteOrder." + byteOrder.name());
     }
 
-    String makeWriterForSingleField(final String streamName, final String fieldName, final JBBPByteOrder byteOrder) {
+    String makeWriterForSingleField(final String streamName, final String fieldName,
+                                    final JBBPByteOrder byteOrder) {
       assertNotUnknown();
-      return String.format(this.methodWriteOne, streamName, fieldName, "JBBPByteOrder." + byteOrder.name());
+      return String
+          .format(this.methodWriteOne, streamName, fieldName, "JBBPByteOrder." + byteOrder.name());
     }
 
-    String makeReaderForArray(final String streamName, final String arraySize, final JBBPByteOrder byteOrder) {
+    String makeReaderForArray(final String streamName, final String arraySize,
+                              final JBBPByteOrder byteOrder) {
       assertNotUnknown();
-      return String.format(this.methodReadArray, streamName, arraySize, "JBBPByteOrder." + byteOrder.name());
+      return String
+          .format(this.methodReadArray, streamName, arraySize, "JBBPByteOrder." + byteOrder.name());
     }
 
-    String makeWriterForArray(final String streamName, final String fieldName, final String arraySize, final JBBPByteOrder byteOrder) {
+    String makeWriterForArray(final String streamName, final String fieldName,
+                              final String arraySize, final JBBPByteOrder byteOrder) {
       assertNotUnknown();
-      return String.format(this.methodWriteArray, streamName, fieldName, arraySize, "JBBPByteOrder." + byteOrder.name());
+      return String.format(this.methodWriteArray, streamName, fieldName, arraySize,
+          "JBBPByteOrder." + byteOrder.name());
     }
 
-    String makeWriterForArrayWithUnknownSize(final String streamName, final String fieldName, final JBBPByteOrder byteOrder) {
+    String makeWriterForArrayWithUnknownSize(final String streamName, final String fieldName,
+                                             final JBBPByteOrder byteOrder) {
       assertNotUnknown();
-      return String.format(this.methodWriteArrayWithUnknownSize, streamName, fieldName, "JBBPByteOrder." + byteOrder.name());
+      return String.format(this.methodWriteArrayWithUnknownSize, streamName, fieldName,
+          "JBBPByteOrder." + byteOrder.name());
     }
 
     BinType getBinType() {
@@ -1366,7 +1565,8 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
      * @return the builder instance, must not be null
      * @since 1.4.0
      */
-    public Builder setMapSubClassesSuperclasses(final Map<String, String> mapClassNameToSuperclasses) {
+    public Builder setMapSubClassesSuperclasses(
+        final Map<String, String> mapClassNameToSuperclasses) {
       assertNonLocked();
       this.mapSubClassesSuperclasses.clear();
       if (mapClassNameToSuperclasses != null) {
@@ -1569,7 +1769,8 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
     private final String path;
 
     private Struct(final Struct parent, final String className, final String classModifiers) {
-      this.path = parent == null ? "" : parent.path + (parent.path.length() == 0 ? "" : ".") + className.toLowerCase(Locale.ENGLISH);
+      this.path = parent == null ? "" : parent.path + (parent.path.length() == 0 ? "" : ".") +
+          className.toLowerCase(Locale.ENGLISH);
       this.classModifiers = classModifiers;
       this.className = className;
       this.parent = parent;
@@ -1615,7 +1816,8 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
         final String specialMethods,
         final String customText,
         final boolean useSuperclassForReadWrite) {
-      final String interfaceForGetSet = mapStructInterfaces == null ? null : mapStructInterfaces.get(this.getPath());
+      final String interfaceForGetSet =
+          mapStructInterfaces == null ? null : mapStructInterfaces.get(this.getPath());
 
       buffer.indent().printf(
           "%s%sclass %s%s%s {%n",
@@ -1623,7 +1825,10 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
           extraModifier == null ? " " : ' ' + extraModifier + ' ',
           this.className,
           superClass != null ? " extends " + superClass + ' ' : "",
-          interfaceForGetSet == null ? implementedInterfaces != null && !implementedInterfaces.isEmpty() ? " implements " + interfaces2str(implementedInterfaces) + ' ' : "" : " implements " + interfaceForGetSet
+          interfaceForGetSet == null ?
+              implementedInterfaces != null && !implementedInterfaces.isEmpty() ?
+                  " implements " + interfaces2str(implementedInterfaces) + ' ' : "" :
+              " implements " + interfaceForGetSet
       );
       buffer.incIndent();
 
@@ -1632,13 +1837,15 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
       }
 
       for (final Struct c : this.children) {
-        c.write(buffer, null, mapStructSuperclasses.get(c.getPath()), null, mapStructInterfaces, mapStructSuperclasses, null, null, null, false);
+        c.write(buffer, null, mapStructSuperclasses.get(c.getPath()), null, mapStructInterfaces,
+            mapStructSuperclasses, null, null, null, false);
       }
       buffer.println();
 
       buffer.printLinesWithIndent(this.fields.toString());
       if (this.parent != null) {
-        buffer.indent().println("private final " + findRoot().className + ' ' + NAME_ROOT_STRUCT + ';');
+        buffer.indent()
+            .println("private final " + findRoot().className + ' ' + NAME_ROOT_STRUCT + ';');
       }
       buffer.println();
 
@@ -1656,7 +1863,8 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
 
       buffer.println();
 
-      buffer.indent().printf("public %s read(final JBBPBitInputStream In) throws IOException {%n", useSuperclassForReadWrite && superClass != null ? superClass : this.className);
+      buffer.indent().printf("public %s read(final JBBPBitInputStream In) throws IOException {%n",
+          useSuperclassForReadWrite && superClass != null ? superClass : this.className);
       buffer.incIndent();
       buffer.printLinesWithIndent(this.readFunc.toString());
       buffer.indent().println("return this;");
@@ -1665,7 +1873,9 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
 
       buffer.println();
 
-      buffer.indent().printf("public %s write(final JBBPBitOutputStream Out) throws IOException {%n", useSuperclassForReadWrite && superClass != null ? superClass : this.className);
+      buffer.indent()
+          .printf("public %s write(final JBBPBitOutputStream Out) throws IOException {%n",
+              useSuperclassForReadWrite && superClass != null ? superClass : this.className);
       buffer.incIndent();
       buffer.printLinesWithIndent(this.writeFunc.toString());
       buffer.indent().println("return this;");

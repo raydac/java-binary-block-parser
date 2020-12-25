@@ -17,7 +17,6 @@
 package com.igormaznitsa.jbbp.exceptions;
 
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
-
 import java.lang.reflect.Field;
 
 /**
@@ -51,7 +50,9 @@ public class JBBPMapperException extends JBBPException {
    * @param mappingClassField the class field which mapping is wrong
    * @param cause             the root cause for the exception, it can be null
    */
-  public JBBPMapperException(final String message, final JBBPAbstractField field, final Class<?> mappingClass, final Field mappingClassField, final Throwable cause) {
+  public JBBPMapperException(final String message, final JBBPAbstractField field,
+                             final Class<?> mappingClass, final Field mappingClassField,
+                             final Throwable cause) {
     super(message, cause);
     this.field = field;
     this.mappingClassField = mappingClassField;

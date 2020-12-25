@@ -25,7 +25,8 @@ import com.igormaznitsa.jbbp.utils.JBBPUtils;
  *
  * @since 1.0
  */
-public final class JBBPFieldArrayBit extends JBBPAbstractArrayField<JBBPFieldBit> implements BitEntity, JBBPNumericArray {
+public final class JBBPFieldArrayBit extends JBBPAbstractArrayField<JBBPFieldBit>
+    implements BitEntity, JBBPNumericArray {
   private static final long serialVersionUID = -4589044511663149591L;
 
   /**
@@ -46,7 +47,8 @@ public final class JBBPFieldArrayBit extends JBBPAbstractArrayField<JBBPFieldBit
    * @param bitNumber number of valuable bits in values of the array, it must
    *                  not be null
    */
-  public JBBPFieldArrayBit(final JBBPNamedFieldInfo name, final byte[] array, final JBBPBitNumber bitNumber) {
+  public JBBPFieldArrayBit(final JBBPNamedFieldInfo name, final byte[] array,
+                           final JBBPBitNumber bitNumber) {
     super(name);
     JBBPUtils.assertNotNull(array, "Array must not be null");
     JBBPUtils.assertNotNull(bitNumber, "Bit number must not be null");
@@ -80,7 +82,8 @@ public final class JBBPFieldArrayBit extends JBBPAbstractArrayField<JBBPFieldBit
 
   @Override
   public JBBPFieldBit getElementAt(final int index) {
-    final JBBPFieldBit result = new JBBPFieldBit(this.fieldNameInfo, this.getAsInt(index), this.bitNumber);
+    final JBBPFieldBit result =
+        new JBBPFieldBit(this.fieldNameInfo, this.getAsInt(index), this.bitNumber);
     result.payload = this.payload;
     return result;
   }

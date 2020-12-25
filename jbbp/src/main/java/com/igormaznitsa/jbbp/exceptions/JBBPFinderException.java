@@ -43,7 +43,8 @@ public class JBBPFinderException extends JBBPException {
    * @param nameOrPath the name of the path for used for search process, it can be null
    * @param fieldType  the field type used for the search process, it can be null
    */
-  public JBBPFinderException(final String message, final String nameOrPath, final Class<? extends JBBPAbstractField> fieldType) {
+  public JBBPFinderException(final String message, final String nameOrPath,
+                             final Class<? extends JBBPAbstractField> fieldType) {
     super(message);
     this.nameOrPath = nameOrPath;
     this.fieldType = fieldType;

@@ -48,7 +48,8 @@ public class JBBPEvalException extends JBBPException {
    * @param evaluator a cause evaluator, can be null
    * @param cause     a cause exception, can be null
    */
-  public JBBPEvalException(final String message, final JBBPIntegerValueEvaluator evaluator, Throwable cause) {
+  public JBBPEvalException(final String message, final JBBPIntegerValueEvaluator evaluator,
+                           Throwable cause) {
     super(message, cause);
     this.evaluator = evaluator;
   }

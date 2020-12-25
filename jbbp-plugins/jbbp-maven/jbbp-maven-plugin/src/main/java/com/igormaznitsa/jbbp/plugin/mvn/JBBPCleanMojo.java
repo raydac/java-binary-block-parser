@@ -2,16 +2,15 @@ package com.igormaznitsa.jbbp.plugin.mvn;
 
 import com.igormaznitsa.jbbp.plugin.common.converters.JBBPScriptTranslator;
 import com.igormaznitsa.jbbp.plugin.common.converters.Target;
+import java.io.File;
+import java.io.IOException;
+import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Set;
 
 /**
  * The Mojo looks for all java files generated for JBBP scripts and delete them.
@@ -67,12 +66,15 @@ public class JBBPCleanMojo extends AbstractJBBPMojo {
           if (f.isFile()) {
             if (f.delete()) {
               counter++;
-              logInfo("Deleted file '" + f.getAbsolutePath() + "' for script '" + aScript + "'", true);
+              logInfo("Deleted file '" + f.getAbsolutePath() + "' for script '" + aScript + "'",
+                  true);
             } else {
-              getLog().error("Can't delete file '" + f.getAbsolutePath() + "' for script '" + aScript + "'");
+              getLog().error(
+                  "Can't delete file '" + f.getAbsolutePath() + "' for script '" + aScript + "'");
             }
           } else {
-            getLog().debug("File '" + f.getAbsolutePath() + "' generated for script '" + aScript + "' is not found");
+            getLog().debug("File '" + f.getAbsolutePath() + "' generated for script '" + aScript +
+                "' is not found");
           }
         }
       }

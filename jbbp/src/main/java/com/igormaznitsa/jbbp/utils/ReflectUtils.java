@@ -71,7 +71,8 @@ public final class ReflectUtils {
     try {
       return klazz.getConstructor().newInstance();
     } catch (Exception ex) {
-      throw new RuntimeException(String.format("Can't create instance of %s for error %s", klazz, ex.getMessage()), ex);
+      throw new RuntimeException(
+          String.format("Can't create instance of %s for error %s", klazz, ex.getMessage()), ex);
     }
   }
 

@@ -58,7 +58,8 @@ public final class JBBPFieldLong extends JBBPAbstractField implements JBBPNumeri
     final long b6 = JBBPUtils.reverseBitsInByte((byte) (value >> 48)) & 0xFFL;
     final long b7 = JBBPUtils.reverseBitsInByte((byte) (value >> 56)) & 0xFFL;
 
-    return (b0 << 56) | (b1 << 48) | (b2 << 40) | (b3 << 32) | (b4 << 24) | (b5 << 16) | (b6 << 8) | b7;
+    return (b0 << 56) | (b1 << 48) | (b2 << 40) | (b3 << 32) | (b4 << 24) | (b5 << 16) | (b6 << 8) |
+        b7;
   }
 
   @Override

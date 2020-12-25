@@ -346,7 +346,8 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
    * @see JBBPByteOrder#LITTLE_ENDIAN
    * @since 1.3.0
    */
-  public void writeBytes(final byte[] array, final int length, final JBBPByteOrder byteOrder) throws IOException {
+  public void writeBytes(final byte[] array, final int length, final JBBPByteOrder byteOrder)
+      throws IOException {
     if (byteOrder == JBBPByteOrder.LITTLE_ENDIAN) {
       int i = length < 0 ? array.length - 1 : length - 1;
       while (i >= 0) {

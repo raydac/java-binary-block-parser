@@ -16,12 +16,14 @@
 
 package com.igormaznitsa.jbbp.utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class JBBPSystemPropertyTest {
 
@@ -35,16 +37,19 @@ public class JBBPSystemPropertyTest {
 
   @Test
   public void testSet() {
-    assertNull(System.getProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName()));
+    assertNull(
+        System.getProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName()));
     JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.set("hello_world");
-    assertEquals("hello_world", System.getProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName()));
+    assertEquals("hello_world",
+        System.getProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName()));
   }
 
   @Test
   public void testRemove() {
     System.setProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName(), "1234");
     JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.remove();
-    assertNull(System.getProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName()));
+    assertNull(
+        System.getProperty(JBBPSystemProperty.PROPERTY_INSTANTIATOR_CLASS.getPropertyName()));
   }
 
   @Test

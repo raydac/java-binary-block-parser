@@ -16,24 +16,26 @@
 
 package com.igormaznitsa.jbbp.it;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.io.JBBPOut;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.mapper.BinType;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 import java.io.InputStream;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.Test;
 
 public class TAP_ParsingTest extends AbstractParserIntegrationTest {
-  public static final JBBPParser HEADER_PARSER = JBBPParser.prepare("byte type; byte [10] name; <ushort length; <ushort param1; <ushort param2;");
+  public static final JBBPParser HEADER_PARSER = JBBPParser
+      .prepare("byte type; byte [10] name; <ushort length; <ushort param1; <ushort param2;");
   public static final JBBPParser DATA_PARSER = JBBPParser.prepare("byte [_] data;");
-  public static final JBBPParser TAP_FILE_PARSER = JBBPParser.prepare("tapblocks [_]{ <ushort len; byte flag; byte [len-2] data; byte checksum;}");
+  public static final JBBPParser TAP_FILE_PARSER = JBBPParser
+      .prepare("tapblocks [_]{ <ushort len; byte flag; byte [len-2] data; byte checksum;}");
 
   private static void assertTapChecksum(final byte etalon, final byte initial, final byte[] data) {
     byte accum = initial;
@@ -49,8 +51,10 @@ public class TAP_ParsingTest extends AbstractParserIntegrationTest {
     final InputStream in = getResourceAsInputStream("test.tap");
     try {
       final TapContainer tap = TAP_FILE_PARSER.parse(in).mapTo(new TapContainer(), aClass -> {
-        if (aClass == Tap.class) return new Tap();
-        throw new Error("Unexpected class: "+aClass);
+        if (aClass == Tap.class) {
+          return new Tap();
+        }
+        throw new Error("Unexpected class: " + aClass);
       });
       assertEquals(89410, TAP_FILE_PARSER.getFinalStreamByteCounter());
 
@@ -116,12 +120,14 @@ public class TAP_ParsingTest extends AbstractParserIntegrationTest {
 
     @Override
     public String toString() {
-      return "HEADER: " + name + " (length=" + length + ", param1=" + param1 + ", param2=" + param2 + ')';
+      return "HEADER: " + name + " (length=" + length + ", param1=" + param1 + ", param2=" +
+          param2 + ')';
     }
 
     @Override
     void save(final JBBPOut ctx) throws IOException {
-      ctx.Short(19).Byte(0, type).ResetCounter().Byte(name).Align(10).Short(length).Short(param1).Short(param2).Byte(check);
+      ctx.Short(19).Byte(0, type).ResetCounter().Byte(name).Align(10).Short(length).Short(param1)
+          .Short(param2).Byte(check);
     }
   }
 

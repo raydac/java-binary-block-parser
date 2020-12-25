@@ -472,26 +472,26 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
 
     JBBPParser parser = JBBPParser.prepare("byte [$alen] a; byte [$blen] b; byte [$clen] c;");
 
-    BKlazz parsed = parser.parse(new byte[] {1,2,3}, null, new JBBPExternalValueProvider() {
+    BKlazz parsed = parser.parse(new byte[] {1, 2, 3}, null, new JBBPExternalValueProvider() {
       @Override
       public int provideArraySize(String fieldName,
                                   JBBPNamedNumericFieldMap numericFieldMap,
                                   JBBPCompiledBlock compiledBlock) {
-          if ("alen".equals(fieldName)) {
-            return 0;
-          } else if ("blen".equals(fieldName)) {
-            return 3;
-          } else if ("clen".equals(fieldName)) {
-            return 0;
-          } else {
-            throw new IllegalArgumentException("Unknown name: " + fieldName);
-          }
+        if ("alen".equals(fieldName)) {
+          return 0;
+        } else if ("blen".equals(fieldName)) {
+          return 3;
+        } else if ("clen".equals(fieldName)) {
+          return 0;
+        } else {
+          throw new IllegalArgumentException("Unknown name: " + fieldName);
+        }
 
       }
     }).mapTo(new BKlazz());
 
     assertArrayEquals(new byte[0], parsed.a);
-    assertArrayEquals(new byte[]{1,2,3}, parsed.b);
+    assertArrayEquals(new byte[] {1, 2, 3}, parsed.b);
     assertArrayEquals(new byte[0], parsed.c);
   }
 

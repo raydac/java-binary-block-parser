@@ -54,20 +54,14 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
 
   private static final JBBPParser z80Parser = JBBPParser.prepare(
       "byte reg_a; byte reg_f; <short reg_bc; <short reg_hl; <short reg_pc; <short reg_sp; byte reg_ir; byte reg_r; "
-          + "flags{ bit:1 reg_r_bit7; bit:3 bordercolor; bit:1 basic_samrom; bit:1 compressed; bit:2 nomeaning;}"
-          + "<short reg_de; <short reg_bc_alt; <short reg_de_alt; <short reg_hl_alt; byte reg_a_alt; byte reg_f_alt; <short reg_iy; <short reg_ix; byte iff; byte iff2;"
-          + "emulFlags{bit:2 interruptmode; bit:1 issue2emulation; bit:1 doubleintfreq; bit:2 videosync; bit:2 inputdevice;}"
+          +
+          "flags{ bit:1 reg_r_bit7; bit:3 bordercolor; bit:1 basic_samrom; bit:1 compressed; bit:2 nomeaning;}"
+          +
+          "<short reg_de; <short reg_bc_alt; <short reg_de_alt; <short reg_hl_alt; byte reg_a_alt; byte reg_f_alt; <short reg_iy; <short reg_ix; byte iff; byte iff2;"
+          +
+          "emulFlags{bit:2 interruptmode; bit:1 issue2emulation; bit:1 doubleintfreq; bit:2 videosync; bit:2 inputdevice;}"
           + "byte [_] data;"
   );
-
-  @Test
-  public void testRLEEncoding() throws Exception {
-    assertArrayEquals(new byte[] {(byte) 0xED, (byte) 0xED, 1, 2, 3}, JBBPOut.BeginBin().Var(new RLEDataEncoder(), 0, new byte[] {(byte) 0xED, (byte) 0xED, 1, 2, 3}).End().toByteArray());
-    assertArrayEquals(new byte[] {(byte) 0xED, (byte) 0xED, 2, (byte) 0xED, 1, 2, 3, 0x00, (byte) 0xED, (byte) 0xED, 0x00}, JBBPOut.BeginBin().Var(new RLEDataEncoder(), 1, new byte[] {(byte) 0xED, (byte) 0xED, 1, 2, 3}).End().toByteArray());
-    assertArrayEquals(new byte[] {(byte) 0xED, 0x00, (byte) 0xED, (byte) 0xED, 0x05, 0x00, 0x00, (byte) 0xED, (byte) 0xED, 0x00}, JBBPOut.BeginBin().Var(new RLEDataEncoder(), 1, new byte[] {(byte) 0xED, 0, 0, 0, 0, 0, 0}).End().toByteArray());
-    assertArrayEquals(new byte[] {(byte) 0xED, (byte) 0xED, 8, 5, 1, 2, 3, 0x00, (byte) 0xED, (byte) 0xED, 0x00}, JBBPOut.BeginBin().Var(new RLEDataEncoder(), 1, new byte[] {5, 5, 5, 5, 5, 5, 5, 5, 1, 2, 3}).End().toByteArray());
-  }
-
   private static final Function<Class<?>, Object> INSTANTIATOR = aClass -> {
     if (aClass == Flags.class) {
       return new Flags();
@@ -79,6 +73,28 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
   };
 
   @Test
+  public void testRLEEncoding() throws Exception {
+    assertArrayEquals(new byte[] {(byte) 0xED, (byte) 0xED, 1, 2, 3}, JBBPOut.BeginBin()
+        .Var(new RLEDataEncoder(), 0, new byte[] {(byte) 0xED, (byte) 0xED, 1, 2, 3}).End()
+        .toByteArray());
+    assertArrayEquals(
+        new byte[] {(byte) 0xED, (byte) 0xED, 2, (byte) 0xED, 1, 2, 3, 0x00, (byte) 0xED,
+            (byte) 0xED, 0x00}, JBBPOut.BeginBin()
+            .Var(new RLEDataEncoder(), 1, new byte[] {(byte) 0xED, (byte) 0xED, 1, 2, 3}).End()
+            .toByteArray());
+    assertArrayEquals(
+        new byte[] {(byte) 0xED, 0x00, (byte) 0xED, (byte) 0xED, 0x05, 0x00, 0x00, (byte) 0xED,
+            (byte) 0xED, 0x00},
+        JBBPOut.BeginBin().Var(new RLEDataEncoder(), 1, new byte[] {(byte) 0xED, 0, 0, 0, 0, 0, 0})
+            .End().toByteArray());
+    assertArrayEquals(
+        new byte[] {(byte) 0xED, (byte) 0xED, 8, 5, 1, 2, 3, 0x00, (byte) 0xED, (byte) 0xED, 0x00},
+        JBBPOut.BeginBin()
+            .Var(new RLEDataEncoder(), 1, new byte[] {5, 5, 5, 5, 5, 5, 5, 5, 1, 2, 3}).End()
+            .toByteArray());
+  }
+
+  @Test
   public void testParseAndWriteTestZ80WithoutCheckOfFields() throws Exception {
     assertParseAndPackBack("test1.z80", 16059);
     assertParseAndPackBack("test2.z80", 29330);
@@ -86,7 +102,8 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
     assertParseAndPackBack("test4.z80", 9946);
   }
 
-  private Z80Snapshot assertParseAndPackBack(final String name, final long etalonLen) throws Exception {
+  private Z80Snapshot assertParseAndPackBack(final String name, final long etalonLen)
+      throws Exception {
     final Z80Snapshot z80sn;
 
     final InputStream resource = getResourceAsInputStream(name);
@@ -128,19 +145,21 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
   public void testParseAndWriteTestZ80WithCheckOfFields() throws Exception {
     final Z80Snapshot z80sn = assertParseAndPackBack("test.z80", 12429);
 
-    final String text = new JBBPTextWriter().ByteOrder(LITTLE_ENDIAN).SetMaxValuesPerLine(32).AddExtras(new JBBPTextWriterExtraAdapter() {
+    final String text = new JBBPTextWriter().ByteOrder(LITTLE_ENDIAN).SetMaxValuesPerLine(32)
+        .AddExtras(new JBBPTextWriterExtraAdapter() {
 
-      @Override
-      public String doConvertCustomField(JBBPTextWriter context, Object obj, Field field, Bin annotation) throws IOException {
-        try {
-          final byte[] data = (byte[]) field.get(obj);
-          return "byte array length [" + data.length + ']';
-        } catch (Exception ex) {
-          throw new RuntimeException(ex);
-        }
-      }
+          @Override
+          public String doConvertCustomField(JBBPTextWriter context, Object obj, Field field,
+                                             Bin annotation) throws IOException {
+            try {
+              final byte[] data = (byte[]) field.get(obj);
+              return "byte array length [" + data.length + ']';
+            } catch (Exception ex) {
+              throw new RuntimeException(ex);
+            }
+          }
 
-    }).Bin(z80sn).Close().toString();
+        }).Bin(z80sn).Close().toString();
 
     assertTrue(text.contains("byte array length [49152]"));
     System.out.println(text);
@@ -197,7 +216,8 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
       JBBPUtils.closeQuietly(in);
     }
 
-    final byte[] saved = JBBPOut.BeginBin(LITTLE_ENDIAN).Bin(parsed, new DataProcessor()).End().toByteArray();
+    final byte[] saved =
+        JBBPOut.BeginBin(LITTLE_ENDIAN).Bin(parsed, new DataProcessor()).End().toByteArray();
 
     assertResource("test.z80", saved);
   }
@@ -205,7 +225,8 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
   private static class RLEDataEncoder implements JBBPOutVarProcessor {
 
     @Override
-    public boolean processVarOut(final JBBPOut context, final JBBPBitOutputStream outStream, final Object... args) throws IOException {
+    public boolean processVarOut(final JBBPOut context, final JBBPBitOutputStream outStream,
+                                 final Object... args) throws IOException {
       final byte[] unpackedData = (byte[]) args[1];
       if (((Number) args[0]).intValue() == 0) {
         context.Byte(unpackedData);
@@ -263,14 +284,18 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
     }
   }
 
-  private static class DataProcessor implements JBBPMapperCustomFieldProcessor, JBBPCustomFieldWriter {
+  private static class DataProcessor
+      implements JBBPMapperCustomFieldProcessor, JBBPCustomFieldWriter {
 
     @Override
-    public Object prepareObjectForMapping(JBBPFieldStruct parsedBlock, Bin annotation, Field field) {
+    public Object prepareObjectForMapping(JBBPFieldStruct parsedBlock, Bin annotation,
+                                          Field field) {
       if (field.getName().equals("data")) {
-        final byte[] data = parsedBlock.findFieldForNameAndType("data", JBBPFieldArrayByte.class).getArray();
+        final byte[] data =
+            parsedBlock.findFieldForNameAndType("data", JBBPFieldArrayByte.class).getArray();
 
-        if (parsedBlock.findFieldForPathAndType("flags.compressed", JBBPFieldBit.class).getAsBool()) {
+        if (parsedBlock.findFieldForPathAndType("flags.compressed", JBBPFieldBit.class)
+            .getAsBool()) {
           // RLE compressed
           final ByteArrayOutputStream baos = new ByteArrayOutputStream(data.length << 1);
           int i = 0;
@@ -314,7 +339,9 @@ public class Z80_v1_ParsingTest extends AbstractParserIntegrationTest {
     }
 
     @Override
-    public void writeCustomField(final JBBPOut context, final JBBPBitOutputStream out, final Object instanceForSaving, final Field instanceCustomField, final Bin fieldAnnotation, final Object value) throws IOException {
+    public void writeCustomField(final JBBPOut context, final JBBPBitOutputStream out,
+                                 final Object instanceForSaving, final Field instanceCustomField,
+                                 final Bin fieldAnnotation, final Object value) throws IOException {
       try {
         final byte[] array = (byte[]) instanceCustomField.get(instanceForSaving);
         new RLEDataEncoder().processVarOut(context, out, 1, array);

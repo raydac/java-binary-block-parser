@@ -16,12 +16,12 @@
 
 package com.igormaznitsa.jbbp.compiler;
 
+import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.FLAG_ARRAY;
+
+
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-
 import java.util.List;
-
-import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.FLAG_ARRAY;
 
 /**
  * Class contains specific common auxiliary methods for parser and compiler classes.
@@ -39,7 +39,8 @@ public final class JBBPCompilerUtils {
    * @param namedFields a list contains named field info items.
    * @return the index of a field for the path if found one, -1 otherwise
    */
-  public static int findIndexForFieldPath(final String fieldPath, final List<JBBPNamedFieldInfo> namedFields) {
+  public static int findIndexForFieldPath(final String fieldPath,
+                                          final List<JBBPNamedFieldInfo> namedFields) {
     final String normalized = JBBPUtils.normalizeFieldNameOrPath(fieldPath);
     int result = -1;
     for (int i = namedFields.size() - 1; i >= 0; i--) {
@@ -59,7 +60,8 @@ public final class JBBPCompilerUtils {
    * @param namedFields a named field list.
    * @return found item for the path, null otherwise
    */
-  public static JBBPNamedFieldInfo findForFieldPath(final String fieldPath, final List<JBBPNamedFieldInfo> namedFields) {
+  public static JBBPNamedFieldInfo findForFieldPath(final String fieldPath,
+                                                    final List<JBBPNamedFieldInfo> namedFields) {
     final String normalized = JBBPUtils.normalizeFieldNameOrPath(fieldPath);
     JBBPNamedFieldInfo result = null;
     for (int i = namedFields.size() - 1; i >= 0; i--) {
@@ -79,10 +81,13 @@ public final class JBBPCompilerUtils {
    * @param namedFieldList a named field info list, must not be null.
    * @param compiledScript a compiled script body
    */
-  public static void assertFieldIsNotArrayOrInArray(final JBBPNamedFieldInfo fieldToCheck, final List<JBBPNamedFieldInfo> namedFieldList, final byte[] compiledScript) {
+  public static void assertFieldIsNotArrayOrInArray(final JBBPNamedFieldInfo fieldToCheck,
+                                                    final List<JBBPNamedFieldInfo> namedFieldList,
+                                                    final byte[] compiledScript) {
     // check that the field is not array
     if ((compiledScript[fieldToCheck.getFieldOffsetInCompiledBlock()] & FLAG_ARRAY) != 0) {
-      throw new JBBPCompilationException("An Array field can't be used as array size [" + fieldToCheck.getFieldPath() + ']');
+      throw new JBBPCompilationException(
+          "An Array field can't be used as array size [" + fieldToCheck.getFieldPath() + ']');
     }
     if (fieldToCheck.getFieldPath().indexOf('.') >= 0) {
       // the field in structure, check that the structure is not an array or not in an array
@@ -94,9 +99,12 @@ public final class JBBPCompilerUtils {
           fieldPath.append('.');
         }
         fieldPath.append(splittedFieldPath[i]);
-        final JBBPNamedFieldInfo structureEnd = JBBPCompilerUtils.findForFieldPath(fieldPath.toString(), namedFieldList);
+        final JBBPNamedFieldInfo structureEnd =
+            JBBPCompilerUtils.findForFieldPath(fieldPath.toString(), namedFieldList);
         if ((compiledScript[structureEnd.getFieldOffsetInCompiledBlock()] & FLAG_ARRAY) != 0) {
-          throw new JBBPCompilationException("Field from structure array can't be use as array size [" + fieldToCheck.getFieldPath() + ';' + structureEnd.getFieldPath() + ']');
+          throw new JBBPCompilationException(
+              "Field from structure array can't be use as array size [" +
+                  fieldToCheck.getFieldPath() + ';' + structureEnd.getFieldPath() + ']');
         }
       }
     }

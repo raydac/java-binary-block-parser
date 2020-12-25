@@ -17,7 +17,6 @@
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
-
 import java.io.Serializable;
 
 /**

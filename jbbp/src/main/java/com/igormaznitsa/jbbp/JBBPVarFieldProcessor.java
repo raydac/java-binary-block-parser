@@ -21,7 +21,6 @@ import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.model.JBBPAbstractArrayField;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
-
 import java.io.IOException;
 
 /**
@@ -42,7 +41,13 @@ public interface JBBPVarFieldProcessor {
    * @return a field array without nulls as values, it must not return null
    * @throws IOException it can be thrown for transport errors or another process exceptions
    */
-  JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(JBBPBitInputStream inStream, int arraySize, JBBPNamedFieldInfo fieldName, int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap) throws IOException;
+  JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(JBBPBitInputStream inStream,
+                                                                   int arraySize,
+                                                                   JBBPNamedFieldInfo fieldName,
+                                                                   int extraValue,
+                                                                   JBBPByteOrder byteOrder,
+                                                                   JBBPNamedNumericFieldMap numericFieldMap)
+      throws IOException;
 
   /**
    * Read a field from a stream. The Method must read a field from a stream and return it with the provided name field info.
@@ -59,5 +64,7 @@ public interface JBBPVarFieldProcessor {
    * @return a read field object, it must not return null
    * @throws IOException it should be thrown for transport errors
    */
-  JBBPAbstractField readVarField(JBBPBitInputStream inStream, JBBPNamedFieldInfo fieldName, int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap) throws IOException;
+  JBBPAbstractField readVarField(JBBPBitInputStream inStream, JBBPNamedFieldInfo fieldName,
+                                 int extraValue, JBBPByteOrder byteOrder,
+                                 JBBPNamedNumericFieldMap numericFieldMap) throws IOException;
 }

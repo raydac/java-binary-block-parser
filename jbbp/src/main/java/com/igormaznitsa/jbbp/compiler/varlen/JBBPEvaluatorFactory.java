@@ -18,7 +18,6 @@ package com.igormaznitsa.jbbp.compiler.varlen;
 
 import com.igormaznitsa.jbbp.compiler.JBBPCompilerUtils;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
-
 import java.util.List;
 
 /**
@@ -53,7 +52,9 @@ public final class JBBPEvaluatorFactory {
    * @see JBBPExpressionEvaluator
    * @see JBBPOnlyFieldEvaluator
    */
-  public JBBPIntegerValueEvaluator make(final String expression, final List<JBBPNamedFieldInfo> namedFields, final byte[] compiledScript) {
+  public JBBPIntegerValueEvaluator make(final String expression,
+                                        final List<JBBPNamedFieldInfo> namedFields,
+                                        final byte[] compiledScript) {
     final JBBPIntegerValueEvaluator result;
 
     if (JBBPExpressionEvaluator.hasExpressionOperators(expression)) {
@@ -75,7 +76,8 @@ public final class JBBPEvaluatorFactory {
         if (index < 0) {
           result = new JBBPExpressionEvaluator(expression, namedFields, compiledScript);
         } else {
-          JBBPCompilerUtils.assertFieldIsNotArrayOrInArray(namedFields.get(index), namedFields, compiledScript);
+          JBBPCompilerUtils
+              .assertFieldIsNotArrayOrInArray(namedFields.get(index), namedFields, compiledScript);
           result = new JBBPOnlyFieldEvaluator(null, index);
         }
       }

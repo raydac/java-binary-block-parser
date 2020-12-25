@@ -25,6 +25,7 @@ public interface JBBPNumericArray {
 
   /**
    * Get element as integer.
+   *
    * @param index index of element in array
    * @return the element as integer
    */
@@ -32,6 +33,7 @@ public interface JBBPNumericArray {
 
   /**
    * Get element as long.
+   *
    * @param index index of element in array
    * @return the element as long
    */
@@ -39,6 +41,7 @@ public interface JBBPNumericArray {
 
   /**
    * Get element as boolean.
+   *
    * @param index index of element in array
    * @return the element as boolean
    */
