@@ -1,7 +1,7 @@
 ![JBBP Logo](https://github.com/raydac/java-binary-block-parser/blob/master/logo.png)
 
 [![License Apache 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-green.svg)](http://www.apache.org/licenses/LICENSE-2.0)
-[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.igormaznitsa/jbbp/badge.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|jbbp|2.0.2|jar)
+[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.igormaznitsa/jbbp/badge.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|jbbp|2.0.3|jar)
 [![Java 1.8+](https://img.shields.io/badge/java-1.8%2b-green.svg)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 [![Android 3.0+](https://img.shields.io/badge/android-3.0%2b-green.svg)](http://developer.android.com/sdk/index.html)
 [![PayPal donation](https://img.shields.io/badge/donation-PayPal-cyan.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=AHWJHJFBAWGL2)
@@ -17,7 +17,7 @@ that for Java. So I developed the JBBP library.<br>
 
 # Change log
 
-- __2.0.3 (SNAPSHOT)__
+- __2.0.3 (03-jan-2021)__
   - added service methods `JBBPUtils.traceData` to print dump of an input stream into a PrintStream
   - improved `JBBPTokenizerException` to show marked error
     position [#30](https://github.com/raydac/java-binary-block-parser/issues/30)
@@ -26,9 +26,6 @@ that for Java. So I developed the JBBP library.<br>
   - added `JBBPOut#Bin` variant to override `@Bin` annotation fields in written objects.
   - [#28](https://github.com/raydac/java-binary-block-parser/issues/28) added `JBBPOut#BinForceByteOrder` to override
     byte order defined in `@Bin` annotations of written object.
-
-- __2.0.1 (04-feb-2020)__
-  - [#26](https://github.com/raydac/java-binary-block-parser/issues/26) fixed bug in array write with MSB0
 
 [Full changelog](https://github.com/raydac/java-binary-block-parser/blob/master/changelog.txt)
 
@@ -40,12 +37,12 @@ The Framework has been published in the Maven Central and can be easily added as
 <dependency>
   <groupId>com.igormaznitsa</groupId>
   <artifactId>jbbp</artifactId>
-  <version>2.0.2</version>
+  <version>2.0.3</version>
 </dependency>
 ```
 
 the precompiled library jar, javadoc and sources also can be downloaded directly
-from [the Maven central.](https://search.maven.org/artifact/com.igormaznitsa/jbbp/2.0.2/jar)
+from [the Maven central.](https://search.maven.org/artifact/com.igormaznitsa/jbbp/2.0.3/jar)
 
 # Hello world
 
@@ -118,7 +115,7 @@ in Maven it can be used through snippet:
 <plugin>
   <groupId>com.igormaznitsa</groupId>
   <artifactId>jbbp-maven-plugin</artifactId>
-  <version>2.0.2</version>
+  <version>2.0.3</version>
   <executions>
     <execution>
       <id>gen-jbbp-src</id>

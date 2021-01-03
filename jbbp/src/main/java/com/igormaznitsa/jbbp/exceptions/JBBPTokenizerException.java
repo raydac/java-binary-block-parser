@@ -108,7 +108,7 @@ public class JBBPTokenizerException extends JBBPCompilationException {
   }
 
   /**
-   * Get error part of script where error position marked by !>..<!
+   * Get error part of script where error position marked by !&gt;..&lt;!
    *
    * @return error part of the script in position, or empty if it was impossible to extract the part
    * @since 2.0.3

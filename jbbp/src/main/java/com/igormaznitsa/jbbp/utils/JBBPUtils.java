@@ -1026,7 +1026,7 @@ public final class JBBPUtils {
    * @param inStream input stream to be traced, must not be null
    * @param out      destination print stream, must not be null
    * @throws IOException thrown if transport error
-   * @see #traceData(InputStream, int, String, String, String, String, char, boolean, PrintStream)
+   * @see #traceData(InputStream, int, int, String, String, String, String, char, boolean, PrintStream)
    * @since 2.0.3
    */
   public static void traceData(final InputStream inStream, final PrintStream out)
