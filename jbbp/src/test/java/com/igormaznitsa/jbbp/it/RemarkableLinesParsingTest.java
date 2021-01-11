@@ -1,6 +1,7 @@
 package com.igormaznitsa.jbbp.it;
 
 import static com.igormaznitsa.jbbp.io.JBBPByteOrder.LITTLE_ENDIAN;
+import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
@@ -9,6 +10,8 @@ import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPOut;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.mapper.BinType;
+import java.io.PrintWriter;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 public class RemarkableLinesParsingTest extends AbstractParserIntegrationTest {
@@ -48,6 +51,10 @@ public class RemarkableLinesParsingTest extends AbstractParserIntegrationTest {
     assertEquals("reMarkable .lines file, version=5", parsed.header.trim());
     final byte[] written = JBBPOut.BeginBin().Bin(parsed).End().toByteArray();
     assertResource("remarkable1.rm", written);
+
+//    final StringWriter writer = new StringWriter();
+//    parsed.printSvg(new PrintWriter(writer, true));
+//    System.out.println(writer.toString());
   }
 
   public static class RemarkableV5Body {
@@ -58,11 +65,57 @@ public class RemarkableLinesParsingTest extends AbstractParserIntegrationTest {
     @Bin(order = 3, arraySizeExpr = "nlayers")
     public Layer[] layers;
 
+    public void printSvg(final PrintWriter writer) {
+      float maxX = Float.MIN_VALUE;
+      float maxY = Float.MIN_VALUE;
+      for (final Layer l : this.layers) {
+        maxX = Math.max(maxX, l.findMaxX());
+        maxY = Math.max(maxY, l.findMaxY());
+      }
+
+      writer.print(format("<svg version=\"1.1\"" +
+          " baseProfile=\"full\"" +
+          " xmlns=\"http://www.w3.org/2000/svg\"" +
+          " xmlns:xlink=\"http://www.w3.org/1999/xlink\"" +
+          " xmlns:ev=\"http://www.w3.org/2001/xml-events\"" +
+          " width=\"%f\" height=\"%f\">", maxX, maxY));
+      writer.println();
+      writer.print(format("<rect width=\"%f\" height=\"%f\" fill=\"darkgrey\"/>", maxX, maxY));
+      writer.println();
+      for (final Layer layer : layers) {
+        layer.printSvg(writer);
+      }
+      writer.print("</svg>");
+    }
+
     public static class Layer {
       @Bin(order = 1, byteOrder = LITTLE_ENDIAN)
       public int nstrokes;
       @Bin(order = 2, arraySizeExpr = "nstrokes")
       public Stroke[] strokes;
+
+      public void printSvg(final PrintWriter writer) {
+        for (final Stroke stroke : strokes) {
+          stroke.printSvg(writer);
+        }
+        writer.println();
+      }
+
+      public float findMaxX() {
+        float result = Float.MIN_VALUE;
+        for (final Stroke s : strokes) {
+          result = Math.max(result, s.findMaxX());
+        }
+        return result;
+      }
+
+      public float findMaxY() {
+        float result = Float.MIN_VALUE;
+        for (final Stroke s : strokes) {
+          result = Math.max(result, s.findMaxY());
+        }
+        return result;
+      }
 
       public static class Stroke {
         @Bin(order = 1, byteOrder = LITTLE_ENDIAN)
@@ -80,6 +133,67 @@ public class RemarkableLinesParsingTest extends AbstractParserIntegrationTest {
         @Bin(order = 7, arraySizeExpr = "nsegments")
         public Segment[] segments;
 
+        private static String color2svg(final int index) {
+          switch (index) {
+            case 1:
+              return "grey";
+            case 2:
+              return "white";
+            default:
+              return "black";
+          }
+        }
+
+        private static float pen2opacity(final int index) {
+          switch (index) {
+            case 3:
+            case 7:
+            case 13:
+            case 16:
+              return 0.9f;
+            case 5:
+            case 18:
+              return 0.2f;
+            case 8:
+              return 0.0f;
+            default:
+              return 1.0f;
+          }
+        }
+
+        public float findMaxX() {
+          float result = Float.MIN_VALUE;
+          for (final Segment s : segments) {
+            result = Math.max(result, s.x);
+          }
+          return result;
+        }
+
+        public float findMaxY() {
+          float result = Float.MIN_VALUE;
+          for (final Segment s : segments) {
+            result = Math.max(result, s.y);
+          }
+          return result;
+        }
+
+        public void printSvg(final PrintWriter writer) {
+          writer.print(format("<g id=\"%s\" style=\"stroke: %s; fill:none; opacity: %f\">",
+              UUID.randomUUID().toString(), color2svg(this.color), pen2opacity(this.pen)));
+          writer.println();
+          writer.print(format("<polyline stroke-width=\"%f\" points=\"", this.width));
+          String space = "";
+          for (final Segment s : segments) {
+            writer.print(space);
+            s.printSvg(writer);
+            space = " ";
+          }
+          writer.print("\"/>");
+          writer.println();
+          writer.print("</g>");
+          writer.println();
+        }
+
         public static class Segment {
           @Bin(order = 1, byteOrder = LITTLE_ENDIAN)
           public float x;
@@ -93,6 +207,10 @@ public class RemarkableLinesParsingTest extends AbstractParserIntegrationTest {
           public float unknown1;
           @Bin(order = 6, byteOrder = LITTLE_ENDIAN)
           public float unknown2;
+
+          public void printSvg(final PrintWriter writer) {
+            writer.print(format("%f,%f", x, y));
+          }
         }
       }
     }
