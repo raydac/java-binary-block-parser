@@ -14,6 +14,10 @@ import java.io.PrintWriter;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Test of parsing binary RM (reMarkable lines) format for <a href="https://remarkable.com/">Remarkablepaper device</a>
+ * Information about the format was found <a href="https://plasma.ninja/blog/devices/remarkable/binary/format/2017/12/26/reMarkable-lines-file-format.html">here</a>
+ */
 public class RemarkableLinesParsingTest extends AbstractParserIntegrationTest {
 
   private static final String REMARKABLE_V5_LINES = "byte [43] header;" +
