@@ -25,7 +25,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <gradle.executable>gradle</gradle.executable>
-        <gradleGoal>install</gradleGoal>
+        <gradleGoal>publishToMavenLocal</gradleGoal>
     </properties>
 
     <profiles>
@@ -104,9 +104,10 @@
                             <executable>${gradle.executable}</executable>
                             <arguments>
                                 <argument>${gradleGoal}</argument>
-                                <argument>-i</argument>
-                                <argument>-S</argument>
+                                <argument>--info</argument>
+                                <argument>--scan</argument>
                                 <argument>--no-daemon</argument>
+                                <argument>-Djbbp_plugin_version=${project.version}</argument>
                             </arguments>
                         </configuration>
                         <goals>
