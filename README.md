@@ -17,6 +17,10 @@ that for Java. So I developed the JBBP library.<br>
 
 # Change log
 
+- __2.0.4 (SNAPSHOT)__
+  - provided way to filter fields for mapping operations and write object
+    operations [#36](https://github.com/raydac/java-binary-block-parser/issues/36)
+
 - __2.0.3 (03-jan-2021)__
   - added service methods `JBBPUtils.traceData` to print dump of an input stream into a PrintStream
   - improved `JBBPTokenizerException` to show marked error
