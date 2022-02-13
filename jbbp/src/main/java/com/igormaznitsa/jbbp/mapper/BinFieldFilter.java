@@ -19,11 +19,11 @@ package com.igormaznitsa.jbbp.mapper;
 import java.lang.reflect.Field;
 
 /**
- * Filter to check allowed marked fields during mapping.
+ * Filter allows cheeking Bin annotation and fields during mapping or writing operations.
  *
  * @see com.igormaznitsa.jbbp.io.JBBPOut
- * @see JBBPMapper
- * @since 2.0.4
+ * @see JBBPMapper#map
+ * @see com.igormaznitsa.jbbp.io.JBBPOut#Bin
  * @since 2.0.4
  */
 public interface BinFieldFilter {
@@ -31,8 +31,8 @@ public interface BinFieldFilter {
    * Check annotation and field that they allowed.
    *
    * @param annotation bin annotation, must not be null
-   * @param field      marked field, can be null if checked class
-   * @return true if allowed, false otherwise
+   * @param field      marked field, can be null
+   * @return true if field allowed, false otherwise
    */
   boolean isAllowed(Bin annotation, Field field);
 }
