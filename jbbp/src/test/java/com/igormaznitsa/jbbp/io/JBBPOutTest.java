@@ -16,17 +16,6 @@
 
 package com.igormaznitsa.jbbp.io;
 
-import static com.igormaznitsa.jbbp.io.JBBPOut.BeginBin;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
-
 import com.igormaznitsa.jbbp.exceptions.JBBPIllegalArgumentException;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.mapper.BinType;
@@ -34,11 +23,15 @@ import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.utils.BinAnnotationWrapper;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
+import org.junit.jupiter.api.Test;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import org.junit.jupiter.api.Test;
+
+import static com.igormaznitsa.jbbp.io.JBBPOut.BeginBin;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class JBBPOutTest {
 
@@ -830,18 +823,39 @@ public class JBBPOutTest {
         this.c = c;
       }
     }
-    assertArrayEquals(new byte[] {1, (byte) 0x40, 3},
-        BeginBin().Bin(new Test((byte) 1, (byte) 2, (byte) 3)).End().toByteArray());
+    assertArrayEquals(new byte[]{1, (byte) 0x40, 3},
+            BeginBin().Bin(new Test((byte) 1, (byte) 2, (byte) 3)).End().toByteArray());
+  }
+
+  @Test
+  public void testBin_UndefinedType_Byte_WithFilter() throws Exception {
+    class Test {
+
+      @Bin(order = 3)
+      byte c;
+      @Bin(order = 2, bitOrder = JBBPBitOrder.MSB0)
+      byte b;
+      @Bin(order = 1)
+      byte a;
+
+      Test(byte a, byte b, byte c) {
+        this.a = a;
+        this.b = b;
+        this.c = c;
+      }
+    }
+    assertArrayEquals(new byte[]{1, 3},
+            BeginBin().Bin(new Test((byte) 1, (byte) 2, (byte) 3), (b, f) -> f == null || !f.getName().equals("b")).End().toByteArray());
   }
 
   @Test
   public void testBin_Byte_StringAsByteArray() throws Exception {
     assertArrayEquals(new byte[0], BeginBin().Byte("", JBBPBitOrder.LSB0).End().toByteArray());
     assertArrayEquals(new byte[0], BeginBin().Byte("", JBBPBitOrder.MSB0).End().toByteArray());
-    assertArrayEquals(new byte[] {65, 66, 67, 68},
-        BeginBin().Byte("ABCD", JBBPBitOrder.LSB0).End().toByteArray());
-    assertArrayEquals(new byte[] {(byte) 130, 66, (byte) 194, 34},
-        BeginBin().Byte("ABCD", JBBPBitOrder.MSB0).End().toByteArray());
+    assertArrayEquals(new byte[]{65, 66, 67, 68},
+            BeginBin().Byte("ABCD", JBBPBitOrder.LSB0).End().toByteArray());
+    assertArrayEquals(new byte[]{(byte) 130, 66, (byte) 194, 34},
+            BeginBin().Byte("ABCD", JBBPBitOrder.MSB0).End().toByteArray());
   }
 
   @Test
@@ -968,11 +982,11 @@ public class JBBPOutTest {
       byte a = (byte) 0b10101010;
     }
 
-    assertArrayEquals(new byte[] {(byte) 0b00001010},
-        BeginBin().Bin(new Test(), null, null).End().toByteArray());
-    assertArrayEquals(new byte[] {(byte) 0b10101010}, BeginBin()
-        .Bin(new Test(), new BinAnnotationWrapper().setBitNumber(JBBPBitNumber.BITS_8), null).End()
-        .toByteArray());
+    assertArrayEquals(new byte[]{(byte) 0b00001010},
+            BeginBin().Bin(new Test(), null, null, null).End().toByteArray());
+    assertArrayEquals(new byte[]{(byte) 0b10101010}, BeginBin()
+            .Bin(new Test(), new BinAnnotationWrapper().setBitNumber(JBBPBitNumber.BITS_8), null).End()
+            .toByteArray());
     assertArrayEquals(new byte[] {(byte) 0b00000101},
         BeginBin().Bin(new Test(), new BinAnnotationWrapper().setBitOrder(JBBPBitOrder.MSB0), null)
             .End().toByteArray());
@@ -1173,9 +1187,46 @@ public class JBBPOutTest {
       }
     }
 
-    assertArrayEquals(new byte[] {1, 3, 4, 2},
-        BeginBin().Bin(new Test((byte) 1, (byte) 2, new Inside((byte) 3, (byte) 4))).End()
-            .toByteArray());
+    assertArrayEquals(new byte[]{1, 3, 4, 2},
+            BeginBin().Bin(new Test((byte) 1, (byte) 2, new Inside((byte) 3, (byte) 4))).End()
+                    .toByteArray());
+  }
+
+  @Test
+  public void testBin_UndefinedType_Struct_WithFilter() throws Exception {
+    class Inside {
+
+      @Bin(order = 1)
+      byte a;
+      @Bin(order = 2)
+      byte b;
+
+      Inside(byte a, byte b) {
+        this.a = a;
+        this.b = b;
+      }
+    }
+
+    class Test {
+
+      @Bin(order = 2)
+      Inside c;
+      @Bin(order = 1)
+      byte a;
+      @Bin(order = 3)
+      byte b;
+
+      Test(byte a, byte b, Inside c) {
+        this.a = a;
+        this.b = b;
+        this.c = c;
+      }
+    }
+
+    assertArrayEquals(new byte[]{1, 4, 2},
+            BeginBin().Bin(new Test((byte) 1, (byte) 2, new Inside((byte) 3, (byte) 4)),
+                            (b, f) -> f == null || !(f.getDeclaringClass().getSimpleName().equals("Inside") && f.getName().equals("a"))).End()
+                    .toByteArray());
   }
 
   @Test

@@ -16,18 +16,19 @@
 
 package com.igormaznitsa.jbbp.model;
 
-import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_FIELD_EMPTY;
-
-
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.exceptions.JBBPFinderException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTooManyFieldsFoundException;
+import com.igormaznitsa.jbbp.mapper.BinFieldFilter;
 import com.igormaznitsa.jbbp.mapper.JBBPMapper;
 import com.igormaznitsa.jbbp.mapper.JBBPMapperCustomFieldProcessor;
 import com.igormaznitsa.jbbp.model.finder.JBBPFieldFinder;
 import com.igormaznitsa.jbbp.utils.Function;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
+
 import java.util.List;
+
+import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_FIELD_EMPTY;
 
 /**
  * Describes a structure.
@@ -77,7 +78,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
   @Override
   public JBBPAbstractField findFieldForPath(final String fieldPath) {
     final String[] parsedName =
-        JBBPUtils.splitString(JBBPUtils.normalizeFieldNameOrPath(fieldPath), '.');
+            JBBPUtils.splitString(JBBPUtils.normalizeFieldNameOrPath(fieldPath), '.');
 
     JBBPAbstractField found = this;
     final int firstIndex;
@@ -96,8 +97,8 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
         found = ((JBBPFieldStruct) found).findFieldForName(parsedName[i]);
       } else {
         throw new JBBPFinderException(
-            "Detected a field instead of a structure as one of nodes in the path '" + fieldPath +
-                '\'', fieldPath, null);
+                "Detected a field instead of a structure as one of nodes in the path '" + fieldPath +
+                        '\'', fieldPath, null);
       }
     }
 
@@ -135,7 +136,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
     }
     if (counter > 1) {
       throw new JBBPTooManyFieldsFoundException(counter, "Detected more than one field", null,
-          fieldType);
+              fieldType);
     }
     return result;
   }
@@ -314,7 +315,24 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    */
   @SafeVarargs
   public final <T> T mapTo(final T objectToMap, final Function<Class<?>, Object>... instantiators) {
-    return this.mapTo(objectToMap, null, instantiators);
+    return this.mapTo(objectToMap, (JBBPMapperCustomFieldProcessor) null, instantiators);
+  }
+
+  /**
+   * Map the structure fields to object fields.
+   *
+   * @param <T>            expected result type
+   * @param objectToMap    an object to map fields of the structure, must not be
+   *                       null
+   * @param binFieldFilter filter allows to exclude some fields from process, can be null
+   * @param instantiators  array of functions which can instantiate object of required class, must not be null
+   * @return the same object from the arguments but with filled fields by values
+   * of the structure
+   * @since 2.0.4
+   */
+  @SafeVarargs
+  public final <T> T mapTo(final T objectToMap, final BinFieldFilter binFieldFilter, final Function<Class<?>, Object>... instantiators) {
+    return this.mapTo(objectToMap, null, binFieldFilter, instantiators);
   }
 
   /**
@@ -332,7 +350,27 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
   @SafeVarargs
   public final <T> T mapTo(final T instance, final int flags,
                            final Function<Class<?>, Object>... instantiators) {
-    return this.mapTo(instance, null, flags, instantiators);
+    return this.mapTo(instance, (JBBPMapperCustomFieldProcessor) null, flags, instantiators);
+  }
+
+  /**
+   * Map the structure fields to object fields.
+   *
+   * @param <T>            expected result type
+   * @param instance       object instance to be filled by values, must not be null
+   * @param flags          special flags to tune mapping process
+   * @param binFieldFilter filter to exclude some fields from process, can be null
+   * @param instantiators  array of functions which can instantiate object of required class, must not be null
+   * @return the same object from the arguments but with filled fields by values
+   * of the structure
+   * @see JBBPMapper#FLAG_IGNORE_MISSING_VALUES
+   * @since 2.0.4
+   */
+  @SafeVarargs
+  public final <T> T mapTo(final T instance, final int flags,
+                           final BinFieldFilter binFieldFilter,
+                           final Function<Class<?>, Object>... instantiators) {
+    return this.mapTo(instance, null, flags, binFieldFilter, instantiators);
   }
 
   /**
@@ -358,6 +396,33 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * Map the structure fields to object fields.
    *
    * @param <T>                  expected result type
+   * @param instance             an object to map fields of the structure, must not be
+   *                             null
+   * @param customFieldProcessor a custom field processor to provide values for
+   *                             custom mapping fields, it can be null if there is not any custom field
+   * @param binFieldFilter       filter to exclude some fields, can be null
+   * @param instantiators        array of functions which can instantiate object of required class, must not be null
+   * @return the same object from the arguments but with filled fields by values
+   * of the structure
+   * @since 2.0.4
+   */
+  @SafeVarargs
+  public final <T> T mapTo(final T instance,
+                           final JBBPMapperCustomFieldProcessor customFieldProcessor,
+                           final BinFieldFilter binFieldFilter,
+                           final Function<Class<?>, Object>... instantiators) {
+    return JBBPMapper.map(this,
+            instance,
+            customFieldProcessor,
+            0,
+            binFieldFilter,
+            instantiators);
+  }
+
+  /**
+   * Map the structure fields to object fields.
+   *
+   * @param <T>                  expected result type
    * @param objectToMap          an object to map fields of the structure, must not be
    *                             null
    * @param customFieldProcessor a custom field processor to provide values for
@@ -374,6 +439,29 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
                            final JBBPMapperCustomFieldProcessor customFieldProcessor,
                            final int flags, final Function<Class<?>, Object>... instantiators) {
     return JBBPMapper.map(this, objectToMap, customFieldProcessor, flags, instantiators);
+  }
+
+  /**
+   * Map the structure fields to object fields.
+   *
+   * @param <T>                  expected result type
+   * @param objectToMap          an object to map fields of the structure, must not be
+   *                             null
+   * @param customFieldProcessor a custom field processor to provide values for
+   *                             custom mapping fields, it can be null if there is not any custom field
+   * @param flags                special flags to tune mapping process
+   * @param binFieldFilter       filter to exclude some fields, can be null
+   * @param instantiators        array of functions which can instantiate object of required class, must not be null
+   * @return the same object from the arguments but with filled fields by values
+   * of the structure
+   * @see JBBPMapper#FLAG_IGNORE_MISSING_VALUES
+   * @since 2.0.4
+   */
+  @SafeVarargs
+  public final <T> T mapTo(final T objectToMap,
+                           final JBBPMapperCustomFieldProcessor customFieldProcessor,
+                           final int flags, final BinFieldFilter binFieldFilter, final Function<Class<?>, Object>... instantiators) {
+    return JBBPMapper.map(this, objectToMap, customFieldProcessor, flags, binFieldFilter, instantiators);
   }
 
   @Override

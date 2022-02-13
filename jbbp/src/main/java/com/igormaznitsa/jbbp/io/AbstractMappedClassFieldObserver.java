@@ -18,16 +18,14 @@ package com.igormaznitsa.jbbp.io;
 
 import com.igormaznitsa.jbbp.exceptions.JBBPException;
 import com.igormaznitsa.jbbp.exceptions.JBBPIllegalArgumentException;
-import com.igormaznitsa.jbbp.mapper.Bin;
-import com.igormaznitsa.jbbp.mapper.BinType;
-import com.igormaznitsa.jbbp.mapper.JBBPMapper;
-import com.igormaznitsa.jbbp.mapper.MappedFieldRecord;
+import com.igormaznitsa.jbbp.mapper.*;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldShort;
 import com.igormaznitsa.jbbp.model.JBBPFieldString;
 import com.igormaznitsa.jbbp.utils.BinAnnotationWrapper;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.List;
@@ -68,7 +66,7 @@ public abstract class AbstractMappedClassFieldObserver {
   private static void assertFieldArray(final Field field) {
     if (!field.getType().isArray()) {
       throw new IllegalArgumentException(
-          "Detected non-array field marked to be written as an array [" + field + ']');
+              "Detected non-array field marked to be written as an array [" + field + ']');
     }
   }
 
@@ -83,35 +81,61 @@ public abstract class AbstractMappedClassFieldObserver {
    * @since 2.0.2
    */
   protected void processObject(
-      final Object obj,
-      final Field field,
-      final BinAnnotationWrapper binAnnotationWrapper,
-      final Object customFieldProcessor
+          final Object obj,
+          final Field field,
+          final BinAnnotationWrapper binAnnotationWrapper,
+          final Object customFieldProcessor
+  ) {
+    this.processObject(obj, field, binAnnotationWrapper, null, customFieldProcessor);
+  }
+
+  /**
+   * Process an object. It works only with classes and fields marked by Bin annotations. <b>It doesn't process classes and fields marked by DslBinCustom annotations.</b>
+   *
+   * @param obj                  an object which is an instance of a mapped class, must not be null
+   * @param field                a field where the object has been found, it can be null for first call
+   * @param binAnnotationWrapper wrapper to replace Bin annotation values for processing fields, can be null to be ignored
+   * @param binFieldFilter       filter for mapped fields, alows to exclude some of them, can be null
+   * @param customFieldProcessor a processor for custom fields, it can be null
+   * @see Bin
+   * @since 2.0.4
+   */
+  protected void processObject(
+          final Object obj,
+          final Field field,
+          final BinAnnotationWrapper binAnnotationWrapper,
+          final BinFieldFilter binFieldFilter,
+          final Object customFieldProcessor
   ) {
     JBBPUtils.assertNotNull(obj, "Object must not be null");
 
-    final List<MappedFieldRecord> orderedFields = JBBPMapper.findAffectedFields(obj);
+    final List<MappedFieldRecord> orderedFields = JBBPMapper.findAffectedFields(obj, binFieldFilter);
 
     final Bin clazzAnno = obj.getClass().getAnnotation(Bin.class);
     final Bin fieldAnno = field == null ? null : field.getAnnotation(Bin.class);
 
-    this.onStructStart(obj, field, clazzAnno == null ? fieldAnno : clazzAnno);
+    final Bin binAnno = clazzAnno == null ? fieldAnno : clazzAnno;
 
-    for (final MappedFieldRecord rec : orderedFields) {
-      final Bin binAnno = binAnnotationWrapper == null ? rec.binAnnotation :
-          binAnnotationWrapper.setWrapped(rec.binAnnotation);
+    if (binFieldFilter == null || binFieldFilter.isAllowed(binAnno, field)) {
+      this.onStructStart(obj, field, binAnno);
 
-      if (binAnno.custom() && customFieldProcessor == null) {
-        throw new JBBPIllegalArgumentException(
-            "Class '" + obj.getClass().getName() + "' contains field '" +
-                rec.mappingField.getName() +
-                "' which is custom one, you must provide JBBPCustomFieldWriter instance to save it.");
+      for (final MappedFieldRecord rec : orderedFields) {
+        final Bin annotation = binAnnotationWrapper == null ? rec.binAnnotation :
+                binAnnotationWrapper.setWrapped(rec.binAnnotation);
+
+        if (binFieldFilter == null || binFieldFilter.isAllowed(annotation, rec.mappingField)) {
+          if (annotation.custom() && customFieldProcessor == null) {
+            throw new JBBPIllegalArgumentException(
+                    "Class '" + obj.getClass().getName() + "' contains field '" +
+                            rec.mappingField.getName() +
+                            "' which is custom one, you must provide JBBPCustomFieldWriter instance to save it.");
+          }
+          processObjectField(obj, rec, annotation, customFieldProcessor, binFieldFilter);
+        }
       }
 
-      processObjectField(obj, rec, binAnno, customFieldProcessor);
+      this.onStructEnd(obj, field, binAnno);
     }
-
-    this.onStructEnd(obj, field, clazzAnno == null ? fieldAnno : clazzAnno);
   }
 
   /**
@@ -123,23 +147,46 @@ public abstract class AbstractMappedClassFieldObserver {
    *                             must not be null
    * @param customFieldProcessor an object which will be provided for processing
    *                             of custom fields, must not be null if object contains custom fields
-   * @since 2.0.2
+   * @since 2.0.4
    */
   protected void processObjectField(
-      final Object obj,
-      final MappedFieldRecord fieldRecord,
-      final Bin annotation,
-      final Object customFieldProcessor
+          final Object obj,
+          final MappedFieldRecord fieldRecord,
+          final Bin annotation,
+          final Object customFieldProcessor
+  ) {
+    this.processObjectField(obj, fieldRecord, annotation, customFieldProcessor, null);
+  }
+
+  /**
+   * Inside auxiliary method to process a field of an object.
+   *
+   * @param obj                  the object which field under processing, must not be null
+   * @param fieldRecord          internal record about the field, must not be null
+   * @param annotation           the annotation to be used as data source about the field,
+   *                             must not be null
+   * @param customFieldProcessor an object which will be provided for processing
+   *                             of custom fields, must not be null if object contains custom fields
+   * @param binFieldFilter       filter allows to exclude some fields from process, can be null
+   * @since 2.0.4
+   */
+  protected void processObjectField(
+          final Object obj,
+          final MappedFieldRecord fieldRecord,
+          final Bin annotation,
+          final Object customFieldProcessor,
+          final BinFieldFilter binFieldFilter
   ) {
     final Field field = fieldRecord.mappingField;
 
     if (annotation.custom()) {
       this.onFieldCustom(obj, field, annotation, customFieldProcessor,
-          readFieldValue(obj, fieldRecord));
+              readFieldValue(obj, fieldRecord));
     } else {
       final Class<?> fieldType = field.getType();
       final BinAnnotationWrapper wrapper =
-          annotation instanceof BinAnnotationWrapper ? (BinAnnotationWrapper) annotation : null;
+              annotation instanceof BinAnnotationWrapper ? (BinAnnotationWrapper) annotation : null;
+
       final BinType type;
       if (annotation.type() == BinType.UNDEFINED) {
         type = BinType.findCompatible(fieldType);
@@ -154,7 +201,7 @@ public abstract class AbstractMappedClassFieldObserver {
           final JBBPBitNumber bitNumber = annotation.bitNumber();
           if (fieldType == boolean.class) {
             this.onFieldBits(obj, field, annotation, bitNumber,
-                ((Boolean) readFieldValue(obj, fieldRecord)) ? 0xFF : 0x00);
+                    ((Boolean) readFieldValue(obj, fieldRecord)) ? 0xFF : 0x00);
           } else {
             byte value = ((Number) readFieldValue(obj, fieldRecord)).byteValue();
             if (reverseBits) {
@@ -169,7 +216,7 @@ public abstract class AbstractMappedClassFieldObserver {
             onFieldBool(obj, field, annotation, (Boolean) readFieldValue(obj, fieldRecord));
           } else {
             onFieldBool(obj, field, annotation,
-                ((Number) readFieldValue(obj, fieldRecord)).longValue() != 0);
+                    ((Number) readFieldValue(obj, fieldRecord)).longValue() != 0);
           }
         }
         break;
@@ -214,7 +261,7 @@ public abstract class AbstractMappedClassFieldObserver {
           }
           if (reverseBits) {
             value =
-                Float.intBitsToFloat((int) JBBPFieldInt.reverseBits(Float.floatToIntBits(value)));
+                    Float.intBitsToFloat((int) JBBPFieldInt.reverseBits(Float.floatToIntBits(value)));
           }
           this.onFieldFloat(obj, field, annotation, value);
         }
@@ -253,13 +300,13 @@ public abstract class AbstractMappedClassFieldObserver {
 
           if (reverseBits) {
             value =
-                Double.longBitsToDouble(JBBPFieldLong.reverseBits(Double.doubleToLongBits(value)));
+                    Double.longBitsToDouble(JBBPFieldLong.reverseBits(Double.doubleToLongBits(value)));
           }
           this.onFieldDouble(obj, field, annotation, value);
         }
         break;
         case STRUCT: {
-          processObject(readFieldValue(obj, fieldRecord), field, wrapper, customFieldProcessor);
+          processObject(readFieldValue(obj, fieldRecord), field, wrapper, binFieldFilter, customFieldProcessor);
         }
         break;
         default: {
@@ -276,7 +323,7 @@ public abstract class AbstractMappedClassFieldObserver {
               if (fieldType.getComponentType() == boolean.class) {
                 for (int i = 0; i < len; i++) {
                   this.onFieldBits(obj, field, annotation, bitNumber,
-                      (Boolean) Array.get(array, i) ? 0xFF : 0x00);
+                          (Boolean) Array.get(array, i) ? 0xFF : 0x00);
                 }
               } else {
                 for (int i = 0; i < len; i++) {
@@ -386,7 +433,7 @@ public abstract class AbstractMappedClassFieldObserver {
                 float value = Array.getFloat(array, i);
                 if (reverseBits) {
                   value = Float
-                      .intBitsToFloat((int) JBBPFieldInt.reverseBits(Float.floatToIntBits(value)));
+                          .intBitsToFloat((int) JBBPFieldInt.reverseBits(Float.floatToIntBits(value)));
                 }
                 this.onFieldFloat(obj, field, annotation, value);
               }
@@ -445,7 +492,7 @@ public abstract class AbstractMappedClassFieldObserver {
                 double value = ((Number) Array.get(array, i)).doubleValue();
                 if (reverseBits) {
                   value = Double
-                      .longBitsToDouble(JBBPFieldLong.reverseBits(Double.doubleToLongBits(value)));
+                          .longBitsToDouble(JBBPFieldLong.reverseBits(Double.doubleToLongBits(value)));
                 }
                 this.onFieldDouble(obj, field, annotation, value);
               }
@@ -457,14 +504,14 @@ public abstract class AbstractMappedClassFieldObserver {
               final int len = Array.getLength(array);
               this.onArrayStart(obj, field, annotation, len);
               for (int i = 0; i < len; i++) {
-                this.processObject(Array.get(array, i), field, wrapper, customFieldProcessor);
+                this.processObject(Array.get(array, i), field, wrapper, binFieldFilter, customFieldProcessor);
               }
               this.onArrayEnd(obj, field, annotation);
             }
             break;
             default: {
               throw new Error(
-                  "Unexpected situation for field type, contact developer [" + type + ']');
+                      "Unexpected situation for field type, contact developer [" + type + ']');
             }
           }
         }

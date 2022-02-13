@@ -1,32 +1,14 @@
 package com.igormaznitsa.jbbp.mapper;
 
-import static com.igormaznitsa.jbbp.mapper.JBBPMapper.MAKE_CLASS_INSTANCE_METHOD_NAME;
-
-
 import com.igormaznitsa.jbbp.exceptions.JBBPMapperException;
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
-import com.igormaznitsa.jbbp.model.JBBPAbstractArrayField;
-import com.igormaznitsa.jbbp.model.JBBPAbstractField;
-import com.igormaznitsa.jbbp.model.JBBPFieldArrayBit;
-import com.igormaznitsa.jbbp.model.JBBPFieldArrayByte;
-import com.igormaznitsa.jbbp.model.JBBPFieldArrayInt;
-import com.igormaznitsa.jbbp.model.JBBPFieldArrayLong;
-import com.igormaznitsa.jbbp.model.JBBPFieldArrayShort;
-import com.igormaznitsa.jbbp.model.JBBPFieldArrayStruct;
-import com.igormaznitsa.jbbp.model.JBBPFieldArrayUByte;
-import com.igormaznitsa.jbbp.model.JBBPFieldArrayUShort;
-import com.igormaznitsa.jbbp.model.JBBPFieldInt;
-import com.igormaznitsa.jbbp.model.JBBPFieldLong;
-import com.igormaznitsa.jbbp.model.JBBPFieldString;
-import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
-import com.igormaznitsa.jbbp.model.JBBPNumericField;
+import com.igormaznitsa.jbbp.model.*;
 import com.igormaznitsa.jbbp.utils.Function;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+
+import java.lang.reflect.*;
+
+import static com.igormaznitsa.jbbp.mapper.JBBPMapper.MAKE_CLASS_INSTANCE_METHOD_NAME;
 
 public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
   private static final Function<Class<?>, Object> STATIC_MAKE_CLASS_INSTANCE_INSTANTIATOR =
@@ -86,17 +68,17 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
         }
       };
   private static final FieldProcessor PROC_ARRAYS =
-      (record, rootStructure, instance, customFieldProcessor, binField, flags, instantiators) -> {
+          (record, rootStructure, instance, customFieldProcessor, binField, flags, binFieldFilter, instantiators) -> {
 
-        if (binField instanceof JBBPAbstractArrayField) {
-          if (binField instanceof JBBPFieldArrayStruct) {
-            // structure
-            final JBBPFieldArrayStruct structArray = (JBBPFieldArrayStruct) binField;
-            final Class<?> componentType = record.mappingField.getType().getComponentType();
+            if (binField instanceof JBBPAbstractArrayField) {
+              if (binField instanceof JBBPFieldArrayStruct) {
+                // structure
+                final JBBPFieldArrayStruct structArray = (JBBPFieldArrayStruct) binField;
+                final Class<?> componentType = record.mappingField.getType().getComponentType();
 
-            Object valueArray = getFieldValue(instance, record.getter, record.mappingField);
+                Object valueArray = getFieldValue(instance, record.getter, record.mappingField);
 
-            valueArray = valueArray == null ? Array.newInstance(componentType, structArray.size()) :
+                valueArray = valueArray == null ? Array.newInstance(componentType, structArray.size()) :
                 valueArray;
 
             if (Array.getLength(valueArray) != structArray.size()) {
@@ -110,11 +92,11 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
               final Object curInstance = Array.get(valueArray, i);
               if (curInstance == null) {
                 Array.set(valueArray, i, JBBPMapper.map(structArray.getElementAt(i),
-                    tryMakeInstance(componentType, binField, instance, record.mappingField,
-                        instantiators), customFieldProcessor, instantiators));
+                        tryMakeInstance(componentType, binField, instance, record.mappingField,
+                                instantiators), customFieldProcessor, 0, binFieldFilter, instantiators));
               } else {
                 Array.set(valueArray, i,
-                    JBBPMapper.map(structArray.getElementAt(i), curInstance, customFieldProcessor));
+                        JBBPMapper.map(structArray.getElementAt(i), curInstance, customFieldProcessor, 0, binFieldFilter));
               }
             }
             setFieldValue(instance, record.setter, record.mappingField, binField, valueArray);
@@ -130,17 +112,17 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
         }
       };
   private static final FieldProcessor PROC_NUM =
-      (record, rootStructure, instance, customFieldProcessor, binField, flags, instantiators) -> {
-        if (binField instanceof JBBPNumericField) {
-          mapNumericField(instance, record.setter, record.mappingField, (JBBPNumericField) binField,
-              record.binAnnotation.bitOrder() == JBBPBitOrder.MSB0);
-        } else if (binField instanceof JBBPFieldString) {
-          if (record.mappingField.getType().isPrimitive()) {
-            throw new JBBPMapperException("Can't map string to a primitive mapping field", binField,
-                record.mappingClass, record.mappingField, null);
-          } else {
-            setFieldValue(instance, record.setter, record.mappingField, binField,
-                ((JBBPFieldString) binField).getAsString());
+          (record, rootStructure, instance, customFieldProcessor, binField, flags, binFieldFilter, instantiators) -> {
+            if (binField instanceof JBBPNumericField) {
+              mapNumericField(instance, record.setter, record.mappingField, (JBBPNumericField) binField,
+                      record.binAnnotation.bitOrder() == JBBPBitOrder.MSB0);
+            } else if (binField instanceof JBBPFieldString) {
+              if (record.mappingField.getType().isPrimitive()) {
+                throw new JBBPMapperException("Can't map string to a primitive mapping field", binField,
+                        record.mappingClass, record.mappingField, null);
+              } else {
+                setFieldValue(instance, record.setter, record.mappingField, binField,
+                        ((JBBPFieldString) binField).getAsString());
           }
         } else if (binField instanceof JBBPFieldStruct) {
           if (record.mappingField.getType().isPrimitive()) {
@@ -151,9 +133,9 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
             if (curValue == null) {
               if (record.instanceMaker == null) {
                 setFieldValue(instance, record.setter, record.mappingField, binField, JBBPMapper
-                    .map((JBBPFieldStruct) binField,
-                        tryMakeInstance(record.mappingField.getType(), binField, instance,
-                            record.mappingField, instantiators), customFieldProcessor));
+                        .map((JBBPFieldStruct) binField,
+                                tryMakeInstance(record.mappingField.getType(), binField, instance,
+                                        record.mappingField, instantiators), customFieldProcessor, 0, binFieldFilter));
               } else {
                 try {
                   JBBPMapper.map((JBBPFieldStruct) binField, record.instanceMaker.invoke(instance));
@@ -220,7 +202,7 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
       if (thetype == null) {
         throw new IllegalStateException("Can't find compatible mapped type for field");
       } else if (this.mappedBitNumber.getBitNumber() < 8 &&
-          !(thetype == BinType.STRUCT || thetype == BinType.STRUCT_ARRAY)) {
+              !(thetype == BinType.STRUCT || thetype == BinType.STRUCT_ARRAY)) {
         thetype = thetype.isArray() ? BinType.BIT_ARRAY : BinType.BIT;
       }
       this.fieldType = thetype;
@@ -230,7 +212,7 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
     this.bitWideField = this.fieldType == BinType.BIT || fieldType == BinType.BIT_ARRAY;
 
     this.fieldName =
-        binAnnotation.name().length() == 0 ? mappingField.getName() : binAnnotation.name();
+            binAnnotation.name().length() == 0 ? mappingField.getName() : binAnnotation.name();
     this.fieldPath = binAnnotation.path();
 
     if (this.mappingField.getType().isArray()) {
@@ -258,7 +240,7 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
     try {
       final Object value;
       if (arrayField instanceof JBBPFieldArrayLong &&
-          mappingField.getType().getComponentType() == double.class) {
+              mappingField.getType().getComponentType() == double.class) {
         final long[] longarray = (long[]) arrayField.getValueArrayAsObject(invertBitOrder);
         final double[] doublearray = new double[longarray.length];
         for (int i = 0; i < longarray.length; i++) {
@@ -266,7 +248,7 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
         }
         value = doublearray;
       } else if (arrayField instanceof JBBPFieldArrayInt &&
-          mappingField.getType().getComponentType() == float.class) {
+              mappingField.getType().getComponentType() == float.class) {
         final int[] intarray = (int[]) arrayField.getValueArrayAsObject(invertBitOrder);
         final float[] floatarray = new float[intarray.length];
         for (int i = 0; i < intarray.length; i++) {
@@ -274,7 +256,7 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
         }
         value = floatarray;
       } else if (arrayField instanceof JBBPFieldArrayUShort &&
-          mappingField.getType().getComponentType() == char.class) {
+              mappingField.getType().getComponentType() == char.class) {
         final short[] shortarray = (short[]) arrayField.getValueArrayAsObject(invertBitOrder);
         final char[] chararray = new char[shortarray.length];
         for (int i = 0; i < shortarray.length; i++) {
@@ -291,13 +273,13 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
       }
     } catch (IllegalAccessException ex) {
       throw new JBBPMapperException("Can't get access to a mapping field", arrayField,
-          mappingClassInstance.getClass(), mappingField, ex);
+              mappingClassInstance.getClass(), mappingField, ex);
     } catch (IllegalArgumentException ex) {
       throw new JBBPMapperException("Can't set argument to a mapping field", arrayField,
-          mappingClassInstance.getClass(), mappingField, ex);
+              mappingClassInstance.getClass(), mappingField, ex);
     } catch (InvocationTargetException ex) {
       throw new JBBPMapperException("Can't set argument to field through setter", arrayField,
-          mappingClassInstance.getClass(), mappingField, ex);
+              mappingClassInstance.getClass(), mappingField, ex);
     }
   }
 
@@ -365,7 +347,7 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
     try {
       if (fieldClass == byte.class) {
         final byte value = (byte) (invertBitOrder ? numericField.getAsInvertedBitOrder() :
-            numericField.getAsInt());
+                numericField.getAsInt());
         if (setter == null) {
           mappingField.setByte(mappingClassInstance, value);
         } else {
@@ -379,7 +361,7 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
         }
       } else if (fieldClass == char.class) {
         final char value = (char) (invertBitOrder ? numericField.getAsInvertedBitOrder() :
-            numericField.getAsInt());
+                numericField.getAsInt());
         if (setter == null) {
           mappingField.setChar(mappingClassInstance, value);
         } else {
@@ -387,7 +369,7 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
         }
       } else if (fieldClass == short.class) {
         final short value = (short) (invertBitOrder ? numericField.getAsInvertedBitOrder() :
-            numericField.getAsInt());
+                numericField.getAsInt());
         if (setter == null) {
           mappingField.setShort(mappingClassInstance, value);
         } else {
@@ -395,7 +377,7 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
         }
       } else if (fieldClass == int.class) {
         final int value =
-            (int) (invertBitOrder ? numericField.getAsInvertedBitOrder() : numericField.getAsInt());
+                (int) (invertBitOrder ? numericField.getAsInvertedBitOrder() : numericField.getAsInt());
         if (setter == null) {
           mappingField.setInt(mappingClassInstance, value);
         } else {
@@ -403,7 +385,7 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
         }
       } else if (fieldClass == long.class) {
         final long value =
-            (invertBitOrder ? numericField.getAsInvertedBitOrder() : numericField.getAsLong());
+                (invertBitOrder ? numericField.getAsInvertedBitOrder() : numericField.getAsLong());
         if (setter == null) {
           mappingField.setLong(mappingClassInstance, value);
         } else {
@@ -413,12 +395,12 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
         final float value;
         if (numericField instanceof JBBPFieldInt) {
           value =
-              invertBitOrder ? Float.intBitsToFloat((int) numericField.getAsInvertedBitOrder()) :
-                  Float.intBitsToFloat(numericField.getAsInt());
+                  invertBitOrder ? Float.intBitsToFloat((int) numericField.getAsInvertedBitOrder()) :
+                          Float.intBitsToFloat(numericField.getAsInt());
         } else {
           value =
-              invertBitOrder ? Float.intBitsToFloat((int) numericField.getAsInvertedBitOrder()) :
-                  numericField.getAsFloat();
+                  invertBitOrder ? Float.intBitsToFloat((int) numericField.getAsInvertedBitOrder()) :
+                          numericField.getAsFloat();
         }
         if (setter == null) {
           mappingField.setFloat(mappingClassInstance, value);
@@ -429,10 +411,10 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
         final double value;
         if (numericField instanceof JBBPFieldLong) {
           value = invertBitOrder ? Double.longBitsToDouble(numericField.getAsInvertedBitOrder()) :
-              Double.longBitsToDouble(numericField.getAsLong());
+                  Double.longBitsToDouble(numericField.getAsLong());
         } else {
           value = invertBitOrder ? Double.longBitsToDouble(numericField.getAsInvertedBitOrder()) :
-              numericField.getAsDouble();
+                  numericField.getAsDouble();
         }
         if (setter == null) {
           mappingField.setDouble(mappingClassInstance, value);
@@ -441,18 +423,18 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
         }
       } else {
         throw new JBBPMapperException(
-            "Unsupported mapping class field type to be mapped for binary parsed data",
-            (JBBPAbstractField) numericField, mappingClassInstance.getClass(), mappingField, null);
+                "Unsupported mapping class field type to be mapped for binary parsed data",
+                (JBBPAbstractField) numericField, mappingClassInstance.getClass(), mappingField, null);
       }
     } catch (IllegalAccessException ex) {
       throw new JBBPMapperException("Can't get access to a mapping field",
-          (JBBPAbstractField) numericField, mappingClassInstance.getClass(), mappingField, ex);
+              (JBBPAbstractField) numericField, mappingClassInstance.getClass(), mappingField, ex);
     } catch (IllegalArgumentException ex) {
       throw new JBBPMapperException("Can't set argument to a mapping field",
-          (JBBPAbstractField) numericField, mappingClassInstance.getClass(), mappingField, ex);
+              (JBBPAbstractField) numericField, mappingClassInstance.getClass(), mappingField, ex);
     } catch (InvocationTargetException ex) {
       throw new JBBPMapperException("Can't set argument to a mapping field through setter",
-          (JBBPAbstractField) numericField, mappingClassInstance.getClass(), mappingField, ex);
+              (JBBPAbstractField) numericField, mappingClassInstance.getClass(), mappingField, ex);
     }
   }
 
@@ -475,13 +457,13 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
       }
     } catch (IllegalArgumentException ex) {
       throw new JBBPMapperException("Can't set get value from a mapping field", null,
-          classInstance.getClass(), classField, ex);
+              classInstance.getClass(), classField, ex);
     } catch (IllegalAccessException ex) {
       throw new JBBPMapperException("Can't get access to a mapping field", null,
-          classInstance.getClass(), classField, ex);
+              classInstance.getClass(), classField, ex);
     } catch (InvocationTargetException ex) {
       throw new JBBPMapperException("Can't get field value through getter", null,
-          classInstance.getClass(), classField, ex);
+              classInstance.getClass(), classField, ex);
     }
   }
 
@@ -506,23 +488,23 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
       }
     } catch (IllegalArgumentException ex) {
       throw new JBBPMapperException("Can't set value to a mapping field", binField,
-          classInstance.getClass(), classField, ex);
+              classInstance.getClass(), classField, ex);
     } catch (IllegalAccessException ex) {
       throw new JBBPMapperException("Can't get access to a mapping field", binField,
-          classInstance.getClass(), classField, ex);
+              classInstance.getClass(), classField, ex);
     } catch (InvocationTargetException ex) {
       throw new JBBPMapperException("Can't set field value through setter", binField,
-          classInstance.getClass(), classField, ex);
+              classInstance.getClass(), classField, ex);
     }
   }
 
   @SuppressWarnings("TryWithIdenticalCatches")
   private static <T> T tryMakeInstance(
-      final Class<T> type,
-      final JBBPAbstractField binField,
-      final Object mappingObject,
-      final Field mappingField,
-      final Function<Class<?>, Object>[] instantiators
+          final Class<T> type,
+          final JBBPAbstractField binField,
+          final Object mappingObject,
+          final Field mappingField,
+          final Function<Class<?>, Object>[] instantiators
   ) {
     T result = null;
     for (final Function<Class<?>, Object> instantiator : instantiators) {
@@ -536,11 +518,11 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
       Exception detectedException = null;
       try {
         final Method method =
-            mappingObject.getClass().getMethod(MAKE_CLASS_INSTANCE_METHOD_NAME, Class.class);
+                mappingObject.getClass().getMethod(MAKE_CLASS_INSTANCE_METHOD_NAME, Class.class);
         if (!Modifier.isStatic(method.getModifiers())) {
           result = type.cast(
-              mappingObject.getClass().getMethod(MAKE_CLASS_INSTANCE_METHOD_NAME, Class.class)
-                  .invoke(mappingObject, type));
+                  mappingObject.getClass().getMethod(MAKE_CLASS_INSTANCE_METHOD_NAME, Class.class)
+                          .invoke(mappingObject, type));
         }
       } catch (NoSuchMethodException ex) {
         // do nothing
@@ -553,8 +535,8 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
 
       if (detectedException != null) {
         throw new RuntimeException(String
-            .format("Error during %s(%s) call", MAKE_CLASS_INSTANCE_METHOD_NAME,
-                mappingObject.getClass()), detectedException);
+                .format("Error during %s(%s) call", MAKE_CLASS_INSTANCE_METHOD_NAME,
+                        mappingObject.getClass()), detectedException);
       }
 
       if (result == null) {
@@ -566,7 +548,7 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
 
       if (result == null) {
         throw new JBBPMapperException(String.format("Can't create instance of %s", type), binField,
-            mappingObject.getClass(), mappingField, null);
+                mappingObject.getClass(), mappingField, null);
       }
     }
     return result;
@@ -589,13 +571,14 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
   interface FieldProcessor {
     @SuppressWarnings("unchecked")
     void apply(
-        MappedFieldRecord record,
-        JBBPFieldStruct rootStructure,
-        Object instance,
-        JBBPMapperCustomFieldProcessor customFieldProcessor,
-        JBBPAbstractField binField,
-        int flags,
-        Function<Class<?>, Object>... instantiators
+            MappedFieldRecord record,
+            JBBPFieldStruct rootStructure,
+            Object instance,
+            JBBPMapperCustomFieldProcessor customFieldProcessor,
+            JBBPAbstractField binField,
+            int flags,
+            BinFieldFilter binFieldFilter,
+            Function<Class<?>, Object>... instantiators
     );
   }
 }
