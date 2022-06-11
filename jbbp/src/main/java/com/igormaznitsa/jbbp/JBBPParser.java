@@ -18,7 +18,6 @@ package com.igormaznitsa.jbbp;
 
 import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_FIELD_EMPTY;
 
-
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiler;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
@@ -43,6 +42,7 @@ import com.igormaznitsa.jbbp.model.JBBPFieldArrayShort;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayString;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayStruct;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayUByte;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayUInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayUShort;
 import com.igormaznitsa.jbbp.model.JBBPFieldBit;
 import com.igormaznitsa.jbbp.model.JBBPFieldBoolean;
@@ -55,6 +55,7 @@ import com.igormaznitsa.jbbp.model.JBBPFieldShort;
 import com.igormaznitsa.jbbp.model.JBBPFieldString;
 import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import com.igormaznitsa.jbbp.model.JBBPFieldUByte;
+import com.igormaznitsa.jbbp.model.JBBPFieldUInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldUShort;
 import com.igormaznitsa.jbbp.model.JBBPNumericField;
 import com.igormaznitsa.jbbp.utils.JBBPIntCounter;
@@ -476,10 +477,15 @@ public final class JBBPParser {
           case JBBPCompiler.CODE_BYTE: {
             if (resultNotIgnored) {
               if (arrayLength < 0) {
-                singleAtomicField = new JBBPFieldByte(name, (byte) inStream.readByte());
+                singleAtomicField = fieldTypeDiff ?
+                    new JBBPFieldUInt(name, inStream.readInt(byteOrder) & 0xFFFFFFFFL) :
+                    new JBBPFieldByte(name, (byte) inStream.readByte());
               } else {
-                structureFields.add(new JBBPFieldArrayByte(name,
-                    inStream.readByteArray(wholeStreamArray ? -1 : arrayLength, byteOrder)));
+                structureFields.add(fieldTypeDiff ?
+                    new JBBPFieldArrayUInt(name,
+                        inStream.readIntArray(wholeStreamArray ? -1 : arrayLength, byteOrder)) :
+                    new JBBPFieldArrayByte(name,
+                        inStream.readByteArray(wholeStreamArray ? -1 : arrayLength, byteOrder)));
               }
             }
           }

@@ -23,7 +23,6 @@ import com.igormaznitsa.jbbp.mapper.JBBPMapper;
 import com.igormaznitsa.jbbp.model.JBBPFieldShort;
 import com.igormaznitsa.jbbp.utils.BinAnnotationWrapper;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -808,6 +807,20 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
     return this;
   }
 
+  @Override
+  protected void onFieldUInt(final Object obj, final Field field, final Bin annotation,
+                             final int value) {
+    final JBBPByteOrder old = this.byteOrder;
+    try {
+      this.byteOrder = annotation.byteOrder();
+      this.UInt(value);
+    } catch (IOException ex) {
+      throw new JBBPIOException("Can't write unsigned int value", ex);
+    } finally {
+      this.byteOrder = old;
+    }
+  }
+
   /**
    * Write a float value array as integer bits into the stream.
    *
@@ -1219,6 +1232,25 @@ public final class JBBPOut extends AbstractMappedClassFieldObserver {
     } finally {
       this.byteOrder = old;
     }
+  }
+
+  /**
+   * Write each long value as unsigned integer one into the session stream.
+   *
+   * @param value a long value array which values should be written into
+   * @return the DSl session
+   * @throws IOException it will be thrown for transport errors
+   * @since 2.0.4
+   */
+  public JBBPOut UInt(final long... value) throws IOException {
+    assertNotEnded();
+    assertArrayNotNull(value);
+    if (this.processCommands) {
+      for (final long v : value) {
+        _writeInt((int) v);
+      }
+    }
+    return this;
   }
 
   @Override

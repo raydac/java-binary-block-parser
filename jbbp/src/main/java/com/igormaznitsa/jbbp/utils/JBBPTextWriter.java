@@ -34,6 +34,7 @@ import com.igormaznitsa.jbbp.model.JBBPFieldArrayShort;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayString;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayStruct;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayUByte;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayUInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayUShort;
 import com.igormaznitsa.jbbp.model.JBBPFieldBit;
 import com.igormaznitsa.jbbp.model.JBBPFieldBoolean;
@@ -46,6 +47,7 @@ import com.igormaznitsa.jbbp.model.JBBPFieldShort;
 import com.igormaznitsa.jbbp.model.JBBPFieldString;
 import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import com.igormaznitsa.jbbp.model.JBBPFieldUByte;
+import com.igormaznitsa.jbbp.model.JBBPFieldUInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldUShort;
 import com.igormaznitsa.jbbp.model.JBBPNumericField;
 import java.io.FilterWriter;
@@ -1047,6 +1049,41 @@ public class JBBPTextWriter extends FilterWriter {
   }
 
   /**
+   * Print unsigned integer value
+   *
+   * @param value value to be printed
+   * @return the context
+   * @throws IOException it will be thrown for transport error
+   * @since 2.0.4
+   */
+  public JBBPTextWriter UInt(final int value) throws IOException {
+    ensureValueMode();
+
+    String convertedByExtras = null;
+    for (final Extra e : this.extras) {
+      convertedByExtras = e.doConvertUIntToStr(this, value);
+      if (convertedByExtras != null) {
+        break;
+      }
+    }
+
+    if (convertedByExtras == null) {
+      final long valueToWrite;
+      if (this.byteOrder == JBBPByteOrder.LITTLE_ENDIAN) {
+        valueToWrite = JBBPUtils.reverseByteOrder(value, 4);
+      } else {
+        valueToWrite = value;
+      }
+      printValueString(JBBPUtils.ensureMinTextLength(
+          JBBPUtils.ulong2str(valueToWrite & 0xFFFFFFFFL, this.radix, CHAR_BUFFER),
+          this.maxCharsRadixForInt, '0', 0));
+    } else {
+      printValueString(convertedByExtras);
+    }
+    return this;
+  }
+
+  /**
    * Print integer array.
    *
    * @param values integer array to be printed, must not be null
@@ -1055,6 +1092,18 @@ public class JBBPTextWriter extends FilterWriter {
    */
   public JBBPTextWriter Int(final int[] values) throws IOException {
     return this.Int(values, 0, values.length);
+  }
+
+  /**
+   * Print unsigned integer array.
+   *
+   * @param values unsigned integer array to be printed, must not be null
+   * @return the context
+   * @throws IOException it will be thrown for transport error
+   * @since 2.0.4
+   */
+  public JBBPTextWriter UInt(final int[] values) throws IOException {
+    return this.UInt(values, 0, values.length);
   }
 
   /**
@@ -1069,6 +1118,23 @@ public class JBBPTextWriter extends FilterWriter {
   public JBBPTextWriter Int(final int[] values, int off, int len) throws IOException {
     while (len-- > 0) {
       this.Int(values[off++]);
+    }
+    return this;
+  }
+
+  /**
+   * Print values from unsigned integer array.
+   *
+   * @param values unsigned integer array, must not be null
+   * @param off    offset to the first element in array
+   * @param len    number of elements to print
+   * @return the context
+   * @throws IOException it will be thrown for transport error
+   * @since 2.0.4
+   */
+  public JBBPTextWriter UInt(final int[] values, int off, int len) throws IOException {
+    while (len-- > 0) {
+      this.UInt(values[off++]);
     }
     return this;
   }
@@ -1389,6 +1455,8 @@ public class JBBPTextWriter extends FilterWriter {
             Byte(((JBBPFieldArrayByte) array).getArray());
           } else if (array instanceof JBBPFieldArrayInt) {
             Int(((JBBPFieldArrayInt) array).getArray());
+          } else if (array instanceof JBBPFieldArrayUInt) {
+            UInt(((JBBPFieldArrayUInt) array).getInternalArray());
           } else if (array instanceof JBBPFieldArrayLong) {
             Long(((JBBPFieldArrayLong) array).getArray());
           } else if (array instanceof JBBPFieldArrayShort) {
@@ -1439,6 +1507,8 @@ public class JBBPTextWriter extends FilterWriter {
           Byte(numeric.getAsInt());
         } else if (numeric instanceof JBBPFieldInt) {
           Int(numeric.getAsInt());
+        } else if (numeric instanceof JBBPFieldUInt) {
+          UInt(numeric.getAsInt());
         } else if (numeric instanceof JBBPFieldLong) {
           Long(numeric.getAsLong());
         } else if (numeric instanceof JBBPFieldShort) {
@@ -1703,6 +1773,17 @@ public class JBBPTextWriter extends FilterWriter {
      * @throws IOException it can be thrown for transport error
      */
     String doConvertIntToStr(JBBPTextWriter context, int value) throws IOException;
+
+    /**
+     * Convert unsigned integer value to string representation.
+     *
+     * @param context the context, must not be null
+     * @param value   the unsigned integer value to be converted
+     * @return string representation of the integer value, must not return null
+     * @throws IOException it can be thrown for transport error
+     * @since 2.0.4
+     */
+    String doConvertUIntToStr(JBBPTextWriter context, int value) throws IOException;
 
     /**
      * Convert float value to string representation.

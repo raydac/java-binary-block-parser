@@ -20,6 +20,7 @@ import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.model.JBBPFieldDouble;
 import com.igormaznitsa.jbbp.model.JBBPFieldFloat;
 import com.igormaznitsa.jbbp.model.JBBPFieldString;
+import com.igormaznitsa.jbbp.model.JBBPFieldUInt;
 import java.io.Serializable;
 
 /**
@@ -108,18 +109,21 @@ public final class JBBPFieldTypeParameterContainer implements Serializable {
   }
 
   /**
-   * Check that the type is a special one ('floatj', 'doublej', 'stringj' or 'value').
+   * Check that the type is a special one ('floatj', 'doublej', 'stringj', 'uint' or 'value').
    *
    * @return true if the type is a special one
    * @see JBBPFieldFloat#TYPE_NAME
    * @see JBBPFieldDouble#TYPE_NAME
    * @see JBBPFieldString#TYPE_NAME
+   * @see JBBPFieldUInt#TYPE_NAME
    * @since 1.4.0
    */
   public boolean isSpecialField() {
-    return this.typeName.equals(JBBPFieldFloat.TYPE_NAME) ||
-        this.typeName.equals(JBBPFieldDouble.TYPE_NAME) ||
-        this.typeName.equals(JBBPFieldString.TYPE_NAME) || this.typeName.equals("val");
+    return this.typeName.equals(JBBPFieldFloat.TYPE_NAME)
+        || this.typeName.equals(JBBPFieldDouble.TYPE_NAME)
+        || this.typeName.equals(JBBPFieldString.TYPE_NAME)
+        || this.typeName.equals(JBBPFieldUInt.TYPE_NAME)
+        || this.typeName.equals("val");
   }
 
   @Override

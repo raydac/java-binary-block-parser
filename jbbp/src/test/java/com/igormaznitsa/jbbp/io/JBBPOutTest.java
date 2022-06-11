@@ -16,6 +16,16 @@
 
 package com.igormaznitsa.jbbp.io;
 
+import static com.igormaznitsa.jbbp.io.JBBPOut.BeginBin;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import com.igormaznitsa.jbbp.exceptions.JBBPIllegalArgumentException;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.mapper.BinType;
@@ -23,15 +33,11 @@ import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.utils.BinAnnotationWrapper;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-import org.junit.jupiter.api.Test;
-
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
-
-import static com.igormaznitsa.jbbp.io.JBBPOut.BeginBin;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class JBBPOutTest {
 
@@ -372,9 +378,23 @@ public class JBBPOutTest {
   }
 
   @Test
+  public void testUInt() throws Exception {
+    assertArrayEquals(new byte[] {0x01, 0x02, 0x03, 0x04},
+        BeginBin().UInt(0x01020304).End().toByteArray());
+    assertArrayEquals(new byte[] {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xF1},
+        BeginBin().UInt(0xFFFFFFFF1L).End().toByteArray());
+  }
+
+  @Test
   public void testIntArray() throws Exception {
     assertArrayEquals(new byte[] {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08},
         BeginBin().Int(0x01020304, 0x05060708).End().toByteArray());
+  }
+
+  @Test
+  public void testUIntArray() throws Exception {
+    assertArrayEquals(new byte[] {(byte) 0xF1, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08},
+        BeginBin().UInt(0x1F1020304L, 0x05060708L).End().toByteArray());
   }
 
   @Test
@@ -384,9 +404,21 @@ public class JBBPOutTest {
   }
 
   @Test
+  public void testUInt_BigEndian() throws Exception {
+    assertArrayEquals(new byte[] {(byte) 0xF1, 0x02, 0x03, 0x04},
+        BeginBin().ByteOrder(JBBPByteOrder.BIG_ENDIAN).UInt(0x1F1020304L).End().toByteArray());
+  }
+
+  @Test
   public void testInt_LittleEndian() throws Exception {
     assertArrayEquals(new byte[] {0x04, 0x03, 0x02, 0x01},
         BeginBin().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).Int(0x01020304).End().toByteArray());
+  }
+
+  @Test
+  public void testUInt_LittleEndian() throws Exception {
+    assertArrayEquals(new byte[] {0x04, 0x03, 0x02, (byte) 0xF1},
+        BeginBin().ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).UInt(0x1F1020304L).End().toByteArray());
   }
 
   @Test
@@ -873,6 +905,36 @@ public class JBBPOutTest {
   public void testBin_StaticField() throws Exception {
     assertArrayEquals(new byte[] {1, (byte) 0x40, 3},
         BeginBin().Bin(new TestWithStaticField((byte) 1, (byte) 2, (byte) 3)).End().toByteArray());
+  }
+
+  @Test
+  public void testBin_LongUintField() throws Exception {
+    assertArrayEquals(new byte[] {(byte) 0xFA, (byte) 0xBC, (byte) 0xDE, (byte) 0x01},
+        BeginBin().Bin(new TestWithLongUintField(0x1FABCDE01L)).End().toByteArray());
+  }
+
+  @Test
+  public void testBin_IntUintField() throws Exception {
+    assertArrayEquals(new byte[] {(byte) 0xFA, (byte) 0xBC, (byte) 0xDE, (byte) 0x01},
+        BeginBin().Bin(new TestWithIntUintField(0xFABCDE01)).End().toByteArray());
+  }
+
+  @Test
+  public void testBin_LongUintArrayField() throws Exception {
+    assertArrayEquals(
+        new byte[] {(byte) 0xFA, (byte) 0xBC, (byte) 0xDE, (byte) 0x01, (byte) 0x02, (byte) 0x03,
+            (byte) 0x04, (byte) 0x05},
+        BeginBin().Bin(new TestWithLongUintArrayField(new long[] {0x1FABCDE01L, 0x0102030405L}))
+            .End().toByteArray());
+  }
+
+  @Test
+  public void testBin_IntUintArrayField() throws Exception {
+    assertArrayEquals(
+        new byte[] {(byte) 0xFA, (byte) 0xBC, (byte) 0xDE, (byte) 0x01, (byte) 0x02, (byte) 0x03,
+            (byte) 0x04, (byte) 0x05},
+        BeginBin().Bin(new TestWithIntUintArrayField(new int[] {0xFABCDE01, 0x02030405})).End()
+            .toByteArray());
   }
 
   @Test
@@ -1562,5 +1624,43 @@ public class JBBPOutTest {
     }
   }
 
+  @Bin
+  private static class TestWithLongUintField {
+    @Bin(type = BinType.UINT)
+    long a;
 
+    TestWithLongUintField(long value) {
+      this.a = value;
+    }
+  }
+
+  @Bin
+  private static class TestWithIntUintField {
+    @Bin(type = BinType.UINT)
+    int a;
+
+    TestWithIntUintField(int value) {
+      this.a = value;
+    }
+  }
+
+  @Bin
+  private static class TestWithLongUintArrayField {
+    @Bin(type = BinType.UINT_ARRAY)
+    long[] a;
+
+    TestWithLongUintArrayField(long[] value) {
+      this.a = value;
+    }
+  }
+
+  @Bin
+  private static class TestWithIntUintArrayField {
+    @Bin(type = BinType.UINT_ARRAY)
+    int[] a;
+
+    TestWithIntUintArrayField(int[] value) {
+      this.a = value;
+    }
+  }
 }

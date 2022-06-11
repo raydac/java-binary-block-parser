@@ -91,4 +91,8 @@ public abstract class JBBPTextWriterExtraAdapter implements JBBPTextWriter.Extra
 
   }
 
+  @Override
+  public String doConvertUIntToStr(JBBPTextWriter context, int value) throws IOException {
+    return null;
+  }
 }

@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.it.AbstractParserIntegrationTest;
@@ -452,9 +451,24 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
   }
 
   @Test
+  public void testUInt_OneValue() throws Exception {
+    final JBBPTextWriter writer = makeWriter();
+    writer.UInt(0x12345678);
+    writer.UInt(-1);
+    assertEquals(".0x12345678,0xFFFFFFFF", writer.Close().toString());
+  }
+
+  @Test
   public void testInt_Array() throws Exception {
     final JBBPTextWriter writer = makeWriter();
     writer.Int(new int[] {0x12345678, -1});
+    assertEquals(".0x12345678,0xFFFFFFFF", writer.Close().toString());
+  }
+
+  @Test
+  public void testUInt_Array() throws Exception {
+    final JBBPTextWriter writer = makeWriter();
+    writer.UInt(new int[] {0x12345678, -1});
     assertEquals(".0x12345678,0xFFFFFFFF", writer.Close().toString());
   }
 
@@ -466,9 +480,23 @@ public class JBBPTextWriterTest extends AbstractParserIntegrationTest {
   }
 
   @Test
+  public void testUInt_Array_InversedByteOrder() throws Exception {
+    final JBBPTextWriter writer = makeWriter();
+    writer.ByteOrder(JBBPByteOrder.LITTLE_ENDIAN).UInt(new int[] {0x12345678, -1});
+    assertEquals(".0x78563412,0xFFFFFFFF", writer.Close().toString());
+  }
+
+  @Test
   public void testInt_PartOfArray() throws Exception {
     final JBBPTextWriter writer = makeWriter();
     writer.Int(new int[] {0, 0x12345678, -1, 0}, 1, 2);
+    assertEquals(".0x12345678,0xFFFFFFFF", writer.Close().toString());
+  }
+
+  @Test
+  public void testUInt_PartOfArray() throws Exception {
+    final JBBPTextWriter writer = makeWriter();
+    writer.UInt(new int[] {0, 0x12345678, -1, 0}, 1, 2);
     assertEquals(".0x12345678,0xFFFFFFFF", writer.Close().toString());
   }
 

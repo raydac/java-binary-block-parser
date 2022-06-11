@@ -28,6 +28,7 @@ import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.model.JBBPFieldDouble;
 import com.igormaznitsa.jbbp.model.JBBPFieldFloat;
 import com.igormaznitsa.jbbp.model.JBBPFieldString;
+import com.igormaznitsa.jbbp.model.JBBPFieldUInt;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -630,6 +631,7 @@ public final class JBBPCompiler {
             result |= CODE_UBYTE;
             break;
           case "byte":
+          case JBBPFieldUInt.TYPE_NAME:
             result |= CODE_BYTE;
             break;
           case "ushort":

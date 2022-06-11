@@ -28,6 +28,7 @@ import com.igormaznitsa.jbbp.model.JBBPFieldArrayShort;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayString;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayStruct;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayUByte;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayUInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayUShort;
 import com.igormaznitsa.jbbp.model.JBBPFieldBit;
 import com.igormaznitsa.jbbp.model.JBBPFieldBoolean;
@@ -40,6 +41,7 @@ import com.igormaznitsa.jbbp.model.JBBPFieldShort;
 import com.igormaznitsa.jbbp.model.JBBPFieldString;
 import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import com.igormaznitsa.jbbp.model.JBBPFieldUByte;
+import com.igormaznitsa.jbbp.model.JBBPFieldUInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldUShort;
 
 /**
@@ -83,6 +85,10 @@ public enum BinType {
    * A Mapping field will be mapped to a parsed integer field.
    */
   INT(JBBPFieldInt.class, false),
+  /**
+   * A Mapping field will be mapped to a parsed unsigned integer field.
+   */
+  UINT(JBBPFieldUInt.class, false),
   /**
    * A Mapping field will be mapped to a parsed double field.
    *
@@ -133,6 +139,10 @@ public enum BinType {
    * A Mapping field will be mapped to a parsed integer array field.
    */
   INT_ARRAY(JBBPFieldArrayInt.class, true),
+  /**
+   * A Mapping field will be mapped to a parsed unsigned integer array field.
+   */
+  UINT_ARRAY(JBBPFieldArrayUInt.class, true),
   /**
    * A Mapping field will be mapped to a parsed long array field.
    */

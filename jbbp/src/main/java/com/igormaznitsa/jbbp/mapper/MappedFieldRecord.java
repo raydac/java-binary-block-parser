@@ -1,14 +1,32 @@
 package com.igormaznitsa.jbbp.mapper;
 
+import static com.igormaznitsa.jbbp.mapper.JBBPMapper.MAKE_CLASS_INSTANCE_METHOD_NAME;
+
 import com.igormaznitsa.jbbp.exceptions.JBBPMapperException;
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
-import com.igormaznitsa.jbbp.model.*;
+import com.igormaznitsa.jbbp.model.JBBPAbstractArrayField;
+import com.igormaznitsa.jbbp.model.JBBPAbstractField;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayBit;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayByte;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayInt;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayLong;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayShort;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayStruct;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayUByte;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayUInt;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayUShort;
+import com.igormaznitsa.jbbp.model.JBBPFieldInt;
+import com.igormaznitsa.jbbp.model.JBBPFieldLong;
+import com.igormaznitsa.jbbp.model.JBBPFieldString;
+import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
+import com.igormaznitsa.jbbp.model.JBBPNumericField;
 import com.igormaznitsa.jbbp.utils.Function;
-
-import java.lang.reflect.*;
-
-import static com.igormaznitsa.jbbp.mapper.JBBPMapper.MAKE_CLASS_INSTANCE_METHOD_NAME;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
   private static final Function<Class<?>, Object> STATIC_MAKE_CLASS_INSTANCE_INSTANTIATOR =
@@ -240,23 +258,47 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
     try {
       final Object value;
       if (arrayField instanceof JBBPFieldArrayLong &&
-              mappingField.getType().getComponentType() == double.class) {
-        final long[] longarray = (long[]) arrayField.getValueArrayAsObject(invertBitOrder);
-        final double[] doublearray = new double[longarray.length];
-        for (int i = 0; i < longarray.length; i++) {
-          doublearray[i] = Double.longBitsToDouble(longarray[i]);
+          mappingField.getType().getComponentType() == double.class) {
+        final long[] longArray = (long[]) arrayField.getValueArrayAsObject(invertBitOrder);
+        final double[] doubleArray = new double[longArray.length];
+        for (int i = 0; i < longArray.length; i++) {
+          doubleArray[i] = Double.longBitsToDouble(longArray[i]);
         }
-        value = doublearray;
+        value = doubleArray;
+      } else if (arrayField instanceof JBBPFieldArrayUInt &&
+          mappingField.getType().getComponentType() == double.class) {
+        final long[] longArray = (long[]) arrayField.getValueArrayAsObject(invertBitOrder);
+        final double[] doubleArray = new double[longArray.length];
+        for (int i = 0; i < longArray.length; i++) {
+          doubleArray[i] = Double.longBitsToDouble(longArray[i]);
+        }
+        value = doubleArray;
       } else if (arrayField instanceof JBBPFieldArrayInt &&
-              mappingField.getType().getComponentType() == float.class) {
-        final int[] intarray = (int[]) arrayField.getValueArrayAsObject(invertBitOrder);
-        final float[] floatarray = new float[intarray.length];
-        for (int i = 0; i < intarray.length; i++) {
-          floatarray[i] = Float.intBitsToFloat(intarray[i]);
+          mappingField.getType().getComponentType() == float.class) {
+        final int[] intArray = (int[]) arrayField.getValueArrayAsObject(invertBitOrder);
+        final float[] floatArray = new float[intArray.length];
+        for (int i = 0; i < intArray.length; i++) {
+          floatArray[i] = Float.intBitsToFloat(intArray[i]);
         }
-        value = floatarray;
+        value = floatArray;
+      } else if (arrayField instanceof JBBPFieldArrayUInt &&
+          mappingField.getType().getComponentType() == float.class) {
+        final long[] longArray = (long[]) arrayField.getValueArrayAsObject(invertBitOrder);
+        final float[] floatArray = new float[longArray.length];
+        for (int i = 0; i < longArray.length; i++) {
+          floatArray[i] = Float.intBitsToFloat((int) longArray[i]);
+        }
+        value = floatArray;
+      } else if (arrayField instanceof JBBPFieldArrayUInt &&
+          mappingField.getType().getComponentType() == int.class) {
+        final long[] longArray = (long[]) arrayField.getValueArrayAsObject(invertBitOrder);
+        final int[] intArray = new int[longArray.length];
+        for (int i = 0; i < longArray.length; i++) {
+          intArray[i] = (int) longArray[i];
+        }
+        value = intArray;
       } else if (arrayField instanceof JBBPFieldArrayUShort &&
-              mappingField.getType().getComponentType() == char.class) {
+          mappingField.getType().getComponentType() == char.class) {
         final short[] shortarray = (short[]) arrayField.getValueArrayAsObject(invertBitOrder);
         final char[] chararray = new char[shortarray.length];
         for (int i = 0; i < shortarray.length; i++) {

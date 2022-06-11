@@ -22,6 +22,7 @@ import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.model.JBBPFieldDouble;
 import com.igormaznitsa.jbbp.model.JBBPFieldFloat;
 import com.igormaznitsa.jbbp.model.JBBPFieldString;
+import com.igormaznitsa.jbbp.model.JBBPFieldUInt;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -61,6 +62,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
     GLOBAL_RESERVED_TYPE_NAMES.add(JBBPFieldFloat.TYPE_NAME);
     GLOBAL_RESERVED_TYPE_NAMES.add(JBBPFieldDouble.TYPE_NAME);
     GLOBAL_RESERVED_TYPE_NAMES.add(JBBPFieldString.TYPE_NAME);
+    GLOBAL_RESERVED_TYPE_NAMES.add(JBBPFieldUInt.TYPE_NAME);
     GLOBAL_RESERVED_TYPE_NAMES.add("bit");
     GLOBAL_RESERVED_TYPE_NAMES.add("bool");
     GLOBAL_RESERVED_TYPE_NAMES.add("byte");

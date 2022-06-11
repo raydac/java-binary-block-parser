@@ -18,14 +18,18 @@ package com.igormaznitsa.jbbp.io;
 
 import com.igormaznitsa.jbbp.exceptions.JBBPException;
 import com.igormaznitsa.jbbp.exceptions.JBBPIllegalArgumentException;
-import com.igormaznitsa.jbbp.mapper.*;
+import com.igormaznitsa.jbbp.mapper.Bin;
+import com.igormaznitsa.jbbp.mapper.BinFieldFilter;
+import com.igormaznitsa.jbbp.mapper.BinType;
+import com.igormaznitsa.jbbp.mapper.JBBPMapper;
+import com.igormaznitsa.jbbp.mapper.MappedFieldRecord;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldShort;
 import com.igormaznitsa.jbbp.model.JBBPFieldString;
+import com.igormaznitsa.jbbp.model.JBBPFieldUInt;
 import com.igormaznitsa.jbbp.utils.BinAnnotationWrapper;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.List;
@@ -252,6 +256,15 @@ public abstract class AbstractMappedClassFieldObserver {
           this.onFieldInt(obj, field, annotation, value);
         }
         break;
+        case UINT: {
+          long value;
+          value = ((Number) readFieldValue(obj, fieldRecord)).longValue();
+          if (reverseBits) {
+            value = (int) JBBPFieldUInt.reverseBits(value);
+          }
+          this.onFieldUInt(obj, field, annotation, (int) value);
+        }
+        break;
         case FLOAT: {
           float value;
           if (float.class == fieldType) {
@@ -261,7 +274,7 @@ public abstract class AbstractMappedClassFieldObserver {
           }
           if (reverseBits) {
             value =
-                    Float.intBitsToFloat((int) JBBPFieldInt.reverseBits(Float.floatToIntBits(value)));
+                Float.intBitsToFloat((int) JBBPFieldInt.reverseBits(Float.floatToIntBits(value)));
           }
           this.onFieldFloat(obj, field, annotation, value);
         }
@@ -433,10 +446,25 @@ public abstract class AbstractMappedClassFieldObserver {
                 float value = Array.getFloat(array, i);
                 if (reverseBits) {
                   value = Float
-                          .intBitsToFloat((int) JBBPFieldInt.reverseBits(Float.floatToIntBits(value)));
+                      .intBitsToFloat((int) JBBPFieldInt.reverseBits(Float.floatToIntBits(value)));
                 }
                 this.onFieldFloat(obj, field, annotation, value);
               }
+              this.onArrayEnd(obj, field, annotation);
+            }
+            break;
+            case UINT_ARRAY: {
+              assertFieldArray(field);
+              final int len = Array.getLength(array);
+              this.onArrayStart(obj, field, annotation, len);
+              for (int i = 0; i < len; i++) {
+                long value = ((Number) Array.get(array, i)).longValue();
+                if (reverseBits) {
+                  value = JBBPFieldUInt.reverseBits(value);
+                }
+                this.onFieldUInt(obj, field, annotation, (int) value);
+              }
+
               this.onArrayEnd(obj, field, annotation);
             }
             break;
@@ -599,6 +627,20 @@ public abstract class AbstractMappedClassFieldObserver {
    */
   protected void onFieldInt(final Object obj, final Field field, final Bin annotation,
                             final int value) {
+
+  }
+
+  /**
+   * Notification about unsigned integer field.
+   *
+   * @param obj        the object instance, must not be null
+   * @param field      the field, must not be null
+   * @param annotation the annotation for field, must not be null
+   * @param value      the value of the field
+   * @since 2.0.4
+   */
+  protected void onFieldUInt(final Object obj, final Field field, final Bin annotation,
+                             final int value) {
 
   }
 
