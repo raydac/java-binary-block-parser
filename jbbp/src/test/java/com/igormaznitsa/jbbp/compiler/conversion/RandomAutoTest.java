@@ -3,7 +3,6 @@ package com.igormaznitsa.jbbp.compiler.conversion;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJavaConverterTest;
@@ -58,6 +57,43 @@ public class RandomAutoTest extends AbstractJBBPToJavaConverterTest {
     return builder.toString();
   }
 
+  @Test
+  public void testCompileParseAndWriteArray() throws Exception {
+    int testIndex = 1;
+
+    long generatedFields = 0L;
+
+    for (int i = 5; i < 500; i += 3) {
+      Result result;
+      do {
+        result = generate(i, true);
+      } while (result.bitLength > 10000000);
+
+      generatedFields |= result.typeFlags;
+
+      System.out.println(String
+          .format("Test %d, data bit length = %d, fields = %d, sructs = %d", testIndex,
+              result.bitLength, result.fieldsNumber, result.structNumber));
+
+      final byte[] testData = makeRandomDataArray(result.bitLength);
+      final Object clazzInstance = compileAndMakeInstance(result.script);
+      callRead(clazzInstance, testData);
+      assertEquals(testData.length, callWrite(clazzInstance).length, result.script);
+
+      testIndex++;
+    }
+
+    assertEquals(0x1FFFFFFFL, generatedFields, "All field types must be presented");
+  }
+
+  private byte[] makeRandomDataArray(final int bitLength) {
+    final int bytelen = (bitLength / 8) + ((bitLength & 7) != 0 ? 1 : 0);
+    assertTrue(bytelen > 0, "Bit length : " + bitLength);
+    final byte[] result = new byte[bytelen];
+    RND.nextBytes(result);
+    return result;
+  }
+
   Result generate(final int items, final boolean generateNames) {
     final JBBPDslBuilder builder = JBBPDslBuilder.Begin();
 
@@ -87,7 +123,7 @@ public class RandomAutoTest extends AbstractJBBPToJavaConverterTest {
         final StructLen len = counterStack.remove(0);
         counterStack.get(0).add(len.make());
       } else {
-        final int rndType = RND.nextInt(27);
+        final int rndType = RND.nextInt(29);
         typeFlags |= (1 << rndType);
         switch (rndType) {
           case 0: { // STRUCT
@@ -244,20 +280,33 @@ public class RandomAutoTest extends AbstractJBBPToJavaConverterTest {
             fieldsTotal++;
           }
           break;
-          case 22: { // DOUBLE
+          case 22: { // UINT
+            builder.UInt(generateNames ? makeRndName() : null);
+            counterStack.get(0).add(32);
+            fieldsTotal++;
+          }
+          break;
+          case 23: { // UINT_ARRAY
+            final int arrayLen = makeArrayLengthNumber();
+            builder.UIntArray(generateNames ? makeRndName() : null, String.valueOf(arrayLen));
+            counterStack.get(0).add(arrayLen * 32);
+            fieldsTotal++;
+          }
+          break;
+          case 24: { // DOUBLE
             builder.Double(generateNames ? makeRndName() : null);
             counterStack.get(0).add(64);
             fieldsTotal++;
           }
           break;
-          case 23: { // DOUBLE_ARRAY
+          case 25: { // DOUBLE_ARRAY
             final int arrayLen = makeArrayLengthNumber();
             builder.DoubleArray(generateNames ? makeRndName() : null, String.valueOf(arrayLen));
             counterStack.get(0).add(arrayLen * 64);
             fieldsTotal++;
           }
           break;
-          case 24: { // STRUCT END
+          case 26: { // STRUCT END
             if (activeStructCounter > 0) {
               i--;
               activeStructCounter--;
@@ -267,11 +316,11 @@ public class RandomAutoTest extends AbstractJBBPToJavaConverterTest {
             }
           }
           break;
-          case 25: { // COMMENT
+          case 27: { // COMMENT
             builder.Comment(genRandomString(this.RND.nextInt(32)));
           }
           break;
-          case 26: { // COMMENT NEW LINE
+          case 28: { // COMMENT NEW LINE
             builder.NewLineComment(genRandomString(this.RND.nextInt(32)));
           }
           break;
@@ -288,43 +337,6 @@ public class RandomAutoTest extends AbstractJBBPToJavaConverterTest {
 
     return new Result(builder.End(), counterStack.get(0).make(), fieldsTotal, structsTotal,
         booleanDataItems, typeFlags);
-  }
-
-  private byte[] makeRandomDataArray(final int bitLength) {
-    final int bytelen = (bitLength / 8) + ((bitLength & 7) != 0 ? 1 : 0);
-    assertTrue(bytelen > 0, "Bit length : " + bitLength);
-    final byte[] result = new byte[bytelen];
-    RND.nextBytes(result);
-    return result;
-  }
-
-  @Test
-  public void testCompileParseAndWriteArray() throws Exception {
-    int testIndex = 1;
-
-    long generatedFields = 0L;
-
-    for (int i = 5; i < 500; i += 3) {
-      Result result;
-      do {
-        result = generate(i, true);
-      } while (result.bitLength > 10000000);
-
-      generatedFields |= result.typeFlags;
-
-      System.out.println(String
-          .format("Test %d, data bit length = %d, fields = %d, sructs = %d", testIndex,
-              result.bitLength, result.fieldsNumber, result.structNumber));
-
-      final byte[] testData = makeRandomDataArray(result.bitLength);
-      final Object clazzInstance = compileAndMakeInstance(result.script);
-      callRead(clazzInstance, testData);
-      assertEquals(testData.length, callWrite(clazzInstance).length, result.script);
-
-      testIndex++;
-    }
-
-    assertEquals(0x7FFFFFFL, generatedFields, "All field types must be presented");
   }
 
   private static class StructLen {

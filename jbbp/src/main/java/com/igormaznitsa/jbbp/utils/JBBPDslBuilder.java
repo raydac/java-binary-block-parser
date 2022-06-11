@@ -1288,6 +1288,16 @@ public class JBBPDslBuilder {
   }
 
   /**
+   * Add anonymous unsigned int field.
+   *
+   * @return the builder instance, must not be null
+   * @since 2.0.4
+   */
+  public JBBPDslBuilder UInt() {
+    return this.UInt(null);
+  }
+
+  /**
    * Add named double field.
    *
    * @param name name of the field, can be null for anonymous
@@ -1295,6 +1305,19 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder Double(final String name) {
     final Item item = new Item(BinType.DOUBLE, name, this.byteOrder);
+    this.addItem(item);
+    return this;
+  }
+
+  /**
+   * Add named unsigned int field.
+   *
+   * @param name name of the field, can be null for anonymous
+   * @return the builder instance, must not be null
+   * @since 2.0.4
+   */
+  public JBBPDslBuilder UInt(final String name) {
+    final Item item = new Item(BinType.UINT, name, this.byteOrder);
     this.addItem(item);
     return this;
   }
@@ -1343,6 +1366,17 @@ public class JBBPDslBuilder {
   }
 
   /**
+   * Add anonymous fixed size unsigned int array field.
+   *
+   * @param size size of the array, if negative then read till end of stream
+   * @return the builder instance, must not be null
+   * @since 2.0.4
+   */
+  public JBBPDslBuilder UIntArray(final int size) {
+    return this.UIntArray(null, arraySizeToString(size));
+  }
+
+  /**
    * Add named fixed size double array field.
    *
    * @param name ame of the field, can be null for anonymous
@@ -1351,6 +1385,21 @@ public class JBBPDslBuilder {
    */
   public JBBPDslBuilder DoubleArray(final String name, final int size) {
     return this.DoubleArray(name, arraySizeToString(size));
+  }
+
+  /**
+   * Add named unsigned integer array field which size calculated trough expression.
+   *
+   * @param name           name of the field, can be null for anonymous
+   * @param sizeExpression expression to be used to calculate array size, must not be null
+   * @return the builder instance, must not be null
+   * @since 2.0.4
+   */
+  public JBBPDslBuilder UIntArray(final String name, final String sizeExpression) {
+    final Item item = new Item(BinType.UINT_ARRAY, name, this.byteOrder);
+    item.sizeExpression = assertExpressionChars(sizeExpression);
+    this.addItem(item);
+    return this;
   }
 
   /**
@@ -1365,6 +1414,18 @@ public class JBBPDslBuilder {
     item.sizeExpression = assertExpressionChars(sizeExpression);
     this.addItem(item);
     return this;
+  }
+
+  /**
+   * Add named fixed size unsigned int array field.
+   *
+   * @param name ame of the field, can be null for anonymous
+   * @param size size of the array, if negative then read till end of stream
+   * @return the builder instance, must not be null
+   * @since 2.0.4
+   */
+  public JBBPDslBuilder UIntArray(final String name, final int size) {
+    return this.UIntArray(name, arraySizeToString(size));
   }
 
   /**
