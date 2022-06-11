@@ -118,6 +118,27 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
   }
 
   /**
+   * Write an unsigned integer value into the output stream.
+   *
+   * @param value     a value to be written into the output stream.
+   * @param byteOrder the byte order of the value bytes to be used for writing.
+   * @throws IOException it will be thrown for transport errors
+   * @see JBBPByteOrder#BIG_ENDIAN
+   * @see JBBPByteOrder#LITTLE_ENDIAN
+   * @since 2.0.4
+   */
+  public void writeUInt(final long value, final JBBPByteOrder byteOrder) throws IOException {
+    final int v = (int) value;
+    if (byteOrder == JBBPByteOrder.BIG_ENDIAN) {
+      this.writeShort(v >>> 16, byteOrder);
+      this.writeShort(v, byteOrder);
+    } else {
+      this.writeShort(v, byteOrder);
+      this.writeShort(v >>> 16, byteOrder);
+    }
+  }
+
+  /**
    * Write an float value into the output stream.
    *
    * @param value     a value to be written into the output stream.

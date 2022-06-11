@@ -28,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.TestUtils;
@@ -69,6 +68,8 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
     final JBBPParser parser = JBBPParser.prepare(
         "stringj str;"
             + "stringj [2] strarr;"
+            + "uint uintf;"
+            + "uint [2] uintarr;"
             + "floatj flt;"
             + "floatj [2] fltarr;"
             + "doublej dbl;"
@@ -112,6 +113,9 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
     final byte[] etalon = new byte[] {
         0,
         2, 49, 50, 1, 51,
+        (byte) 0xFA, (byte) 0xFB, (byte) 0xFC, (byte) 0xFD,
+        (byte) 0x1A, (byte) 0x1B, (byte) 0x1C, (byte) 0x1D, (byte) 0x2A, (byte) 0x2B, (byte) 0x2C,
+        (byte) 0x2D,
         1, 2, 3, 4,
         5, 6, 7, 8, 9, 10, 11, 12,
         1, 2, 3, 4, 5, 6, 7, 8,
@@ -127,6 +131,8 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
     assertNull(null, parsed.str);
     assertArrayEquals(new String[] {"12", "3"}, parsed.strarr);
+    assertEquals(0xFAFBFCFDL, parsed.uintf);
+    assertArrayEquals(new long[] {0x1A1B1C1DL, 0x2A2B2C2DL}, parsed.uintarr);
     assertEquals(2.3879393E-38f, parsed.flt);
     assertArrayEquals(new float[] {6.301941E-36f, 1.661634E-33f}, parsed.fltarr);
     assertEquals(8.20788039913184E-304d, parsed.dbl);
@@ -296,6 +302,17 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
   }
 
   @Test
+  public void testReadWite_UInt_SingleValue() throws Exception {
+    final Object instance = compileAndMakeInstance("uint value;");
+    final byte[] etalon = new byte[] {1, 2, 3, 4};
+
+    callRead(instance, etalon.clone());
+
+    assertEquals(0x01020304L, getField(instance, "value", Long.class).longValue());
+    assertArrayEquals(etalon, callWrite(instance));
+  }
+
+  @Test
   public void testReadWite_DoubleArrayWholeStream() throws Exception {
     final Object instance = compileAndMakeInstance("doublej [_] doubleArray;");
     assertNull(getField(instance, "doublearray", double[].class), "by default must be null");
@@ -309,6 +326,22 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
     assertArrayEquals(
         new double[] {8.20788039913184E-304d, 2.494444648262547E-265d, 4.117024896955411E-294d},
         getField(instance, "doublearray", double[].class), TestUtils.FLOAT_DELTA);
+    assertArrayEquals(etalon, callWrite(instance));
+  }
+
+  @Test
+  public void testReadWite_UIntArrayWholeStream() throws Exception {
+    final Object instance = compileAndMakeInstance("uint [_] uintArray;");
+    assertNull(getField(instance, "uintarray", long[].class), "by default must be null");
+
+    final byte[] etalon =
+        new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 22, 33};
+
+    callRead(instance, etalon.clone());
+
+    assertArrayEquals(
+        new long[] {0x01020304L, 0x05060708L, 0x09001621L},
+        getField(instance, "uintarray", long[].class));
     assertArrayEquals(etalon, callWrite(instance));
   }
 
@@ -335,7 +368,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
     callRead(instance, data.clone());
 
-    assertEquals(3.3f, getField(instance, "len", Float.class).floatValue(), TestUtils.FLOAT_DELTA);
+    assertEquals(3.3f, getField(instance, "len", Float.class), TestUtils.FLOAT_DELTA);
     assertArrayEquals(new byte[] {1, 2, 3}, getField(instance, "data", byte[].class));
     assertArrayEquals(data, callWrite(instance));
   }
@@ -1099,6 +1132,9 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
   }
 
   public static class TestSuperclass {
+
+    public long uintf;
+    public long[] uintarr;
     public String str;
     public String[] strarr;
     public float flt;

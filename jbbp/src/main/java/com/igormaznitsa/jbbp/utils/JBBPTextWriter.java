@@ -2007,6 +2007,19 @@ public class JBBPTextWriter extends FilterWriter {
     }
 
     @Override
+    protected void onFieldUInt(Object obj, Field field, Bin annotation,
+                               int value) {
+      try {
+        UInt(value);
+        if (this.arrayCounter == 0) {
+          Comment(makeFieldDescription(field, annotation));
+        }
+      } catch (IOException ex) {
+        throw new JBBPIOException("Can't log uint field", ex);
+      }
+    }
+
+    @Override
     protected void onFieldFloat(final Object obj, final Field field, final Bin annotation,
                                 final float value) {
       try {

@@ -87,6 +87,8 @@ public enum BinType {
   INT(JBBPFieldInt.class, false),
   /**
    * A Mapping field will be mapped to a parsed unsigned integer field.
+   *
+   * @since 2.0.4
    */
   UINT(JBBPFieldUInt.class, false),
   /**

@@ -27,7 +27,6 @@ import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.CODE_SKIP;
 import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.CODE_UBYTE;
 import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.CODE_USHORT;
 
-
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
@@ -662,6 +661,9 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
 
     if (altFieldType) {
       switch (type) {
+        case BYTE:
+          type = FieldType.UINT;
+          break;
         case INT:
           type = FieldType.FLOAT;
           break;
@@ -1333,6 +1335,10 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
         "%s.readStringArray(%s,%s)", "%s.writeString(%s,%s)",
         "for(int I=0;I<%3$s;I++){%1$s.writeString(%2$s[I],%4$s);}",
         "%1$s.writeStringArray(%2$s,%3$s)"),
+    UINT(BinType.UINT, BinType.UINT_ARRAY, -8, "long", "long", "%s.readUInt(%s)",
+        "%s.readUIntArray(%s,%s)", "%s.writeUInt(%s,%s)",
+        "for(int I=0;I<%3$s;I++){%1$s.writeUInt(%2$s[I],%4$s);}",
+        "for(int I=0;I<%2$s.length;I++){%1$s.writeUInt(%2$s[I],%3$s);}"),
     UNKNOWN(BinType.UNDEFINED, BinType.UNDEFINED, Integer.MIN_VALUE, "", "", "", "", "", "", "");
 
     private final BinType binType;

@@ -360,6 +360,49 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   }
 
   /**
+   * Read number of unsigned integer items from the input stream.
+   *
+   * @param items     number of items to be read from the input stream, if less than
+   *                  zero then all stream till the end will be read
+   * @param byteOrder the order of bytes to be used to decode values
+   * @return read items as an unsigned integer array represented through long
+   * @throws IOException it will be thrown for any transport problem during the
+   *                     operation
+   * @see JBBPByteOrder#BIG_ENDIAN
+   * @see JBBPByteOrder#LITTLE_ENDIAN
+   * @since 2.0.4
+   */
+  public long[] readUIntArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
+    int pos = 0;
+    if (items < 0) {
+      long[] buffer = new long[INITIAL_ARRAY_BUFFER_SIZE];
+      // till end
+      while (hasAvailableData()) {
+        final long next = readUInt(byteOrder);
+        if (buffer.length == pos) {
+          final long[] newBuffer = new long[buffer.length << 1];
+          System.arraycopy(buffer, 0, newBuffer, 0, buffer.length);
+          buffer = newBuffer;
+        }
+        buffer[pos++] = next;
+      }
+      if (buffer.length == pos) {
+        return buffer;
+      }
+      final long[] result = new long[pos];
+      System.arraycopy(buffer, 0, result, 0, pos);
+      return result;
+    } else {
+      // number
+      final long[] buffer = new long[items];
+      for (int i = 0; i < items; i++) {
+        buffer[i] = readUInt(byteOrder);
+      }
+      return buffer;
+    }
+  }
+
+  /**
    * Read number of float items from the input stream.
    *
    * @param items     number of items to be read from the input stream, if less than
@@ -527,6 +570,26 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       return (readUnsignedShort(byteOrder) << 16) | readUnsignedShort(byteOrder);
     } else {
       return readUnsignedShort(byteOrder) | (readUnsignedShort(byteOrder) << 16);
+    }
+  }
+
+  /**
+   * Read an unsigned integer value from the stream.
+   *
+   * @param byteOrder the order of bytes to be used to decode the read value
+   * @return the unsigned integer value from the stream
+   * @throws IOException  it will be thrown for any transport problem during the
+   *                      operation
+   * @throws EOFException if the end of the stream has been reached
+   * @see JBBPByteOrder#BIG_ENDIAN
+   * @see JBBPByteOrder#LITTLE_ENDIAN
+   * @since 2.0.4
+   */
+  public long readUInt(final JBBPByteOrder byteOrder) throws IOException {
+    if (byteOrder == JBBPByteOrder.BIG_ENDIAN) {
+      return (((long) readUnsignedShort(byteOrder) << 16) | readUnsignedShort(byteOrder));
+    } else {
+      return readUnsignedShort(byteOrder) | ((long) readUnsignedShort(byteOrder) << 16);
     }
   }
 
