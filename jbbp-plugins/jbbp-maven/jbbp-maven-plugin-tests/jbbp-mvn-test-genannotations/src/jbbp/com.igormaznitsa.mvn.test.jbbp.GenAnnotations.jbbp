@@ -1,4 +1,6 @@
 ubyte len;
+uint uintField;
+uint [1] uintArr;
 some1 {
  bit:4 [len] someField;
  ubyte len;

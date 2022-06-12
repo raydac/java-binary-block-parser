@@ -30,7 +30,11 @@ class GenAnnotationsTest {
 
   @Test
   void testReadWrite() throws IOException {
-    final byte[] testData = new byte[] {4, (byte) 0x12, (byte) 0x34, 3, 5, 6, 7};
+    final byte[] testData = new byte[] {
+        4,
+        (byte)0xFF, (byte)0x1A, (byte)0x1B, (byte)0x1C,
+        (byte)0xFF, (byte)0x2A, (byte)0x2B, (byte)0x2C,
+        (byte) 0x12, (byte) 0x34, 3, 5, 6, 7};
 
     final GenAnnotations result =
         new GenAnnotations().read(new JBBPBitInputStream(new ByteArrayInputStream(testData)));
@@ -38,6 +42,8 @@ class GenAnnotationsTest {
     assertEquals(3, result.getSOME1().getSOME2().getFIELD().length);
 
     final String script = "ubyte len;"
+        + " uint uintField;"
+        + " uint [1] uintArr;"
         + "some1 {"
         + " bit:4 [len] someField;"
         + " ubyte len;"
@@ -48,6 +54,8 @@ class GenAnnotationsTest {
 
     final GenAnnotations instance =
         JBBPParser.prepare(script).parse(testData).mapTo(new GenAnnotations());
+    assertEquals(result.getUINTFIELD(), instance.getUINTFIELD());
+    assertArrayEquals(result.getUINTARR(), instance.getUINTARR());
     assertEquals(result.getLEN(), instance.getLEN());
     assertEquals(result.getSOME1().getLEN(), instance.getSOME1().getLEN());
     assertArrayEquals(result.getSOME1().getSOMEFIELD(), instance.getSOME1().getSOMEFIELD());
