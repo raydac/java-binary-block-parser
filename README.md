@@ -18,6 +18,7 @@ that for Java. So I developed the JBBP library.<br>
 # Change log
 
 - __2.0.4 (SNAPSHOT)__
+  - added unsigned 32 bit integer type __uint__ [#37](https://github.com/raydac/java-binary-block-parser/issues/37)   
   - provided way to filter fields for mapping operations and write object
     operations [#36](https://github.com/raydac/java-binary-block-parser/issues/36)
 
