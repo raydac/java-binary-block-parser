@@ -184,7 +184,7 @@ public enum BinType {
   /**
    * The Flag shows that the type describes an array.
    */
-  private final boolean isarray;
+  private final boolean arrayFlag;
 
   /**
    * The Field class for the value.
@@ -193,7 +193,7 @@ public enum BinType {
    */
   BinType(final Class<? extends JBBPAbstractField> fieldClass, final boolean array) {
     this.fieldClass = fieldClass;
-    this.isarray = array;
+    this.arrayFlag = array;
   }
 
   /**
@@ -267,7 +267,7 @@ public enum BinType {
    * @return true if the type is an array, false otherwise
    */
   public boolean isArray() {
-    return this.isarray;
+    return this.arrayFlag;
   }
 
   /**

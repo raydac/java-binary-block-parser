@@ -180,10 +180,10 @@ public class JavaSrcTextBuffer {
    * @return this instance
    */
   public JavaSrcTextBuffer printLinesWithIndent(final String text) {
-    final String[] splitted = text.split("\n", -1);
+    final String[] split = text.split("\n", -1);
 
-    for (final String aSplitted : splitted) {
-      this.indent().println(aSplitted);
+    for (final String s : split) {
+      this.indent().println(s);
     }
 
     return this;
@@ -196,10 +196,10 @@ public class JavaSrcTextBuffer {
    * @return this instance
    */
   public JavaSrcTextBuffer printCommentLinesWithIndent(final String text) {
-    final String[] splitted = text.split("\n", -1);
+    final String[] split = text.split("\n", -1);
 
-    for (final String aSplitted : splitted) {
-      this.indent().print("// ").println(aSplitted);
+    for (final String s : split) {
+      this.indent().print("// ").println(s);
     }
 
     return this;
@@ -212,11 +212,11 @@ public class JavaSrcTextBuffer {
    * @return this instance
    */
   public JavaSrcTextBuffer printCommentMultiLinesWithIndent(final String text) {
-    final String[] splitted = text.split("\n", -1);
+    final String[] split = text.split("\n", -1);
 
     this.indent().println("/*");
-    for (final String aSplitted : splitted) {
-      this.indent().print(" * ").println(aSplitted);
+    for (final String s : split) {
+      this.indent().print(" * ").println(s);
     }
     this.indent().println(" */");
 
@@ -230,11 +230,11 @@ public class JavaSrcTextBuffer {
    * @return this instance
    */
   public JavaSrcTextBuffer printJavaDocLinesWithIndent(final String text) {
-    final String[] splitted = text.split("\n", -1);
+    final String[] split = text.split("\n", -1);
 
     this.indent().println("/**");
-    for (final String aSplitted : splitted) {
-      this.indent().print(" * ").println(aSplitted);
+    for (final String s : split) {
+      this.indent().print(" * ").println(s);
     }
     this.indent().println(" */");
 

@@ -60,7 +60,7 @@ public final class JBBPFieldArrayUInt extends JBBPAbstractArrayField<JBBPFieldUI
   /**
    * Get internal array of signed integers representing unsigned integers.
    *
-   * @return the insternal integer array, must not be null
+   * @return the internal integer array, must not be null
    * @since 2.0.4
    */
   public int[] getInternalArray() {

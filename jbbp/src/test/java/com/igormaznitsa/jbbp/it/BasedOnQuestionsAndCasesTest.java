@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.JBBPExternalValueProvider;
 import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
@@ -150,7 +149,7 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
    * @throws Exception for any error
    */
   @Test
-  public void testMutlithredUsageOfParser() throws Exception {
+  public void testMultiThreadUsageOfParser() throws Exception {
     final JBBPParser parserIP = JBBPParser.prepare("skip:14; // skip bytes till the frame\n"
         + "bit:4 InternetHeaderLength;"
         + "bit:4 Version;"

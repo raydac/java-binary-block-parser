@@ -18,7 +18,6 @@ package com.igormaznitsa.jbbp.it;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.model.JBBPAbstractArrayField;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
@@ -51,7 +50,7 @@ public class ConvertToJSONTest extends AbstractParserIntegrationTest {
   public static JSONObject convertToJSon(final JSONObject jsn, final JBBPAbstractField field) {
     final JSONObject json = jsn == null ? new JSONObject() : jsn;
 
-    final String fieldName = field.getFieldName() == null ? "nonamed" : field.getFieldName();
+    final String fieldName = field.getFieldName() == null ? "unnamed" : field.getFieldName();
     if (field instanceof JBBPAbstractArrayField) {
       final JSONArray jsonArray = new JSONArray();
       if (field instanceof JBBPFieldArrayBit) {

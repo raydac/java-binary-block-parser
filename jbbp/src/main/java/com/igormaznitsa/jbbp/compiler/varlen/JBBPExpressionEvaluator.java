@@ -18,7 +18,6 @@ package com.igormaznitsa.jbbp.compiler.varlen;
 
 import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_STRING_EMPTY;
 
-
 import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.compiler.JBBPCompilerUtils;
@@ -193,10 +192,10 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
     while (matcher.find()) {
       if (lastFound >= 0) {
         // check for skipped substring
-        final String substr = expression.substring(lastFound, matcher.start());
-        if (substr.trim().length() != 0) {
+        final String subString = expression.substring(lastFound, matcher.start());
+        if (subString.trim().length() != 0) {
           throw new JBBPCompilationException(
-              "Can't recognize part of expression '" + substr + "' [" + expression + ']');
+              "Can't recognize part of expression '" + subString + "' [" + expression + ']');
         }
       }
 

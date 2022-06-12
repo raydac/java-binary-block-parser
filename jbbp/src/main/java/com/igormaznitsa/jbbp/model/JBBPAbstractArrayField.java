@@ -67,7 +67,6 @@ public abstract class JBBPAbstractArrayField<T extends JBBPAbstractField> extend
    *
    * @return an iterator for the array
    */
-  @SuppressWarnings("NullableProblems")
   @Override
   public Iterator<T> iterator() {
     return new Iterator<T>() {

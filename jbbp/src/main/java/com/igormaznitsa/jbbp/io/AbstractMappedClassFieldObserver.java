@@ -99,7 +99,7 @@ public abstract class AbstractMappedClassFieldObserver {
    * @param obj                  an object which is an instance of a mapped class, must not be null
    * @param field                a field where the object has been found, it can be null for first call
    * @param binAnnotationWrapper wrapper to replace Bin annotation values for processing fields, can be null to be ignored
-   * @param binFieldFilter       filter for mapped fields, alows to exclude some of them, can be null
+   * @param binFieldFilter       filter for mapped fields, allows to exclude some of them, can be null
    * @param customFieldProcessor a processor for custom fields, it can be null
    * @see Bin
    * @since 2.0.4

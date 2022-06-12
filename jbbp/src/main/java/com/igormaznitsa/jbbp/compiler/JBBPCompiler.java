@@ -181,13 +181,6 @@ public final class JBBPCompiler {
     }
   }
 
-  private static void assertTokenDoesntHaveExtraData(final String fieldType,
-                                                     final JBBPToken token) {
-    if (token.getFieldTypeParameters().getExtraData() != null) {
-      throw new JBBPCompilationException('\'' + fieldType + "\' has extra value", token);
-    }
-  }
-
   /**
    * Compile a text script into its byte code representation/
    *
@@ -397,7 +390,7 @@ public final class JBBPCompiler {
         case CODE_RESET_COUNTER: {
           assertTokenNotArray("Reset counter", token);
           assertTokenNotNamed("Reset counter", token);
-          assertTokenDoesntHaveExtraData("Reset counter", token);
+          assertTokenHasNotExtraData("Reset counter", token);
         }
         break;
         case CODE_STRUCT_START: {
@@ -513,6 +506,13 @@ public final class JBBPCompiler {
         .setCompiledData(compiledBlock)
         .setHasVarFields(hasVarFields)
         .build();
+  }
+
+  private static void assertTokenHasNotExtraData(final String fieldType,
+                                                 final JBBPToken token) {
+    if (token.getFieldTypeParameters().getExtraData() != null) {
+      throw new JBBPCompilationException('\'' + fieldType + "\' has extra value", token);
+    }
   }
 
   /**
@@ -715,7 +715,7 @@ public final class JBBPCompiler {
     private final int namedFieldCounter;
 
     /**
-     * Flag shows that the structure is array which shoukd be read till end of stream
+     * Flag shows that the structure is array which should be read till end of stream
      */
     private final boolean arrayToReadTillEndOfStream;
 

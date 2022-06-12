@@ -1318,8 +1318,8 @@ public class JBBPTextWriter extends FilterWriter {
           }
 
           if (c.indexOf('\n') >= 0) {
-            final String[] splitted = c.split("\\n", -1);
-            for (final String s : splitted) {
+            final String[] split = c.split("\\n", -1);
+            for (final String s : split) {
               this.ensureCommentMode();
               this.write(s);
             }
@@ -1650,13 +1650,11 @@ public class JBBPTextWriter extends FilterWriter {
     return this.linePosition;
   }
 
-  @SuppressWarnings("NullableProblems")
   @Override
   public void write(final String str) throws IOException {
     this.write(str, 0, str.length());
   }
 
-  @SuppressWarnings("NullableProblems")
   @Override
   public void write(final char[] cbuf) throws IOException {
     this.write(cbuf, 0, cbuf.length);

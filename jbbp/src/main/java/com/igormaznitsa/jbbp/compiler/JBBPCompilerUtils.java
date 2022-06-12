@@ -18,7 +18,6 @@ package com.igormaznitsa.jbbp.compiler;
 
 import static com.igormaznitsa.jbbp.compiler.JBBPCompiler.FLAG_ARRAY;
 
-
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.util.List;
@@ -91,14 +90,14 @@ public final class JBBPCompilerUtils {
     }
     if (fieldToCheck.getFieldPath().indexOf('.') >= 0) {
       // the field in structure, check that the structure is not an array or not in an array
-      final String[] splittedFieldPath = JBBPUtils.splitString(fieldToCheck.getFieldPath(), '.');
+      final String[] splitFieldPath = JBBPUtils.splitString(fieldToCheck.getFieldPath(), '.');
       final StringBuilder fieldPath = new StringBuilder();
       // process till the field name because we have already checked the field
-      for (int i = 0; i < splittedFieldPath.length - 1; i++) {
+      for (int i = 0; i < splitFieldPath.length - 1; i++) {
         if (fieldPath.length() != 0) {
           fieldPath.append('.');
         }
-        fieldPath.append(splittedFieldPath[i]);
+        fieldPath.append(splitFieldPath[i]);
         final JBBPNamedFieldInfo structureEnd =
             JBBPCompilerUtils.findForFieldPath(fieldPath.toString(), namedFieldList);
         if ((compiledScript[structureEnd.getFieldOffsetInCompiledBlock()] & FLAG_ARRAY) != 0) {

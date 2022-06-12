@@ -308,7 +308,6 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
     return null;
   }
 
-  @SuppressWarnings("NullableProblems")
   @Override
   public Iterator<JBBPToken> iterator() {
     return this;

@@ -112,9 +112,9 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
         pos += read;
 
         if (buffer.length == pos) {
-          final byte[] newbuffer = new byte[buffer.length << 1];
-          System.arraycopy(buffer, 0, newbuffer, 0, buffer.length);
-          buffer = newbuffer;
+          final byte[] newBuffer = new byte[buffer.length << 1];
+          System.arraycopy(buffer, 0, newBuffer, 0, buffer.length);
+          buffer = newBuffer;
         }
       }
     } else {
@@ -138,50 +138,47 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     return result;
   }
 
-  private byte[] _readArray(final int items, final JBBPBitNumber bitNumber) throws IOException {
-    final boolean readByteArray = bitNumber == null;
-
-    int pos = 0;
-    if (items < 0) {
-      byte[] buffer = new byte[INITIAL_ARRAY_BUFFER_SIZE];
-      // till end
-      while (true) {
-        final int next = readByteArray ? read() : readBits(bitNumber);
-        if (next < 0) {
+  @Override
+  public int read(final byte[] array, final int offset, final int length) throws IOException {
+    if (this.bitsInBuffer == 0) {
+      int readBytes = 0;
+      int tempOffset = offset;
+      int tempLength = length;
+      while (tempLength > 0) {
+        int read = this.in.read(array, tempOffset, tempLength);
+        if (read < 0) {
+          readBytes = readBytes == 0 ? read : readBytes;
           break;
         }
-        if (buffer.length == pos) {
-          final byte[] newbuffer = new byte[buffer.length << 1];
-          System.arraycopy(buffer, 0, newbuffer, 0, buffer.length);
-          buffer = newbuffer;
+        tempLength -= read;
+        tempOffset += read;
+        readBytes += read;
+        this.byteCounter += read;
+      }
+
+      if (this.msb0) {
+        int index = offset;
+        int number = readBytes;
+        while (number > 0) {
+          array[index] = JBBPUtils.reverseBitsInByte(array[index]);
+          index++;
+          number--;
         }
-        buffer[pos++] = (byte) next;
       }
-      if (buffer.length == pos) {
-        return buffer;
-      }
-      final byte[] result = new byte[pos];
-      System.arraycopy(buffer, 0, result, 0, pos);
-      return result;
+
+      return readBytes;
     } else {
-      // number
-      final byte[] buffer = new byte[items];
-      if (readByteArray) {
-        final int read = this.read(buffer, 0, items);
-        if (read != items) {
-          throw new EOFException(
-              "Have read only " + read + " byte(s) instead of " + items + " byte(s)");
+      int count = length;
+      int i = offset;
+      while (count > 0) {
+        final int nextByte = this.readBits(JBBPBitNumber.BITS_8);
+        if (nextByte < 0) {
+          break;
         }
-      } else {
-        for (int i = 0; i < items; i++) {
-          final int next = readBits(bitNumber);
-          if (next < 0) {
-            throw new EOFException("Have read only " + i + " bit portions instead of " + items);
-          }
-          buffer[i] = (byte) next;
-        }
+        count--;
+        array[i++] = (byte) nextByte;
       }
-      return buffer;
+      return length - count;
     }
   }
 
@@ -232,6 +229,61 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     return result;
   }
 
+  @Override
+  public synchronized void mark(final int readLimit) {
+    in.mark(readLimit);
+    this.markedBitBuffer = this.bitBuffer;
+    this.markedByteCounter = this.byteCounter;
+    this.markedBitsInBuffer = this.bitsInBuffer;
+  }
+
+  private byte[] _readArray(final int items, final JBBPBitNumber bitNumber) throws IOException {
+    final boolean readByteArray = bitNumber == null;
+
+    int pos = 0;
+    if (items < 0) {
+      byte[] buffer = new byte[INITIAL_ARRAY_BUFFER_SIZE];
+      // till end
+      while (true) {
+        final int next = readByteArray ? read() : readBits(bitNumber);
+        if (next < 0) {
+          break;
+        }
+        if (buffer.length == pos) {
+          final byte[] newBuffer = new byte[buffer.length << 1];
+          System.arraycopy(buffer, 0, newBuffer, 0, buffer.length);
+          buffer = newBuffer;
+        }
+        buffer[pos++] = (byte) next;
+      }
+      if (buffer.length == pos) {
+        return buffer;
+      }
+      final byte[] result = new byte[pos];
+      System.arraycopy(buffer, 0, result, 0, pos);
+      return result;
+    } else {
+      // number
+      final byte[] buffer = new byte[items];
+      if (readByteArray) {
+        final int read = this.read(buffer, 0, items);
+        if (read != items) {
+          throw new EOFException(
+              "Have read only " + read + " byte(s) instead of " + items + " byte(s)");
+        }
+      } else {
+        for (int i = 0; i < items; i++) {
+          final int next = readBits(bitNumber);
+          if (next < 0) {
+            throw new EOFException("Have read only " + i + " bit portions instead of " + items);
+          }
+          buffer[i] = (byte) next;
+        }
+      }
+      return buffer;
+    }
+  }
+
   /**
    * Read number of short items from the input stream.
    *
@@ -252,9 +304,9 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       while (hasAvailableData()) {
         final int next = readUnsignedShort(byteOrder);
         if (buffer.length == pos) {
-          final short[] newbuffer = new short[buffer.length << 1];
-          System.arraycopy(buffer, 0, newbuffer, 0, buffer.length);
-          buffer = newbuffer;
+          final short[] newBuffer = new short[buffer.length << 1];
+          System.arraycopy(buffer, 0, newBuffer, 0, buffer.length);
+          buffer = newBuffer;
         }
         buffer[pos++] = (short) next;
       }
@@ -269,91 +321,6 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       final short[] buffer = new short[items];
       for (int i = 0; i < items; i++) {
         buffer[i] = (short) readUnsignedShort(byteOrder);
-      }
-      return buffer;
-    }
-  }
-
-  /**
-   * Read number of unsigned short items from the input stream.
-   *
-   * @param items     number of items to be read from the input stream, if less than
-   *                  zero then all stream till the end will be read
-   * @param byteOrder the order of bytes to be used to decode short values
-   * @return read items as a char array
-   * @throws IOException it will be thrown for any transport problem during the
-   *                     operation
-   * @see JBBPByteOrder#BIG_ENDIAN
-   * @see JBBPByteOrder#LITTLE_ENDIAN
-   * @since 1.3
-   */
-  public char[] readUShortArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
-    int pos = 0;
-    if (items < 0) {
-      char[] buffer = new char[INITIAL_ARRAY_BUFFER_SIZE];
-      // till end
-      while (hasAvailableData()) {
-        final int next = readUnsignedShort(byteOrder);
-        if (buffer.length == pos) {
-          final char[] newbuffer = new char[buffer.length << 1];
-          System.arraycopy(buffer, 0, newbuffer, 0, buffer.length);
-          buffer = newbuffer;
-        }
-        buffer[pos++] = (char) next;
-      }
-      if (buffer.length == pos) {
-        return buffer;
-      }
-      final char[] result = new char[pos];
-      System.arraycopy(buffer, 0, result, 0, pos);
-      return result;
-    } else {
-      // number
-      final char[] buffer = new char[items];
-      for (int i = 0; i < items; i++) {
-        buffer[i] = (char) readUnsignedShort(byteOrder);
-      }
-      return buffer;
-    }
-  }
-
-  /**
-   * Read number of integer items from the input stream.
-   *
-   * @param items     number of items to be read from the input stream, if less than
-   *                  zero then all stream till the end will be read
-   * @param byteOrder the order of bytes to be used to decode values
-   * @return read items as an integer array
-   * @throws IOException it will be thrown for any transport problem during the
-   *                     operation
-   * @see JBBPByteOrder#BIG_ENDIAN
-   * @see JBBPByteOrder#LITTLE_ENDIAN
-   */
-  public int[] readIntArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
-    int pos = 0;
-    if (items < 0) {
-      int[] buffer = new int[INITIAL_ARRAY_BUFFER_SIZE];
-      // till end
-      while (hasAvailableData()) {
-        final int next = readInt(byteOrder);
-        if (buffer.length == pos) {
-          final int[] newbuffer = new int[buffer.length << 1];
-          System.arraycopy(buffer, 0, newbuffer, 0, buffer.length);
-          buffer = newbuffer;
-        }
-        buffer[pos++] = next;
-      }
-      if (buffer.length == pos) {
-        return buffer;
-      }
-      final int[] result = new int[pos];
-      System.arraycopy(buffer, 0, result, 0, pos);
-      return result;
-    } else {
-      // number
-      final int[] buffer = new int[items];
-      for (int i = 0; i < items; i++) {
-        buffer[i] = readInt(byteOrder);
       }
       return buffer;
     }
@@ -403,6 +370,91 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   }
 
   /**
+   * Read number of unsigned short items from the input stream.
+   *
+   * @param items     number of items to be read from the input stream, if less than
+   *                  zero then all stream till the end will be read
+   * @param byteOrder the order of bytes to be used to decode short values
+   * @return read items as a char array
+   * @throws IOException it will be thrown for any transport problem during the
+   *                     operation
+   * @see JBBPByteOrder#BIG_ENDIAN
+   * @see JBBPByteOrder#LITTLE_ENDIAN
+   * @since 1.3
+   */
+  public char[] readUShortArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
+    int pos = 0;
+    if (items < 0) {
+      char[] buffer = new char[INITIAL_ARRAY_BUFFER_SIZE];
+      // till end
+      while (hasAvailableData()) {
+        final int next = readUnsignedShort(byteOrder);
+        if (buffer.length == pos) {
+          final char[] newBuffer = new char[buffer.length << 1];
+          System.arraycopy(buffer, 0, newBuffer, 0, buffer.length);
+          buffer = newBuffer;
+        }
+        buffer[pos++] = (char) next;
+      }
+      if (buffer.length == pos) {
+        return buffer;
+      }
+      final char[] result = new char[pos];
+      System.arraycopy(buffer, 0, result, 0, pos);
+      return result;
+    } else {
+      // number
+      final char[] buffer = new char[items];
+      for (int i = 0; i < items; i++) {
+        buffer[i] = (char) readUnsignedShort(byteOrder);
+      }
+      return buffer;
+    }
+  }
+
+  /**
+   * Read number of integer items from the input stream.
+   *
+   * @param items     number of items to be read from the input stream, if less than
+   *                  zero then all stream till the end will be read
+   * @param byteOrder the order of bytes to be used to decode values
+   * @return read items as an integer array
+   * @throws IOException it will be thrown for any transport problem during the
+   *                     operation
+   * @see JBBPByteOrder#BIG_ENDIAN
+   * @see JBBPByteOrder#LITTLE_ENDIAN
+   */
+  public int[] readIntArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
+    int pos = 0;
+    if (items < 0) {
+      int[] buffer = new int[INITIAL_ARRAY_BUFFER_SIZE];
+      // till end
+      while (hasAvailableData()) {
+        final int next = readInt(byteOrder);
+        if (buffer.length == pos) {
+          final int[] newBuffer = new int[buffer.length << 1];
+          System.arraycopy(buffer, 0, newBuffer, 0, buffer.length);
+          buffer = newBuffer;
+        }
+        buffer[pos++] = next;
+      }
+      if (buffer.length == pos) {
+        return buffer;
+      }
+      final int[] result = new int[pos];
+      System.arraycopy(buffer, 0, result, 0, pos);
+      return result;
+    } else {
+      // number
+      final int[] buffer = new int[items];
+      for (int i = 0; i < items; i++) {
+        buffer[i] = readInt(byteOrder);
+      }
+      return buffer;
+    }
+  }
+
+  /**
    * Read number of float items from the input stream.
    *
    * @param items     number of items to be read from the input stream, if less than
@@ -423,9 +475,9 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       while (hasAvailableData()) {
         final float next = readFloat(byteOrder);
         if (buffer.length == pos) {
-          final float[] newbuffer = new float[buffer.length << 1];
-          System.arraycopy(buffer, 0, newbuffer, 0, buffer.length);
-          buffer = newbuffer;
+          final float[] newBuffer = new float[buffer.length << 1];
+          System.arraycopy(buffer, 0, newBuffer, 0, buffer.length);
+          buffer = newBuffer;
         }
         buffer[pos++] = next;
       }
@@ -440,92 +492,6 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       final float[] buffer = new float[items];
       for (int i = 0; i < items; i++) {
         buffer[i] = readFloat(byteOrder);
-      }
-      return buffer;
-    }
-  }
-
-  /**
-   * Read number of long items from the input stream.
-   *
-   * @param items     number of items to be read from the input stream, if less than
-   *                  zero then all stream till the end will be read
-   * @param byteOrder the order of bytes to be used to decode values
-   * @return read items as a long array
-   * @throws IOException it will be thrown for any transport problem during the
-   *                     operation
-   * @see JBBPByteOrder#BIG_ENDIAN
-   * @see JBBPByteOrder#LITTLE_ENDIAN
-   */
-  public long[] readLongArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
-    int pos = 0;
-    if (items < 0) {
-      long[] buffer = new long[INITIAL_ARRAY_BUFFER_SIZE];
-      // till end
-      while (hasAvailableData()) {
-        final long next = readLong(byteOrder);
-        if (buffer.length == pos) {
-          final long[] newbuffer = new long[buffer.length << 1];
-          System.arraycopy(buffer, 0, newbuffer, 0, buffer.length);
-          buffer = newbuffer;
-        }
-        buffer[pos++] = next;
-      }
-      if (buffer.length == pos) {
-        return buffer;
-      }
-      final long[] result = new long[pos];
-      System.arraycopy(buffer, 0, result, 0, pos);
-      return result;
-    } else {
-      // number
-      final long[] buffer = new long[items];
-      for (int i = 0; i < items; i++) {
-        buffer[i] = readLong(byteOrder);
-      }
-      return buffer;
-    }
-  }
-
-  /**
-   * Read number of double items from the input stream.
-   *
-   * @param items     number of items to be read from the input stream, if less than
-   *                  zero then all stream till the end will be read
-   * @param byteOrder the order of bytes to be used to decode values
-   * @return read items as a double array
-   * @throws IOException it will be thrown for any transport problem during the
-   *                     operation
-   * @see JBBPByteOrder#BIG_ENDIAN
-   * @see JBBPByteOrder#LITTLE_ENDIAN
-   * @since 1.4.0
-   */
-  public double[] readDoubleArray(final int items, final JBBPByteOrder byteOrder)
-      throws IOException {
-    int pos = 0;
-    if (items < 0) {
-      double[] buffer = new double[INITIAL_ARRAY_BUFFER_SIZE];
-      // till end
-      while (hasAvailableData()) {
-        final long next = readLong(byteOrder);
-        if (buffer.length == pos) {
-          final double[] newbuffer = new double[buffer.length << 1];
-          System.arraycopy(buffer, 0, newbuffer, 0, buffer.length);
-          buffer = newbuffer;
-        }
-        buffer[pos++] = Double.longBitsToDouble(next);
-      }
-      if (buffer.length == pos) {
-        return buffer;
-      }
-      final double[] result = new double[pos];
-      System.arraycopy(buffer, 0, result, 0, pos);
-      return result;
-    } else {
-      // number
-      final double[] buffer = new double[items];
-      for (int i = 0; i < items; i++) {
-        buffer[i] = readDouble(byteOrder);
       }
       return buffer;
     }
@@ -827,12 +793,46 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     this.bitsInBuffer = this.markedBitsInBuffer;
   }
 
-  @Override
-  public synchronized void mark(final int readlimit) {
-    in.mark(readlimit);
-    this.markedBitBuffer = this.bitBuffer;
-    this.markedByteCounter = this.byteCounter;
-    this.markedBitsInBuffer = this.bitsInBuffer;
+  /**
+   * Read number of long items from the input stream.
+   *
+   * @param items     number of items to be read from the input stream, if less than
+   *                  zero then all stream till the end will be read
+   * @param byteOrder the order of bytes to be used to decode values
+   * @return read items as a long array
+   * @throws IOException it will be thrown for any transport problem during the
+   *                     operation
+   * @see JBBPByteOrder#BIG_ENDIAN
+   * @see JBBPByteOrder#LITTLE_ENDIAN
+   */
+  public long[] readLongArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
+    int pos = 0;
+    if (items < 0) {
+      long[] buffer = new long[INITIAL_ARRAY_BUFFER_SIZE];
+      // till end
+      while (hasAvailableData()) {
+        final long next = readLong(byteOrder);
+        if (buffer.length == pos) {
+          final long[] newBuffer = new long[buffer.length << 1];
+          System.arraycopy(buffer, 0, newBuffer, 0, buffer.length);
+          buffer = newBuffer;
+        }
+        buffer[pos++] = next;
+      }
+      if (buffer.length == pos) {
+        return buffer;
+      }
+      final long[] result = new long[pos];
+      System.arraycopy(buffer, 0, result, 0, pos);
+      return result;
+    } else {
+      // number
+      final long[] buffer = new long[items];
+      for (int i = 0; i < items; i++) {
+        buffer[i] = readLong(byteOrder);
+      }
+      return buffer;
+    }
   }
 
   /**
@@ -897,21 +897,47 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   }
 
   /**
-   * Read the next stream byte into bit buffer.
+   * Read number of double items from the input stream.
    *
-   * @return the read byte or -1 if the endo of stream has been reached.
-   * @throws IOException it will be thrown for transport errors
+   * @param items     number of items to be read from the input stream, if less than
+   *                  zero then all stream till the end will be read
+   * @param byteOrder the order of bytes to be used to decode values
+   * @return read items as a double array
+   * @throws IOException it will be thrown for any transport problem during the
+   *                     operation
+   * @see JBBPByteOrder#BIG_ENDIAN
+   * @see JBBPByteOrder#LITTLE_ENDIAN
+   * @since 1.4.0
    */
-  private int loadNextByteInBuffer() throws IOException {
-    final int value = this.readByteFromStream();
-    if (value < 0) {
-      return value;
+  public double[] readDoubleArray(final int items, final JBBPByteOrder byteOrder)
+      throws IOException {
+    int pos = 0;
+    if (items < 0) {
+      double[] buffer = new double[INITIAL_ARRAY_BUFFER_SIZE];
+      // till end
+      while (hasAvailableData()) {
+        final long next = readLong(byteOrder);
+        if (buffer.length == pos) {
+          final double[] newBuffer = new double[buffer.length << 1];
+          System.arraycopy(buffer, 0, newBuffer, 0, buffer.length);
+          buffer = newBuffer;
+        }
+        buffer[pos++] = Double.longBitsToDouble(next);
+      }
+      if (buffer.length == pos) {
+        return buffer;
+      }
+      final double[] result = new double[pos];
+      System.arraycopy(buffer, 0, result, 0, pos);
+      return result;
+    } else {
+      // number
+      final double[] buffer = new double[items];
+      for (int i = 0; i < items; i++) {
+        buffer[i] = readDouble(byteOrder);
+      }
+      return buffer;
     }
-
-    this.bitBuffer = value;
-    this.bitsInBuffer = 8;
-
-    return value;
   }
 
   /**
@@ -937,49 +963,22 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     return this.bitsInBuffer > 0 || loadNextByteInBuffer() >= 0;
   }
 
-  @SuppressWarnings("NullableProblems")
-  @Override
-  public int read(final byte[] array, final int offset, final int length) throws IOException {
-    if (this.bitsInBuffer == 0) {
-      int readBytes = 0;
-      int tmpoffset = offset;
-      int tmplen = length;
-      while (tmplen > 0) {
-        int read = this.in.read(array, tmpoffset, tmplen);
-        if (read < 0) {
-          readBytes = readBytes == 0 ? read : readBytes;
-          break;
-        }
-        tmplen -= read;
-        tmpoffset += read;
-        readBytes += read;
-        this.byteCounter += read;
-      }
-
-      if (this.msb0) {
-        int index = offset;
-        int number = readBytes;
-        while (number > 0) {
-          array[index] = JBBPUtils.reverseBitsInByte(array[index]);
-          index++;
-          number--;
-        }
-      }
-
-      return readBytes;
-    } else {
-      int count = length;
-      int i = offset;
-      while (count > 0) {
-        final int nextByte = this.readBits(JBBPBitNumber.BITS_8);
-        if (nextByte < 0) {
-          break;
-        }
-        count--;
-        array[i++] = (byte) nextByte;
-      }
-      return length - count;
+  /**
+   * Read the next stream byte into bit buffer.
+   *
+   * @return the read byte or -1 if the end of stream has been reached.
+   * @throws IOException it will be thrown for transport errors
+   */
+  private int loadNextByteInBuffer() throws IOException {
+    final int value = this.readByteFromStream();
+    if (value < 0) {
+      return value;
     }
+
+    this.bitBuffer = value;
+    this.bitsInBuffer = 8;
+
+    return value;
   }
 
   /**
@@ -1001,7 +1000,6 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     this.byteCounter = 0L;
   }
 
-  @SuppressWarnings("NullableProblems")
   @Override
   public int read(final byte[] array) throws IOException {
     return this.read(array, 0, array.length);
@@ -1087,9 +1085,8 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
     return result;
   }
 
-
   /**
-   * Read array of srings from stream.
+   * Read array of strings from stream.
    *
    * @param items     number of items, or -1 if read whole stream
    * @param byteOrder order of bytes in structure, must not be null
@@ -1107,9 +1104,9 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       while (hasAvailableData()) {
         final String next = readString(byteOrder);
         if (buffer.length == pos) {
-          final String[] newbuffer = new String[buffer.length << 1];
-          System.arraycopy(buffer, 0, newbuffer, 0, buffer.length);
-          buffer = newbuffer;
+          final String[] newBuffer = new String[buffer.length << 1];
+          System.arraycopy(buffer, 0, newBuffer, 0, buffer.length);
+          buffer = newBuffer;
         }
         buffer[pos++] = next;
       }

@@ -18,7 +18,6 @@ package com.igormaznitsa.jbbp.io;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Random;
@@ -84,9 +83,9 @@ public class BitIOCommonTest {
 
     final JBBPBitOutputStream out = new JBBPBitOutputStream(buff);
 
-    int writenBits = 0;
+    int writtenBits = 0;
     for (int i = 0; i < LEN; i++) {
-      writenBits += len[i];
+      writtenBits += len[i];
       out.writeBits(array[i], JBBPBitNumber.decode(len[i]));
     }
 
@@ -98,7 +97,7 @@ public class BitIOCommonTest {
       assertEquals(array[i] & 0xFF, in.readBits(JBBPBitNumber.decode(len[i])), "Index i=" + i);
     }
 
-    if (writenBits % 8 == 0) {
+    if (writtenBits % 8 == 0) {
       assertEquals(-1, in.read());
     } else {
       assertEquals(0, in.read());

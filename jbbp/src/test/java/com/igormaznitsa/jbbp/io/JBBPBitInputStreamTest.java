@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-
 import com.igormaznitsa.jbbp.TestUtils;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.ByteArrayInputStream;
@@ -42,7 +41,7 @@ public class JBBPBitInputStreamTest {
     final byte[] bytearray = new byte[array.length];
     for (int i = 0; i < array.length; i++) {
       if ((array[i] & 0xFFFFFF00) != 0) {
-        fail("Unconvertable byte value [" + array[i] + ']');
+        fail("Non-convertible byte value [" + array[i] + ']');
       }
       bytearray[i] = (byte) array[i];
     }

@@ -215,7 +215,7 @@ public final class JBBPUtils {
    *
    * @param array     the array to be converted, it must not be null
    * @param prefix    the prefix for each converted value, it can be null
-   * @param delimiter the delimeter for string representations
+   * @param delimiter the delimiter for string representations
    * @param brackets  if true then place the result into square brackets
    * @param radix     the base for conversion
    * @return the string representation of the byte array
@@ -227,10 +227,10 @@ public final class JBBPUtils {
       return null;
     }
 
-    final int maxlen = Integer.toString(0xFF, radix).length();
+    final int maxLength = Integer.toString(0xFF, radix).length();
     final String zero = "00000000";
 
-    final String normDelim = delimiter == null ? " " : delimiter;
+    final String normDelimiter = delimiter == null ? " " : delimiter;
     final String normPrefix = prefix == null ? "" : prefix;
 
     final StringBuilder result = new StringBuilder(array.length * 4);
@@ -239,20 +239,20 @@ public final class JBBPUtils {
       result.append('[');
     }
 
-    boolean nofirst = false;
+    boolean notFirst = false;
 
     for (final byte b : array) {
-      if (nofirst) {
-        result.append(normDelim);
+      if (notFirst) {
+        result.append(normDelimiter);
       } else {
-        nofirst = true;
+        notFirst = true;
       }
 
       result.append(normPrefix);
 
       final String v = Integer.toString(b & 0xFF, radix);
-      if (v.length() < maxlen) {
-        result.append(zero, 0, maxlen - v.length());
+      if (v.length() < maxLength) {
+        result.append(zero, 0, maxLength - v.length());
       }
       result.append(v.toUpperCase(Locale.ENGLISH));
     }
@@ -327,13 +327,13 @@ public final class JBBPUtils {
 
     final StringBuilder result = new StringBuilder(values.length * (separateBytes ? 9 : 8));
 
-    boolean nofirst = false;
+    boolean notFirst = false;
     for (final byte b : values) {
       if (separateBytes) {
-        if (nofirst) {
+        if (notFirst) {
           result.append(' ');
         } else {
-          nofirst = true;
+          notFirst = true;
         }
       }
 
@@ -441,7 +441,7 @@ public final class JBBPUtils {
   }
 
   /**
-   * Split a string for a char used as the delimeter.
+   * Split a string for a char used as the delimiter.
    *
    * @param str       a string to be split
    * @param splitChar a char to be used as delimeter
@@ -449,7 +449,7 @@ public final class JBBPUtils {
    */
   public static String[] splitString(final String str, final char splitChar) {
     final int length = str.length();
-    final StringBuilder bulder = new StringBuilder(Math.max(8, length));
+    final StringBuilder builder = new StringBuilder(Math.max(8, length));
 
     int counter = 1;
     for (int i = 0; i < length; i++) {
@@ -464,14 +464,14 @@ public final class JBBPUtils {
     for (int i = 0; i < length; i++) {
       final char chr = str.charAt(i);
       if (chr == splitChar) {
-        result[position++] = bulder.toString();
-        bulder.setLength(0);
+        result[position++] = builder.toString();
+        builder.setLength(0);
       } else {
-        bulder.append(chr);
+        builder.append(chr);
       }
     }
     if (position < result.length) {
-      result[position] = bulder.toString();
+      result[position] = builder.toString();
     }
 
     return result;
@@ -603,16 +603,16 @@ public final class JBBPUtils {
     } else {
       result = buffer;
     }
-    int tmpvalue = value;
+    int tempValue = value;
     if (valueInLittleEndian) {
       for (int i = 0; i < 4; i++) {
-        result[i] = (byte) tmpvalue;
-        tmpvalue >>>= 8;
+        result[i] = (byte) tempValue;
+        tempValue >>>= 8;
       }
     } else {
       for (int i = 3; i >= 0; i--) {
-        result[i] = (byte) tmpvalue;
-        tmpvalue >>>= 8;
+        result[i] = (byte) tempValue;
+        tempValue >>>= 8;
       }
     }
     return result;
@@ -638,16 +638,16 @@ public final class JBBPUtils {
     } else {
       result = buffer;
     }
-    long tmpvalue = value;
+    long tempValue = value;
     if (valueInLittleEndian) {
       for (int i = 0; i < 8; i++) {
-        result[i] = (byte) tmpvalue;
-        tmpvalue >>>= 8;
+        result[i] = (byte) tempValue;
+        tempValue >>>= 8;
       }
     } else {
       for (int i = 7; i >= 0; i--) {
-        result[i] = (byte) tmpvalue;
-        tmpvalue >>>= 8;
+        result[i] = (byte) tempValue;
+        tempValue >>>= 8;
       }
     }
     return result;
@@ -695,9 +695,9 @@ public final class JBBPUtils {
     int offsetInResult = (numOfLowerBytesToInvert - 1) * 8;
 
     while (numOfLowerBytesToInvert-- > 0) {
-      final long thebyte = value & 0xFF;
+      final long b = value & 0xFF;
       value >>>= 8;
-      result |= (thebyte << offsetInResult);
+      result |= (b << offsetInResult);
       offsetInResult -= 8;
     }
 
@@ -957,9 +957,9 @@ public final class JBBPUtils {
     if (array.length >= str.length) {
       result = true;
       int index = str.length;
-      int arrindex = array.length;
+      int arrayIndex = array.length;
       while (--index >= 0) {
-        if (array[--arrindex] != str[index]) {
+        if (array[--arrayIndex] != str[index]) {
           result = false;
           break;
         }

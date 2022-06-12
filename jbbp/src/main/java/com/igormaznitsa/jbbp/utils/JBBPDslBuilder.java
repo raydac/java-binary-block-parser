@@ -1627,19 +1627,19 @@ public class JBBPDslBuilder {
    * @return container which contains all found items
    */
   protected BinFieldContainer collectAnnotatedFields(final Class<?> annotatedClass) {
-    final Bin defautBin = annotatedClass.getAnnotation(Bin.class);
+    final Bin defaultBin = annotatedClass.getAnnotation(Bin.class);
 
     final BinFieldContainer result;
-    if (defautBin != null) {
-      result = new BinFieldContainer(annotatedClass, defautBin, true, null);
+    if (defaultBin != null) {
+      result = new BinFieldContainer(annotatedClass, defaultBin, true, null);
     } else {
       result = new BinFieldContainer(annotatedClass, null);
     }
 
-    final Class<?> superclazz = annotatedClass.getSuperclass();
+    final Class<?> superClass = annotatedClass.getSuperclass();
 
-    if (superclazz != null && superclazz != Object.class) {
-      final BinFieldContainer parentFields = collectAnnotatedFields(superclazz);
+    if (superClass != null && superClass != Object.class) {
+      final BinFieldContainer parentFields = collectAnnotatedFields(superClass);
       if (!parentFields.fields.isEmpty()) {
         result.addAllFromContainer(parentFields);
       }
@@ -1651,8 +1651,8 @@ public class JBBPDslBuilder {
               Modifier.TRANSIENT)) == 0) {
         final Bin foundFieldBin = f.getAnnotation(Bin.class);
 
-        if (foundFieldBin != null || defautBin != null) {
-          validateAnnotatedField(defautBin, foundFieldBin, f);
+        if (foundFieldBin != null || defaultBin != null) {
+          validateAnnotatedField(defaultBin, foundFieldBin, f);
 
           final Class<?> type =
               f.getType().isArray() ? f.getType().getComponentType() : f.getType();
@@ -1660,8 +1660,8 @@ public class JBBPDslBuilder {
             if (foundFieldBin != null) {
               result.addBinField(foundFieldBin, true, f);
             } else {
-              if (defautBin != null) {
-                result.addBinField(defautBin, false, f);
+              if (defaultBin != null) {
+                result.addBinField(defaultBin, false, f);
               }
             }
           } else {
@@ -1741,11 +1741,11 @@ public class JBBPDslBuilder {
 
     class Pair {
       final BinFieldContainer container;
-      final Iterator<BinField> iter;
+      final Iterator<BinField> fieldIterator;
 
       Pair(final BinFieldContainer container) {
         this.container = container;
-        this.iter = container.fields.iterator();
+        this.fieldIterator = container.fields.iterator();
       }
     }
 
@@ -1771,20 +1771,20 @@ public class JBBPDslBuilder {
 
     while (!stack.isEmpty()) {
       final Pair pair = stack.remove(0);
-      while (pair.iter.hasNext()) {
-        final BinField field = pair.iter.next();
+      while (pair.fieldIterator.hasNext()) {
+        final BinField field = pair.fieldIterator.next();
         if (field instanceof BinFieldContainer) {
-          final BinFieldContainer conty = (BinFieldContainer) field;
-          if (conty == BinFieldContainer.END_STRUCT) {
+          final BinFieldContainer binFieldContainer = (BinFieldContainer) field;
+          if (binFieldContainer == BinFieldContainer.END_STRUCT) {
             this.CloseStruct();
           } else {
             if (field.isArrayField()) {
-              this.StructArray(conty.getName(), conty.bin.arraySizeExpr());
+              this.StructArray(binFieldContainer.getName(), binFieldContainer.bin.arraySizeExpr());
             } else {
-              this.Struct(conty.getName());
+              this.Struct(binFieldContainer.getName());
             }
             stack.add(0, pair);
-            stack.add(0, new Pair(conty));
+            stack.add(0, new Pair(binFieldContainer));
             break;
           }
         } else {

@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
@@ -82,7 +81,7 @@ public class CustomThreeByteIntegerTypeTest extends AbstractParserIntegrationTes
   @Test
   public void testReadThreeByteInteger_OneValue() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("int24 value;", new Int24CustomTypeProcessor());
-    final JBBPParser inverseparser =
+    final JBBPParser inverseParser =
         JBBPParser.prepare("<int24 value;", new Int24CustomTypeProcessor());
     assertEquals(0x010203,
         parser.parse(new byte[] {0x01, 0x02, 0x03}).findFieldForType(JBBPFieldInt.class)
@@ -91,9 +90,9 @@ public class CustomThreeByteIntegerTypeTest extends AbstractParserIntegrationTes
         new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {0x01, 0x02, 0x03}),
             JBBPBitOrder.MSB0)).findFieldForType(JBBPFieldInt.class).getAsInt());
     assertEquals(0x030201,
-        inverseparser.parse(new byte[] {0x01, 0x02, 0x03}).findFieldForType(JBBPFieldInt.class)
+        inverseParser.parse(new byte[] {0x01, 0x02, 0x03}).findFieldForType(JBBPFieldInt.class)
             .getAsInt());
-    assertEquals(0xC04080, inverseparser.parse(
+    assertEquals(0xC04080, inverseParser.parse(
         new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {0x01, 0x02, 0x03}),
             JBBPBitOrder.MSB0)).findFieldForType(JBBPFieldInt.class).getAsInt());
   }
@@ -135,9 +134,9 @@ public class CustomThreeByteIntegerTypeTest extends AbstractParserIntegrationTes
 
     public IntBuffer put(final int value) {
       if (this.freePos == this.buffer.length) {
-        final int[] newbuffer = new int[(this.buffer.length * 3) / 2];
-        System.arraycopy(this.buffer, 0, newbuffer, 0, this.buffer.length);
-        this.buffer = newbuffer;
+        final int[] newBuffer = new int[(this.buffer.length * 3) / 2];
+        System.arraycopy(this.buffer, 0, newBuffer, 0, this.buffer.length);
+        this.buffer = newBuffer;
       }
       this.buffer[this.freePos++] = value;
       return this;

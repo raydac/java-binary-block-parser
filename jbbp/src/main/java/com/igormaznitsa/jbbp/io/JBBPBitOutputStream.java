@@ -247,7 +247,6 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
     this.out.flush();
   }
 
-  @SuppressWarnings("NullableProblems")
   @Override
   public void write(final byte[] b, final int off, final int len) throws IOException {
     if (this.msb0 || this.bitBufferCount != 0) {
@@ -263,7 +262,6 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
     }
   }
 
-  @SuppressWarnings("NullableProblems")
   @Override
   public void write(final byte[] b) throws IOException {
     this.write(b, 0, b.length);
@@ -286,12 +284,12 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
       initialMask = 1;
       mask = initialMask << this.bitBufferCount;
 
-      int accum = value;
+      int accumulator = value;
       int i = bitNumber.getBitNumber();
 
       while (i > 0) {
-        this.bitBuffer = this.bitBuffer | ((accum & 1) == 0 ? 0 : mask);
-        accum >>= 1;
+        this.bitBuffer = this.bitBuffer | ((accumulator & 1) == 0 ? 0 : mask);
+        accumulator >>= 1;
 
         mask = mask << 1;
 
