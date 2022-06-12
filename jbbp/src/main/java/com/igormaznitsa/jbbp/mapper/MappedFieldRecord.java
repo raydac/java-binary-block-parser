@@ -299,12 +299,12 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
         value = intArray;
       } else if (arrayField instanceof JBBPFieldArrayUShort &&
           mappingField.getType().getComponentType() == char.class) {
-        final short[] shortarray = (short[]) arrayField.getValueArrayAsObject(invertBitOrder);
-        final char[] chararray = new char[shortarray.length];
-        for (int i = 0; i < shortarray.length; i++) {
-          chararray[i] = (char) shortarray[i];
+        final short[] shortArray = (short[]) arrayField.getValueArrayAsObject(invertBitOrder);
+        final char[] charArray = new char[shortArray.length];
+        for (int i = 0; i < shortArray.length; i++) {
+          charArray[i] = (char) shortArray[i];
         }
-        value = chararray;
+        value = charArray;
       } else {
         value = arrayField.getValueArrayAsObject(invertBitOrder);
       }
@@ -540,7 +540,6 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
     }
   }
 
-  @SuppressWarnings("TryWithIdenticalCatches")
   private static <T> T tryMakeInstance(
           final Class<T> type,
           final JBBPAbstractField binField,
