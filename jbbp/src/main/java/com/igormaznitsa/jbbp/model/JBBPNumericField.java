@@ -26,6 +26,7 @@ public interface JBBPNumericField extends JBBPInvertableBitOrder, JBBPNamedField
    * Get the field value as integer.
    *
    * @return the field value as integer
+   * @throws IllegalStateException can be thrown if impossible to represent saved value as int
    */
   int getAsInt();
 
@@ -33,6 +34,7 @@ public interface JBBPNumericField extends JBBPInvertableBitOrder, JBBPNamedField
    * Get the field value as double.
    *
    * @return the field value as double
+   * @throws IllegalStateException can be thrown if impossible to represent saved value as double
    * @since 1.4.0
    */
   double getAsDouble();
@@ -41,6 +43,7 @@ public interface JBBPNumericField extends JBBPInvertableBitOrder, JBBPNamedField
    * Get the field value as float.
    *
    * @return the field value as float
+   * @throws IllegalStateException can be thrown if impossible to represent saved value as float
    * @since 1.4.0
    */
   float getAsFloat();
@@ -49,6 +52,7 @@ public interface JBBPNumericField extends JBBPInvertableBitOrder, JBBPNamedField
    * Get the field value as long
    *
    * @return the field value as long
+   * @throws IllegalStateException can be thrown if impossible to represent saved value as long
    */
   long getAsLong();
 
@@ -56,6 +60,7 @@ public interface JBBPNumericField extends JBBPInvertableBitOrder, JBBPNamedField
    * Get the field value as boolean, usually if the value is 0 then false, true otherwise.
    *
    * @return the field value as boolean
+   * @throws IllegalStateException can be thrown if impossible to represent saved value as boolean
    */
   boolean getAsBool();
 
