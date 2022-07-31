@@ -48,7 +48,7 @@ public final strictfp class JBBPFieldUInt extends JBBPAbstractField implements J
     if (this.value >= 0) {
       return this.value;
     } else {
-      throw new IllegalStateException("Can't be represented as signed int: 0x" +
+      throw new IllegalStateException("can't convert UINT value into signed INT: 0x" +
           (Long.toHexString(this.value & 0xFFFFFFFFL).toUpperCase(
               Locale.ENGLISH)));
     }
