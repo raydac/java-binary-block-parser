@@ -31,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.TestUtils;
 import com.igormaznitsa.jbbp.exceptions.JBBPMapperException;
+import com.igormaznitsa.jbbp.exceptions.JBBPNumericFieldValueConversionException;
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPOut;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
@@ -295,7 +296,7 @@ public class JBBPMapperTest {
       @Bin(type = BinType.UINT)
       int a;
     }
-    assertThrows(IllegalStateException.class,
+    assertThrows(JBBPNumericFieldValueConversionException.class,
         () -> {
           JBBPParser.prepare("uint a;")
               .parse(new byte[] {(byte) 0xFF, (byte) 0xA0, (byte) 0xB0, (byte) 0xC0})

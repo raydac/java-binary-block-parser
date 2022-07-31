@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.exceptions.JBBPNumericFieldValueConversionException;
 import org.junit.jupiter.api.Test;
 
 public class JBBPFieldUIntTest {
@@ -53,7 +54,7 @@ public class JBBPFieldUIntTest {
     assertEquals(234324,
         new JBBPFieldUInt(new JBBPNamedFieldInfo("test.field", "field", 123), 234324).getAsInt());
 
-    assertThrows(IllegalStateException.class, () ->
+    assertThrows(JBBPNumericFieldValueConversionException.class, () ->
         new JBBPFieldUInt(new JBBPNamedFieldInfo("test.field", "field", 123), -234324).getAsInt());
   }
 

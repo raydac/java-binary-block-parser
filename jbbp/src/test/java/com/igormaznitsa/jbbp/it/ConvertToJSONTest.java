@@ -16,6 +16,7 @@
 
 package com.igormaznitsa.jbbp.it;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.igormaznitsa.jbbp.JBBPParser;
@@ -146,7 +147,7 @@ public class ConvertToJSONTest extends AbstractParserIntegrationTest {
 
       final JSONObject json = convertToJSon(null, pngParser.parse(pngStream));
       final String jsonText = json.toJSONString(JSONStyle.MAX_COMPRESS);
-      assertTrue(jsonText.length() == 13917);
+      assertEquals(13917, jsonText.length());
       assertTrue(jsonText.contains("header:"));
       assertTrue(jsonText.contains("chunk:{"));
       assertTrue(jsonText.contains("length:"));

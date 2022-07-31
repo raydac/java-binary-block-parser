@@ -17,6 +17,7 @@
 package com.igormaznitsa.jbbp.model;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.exceptions.JBBPNumericFieldValueConversionException;
 import java.util.Locale;
 
 /**
@@ -48,9 +49,9 @@ public final strictfp class JBBPFieldUInt extends JBBPAbstractField implements J
     if (this.value >= 0) {
       return this.value;
     } else {
-      throw new IllegalStateException("can't convert UINT value into signed INT: 0x" +
+      throw new JBBPNumericFieldValueConversionException(this, "UINT 0x" +
           (Long.toHexString(this.value & 0xFFFFFFFFL).toUpperCase(
-              Locale.ENGLISH)));
+              Locale.ENGLISH)) + " can't be represented as INT");
     }
   }
 

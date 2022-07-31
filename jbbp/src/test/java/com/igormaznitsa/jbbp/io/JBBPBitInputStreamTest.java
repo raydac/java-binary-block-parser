@@ -18,6 +18,7 @@ package com.igormaznitsa.jbbp.io;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -175,7 +176,7 @@ public class JBBPBitInputStreamTest {
 
   @Test
   public void testReadString_BigEndan_Null() throws Exception {
-    assertEquals(null, asInputStream(0xFF).readString(JBBPByteOrder.BIG_ENDIAN));
+    assertNull(asInputStream(0xFF).readString(JBBPByteOrder.BIG_ENDIAN));
   }
 
   @Test
@@ -196,7 +197,7 @@ public class JBBPBitInputStreamTest {
 
   @Test
   public void testReadString_LittleEndan_Null() throws Exception {
-    assertEquals(null, asInputStream(0xFF).readString(JBBPByteOrder.LITTLE_ENDIAN));
+    assertNull(asInputStream(0xFF).readString(JBBPByteOrder.LITTLE_ENDIAN));
   }
 
   @Test
@@ -1264,7 +1265,7 @@ public class JBBPBitInputStreamTest {
 
     assertEquals(testarray.length, read.length);
     for (int i = 0; i < read.length; i++) {
-      assertTrue(read[i] == (testarray[i] != 0));
+      assertEquals(read[i], (testarray[i] != 0));
     }
   }
 

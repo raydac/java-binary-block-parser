@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
+import com.igormaznitsa.jbbp.exceptions.JBBPNumericFieldValueConversionException;
 import com.igormaznitsa.jbbp.exceptions.JBBPParsingException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTooManyFieldsFoundException;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
@@ -2487,7 +2488,10 @@ public class JBBPParserTest {
 
     assertEquals(2, length.getAsInt());
     assertEquals(2, array.size());
-    assertThrows(IllegalStateException.class, () -> array.getElementAt(0).getAsInt());
+
+    JBBPNumericFieldValueConversionException exception = assertThrows(JBBPNumericFieldValueConversionException.class, () -> array.getElementAt(0).getAsInt());
+    assertTrue(exception.toString().contains("0xFFF0E012"));
+
     assertEquals(0xFFF0E012L, array.getElementAt(0).getAsLong());
     assertEquals(0x01020304, array.getElementAt(1).getAsInt());
   }

@@ -1,13 +1,14 @@
-def getProp(name, dflt) {
+def getProp(name, defaultValue) {
     if (project.hasProperty(name)) {
         return project.getProperty(name)
     } else {
         logger.warn('Can not find property "' + name + '" is not found')
-        return dflt
+        return defaultValue
     }
 }
 
-def jbbpVersion = getProp('jbbp_plugin_version', '2.0.4-SNAPSHOT')
+def jbbpVersion = getProp('jbbp_plugin_version', '2.0.4')
+def metaLibVersion = getProp('meta_lib_version', '1.1.2')
 
 group = 'com.igormaznitsa'
 version = jbbpVersion
@@ -26,6 +27,9 @@ dependencies {
     implementation "commons-io:commons-io:2.8.0"
     implementation "com.igormaznitsa:jbbp:" + jbbpVersion
 
+    implementation "com.igormaznitsa:meta-annotations:" + metaLibVersion
+    implementation "com.igormaznitsa:meta-utils:" + metaLibVersion
+
     testImplementation 'junit:junit:4.13.1'
 }
 
@@ -41,7 +45,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath "com.gradle.publish:plugin-publish-plugin:0.16.0"
+        classpath "com.gradle.publish:plugin-publish-plugin:0.21.0"
     }
 }
 

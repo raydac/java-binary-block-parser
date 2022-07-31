@@ -87,13 +87,13 @@ public class JBBPIntCounterTest {
   @Test
   public void testFloatValue() {
     final JBBPIntCounter counter = new JBBPIntCounter(5);
-    assertTrue(Float.compare(5.0f, counter.floatValue()) == 0);
+    assertEquals(0, Float.compare(5.0f, counter.floatValue()));
   }
 
   @Test
   public void testDoubleValue() {
     final JBBPIntCounter counter = new JBBPIntCounter(5);
-    assertTrue(Double.compare(5.0d, counter.doubleValue()) == 0);
+    assertEquals(0, Double.compare(5.0d, counter.doubleValue()));
   }
 
   @Test

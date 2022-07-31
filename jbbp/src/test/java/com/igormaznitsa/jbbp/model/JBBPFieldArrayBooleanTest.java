@@ -51,7 +51,7 @@ public class JBBPFieldArrayBooleanTest {
     final boolean[] array = test.getArray();
     assertEquals(etalon.length, array.length);
     for (int i = 0; i < etalon.length; i++) {
-      assertTrue(etalon[i] == array[i]);
+      assertEquals(etalon[i], array[i]);
     }
   }
 
@@ -96,7 +96,7 @@ public class JBBPFieldArrayBooleanTest {
     final boolean[] etalon = new boolean[] {true, false, true, true, false};
     int index = 0;
     for (final JBBPFieldBoolean f : test) {
-      assertTrue(etalon[index++] == f.getAsBool());
+      assertEquals(etalon[index++], f.getAsBool());
     }
   }
 
@@ -105,7 +105,7 @@ public class JBBPFieldArrayBooleanTest {
     final boolean[] noninverted = (boolean[]) test.getValueArrayAsObject(false);
     assertEquals(array.length, noninverted.length);
     for (int i = 0; i < array.length; i++) {
-      assertTrue(array[i] == noninverted[i]);
+      assertEquals(array[i], noninverted[i]);
     }
 
     final boolean[] inverted = (boolean[]) test.getValueArrayAsObject(true);

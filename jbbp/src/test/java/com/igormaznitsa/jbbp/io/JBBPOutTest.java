@@ -1600,7 +1600,7 @@ public class JBBPOutTest {
           assertNotNull(instanceCustomField);
           assertNotNull(fieldAnnotation);
           assertEquals("b", instanceCustomField.getName());
-          assertTrue(instanceToSave.getClass() == instanceCustomField.getDeclaringClass());
+          assertSame(instanceToSave.getClass(), instanceCustomField.getDeclaringClass());
 
           context.Byte(2, 3);
         }).End().toByteArray());

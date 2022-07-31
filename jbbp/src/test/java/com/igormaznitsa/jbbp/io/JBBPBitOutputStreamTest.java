@@ -55,10 +55,10 @@ public class JBBPBitOutputStreamTest {
 
     assertEquals(0L, out.getCounter());
     out.write(1);
-    assertTrue(out.getBufferedBitsNumber() == 0);
+    assertEquals(0, out.getBufferedBitsNumber());
     assertEquals(1L, out.getCounter());
     out.resetCounter();
-    assertTrue(out.getBufferedBitsNumber() == 0);
+    assertEquals(0, out.getBufferedBitsNumber());
     assertEquals(0L, out.getCounter());
   }
 
@@ -73,7 +73,7 @@ public class JBBPBitOutputStreamTest {
     assertTrue(out.getBufferedBitsNumber() > 0);
     assertEquals(1L, out.getCounter());
     out.resetCounter();
-    assertTrue(out.getBufferedBitsNumber() == 0);
+    assertEquals(0, out.getBufferedBitsNumber());
     assertEquals(0L, out.getCounter());
     out.write(2);
     out.close();
