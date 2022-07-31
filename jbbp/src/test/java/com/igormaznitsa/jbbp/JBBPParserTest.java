@@ -44,6 +44,7 @@ import com.igormaznitsa.jbbp.model.JBBPFieldArrayLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayShort;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayStruct;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayUByte;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayUInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayUShort;
 import com.igormaznitsa.jbbp.model.JBBPFieldBit;
 import com.igormaznitsa.jbbp.model.JBBPFieldBoolean;
@@ -56,6 +57,7 @@ import com.igormaznitsa.jbbp.model.JBBPFieldShort;
 import com.igormaznitsa.jbbp.model.JBBPFieldString;
 import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import com.igormaznitsa.jbbp.model.JBBPFieldUByte;
+import com.igormaznitsa.jbbp.model.JBBPFieldUInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldUShort;
 import com.igormaznitsa.jbbp.utils.JBBPIntCounter;
 import com.igormaznitsa.jbbp.utils.TargetSources;
@@ -2471,6 +2473,23 @@ public class JBBPParserTest {
     assertEquals(1, src.size());
     assertEquals("byte a;", src.get(0).getMetadata().getProperty("script"));
     assertTrue(src.get(0).getResult().get("SomeClass.java").length() > 128);
+  }
+
+  @Test
+  public void testUintUseInExpression() throws Exception {
+    final JBBPParser parser = JBBPParser.prepare("uint length; uint[(length * 2) >> 1] array;");
+    final JBBPFieldStruct struct = parser.parse(
+        new byte[] {0, 0, 0, 2, (byte) 0xFF, (byte) 0xF0, (byte) 0xE0, (byte) 0x12, 0x01, 0x02,
+            0x03, 0x04});
+    final JBBPFieldUInt length = struct.findFieldForPathAndType("length", JBBPFieldUInt.class);
+    final JBBPFieldArrayUInt array =
+        struct.findFieldForPathAndType("array", JBBPFieldArrayUInt.class);
+
+    assertEquals(2, length.getAsInt());
+    assertEquals(2, array.size());
+    assertThrows(IllegalStateException.class, () -> array.getElementAt(0).getAsInt());
+    assertEquals(0xFFF0E012L, array.getElementAt(0).getAsLong());
+    assertEquals(0x01020304, array.getElementAt(1).getAsInt());
   }
 
 }
