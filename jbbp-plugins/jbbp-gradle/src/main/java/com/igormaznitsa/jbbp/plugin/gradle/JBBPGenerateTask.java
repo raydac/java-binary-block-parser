@@ -44,6 +44,10 @@ public class JBBPGenerateTask extends AbstractJBBPTask {
   @Optional
   protected boolean addSource = true;
 
+  public boolean isAddSource() {
+    return this.addSource;
+  }
+
   @Override
   protected void doTaskAction(@Nonnull final JBBPExtension ext) {
     final Target target = GetUtils.ensureNonNull(ext.target, Target.JAVA);

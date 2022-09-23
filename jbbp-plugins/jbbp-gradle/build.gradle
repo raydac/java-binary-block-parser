@@ -2,7 +2,7 @@ def getProp(name, defaultValue) {
     if (project.hasProperty(name)) {
         return project.getProperty(name)
     } else {
-        logger.warn('Can not find property "' + name + '" is not found')
+        logger.warn('Can not find provided property "' + name + '", default value ' + defaultValue + ' in use')
         return defaultValue
     }
 }
@@ -24,13 +24,13 @@ dependencies {
     implementation gradleApi()
     implementation localGroovy()
 
-    implementation "commons-io:commons-io:2.8.0"
+    implementation 'commons-io:commons-io:2.11.0'
     implementation "com.igormaznitsa:jbbp:" + jbbpVersion
 
     implementation "com.igormaznitsa:meta-annotations:" + metaLibVersion
     implementation "com.igormaznitsa:meta-utils:" + metaLibVersion
 
-    testImplementation 'junit:junit:4.13.1'
+    testImplementation 'junit:junit:4.13.2'
 }
 
 repositories {
@@ -45,8 +45,14 @@ buildscript {
         }
     }
     dependencies {
-        classpath "com.gradle.publish:plugin-publish-plugin:0.21.0"
+        classpath "com.gradle.publish:plugin-publish-plugin:1.0.0"
     }
+}
+
+task sourcesJar(type: Jar) {
+    duplicatesStrategy = 'include'
+    classifier = 'sources'
+    from sourceSets.main.allSource
 }
 
 sourceSets {
@@ -61,13 +67,16 @@ sourceSets {
 pluginBundle {
     website = 'https://github.com/raydac/java-binary-block-parser'
     vcsUrl = 'https://github.com/raydac/java-binary-block-parser'
-    description = 'JBBP script translator!'
     tags = ['jbbp', 'converter']
+}
 
+gradlePlugin {
     plugins {
-        JBBPPlugin {
+        jbbpPlugin {
             id = 'com.igormaznitsa.gradle.jbbp'
             displayName = 'JBBP Sources Generator plugin'
+            description = '<Good human-readable description of what your plugin is about>'
+            implementationClass = 'com.igormaznitsa.jbbp.plugin.gradle.JBBPPlugin'
         }
     }
 }

@@ -10,7 +10,8 @@ public class JBBPPlugin implements Plugin<Project> {
   public void apply(@Nonnull final Project project) {
     project.getExtensions().create(JBBPExtension.EXT_NAME, JBBPExtension.class, project);
 
-    JBBPExtension extension = project.getExtensions().create(JBBPExtension.class, JBBPExtension.EXT_NAME, JBBPExtension.class, project);
+    JBBPExtension extension = project.getExtensions()
+        .create(JBBPExtension.class, JBBPExtension.EXT_NAME, JBBPExtension.class, project);
     project.getTasks().register("jbbpGenerate", JBBPGenerateTask.class, task -> {
       task.setDescription("Generate JBBP stuff.");
     });
