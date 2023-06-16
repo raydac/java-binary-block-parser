@@ -35,6 +35,15 @@
         </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>gradle-tests</id>
+            <modules>
+                <module>jbbp-gradle-tests</module>
+            </modules>
+        </profile>
+    </profiles>
+
     <build>
         <plugins>
             <plugin>

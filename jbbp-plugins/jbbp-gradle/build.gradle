@@ -26,7 +26,6 @@ dependencies {
     implementation localGroovy()
 
     implementation 'commons-io:commons-io:2.11.0'
-    implementation ('com.igormaznitsa:jbbp:' + jbbpVersion) { transitive = true }
 
     implementation "com.igormaznitsa:meta-annotations:" + metaLibVersion
     implementation "com.igormaznitsa:meta-utils:" + metaLibVersion
@@ -77,7 +76,7 @@ gradlePlugin {
         jbbpPlugin {
             id = 'com.igormaznitsa.gradle.jbbp'
             displayName = 'JBBP Sources Generator plugin'
-            description = '<Good human-readable description of what your plugin is about>'
+            description = 'Plugin allows to generate Java classes from JBBP scripts'
             implementationClass = 'com.igormaznitsa.jbbp.plugin.gradle.JBBPPlugin'
         }
     }
