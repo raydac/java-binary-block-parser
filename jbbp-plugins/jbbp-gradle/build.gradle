@@ -1,9 +1,10 @@
 def getProp(name, defaultValue) {
-    if (project.hasProperty(name)) {
-        return project.getProperty(name)
-    } else {
+    String found = project.findProperty(name)
+    if (found == null) {
         logger.warn('Can not find provided property "' + name + '", default value ' + defaultValue + ' in use')
         return defaultValue
+    } else {
+        return project.getProperty(name)
     }
 }
 
@@ -25,7 +26,7 @@ dependencies {
     implementation localGroovy()
 
     implementation 'commons-io:commons-io:2.11.0'
-    implementation "com.igormaznitsa:jbbp:" + jbbpVersion
+    implementation ('com.igormaznitsa:jbbp:' + jbbpVersion) { transitive = true }
 
     implementation "com.igormaznitsa:meta-annotations:" + metaLibVersion
     implementation "com.igormaznitsa:meta-utils:" + metaLibVersion
@@ -58,6 +59,7 @@ task sourcesJar(type: Jar) {
 sourceSets {
     main {
         java {
+            srcDirs '../../jbbp/src/main/java'
             srcDirs 'src/main/java'
             srcDirs '../jbbp-plugin-common/src/main/java'
         }
@@ -77,6 +79,14 @@ gradlePlugin {
             displayName = 'JBBP Sources Generator plugin'
             description = '<Good human-readable description of what your plugin is about>'
             implementationClass = 'com.igormaznitsa.jbbp.plugin.gradle.JBBPPlugin'
+        }
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
         }
     }
 }

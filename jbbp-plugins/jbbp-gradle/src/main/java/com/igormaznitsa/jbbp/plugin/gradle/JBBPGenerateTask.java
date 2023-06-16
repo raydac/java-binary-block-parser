@@ -41,7 +41,6 @@ public class JBBPGenerateTask extends AbstractJBBPTask {
    * Flag to register the output folder in Java source folders at the end of process.
    */
   @Input
-  @Optional
   protected boolean addSource = true;
 
   public boolean isAddSource() {

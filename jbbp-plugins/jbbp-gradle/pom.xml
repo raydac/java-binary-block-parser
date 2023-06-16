@@ -104,11 +104,14 @@
                         <configuration>
                             <executable>${gradle.executable}</executable>
                             <arguments>
+                                <argument>clean</argument>
+                                <argument>build</argument>
                                 <argument>${gradleGoal}</argument>
                                 <argument>--info</argument>
                                 <argument>--scan</argument>
                                 <argument>--no-daemon</argument>
-                                <argument>-Djbbp_plugin_version=${project.version}</argument>
+                                <argument>-Pjbbp_plugin_version=${project.version}</argument>
+                                <argument>-Pmeta_lib_version=${meta.version}</argument>
                             </arguments>
                         </configuration>
                         <goals>
