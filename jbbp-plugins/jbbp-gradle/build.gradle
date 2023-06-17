@@ -66,6 +66,7 @@ sourceSets {
 pluginBundle {
     website = 'https://github.com/raydac/java-binary-block-parser'
     vcsUrl = 'https://github.com/raydac/java-binary-block-parser'
+    description = 'The plug-in processes JBBP scripts and generate Java classes from them'
     tags = ['jbbp', 'converter']
 }
 
@@ -74,8 +75,8 @@ gradlePlugin {
         jbbpPlugin {
             id = 'com.igormaznitsa.gradle.jbbp'
             displayName = 'JBBP Sources Generator plugin'
-            description = 'Plugin allows to generate Java classes from JBBP scripts'
             implementationClass = 'com.igormaznitsa.jbbp.plugin.gradle.JBBPPlugin'
+            description = 'The plug-in processes JBBP scripts and generate Java classes from them'
         }
     }
 }
