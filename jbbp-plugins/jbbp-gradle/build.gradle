@@ -1,15 +1,14 @@
-def getProp(name, defaultValue) {
+def getProp(name) {
     String found = project.findProperty(name)
     if (found == null) {
-        logger.warn('Can not find provided property "' + name + '", default value ' + defaultValue + ' in use')
-        return defaultValue
+        GradleException('Property not found: ' + name)
     } else {
         return project.getProperty(name)
     }
 }
 
-def jbbpVersion = getProp('jbbp_plugin_version', '2.0.4')
-def metaLibVersion = getProp('meta_lib_version', '1.1.2')
+def jbbpVersion = getProp('jbbp_plugin_version')
+def metaLibVersion = getProp('meta_lib_version')
 
 group = 'com.igormaznitsa'
 version = jbbpVersion
@@ -25,8 +24,7 @@ dependencies {
     implementation gradleApi()
     implementation localGroovy()
 
-    implementation 'commons-io:commons-io:2.11.0'
-
+    implementation 'commons-io:commons-io:2.13.0'
     implementation "com.igormaznitsa:meta-annotations:" + metaLibVersion
     implementation "com.igormaznitsa:meta-utils:" + metaLibVersion
 
@@ -45,7 +43,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath "com.gradle.publish:plugin-publish-plugin:1.0.0"
+        classpath "com.gradle.publish:plugin-publish-plugin:1.1.0"
     }
 }
 
