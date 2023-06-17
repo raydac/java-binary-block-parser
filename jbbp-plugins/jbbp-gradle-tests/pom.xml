@@ -18,6 +18,9 @@
 
     <modules>
         <module>jbbp-gradle5-plugin-test</module>
+        <module>jbbp-gradle6-plugin-test</module>
+        <module>jbbp-gradle7-plugin-test</module>
+        <module>jbbp-gradle8-plugin-test</module>
     </modules>
 
 </project>

@@ -1,0 +1,8 @@
+ubyte len;
+some1 {
+ bit:4 [len] someField;
+ ubyte len;
+ some2 {
+   byte [len] field;
+ }
+}

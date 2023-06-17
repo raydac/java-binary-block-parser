@@ -1,0 +1,11 @@
+// custom and var fields
+byte bytea;
+some field1;
+<some field2;
+some [23+44] arr1;
+<some [8<<3] arr2;
+var vfield1;
+<var vfield2;
+var [(89+4)*bytea] varr1;
+byte [bytea*3] byteb;
+<var [_] varr2;
