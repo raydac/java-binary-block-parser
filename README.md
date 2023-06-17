@@ -16,21 +16,14 @@ that for Java. So I developed the JBBP library.<br>
 ![Use cases](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_mm.png)
 
 # Change log
+- __2.0.5 (17-jun-2023)__
+  - [#41](https://github.com/raydac/java-binary-block-parser/issues/41) fix for Gradle plug-in
+  - improved tests
 
 - __2.0.4 (01-aug-2022)__
   - added unsigned 32 bit integer type __uint__ [#37](https://github.com/raydac/java-binary-block-parser/issues/37)   
   - provided way to filter fields for mapping operations and write object
     operations [#36](https://github.com/raydac/java-binary-block-parser/issues/36)
-
-- __2.0.3 (03-jan-2021)__
-  - added service methods `JBBPUtils.traceData` to print dump of an input stream into a PrintStream
-  - improved `JBBPTokenizerException` to show marked error
-    position [#30](https://github.com/raydac/java-binary-block-parser/issues/30)
-
-- __2.0.2 (22-aug-2020)__
-  - added `JBBPOut#Bin` variant to override `@Bin` annotation fields in written objects.
-  - [#28](https://github.com/raydac/java-binary-block-parser/issues/28) added `JBBPOut#BinForceByteOrder` to override
-    byte order defined in `@Bin` annotations of written object.
 
 [Full changelog](https://github.com/raydac/java-binary-block-parser/blob/master/changelog.txt)
 
