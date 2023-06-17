@@ -95,13 +95,13 @@ Java classes from a JBBP script. It also can generate multiple classes.
 
 ```Java
   JBBPParser parser=JBBPParser.prepare("byte a; byte b; byte c;");
-        List<ResultSrcItem> generated=parser.convertToSrc(TargetSources.JAVA,"com.test.jbbp.gen.SomeClazz");
-        for(ResultSrcItem i:generated){
-        for(Map.Entry<String, String> j:i.getResult().entrySet()){
-        System.out.println("Class file name "+j.getKey());
-        System.out.println("Class file content "+j.getValue());
-        }
-        }
+  List<ResultSrcItem> generated=parser.convertToSrc(TargetSources.JAVA,"com.test.jbbp.gen.SomeClazz");
+  for(ResultSrcItem i:generated){
+    for(Map.Entry<String, String> j:i.getResult().entrySet()) {
+      System.out.println("Class file name "+j.getKey());
+      System.out.println("Class file content "+j.getValue());
+    }
+  }
 ```
 
 also there are developed plug-ins for both Maven and Gradle to generate sources from JBBP scripts during source generate
