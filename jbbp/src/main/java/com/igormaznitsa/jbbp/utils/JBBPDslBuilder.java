@@ -1641,7 +1641,7 @@ public class JBBPDslBuilder {
     if (superClass != null && superClass != Object.class) {
       final BinFieldContainer parentFields = collectAnnotatedFields(superClass);
       if (!parentFields.fields.isEmpty()) {
-        result.addAllFromContainer(parentFields);
+        result.addAllFromContainerExcludeEndStruct(parentFields);
       }
     }
 
@@ -1660,9 +1660,7 @@ public class JBBPDslBuilder {
             if (foundFieldBin != null) {
               result.addBinField(foundFieldBin, true, f);
             } else {
-              if (defaultBin != null) {
-                result.addBinField(defaultBin, false, f);
-              }
+              result.addBinField(defaultBin, false, f);
             }
           } else {
             final BinFieldContainer container = collectAnnotatedFields(type);
@@ -2146,6 +2144,14 @@ public class JBBPDslBuilder {
 
     void addAllFromContainer(final BinFieldContainer container) {
       this.fields.addAll(container.fields);
+    }
+
+    void addAllFromContainerExcludeEndStruct(final BinFieldContainer container) {
+      for(final BinField field : container.fields) {
+        if (field != END_STRUCT) {
+          this.fields.add(field);
+        }
+      }
     }
 
     void addContainer(final BinFieldContainer container) {

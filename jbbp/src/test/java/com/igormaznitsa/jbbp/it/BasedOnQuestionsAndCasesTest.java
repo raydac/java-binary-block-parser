@@ -663,4 +663,29 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
     assertEquals(7890, parsed.c);
   }
 
+  @Bin
+  public class Parent {
+    @Bin(order = 1, type = BinType.USHORT, comment = "Size of package header")
+    public int headerSize;
+  }
+
+  @Bin
+  public class Child extends Parent {
+    @Bin(order = 2, type = BinType.BYTE_ARRAY, arraySizeExpr = "2")
+    public String body;
+  }
+
+  /*
+   * Test for reported issue #42 https://github.com/raydac/java-binary-block-parser/issues/42
+   */
+  @Test
+  public void testCase_github_bug42_ThereIsNotAnyOpenedStruct() throws Exception {
+    byte[] data = new byte[] {0x12, 0x34, 0x20, 0x20};
+    final JBBPParser parser = JBBPParser.prepare(JBBPDslBuilder.Begin().AnnotatedClass(Child.class).End());
+    JBBPFieldStruct parsed = parser.parse(data);
+    final Child parsedPackage = parsed.findFieldForNameAndType("Child", JBBPFieldStruct.class).mapTo(new Child());
+    assertEquals(0x1234, parsedPackage.headerSize);
+    assertEquals("  ", parsedPackage.body);
+  }
+
 }
