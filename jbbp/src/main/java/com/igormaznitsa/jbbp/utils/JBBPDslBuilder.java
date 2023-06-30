@@ -2142,10 +2142,6 @@ public class JBBPDslBuilder {
       Collections.sort(this.fields);
     }
 
-    void addAllFromContainer(final BinFieldContainer container) {
-      this.fields.addAll(container.fields);
-    }
-
     void addAllFromContainerExcludeEndStruct(final BinFieldContainer container) {
       for(final BinField field : container.fields) {
         if (field != END_STRUCT) {
