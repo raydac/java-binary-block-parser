@@ -1,3 +1,7 @@
+2.0.6 (01-jul-2023)
+ - [#42](https://github.com/raydac/java-binary-block-parser/issues/42) unexpected exception during JBBPDslBuilder.AnnotatedClass method call
+ - improved tests
+
 2.0.5 (17-jun-2023)
  - [#41](https://github.com/raydac/java-binary-block-parser/issues/41) fix for Gradle plug-in
  - improved tests
