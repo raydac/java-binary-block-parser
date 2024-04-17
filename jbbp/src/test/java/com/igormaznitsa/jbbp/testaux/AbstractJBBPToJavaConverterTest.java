@@ -55,9 +55,10 @@ public abstract class AbstractJBBPToJavaConverterTest {
 
   protected static final String PACKAGE_NAME = "com.igormaznitsa.test";
   protected static final String CLASS_NAME = "TestClass";
+  private static final List<String> compilerOptions =
+      Arrays.asList("-Xlint:-options", "-proc:none");
   protected static TemporaryFolder tempFolder = new TemporaryFolder();
   protected final Random testRandomGen = new Random(123456);
-
   protected boolean printGeneratedClassText = false;
 
   @BeforeAll
@@ -188,7 +189,8 @@ public abstract class AbstractJBBPToJavaConverterTest {
     final Iterable<? extends JavaFileObject> compilationUnits =
         fileManager.getJavaFileObjectsFromFiles(classFiles);
 
-    if (!compiler.getTask(null, fileManager, null, null, null, compilationUnits).call()) {
+    if (!compiler.getTask(null, fileManager, null, compilerOptions, null, compilationUnits)
+        .call()) {
       for (final Diagnostic<?> diagnostic : diagnostics.getDiagnostics()) {
         System.err
             .format("Error on line %d in %s%n", diagnostic.getLineNumber(), diagnostic.getSource());
