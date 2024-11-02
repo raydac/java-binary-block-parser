@@ -16,6 +16,7 @@
 
 package com.igormaznitsa.jbbp.io;
 
+import com.igormaznitsa.jbbp.exceptions.JBBPReachedArraySizeLimitException;
 import com.igormaznitsa.jbbp.utils.JBBPSystemProperty;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.EOFException;
@@ -32,6 +33,12 @@ import java.io.InputStream;
  */
 public class JBBPBitInputStream extends FilterInputStream implements JBBPCountableBitStream {
 
+  /**
+   * Read arrays without limits.
+   *
+   * @since 2.1.0
+   */
+  public static final JBBPArraySizeLimiter NO_LIMIT_FOR_ARRAY_SIZE = () -> 0;
   /**
    * The Initial an Array buffer size for whole stream read.
    */
@@ -91,6 +98,32 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   }
 
   /**
+   * Check number of read items for whole stream array
+   *
+   * @param readItems number of currently read array items
+   * @param limiter   limiter provides number of allowed items, must not be null
+   * @return true if read must be stopped immediately, false otherwise
+   * @throws JBBPReachedArraySizeLimitException it will be thrown if reach of limit is not allowed
+   * @since 2.1.0
+   */
+  private static boolean internalIsBreakReadWholeStream(final int readItems,
+                                                        final JBBPArraySizeLimiter limiter) {
+    final int limit = limiter.getArrayItemsLimit();
+    if (limit == 0) {
+      return false;
+    }
+    if (limit > 0) {
+      if (readItems > limit) {
+        throw new JBBPReachedArraySizeLimitException("", readItems, Math.abs(limit));
+      } else {
+        return false;
+      }
+    } else {
+      return readItems >= Math.abs(limit);
+    }
+  }
+
+  /**
    * Read array of boolean values.
    *
    * @param items number of items to be read, if less than zero then read whole
@@ -99,6 +132,23 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * @throws IOException it will be thrown for transport error
    */
   public boolean[] readBoolArray(final int items) throws IOException {
+    return this.readBoolArray(items, NO_LIMIT_FOR_ARRAY_SIZE);
+  }
+
+  /**
+   * Read array of boolean values.
+   *
+   * @param items            number of items to be read, if less than zero then read whole
+   *                         stream till the end
+   * @param arraySizeLimiter limiter provides number of allowed array items, must not be null
+   * @return read values as boolean array
+   * @throws IOException                        it will be thrown for transport error
+   * @throws JBBPReachedArraySizeLimitException if reached limit of read
+   * @since 2.1.0
+   */
+  public boolean[] readBoolArray(final int items,
+                                 final JBBPArraySizeLimiter arraySizeLimiter)
+      throws IOException {
     int pos = 0;
     byte[] buffer;
     if (items < 0) {
@@ -110,6 +160,14 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
           break;
         }
         pos += read;
+
+        if (internalIsBreakReadWholeStream(pos, arraySizeLimiter)) {
+          final int limit = arraySizeLimiter.getArrayItemsLimit();
+          if (limit < 0) {
+            pos = Math.min(pos, Math.abs(limit));
+          }
+          break;
+        }
 
         if (buffer.length == pos) {
           final byte[] newBuffer = new byte[buffer.length << 1];
@@ -193,7 +251,26 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    *                     operation
    */
   public byte[] readBitsArray(final int items, final JBBPBitNumber bitNumber) throws IOException {
-    return _readArray(items, bitNumber);
+    return this.readBitsArray(items, bitNumber, NO_LIMIT_FOR_ARRAY_SIZE);
+  }
+
+  /**
+   * Read array of bit sequence.
+   *
+   * @param items            number of items to be read, if less than zero then read whole
+   * @param bitNumber        bit number for each bit sequence item, must be 1..8
+   *                         stream till the end
+   * @param arraySizeLimiter limiter provides number of allowed array items for non-limited array, must not be null
+   * @return array of read bit items as a byte array
+   * @throws JBBPReachedArraySizeLimitException if reached limit of read
+   * @throws IOException                        it will be thrown for any transport problem during the
+   *                                            operation
+   * @since 2.1.0
+   */
+  public byte[] readBitsArray(final int items, final JBBPBitNumber bitNumber,
+                              final JBBPArraySizeLimiter arraySizeLimiter)
+      throws IOException {
+    return internalReadArray(items, bitNumber, arraySizeLimiter);
   }
 
   /**
@@ -206,7 +283,23 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    *                     operation
    */
   public byte[] readByteArray(final int items) throws IOException {
-    return _readArray(items, null);
+    return this.readBitsArray(items, null, NO_LIMIT_FOR_ARRAY_SIZE);
+  }
+
+  /**
+   * Read number of bytes for the stream.
+   *
+   * @param items            number of items to be read, if less than zero then read whole
+   *                         stream till the end
+   * @param arraySizeLimiter limiter provides number of allowed array items for non-limited array, must not be null
+   * @return read byte items as a byte array
+   * @throws IOException it will be thrown for any transport problem during the
+   *                     operation
+   * @since 2.1.0
+   */
+  public byte[] readByteArray(final int items, final JBBPArraySizeLimiter arraySizeLimiter)
+      throws IOException {
+    return internalReadArray(items, null, arraySizeLimiter);
   }
 
   /**
@@ -222,7 +315,29 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * @since 1.3.0
    */
   public byte[] readByteArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
-    final byte[] result = _readArray(items, null);
+    return this.readByteArray(items, byteOrder, NO_LIMIT_FOR_ARRAY_SIZE);
+  }
+
+  /**
+   * Read number of bytes for the stream. Invert their order if byte order is LITTLE_ENDIAN
+   *
+   * @param items            number of items to be read, if less than zero then read whole
+   *                         stream till the end
+   * @param byteOrder        desired order of bytes
+   * @param arraySizeLimiter limiter provides number of allowed array items for non-limited array, must not be null
+   * @return read byte items as a byte array, if byte order is LITTLE_ENDIAN then the result array will be reversed one
+   * @throws IOException                        it will be thrown for any transport problem during the
+   *                                            operation
+   * @throws JBBPReachedArraySizeLimitException if reached limit of array read
+   * @see JBBPByteOrder#LITTLE_ENDIAN
+   * @since 2.1.0
+   */
+  public byte[] readByteArray(
+      final int items,
+      final JBBPByteOrder byteOrder,
+      final JBBPArraySizeLimiter arraySizeLimiter
+  ) throws IOException {
+    final byte[] result = internalReadArray(items, null, arraySizeLimiter);
     if (byteOrder == JBBPByteOrder.LITTLE_ENDIAN) {
       JBBPUtils.reverseArray(result);
     }
@@ -230,14 +345,18 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   }
 
   @Override
-  public synchronized void mark(final int readLimit) {
+  public void mark(final int readLimit) {
     in.mark(readLimit);
     this.markedBitBuffer = this.bitBuffer;
     this.markedByteCounter = this.byteCounter;
     this.markedBitsInBuffer = this.bitsInBuffer;
   }
 
-  private byte[] _readArray(final int items, final JBBPBitNumber bitNumber) throws IOException {
+  private byte[] internalReadArray(
+      final int items,
+      final JBBPBitNumber bitNumber,
+      final JBBPArraySizeLimiter streamLimiter
+  ) throws IOException {
     final boolean readByteArray = bitNumber == null;
 
     int pos = 0;
@@ -255,6 +374,9 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
           buffer = newBuffer;
         }
         buffer[pos++] = (byte) next;
+        if (internalIsBreakReadWholeStream(pos, streamLimiter)) {
+          break;
+        }
       }
       if (buffer.length == pos) {
         return buffer;
@@ -297,6 +419,27 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * @see JBBPByteOrder#LITTLE_ENDIAN
    */
   public short[] readShortArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
+    return this.readShortArray(items, byteOrder, NO_LIMIT_FOR_ARRAY_SIZE);
+  }
+
+  /**
+   * Read number of short items from the input stream.
+   *
+   * @param items            number of items to be read from the input stream, if less than
+   *                         zero then all stream till the end will be read
+   * @param byteOrder        the order of bytes to be used to decode short values
+   * @param arraySizeLimiter limiter provides number of allowed array items for non-limited array, must not be null
+   * @return read items as a short array
+   * @throws IOException                        it will be thrown for any transport problem during the
+   *                                            operation
+   * @throws JBBPReachedArraySizeLimitException if reached limit of array read
+   * @see JBBPByteOrder#BIG_ENDIAN
+   * @see JBBPByteOrder#LITTLE_ENDIAN
+   * @since 2.1.0
+   */
+  public short[] readShortArray(final int items, final JBBPByteOrder byteOrder,
+                                final JBBPArraySizeLimiter arraySizeLimiter)
+      throws IOException {
     int pos = 0;
     if (items < 0) {
       short[] buffer = new short[INITIAL_ARRAY_BUFFER_SIZE];
@@ -309,6 +452,9 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
           buffer = newBuffer;
         }
         buffer[pos++] = (short) next;
+        if (internalIsBreakReadWholeStream(pos, arraySizeLimiter)) {
+          break;
+        }
       }
       if (buffer.length == pos) {
         return buffer;
@@ -340,6 +486,29 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * @since 2.0.4
    */
   public long[] readUIntArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
+    return this.readUIntArray(items, byteOrder, NO_LIMIT_FOR_ARRAY_SIZE);
+  }
+
+  /**
+   * Read number of unsigned integer items from the input stream.
+   *
+   * @param items            number of items to be read from the input stream, if less than
+   *                         zero then all stream till the end will be read
+   * @param byteOrder        the order of bytes to be used to decode values
+   * @param arraySizeLimiter limiter provides number of allowed array items for non-limited array, must not be null
+   * @return read items as an unsigned integer array represented through long
+   * @throws IOException                        it will be thrown for any transport problem during the
+   *                                            operation
+   * @throws JBBPReachedArraySizeLimitException if reached limit of array read
+   * @see JBBPByteOrder#BIG_ENDIAN
+   * @see JBBPByteOrder#LITTLE_ENDIAN
+   * @since 2.1.0
+   */
+  public long[] readUIntArray(
+      final int items,
+      final JBBPByteOrder byteOrder,
+      final JBBPArraySizeLimiter arraySizeLimiter
+  ) throws IOException {
     int pos = 0;
     if (items < 0) {
       long[] buffer = new long[INITIAL_ARRAY_BUFFER_SIZE];
@@ -352,6 +521,9 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
           buffer = newBuffer;
         }
         buffer[pos++] = next;
+        if (internalIsBreakReadWholeStream(pos, arraySizeLimiter)) {
+          break;
+        }
       }
       if (buffer.length == pos) {
         return buffer;
@@ -383,6 +555,27 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * @since 1.3
    */
   public char[] readUShortArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
+    return this.readUShortArray(items, byteOrder, NO_LIMIT_FOR_ARRAY_SIZE);
+  }
+
+  /**
+   * Read number of unsigned short items from the input stream.
+   *
+   * @param items            number of items to be read from the input stream, if less than
+   *                         zero then all stream till the end will be read
+   * @param byteOrder        the order of bytes to be used to decode short values
+   * @param arraySizeLimiter limiter provides number of allowed array items for non-limited array, must not be null
+   * @return read items as a char array
+   * @throws IOException                        it will be thrown for any transport problem during the
+   *                                            operation
+   * @throws JBBPReachedArraySizeLimitException if reached limit of array read
+   * @see JBBPByteOrder#BIG_ENDIAN
+   * @see JBBPByteOrder#LITTLE_ENDIAN
+   * @since 2.1.0
+   */
+  public char[] readUShortArray(final int items, final JBBPByteOrder byteOrder,
+                                final JBBPArraySizeLimiter arraySizeLimiter)
+      throws IOException {
     int pos = 0;
     if (items < 0) {
       char[] buffer = new char[INITIAL_ARRAY_BUFFER_SIZE];
@@ -395,6 +588,9 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
           buffer = newBuffer;
         }
         buffer[pos++] = (char) next;
+        if (internalIsBreakReadWholeStream(pos, arraySizeLimiter)) {
+          break;
+        }
       }
       if (buffer.length == pos) {
         return buffer;
@@ -425,6 +621,25 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * @see JBBPByteOrder#LITTLE_ENDIAN
    */
   public int[] readIntArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
+    return this.readIntArray(items, byteOrder, NO_LIMIT_FOR_ARRAY_SIZE);
+  }
+
+  /**
+   * Read number of integer items from the input stream.
+   *
+   * @param items            number of items to be read from the input stream, if less than
+   *                         zero then all stream till the end will be read
+   * @param byteOrder        the order of bytes to be used to decode values
+   * @param arraySizeLimiter limiter provides number of allowed array items for non-limited array, must not be null
+   * @return read items as an integer array
+   * @throws IOException                        it will be thrown for any transport problem during the
+   *                                            operation
+   * @throws JBBPReachedArraySizeLimitException if reached limit of array read
+   * @see JBBPByteOrder#BIG_ENDIAN
+   * @see JBBPByteOrder#LITTLE_ENDIAN
+   */
+  public int[] readIntArray(final int items, final JBBPByteOrder byteOrder,
+                            final JBBPArraySizeLimiter arraySizeLimiter) throws IOException {
     int pos = 0;
     if (items < 0) {
       int[] buffer = new int[INITIAL_ARRAY_BUFFER_SIZE];
@@ -437,6 +652,9 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
           buffer = newBuffer;
         }
         buffer[pos++] = next;
+        if (internalIsBreakReadWholeStream(pos, arraySizeLimiter)) {
+          break;
+        }
       }
       if (buffer.length == pos) {
         return buffer;
@@ -468,6 +686,29 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * @since 1.4.0
    */
   public float[] readFloatArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
+    return this.readFloatArray(items, byteOrder, NO_LIMIT_FOR_ARRAY_SIZE);
+  }
+
+  /**
+   * Read number of float items from the input stream.
+   *
+   * @param items            number of items to be read from the input stream, if less than
+   *                         zero then all stream till the end will be read
+   * @param byteOrder        the order of bytes to be used to decode values
+   * @param arraySizeLimiter limiter provides number of allowed array items for non-limited array, must not be null
+   * @return read items as float array
+   * @throws IOException                        it will be thrown for any transport problem during the
+   *                                            operation
+   * @throws JBBPReachedArraySizeLimitException if reached limit of array read
+   * @see JBBPByteOrder#BIG_ENDIAN
+   * @see JBBPByteOrder#LITTLE_ENDIAN
+   * @since 2.1.0
+   */
+  public float[] readFloatArray(
+      final int items,
+      final JBBPByteOrder byteOrder,
+      final JBBPArraySizeLimiter arraySizeLimiter
+  ) throws IOException {
     int pos = 0;
     if (items < 0) {
       float[] buffer = new float[INITIAL_ARRAY_BUFFER_SIZE];
@@ -480,6 +721,9 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
           buffer = newBuffer;
         }
         buffer[pos++] = next;
+        if (internalIsBreakReadWholeStream(pos, arraySizeLimiter)) {
+          break;
+        }
       }
       if (buffer.length == pos) {
         return buffer;
@@ -786,7 +1030,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   }
 
   @Override
-  public synchronized void reset() throws IOException {
+  public void reset() throws IOException {
     in.reset();
     this.bitBuffer = this.markedBitBuffer;
     this.byteCounter = this.markedByteCounter;
@@ -806,6 +1050,29 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * @see JBBPByteOrder#LITTLE_ENDIAN
    */
   public long[] readLongArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
+    return this.readLongArray(items, byteOrder, NO_LIMIT_FOR_ARRAY_SIZE);
+  }
+
+  /**
+   * Read number of long items from the input stream.
+   *
+   * @param items            number of items to be read from the input stream, if less than
+   *                         zero then all stream till the end will be read
+   * @param byteOrder        the order of bytes to be used to decode values
+   * @param arraySizeLimiter limiter provides number of allowed array items for non-limited array, must not be null
+   * @return read items as a long array
+   * @throws IOException                        it will be thrown for any transport problem during the
+   *                                            operation
+   * @throws JBBPReachedArraySizeLimitException if reached limit of read
+   * @see JBBPByteOrder#BIG_ENDIAN
+   * @see JBBPByteOrder#LITTLE_ENDIAN
+   * @since 2.1.0
+   */
+  public long[] readLongArray(
+      final int items,
+      final JBBPByteOrder byteOrder,
+      final JBBPArraySizeLimiter arraySizeLimiter
+  ) throws IOException {
     int pos = 0;
     if (items < 0) {
       long[] buffer = new long[INITIAL_ARRAY_BUFFER_SIZE];
@@ -818,6 +1085,9 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
           buffer = newBuffer;
         }
         buffer[pos++] = next;
+        if (internalIsBreakReadWholeStream(pos, arraySizeLimiter)) {
+          break;
+        }
       }
       if (buffer.length == pos) {
         return buffer;
@@ -911,6 +1181,29 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    */
   public double[] readDoubleArray(final int items, final JBBPByteOrder byteOrder)
       throws IOException {
+    return this.readDoubleArray(items, byteOrder, NO_LIMIT_FOR_ARRAY_SIZE);
+  }
+
+  /**
+   * Read number of double items from the input stream.
+   *
+   * @param items            number of items to be read from the input stream, if less than
+   *                         zero then all stream till the end will be read
+   * @param byteOrder        the order of bytes to be used to decode values
+   * @param arraySizeLimiter limiter provides number of allowed array items for non-limited array, must not be null
+   * @return read items as a double array
+   * @throws IOException                        it will be thrown for any transport problem during the
+   *                                            operation
+   * @throws JBBPReachedArraySizeLimitException if reached limit of array read
+   * @see JBBPByteOrder#BIG_ENDIAN
+   * @see JBBPByteOrder#LITTLE_ENDIAN
+   * @since 2.1.0
+   */
+  public double[] readDoubleArray(
+      final int items,
+      final JBBPByteOrder byteOrder,
+      final JBBPArraySizeLimiter arraySizeLimiter
+  ) throws IOException {
     int pos = 0;
     if (items < 0) {
       double[] buffer = new double[INITIAL_ARRAY_BUFFER_SIZE];
@@ -923,6 +1216,9 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
           buffer = newBuffer;
         }
         buffer[pos++] = Double.longBitsToDouble(next);
+        if (internalIsBreakReadWholeStream(pos, arraySizeLimiter)) {
+          break;
+        }
       }
       if (buffer.length == pos) {
         return buffer;
@@ -1097,6 +1393,26 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    */
   public String[] readStringArray(final int items, final JBBPByteOrder byteOrder)
       throws IOException {
+    return this.readStringArray(items, byteOrder, NO_LIMIT_FOR_ARRAY_SIZE);
+  }
+
+  /**
+   * Read array of strings from stream.
+   *
+   * @param items            number of items, or -1 if read whole stream
+   * @param byteOrder        order of bytes in structure, must not be null
+   * @param arraySizeLimiter limiter provides number of allowed array items for non-limited array, must not be null
+   * @return array, it can contain null among values, must not be null
+   * @throws IOException                        thrown for transport errors
+   * @throws JBBPReachedArraySizeLimitException if reached limit of array read
+   * @see JBBPBitOutputStream#writeStringArray(String[], JBBPByteOrder)
+   * @since 2.1.0
+   */
+  public String[] readStringArray(
+      final int items,
+      final JBBPByteOrder byteOrder,
+      final JBBPArraySizeLimiter arraySizeLimiter
+  ) throws IOException {
     int pos = 0;
     if (items < 0) {
       String[] buffer = new String[INITIAL_ARRAY_BUFFER_SIZE];
@@ -1109,6 +1425,9 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
           buffer = newBuffer;
         }
         buffer[pos++] = next;
+        if (internalIsBreakReadWholeStream(pos, arraySizeLimiter)) {
+          break;
+        }
       }
       if (buffer.length == pos) {
         return buffer;

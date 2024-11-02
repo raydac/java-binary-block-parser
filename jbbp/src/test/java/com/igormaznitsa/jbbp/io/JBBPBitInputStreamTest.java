@@ -16,6 +16,7 @@
 
 package com.igormaznitsa.jbbp.io;
 
+import static com.igormaznitsa.jbbp.io.JBBPByteOrder.BIG_ENDIAN;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -24,8 +25,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.igormaznitsa.jbbp.TestUtils;
+import com.igormaznitsa.jbbp.exceptions.JBBPReachedArraySizeLimitException;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.Random;
@@ -58,10 +61,17 @@ public class JBBPBitInputStreamTest {
         JBBPBitOrder.MSB0);
   }
 
+  private static byte[] getRandomBytes(final int size) {
+    final byte[] result = new byte[size];
+    final Random random = new Random(System.nanoTime());
+    random.nextBytes(result);
+    return result;
+  }
+
   @Test
   public void testReadUnsignedShort_EOFforEmpty_BigEndian_EOFException() throws Exception {
     assertThrows(EOFException.class,
-        () -> asInputStream().readUnsignedShort(JBBPByteOrder.BIG_ENDIAN));
+        () -> asInputStream().readUnsignedShort(BIG_ENDIAN));
   }
 
   @Test
@@ -73,7 +83,7 @@ public class JBBPBitInputStreamTest {
   @Test
   public void testReadUnsignedShort_EOFforOneByte_BigEndian_EOFException() throws Exception {
     assertThrows(EOFException.class,
-        () -> asInputStream((byte) 1).readUnsignedShort(JBBPByteOrder.BIG_ENDIAN));
+        () -> asInputStream((byte) 1).readUnsignedShort(BIG_ENDIAN));
   }
 
   @Test
@@ -84,12 +94,12 @@ public class JBBPBitInputStreamTest {
 
   @Test
   public void testReadUnsignedShort_BigEndian() throws Exception {
-    assertEquals(0x1234, asInputStream(0x12, 0x34).readUnsignedShort(JBBPByteOrder.BIG_ENDIAN));
+    assertEquals(0x1234, asInputStream(0x12, 0x34).readUnsignedShort(BIG_ENDIAN));
   }
 
   @Test
   public void testReadUnsignedShort_BigEndian_MSB0() throws Exception {
-    assertEquals(0x482C, asInputStreamMSB0(0x12, 0x34).readUnsignedShort(JBBPByteOrder.BIG_ENDIAN));
+    assertEquals(0x482C, asInputStreamMSB0(0x12, 0x34).readUnsignedShort(BIG_ENDIAN));
   }
 
   @Test
@@ -106,33 +116,33 @@ public class JBBPBitInputStreamTest {
   @Test
   public void testReadInt_BigEndian() throws Exception {
     assertEquals(0x12345678,
-        asInputStream(0x12, 0x34, 0x56, 0x78).readInt(JBBPByteOrder.BIG_ENDIAN));
+        asInputStream(0x12, 0x34, 0x56, 0x78).readInt(BIG_ENDIAN));
   }
 
   @Test
   public void testReadInt_BigEndian_EOF() throws Exception {
     assertThrows(EOFException.class,
-        () -> asInputStream(0x12, 0x34, 0x56).readInt(JBBPByteOrder.BIG_ENDIAN));
+        () -> asInputStream(0x12, 0x34, 0x56).readInt(BIG_ENDIAN));
   }
 
   @Test
   public void testReadInt_BigEndian_MSB0() throws Exception {
     assertEquals(0x482C6A1E,
-        asInputStreamMSB0(0x12, 0x34, 0x56, 0x78).readInt(JBBPByteOrder.BIG_ENDIAN));
+        asInputStreamMSB0(0x12, 0x34, 0x56, 0x78).readInt(BIG_ENDIAN));
   }
 
   @Test
   public void testReadStringArray_BigEndan_FixedSize() throws Exception {
     assertArrayEquals(new String[] {null, "", "ABC"}, asInputStream(0xFF, 0x00, 3, 65, 66, 67, 0, 0)
-        .readStringArray(3, JBBPByteOrder.BIG_ENDIAN));
+        .readStringArray(3, BIG_ENDIAN));
   }
 
   @Test
   public void testReadStringArray_ErrorForEOF() {
     assertThrows(IOException.class, () -> asInputStream(0xFF, 0x00, 3, 65, 66, 67, 0, 0)
-        .readStringArray(8, JBBPByteOrder.BIG_ENDIAN));
+        .readStringArray(8, BIG_ENDIAN));
     assertThrows(IOException.class,
-        () -> asInputStream().readStringArray(8, JBBPByteOrder.BIG_ENDIAN));
+        () -> asInputStream().readStringArray(8, BIG_ENDIAN));
     assertThrows(IOException.class,
         () -> asInputStream().readStringArray(8, JBBPByteOrder.LITTLE_ENDIAN));
     assertThrows(IOException.class, () -> asInputStream(0xFF, 0x00, 3, 65, 66, 67, 0, 0)
@@ -142,7 +152,7 @@ public class JBBPBitInputStreamTest {
   @Test
   public void testReadStringArray_ErrorForWrongPrefix() {
     assertThrows(IOException.class, () -> asInputStream(0x80, 0x00, 3, 65, 66, 67, 0, 0)
-        .readStringArray(3, JBBPByteOrder.BIG_ENDIAN));
+        .readStringArray(3, BIG_ENDIAN));
     assertThrows(IOException.class, () -> asInputStream(0x91, 0x00, 3, 65, 66, 67, 0, 0)
         .readStringArray(3, JBBPByteOrder.LITTLE_ENDIAN));
   }
@@ -157,14 +167,14 @@ public class JBBPBitInputStreamTest {
   public void testReadStringArray_WholeStream_ResultEmptyArray() throws Exception {
     assertArrayEquals(new String[0],
         asInputStream().readStringArray(-1, JBBPByteOrder.LITTLE_ENDIAN));
-    assertArrayEquals(new String[0], asInputStream().readStringArray(-1, JBBPByteOrder.BIG_ENDIAN));
+    assertArrayEquals(new String[0], asInputStream().readStringArray(-1, BIG_ENDIAN));
   }
 
   @Test
   public void testReadStringArray_BigEndan_WholeStream() throws Exception {
     assertArrayEquals(new String[] {null, "", "ABC", "", ""},
         asInputStream(0xFF, 0x00, 3, 65, 66, 67, 0, 0)
-            .readStringArray(-1, JBBPByteOrder.BIG_ENDIAN));
+            .readStringArray(-1, BIG_ENDIAN));
   }
 
   @Test
@@ -176,23 +186,23 @@ public class JBBPBitInputStreamTest {
 
   @Test
   public void testReadString_BigEndan_Null() throws Exception {
-    assertNull(asInputStream(0xFF).readString(JBBPByteOrder.BIG_ENDIAN));
+    assertNull(asInputStream(0xFF).readString(BIG_ENDIAN));
   }
 
   @Test
   public void testReadString_BigEndan_Empty() throws Exception {
-    assertEquals("", asInputStream(0x00).readString(JBBPByteOrder.BIG_ENDIAN));
+    assertEquals("", asInputStream(0x00).readString(BIG_ENDIAN));
   }
 
   @Test
   public void testReadString_BigEndan_ShortString() throws Exception {
-    assertEquals("ABC", asInputStream(0x03, 65, 66, 67).readString(JBBPByteOrder.BIG_ENDIAN));
+    assertEquals("ABC", asInputStream(0x03, 65, 66, 67).readString(BIG_ENDIAN));
   }
 
   @Test
   public void testReadString_BigEndan_Msb0_ShortString() throws Exception {
     assertEquals("zzzz",
-        asInputStreamMSB0(0x20, '^', '^', '^', '^').readString(JBBPByteOrder.BIG_ENDIAN));
+        asInputStreamMSB0(0x20, '^', '^', '^', '^').readString(BIG_ENDIAN));
   }
 
   @Test
@@ -213,20 +223,20 @@ public class JBBPBitInputStreamTest {
   @Test
   public void testReadFloat_BigEndian_MSB0() throws Exception {
     assertEquals(176552.47f,
-        asInputStreamMSB0(0x12, 0x34, 0x56, 0x78).readFloat(JBBPByteOrder.BIG_ENDIAN),
+        asInputStreamMSB0(0x12, 0x34, 0x56, 0x78).readFloat(BIG_ENDIAN),
         TestUtils.FLOAT_DELTA);
   }
 
   @Test
   public void testReadInt_BigEndian_MSB0_EOF() throws Exception {
     assertThrows(EOFException.class,
-        () -> asInputStreamMSB0(0x12, 0x34, 0x56).readInt(JBBPByteOrder.BIG_ENDIAN));
+        () -> asInputStreamMSB0(0x12, 0x34, 0x56).readInt(BIG_ENDIAN));
   }
 
   @Test
   public void testReadFloat_BigEndian_MSB0_EOF() throws Exception {
     assertThrows(EOFException.class,
-        () -> asInputStreamMSB0(0x12, 0x34, 0x56).readFloat(JBBPByteOrder.BIG_ENDIAN));
+        () -> asInputStreamMSB0(0x12, 0x34, 0x56).readFloat(BIG_ENDIAN));
   }
 
   @Test
@@ -249,7 +259,7 @@ public class JBBPBitInputStreamTest {
   }
 
   @Test
-  public void testReadFloat_LittleEndian_EOF() throws Exception {
+  public void testReadFloat_LittleEndian_EOF() {
     assertThrows(EOFException.class,
         () -> asInputStream(0x12, 0x34, 0x56).readFloat(JBBPByteOrder.LITTLE_ENDIAN));
   }
@@ -268,7 +278,7 @@ public class JBBPBitInputStreamTest {
   }
 
   @Test
-  public void testReadInt_LittleEndian_MSB0_EOF() throws Exception {
+  public void testReadInt_LittleEndian_MSB0_EOF() {
     assertThrows(EOFException.class,
         () -> asInputStreamMSB0(0x12, 0x34, 0x56).readInt(JBBPByteOrder.LITTLE_ENDIAN));
   }
@@ -282,26 +292,26 @@ public class JBBPBitInputStreamTest {
   @Test
   public void testReadLong_BigEndian() throws Exception {
     assertEquals(0x12345678AABBCCDDL, asInputStream(0x12, 0x34, 0x56, 0x78, 0xAA, 0xBB, 0xCC, 0xDD)
-        .readLong(JBBPByteOrder.BIG_ENDIAN));
+        .readLong(BIG_ENDIAN));
   }
 
   @Test
   public void testReadDouble_BigEndian() throws Exception {
     assertEquals(5.626349538661693E-221d,
         asInputStream(0x12, 0x34, 0x56, 0x78, 0xAA, 0xBB, 0xCC, 0xDD)
-            .readDouble(JBBPByteOrder.BIG_ENDIAN), TestUtils.FLOAT_DELTA);
+            .readDouble(BIG_ENDIAN), TestUtils.FLOAT_DELTA);
   }
 
   @Test
-  public void testReadLong_BigEndian_EOF() throws Exception {
+  public void testReadLong_BigEndian_EOF() {
     assertThrows(EOFException.class, () -> asInputStream(0x12, 0x34, 0x56, 0x78, 0xAA, 0xBB, 0xCC)
-        .readLong(JBBPByteOrder.BIG_ENDIAN));
+        .readLong(BIG_ENDIAN));
   }
 
   @Test
   public void testReadDouble_BigEndian_EOF() throws Exception {
     assertThrows(EOFException.class, () -> asInputStream(0x12, 0x34, 0x56, 0x78, 0xAA, 0xBB, 0xCC)
-        .readDouble(JBBPByteOrder.BIG_ENDIAN));
+        .readDouble(BIG_ENDIAN));
   }
 
   @Test
@@ -318,13 +328,13 @@ public class JBBPBitInputStreamTest {
   }
 
   @Test
-  public void testReadLong_LittleEndian_EOF() throws Exception {
+  public void testReadLong_LittleEndian_EOF() {
     assertThrows(EOFException.class, () -> asInputStream(0x12, 0x34, 0x56, 0x78, 0xAA, 0xBB, 0xCC)
         .readLong(JBBPByteOrder.LITTLE_ENDIAN));
   }
 
   @Test
-  public void testReadDouble_LittleEndian_EOF() throws Exception {
+  public void testReadDouble_LittleEndian_EOF() {
     assertThrows(EOFException.class, () -> asInputStream(0x12, 0x34, 0x56, 0x78, 0xAA, 0xBB, 0xCC)
         .readDouble(JBBPByteOrder.LITTLE_ENDIAN));
   }
@@ -360,7 +370,7 @@ public class JBBPBitInputStreamTest {
   }
 
   @Test
-  public void testGetOrder() throws Exception {
+  public void testGetOrder() {
     assertEquals(JBBPBitOrder.MSB0, new JBBPBitInputStream(null, JBBPBitOrder.MSB0).getBitOrder());
     assertEquals(JBBPBitOrder.LSB0, new JBBPBitInputStream(null, JBBPBitOrder.LSB0).getBitOrder());
     assertEquals(JBBPBitOrder.LSB0, new JBBPBitInputStream(null).getBitOrder());
@@ -387,9 +397,9 @@ public class JBBPBitInputStreamTest {
 
   @Test
   public void testAlignByte_IfWeHaveBufferedByteInBitBuffer() throws Exception {
-    final byte[] testarray = JBBPUtils.str2bin("01111001 10111000");
+    final byte[] testArray = JBBPUtils.str2bin("01111001 10111000");
 
-    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(testarray));
+    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(testArray));
     assertEquals(0x19, in.readBits(JBBPBitNumber.BITS_5));
     assertEquals(0, in.getCounter());
     assertEquals(0x03, in.readBits(JBBPBitNumber.BITS_3));
@@ -405,9 +415,9 @@ public class JBBPBitInputStreamTest {
 
   @Test
   public void testReadStream_AsBits() throws IOException {
-    final byte[] testarray = JBBPUtils.str2bin(TEST_BYTES, JBBPBitOrder.MSB0);
+    final byte[] testArray = JBBPUtils.str2bin(TEST_BYTES, JBBPBitOrder.MSB0);
 
-    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(testarray));
+    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(testArray));
 
     assertEquals(0, in.readBits(JBBPBitNumber.BITS_1));//0
     assertEquals(1, in.readBits(JBBPBitNumber.BITS_1));
@@ -485,12 +495,12 @@ public class JBBPBitInputStreamTest {
 
   @Test
   public void testReadStream_AsBytes() throws IOException {
-    final byte[] testarray = JBBPUtils.str2bin(TEST_BYTES, JBBPBitOrder.MSB0);
+    final byte[] testArray = JBBPUtils.str2bin(TEST_BYTES, JBBPBitOrder.MSB0);
 
-    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(testarray));
+    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(testArray));
 
-    for (int i = 0; i < testarray.length; i++) {
-      assertEquals(testarray[i] & 0xFF, in.read(), "Byte " + i);
+    for (int i = 0; i < testArray.length; i++) {
+      assertEquals(testArray[i] & 0xFF, in.read(), "Byte " + i);
     }
     assertEquals(9, in.getCounter());
     assertEquals(-1, in.read());
@@ -498,23 +508,23 @@ public class JBBPBitInputStreamTest {
 
   @Test
   public void testReadStream_AsArray() throws IOException {
-    final byte[] testarray = JBBPUtils.str2bin(TEST_BYTES, JBBPBitOrder.MSB0);
+    final byte[] testArray = JBBPUtils.str2bin(TEST_BYTES, JBBPBitOrder.MSB0);
 
-    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(testarray));
+    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(testArray));
 
     final byte[] read = new byte[9];
     assertEquals(9, in.read(read));
     assertEquals(-1, in.read());
     assertEquals(9, in.getCounter());
 
-    assertArrayEquals(testarray, read);
+    assertArrayEquals(testArray, read);
   }
 
   @Test
   public void testReadStream_AsPartOfArray() throws IOException {
-    final byte[] testarray = JBBPUtils.str2bin(TEST_BYTES, JBBPBitOrder.MSB0);
+    final byte[] testArray = JBBPUtils.str2bin(TEST_BYTES, JBBPBitOrder.MSB0);
 
-    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(testarray));
+    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(testArray));
 
     final byte[] buff = new byte[27];
     assertEquals(5, in.read(buff, 9, 5));
@@ -526,7 +536,7 @@ public class JBBPBitInputStreamTest {
     }
 
     for (int i = 9; i < 14; i++) {
-      assertEquals(testarray[i - 9], buff[i]);
+      assertEquals(testArray[i - 9], buff[i]);
     }
 
     for (int i = 14; i < 27; i++) {
@@ -537,10 +547,10 @@ public class JBBPBitInputStreamTest {
 
   @Test
   public void testReadStream_AsPartOfArray_MSB0() throws IOException {
-    final byte[] testarray = JBBPUtils.str2bin(TEST_BYTES, JBBPBitOrder.MSB0);
+    final byte[] testArray = JBBPUtils.str2bin(TEST_BYTES, JBBPBitOrder.MSB0);
 
     final JBBPBitInputStream in =
-        new JBBPBitInputStream(new ByteArrayInputStream(testarray), JBBPBitOrder.MSB0);
+        new JBBPBitInputStream(new ByteArrayInputStream(testArray), JBBPBitOrder.MSB0);
 
     final byte[] buff = new byte[27];
     assertEquals(5, in.read(buff, 9, 5));
@@ -552,7 +562,7 @@ public class JBBPBitInputStreamTest {
     }
 
     for (int i = 9; i < 14; i++) {
-      assertEquals(JBBPUtils.reverseBitsInByte(testarray[i - 9]), buff[i]);
+      assertEquals(JBBPUtils.reverseBitsInByte(testArray[i - 9]), buff[i]);
     }
 
     for (int i = 14; i < 27; i++) {
@@ -615,30 +625,12 @@ public class JBBPBitInputStreamTest {
   }
 
   @Test
-  public void testReadBits_ExceptionForWrongArgument() throws Exception {
+  public void testReadBits_ExceptionForWrongArgument() {
     final JBBPBitInputStream inLe = new JBBPBitInputStream(
         new ByteArrayInputStream(JBBPUtils.str2bin(TEST_BYTES, JBBPBitOrder.LSB0)));
-
-    try {
-      inLe.readBits(JBBPBitNumber.decode(0));
-      fail("Must throw IAE");
-    } catch (IllegalArgumentException ex) {
-
-    }
-
-    try {
-      inLe.readBits(JBBPBitNumber.decode(-5));
-      fail("Must throw IAE");
-    } catch (IllegalArgumentException ex) {
-
-    }
-
-    try {
-      inLe.readBits(JBBPBitNumber.decode(9));
-      fail("Must throw IAE");
-    } catch (IllegalArgumentException ex) {
-
-    }
+    assertThrows(IllegalArgumentException.class, () -> inLe.readBits(JBBPBitNumber.decode(0)));
+    assertThrows(IllegalArgumentException.class, () -> inLe.readBits(JBBPBitNumber.decode(-5)));
+    assertThrows(IllegalArgumentException.class, () -> inLe.readBits(JBBPBitNumber.decode(9)));
   }
 
   @Test
@@ -666,13 +658,7 @@ public class JBBPBitInputStreamTest {
     in.align(6);
     assertEquals(0x80, in.read());
     assertEquals(-1, in.read());
-
-    try {
-      in.align(10);
-      fail("Must throw EOF");
-    } catch (EOFException ex) {
-
-    }
+    assertThrows(EOFException.class, () -> in.align(10));
   }
 
   @Test
@@ -786,7 +772,7 @@ public class JBBPBitInputStreamTest {
   }
 
   @Test
-  public void testReadArray_Bits_EOF() throws Exception {
+  public void testReadArray_Bits_EOF() {
     assertThrows(EOFException.class, () -> {
       final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(
           JBBPUtils.str2bin("00101001_11001011_10111110", JBBPBitOrder.LSB0)));
@@ -839,7 +825,7 @@ public class JBBPBitInputStreamTest {
   public void testReadArray_Bytes_BIG_ENDIAN_ThreeItems() throws Exception {
     final JBBPBitInputStream in =
         new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {1, 2, 3, 4, 5, 6, 7, 0}));
-    assertArrayEquals(new byte[] {1, 2, 3,}, in.readByteArray(3, JBBPByteOrder.BIG_ENDIAN));
+    assertArrayEquals(new byte[] {1, 2, 3,}, in.readByteArray(3, BIG_ENDIAN));
   }
 
   @Test
@@ -850,7 +836,7 @@ public class JBBPBitInputStreamTest {
   }
 
   @Test
-  public void testReadArray_Bytes_EOF() throws Exception {
+  public void testReadArray_Bytes_EOF() {
     assertThrows(EOFException.class, () -> {
       final JBBPBitInputStream in =
           new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {1, 2, 3, 4, 5, 6, 7, 0}));
@@ -863,7 +849,7 @@ public class JBBPBitInputStreamTest {
     JBBPBitInputStream in =
         new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {1, 2, 3, 4, 5, 6, 7, 0}));
     assertArrayEquals(new short[] {0x0102, 0x0304, 0x0506, 0x0700},
-        in.readShortArray(-1, JBBPByteOrder.BIG_ENDIAN));
+        in.readShortArray(-1, BIG_ENDIAN));
     assertEquals(8, in.getCounter());
 
     final Random rnd = new Random(1234);
@@ -872,7 +858,7 @@ public class JBBPBitInputStreamTest {
     rnd.nextBytes(buff);
 
     in = new JBBPBitInputStream(new ByteArrayInputStream(buff));
-    final short[] read = in.readShortArray(-1, JBBPByteOrder.BIG_ENDIAN);
+    final short[] read = in.readShortArray(-1, BIG_ENDIAN);
     assertEquals(buff.length, in.getCounter());
 
     assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE, read.length);
@@ -887,7 +873,7 @@ public class JBBPBitInputStreamTest {
 
     in = new JBBPBitInputStream(new ByteArrayInputStream(big));
 
-    final short[] readbig = in.readShortArray(-1, JBBPByteOrder.BIG_ENDIAN);
+    final short[] readbig = in.readShortArray(-1, BIG_ENDIAN);
 
     assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE * 64, readbig.length);
     for (int i = 0; i < readbig.length; i++) {
@@ -902,7 +888,7 @@ public class JBBPBitInputStreamTest {
     JBBPBitInputStream in =
         new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {1, 2, 3, 4, 5, 6, 7, 0}));
     assertArrayEquals(new char[] {0x0102, 0x0304, 0x0506, 0x0700},
-        in.readUShortArray(-1, JBBPByteOrder.BIG_ENDIAN));
+        in.readUShortArray(-1, BIG_ENDIAN));
     assertEquals(8, in.getCounter());
 
     final Random rnd = new Random(1234);
@@ -911,7 +897,7 @@ public class JBBPBitInputStreamTest {
     rnd.nextBytes(buff);
 
     in = new JBBPBitInputStream(new ByteArrayInputStream(buff));
-    final char[] read = in.readUShortArray(-1, JBBPByteOrder.BIG_ENDIAN);
+    final char[] read = in.readUShortArray(-1, BIG_ENDIAN);
     assertEquals(buff.length, in.getCounter());
 
     assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE, read.length);
@@ -926,7 +912,7 @@ public class JBBPBitInputStreamTest {
 
     in = new JBBPBitInputStream(new ByteArrayInputStream(big));
 
-    final char[] readbig = in.readUShortArray(-1, JBBPByteOrder.BIG_ENDIAN);
+    final char[] readbig = in.readUShortArray(-1, BIG_ENDIAN);
 
     assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE * 64, readbig.length);
     for (int i = 0; i < readbig.length; i++) {
@@ -940,7 +926,7 @@ public class JBBPBitInputStreamTest {
   public void testReadArray_Short_TwoItems() throws Exception {
     final JBBPBitInputStream in =
         new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {1, 2, 3, 4, 5, 6, 7, 0}));
-    assertArrayEquals(new short[] {0x0102, 0x0304}, in.readShortArray(2, JBBPByteOrder.BIG_ENDIAN));
+    assertArrayEquals(new short[] {0x0102, 0x0304}, in.readShortArray(2, BIG_ENDIAN));
     assertEquals(4, in.getCounter());
   }
 
@@ -948,16 +934,16 @@ public class JBBPBitInputStreamTest {
   public void testReadArray_UShort_TwoItems() throws Exception {
     final JBBPBitInputStream in =
         new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {1, 2, 3, 4, 5, 6, 7, 0}));
-    assertArrayEquals(new char[] {0x0102, 0x0304}, in.readUShortArray(2, JBBPByteOrder.BIG_ENDIAN));
+    assertArrayEquals(new char[] {0x0102, 0x0304}, in.readUShortArray(2, BIG_ENDIAN));
     assertEquals(4, in.getCounter());
   }
 
   @Test
-  public void testReadArray_Short_EOF() throws Exception {
+  public void testReadArray_Short_EOF() {
     assertThrows(EOFException.class, () -> {
       final JBBPBitInputStream in =
           new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {1, 2, 3, 4, 5, 6, 7, 0}));
-      in.readShortArray(259, JBBPByteOrder.BIG_ENDIAN);
+      in.readShortArray(259, BIG_ENDIAN);
     });
   }
 
@@ -966,7 +952,7 @@ public class JBBPBitInputStreamTest {
     JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(
         new byte[] {1, 2, 3, 4, 5, 6, 7, 0, (byte) 0xFE, (byte) 0xCA, (byte) 0xBE, (byte) 0x01}));
     assertArrayEquals(new int[] {0x01020304, 0x05060700, 0xFECABE01},
-        in.readIntArray(-1, JBBPByteOrder.BIG_ENDIAN));
+        in.readIntArray(-1, BIG_ENDIAN));
     assertEquals(12, in.getCounter());
 
     final Random rnd = new Random(1234);
@@ -975,7 +961,7 @@ public class JBBPBitInputStreamTest {
     rnd.nextBytes(buff);
 
     in = new JBBPBitInputStream(new ByteArrayInputStream(buff));
-    final int[] read = in.readIntArray(-1, JBBPByteOrder.BIG_ENDIAN);
+    final int[] read = in.readIntArray(-1, BIG_ENDIAN);
     assertEquals(buff.length, in.getCounter());
 
     assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE, read.length);
@@ -992,7 +978,7 @@ public class JBBPBitInputStreamTest {
 
     in = new JBBPBitInputStream(new ByteArrayInputStream(big));
 
-    final int[] readbig = in.readIntArray(-1, JBBPByteOrder.BIG_ENDIAN);
+    final int[] readbig = in.readIntArray(-1, BIG_ENDIAN);
 
     assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE * 32, readbig.length);
     for (int i = 0; i < readbig.length; i++) {
@@ -1003,12 +989,162 @@ public class JBBPBitInputStreamTest {
     }
   }
 
+  private void testWholeStreamArrayRead(
+      final int expectedReadWholeSize,
+      final IntSupplierWithIOException readWhole,
+      final IntSupplierWithIOException readWholeWithException,
+      final int expectedReadLimitedSize,
+      final IntSupplierWithIOException readWholeLimited
+  ) throws IOException {
+    assertEquals(expectedReadWholeSize, readWhole.getAsInt());
+    assertThrows(JBBPReachedArraySizeLimitException.class, readWholeWithException::getAsInt);
+    assertEquals(expectedReadLimitedSize, readWholeLimited.getAsInt());
+  }
+
   @Test
-  public void testReadArray_Float_WholeStream() throws Exception {
+  public void testReadArray_WholeWithLimiter_Bits() throws Exception {
+    final byte[] testData = new byte[] {1, 2, 3};
+    this.testWholeStreamArrayRead(
+        6, () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readBitsArray(-1,
+            JBBPBitNumber.BITS_4, () -> 0).length,
+        () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readBitsArray(-1,
+            JBBPBitNumber.BITS_4, () -> 3).length,
+        2, () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readBitsArray(-1,
+            JBBPBitNumber.BITS_4, () -> -2).length);
+  }
+
+  @Test
+  public void testReadArray_WholeWithLimiter_Boolean() throws Exception {
+    final byte[] testData = new byte[] {1, 2, 3, 4, 5, 6};
+    this.testWholeStreamArrayRead(
+        6, () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readBoolArray(-1,
+            () -> 0).length,
+        () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readBoolArray(-1,
+            () -> 3).length,
+        2, () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readBoolArray(-1,
+            () -> -2).length);
+  }
+
+  @Test
+  public void testReadArray_WholeWithLimiter_Byte() throws Exception {
+    final byte[] testData = new byte[] {1, 2, 3, 4, 5, 6};
+    this.testWholeStreamArrayRead(
+        6, () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readByteArray(-1,
+            () -> 0).length,
+        () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readByteArray(-1,
+            () -> 3).length,
+        2, () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readByteArray(-1,
+            () -> -2).length);
+  }
+
+  @Test
+  public void testReadArray_WholeWithLimiter_Short() throws Exception {
+    final byte[] testData = new byte[] {1, 2, 3, 4, 5, 6};
+    this.testWholeStreamArrayRead(
+        3, () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readShortArray(-1,
+            BIG_ENDIAN, () -> 0).length,
+        () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readShortArray(-1,
+            BIG_ENDIAN, () -> 2).length,
+        2, () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readShortArray(-1,
+            BIG_ENDIAN, () -> -2).length);
+  }
+
+  @Test
+  public void testReadArray_WholeWithLimiter_UShort() throws Exception {
+    final byte[] testData = new byte[] {1, 2, 3, 4, 5, 6};
+    this.testWholeStreamArrayRead(
+        3, () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readUShortArray(-1,
+            BIG_ENDIAN, () -> 0).length,
+        () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readUShortArray(-1,
+            BIG_ENDIAN, () -> 2).length,
+        2, () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readUShortArray(-1,
+            BIG_ENDIAN, () -> -2).length);
+  }
+
+  @Test
+  public void testReadArray_WholeWithLimiter_Int() throws Exception {
+    final byte[] testData = getRandomBytes(128);
+    this.testWholeStreamArrayRead(
+        32, () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readIntArray(-1,
+            BIG_ENDIAN, () -> 0).length,
+        () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readIntArray(-1,
+            BIG_ENDIAN, () -> 2).length,
+        2, () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readIntArray(-1,
+            BIG_ENDIAN, () -> -2).length);
+  }
+
+  @Test
+  public void testReadArray_WholeWithLimiter_UInt() throws Exception {
+    final byte[] testData = getRandomBytes(128);
+    this.testWholeStreamArrayRead(
+        32, () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readUIntArray(-1,
+            BIG_ENDIAN, () -> 0).length,
+        () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readUIntArray(-1,
+            BIG_ENDIAN, () -> 2).length,
+        2, () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readUIntArray(-1,
+            BIG_ENDIAN, () -> -2).length);
+  }
+
+  @Test
+  public void testReadArray_WholeWithLimiter_Long() throws Exception {
+    final byte[] testData = getRandomBytes(128);
+    this.testWholeStreamArrayRead(
+        16, () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readLongArray(-1,
+            BIG_ENDIAN, () -> 0).length,
+        () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readLongArray(-1,
+            BIG_ENDIAN, () -> 2).length,
+        2, () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readLongArray(-1,
+            BIG_ENDIAN, () -> -2).length);
+  }
+
+  @Test
+  public void testReadArray_WholeWithLimiter_Float() throws Exception {
+    final byte[] testData = getRandomBytes(128);
+    this.testWholeStreamArrayRead(
+        32, () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readFloatArray(-1,
+            BIG_ENDIAN, () -> 0).length,
+        () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readFloatArray(-1,
+            BIG_ENDIAN, () -> 2).length,
+        2, () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readFloatArray(-1,
+            BIG_ENDIAN, () -> -2).length);
+  }
+
+  @Test
+  public void testReadArray_WholeWithLimiter_String() throws Exception {
+    final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+    final JBBPBitOutputStream out = new JBBPBitOutputStream(buffer);
+    out.writeStringArray(new String[] {"hello", "world", "one", "two", "three", "four"},
+        BIG_ENDIAN);
+    out.close();
+    final byte[] testData = buffer.toByteArray();
+
+    this.testWholeStreamArrayRead(
+        6, () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readStringArray(-1,
+            BIG_ENDIAN, () -> 0).length,
+        () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readStringArray(-1,
+            BIG_ENDIAN, () -> 2).length,
+        2, () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readStringArray(-1,
+            BIG_ENDIAN, () -> -2).length);
+  }
+
+  @Test
+  public void testReadArray_WholeWithLimiter_Double() throws Exception {
+    final byte[] testData = getRandomBytes(128);
+    this.testWholeStreamArrayRead(
+        16, () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readDoubleArray(-1,
+            BIG_ENDIAN, () -> 0).length,
+        () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readDoubleArray(-1,
+            BIG_ENDIAN, () -> 2).length,
+        2, () -> new JBBPBitInputStream(new ByteArrayInputStream(testData)).readDoubleArray(-1,
+            BIG_ENDIAN, () -> -2).length);
+  }
+
+  @Test
+  public void testReadArray_UInt_WholeStream() throws Exception {
     JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(
         new byte[] {1, 2, 3, 4, 5, 6, 7, 0, (byte) 0xFE, (byte) 0xCA, (byte) 0xBE, (byte) 0x01}));
-    assertArrayEquals(new float[] {2.3879393E-38f, 6.3019354E-36f, -1.3474531E38f},
-        in.readFloatArray(-1, JBBPByteOrder.BIG_ENDIAN), TestUtils.FLOAT_DELTA);
+    assertArrayEquals(new long[] {0x01020304L, 0x05060700L, 0xFECABE01L},
+        in.readUIntArray(-1, BIG_ENDIAN));
     assertEquals(12, in.getCounter());
 
     final Random rnd = new Random(1234);
@@ -1017,7 +1153,50 @@ public class JBBPBitInputStreamTest {
     rnd.nextBytes(buff);
 
     in = new JBBPBitInputStream(new ByteArrayInputStream(buff));
-    final float[] read = in.readFloatArray(-1, JBBPByteOrder.BIG_ENDIAN);
+    final long[] read = in.readUIntArray(-1, BIG_ENDIAN);
+    assertEquals(buff.length, in.getCounter());
+
+    assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE, read.length);
+    for (int i = 0; i < read.length; i++) {
+      final long val = read[i];
+      final int j = i * 4;
+      assertEquals(val,
+          ((long) ((buff[j] << 24) | ((buff[j + 1] & 0xFF) << 16) | ((buff[j + 2] & 0xFF) << 8) |
+              (buff[j + 3] & 0xFF))) & 0xFFFFFFFFL);
+    }
+
+    final byte[] big = new byte[JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE * 128];
+    rnd.nextBytes(big);
+
+    in = new JBBPBitInputStream(new ByteArrayInputStream(big));
+
+    final long[] readBig = in.readUIntArray(-1, BIG_ENDIAN);
+
+    assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE * 32, readBig.length);
+    for (int i = 0; i < readBig.length; i++) {
+      final long val = readBig[i];
+      final int j = i * 4;
+      assertEquals(val,
+          ((long) ((big[j] << 24) | ((big[j + 1] & 0xFF) << 16) | ((big[j + 2] & 0xFF) << 8) |
+              (big[j + 3] & 0xFF))) & 0xFFFFFFFFL);
+    }
+  }
+
+  @Test
+  public void testReadArray_Float_WholeStream() throws Exception {
+    JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(
+        new byte[] {1, 2, 3, 4, 5, 6, 7, 0, (byte) 0xFE, (byte) 0xCA, (byte) 0xBE, (byte) 0x01}));
+    assertArrayEquals(new float[] {2.3879393E-38f, 6.3019354E-36f, -1.3474531E38f},
+        in.readFloatArray(-1, BIG_ENDIAN), TestUtils.FLOAT_DELTA);
+    assertEquals(12, in.getCounter());
+
+    final Random rnd = new Random(1234);
+
+    final byte[] buff = new byte[JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE * 4];
+    rnd.nextBytes(buff);
+
+    in = new JBBPBitInputStream(new ByteArrayInputStream(buff));
+    final float[] read = in.readFloatArray(-1, BIG_ENDIAN);
     assertEquals(buff.length, in.getCounter());
 
     assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE, read.length);
@@ -1034,7 +1213,7 @@ public class JBBPBitInputStreamTest {
 
     in = new JBBPBitInputStream(new ByteArrayInputStream(big));
 
-    final float[] readbig = in.readFloatArray(-1, JBBPByteOrder.BIG_ENDIAN);
+    final float[] readbig = in.readFloatArray(-1, BIG_ENDIAN);
 
     assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE * 32, readbig.length);
     for (int i = 0; i < readbig.length; i++) {
@@ -1051,7 +1230,16 @@ public class JBBPBitInputStreamTest {
     final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(
         new byte[] {1, 2, 3, 4, 5, 6, 7, 0, (byte) 0xFE, (byte) 0xCA, (byte) 0xBE, (byte) 0x01}));
     assertArrayEquals(new int[] {0x01020304, 0x05060700},
-        in.readIntArray(2, JBBPByteOrder.BIG_ENDIAN));
+        in.readIntArray(2, BIG_ENDIAN));
+    assertEquals(8, in.getCounter());
+  }
+
+  @Test
+  public void testReadArray_UInt_TwoItems() throws Exception {
+    final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(
+        new byte[] {1, 2, 3, 4, 5, 6, 7, 0, (byte) 0xFE, (byte) 0xCA, (byte) 0xBE, (byte) 0x01}));
+    assertArrayEquals(new long[] {0x01020304L, 0x05060700L},
+        in.readUIntArray(2, BIG_ENDIAN));
     assertEquals(8, in.getCounter());
   }
 
@@ -1060,16 +1248,25 @@ public class JBBPBitInputStreamTest {
     final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(
         new byte[] {1, 2, 3, 4, 5, 6, 7, 0, (byte) 0xFE, (byte) 0xCA, (byte) 0xBE, (byte) 0x01}));
     assertArrayEquals(new float[] {2.3879393E-38f, 6.3019354E-36f},
-        in.readFloatArray(2, JBBPByteOrder.BIG_ENDIAN), TestUtils.FLOAT_DELTA);
+        in.readFloatArray(2, BIG_ENDIAN), TestUtils.FLOAT_DELTA);
     assertEquals(8, in.getCounter());
   }
 
   @Test
-  public void testReadArray_Int_EOF() throws Exception {
+  public void testReadArray_Int_EOF() {
     assertThrows(EOFException.class, () -> {
       final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(
           new byte[] {1, 2, 3, 4, 5, 6, 7, 0, (byte) 0xFE, (byte) 0xCA, (byte) 0xBE, (byte) 0x01}));
-      in.readIntArray(259, JBBPByteOrder.BIG_ENDIAN);
+      in.readIntArray(259, BIG_ENDIAN);
+    });
+  }
+
+  @Test
+  public void testReadArray_UInt_EOF() {
+    assertThrows(EOFException.class, () -> {
+      final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(
+          new byte[] {1, 2, 3, 4, 5, 6, 7, 0, (byte) 0xFE, (byte) 0xCA, (byte) 0xBE, (byte) 0x01}));
+      in.readUIntArray(259, BIG_ENDIAN);
     });
   }
 
@@ -1078,7 +1275,7 @@ public class JBBPBitInputStreamTest {
     assertThrows(EOFException.class, () -> {
       final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(
           new byte[] {1, 2, 3, 4, 5, 6, 7, 0, (byte) 0xFE, (byte) 0xCA, (byte) 0xBE, (byte) 0x01}));
-      in.readFloatArray(259, JBBPByteOrder.BIG_ENDIAN);
+      in.readFloatArray(259, BIG_ENDIAN);
     });
   }
 
@@ -1088,7 +1285,7 @@ public class JBBPBitInputStreamTest {
         new byte[] {1, 2, 3, 4, 5, 6, 7, 0, (byte) 0xFE, (byte) 0xCA, (byte) 0xBE, (byte) 0x01, 2,
             3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4}));
     assertArrayEquals(new long[] {0x0102030405060700L, 0xFECABE0102030405L, 0x0607080901020304L},
-        in.readLongArray(-1, JBBPByteOrder.BIG_ENDIAN));
+        in.readLongArray(-1, BIG_ENDIAN));
     assertEquals(24, in.getCounter());
 
     final Random rnd = new Random(1234);
@@ -1097,7 +1294,7 @@ public class JBBPBitInputStreamTest {
     rnd.nextBytes(buff);
 
     in = new JBBPBitInputStream(new ByteArrayInputStream(buff));
-    final long[] read = in.readLongArray(-1, JBBPByteOrder.BIG_ENDIAN);
+    final long[] read = in.readLongArray(-1, BIG_ENDIAN);
     assertEquals(buff.length, in.getCounter());
 
     assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE, read.length);
@@ -1115,7 +1312,7 @@ public class JBBPBitInputStreamTest {
 
     in = new JBBPBitInputStream(new ByteArrayInputStream(big));
 
-    final long[] readbig = in.readLongArray(-1, JBBPByteOrder.BIG_ENDIAN);
+    final long[] readbig = in.readLongArray(-1, BIG_ENDIAN);
 
     assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE * 16, readbig.length);
     for (int i = 0; i < readbig.length; i++) {
@@ -1135,7 +1332,7 @@ public class JBBPBitInputStreamTest {
             3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4}));
     assertArrayEquals(
         new double[] {8.207880399131826E-304d, -5.730900111929792E302d, 1.268802825418157E-279d},
-        in.readDoubleArray(-1, JBBPByteOrder.BIG_ENDIAN), TestUtils.FLOAT_DELTA);
+        in.readDoubleArray(-1, BIG_ENDIAN), TestUtils.FLOAT_DELTA);
     assertEquals(24, in.getCounter());
 
     final Random rnd = new Random(1234);
@@ -1144,7 +1341,7 @@ public class JBBPBitInputStreamTest {
     rnd.nextBytes(buff);
 
     in = new JBBPBitInputStream(new ByteArrayInputStream(buff));
-    final double[] read = in.readDoubleArray(-1, JBBPByteOrder.BIG_ENDIAN);
+    final double[] read = in.readDoubleArray(-1, BIG_ENDIAN);
     assertEquals(buff.length, in.getCounter());
 
     assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE, read.length);
@@ -1152,10 +1349,10 @@ public class JBBPBitInputStreamTest {
       final double val = read[i];
       final int j = i * 8;
       assertEquals(val, Double.longBitsToDouble(
-          ((long) buff[j] << 56) | (((long) buff[j + 1] & 0xFFL) << 48) |
-              (((long) buff[j + 2] & 0xFFL) << 40) | (((long) buff[j + 3] & 0xFFL) << 32) |
-              (((long) buff[j + 4] & 0xFFL) << 24) | (((long) buff[j + 5] & 0xFFL) << 16) |
-              (((long) buff[j + 6] & 0xFFL) << 8) | ((long) buff[j + 7] & 0xFF)),
+              ((long) buff[j] << 56) | (((long) buff[j + 1] & 0xFFL) << 48) |
+                  (((long) buff[j + 2] & 0xFFL) << 40) | (((long) buff[j + 3] & 0xFFL) << 32) |
+                  (((long) buff[j + 4] & 0xFFL) << 24) | (((long) buff[j + 5] & 0xFFL) << 16) |
+                  (((long) buff[j + 6] & 0xFFL) << 8) | ((long) buff[j + 7] & 0xFF)),
           TestUtils.FLOAT_DELTA);
     }
 
@@ -1164,17 +1361,17 @@ public class JBBPBitInputStreamTest {
 
     in = new JBBPBitInputStream(new ByteArrayInputStream(big));
 
-    final double[] readbig = in.readDoubleArray(-1, JBBPByteOrder.BIG_ENDIAN);
+    final double[] readbig = in.readDoubleArray(-1, BIG_ENDIAN);
 
     assertEquals(JBBPBitInputStream.INITIAL_ARRAY_BUFFER_SIZE * 16, readbig.length);
     for (int i = 0; i < readbig.length; i++) {
       final double val = readbig[i];
       final int j = i * 8;
       assertEquals(val, Double.longBitsToDouble(
-          ((long) big[j] << 56) | (((long) big[j + 1] & 0xFFL) << 48) |
-              (((long) big[j + 2] & 0xFFL) << 40) | (((long) big[j + 3] & 0xFFL) << 32) |
-              (((long) big[j + 4] & 0xFFL) << 24) | (((long) big[j + 5] & 0xFFL) << 16) |
-              (((long) big[j + 6] & 0xFFL) << 8) | ((long) big[j + 7] & 0xFF)),
+              ((long) big[j] << 56) | (((long) big[j + 1] & 0xFFL) << 48) |
+                  (((long) big[j + 2] & 0xFFL) << 40) | (((long) big[j + 3] & 0xFFL) << 32) |
+                  (((long) big[j + 4] & 0xFFL) << 24) | (((long) big[j + 5] & 0xFFL) << 16) |
+                  (((long) big[j + 6] & 0xFFL) << 8) | ((long) big[j + 7] & 0xFF)),
           TestUtils.FLOAT_DELTA);
     }
   }
@@ -1185,7 +1382,7 @@ public class JBBPBitInputStreamTest {
         new byte[] {1, 2, 3, 4, 5, 6, 7, 0, (byte) 0xFE, (byte) 0xCA, (byte) 0xBE, (byte) 0x01, 2,
             3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4}));
     assertArrayEquals(new long[] {0x0102030405060700L, 0xFECABE0102030405L},
-        in.readLongArray(2, JBBPByteOrder.BIG_ENDIAN));
+        in.readLongArray(2, BIG_ENDIAN));
     assertEquals(16, in.getCounter());
   }
 
@@ -1195,7 +1392,7 @@ public class JBBPBitInputStreamTest {
         new byte[] {1, 2, 3, 4, 5, 6, 7, 0, (byte) 0xFE, (byte) 0xCA, (byte) 0xBE, (byte) 0x01, 2,
             3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4}));
     assertArrayEquals(new double[] {8.207880399131826E-304d, -5.730900111929792E302d},
-        in.readDoubleArray(2, JBBPByteOrder.BIG_ENDIAN), TestUtils.FLOAT_DELTA);
+        in.readDoubleArray(2, BIG_ENDIAN), TestUtils.FLOAT_DELTA);
     assertEquals(16, in.getCounter());
   }
 
@@ -1205,7 +1402,7 @@ public class JBBPBitInputStreamTest {
       final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(
           new byte[] {1, 2, 3, 4, 5, 6, 7, 0, (byte) 0xFE, (byte) 0xCA, (byte) 0xBE, (byte) 0x01, 2,
               3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4}));
-      in.readLongArray(259, JBBPByteOrder.BIG_ENDIAN);
+      in.readLongArray(259, BIG_ENDIAN);
     });
   }
 
@@ -1215,7 +1412,7 @@ public class JBBPBitInputStreamTest {
       final JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(
           new byte[] {1, 2, 3, 4, 5, 6, 7, 0, (byte) 0xFE, (byte) 0xCA, (byte) 0xBE, (byte) 0x01, 2,
               3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4}));
-      in.readDoubleArray(259, JBBPByteOrder.BIG_ENDIAN);
+      in.readDoubleArray(259, BIG_ENDIAN);
     });
   }
 
@@ -1393,6 +1590,11 @@ public class JBBPBitInputStreamTest {
     assertTrue(in.readBits(JBBPBitNumber.BITS_1) >= 0);
     assertTrue(in.hasAvailableData());
     assertEquals(2, in.getCounter());
+  }
+
+  @FunctionalInterface
+  private interface IntSupplierWithIOException {
+    int getAsInt() throws IOException;
   }
 
 }
