@@ -2,10 +2,10 @@ package com.igormaznitsa.jbbp.plugin.gradle;
 
 import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_STRING_EMPTY;
 
-
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
+import com.igormaznitsa.jbbp.io.JBBPArraySizeLimiter;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
@@ -27,7 +27,6 @@ import org.gradle.api.GradleException;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.SourceSet;
 
 /**
@@ -94,7 +93,9 @@ public class JBBPGenerateTask extends AbstractJBBPTask {
                                                    @Nullable final JBBPNamedFieldInfo fieldName,
                                                    final int extraData,
                                                    final boolean readWholeStream,
-                                                   final int arrayLength) throws IOException {
+                                                   final int arrayLength,
+                                                   final JBBPArraySizeLimiter arraySizeLimiter)
+          throws IOException {
         throw new Error("Must not be called");
       }
     };

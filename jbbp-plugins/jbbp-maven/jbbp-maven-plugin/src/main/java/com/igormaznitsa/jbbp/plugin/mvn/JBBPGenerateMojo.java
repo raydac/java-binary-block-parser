@@ -19,10 +19,10 @@ package com.igormaznitsa.jbbp.plugin.mvn;
 import static com.igormaznitsa.jbbp.plugin.common.utils.CommonUtils.ensureEncodingName;
 import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_STRING_EMPTY;
 
-
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
+import com.igormaznitsa.jbbp.io.JBBPArraySizeLimiter;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.mapper.Bin;
@@ -380,7 +380,10 @@ public class JBBPGenerateMojo extends AbstractJBBPMojo {
                                                    @Nullable final JBBPNamedFieldInfo fieldName,
                                                    final int extraData,
                                                    final boolean readWholeStream,
-                                                   final int arrayLength) throws IOException {
+                                                   final int arrayLength,
+                                                   @Nonnull
+                                                         final JBBPArraySizeLimiter arraySizeLimiter)
+          throws IOException {
         throw new Error("Must not be called");
       }
     };

@@ -256,13 +256,36 @@
                 <configuration>
                     <failFast>true</failFast>
                     <rules>
-                        <dependencyConvergence/>
-                        <banDuplicateClasses/>
+                        <dependencyConvergence>
+                            <excludedScopes>
+                                <scope>test</scope>
+                                <scope>provided</scope>
+                                <scope>runtime</scope>
+                            </excludedScopes>
+                            <excludes>
+                                <exclude>org.codehaus.*</exclude>
+                                <exclude>org.apache.maven.*</exclude>
+                            </excludes>
+                        </dependencyConvergence>
+                        <banDuplicateClasses>
+                            <ignoreClasses>
+                                <ignoreClass>com.plexus.*</ignoreClass>
+                                <ignoreClass>javax.*</ignoreClass>
+                                <ignoreClass>org.codehaus.*</ignoreClass>
+                            </ignoreClasses>
+                            <ignoredScopes>
+                                <ignoredScope>test</ignoredScope>
+                                <ignoredScope>provided</ignoredScope>
+                            </ignoredScopes>
+                            <ignoreWhenIdentical>true</ignoreWhenIdentical>
+                            <findAllDuplicates>true</findAllDuplicates>
+                        </banDuplicateClasses>
                         <banCircularDependencies/>
                         <enforceBytecodeVersion>
                             <maxJdkVersion>${maven.compiler.target}</maxJdkVersion>
                             <ignoredScopes>
                                 <ignoredScope>test</ignoredScope>
+                                <ignoredScope>provided</ignoredScope>
                             </ignoredScopes>
                         </enforceBytecodeVersion>
                     </rules>
@@ -271,7 +294,7 @@
                     <dependency>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>extra-enforcer-rules</artifactId>
-                        <version>1.7.0</version>
+                        <version>1.8.0</version>
                     </dependency>
                 </dependencies>
             </plugin>

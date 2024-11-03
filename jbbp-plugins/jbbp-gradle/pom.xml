@@ -24,7 +24,7 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <gradle.executable>gradle</gradle.executable>
+        <gradle.executable>gradle8</gradle.executable>
         <gradleGoal>publishToMavenLocal</gradleGoal>
     </properties>
 

@@ -47,9 +47,13 @@ buildscript {
     }
 }
 
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:deprecation"
+}
+
 task sourcesJar(type: Jar) {
     duplicatesStrategy = 'include'
-    classifier = 'sources'
+    archiveClassifier = 'sources'
     from sourceSets.main.allSource
 }
 
@@ -63,20 +67,16 @@ sourceSets {
     }
 }
 
-pluginBundle {
+gradlePlugin {
     website = 'https://github.com/raydac/java-binary-block-parser'
     vcsUrl = 'https://github.com/raydac/java-binary-block-parser'
-    description = 'The plug-in processes JBBP scripts and generate Java classes from them'
-    tags = ['jbbp', 'converter']
-}
-
-gradlePlugin {
     plugins {
         jbbpPlugin {
             id = 'com.igormaznitsa.gradle.jbbp'
             displayName = 'JBBP Sources Generator plugin'
             implementationClass = 'com.igormaznitsa.jbbp.plugin.gradle.JBBPPlugin'
             description = 'The plug-in processes JBBP scripts and generate Java classes from them'
+            tags = ['jbbp', 'converter']
         }
     }
 }

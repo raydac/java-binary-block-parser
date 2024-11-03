@@ -72,7 +72,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -277,15 +276,18 @@ public final class JBBPParser {
   /**
    * Set current registered instance of controller to check array size calculated by expression.
    *
-   * @param arraySizeObserver instance of array size observer, must not be null.
+   * @param arraySizeController instance of array size observer, must not be null.
    * @return instance of the parser.
    * @throws NullPointerException if argument is null
    * @see #DEFAULT_EXPRESSION_ARRAY_SIZE_CONTROLLER
    * @since 2.1.0
    */
   public JBBPParser setExpressionArraySizeController(
-      final JBBPParserExpressionArraySizeController arraySizeObserver) {
-    this.expressionArraySizeController = Objects.requireNonNull(arraySizeObserver);
+      final JBBPParserExpressionArraySizeController arraySizeController) {
+    if (arraySizeController == null) {
+      throw new NullPointerException("Controller value must not be null");
+    }
+    this.expressionArraySizeController = arraySizeController;
     return this;
   }
 
