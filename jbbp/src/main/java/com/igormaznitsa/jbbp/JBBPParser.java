@@ -72,6 +72,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -93,6 +94,15 @@ public final class JBBPParser {
    * @since 1.4.0
    */
   public static final int FLAG_NEGATIVE_EXPRESSION_RESULT_AS_ZERO = 2;
+
+  /**
+   * Default expression array size controller. It is doing nothing.
+   *
+   * @since 2.1.0
+   */
+  public static final JBBPParserExpressionArraySizeController
+      DEFAULT_EXPRESSION_ARRAY_SIZE_CONTROLLER =
+      (parser, expressionEvaluator, fieldName, arraySize) -> arraySize;
   /**
    * Empty structure array
    */
@@ -114,10 +124,16 @@ public final class JBBPParser {
    */
   private final JBBPCustomFieldTypeProcessor customFieldTypeProcessor;
   /**
+   * Controller to get and change values calculated by expressions as size for array fields.
+   *
+   * @since 2.1.0
+   */
+  private JBBPParserExpressionArraySizeController expressionArraySizeController =
+      DEFAULT_EXPRESSION_ARRAY_SIZE_CONTROLLER;
+  /**
    * The Variable contains the last parsing counter value.
    */
   private long finalStreamByteCounter;
-
   /**
    * Constructor.
    *
@@ -249,6 +265,31 @@ public final class JBBPParser {
   }
 
   /**
+   * Get current registered instance of controller to check array size calculated by expression.
+   *
+   * @return current instance of array size observer, can't be null
+   * @since 2.1.0
+   */
+  public JBBPParserExpressionArraySizeController getExpressionArraySizeController() {
+    return this.expressionArraySizeController;
+  }
+
+  /**
+   * Set current registered instance of controller to check array size calculated by expression.
+   *
+   * @param arraySizeObserver instance of array size observer, must not be null.
+   * @return instance of the parser.
+   * @throws NullPointerException if argument is null
+   * @see #DEFAULT_EXPRESSION_ARRAY_SIZE_CONTROLLER
+   * @since 2.1.0
+   */
+  public JBBPParser setExpressionArraySizeController(
+      final JBBPParserExpressionArraySizeController arraySizeObserver) {
+    this.expressionArraySizeController = Objects.requireNonNull(arraySizeObserver);
+    return this;
+  }
+
+  /**
    * Inside method to parse a structure.
    *
    * @param inStream                      the input stream, must not be null
@@ -355,6 +396,9 @@ public final class JBBPParser {
             if ((this.flags & FLAG_NEGATIVE_EXPRESSION_RESULT_AS_ZERO) != 0) {
               resultOfExpression = Math.max(resultOfExpression, 0);
             }
+            resultOfExpression =
+                this.expressionArraySizeController.onCalculatedArraySize(this, evaluator, name,
+                    resultOfExpression);
           } else {
             resultOfExpression = 0;
           }

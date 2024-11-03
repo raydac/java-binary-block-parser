@@ -2611,7 +2611,6 @@ public class JBBPParserTest {
             return new JBBPFieldArrayByte(fieldName, read);
           }
         });
-
   }
 
 }
