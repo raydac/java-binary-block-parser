@@ -2550,6 +2550,10 @@ public class JBBPParserTest {
     testArrayLimiter_2elementsLimit(TestUtils.getRandomBytes(128), "long [_] test;", null, null);
     testArrayLimiter_2elementsLimit(TestUtils.getRandomBytes(128), "floatj [_] test;", null, null);
     testArrayLimiter_2elementsLimit(TestUtils.getRandomBytes(128), "doublej [_] test;", null, null);
+    testArrayLimiter_2elementsLimit(TestUtils.getRandomBytes(128), "doublej [_] test;", null, null);
+    testArrayLimiter_2elementsLimit(TestUtils.getRandomBytes(128),
+        "test [_] { byte a; byte b; byte c; byte d;}", null, null);
+
     testArrayLimiter_2elementsLimit(
         TestUtils.makeStringArray(JBBPByteOrder.BIG_ENDIAN, "hello", "world", "one", "two", "three",
             "four"), "stringj [_] test;", null, null);

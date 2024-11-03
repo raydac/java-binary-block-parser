@@ -71,9 +71,11 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   private long markedByteCounter;
 
   /**
-   * Internal flag shows that read stopped for reach of array limiter.
+   * Internal flag shows that read stopped for whole stream array read limit reach.
+   *
+   * @since 2.1.0
    */
-  private boolean arrayLimitDetected;
+  private boolean detectedArrayLimit;
 
   /**
    * Flag shows that read of array was stopped for array limiter restrictions.
@@ -82,8 +84,19 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * @see JBBPArraySizeLimiter
    * @since 2.1.0
    */
-  public boolean isArrayLimitDetected() {
-    return this.arrayLimitDetected;
+  public boolean isDetectedArrayLimit() {
+    return this.detectedArrayLimit;
+  }
+
+  /**
+   * Set value for array limit detected flag. It is important to set the flag for correct processing of parsing.
+   *
+   * @param value true or false.
+   * @see com.igormaznitsa.jbbp.JBBPParser
+   * @since 2.1.0
+   */
+  public void setDetectedArrayLimit(final boolean value) {
+    this.detectedArrayLimit = value;
   }
 
   /**
@@ -135,7 +148,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   public boolean[] readBoolArray(final int items,
                                  final JBBPArraySizeLimiter arraySizeLimiter)
       throws IOException {
-    this.arrayLimitDetected = false;
+    this.setDetectedArrayLimit(false);
     int pos = 0;
     byte[] buffer;
     if (items < 0) {
@@ -149,7 +162,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
         pos += read;
 
         if (isBreakReadWholeStream(pos, arraySizeLimiter)) {
-          this.arrayLimitDetected = true;
+          this.setDetectedArrayLimit(true);
           final int limit = arraySizeLimiter.getArrayItemsLimit();
           if (limit < 0) {
             pos = Math.min(pos, Math.abs(limit));
@@ -346,7 +359,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       final JBBPArraySizeLimiter streamLimiter
   ) throws IOException {
     final boolean readByteArray = bitNumber == null;
-    this.arrayLimitDetected = false;
+    this.setDetectedArrayLimit(false);
     int pos = 0;
     if (items < 0) {
       byte[] buffer = new byte[INITIAL_ARRAY_BUFFER_SIZE];
@@ -363,7 +376,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
         }
         buffer[pos++] = (byte) next;
         if (isBreakReadWholeStream(pos, streamLimiter)) {
-          this.arrayLimitDetected = true;
+          this.setDetectedArrayLimit(true);
           break;
         }
       }
@@ -429,7 +442,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   public short[] readShortArray(final int items, final JBBPByteOrder byteOrder,
                                 final JBBPArraySizeLimiter arraySizeLimiter)
       throws IOException {
-    this.arrayLimitDetected = false;
+    this.setDetectedArrayLimit(false);
     int pos = 0;
     if (items < 0) {
       short[] buffer = new short[INITIAL_ARRAY_BUFFER_SIZE];
@@ -443,7 +456,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
         }
         buffer[pos++] = (short) next;
         if (isBreakReadWholeStream(pos, arraySizeLimiter)) {
-          this.arrayLimitDetected = true;
+          this.setDetectedArrayLimit(true);
           break;
         }
       }
@@ -500,7 +513,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       final JBBPByteOrder byteOrder,
       final JBBPArraySizeLimiter arraySizeLimiter
   ) throws IOException {
-    this.arrayLimitDetected = false;
+    this.setDetectedArrayLimit(false);
     int pos = 0;
     if (items < 0) {
       long[] buffer = new long[INITIAL_ARRAY_BUFFER_SIZE];
@@ -514,7 +527,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
         }
         buffer[pos++] = next;
         if (isBreakReadWholeStream(pos, arraySizeLimiter)) {
-          this.arrayLimitDetected = true;
+          this.setDetectedArrayLimit(true);
           break;
         }
       }
@@ -569,7 +582,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   public char[] readUShortArray(final int items, final JBBPByteOrder byteOrder,
                                 final JBBPArraySizeLimiter arraySizeLimiter)
       throws IOException {
-    this.arrayLimitDetected = false;
+    this.setDetectedArrayLimit(false);
     int pos = 0;
     if (items < 0) {
       char[] buffer = new char[INITIAL_ARRAY_BUFFER_SIZE];
@@ -583,7 +596,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
         }
         buffer[pos++] = (char) next;
         if (isBreakReadWholeStream(pos, arraySizeLimiter)) {
-          this.arrayLimitDetected = true;
+          this.setDetectedArrayLimit(true);
           break;
         }
       }
@@ -635,7 +648,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    */
   public int[] readIntArray(final int items, final JBBPByteOrder byteOrder,
                             final JBBPArraySizeLimiter arraySizeLimiter) throws IOException {
-    this.arrayLimitDetected = false;
+    this.setDetectedArrayLimit(false);
     int pos = 0;
     if (items < 0) {
       int[] buffer = new int[INITIAL_ARRAY_BUFFER_SIZE];
@@ -649,7 +662,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
         }
         buffer[pos++] = next;
         if (isBreakReadWholeStream(pos, arraySizeLimiter)) {
-          this.arrayLimitDetected = true;
+          this.setDetectedArrayLimit(true);
           break;
         }
       }
@@ -706,7 +719,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       final JBBPByteOrder byteOrder,
       final JBBPArraySizeLimiter arraySizeLimiter
   ) throws IOException {
-    this.arrayLimitDetected = false;
+    this.setDetectedArrayLimit(false);
     int pos = 0;
     if (items < 0) {
       float[] buffer = new float[INITIAL_ARRAY_BUFFER_SIZE];
@@ -720,7 +733,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
         }
         buffer[pos++] = next;
         if (isBreakReadWholeStream(pos, arraySizeLimiter)) {
-          this.arrayLimitDetected = true;
+          this.setDetectedArrayLimit(true);
           break;
         }
       }
@@ -1072,7 +1085,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       final JBBPByteOrder byteOrder,
       final JBBPArraySizeLimiter arraySizeLimiter
   ) throws IOException {
-    this.arrayLimitDetected = false;
+    this.setDetectedArrayLimit(false);
     int pos = 0;
     if (items < 0) {
       long[] buffer = new long[INITIAL_ARRAY_BUFFER_SIZE];
@@ -1086,7 +1099,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
         }
         buffer[pos++] = next;
         if (isBreakReadWholeStream(pos, arraySizeLimiter)) {
-          this.arrayLimitDetected = true;
+          this.setDetectedArrayLimit(true);
           break;
         }
       }
@@ -1205,7 +1218,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       final JBBPByteOrder byteOrder,
       final JBBPArraySizeLimiter arraySizeLimiter
   ) throws IOException {
-    this.arrayLimitDetected = false;
+    this.setDetectedArrayLimit(false);
     int pos = 0;
     if (items < 0) {
       double[] buffer = new double[INITIAL_ARRAY_BUFFER_SIZE];
@@ -1219,7 +1232,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
         }
         buffer[pos++] = Double.longBitsToDouble(next);
         if (isBreakReadWholeStream(pos, arraySizeLimiter)) {
-          this.arrayLimitDetected = true;
+          this.setDetectedArrayLimit(true);
           break;
         }
       }
@@ -1416,7 +1429,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       final JBBPByteOrder byteOrder,
       final JBBPArraySizeLimiter arraySizeLimiter
   ) throws IOException {
-    this.arrayLimitDetected = false;
+    this.setDetectedArrayLimit(false);
     int pos = 0;
     if (items < 0) {
       String[] buffer = new String[INITIAL_ARRAY_BUFFER_SIZE];
@@ -1430,7 +1443,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
         }
         buffer[pos++] = next;
         if (isBreakReadWholeStream(pos, arraySizeLimiter)) {
-          this.arrayLimitDetected = true;
+          this.setDetectedArrayLimit(true);
           break;
         }
       }

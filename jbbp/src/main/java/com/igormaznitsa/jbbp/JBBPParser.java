@@ -283,7 +283,7 @@ public final class JBBPParser {
     boolean endStructureNotMet = true;
 
     while (endStructureNotMet && positionAtCompiledBlock.get() < compiled.length) {
-      if (inStream.isArrayLimitDetected() ||
+      if (inStream.isDetectedArrayLimit() ||
           (!inStream.hasAvailableData() && (flags & FLAG_SKIP_REMAINING_FIELDS_IF_EOF) != 0)) {
         // Break reading because the ignore flag for EOF has been set or reached limit for whole stream array read
         break;
@@ -628,6 +628,7 @@ public final class JBBPParser {
 
                     if (JBBPArraySizeLimiter.isBreakReadWholeStream(list.size(),
                         arraySizeLimiter)) {
+                      inStream.setDetectedArrayLimit(true);
                       break;
                     }
 

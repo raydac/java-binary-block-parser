@@ -993,13 +993,13 @@ public class JBBPBitInputStreamTest {
   ) throws Exception {
     final Pair<JBBPBitInputStream, Integer> readWholeData = readWhole.getData();
     assertEquals(expectedReadWholeSize, readWholeData.getRight());
-    assertFalse(readWholeData.getLeft().isArrayLimitDetected());
+    assertFalse(readWholeData.getLeft().isDetectedArrayLimit());
 
     assertThrows(JBBPReachedArraySizeLimitException.class, readWholeWithException::getData);
 
     final Pair<JBBPBitInputStream, Integer> readWholeLimitedData = readWholeLimited.getData();
     assertEquals(expectedReadLimitedSize, readWholeLimitedData.getRight());
-    assertTrue(readWholeLimitedData.getLeft().isArrayLimitDetected());
+    assertTrue(readWholeLimitedData.getLeft().isDetectedArrayLimit());
   }
 
   @Test
