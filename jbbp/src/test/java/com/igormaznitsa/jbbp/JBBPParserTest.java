@@ -26,12 +26,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPNumericFieldValueConversionException;
 import com.igormaznitsa.jbbp.exceptions.JBBPParsingException;
+import com.igormaznitsa.jbbp.exceptions.JBBPReachedArraySizeLimitException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTooManyFieldsFoundException;
 import com.igormaznitsa.jbbp.io.JBBPArraySizeLimiter;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
+import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.model.JBBPAbstractArrayField;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
@@ -1198,33 +1201,25 @@ public class JBBPParserTest {
     assertEquals(0, parsed.findFieldForNameAndType("array", JBBPFieldArrayBit.class).size());
   }
 
-  @Test
-  public void testParse_ProcessingOfExtraFieldValuesInSkippedStructureFields() throws Exception {
-    final JBBPFieldStruct parsed = JBBPParser.prepare(
-        "byte len; struct1 [len] { int a; var:23231223 [1024] helloarray; int b; bit:3; bit:7 [10233]; var:-1332 hello; skip:34221223; bit:7; bit:1; align:3445; bit:2; int skippedInt; long lng; insidestruct {bit:1; bit:2; bit:3;} } int end; ")
-        .parse(new byte[] {0, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
+  private static void testArrayLimiter_2elementsLimit(final byte[] testData, final String script,
+                                                      final JBBPVarFieldProcessor varFieldProcessor,
+                                                      final JBBPCustomFieldTypeProcessor customFieldTypeProcessor)
+      throws Exception {
+    ByteArrayInputStream dataStream = new ByteArrayInputStream(testData);
+    final JBBPParser parser = JBBPParser.prepare(script, customFieldTypeProcessor);
+    parser.parse(dataStream, varFieldProcessor, null);
+    assertFalse(dataStream.available() > 0);
 
-          @Override
-          public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(
-              JBBPBitInputStream inStream, int arraySize, JBBPNamedFieldInfo fieldName,
-              int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap,
-              JBBPArraySizeLimiter arraySizeLimiter)
-              throws IOException {
-            fail("Must not be called");
-            return null;
-          }
+    final ByteArrayInputStream dataStreamLimit1 = new ByteArrayInputStream(testData);
+    assertThrows(JBBPReachedArraySizeLimitException.class,
+        () -> parser.parse(dataStreamLimit1, varFieldProcessor, null, () -> 2));
+    assertTrue(dataStreamLimit1.available() > 0);
 
-          @Override
-          public JBBPAbstractField readVarField(JBBPBitInputStream inStream,
-                                                JBBPNamedFieldInfo fieldName, int extraValue,
-                                                JBBPByteOrder byteOrder,
-                                                JBBPNamedNumericFieldMap numericFieldMap)
-              throws IOException {
-            fail("Must not be called");
-            return null;
-          }
-        }, null);
-    assertEquals(0x01020304, parsed.findFieldForNameAndType("end", JBBPFieldInt.class).getAsInt());
+    final ByteArrayInputStream dataStreamLimit2 = new ByteArrayInputStream(testData);
+    assertEquals(2,
+        ((JBBPAbstractArrayField<?>) parser.parse(dataStreamLimit2, varFieldProcessor, null,
+            () -> -2).getArray()[0]).size());
+    assertTrue(dataStreamLimit2.available() > 0);
   }
 
   @Test
@@ -1918,10 +1913,39 @@ public class JBBPParserTest {
   }
 
   @Test
+  public void testParse_ProcessingOfExtraFieldValuesInSkippedStructureFields() throws Exception {
+    final JBBPFieldStruct parsed = JBBPParser.prepare(
+            "byte len; struct1 [len] { int a; var:23231223 [1024] helloarray; int b; bit:3; bit:7 [10233]; var:-1332 hello; skip:34221223; bit:7; bit:1; align:3445; bit:2; int skippedInt; long lng; insidestruct {bit:1; bit:2; bit:3;} } int end; ")
+        .parse(new byte[] {0, 1, 2, 3, 4}, new JBBPVarFieldProcessor() {
+
+          @Override
+          public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(
+              JBBPBitInputStream inStream, int arraySize, JBBPNamedFieldInfo fieldName,
+              int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap,
+              JBBPArraySizeLimiter arraySizeLimiter)
+              throws IOException {
+            fail("Must not be called");
+            return null;
+          }
+
+          @Override
+          public JBBPAbstractField readVarField(JBBPBitInputStream inStream,
+                                                JBBPNamedFieldInfo fieldName, int extraValue,
+                                                JBBPByteOrder byteOrder,
+                                                JBBPNamedNumericFieldMap numericFieldMap)
+              throws IOException {
+            fail("Must not be called");
+            return null;
+          }
+        }, null);
+    assertEquals(0x01020304, parsed.findFieldForNameAndType("end", JBBPFieldInt.class).getAsInt());
+  }
+
+  @Test
   public void testParse_FixedDoubleArray_Default() throws Exception {
     final JBBPFieldArrayDouble longs = JBBPParser.prepare("doublej[2];").parse(
-        new byte[] {(byte) 0xF7, 0x43, 0x65, 0x10, 0x35, 0x23, 0x67, (byte) 0xA0, 0x32, 0x33, 0x61,
-            (byte) 0xCA, (byte) 0xBE, 0x22, 0x12, 0x30})
+            new byte[] {(byte) 0xF7, 0x43, 0x65, 0x10, 0x35, 0x23, 0x67, (byte) 0xA0, 0x32, 0x33, 0x61,
+                (byte) 0xCA, (byte) 0xBE, 0x22, 0x12, 0x30})
         .findFieldForType(JBBPFieldArrayDouble.class);
     assertEquals(2, longs.size());
     assertEquals(-3.126878492655484E266d, longs.getAsDouble(0), TestUtils.FLOAT_DELTA);
@@ -1931,8 +1955,8 @@ public class JBBPParserTest {
   @Test
   public void testParse_FixedDoubleArray_BigEndian() throws Exception {
     final JBBPFieldArrayDouble longs = JBBPParser.prepare(">doublej[2];").parse(
-        new byte[] {(byte) 0xF7, 0x43, 0x65, 0x10, 0x35, 0x23, 0x67, (byte) 0xA0, 0x32, 0x33, 0x61,
-            (byte) 0xCA, (byte) 0xBE, 0x22, 0x12, 0x30})
+            new byte[] {(byte) 0xF7, 0x43, 0x65, 0x10, 0x35, 0x23, 0x67, (byte) 0xA0, 0x32, 0x33, 0x61,
+                (byte) 0xCA, (byte) 0xBE, 0x22, 0x12, 0x30})
         .findFieldForType(JBBPFieldArrayDouble.class);
     assertEquals(2, longs.size());
     assertEquals(-3.126878492655484E266d, longs.getAsDouble(0), TestUtils.FLOAT_DELTA);
@@ -1942,8 +1966,8 @@ public class JBBPParserTest {
   @Test
   public void testParse_FixedDoubleArray_LittleEndian() throws Exception {
     final JBBPFieldArrayDouble longs = JBBPParser.prepare("<doublej[2];").parse(
-        new byte[] {(byte) 0xF7, 0x43, 0x65, 0x10, 0x35, 0x23, 0x67, (byte) 0xA0, 0x32, 0x33, 0x61,
-            (byte) 0xCA, (byte) 0xBE, 0x22, 0x12, 0x30})
+            new byte[] {(byte) 0xF7, 0x43, 0x65, 0x10, 0x35, 0x23, 0x67, (byte) 0xA0, 0x32, 0x33, 0x61,
+                (byte) 0xCA, (byte) 0xBE, 0x22, 0x12, 0x30})
         .findFieldForType(JBBPFieldArrayDouble.class);
     assertEquals(2, longs.size());
     assertEquals(-1.3805405664501578E-152d, longs.getAsDouble(0), TestUtils.FLOAT_DELTA);
@@ -1953,8 +1977,8 @@ public class JBBPParserTest {
   @Test
   public void testParse_NonFixedDoubleArray_Default() throws Exception {
     final JBBPFieldArrayDouble longs = JBBPParser.prepare("doublej[_];").parse(
-        new byte[] {(byte) 0xF7, 0x43, 0x65, 0x10, 0x35, 0x23, 0x67, (byte) 0xA0, 0x32, 0x33, 0x61,
-            (byte) 0xCA, (byte) 0xBE, 0x22, 0x12, 0x30})
+            new byte[] {(byte) 0xF7, 0x43, 0x65, 0x10, 0x35, 0x23, 0x67, (byte) 0xA0, 0x32, 0x33, 0x61,
+                (byte) 0xCA, (byte) 0xBE, 0x22, 0x12, 0x30})
         .findFieldForType(JBBPFieldArrayDouble.class);
     assertEquals(2, longs.size());
     assertEquals(-3.126878492655484E266d, longs.getAsDouble(0), TestUtils.FLOAT_DELTA);
@@ -1964,23 +1988,12 @@ public class JBBPParserTest {
   @Test
   public void testParse_NonFixedDoubleArray_BigEndian() throws Exception {
     final JBBPFieldArrayDouble longs = JBBPParser.prepare(">doublej[_];").parse(
-        new byte[] {(byte) 0xF7, 0x43, 0x65, 0x10, 0x35, 0x23, 0x67, (byte) 0xA0, 0x32, 0x33, 0x61,
-            (byte) 0xCA, (byte) 0xBE, 0x22, 0x12, 0x30})
+            new byte[] {(byte) 0xF7, 0x43, 0x65, 0x10, 0x35, 0x23, 0x67, (byte) 0xA0, 0x32, 0x33, 0x61,
+                (byte) 0xCA, (byte) 0xBE, 0x22, 0x12, 0x30})
         .findFieldForType(JBBPFieldArrayDouble.class);
     assertEquals(2, longs.size());
     assertEquals(-3.126878492655484E266d, longs.getAsDouble(0), TestUtils.FLOAT_DELTA);
     assertEquals(7.189183308668011E-67d, longs.getAsDouble(1), TestUtils.FLOAT_DELTA);
-  }
-
-  @Test
-  public void testParse_NonFixedDoubleArray_LittleEndian() throws Exception {
-    final JBBPFieldArrayDouble longs = JBBPParser.prepare("<doublej[_];").parse(
-        new byte[] {(byte) 0xF7, 0x43, 0x65, 0x10, 0x35, 0x23, 0x67, (byte) 0xA0, 0x32, 0x33, 0x61,
-            (byte) 0xCA, (byte) 0xBE, 0x22, 0x12, 0x30})
-        .findFieldForType(JBBPFieldArrayDouble.class);
-    assertEquals(2, longs.size());
-    assertEquals(-1.3805405664501578E-152, longs.getAsDouble(0), TestUtils.FLOAT_DELTA);
-    assertEquals(3.915579175603706E-77, longs.getAsDouble(1), TestUtils.FLOAT_DELTA);
   }
 
   @Test
@@ -2251,13 +2264,14 @@ public class JBBPParserTest {
   }
 
   @Test
-  public void testParse_SkipStructureForZeroItems() throws Exception {
-    final JBBPFieldStruct parsed = JBBPParser.prepare(
-        "byte len; sss [len]{ sss2[10]{ sss3{long;} sss4[45]{ushort; bool [11]; short; bit:4;} byte;}} byte end;")
-        .parse(new byte[] {0x00, 0x1F});
-    assertEquals(0, parsed.findFieldForPathAndType("len", JBBPFieldByte.class).getAsInt());
-    assertEquals(0, parsed.findFieldForPathAndType("sss", JBBPFieldArrayStruct.class).size());
-    assertEquals(0x1F, parsed.findFieldForPathAndType("end", JBBPFieldByte.class).getAsInt());
+  public void testParse_NonFixedDoubleArray_LittleEndian() throws Exception {
+    final JBBPFieldArrayDouble longs = JBBPParser.prepare("<doublej[_];").parse(
+            new byte[] {(byte) 0xF7, 0x43, 0x65, 0x10, 0x35, 0x23, 0x67, (byte) 0xA0, 0x32, 0x33, 0x61,
+                (byte) 0xCA, (byte) 0xBE, 0x22, 0x12, 0x30})
+        .findFieldForType(JBBPFieldArrayDouble.class);
+    assertEquals(2, longs.size());
+    assertEquals(-1.3805405664501578E-152, longs.getAsDouble(0), TestUtils.FLOAT_DELTA);
+    assertEquals(3.915579175603706E-77, longs.getAsDouble(1), TestUtils.FLOAT_DELTA);
   }
 
   @Test
@@ -2492,6 +2506,16 @@ public class JBBPParserTest {
   }
 
   @Test
+  public void testParse_SkipStructureForZeroItems() throws Exception {
+    final JBBPFieldStruct parsed = JBBPParser.prepare(
+            "byte len; sss [len]{ sss2[10]{ sss3{long;} sss4[45]{ushort; bool [11]; short; bit:4;} byte;}} byte end;")
+        .parse(new byte[] {0x00, 0x1F});
+    assertEquals(0, parsed.findFieldForPathAndType("len", JBBPFieldByte.class).getAsInt());
+    assertEquals(0, parsed.findFieldForPathAndType("sss", JBBPFieldArrayStruct.class).size());
+    assertEquals(0x1F, parsed.findFieldForPathAndType("end", JBBPFieldByte.class).getAsInt());
+  }
+
+  @Test
   public void testUintUseInExpression() throws Exception {
     final JBBPParser parser = JBBPParser.prepare("uint length; uint[(length * 2) >> 1] array;");
     final JBBPFieldStruct struct = parser.parse(
@@ -2504,11 +2528,86 @@ public class JBBPParserTest {
     assertEquals(2, length.getAsInt());
     assertEquals(2, array.size());
 
-    JBBPNumericFieldValueConversionException exception = assertThrows(JBBPNumericFieldValueConversionException.class, () -> array.getElementAt(0).getAsInt());
+    JBBPNumericFieldValueConversionException exception =
+        assertThrows(JBBPNumericFieldValueConversionException.class,
+            () -> array.getElementAt(0).getAsInt());
     assertTrue(exception.toString().contains("0xFFF0E012"));
 
     assertEquals(0xFFF0E012L, array.getElementAt(0).getAsLong());
     assertEquals(0x01020304, array.getElementAt(1).getAsInt());
+  }
+
+  @Test
+  public void testLimitedWholeStreamArrayRead() throws Exception {
+    testArrayLimiter_2elementsLimit(TestUtils.getRandomBytes(128), "bit:4 [_] test;", null, null);
+    testArrayLimiter_2elementsLimit(TestUtils.getRandomBytes(128), "bool [_] test;", null, null);
+    testArrayLimiter_2elementsLimit(TestUtils.getRandomBytes(128), "byte [_] test;", null, null);
+    testArrayLimiter_2elementsLimit(TestUtils.getRandomBytes(128), "ubyte [_] test;", null, null);
+    testArrayLimiter_2elementsLimit(TestUtils.getRandomBytes(128), "short [_] test;", null, null);
+    testArrayLimiter_2elementsLimit(TestUtils.getRandomBytes(128), "ushort [_] test;", null, null);
+    testArrayLimiter_2elementsLimit(TestUtils.getRandomBytes(128), "int [_] test;", null, null);
+    testArrayLimiter_2elementsLimit(TestUtils.getRandomBytes(128), "uint [_] test;", null, null);
+    testArrayLimiter_2elementsLimit(TestUtils.getRandomBytes(128), "long [_] test;", null, null);
+    testArrayLimiter_2elementsLimit(TestUtils.getRandomBytes(128), "floatj [_] test;", null, null);
+    testArrayLimiter_2elementsLimit(TestUtils.getRandomBytes(128), "doublej [_] test;", null, null);
+    testArrayLimiter_2elementsLimit(
+        TestUtils.makeStringArray(JBBPByteOrder.BIG_ENDIAN, "hello", "world", "one", "two", "three",
+            "four"), "stringj [_] test;", null, null);
+
+    testArrayLimiter_2elementsLimit(TestUtils.getRandomBytes(128), "var [_] test;",
+        new JBBPVarFieldProcessor() {
+          @Override
+          public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(
+              JBBPBitInputStream inStream, int arraySize, JBBPNamedFieldInfo fieldName,
+              int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap,
+              JBBPArraySizeLimiter arraySizeLimiter) throws IOException {
+            if (arraySize >= 0) {
+              throw new IllegalArgumentException("Expected whole stream read");
+            }
+            final byte[] result = inStream.readByteArray(arraySize, arraySizeLimiter);
+            return new JBBPFieldArrayByte(fieldName, result);
+          }
+
+          @Override
+          public JBBPAbstractField readVarField(JBBPBitInputStream inStream,
+                                                JBBPNamedFieldInfo fieldName, int extraValue,
+                                                JBBPByteOrder byteOrder,
+                                                JBBPNamedNumericFieldMap numericFieldMap)
+              throws IOException {
+            throw new UnsupportedOperationException("Must not be called");
+          }
+        }, null);
+
+    testArrayLimiter_2elementsLimit(TestUtils.getRandomBytes(128), "some [_] test;", null,
+        new JBBPCustomFieldTypeProcessor() {
+          @Override
+          public String[] getCustomFieldTypes() {
+            return new String[] {"some"};
+          }
+
+          @Override
+          public boolean isAllowed(JBBPFieldTypeParameterContainer fieldType, String fieldName,
+                                   int extraData, boolean isArray) {
+            return "some".equals(fieldType.getTypeName());
+          }
+
+          @Override
+          public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder,
+                                                       int parserFlags,
+                                                       JBBPFieldTypeParameterContainer customTypeFieldInfo,
+                                                       JBBPNamedFieldInfo fieldName, int extraData,
+                                                       boolean readWholeStream, int arrayLength,
+                                                       JBBPArraySizeLimiter arraySizeLimiter)
+              throws IOException {
+            if (!readWholeStream) {
+              throw new IllegalArgumentException("Expected only read whole stream array");
+            }
+
+            final byte[] read = in.readByteArray(-1, JBBPByteOrder.BIG_ENDIAN, arraySizeLimiter);
+            return new JBBPFieldArrayByte(fieldName, read);
+          }
+        });
+
   }
 
 }

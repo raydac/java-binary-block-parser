@@ -30,7 +30,6 @@ import com.igormaznitsa.jbbp.TestUtils;
 import com.igormaznitsa.jbbp.exceptions.JBBPReachedArraySizeLimitException;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.Random;
@@ -62,13 +61,6 @@ public class JBBPBitInputStreamTest {
   private static JBBPBitInputStream asInputStreamMSB0(final int... array) {
     return new JBBPBitInputStream(new ByteArrayInputStream(intArrayToByteArray(array)),
         JBBPBitOrder.MSB0);
-  }
-
-  private static byte[] getRandomBytes(final int size) {
-    final byte[] result = new byte[size];
-    final Random random = new Random(System.nanoTime());
-    random.nextBytes(result);
-    return result;
   }
 
   @Test
@@ -1116,7 +1108,7 @@ public class JBBPBitInputStreamTest {
 
   @Test
   public void testReadArray_WholeWithLimiter_Int() throws Exception {
-    final byte[] testData = getRandomBytes(128);
+    final byte[] testData = TestUtils.getRandomBytes(128);
     this.testWholeStreamArrayRead(
         32, () -> {
           JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(testData));
@@ -1137,7 +1129,7 @@ public class JBBPBitInputStreamTest {
 
   @Test
   public void testReadArray_WholeWithLimiter_UInt() throws Exception {
-    final byte[] testData = getRandomBytes(128);
+    final byte[] testData = TestUtils.getRandomBytes(128);
     this.testWholeStreamArrayRead(
         32, () -> {
           JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(testData));
@@ -1158,7 +1150,7 @@ public class JBBPBitInputStreamTest {
 
   @Test
   public void testReadArray_WholeWithLimiter_Long() throws Exception {
-    final byte[] testData = getRandomBytes(128);
+    final byte[] testData = TestUtils.getRandomBytes(128);
     this.testWholeStreamArrayRead(
         16, () -> {
           JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(testData));
@@ -1179,7 +1171,7 @@ public class JBBPBitInputStreamTest {
 
   @Test
   public void testReadArray_WholeWithLimiter_Float() throws Exception {
-    final byte[] testData = getRandomBytes(128);
+    final byte[] testData = TestUtils.getRandomBytes(128);
     this.testWholeStreamArrayRead(
         32, () -> {
           JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(testData));
@@ -1200,13 +1192,8 @@ public class JBBPBitInputStreamTest {
 
   @Test
   public void testReadArray_WholeWithLimiter_String() throws Exception {
-    final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-    final JBBPBitOutputStream out = new JBBPBitOutputStream(buffer);
-    out.writeStringArray(new String[] {"hello", "world", "one", "two", "three", "four"},
-        BIG_ENDIAN);
-    out.close();
-    final byte[] testData = buffer.toByteArray();
-
+    final byte[] testData =
+        TestUtils.makeStringArray(BIG_ENDIAN, "hello", "world", "one", "two", "three", "four");
     this.testWholeStreamArrayRead(
         6, () -> {
           JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(testData));
@@ -1227,7 +1214,7 @@ public class JBBPBitInputStreamTest {
 
   @Test
   public void testReadArray_WholeWithLimiter_Double() throws Exception {
-    final byte[] testData = getRandomBytes(128);
+    final byte[] testData = TestUtils.getRandomBytes(128);
     this.testWholeStreamArrayRead(
         16, () -> {
           JBBPBitInputStream stream = new JBBPBitInputStream(new ByteArrayInputStream(testData));

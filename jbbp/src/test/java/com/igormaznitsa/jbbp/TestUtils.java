@@ -18,8 +18,12 @@ package com.igormaznitsa.jbbp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
+import com.igormaznitsa.jbbp.io.JBBPBitOutputStream;
+import com.igormaznitsa.jbbp.io.JBBPByteOrder;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Locale;
+import java.util.Random;
 import org.apache.commons.codec.digest.PureJavaCrc32;
 
 /**
@@ -116,5 +120,21 @@ public enum TestUtils {
   public static String wavInt2Str(final int value) {
     return new String(new char[] {(char) (value & 0xFF), (char) ((value >>> 8) & 0xFF),
         (char) ((value >>> 16) & 0xFF), (char) (value >>> 24)});
+  }
+
+  public static byte[] getRandomBytes(final int size) {
+    final byte[] result = new byte[size];
+    final Random random = new Random(System.nanoTime());
+    random.nextBytes(result);
+    return result;
+  }
+
+  public static byte[] makeStringArray(final JBBPByteOrder byteOrder, final String... text)
+      throws IOException {
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    try (final JBBPBitOutputStream stream = new JBBPBitOutputStream(out)) {
+      stream.writeStringArray(text, byteOrder);
+    }
+    return out.toByteArray();
   }
 }
