@@ -21,11 +21,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
+import com.igormaznitsa.jbbp.io.JBBPArraySizeLimiter;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.mapper.JBBPMapper;
@@ -346,7 +346,8 @@ class JBBPToJBBPToJavaConverterCompilationTest extends AbstractJBBPToJavaConvert
                                                        int parserFlags,
                                                        JBBPFieldTypeParameterContainer customTypeFieldInfo,
                                                        JBBPNamedFieldInfo fieldName, int extraData,
-                                                       boolean readWholeStream, int arrayLength)
+                                                       boolean readWholeStream, int arrayLength,
+                                                       JBBPArraySizeLimiter arraySizeLimiter)
               throws IOException {
             return null;
           }
@@ -458,7 +459,9 @@ class JBBPToJBBPToJavaConverterCompilationTest extends AbstractJBBPToJavaConvert
                                                            JBBPFieldTypeParameterContainer customTypeFieldInfo,
                                                            JBBPNamedFieldInfo fieldName,
                                                            int extraData, boolean readWholeStream,
-                                                           int arrayLength) throws IOException {
+                                                           int arrayLength,
+                                                           JBBPArraySizeLimiter arraySizeLimiter)
+                  throws IOException {
                 return null;
               }
             });

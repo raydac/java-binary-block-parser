@@ -20,11 +20,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-
 import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.JBBPVarFieldProcessor;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.io.JBBPArraySizeLimiter;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.mapper.Bin;
@@ -137,7 +137,8 @@ public class ClassParsingTest extends AbstractParserIntegrationTest {
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(
           final JBBPBitInputStream inStream, final int arraySize,
           final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder,
-          final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+          final JBBPNamedNumericFieldMap numericFieldMap,
+          final JBBPArraySizeLimiter arraySizeLimiter) throws IOException {
         if ("cp_item".equals(fieldName.getFieldName())) {
           final int tagItem = inStream.readByte();
           final JBBPFieldArrayByte result;

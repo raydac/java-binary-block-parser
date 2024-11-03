@@ -19,12 +19,12 @@ package com.igormaznitsa.jbbp.it;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
+import com.igormaznitsa.jbbp.io.JBBPArraySizeLimiter;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
@@ -84,7 +84,8 @@ public class PackedBCDCustomFieldTest implements JBBPCustomFieldTypeProcessor {
                                                final JBBPBitOrder bitOrder, final int parserFlags,
                                                final JBBPFieldTypeParameterContainer customTypeFieldInfo,
                                                JBBPNamedFieldInfo fieldName, int extraData,
-                                               boolean readWholeStream, int arrayLength)
+                                               boolean readWholeStream, int arrayLength,
+                                               JBBPArraySizeLimiter arraySizeLimiter)
       throws IOException {
     final boolean signed = "sbcd".equals(customTypeFieldInfo.getTypeName());
 

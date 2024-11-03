@@ -10,8 +10,11 @@ public class JBBPReachedArraySizeLimitException extends JBBPIOException {
   private final int readSize;
   private final int limitSize;
 
-  public JBBPReachedArraySizeLimitException(final String message, final int readSize,
-                                            final int limitSize) {
+  public JBBPReachedArraySizeLimitException(
+      final String message,
+      final int readSize,
+      final int limitSize
+  ) {
     super(message);
     this.readSize = readSize;
     this.limitSize = limitSize;

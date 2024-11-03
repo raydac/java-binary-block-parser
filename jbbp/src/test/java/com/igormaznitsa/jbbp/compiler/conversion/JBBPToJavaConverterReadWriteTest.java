@@ -33,6 +33,7 @@ import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.TestUtils;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
+import com.igormaznitsa.jbbp.io.JBBPArraySizeLimiter;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.io.JBBPBitOutputStream;
@@ -719,7 +720,8 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
                                                        int parserFlags,
                                                        JBBPFieldTypeParameterContainer customTypeFieldInfo,
                                                        JBBPNamedFieldInfo fieldName, int extraData,
-                                                       boolean readWholeStream, int arrayLength)
+                                                       boolean readWholeStream, int arrayLength,
+                                                       JBBPArraySizeLimiter arraySizeLimiter)
               throws IOException {
             fail("Must not be called");
             return null;

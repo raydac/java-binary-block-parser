@@ -17,6 +17,8 @@
 package com.igormaznitsa.jbbp;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.exceptions.JBBPReachedArraySizeLimitException;
+import com.igormaznitsa.jbbp.io.JBBPArraySizeLimiter;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.model.JBBPAbstractArrayField;
@@ -38,15 +40,21 @@ public interface JBBPVarFieldProcessor {
    * @param extraValue      the extra value for the field, by default it is 0, it is the integer value after ':' char in the field type
    * @param byteOrder       the byte order for the field, it must not be null
    * @param numericFieldMap the numeric field map for the session, it must not be null, it can be used for access to already read values of another numeric fields.
+   * @param arraySizeLimiter limiter to check number of elements during whole stream array read, must not be null
    * @return a field array without nulls as values, it must not return null
-   * @throws IOException it can be thrown for transport errors or another process exceptions
+   * @throws IOException                        it can be thrown for transport errors or another process exceptions
+   * @throws JBBPReachedArraySizeLimitException thrown if reached limit for whole stream array
+   * @since 2.1.0
+   * @see JBBPArraySizeLimiter#isBreakReadWholeStream(int, JBBPArraySizeLimiter)
+   * @see JBBPArraySizeLimiter#NO_LIMIT_FOR_ARRAY_SIZE
    */
   JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(JBBPBitInputStream inStream,
                                                                    int arraySize,
                                                                    JBBPNamedFieldInfo fieldName,
                                                                    int extraValue,
                                                                    JBBPByteOrder byteOrder,
-                                                                   JBBPNamedNumericFieldMap numericFieldMap)
+                                                                   JBBPNamedNumericFieldMap numericFieldMap,
+                                                                   JBBPArraySizeLimiter arraySizeLimiter)
       throws IOException;
 
   /**

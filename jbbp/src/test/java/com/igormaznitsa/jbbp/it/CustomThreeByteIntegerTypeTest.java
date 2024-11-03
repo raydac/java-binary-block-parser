@@ -25,6 +25,7 @@ import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.exceptions.JBBPParsingException;
+import com.igormaznitsa.jbbp.io.JBBPArraySizeLimiter;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
@@ -184,7 +185,9 @@ public class CustomThreeByteIntegerTypeTest extends AbstractParserIntegrationTes
                                                  final JBBPFieldTypeParameterContainer customTypeFieldInfo,
                                                  final JBBPNamedFieldInfo fieldName,
                                                  final int extraData, final boolean readWholeStream,
-                                                 final int arrayLength) throws IOException {
+                                                 final int arrayLength,
+                                                 final JBBPArraySizeLimiter arraySizeLimiter)
+        throws IOException {
       if (arrayLength < 0) {
         return new JBBPFieldInt(fieldName,
             readThreeBytesAsInt(in, customTypeFieldInfo.getByteOrder(), bitOrder));

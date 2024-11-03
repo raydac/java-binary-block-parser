@@ -27,6 +27,7 @@ import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
+import com.igormaznitsa.jbbp.io.JBBPArraySizeLimiter;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
@@ -312,7 +313,8 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
           final JBBPNamedFieldInfo fieldName,
           final int extraData,
           final boolean readWholeStream,
-          final int arrayLength
+          final int arrayLength,
+          final JBBPArraySizeLimiter arraySizeLimiter
       ) throws IOException {
         if (arrayLength < 0) {
           return new JBBPFieldString(fieldName, readPascalAscIIString(in));
@@ -406,7 +408,9 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
                                                    final JBBPNamedFieldInfo fieldName,
                                                    final int extraData,
                                                    final boolean readWholeStream,
-                                                   final int arrayLength) throws IOException {
+                                                   final int arrayLength,
+                                                   final JBBPArraySizeLimiter arraySizeLimiter)
+          throws IOException {
         if (arrayLength < 0) {
           final long uint32_val = uint32_read(in, customTypeFieldInfo.getByteOrder(), bitOrder);
           return new JBBPFieldLong(fieldName, uint32_val);
@@ -531,7 +535,8 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
                                                    int parserFlags,
                                                    JBBPFieldTypeParameterContainer customTypeFieldInfo,
                                                    JBBPNamedFieldInfo fieldName, int extraData,
-                                                   boolean readWholeStream, int arrayLength)
+                                                   boolean readWholeStream, int arrayLength,
+                                                   JBBPArraySizeLimiter arraySizeLimiter)
           throws IOException {
         if (arrayLength < 0) {
           return toStruct(fieldName, readFromStream(customTypeFieldInfo.getByteOrder(), in));

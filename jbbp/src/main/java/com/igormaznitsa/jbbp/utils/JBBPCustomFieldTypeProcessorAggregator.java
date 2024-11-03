@@ -18,10 +18,10 @@ package com.igormaznitsa.jbbp.utils;
 
 import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_STRING_EMPTY;
 
-
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
+import com.igormaznitsa.jbbp.io.JBBPArraySizeLimiter;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
@@ -74,10 +74,12 @@ public class JBBPCustomFieldTypeProcessorAggregator implements JBBPCustomFieldTy
                                                int parserFlags,
                                                JBBPFieldTypeParameterContainer fieldType,
                                                JBBPNamedFieldInfo fieldName, int extraData,
-                                               boolean readWholeStream, int arrayLength)
+                                               boolean readWholeStream, int arrayLength,
+                                               final JBBPArraySizeLimiter arraySizeLimiter)
       throws IOException {
     return this.customTypeMap.get(fieldType.getTypeName())
         .readCustomFieldType(in, bitOrder, parserFlags, fieldType, fieldName, extraData,
-            readWholeStream, arrayLength);
+            readWholeStream, arrayLength, arraySizeLimiter);
   }
+
 }

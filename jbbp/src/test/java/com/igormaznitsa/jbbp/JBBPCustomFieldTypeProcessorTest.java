@@ -23,9 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
+import com.igormaznitsa.jbbp.io.JBBPArraySizeLimiter;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
@@ -96,7 +96,9 @@ public class JBBPCustomFieldTypeProcessorTest {
                                                    final JBBPNamedFieldInfo fieldName,
                                                    final int extraData,
                                                    final boolean readWholeStream,
-                                                   final int arrayLength) throws IOException {
+                                                   final int arrayLength,
+                                                   final JBBPArraySizeLimiter arraySizeLimiter)
+          throws IOException {
         final String type = customFieldTypeInfo.getTypeName();
 
         assertEquals(JBBPBitOrder.LSB0, bitOrder);
@@ -207,7 +209,9 @@ public class JBBPCustomFieldTypeProcessorTest {
                                                    final JBBPNamedFieldInfo fieldName,
                                                    final int extraData,
                                                    final boolean readWholeStream,
-                                                   final int arrayLength) throws IOException {
+                                                   final int arrayLength,
+                                                   final JBBPArraySizeLimiter arraySizeLimiter)
+          throws IOException {
         final String type = customFieldTypeInfo.getTypeName();
 
         if (type.equals("some1")) {

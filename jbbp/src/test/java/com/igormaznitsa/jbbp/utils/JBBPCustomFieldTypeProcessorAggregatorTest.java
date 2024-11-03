@@ -21,11 +21,11 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
+import com.igormaznitsa.jbbp.io.JBBPArraySizeLimiter;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.model.JBBPAbstractField;
@@ -60,7 +60,8 @@ public class JBBPCustomFieldTypeProcessorAggregatorTest {
                                                      int parserFlags,
                                                      JBBPFieldTypeParameterContainer customTypeFieldInfo,
                                                      JBBPNamedFieldInfo fieldName, int extraData,
-                                                     boolean readWholeStream, int arrayLength)
+                                                     boolean readWholeStream, int arrayLength,
+                                                     JBBPArraySizeLimiter arraySizeLimiter)
             throws IOException {
           throw new UnsupportedOperationException(
               "Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -86,7 +87,8 @@ public class JBBPCustomFieldTypeProcessorAggregatorTest {
                                                      int parserFlags,
                                                      JBBPFieldTypeParameterContainer customTypeFieldInfo,
                                                      JBBPNamedFieldInfo fieldName, int extraData,
-                                                     boolean readWholeStream, int arrayLength)
+                                                     boolean readWholeStream, int arrayLength,
+                                                     JBBPArraySizeLimiter arraySizeLimiter)
             throws IOException {
           throw new UnsupportedOperationException(
               "Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -118,7 +120,8 @@ public class JBBPCustomFieldTypeProcessorAggregatorTest {
                                                    int parserFlags,
                                                    JBBPFieldTypeParameterContainer customTypeFieldInfo,
                                                    JBBPNamedFieldInfo fieldName, int extraData,
-                                                   boolean readWholeStream, int arrayLength)
+                                                   boolean readWholeStream, int arrayLength,
+                                                   JBBPArraySizeLimiter arraySizeLimiter)
           throws IOException {
         throw new UnsupportedOperationException(
             "Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -144,7 +147,8 @@ public class JBBPCustomFieldTypeProcessorAggregatorTest {
                                                    int parserFlags,
                                                    JBBPFieldTypeParameterContainer customTypeFieldInfo,
                                                    JBBPNamedFieldInfo fieldName, int extraData,
-                                                   boolean readWholeStream, int arrayLength)
+                                                   boolean readWholeStream, int arrayLength,
+                                                   JBBPArraySizeLimiter arraySizeLimiter)
           throws IOException {
         throw new UnsupportedOperationException(
             "Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -188,7 +192,8 @@ public class JBBPCustomFieldTypeProcessorAggregatorTest {
                                                    int parserFlags,
                                                    JBBPFieldTypeParameterContainer customTypeFieldInfo,
                                                    JBBPNamedFieldInfo fieldName, int extraData,
-                                                   boolean readWholeStream, int arrayLength)
+                                                   boolean readWholeStream, int arrayLength,
+                                                   JBBPArraySizeLimiter arraySizeLimiter)
           throws IOException {
         read.add(new Record(customTypeFieldInfo.getTypeName(), this));
         return new JBBPFieldByte(fieldName, (byte) in.readByte());
@@ -214,7 +219,8 @@ public class JBBPCustomFieldTypeProcessorAggregatorTest {
                                                    int parserFlags,
                                                    JBBPFieldTypeParameterContainer customTypeFieldInfo,
                                                    JBBPNamedFieldInfo fieldName, int extraData,
-                                                   boolean readWholeStream, int arrayLength)
+                                                   boolean readWholeStream, int arrayLength,
+                                                   JBBPArraySizeLimiter arraySizeLimiter)
           throws IOException {
         read.add(new Record(customTypeFieldInfo.getTypeName(), this));
         return new JBBPFieldByte(fieldName, (byte) in.readByte());

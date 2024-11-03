@@ -25,12 +25,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.exceptions.JBBPCompilationException;
 import com.igormaznitsa.jbbp.exceptions.JBBPNumericFieldValueConversionException;
 import com.igormaznitsa.jbbp.exceptions.JBBPParsingException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTooManyFieldsFoundException;
+import com.igormaznitsa.jbbp.io.JBBPArraySizeLimiter;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import com.igormaznitsa.jbbp.model.JBBPAbstractArrayField;
@@ -468,7 +468,8 @@ public class JBBPParserTest {
           public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(
               final JBBPBitInputStream inStream, final int arraySize,
               final JBBPNamedFieldInfo fieldName, final int extraValue,
-              final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap)
+              final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap,
+              final JBBPArraySizeLimiter arraySizeLimiter)
               throws IOException {
             fail("Must not be called");
             return null;
@@ -553,7 +554,8 @@ public class JBBPParserTest {
           @Override
           public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(
               JBBPBitInputStream inStream, int arraySize, JBBPNamedFieldInfo fieldName,
-              int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap)
+              int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap,
+              JBBPArraySizeLimiter arraySizeLimiter)
               throws IOException {
             throw new UnsupportedOperationException(
                 "Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -586,7 +588,8 @@ public class JBBPParserTest {
               @Override
               public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(
                   JBBPBitInputStream inStream, int arraySize, JBBPNamedFieldInfo fieldName,
-                  int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap)
+                  int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap,
+                  final JBBPArraySizeLimiter arraySizeLimiter)
                   throws IOException {
                 inStream.skip(3);
                 assertEquals(123 / 21, extraValue);
@@ -623,7 +626,8 @@ public class JBBPParserTest {
           public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(
               final JBBPBitInputStream inStream, final int arraySize,
               final JBBPNamedFieldInfo fieldName, final int extraValue,
-              final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap)
+              final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap,
+              final JBBPArraySizeLimiter arraySizeLimiter)
               throws IOException {
             fail("Must not be called");
             return null;
@@ -686,7 +690,8 @@ public class JBBPParserTest {
             public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(
                 final JBBPBitInputStream inStream, final int arraySize,
                 final JBBPNamedFieldInfo fieldName, final int extraValue,
-                final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap)
+                final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap,
+                final JBBPArraySizeLimiter arraySizeLimiter)
                 throws IOException {
               fail("Must not be called");
               return null;
@@ -717,7 +722,8 @@ public class JBBPParserTest {
             public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(
                 final JBBPBitInputStream inStream, final int arraySize,
                 final JBBPNamedFieldInfo fieldName, final int extraValue,
-                final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap)
+                final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap,
+                final JBBPArraySizeLimiter arraySizeLimiter)
                 throws IOException {
               fail("Must not be called");
               return null;
@@ -748,7 +754,8 @@ public class JBBPParserTest {
             public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(
                 final JBBPBitInputStream inStream, final int arraySize,
                 final JBBPNamedFieldInfo fieldName, final int extraValue,
-                final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap)
+                final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap,
+                final JBBPArraySizeLimiter arraySizeLimiter)
                 throws IOException {
               fail("Must not be called");
               return null;
@@ -781,7 +788,8 @@ public class JBBPParserTest {
           public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(
               final JBBPBitInputStream inStream, final int arraySize,
               final JBBPNamedFieldInfo fieldName, final int extraValue,
-              final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap)
+              final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap,
+              final JBBPArraySizeLimiter arraySizeLimiter)
               throws IOException {
             assertNotNull(inStream);
             final int value = inStream.readByte();
@@ -828,7 +836,8 @@ public class JBBPParserTest {
           public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(
               final JBBPBitInputStream inStream, final int arraySize,
               final JBBPNamedFieldInfo fieldName, final int extraValue,
-              final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap)
+              final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap,
+              final JBBPArraySizeLimiter arraySizeLimiter)
               throws IOException {
             assertNotNull(inStream);
             final int value = inStream.readByte();
@@ -875,7 +884,8 @@ public class JBBPParserTest {
           public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(
               final JBBPBitInputStream inStream, final int arraySize,
               final JBBPNamedFieldInfo fieldName, final int extraValue,
-              final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap)
+              final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap,
+              final JBBPArraySizeLimiter arraySizeLimiter)
               throws IOException {
             assertNotNull(inStream);
 
@@ -918,7 +928,8 @@ public class JBBPParserTest {
       public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(
           final JBBPBitInputStream inStream, final int arraySize,
           final JBBPNamedFieldInfo fieldName, final int extraValue, final JBBPByteOrder byteOrder,
-          final JBBPNamedNumericFieldMap numericFieldMap) throws IOException {
+          final JBBPNamedNumericFieldMap numericFieldMap,
+          final JBBPArraySizeLimiter arraySizeLimiter) throws IOException {
         assertEquals(0, arraySize);
         return new JBBPFieldArrayByte(fieldName, new byte[0]);
       }
@@ -950,7 +961,8 @@ public class JBBPParserTest {
             public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(
                 final JBBPBitInputStream inStream, final int arraySize,
                 final JBBPNamedFieldInfo fieldName, final int extraValue,
-                final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap)
+                final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap,
+                final JBBPArraySizeLimiter arraySizeLimiter)
                 throws IOException {
               assertEquals(0x0908, arraySize);
               return null;
@@ -982,7 +994,8 @@ public class JBBPParserTest {
             public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(
                 final JBBPBitInputStream inStream, final int arraySize,
                 final JBBPNamedFieldInfo fieldName, final int extraValue,
-                final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap)
+                final JBBPByteOrder byteOrder, final JBBPNamedNumericFieldMap numericFieldMap,
+                final JBBPArraySizeLimiter arraySizeLimiter)
                 throws IOException {
               assertNotNull(fieldName);
               return new JBBPFieldArrayByte(new JBBPNamedFieldInfo("jskdjhsd", "dlkjsf", 0),
@@ -1194,7 +1207,8 @@ public class JBBPParserTest {
           @Override
           public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(
               JBBPBitInputStream inStream, int arraySize, JBBPNamedFieldInfo fieldName,
-              int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap)
+              int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap,
+              JBBPArraySizeLimiter arraySizeLimiter)
               throws IOException {
             fail("Must not be called");
             return null;
@@ -1222,7 +1236,8 @@ public class JBBPParserTest {
               @Override
               public JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(
                   JBBPBitInputStream inStream, int arraySize, JBBPNamedFieldInfo fieldName,
-                  int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap)
+                  int extraValue, JBBPByteOrder byteOrder, JBBPNamedNumericFieldMap numericFieldMap,
+                  JBBPArraySizeLimiter arraySizeLimiter)
                   throws IOException {
                 fail("Must not be called");
                 return null;
