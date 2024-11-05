@@ -1,3 +1,9 @@
+2.1.0 (05-nov-2024)
+ - minor changes in API for JBBPVarFieldProcessor and JBBPCustomFieldTypeProcessor
+ - provided way to control size of arrays read as stream rest [#44](https://github.com/raydac/java-binary-block-parser/issues/41)
+ - provided way to control size of arrays which size calculated through expressions [#45](https://github.com/raydac/java-binary-block-parser/issues/41)
+ - improved tests
+
 2.0.6 (01-jul-2023)
  - [#42](https://github.com/raydac/java-binary-block-parser/issues/42) unexpected exception during JBBPDslBuilder.AnnotatedClass method call
  - improved tests
