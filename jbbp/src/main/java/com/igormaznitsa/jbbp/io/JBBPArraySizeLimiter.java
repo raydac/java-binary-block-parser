@@ -32,7 +32,9 @@ public interface JBBPArraySizeLimiter {
     }
     if (limit > 0) {
       if (readItems > limit) {
-        throw new JBBPReachedArraySizeLimitException("", readItems, Math.abs(limit));
+        throw new JBBPReachedArraySizeLimitException(
+            "Detected too big array during stream rest read: " + readItems, readItems,
+            Math.abs(limit));
       } else {
         return false;
       }
