@@ -26,7 +26,7 @@ import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
  *
  * @since 1.3.0
  */
-final class IntConstValueEvaluator implements JBBPIntegerValueEvaluator {
+public final class IntConstValueEvaluator implements JBBPIntegerValueEvaluator {
 
   private static final long serialVersionUID = 4640385518512384490L;
 
@@ -40,14 +40,20 @@ final class IntConstValueEvaluator implements JBBPIntegerValueEvaluator {
   }
 
   @Override
-  public int eval(final JBBPBitInputStream inStream, final int currentCompiledBlockOffset,
-                  final JBBPCompiledBlock block, final JBBPNamedNumericFieldMap fieldMap) {
+  public int eval(final JBBPBitInputStream inStream,
+                  final int currentCompiledBlockOffset,
+                  final JBBPCompiledBlock block,
+                  final JBBPNamedNumericFieldMap fieldMap
+  ) {
     return this.value;
   }
 
   @Override
-  public void visitItems(JBBPCompiledBlock block, int currentCompiledBlockOffset,
-                         ExpressionEvaluatorVisitor visitor) {
+  public void visitItems(
+      JBBPCompiledBlock block,
+      int currentCompiledBlockOffset,
+      ExpressionEvaluatorVisitor visitor
+  ) {
     visitor.visitStart();
     visitor.visitConstant(this.value);
     visitor.visitEnd();

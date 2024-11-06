@@ -386,7 +386,9 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
   }
 
   @Override
-  public void visitStructureStart(final int offsetInCompiledBlock, final JBBPByteOrder byteOrder,
+  public void visitStructureStart(final int offsetInCompiledBlock,
+                                  final JBBPByteOrder byteOrder,
+                                  final boolean readWholeStream,
                                   final JBBPNamedFieldInfo nullableNameFieldInfo,
                                   final JBBPIntegerValueEvaluator nullableArraySize) {
     final String structName = (nullableNameFieldInfo == null ? makeAnonymousStructName() :
@@ -440,7 +442,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
       }
       processSkipRemainingFlag();
       processSkipRemainingFlagForWriting("this." + structName);
-      if ("-1".equals(arraySizeIn)) {
+      if (readWholeStream) {
         this.getCurrentStruct().getReadFunc().indent()
             .printf(
                 "List<%3$s> __%1$s_tmplst__ = new ArrayList<%3$s>(); while (%5$s.hasAvailableData()){ __%1$s_tmplst__.add(new %3$s(%4$s).read(%5$s));} this.%1$s = __%1$s_tmplst__.toArray(new %3$s[__%1$s_tmplst__.size()]);__%1$s_tmplst__ = null;%n",
@@ -777,6 +779,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
   @Override
   public void visitBitField(final int offsetInCompiledBlock, final JBBPByteOrder byteOrder,
                             final JBBPNamedFieldInfo nullableNameFieldInfo,
+                            final boolean readWholeStream,
                             final JBBPIntegerValueEvaluator notNullFieldSize,
                             final JBBPIntegerValueEvaluator nullableArraySize) {
     final String fieldName = nullableNameFieldInfo == null ? makeAnonymousFieldName() :
@@ -957,9 +960,9 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
       final int offsetInCompiledBlock,
       final JBBPNamedFieldInfo nullableNameFieldInfo,
       final JBBPByteOrder byteOrder,
-      final boolean readWholeStreamIntoArray,
+      final boolean readWholeStream,
       final JBBPIntegerValueEvaluator nullableArraySizeEvaluator,
-      final JBBPIntegerValueEvaluator extraDataValueEvaluator
+      final JBBPIntegerValueEvaluator extraDataValue
   ) {
     this.flagSet.set(this.flagSet.get() | FLAG_DETECTED_VAR_FIELDS);
 
@@ -983,7 +986,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
 
     processSkipRemainingFlag();
     final String fieldType;
-    if (readWholeStreamIntoArray || nullableArraySizeEvaluator != null) {
+    if (readWholeStream || nullableArraySizeEvaluator != null) {
       fieldType = "JBBPAbstractArrayField<? extends JBBPAbstractField>";
       if (this.builder.generateFields) {
         printField(nullableNameFieldInfo, byteOrder, true, offsetInCompiledBlock,
@@ -996,10 +999,10 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
               this.getCurrentStruct().isRoot() ? "this" : "this." + NAME_ROOT_STRUCT,
               "JBBPByteOrder." + byteOrder.name(),
               nullableNameFieldInfo == null ? "null" : specialFieldName_fieldNameInfo,
-              extraDataValueEvaluator == null ? "-1" :
+              extraDataValue == null ? "-1" :
                   evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock,
-                      extraDataValueEvaluator, this.flagSet, true),
-              readWholeStreamIntoArray,
+                      extraDataValue, this.flagSet, true),
+              readWholeStream,
               nullableArraySizeEvaluator == null ? "-1" :
                   evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock,
                       nullableArraySizeEvaluator, this.flagSet, true)
@@ -1012,9 +1015,9 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
               fieldName,
               "JBBPByteOrder." + byteOrder.name(),
               nullableNameFieldInfo == null ? "null" : specialFieldName_fieldNameInfo,
-              extraDataValueEvaluator == null ? "-1" :
+              extraDataValue == null ? "-1" :
                   evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock,
-                      extraDataValueEvaluator, this.flagSet, true),
+                      extraDataValue, this.flagSet, true),
               nullableArraySizeEvaluator == null ? "-1" :
                   evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock,
                       nullableArraySizeEvaluator, this.flagSet, true)
@@ -1033,9 +1036,9 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
               this.getCurrentStruct().isRoot() ? "this" : "this." + NAME_ROOT_STRUCT,
               "JBBPByteOrder." + byteOrder.name(),
               nullableNameFieldInfo == null ? "null" : specialFieldName_fieldNameInfo,
-              extraDataValueEvaluator == null ? "-1" :
+              extraDataValue == null ? "-1" :
                   evaluatorToString(NAME_INPUT_STREAM, offsetInCompiledBlock,
-                      extraDataValueEvaluator, this.flagSet, true))
+                      extraDataValue, this.flagSet, true))
       );
 
       this.getCurrentStruct().getWriteFunc()
@@ -1044,9 +1047,9 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
               fieldName,
               "JBBPByteOrder." + byteOrder.name(),
               nullableNameFieldInfo == null ? "null" : specialFieldName_fieldNameInfo,
-              extraDataValueEvaluator == null ? "-1" :
+              extraDataValue == null ? "-1" :
                   evaluatorToString(NAME_OUTPUT_STREAM, offsetInCompiledBlock,
-                      extraDataValueEvaluator, this.flagSet, true)
+                      extraDataValue, this.flagSet, true)
           );
     }
 

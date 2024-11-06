@@ -158,7 +158,8 @@ public class CompiledBlockVisitor {
           final JBBPIntegerValueEvaluator numberOfBits =
               extraFieldNumAsExpr ? extraFieldValueEvaluator : new IntConstValueEvaluator(
                   JBBPUtils.unpackInt(compiledData, positionAtCompiledBlock));
-          visitBitField(theOffset, byteOrder, name, numberOfBits, arraySizeEvaluator);
+          visitBitField(theOffset, byteOrder, name, readWholeStream, numberOfBits,
+              arraySizeEvaluator);
         }
         break;
 
@@ -175,7 +176,7 @@ public class CompiledBlockVisitor {
         break;
 
         case JBBPCompiler.CODE_STRUCT_START: {
-          visitStructureStart(theOffset, byteOrder, name, arraySizeEvaluator);
+          visitStructureStart(theOffset, byteOrder, readWholeStream, name, arraySizeEvaluator);
         }
         break;
 
@@ -230,7 +231,7 @@ public class CompiledBlockVisitor {
   }
 
   /**
-   * Visit field contains virtual field with VAL type.
+   * Visit field contains virtual field defined through VAL type.
    *
    * @param offsetInCompiledBlock offset in the compiled block
    * @param byteOrder             byteOrder
@@ -238,7 +239,8 @@ public class CompiledBlockVisitor {
    * @param expression            expression to calculate value
    * @since 1.4.0
    */
-  public void visitValField(int offsetInCompiledBlock, JBBPByteOrder byteOrder,
+  public void visitValField(int offsetInCompiledBlock,
+                            JBBPByteOrder byteOrder,
                             JBBPNamedFieldInfo nameFieldInfo,
                             JBBPIntegerValueEvaluator expression) {
   }
@@ -262,54 +264,106 @@ public class CompiledBlockVisitor {
    * @see JBBPCompiler#CODE_LONG
    * @see JBBPCompiler#CODE_SKIP
    */
-  public void visitPrimitiveField(int offsetInCompiledBlock, int primitiveType,
-                                  JBBPNamedFieldInfo nullableNameFieldInfo, JBBPByteOrder byteOrder,
-                                  boolean readWholeStreamAsArray, boolean altFieldType,
+  public void visitPrimitiveField(int offsetInCompiledBlock,
+                                  int primitiveType,
+                                  JBBPNamedFieldInfo nullableNameFieldInfo,
+                                  JBBPByteOrder byteOrder,
+                                  boolean readWholeStreamAsArray,
+                                  boolean altFieldType,
                                   JBBPIntegerValueEvaluator nullableArraySize) {
   }
 
   /**
    * Visit a variable field (which is defined with var data type)
    *
-   * @param offsetInCompiledBlock    offset in the compiled block
-   * @param nullableNameFieldInfo    field info, null if the field is anonymous one
-   * @param byteOrder                byte order for the field, must not be null
-   * @param readWholeStreamIntoArray true if whole stream should be read as array of var type, false otherwise
-   * @param nullableArraySize        if not null then evaluator of array size to be read from stream
-   * @param extraDataValueEvaluator  if not null then extra data evaluator for the var field
+   * @param offsetInCompiledBlock offset in the compiled block
+   * @param nullableNameFieldInfo field info, null if the field is anonymous one
+   * @param byteOrder             byte order for the field, must not be null
+   * @param readWholeStream       true if whole stream should be read as array of var type, false otherwise
+   * @param nullableArraySize     if not null then evaluator of array size to be read from stream
+   * @param extraDataValue        if not null then extra data evaluator for the var field
    */
-  public void visitVarField(int offsetInCompiledBlock, JBBPNamedFieldInfo nullableNameFieldInfo,
-                            JBBPByteOrder byteOrder, boolean readWholeStreamIntoArray,
+  public void visitVarField(int offsetInCompiledBlock,
+                            JBBPNamedFieldInfo nullableNameFieldInfo,
+                            JBBPByteOrder byteOrder,
+                            boolean readWholeStream,
                             JBBPIntegerValueEvaluator nullableArraySize,
-                            JBBPIntegerValueEvaluator extraDataValueEvaluator) {
+                            JBBPIntegerValueEvaluator extraDataValue) {
   }
 
+  /**
+   * Visit a custom type field.
+   *
+   * @param offsetInCompiledBlock offset in the compiled block
+   * @param notNullFieldType      field type info, must not be null
+   * @param nullableNameFieldInfo field info, null if the field is anonymous one
+   * @param byteOrder             byte order for the field, must not be null
+   * @param readWholeStream       true if whole stream should be read as array of var type, false otherwise
+   * @param nullableArraySize     if not null then evaluator of array size to be read from stream
+   * @param extraDataValue        if not null then extra data evaluator for the var field
+   */
   public void visitCustomField(int offsetInCompiledBlock,
                                JBBPFieldTypeParameterContainer notNullFieldType,
-                               JBBPNamedFieldInfo nullableNameFieldInfo, JBBPByteOrder byteOrder,
+                               JBBPNamedFieldInfo nullableNameFieldInfo,
+                               JBBPByteOrder byteOrder,
                                boolean readWholeStream,
-                               JBBPIntegerValueEvaluator nullableArraySizeEvaluator,
-                               JBBPIntegerValueEvaluator extraDataValueEvaluator) {
+                               JBBPIntegerValueEvaluator nullableArraySize,
+                               JBBPIntegerValueEvaluator extraDataValue) {
   }
 
-  public void visitBitField(int offsetInCompiledBlock, JBBPByteOrder byteOrder,
+  /**
+   * Visit a custom type field.
+   *
+   * @param offsetInCompiledBlock offset in the compiled block
+   * @param byteOrder             byte order for the field, must not be null
+   * @param nullableNameFieldInfo field info, null if the field is anonymous one
+   * @param readWholeStream       true if whole stream should be read as array of var type, false otherwise
+   * @param notNullFieldSize      evaluator to calculate size of the field, must not be null
+   * @param nullableArraySize     if not null then evaluator of array size to be read from stream
+   */
+  public void visitBitField(int offsetInCompiledBlock,
+                            JBBPByteOrder byteOrder,
                             JBBPNamedFieldInfo nullableNameFieldInfo,
+                            boolean readWholeStream,
                             JBBPIntegerValueEvaluator notNullFieldSize,
                             JBBPIntegerValueEvaluator nullableArraySize) {
   }
 
-  public void visitStructureStart(int offsetInCompiledBlock, JBBPByteOrder byteOrder,
+  /**
+   * Visit a structure field.
+   *
+   * @param offsetInCompiledBlock offset in the compiled block
+   * @param byteOrder             byte order for the field, must not be null
+   * @param readWholeStream       true if whole stream should be read as array of var type, false otherwise
+   * @param nullableNameFieldInfo field info, null if the field is anonymous one
+   * @param nullableArraySize     if not null then evaluator of array size to be read from stream
+   */
+  public void visitStructureStart(int offsetInCompiledBlock,
+                                  JBBPByteOrder byteOrder,
+                                  boolean readWholeStream,
                                   JBBPNamedFieldInfo nullableNameFieldInfo,
                                   JBBPIntegerValueEvaluator nullableArraySize) {
   }
 
+  /**
+   * End visit of a structure
+   *
+   * @param offsetInCompiledBlock offset in the compiled block
+   * @param nullableNameFieldInfo field info, null if the field is anonymous one
+   */
   public void visitStructureEnd(int offsetInCompiledBlock,
                                 JBBPNamedFieldInfo nullableNameFieldInfo) {
   }
 
+  /**
+   * Called before visit of each item.
+   */
   public void visitStart() {
   }
 
+  /**
+   * Called after visit each item.
+   */
   public void visitEnd() {
   }
 

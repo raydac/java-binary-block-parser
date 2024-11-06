@@ -16,6 +16,14 @@
 
 package com.igormaznitsa.jbbp.utils;
 
+import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
+import com.igormaznitsa.jbbp.JBBPParser;
+import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
+import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.compiler.conversion.CompiledBlockVisitor;
+import com.igormaznitsa.jbbp.compiler.conversion.IntConstValueEvaluator;
+import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
+import com.igormaznitsa.jbbp.compiler.varlen.JBBPIntegerValueEvaluator;
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
@@ -31,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Misc auxiliary methods to be used in the framework.
@@ -1118,6 +1127,137 @@ public final class JBBPUtils {
         out.print(interValueDelimiter);
       }
     }
+  }
+
+  /**
+   * Allows to calculate maximum static array size provided by script. It doesn't calculate any expressions, so that <b>byte [1000*1000] a;</b> will not be detected.
+   *
+   * @param script                   script to be processed, must not be null
+   * @param customFieldTypeProcessor custom field type processor if needed, can be null if no custom types in use
+   * @return detected biggest static array size with embedded structure awareness
+   * @since 2.1.1
+   */
+  public static int findMaxStaticArraySize(final String script,
+                                           final JBBPCustomFieldTypeProcessor customFieldTypeProcessor) {
+
+    final AtomicInteger maxFound = new AtomicInteger(0);
+    final JBBPCompiledBlock compiledBlock =
+        JBBPParser.prepare(script, customFieldTypeProcessor).getCompiledBlock();
+    final List<Integer> structSizeStack = new ArrayList<>();
+
+    new CompiledBlockVisitor(0, compiledBlock) {
+
+      private Integer extractStaticArraySize(int compiledBlockOffset,
+                                             JBBPIntegerValueEvaluator evaluator) {
+        if (evaluator instanceof IntConstValueEvaluator) {
+          return evaluator.eval(null, compiledBlockOffset, compiledBlock, null);
+        }
+        return null;
+      }
+
+      private void processSize(final int size) {
+        int accum = size;
+        for (Integer i : structSizeStack) {
+          accum = Math.multiplyExact(accum, i);
+        }
+        maxFound.set(Math.max(accum, maxFound.get()));
+      }
+
+      @Override
+      public void visitPrimitiveField(int offsetInCompiledBlock, int primitiveType,
+                                      JBBPNamedFieldInfo nullableNameFieldInfo,
+                                      JBBPByteOrder byteOrder, boolean readWholeStreamAsArray,
+                                      boolean altFieldType,
+                                      JBBPIntegerValueEvaluator nullableArraySize) {
+
+        if (!readWholeStreamAsArray) {
+          final Integer staticSize =
+              extractStaticArraySize(offsetInCompiledBlock, nullableArraySize);
+          if (staticSize != null) {
+            processSize(staticSize);
+          }
+        }
+      }
+
+      @Override
+      public void visitBitField(int offsetInCompiledBlock, JBBPByteOrder byteOrder,
+                                JBBPNamedFieldInfo nullableNameFieldInfo,
+                                boolean readWholeStream,
+                                JBBPIntegerValueEvaluator notNullFieldSize,
+                                JBBPIntegerValueEvaluator nullableArraySize) {
+        if (!readWholeStream) {
+          final Integer staticSize =
+              extractStaticArraySize(offsetInCompiledBlock, nullableArraySize);
+          if (staticSize != null) {
+            processSize(staticSize);
+          }
+        }
+      }
+
+      @Override
+      public void visitCustomField(int offsetInCompiledBlock,
+                                   JBBPFieldTypeParameterContainer notNullFieldType,
+                                   JBBPNamedFieldInfo nullableNameFieldInfo,
+                                   JBBPByteOrder byteOrder, boolean readWholeStream,
+                                   JBBPIntegerValueEvaluator nullableArraySizeEvaluator,
+                                   JBBPIntegerValueEvaluator extraDataValueEvaluator) {
+        if (!readWholeStream) {
+          final Integer staticSize =
+              extractStaticArraySize(offsetInCompiledBlock, nullableArraySizeEvaluator);
+          if (staticSize != null) {
+            processSize(staticSize);
+          }
+        }
+      }
+
+      @Override
+      public void visitVarField(int offsetInCompiledBlock, JBBPNamedFieldInfo nullableNameFieldInfo,
+                                JBBPByteOrder byteOrder,
+                                boolean readWholeStream,
+                                JBBPIntegerValueEvaluator nullableArraySize,
+                                JBBPIntegerValueEvaluator extraDataValue) {
+        if (!readWholeStream) {
+          final Integer staticSize =
+              extractStaticArraySize(offsetInCompiledBlock, nullableArraySize);
+          if (staticSize != null) {
+            processSize(staticSize);
+          }
+        }
+      }
+
+      @Override
+      public void visitStructureStart(int offsetInCompiledBlock,
+                                      JBBPByteOrder byteOrder,
+                                      boolean readWholeStream,
+                                      JBBPNamedFieldInfo nullableNameFieldInfo,
+                                      JBBPIntegerValueEvaluator nullableArraySize) {
+        if (readWholeStream) {
+          structSizeStack.add(1);
+        } else {
+          final Integer staticSize =
+              extractStaticArraySize(offsetInCompiledBlock, nullableArraySize);
+          if (staticSize == null) {
+            structSizeStack.add(1);
+          } else {
+            processSize(staticSize);
+            structSizeStack.add(staticSize);
+          }
+        }
+      }
+
+      @Override
+      public void visitStructureEnd(int offsetInCompiledBlock,
+                                    JBBPNamedFieldInfo nullableNameFieldInfo) {
+        structSizeStack.remove(structSizeStack.size() - 1);
+      }
+
+    }.visit();
+
+    if (!structSizeStack.isEmpty()) {
+      throw new Error("Unexpectedly structure stack is not empty, contact developer!");
+    }
+
+    return maxFound.get();
   }
 
 }

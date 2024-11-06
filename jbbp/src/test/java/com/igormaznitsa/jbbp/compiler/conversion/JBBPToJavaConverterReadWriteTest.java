@@ -105,6 +105,8 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
         .build()
         .convert();
 
+    System.out.println(text);
+
     final String fullClassName = thePackage + '.' + CLASS_NAME;
     final ClassLoader classLoader = saveAndCompile(new JavaClassContent(fullClassName, text));
 

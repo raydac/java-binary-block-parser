@@ -16,6 +16,7 @@
 
 package com.igormaznitsa.jbbp.utils;
 
+import static com.igormaznitsa.jbbp.utils.JBBPUtils.findMaxStaticArraySize;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -26,9 +27,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-
+import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
+import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
+import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
+import com.igormaznitsa.jbbp.io.JBBPArraySizeLimiter;
+import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPBitOrder;
+import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -38,6 +44,67 @@ import java.util.Random;
 import org.junit.jupiter.api.Test;
 
 public class JBBPUtilsTest {
+
+  @Test
+  public void testFindMaxStaticArraySize() {
+    assertEquals(0, findMaxStaticArraySize("byte [_] a;", null));
+    assertEquals(1, findMaxStaticArraySize("byte [1] a;", null));
+    assertEquals(0, findMaxStaticArraySize("byte a; byte [a] b;", null));
+    assertEquals(112, findMaxStaticArraySize("byte a; byte [a] b; int [112];", null));
+    assertEquals(1120,
+        findMaxStaticArraySize("byte a; byte [a] b; some [10] { int [112]; }", null));
+    assertEquals(10230,
+        findMaxStaticArraySize("byte a; byte [a] b; some [10] { int [112]; byte [1023] d;}",
+            null));
+    assertEquals(10230, findMaxStaticArraySize(
+        "byte a; byte [a] b; some [10] { int [112]; j [_] {byte [1023] d;}}", null));
+    assertEquals(65535, findMaxStaticArraySize("a [1]{ b[1]{ c[_]{byte[65535] a;}}}", null));
+    assertEquals(65535,
+        findMaxStaticArraySize("a [1]{ b[1]{ c[_]{int [128] l; var[65535] a;}}}", null));
+    assertEquals(65535,
+        findMaxStaticArraySize("a [1]{ b[1]{ c[_]{int [128] l; var[65535] a;}}}", null));
+    assertEquals(65535,
+        findMaxStaticArraySize("a [1]{ b[1]{ c[_]{int [128] l; stringj[65535] a;}}}", null));
+    assertEquals(65535,
+        findMaxStaticArraySize("a [1]{ b[1]{ c[_]{int [128] l; floatj[65535] a;}}}", null));
+    assertEquals(273948,
+        findMaxStaticArraySize(
+            "a [1]{ b[1]{ c[_]{int [128] l; str [222] { ubyte [1234] p; } doublej[65535] a;}}}",
+            null));
+    assertEquals(273948,
+        findMaxStaticArraySize(
+            "a [1]{ b[1]{ c[_]{int [128] l; str [222] { bit:3 [1234] p; } doublej[65535] a;}}}",
+            null));
+    assertEquals(65535,
+        findMaxStaticArraySize(
+            "a [1]{ b[1]{ c[_]{int [128] l; str [222] { val:3 p; } doublej[65535] a;}}}", null));
+    assertEquals(65535, findMaxStaticArraySize(
+        "a [1]{ b[1]{ lala [65534] { long s; } c[1]{int [128] l; cus[65535] a;}}}",
+        new JBBPCustomFieldTypeProcessor() {
+          @Override
+          public String[] getCustomFieldTypes() {
+            return new String[] {"cus"};
+          }
+
+          @Override
+          public boolean isAllowed(JBBPFieldTypeParameterContainer fieldType, String fieldName,
+                                   int extraData, boolean isArray) {
+            return "cus".equals(fieldType.getTypeName());
+          }
+
+          @Override
+          public JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder,
+                                                       int parserFlags,
+                                                       JBBPFieldTypeParameterContainer customTypeFieldInfo,
+                                                       JBBPNamedFieldInfo fieldName, int extraData,
+                                                       boolean readWholeStream, int arrayLength,
+                                                       JBBPArraySizeLimiter arraySizeLimiter) {
+            throw new UnsupportedOperationException();
+          }
+        }));
+    assertThrows(ArithmeticException.class,
+        () -> findMaxStaticArraySize("a [_]{ b[65535]{ c[65535]{byte[65535] a;}}}", null));
+  }
 
   @Test
   public void testUtf8EncdeDecode() {
