@@ -17,17 +17,17 @@ that for Java. So I developed the JBBP library.<br>
 
 # Change log
 
+- __2.1.1 (SNAPSHOT)__
+  - added JBBPUtils#findMaxStaticArraySize method to calculate maximal static array size in a script
+  - opened some internal API
+  - minor refactoring
+
 - __2.1.0 (05-nov-2024)__
   - minor changes in API for `JBBPVarFieldProcessor` and `JBBPCustomFieldTypeProcessor`
   - provided way to control size of arrays read as stream
     rest [#44](https://github.com/raydac/java-binary-block-parser/issues/41)
   - provided way to control size of arrays which size calculated through
     expressions [#45](https://github.com/raydac/java-binary-block-parser/issues/41)
-  - improved tests
-
-- __2.0.6 (01-jul-2023)__
-  - unexpected exception during JBBPDslBuilder.AnnotatedClass method
-    call [#42](https://github.com/raydac/java-binary-block-parser/issues/42)
   - improved tests
 
 [Full changelog](https://github.com/raydac/java-binary-block-parser/blob/master/changelog.txt)
