@@ -18,7 +18,6 @@ package com.igormaznitsa.jbbp.it;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayByte;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayStruct;
@@ -63,7 +62,7 @@ public class TGAParsingTest extends AbstractParserIntegrationTest {
                              final int imageDataSize) {
     final JBBPFieldArrayByte imageIdArray =
         parsedTga.findFieldForNameAndType("ImageID", JBBPFieldArrayByte.class);
-    if (imageId == null || imageId.length() == 0) {
+    if (imageId == null || imageId.isEmpty()) {
       assertEquals(0, imageIdArray.size());
     } else {
       assertEquals(imageId.length(), imageIdArray.size());

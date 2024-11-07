@@ -230,7 +230,7 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
     this.bitWideField = this.fieldType == BinType.BIT || fieldType == BinType.BIT_ARRAY;
 
     this.fieldName =
-            binAnnotation.name().length() == 0 ? mappingField.getName() : binAnnotation.name();
+        binAnnotation.name().isEmpty() ? mappingField.getName() : binAnnotation.name();
     this.fieldPath = binAnnotation.path();
 
     if (this.mappingField.getType().isArray()) {
@@ -609,7 +609,7 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
     return result;
   }
 
-  interface FieldProcessor {
+  public interface FieldProcessor {
     @SuppressWarnings("unchecked")
     void apply(
             MappedFieldRecord record,

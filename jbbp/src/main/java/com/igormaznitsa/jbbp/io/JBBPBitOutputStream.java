@@ -400,7 +400,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
   public void writeString(final String value, final JBBPByteOrder order) throws IOException {
     if (value == null) {
       this.write(0xFF);
-    } else if (value.length() == 0) {
+    } else if (value.isEmpty()) {
       this.write(0);
     } else {
       final byte[] array = JBBPUtils.strToUtf8(value);

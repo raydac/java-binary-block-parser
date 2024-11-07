@@ -59,6 +59,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * the Writer allows to make text describes some bin data, it supports output of
@@ -346,11 +347,7 @@ public class JBBPTextWriter extends FilterWriter {
     final String path = field.getFieldPath();
     final StringBuilder result = new StringBuilder(128);
     result.append(field.getTypeAsString()).append(' ');
-    if (path == null) {
-      result.append("<anonymous>");
-    } else {
-      result.append(path);
-    }
+    result.append(Objects.requireNonNullElse(path, "<anonymous>"));
     return result.toString();
   }
 
@@ -501,17 +498,17 @@ public class JBBPTextWriter extends FilterWriter {
    * @throws IOException it will be thrown for transport errors
    */
   private void printValueString(final String value) throws IOException {
-    if (this.valuesLineCounter > 0 && this.valueSeparator.length() > 0) {
+    if (this.valuesLineCounter > 0 && !this.valueSeparator.isEmpty()) {
       this.write(this.valueSeparator);
     }
 
-    if (this.prefixValue.length() > 0) {
+    if (!this.prefixValue.isEmpty()) {
       this.write(this.prefixValue);
     }
 
     this.write(value);
 
-    if (this.postfixValue.length() > 0) {
+    if (!this.postfixValue.isEmpty()) {
       this.write(this.postfixValue);
     }
     this.valuesLineCounter++;
@@ -587,13 +584,9 @@ public class JBBPTextWriter extends FilterWriter {
       }
     }
 
-    if (convertedByExtras == null) {
-      printValueString(JBBPUtils
-          .ensureMinTextLength(JBBPUtils.ulong2str(value & 0xFF, this.radix, CHAR_BUFFER),
-              this.maxCharsRadixForByte, '0', 0));
-    } else {
-      printValueString(convertedByExtras);
-    }
+    printValueString(Objects.requireNonNullElseGet(convertedByExtras, () -> JBBPUtils
+        .ensureMinTextLength(JBBPUtils.ulong2str(value & 0xFF, this.radix, CHAR_BUFFER),
+            this.maxCharsRadixForByte, '0', 0)));
 
     return this;
   }
@@ -1848,19 +1841,19 @@ public class JBBPTextWriter extends FilterWriter {
     private final Deque<Integer> counterStack = new ArrayDeque<>();
     private int arrayCounter;
 
-    protected void init() {
+    private void init() {
       arrayCounter = 0;
       counterStack.clear();
     }
 
     private String makeFieldDescription(final Field field, final Bin annotation) {
       final StringBuilder result = new StringBuilder();
-      if (annotation.name().length() == 0) {
+      if (annotation.name().isEmpty()) {
         result.append(field.getName());
       } else {
         result.append(annotation.name());
       }
-      if (annotation.comment().length() != 0) {
+      if (!annotation.comment().isEmpty()) {
         result.append(", ").append(annotation.comment());
       }
       return result.toString();
@@ -1887,11 +1880,11 @@ public class JBBPTextWriter extends FilterWriter {
       }
 
       final String name =
-          annotation == null || annotation.name().length() == 0 ? typeName : annotation.name();
+          annotation == null || annotation.name().isEmpty() ? typeName : annotation.name();
       final String fieldComment =
-          annotation == null || annotation.comment().length() == 0 ? null : annotation.comment();
+          annotation == null || annotation.comment().isEmpty() ? null : annotation.comment();
       final String objectComment =
-          classAnno == null || classAnno.comment().length() == 0 ? null : classAnno.comment();
+          classAnno == null || classAnno.comment().isEmpty() ? null : classAnno.comment();
 
       result.append(name);
       if (fieldComment != null) {

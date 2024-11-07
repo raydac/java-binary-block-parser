@@ -46,6 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @since 1.0
  */
+@SuppressWarnings("StringRepeatCanBeUsed")
 public final class JBBPUtils {
 
   public static final String[] ARRAY_STRING_EMPTY = new String[0];
@@ -91,7 +92,7 @@ public final class JBBPUtils {
    * or it is null
    */
   public static boolean isNumber(final String num) {
-    if (num == null || num.length() == 0) {
+    if (num == null || num.isEmpty()) {
       return false;
     }
     final boolean firstIsDigit = Character.isDigit(num.charAt(0));
@@ -882,7 +883,7 @@ public final class JBBPUtils {
    */
   public static String removeLeadingZeros(final String str) {
     String result = str;
-    if (str != null && str.length() != 0) {
+    if (str != null && !str.isEmpty()) {
       int startIndex = 0;
       while (startIndex < str.length() - 1) {
         final char ch = str.charAt(startIndex);
@@ -908,7 +909,7 @@ public final class JBBPUtils {
    */
   public static String removeTrailingZeros(final String str) {
     String result = str;
-    if (str != null && str.length() != 0) {
+    if (str != null && !str.isEmpty()) {
       int endIndex = str.length();
       while (endIndex > 1) {
         final char ch = str.charAt(endIndex - 1);
@@ -1112,7 +1113,7 @@ public final class JBBPUtils {
       if (lineByteCounter == bytesPerLine) {
         if (charBuffer != null) {
           out.print(delimiterBeforeChars);
-          out.print(charBuffer.toString());
+          out.print(charBuffer);
           charBuffer.setLength(0);
         }
         lineByteCounter = 0;

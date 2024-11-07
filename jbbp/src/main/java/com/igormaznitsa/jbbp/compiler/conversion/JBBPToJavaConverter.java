@@ -82,64 +82,15 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
   private static final String NAME_OUTPUT_STREAM = "Out";
 
   static {
-    final Set<String> reserved = new HashSet<>();
 
-    reserved.add("abstract");
-    reserved.add("assert");
-    reserved.add("boolean");
-    reserved.add("break");
-    reserved.add("byte");
-    reserved.add("case");
-    reserved.add("catch");
-    reserved.add("char");
-    reserved.add("class");
-    reserved.add("continue");
-    reserved.add("default");
-    reserved.add("do");
-    reserved.add("double");
-    reserved.add("else");
-    reserved.add("enum");
-    reserved.add("extends");
-    reserved.add("final");
-    reserved.add("finally");
-    reserved.add("float");
-    reserved.add("for");
-    reserved.add("if");
-    reserved.add("implements");
-    reserved.add("import");
-    reserved.add("instanceof");
-    reserved.add("int");
-    reserved.add("interface");
-    reserved.add("long");
-    reserved.add("native");
-    reserved.add("new");
-    reserved.add("package");
-    reserved.add("private");
-    reserved.add("protected");
-    reserved.add("public");
-    reserved.add("return");
-    reserved.add("short");
-    reserved.add("static");
-    reserved.add("strictfp");
-    reserved.add("super");
-    reserved.add("switch");
-    reserved.add("synchronized");
-    reserved.add("this");
-    reserved.add("throw");
-    reserved.add("throws");
-    reserved.add("transient");
-    reserved.add("try");
-    reserved.add("void");
-    reserved.add("volatile");
-    reserved.add("while");
-    reserved.add("true");
-    reserved.add("null");
-    reserved.add("false");
-    reserved.add("var");
-    reserved.add("const");
-    reserved.add("goto");
-
-    RESERVED_JAVA_KEYWORDS = Collections.unmodifiableSet(reserved);
+    RESERVED_JAVA_KEYWORDS =
+        Set.of("abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class",
+            "continue", "default", "do", "double", "else", "enum", "extends", "final", "finally",
+            "float", "for", "if", "implements", "import", "instanceof", "int", "interface", "long",
+            "native", "new", "package", "private", "protected", "public", "return", "short",
+            "static", "strictfp", "super", "switch", "synchronized", "this", "throw", "throws",
+            "transient", "try", "void", "volatile", "while", "true", "null", "false", "var",
+            "const", "goto");
   }
 
   /**
@@ -258,7 +209,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
       buffer.printCommentMultiLinesWithIndent(this.builder.headComment);
     }
 
-    if (this.builder.mainClassPackage != null && this.builder.mainClassPackage.length() != 0) {
+    if (this.builder.mainClassPackage != null && !this.builder.mainClassPackage.isEmpty()) {
       buffer.print("package ").print(this.builder.mainClassPackage).println(";");
     }
 
@@ -377,7 +328,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
         this.builder.mapSubClassesInterfaces,
         this.builder.mapSubClassesSuperclasses,
         this.specialSection.toString(),
-        specialMethodsText.length() == 0 ? null : specialMethodsText,
+        specialMethodsText.isEmpty() ? null : specialMethodsText,
         this.builder.mainClassCustomText,
         true
     );
@@ -429,10 +380,10 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
       this.getCurrentStruct().getReadFunc().indent()
           .printf("if ( this.%1$s == null) { this.%1$s = new %2$s(%3$s);}", structName, structType,
               pathToRootObject)
-          .printf(" %s.read(%s);%n", toType.length() == 0 ? "this." + structName :
+          .printf(" %s.read(%s);%n", toType.isEmpty() ? "this." + structName :
               '(' + toType + "this." + structName + ')', NAME_INPUT_STREAM);
       this.getCurrentStruct().getWriteFunc().indent()
-          .print(toType.length() == 0 ? structName : '(' + toType + structName + ')')
+          .print(toType.isEmpty() ? structName : '(' + toType + structName + ')')
           .println(".write(Out);");
     } else {
       structType = structBaseTypeName + " []";
@@ -453,7 +404,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
                 NAME_INPUT_STREAM);
         this.getCurrentStruct().getWriteFunc().indent()
             .printf("for (int I=0;I<this.%1$s.length;I++){ %2$s.write(%3$s); }%n", structName,
-                toType.length() == 0 ? "this." + structName + "[I]" :
+                toType.isEmpty() ? "this." + structName + "[I]" :
                     '(' + toType + "this." + structName + "[I])", NAME_OUTPUT_STREAM);
       } else {
         this.getCurrentStruct().getReadFunc().indent()
@@ -1129,7 +1080,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
           }
         } else if (obj instanceof String) {
           return String.format("%s.getNamedValue(this, \"%s\")",
-              (getCurrentStruct().isRoot() ? "this" : "this." + NAME_ROOT_STRUCT), obj.toString());
+              (getCurrentStruct().isRoot() ? "this" : "this." + NAME_ROOT_STRUCT), obj);
         } else if (obj instanceof JBBPNamedFieldInfo) {
           final NamedFieldInfo namedFieldInfo = foundNamedFields.get(obj);
           final String fieldPath = namedFieldInfo.makeSrcPath(getCurrentStruct());
@@ -1186,7 +1137,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
 
         final Object result = this.stack.remove(0);
         if (result instanceof ExprTreeItem) {
-          buffer.append('(').append(result.toString()).append(')');
+          buffer.append('(').append(result).append(')');
         } else {
           buffer.append(arg2str(result));
         }
@@ -1778,7 +1729,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
     private final String path;
 
     private Struct(final Struct parent, final String className, final String classModifiers) {
-      this.path = parent == null ? "" : parent.path + (parent.path.length() == 0 ? "" : ".") +
+      this.path = parent == null ? "" : parent.path + (parent.path.isEmpty() ? "" : ".") +
           className.toLowerCase(Locale.ENGLISH);
       this.classModifiers = classModifiers;
       this.className = className;
@@ -1909,7 +1860,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
         buffer.println();
       }
 
-      if (customText != null && customText.length() != 0) {
+      if (customText != null && !customText.isEmpty()) {
         buffer.printCommentLinesWithIndent("------ Custom section START");
         buffer.printLinesWithIndent(customText);
         buffer.printCommentLinesWithIndent("------ Custom section END");

@@ -214,18 +214,17 @@ public class JBBPCustomFieldTypeProcessorTest {
           throws IOException {
         final String type = customFieldTypeInfo.getTypeName();
 
-        if (type.equals("some1")) {
-          assertEquals(0x12345678 * 2, extraData);
-          return new JBBPFieldByte(fieldName, (byte) in.readByte());
-        }
-        if (type.equals("some2")) {
-          assertEquals(0x12345678 * 3, extraData);
-          return new JBBPFieldShort(fieldName,
-              (short) in.readUnsignedShort(customFieldTypeInfo.getByteOrder()));
-        }
-        if (type.equals("some3")) {
-          assertEquals(0x12345678 * 4, extraData);
-          return new JBBPFieldArrayByte(fieldName, in.readByteArray(arrayLength));
+        switch (type) {
+          case "some1":
+            assertEquals(0x12345678 * 2, extraData);
+            return new JBBPFieldByte(fieldName, (byte) in.readByte());
+          case "some2":
+            assertEquals(0x12345678 * 3, extraData);
+            return new JBBPFieldShort(fieldName,
+                (short) in.readUnsignedShort(customFieldTypeInfo.getByteOrder()));
+          case "some3":
+            assertEquals(0x12345678 * 4, extraData);
+            return new JBBPFieldArrayByte(fieldName, in.readByteArray(arrayLength));
         }
 
         fail("Unexpected field " + type);

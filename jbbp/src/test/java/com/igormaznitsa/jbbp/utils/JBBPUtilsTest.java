@@ -662,11 +662,11 @@ public class JBBPUtilsTest {
     }
     final InputStream stream = new ByteArrayInputStream(testData);
     final ByteArrayOutputStream outArray = new ByteArrayOutputStream();
-    final PrintStream out = new PrintStream(outArray, true, "UTF-8");
+    final PrintStream out = new PrintStream(outArray, true, StandardCharsets.UTF_8);
     JBBPUtils.traceData(stream, out);
     out.close();
     final String asString =
-        new String(outArray.toByteArray(), StandardCharsets.UTF_8).replace("\r\n", "\n")
+        outArray.toString(StandardCharsets.UTF_8).replace("\r\n", "\n")
             .replace("\r", "\n");
     assertEquals(
         "00000000 00 01 02 03 | 04 05 06 07 | 08 09 0A 0B | 0C 0D 0E 0F | 10 11 12 13 | 14 15 16 17 | 18 19 1A 1B | 1C 1D 1E 1F ................................\n"
@@ -693,7 +693,7 @@ public class JBBPUtilsTest {
     }
     final InputStream stream = new ByteArrayInputStream(testData);
     final ByteArrayOutputStream outArray = new ByteArrayOutputStream();
-    final PrintStream out = new PrintStream(outArray, true, "UTF-8");
+    final PrintStream out = new PrintStream(outArray, true, StandardCharsets.UTF_8);
     JBBPUtils.traceData(stream, 8, 4, "#", "_", "$", "Z", '&', true, out);
     out.close();
     final String asString =
@@ -724,7 +724,7 @@ public class JBBPUtilsTest {
     }
     final InputStream stream = new ByteArrayInputStream(testData);
     final ByteArrayOutputStream outArray = new ByteArrayOutputStream();
-    final PrintStream out = new PrintStream(outArray, true, "UTF-8");
+    final PrintStream out = new PrintStream(outArray, true, StandardCharsets.UTF_8);
     JBBPUtils.traceData(stream, 8, 4, "#", "_", "$", "Z", '&', false, out);
     out.close();
     final String asString =

@@ -25,11 +25,14 @@ import com.igormaznitsa.jbbp.utils.Function;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import com.igormaznitsa.jbbp.utils.NullableTriple;
 import com.igormaznitsa.jbbp.utils.ReflectUtils;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -239,8 +242,8 @@ public final class JBBPMapper {
     } else {
       final JBBPAbstractField binField;
 
-      if (record.fieldPath.length() == 0) {
-        binField = record.fieldName.length() == 0 ?
+      if (record.fieldPath.isEmpty()) {
+        binField = record.fieldName.isEmpty() ?
             rootStructure.findFieldForType(record.fieldType.getFieldClass()) : rootStructure
             .findFieldForNameAndType(record.fieldName, record.fieldType.getFieldClass());
       } else {

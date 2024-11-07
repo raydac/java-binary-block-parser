@@ -225,7 +225,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
     callRead(instance, etalon.clone());
 
-    assertEquals(2.3879393E-38f, getField(instance, "value", Float.class).floatValue(),
+    assertEquals(2.3879393E-38f, getField(instance, "value", Float.class),
         TestUtils.FLOAT_DELTA);
     assertArrayEquals(etalon, callWrite(instance));
   }
@@ -299,7 +299,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
     callRead(instance, etalon.clone());
 
-    assertEquals(8.20788039913184E-304d, getField(instance, "value", Double.class).doubleValue(),
+    assertEquals(8.20788039913184E-304d, getField(instance, "value", Double.class),
         TestUtils.FLOAT_DELTA);
     assertArrayEquals(etalon, callWrite(instance));
   }
@@ -385,7 +385,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
     callRead(instance, data.clone());
 
-    assertEquals(4.3f, getField(instance, "len", Float.class).floatValue(), TestUtils.FLOAT_DELTA);
+    assertEquals(4.3f, getField(instance, "len", Float.class), TestUtils.FLOAT_DELTA);
     assertArrayEquals(new byte[] {1, 2}, getField(instance, "data", byte[].class));
     assertArrayEquals(data, callWrite(instance));
   }
@@ -399,7 +399,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
     callRead(instance, data.clone());
 
-    assertEquals(3.3d, getField(instance, "len", Double.class).doubleValue(),
+    assertEquals(3.3d, getField(instance, "len", Double.class),
         TestUtils.FLOAT_DELTA);
     assertArrayEquals(new byte[] {1, 2, 3}, getField(instance, "data", byte[].class));
     assertArrayEquals(data, callWrite(instance));
@@ -414,7 +414,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
 
     callRead(instance, data.clone());
 
-    assertEquals(4.3d, getField(instance, "len", Double.class).doubleValue(),
+    assertEquals(4.3d, getField(instance, "len", Double.class),
         TestUtils.FLOAT_DELTA);
     assertArrayEquals(new byte[] {1, 2}, getField(instance, "data", byte[].class));
     assertArrayEquals(data, callWrite(instance));

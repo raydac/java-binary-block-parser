@@ -13,6 +13,7 @@ import java.lang.annotation.Annotation;
  *
  * @since 2.0.2
  */
+@SuppressWarnings("ClassExplicitlyAnnotation")
 public final class BinAnnotationWrapper implements Bin {
   private Bin bin;
   private String name;

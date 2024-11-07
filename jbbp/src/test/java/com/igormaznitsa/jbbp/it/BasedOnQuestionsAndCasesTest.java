@@ -21,10 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
-import com.igormaznitsa.jbbp.JBBPExternalValueProvider;
-import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
 import com.igormaznitsa.jbbp.JBBPParser;
-import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
 import com.igormaznitsa.jbbp.io.JBBPArraySizeLimiter;
@@ -144,7 +141,6 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
   /**
    * Case 28-jul-2016
    * Simultaneous usage of expression evaluator from multiple threads.
-   *
    * <a href="https://github.com/raydac/java-binary-block-parser/issues/10">Issue #10, assertArrayLength throws exception in multi-thread</a>
    *
    * @throws Exception for any error
@@ -363,7 +359,6 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
   /**
    * Case 10-aug-2017
    * NullPointer exception when referencing a JBBPCustomFieldTypeProcessor parsed field.
-   *
    * <a href="https://github.com/raydac/java-binary-block-parser/issues/16">Issue #16, NullPointer exception when referencing a JBBPCustomFieldTypeProcessor parsed field</a>
    *
    * @throws Exception for any error
@@ -475,23 +470,19 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
 
     JBBPParser parser = JBBPParser.prepare("byte [$alen] a; byte [$blen] b; byte [$clen] c;");
 
-    BKlazz parsed = parser.parse(new byte[] {1, 2, 3}, null, new JBBPExternalValueProvider() {
-      @Override
-      public int provideArraySize(String fieldName,
-                                  JBBPNamedNumericFieldMap numericFieldMap,
-                                  JBBPCompiledBlock compiledBlock) {
-        if ("alen".equals(fieldName)) {
-          return 0;
-        } else if ("blen".equals(fieldName)) {
-          return 3;
-        } else if ("clen".equals(fieldName)) {
-          return 0;
-        } else {
-          throw new IllegalArgumentException("Unknown name: " + fieldName);
-        }
+    BKlazz parsed = parser.parse(new byte[] {1, 2, 3}, null,
+        (fieldName, numericFieldMap, compiledBlock) -> {
+          if ("alen".equals(fieldName)) {
+            return 0;
+          } else if ("blen".equals(fieldName)) {
+            return 3;
+          } else if ("clen".equals(fieldName)) {
+            return 0;
+          } else {
+            throw new IllegalArgumentException("Unknown name: " + fieldName);
+          }
 
-      }
-    }).mapTo(new BKlazz());
+        }).mapTo(new BKlazz());
 
     assertArrayEquals(new byte[0], parsed.a);
     assertArrayEquals(new byte[] {1, 2, 3}, parsed.b);
@@ -603,7 +594,6 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
         }
       }
     }
-    ;
 
     final NullableByteArrayProcessor nullableByteArrayProcessor = new NullableByteArrayProcessor();
 
@@ -615,7 +605,6 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
       @Bin
       int c;
     }
-    ;
 
     Klazz object = new Klazz();
     object.a = 12345;

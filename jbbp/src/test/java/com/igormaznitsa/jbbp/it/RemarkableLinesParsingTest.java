@@ -4,7 +4,6 @@ import static com.igormaznitsa.jbbp.io.JBBPByteOrder.LITTLE_ENDIAN;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 import com.igormaznitsa.jbbp.JBBPParser;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPOut;
@@ -183,7 +182,7 @@ public class RemarkableLinesParsingTest extends AbstractParserIntegrationTest {
 
         public void printSvg(final PrintWriter writer) {
           writer.print(format("<g id=\"%s\" style=\"stroke: %s; fill:none; opacity: %f\">",
-              UUID.randomUUID().toString(), color2svg(this.color), pen2opacity(this.pen)));
+              UUID.randomUUID(), color2svg(this.color), pen2opacity(this.pen)));
           writer.println();
           writer.print(format("<polyline stroke-width=\"%f\" points=\"", this.width));
           String space = "";

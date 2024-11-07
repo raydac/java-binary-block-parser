@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.igormaznitsa.jbbp.exceptions.JBBPIllegalArgumentException;
@@ -35,8 +34,6 @@ import com.igormaznitsa.jbbp.utils.BinAnnotationWrapper;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
-import java.lang.reflect.Field;
 import org.junit.jupiter.api.Test;
 
 public class JBBPOutTest {
@@ -183,7 +180,8 @@ public class JBBPOutTest {
         BeginBin().Byte(0xF1).Align(2).Byte(1).Align(2).Byte(2).Align(2).Byte(3).End()
             .toByteArray());
     assertArrayEquals(
-        new byte[] {(byte) 0xF1, 0x00, 0x00, (byte) 0x01, 0x00, 0x00, 0x02, 0x00, 00, (byte) 0x03},
+        new byte[] {(byte) 0xF1, 0x00, 0x00, (byte) 0x01, 0x00, 0x00, 0x02, 0x00, 0x00,
+            (byte) 0x03},
         BeginBin().Byte(0xF1).Align(3).Byte(1).Align(3).Byte(2).Align(3).Byte(3).End()
             .toByteArray());
     assertArrayEquals(new byte[] {0x01, 0x02, 0x03, 0x04, 0x00, (byte) 0xF1},
@@ -1056,14 +1054,9 @@ public class JBBPOutTest {
         BeginBin().Bin(new Test(), new BinAnnotationWrapper().setType(BinType.BYTE), null).End()
             .toByteArray());
 
-    final JBBPCustomFieldWriter customFieldWriter = new JBBPCustomFieldWriter() {
-      @Override
-      public void writeCustomField(JBBPOut context, JBBPBitOutputStream outStream,
-                                   Object instanceToSave, Field instanceCustomField,
-                                   Bin fieldAnnotation, Object value) throws IOException {
-        outStream.write(123);
-      }
-    };
+    final JBBPCustomFieldWriter customFieldWriter =
+        (context, outStream, instanceToSave, instanceCustomField, fieldAnnotation, value) -> outStream.write(
+            123);
 
     assertArrayEquals(new byte[] {(byte) 123},
         BeginBin().Bin(new Test(), new BinAnnotationWrapper().setCustom(true), customFieldWriter)

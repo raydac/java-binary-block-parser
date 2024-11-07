@@ -71,9 +71,8 @@ public class RandomAutoTest extends AbstractJBBPToJavaConverterTest {
 
       generatedFields |= result.typeFlags;
 
-      System.out.println(String
-          .format("Test %d, data bit length = %d, fields = %d, sructs = %d", testIndex,
-              result.bitLength, result.fieldsNumber, result.structNumber));
+      System.out.printf("Test %d, data bit length = %d, fields = %d, structs = %d%n", testIndex,
+          result.bitLength, result.fieldsNumber, result.structNumber);
 
       final byte[] testData = makeRandomDataArray(result.bitLength);
       final Object clazzInstance = compileAndMakeInstance(result.script);

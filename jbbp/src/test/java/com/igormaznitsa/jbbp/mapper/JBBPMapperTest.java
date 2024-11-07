@@ -297,11 +297,9 @@ public class JBBPMapperTest {
       int a;
     }
     assertThrows(JBBPNumericFieldValueConversionException.class,
-        () -> {
-          JBBPParser.prepare("uint a;")
-              .parse(new byte[] {(byte) 0xFF, (byte) 0xA0, (byte) 0xB0, (byte) 0xC0})
-              .mapTo(new Mapped());
-        });
+        () -> JBBPParser.prepare("uint a;")
+            .parse(new byte[] {(byte) 0xFF, (byte) 0xA0, (byte) 0xB0, (byte) 0xC0})
+            .mapTo(new Mapped()));
   }
 
   @Test

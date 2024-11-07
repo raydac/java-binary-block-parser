@@ -135,6 +135,24 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
     return GLOBAL_RESERVED_TYPE_NAMES.contains(name);
   }
 
+  private static JBBPByteOrder getJbbpByteOrder(String groupTypeByteOrder, String fieldType) {
+    JBBPByteOrder byteOrder;
+    if (groupTypeByteOrder != null) {
+      if (">".equals(groupTypeByteOrder)) {
+        byteOrder = JBBPByteOrder.BIG_ENDIAN;
+      } else if ("<".equals(groupTypeByteOrder)) {
+        byteOrder = JBBPByteOrder.LITTLE_ENDIAN;
+      } else {
+        throw new Error(
+            "Illegal byte order char, unexpected error, contact developer please ["
+                + fieldType + ']');
+      }
+    } else {
+      byteOrder = JBBPByteOrder.BIG_ENDIAN;
+    }
+    return byteOrder;
+  }
+
   /**
    * Inside method to read the next token from the string and place it into
    * inside storage.
@@ -153,7 +171,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
       final String skipString =
           this.processingString.substring(Math.max(this.lastCharSubstringFound, 0), matcher.start())
               .trim();
-      if (skipString.length() != 0 && !skipString.startsWith("//")) {
+      if (!skipString.isEmpty() && !skipString.startsWith("//")) {
         this.detectedException =
             new JBBPTokenizerException(skipString, this.processingString,
                 Math.max(this.lastCharSubstringFound, 0));
@@ -222,20 +240,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
 
             wrongFormat = false;
 
-            JBBPByteOrder byteOrder;
-            if (groupTypeByteOrder != null) {
-              if (">".equals(groupTypeByteOrder)) {
-                byteOrder = JBBPByteOrder.BIG_ENDIAN;
-              } else if ("<".equals(groupTypeByteOrder)) {
-                byteOrder = JBBPByteOrder.LITTLE_ENDIAN;
-              } else {
-                throw new Error(
-                    "Illegal byte order char, unexpected error, contact developer please ["
-                        + fieldType + ']');
-              }
-            } else {
-              byteOrder = JBBPByteOrder.BIG_ENDIAN;
-            }
+            JBBPByteOrder byteOrder = getJbbpByteOrder(groupTypeByteOrder, fieldType);
 
             parsedType =
                 new JBBPFieldTypeParameterContainer(byteOrder, groupTypeName, groupTypeExtraField);
@@ -259,7 +264,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
             new JBBPTokenizerException("Wrong format of whole string", this.processingString, 0);
       } else {
         final String restOfString = this.processingString.substring(this.lastCharSubstringFound);
-        if (restOfString.trim().length() != 0) {
+        if (!restOfString.trim().isEmpty()) {
           throw new JBBPTokenizerException(
               "Can't recognize a part of script [" + restOfString + ']',
               this.processingString,
@@ -286,7 +291,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
             this.processingString, position);
       }
 
-      if (normalized.length() > 0) {
+      if (!normalized.isEmpty()) {
         if (normalized.equals("_")
             || normalized.equals("$$")
             || normalized.startsWith("$")

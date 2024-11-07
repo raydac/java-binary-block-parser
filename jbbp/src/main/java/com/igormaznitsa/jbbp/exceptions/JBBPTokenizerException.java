@@ -55,7 +55,7 @@ public class JBBPTokenizerException extends JBBPCompilationException {
    * @since 2.0.3
    */
   private static String extractErrorPartText(final String script, final int errorPosition) {
-    if (script.length() == 0 || errorPosition >= script.length() || errorPosition < 0) {
+    if (script.isEmpty() || errorPosition >= script.length() || errorPosition < 0) {
       return "";
     }
     final int maxLengthWing = 16;

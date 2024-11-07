@@ -34,7 +34,7 @@ import java.lang.reflect.Field;
  *
  * @since 1.0
  */
-public final class JBBPOut extends AbstractMappedClassFieldObserver {
+public class JBBPOut extends AbstractMappedClassFieldObserver {
 
   /**
    * The Default byte outOrder.

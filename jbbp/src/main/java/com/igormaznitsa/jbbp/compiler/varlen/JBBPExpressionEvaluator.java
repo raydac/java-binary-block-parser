@@ -193,7 +193,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
       if (lastFound >= 0) {
         // check for skipped substring
         final String subString = expression.substring(lastFound, matcher.start());
-        if (subString.trim().length() != 0) {
+        if (!subString.trim().isEmpty()) {
           throw new JBBPCompilationException(
               "Can't recognize part of expression '" + subString + "' [" + expression + ']');
         }
@@ -362,29 +362,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
 
         prevoperator = false;
         try {
-          int parsed = Integer.parseInt(number);
-
-          if (unaryOperatorCode >= 0) {
-            switch (unaryOperatorCode) {
-              case CODE_UNARYPLUS:
-              case CODE_ADD: {
-                // do nothing
-              }
-              break;
-              case CODE_UNARYMINUS:
-              case CODE_MINUS: {
-                parsed = -parsed;
-              }
-              break;
-              case CODE_NOT: {
-                parsed = ~parsed;
-              }
-              break;
-              default: {
-                throw new Error("Unsupported unary operator [" + SYMBOLS[unaryOperatorCode] + ']');
-              }
-            }
-          }
+          int parsed = getParsed(number, unaryOperatorCode);
 
           unaryOperatorCode = -1;
           compiledScript.write(CODE_CONST);
@@ -435,6 +413,33 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
         externalValueNameList.isEmpty() ? null : externalValueNameList.toArray(ARRAY_STRING_EMPTY);
 
     this.maxStackDepth = calculateMaxStackDepth();
+  }
+
+  private static int getParsed(String number, int unaryOperatorCode) {
+    int parsed = Integer.parseInt(number);
+
+    if (unaryOperatorCode >= 0) {
+      switch (unaryOperatorCode) {
+        case CODE_UNARYPLUS:
+        case CODE_ADD: {
+          // do nothing
+        }
+        break;
+        case CODE_UNARYMINUS:
+        case CODE_MINUS: {
+          parsed = -parsed;
+        }
+        break;
+        case CODE_NOT: {
+          parsed = ~parsed;
+        }
+        break;
+        default: {
+          throw new Error("Unsupported unary operator [" + SYMBOLS[unaryOperatorCode] + ']');
+        }
+      }
+    }
+    return parsed;
   }
 
   /**

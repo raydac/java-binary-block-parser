@@ -19,8 +19,6 @@ package com.igormaznitsa.jbbp.model;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import java.io.Serializable;

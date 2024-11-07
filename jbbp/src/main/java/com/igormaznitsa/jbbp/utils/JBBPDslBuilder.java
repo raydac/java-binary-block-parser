@@ -56,7 +56,7 @@ public class JBBPDslBuilder {
     if (text == null) {
       throw new NullPointerException("Must not be null");
     }
-    if (text.trim().length() == 0) {
+    if (text.trim().isEmpty()) {
       throw new IllegalArgumentException("Must not be empty: " + text);
     }
     return text;
@@ -88,7 +88,7 @@ public class JBBPDslBuilder {
       throw new NullPointerException("Expression is null");
     }
 
-    if (expression.trim().length() == 0) {
+    if (expression.trim().isEmpty()) {
       throw new IllegalArgumentException("Expression is empty");
     }
 
@@ -135,7 +135,7 @@ public class JBBPDslBuilder {
   }
 
   protected void addItem(final Item item) {
-    if (item instanceof ItemComment || item.name == null || item.name.length() == 0) {
+    if (item instanceof ItemComment || item.name == null || item.name.isEmpty()) {
       this.items.add(item);
     } else {
       int structCounter = 0;
@@ -157,7 +157,7 @@ public class JBBPDslBuilder {
 
         if (structCounter == 0) {
           final String thatName = itm.name;
-          if (thatName != null && thatName.length() > 0 && item.name.equalsIgnoreCase(thatName)) {
+          if (thatName != null && !thatName.isEmpty() && item.name.equalsIgnoreCase(thatName)) {
             throw new IllegalArgumentException("Duplicated item name '" + item.name + '\'');
           }
         }
@@ -1561,7 +1561,7 @@ public class JBBPDslBuilder {
               doTabs(format, buffer, structCounter).append('}');
             }
           } else if (item instanceof ItemCustom) {
-            doTabs(format, buffer, structCounter).append(item.toString());
+            doTabs(format, buffer, structCounter).append(item);
           } else if (item instanceof ItemAlign) {
             doTabs(format, buffer, structCounter).append("align").append(
                 item.sizeExpression == null ? "" :
@@ -1582,7 +1582,7 @@ public class JBBPDslBuilder {
             if (comment.isNewLine()) {
               if (buffer.length() > 0) {
                 final int lastNewLine = buffer.lastIndexOf("\n");
-                if (lastNewLine < 0 || buffer.substring(lastNewLine + 1).length() != 0) {
+                if (lastNewLine < 0 || !buffer.substring(lastNewLine + 1).isEmpty()) {
                   buffer.append('\n');
                 }
               }
@@ -1608,7 +1608,7 @@ public class JBBPDslBuilder {
         }
         break;
         default: {
-          doTabs(format, buffer, structCounter).append(item.toString());
+          doTabs(format, buffer, structCounter).append(item);
         }
         break;
       }
@@ -1905,7 +1905,7 @@ public class JBBPDslBuilder {
           }
         }
         final String comment = field.getComment();
-        if (comment.length() != 0) {
+        if (!comment.isEmpty()) {
           this.Comment(comment);
         }
       }
@@ -1992,7 +1992,7 @@ public class JBBPDslBuilder {
         result.append('[').append(this.sizeExpression).append(']');
       }
 
-      if (this.name != null && this.name.length() != 0) {
+      if (this.name != null && !this.name.isEmpty()) {
         result.append(' ').append(this.name);
       }
 
@@ -2065,7 +2065,7 @@ public class JBBPDslBuilder {
       if (this.field != null) {
         if (this.fieldLocalAnnotation) {
           if (this.bin != null) {
-            result = this.bin.name().length() == 0 ? this.field.getName() : this.bin.name();
+            result = this.bin.name().isEmpty() ? this.field.getName() : this.bin.name();
           } else {
             throw new Error("Unexpected");
           }

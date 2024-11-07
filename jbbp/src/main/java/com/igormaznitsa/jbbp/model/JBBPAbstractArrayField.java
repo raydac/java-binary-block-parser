@@ -69,7 +69,7 @@ public abstract class JBBPAbstractArrayField<T extends JBBPAbstractField> extend
    */
   @Override
   public Iterator<T> iterator() {
-    return new Iterator<T>() {
+    return new Iterator<>() {
       private int index = 0;
 
       @Override
