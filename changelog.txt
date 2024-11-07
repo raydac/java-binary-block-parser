@@ -1,7 +1,9 @@
-2.1.1 (SNAPSHOT)
+3.0.0 (SNAPSHOT)
+ - lifted minimal JDK version to 11.0
+ - lifted supported Android API version to 32
  - added JBBPUtils#findMaxStaticArraySize method to calculate maximal static array size in a script
  - opened some internal API
- - minor refactoring
+ - refactoring
 
 2.1.0 (05-nov-2024)
  - minor changes in API for JBBPVarFieldProcessor and JBBPCustomFieldTypeProcessor

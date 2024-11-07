@@ -17,10 +17,12 @@ that for Java. So I developed the JBBP library.<br>
 
 # Change log
 
-- __2.1.1 (SNAPSHOT)__
-  - added JBBPUtils#findMaxStaticArraySize method to calculate maximal static array size in a script
-  - opened some internal API
-  - minor refactoring
+- __3.0.0 (SNAPSHOT)__
+- lifted minimal JDK version to 11.0
+- lifted supported Android API version to 32
+- added JBBPUtils#findMaxStaticArraySize method to calculate maximal static array size in a script
+- opened some internal API
+- refactoring
 
 - __2.1.0 (05-nov-2024)__
   - minor changes in API for `JBBPVarFieldProcessor` and `JBBPCustomFieldTypeProcessor`
