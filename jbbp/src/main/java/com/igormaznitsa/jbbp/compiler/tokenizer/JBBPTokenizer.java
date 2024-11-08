@@ -135,6 +135,24 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
     return GLOBAL_RESERVED_TYPE_NAMES.contains(name);
   }
 
+  private static JBBPByteOrder getJbbpByteOrder(String groupTypeByteOrder, String fieldType) {
+    JBBPByteOrder byteOrder;
+    if (groupTypeByteOrder != null) {
+      if (">".equals(groupTypeByteOrder)) {
+        byteOrder = JBBPByteOrder.BIG_ENDIAN;
+      } else if ("<".equals(groupTypeByteOrder)) {
+        byteOrder = JBBPByteOrder.LITTLE_ENDIAN;
+      } else {
+        throw new Error(
+            "Illegal byte order char, unexpected error, contact developer please ["
+                + fieldType + ']');
+      }
+    } else {
+      byteOrder = JBBPByteOrder.BIG_ENDIAN;
+    }
+    return byteOrder;
+  }
+
   /**
    * Inside method to read the next token from the string and place it into
    * inside storage.
@@ -222,20 +240,7 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
 
             wrongFormat = false;
 
-            JBBPByteOrder byteOrder;
-            if (groupTypeByteOrder != null) {
-              if (">".equals(groupTypeByteOrder)) {
-                byteOrder = JBBPByteOrder.BIG_ENDIAN;
-              } else if ("<".equals(groupTypeByteOrder)) {
-                byteOrder = JBBPByteOrder.LITTLE_ENDIAN;
-              } else {
-                throw new Error(
-                    "Illegal byte order char, unexpected error, contact developer please ["
-                        + fieldType + ']');
-              }
-            } else {
-              byteOrder = JBBPByteOrder.BIG_ENDIAN;
-            }
+            JBBPByteOrder byteOrder = getJbbpByteOrder(groupTypeByteOrder, fieldType);
 
             parsedType =
                 new JBBPFieldTypeParameterContainer(byteOrder, groupTypeName, groupTypeExtraField);

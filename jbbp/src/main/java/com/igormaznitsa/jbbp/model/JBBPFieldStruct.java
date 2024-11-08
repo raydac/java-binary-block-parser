@@ -16,6 +16,8 @@
 
 package com.igormaznitsa.jbbp.model;
 
+import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_FIELD_EMPTY;
+
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.exceptions.JBBPFinderException;
 import com.igormaznitsa.jbbp.exceptions.JBBPTooManyFieldsFoundException;
@@ -25,10 +27,7 @@ import com.igormaznitsa.jbbp.mapper.JBBPMapperCustomFieldProcessor;
 import com.igormaznitsa.jbbp.model.finder.JBBPFieldFinder;
 import com.igormaznitsa.jbbp.utils.Function;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
-
 import java.util.List;
-
-import static com.igormaznitsa.jbbp.utils.JBBPUtils.ARRAY_FIELD_EMPTY;
 
 /**
  * Describes a structure.
@@ -86,7 +85,6 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
       firstIndex = 0;
     } else if (parsedName[0].equals(this.getNameInfo().getFieldName())) {
       firstIndex = 1;
-      found = this;
     } else {
       firstIndex = 0;
       found = null;
@@ -350,7 +348,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
   @SafeVarargs
   public final <T> T mapTo(final T instance, final int flags,
                            final Function<Class<?>, Object>... instantiators) {
-    return this.mapTo(instance, (JBBPMapperCustomFieldProcessor) null, flags, instantiators);
+    return this.mapTo(instance, null, flags, instantiators);
   }
 
   /**

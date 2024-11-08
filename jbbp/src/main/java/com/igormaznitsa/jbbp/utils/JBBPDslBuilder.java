@@ -2134,7 +2134,7 @@ public class JBBPDslBuilder {
     }
 
     BinFieldContainer(final Class<?> klazz, final Field field) {
-      super((Bin) null, false, field);
+      super(null, false, field);
       this.klazz = klazz;
     }
 

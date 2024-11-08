@@ -177,7 +177,7 @@ public final class JBBPCompiler {
 
   private static void assertTokenHasExtraData(final String fieldType, final JBBPToken token) {
     if (token.getFieldTypeParameters().getExtraData() == null) {
-      throw new JBBPCompilationException('\'' + fieldType + "\' doesn't have extra value", token);
+      throw new JBBPCompilationException('\'' + fieldType + "' doesn't have extra value", token);
     }
   }
 
@@ -511,7 +511,7 @@ public final class JBBPCompiler {
   private static void assertTokenHasNotExtraData(final String fieldType,
                                                  final JBBPToken token) {
     if (token.getFieldTypeParameters().getExtraData() != null) {
-      throw new JBBPCompilationException('\'' + fieldType + "\' has extra value", token);
+      throw new JBBPCompilationException('\'' + fieldType + "' has extra value", token);
     }
   }
 
