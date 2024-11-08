@@ -362,7 +362,29 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
 
         prevoperator = false;
         try {
-          int parsed = getParsed(number, unaryOperatorCode);
+          int parsed = Integer.parseInt(number);
+
+          if (unaryOperatorCode >= 0) {
+            switch (unaryOperatorCode) {
+              case CODE_UNARYPLUS:
+              case CODE_ADD: {
+                // do nothing
+              }
+              break;
+              case CODE_UNARYMINUS:
+              case CODE_MINUS: {
+                parsed = -parsed;
+              }
+              break;
+              case CODE_NOT: {
+                parsed = ~parsed;
+              }
+              break;
+              default: {
+                throw new Error("Unsupported unary operator [" + SYMBOLS[unaryOperatorCode] + ']');
+              }
+            }
+          }
 
           unaryOperatorCode = -1;
           compiledScript.write(CODE_CONST);
@@ -413,33 +435,6 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
         externalValueNameList.isEmpty() ? null : externalValueNameList.toArray(ARRAY_STRING_EMPTY);
 
     this.maxStackDepth = calculateMaxStackDepth();
-  }
-
-  private static int getParsed(String number, int unaryOperatorCode) {
-    int parsed = Integer.parseInt(number);
-
-    if (unaryOperatorCode >= 0) {
-      switch (unaryOperatorCode) {
-        case CODE_UNARYPLUS:
-        case CODE_ADD: {
-          // do nothing
-        }
-        break;
-        case CODE_UNARYMINUS:
-        case CODE_MINUS: {
-          parsed = -parsed;
-        }
-        break;
-        case CODE_NOT: {
-          parsed = ~parsed;
-        }
-        break;
-        default: {
-          throw new Error("Unsupported unary operator [" + SYMBOLS[unaryOperatorCode] + ']');
-        }
-      }
-    }
-    return parsed;
   }
 
   /**

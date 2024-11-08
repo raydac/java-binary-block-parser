@@ -1136,7 +1136,7 @@ public final class JBBPUtils {
    * @param script                   script to be processed, must not be null
    * @param customFieldTypeProcessor custom field type processor if needed, can be null if no custom types in use
    * @return detected biggest static array size with embedded structure awareness
-   * @since 2.1.1
+   * @since 3.0.0
    */
   public static int findMaxStaticArraySize(final String script,
                                            final JBBPCustomFieldTypeProcessor customFieldTypeProcessor) {
