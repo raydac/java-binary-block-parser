@@ -68,6 +68,7 @@ import java.util.Objects;
  *
  * @since 1.1
  */
+@SuppressWarnings({"resource", "SystemGetProperty"})
 public class JBBPTextWriter extends FilterWriter {
 
   /**
