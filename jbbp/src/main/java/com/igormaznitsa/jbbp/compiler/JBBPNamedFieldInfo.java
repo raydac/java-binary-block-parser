@@ -21,7 +21,7 @@ import java.io.Serializable;
 
 /**
  * The Class describes a named field info item. Such objects are presented
- * inside of compiled blocks only for fields which have names.
+ * inside compiled blocks only for fields which have names.
  *
  * @since 1.0
  */

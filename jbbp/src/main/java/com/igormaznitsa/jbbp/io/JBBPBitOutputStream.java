@@ -46,7 +46,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
   private long byteCounter;
 
   /**
-   * A Constructor. The Default LSB0 bit mode will be used for bit writing operations.
+   * A Constructor. The Default LSB0 bit mode will be used for a bit writing operations.
    *
    * @param out the output stream to be filtered.
    */
@@ -139,7 +139,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
   }
 
   /**
-   * Write an float value into the output stream.
+   * Write a float value into the output stream.
    *
    * @param value     a value to be written into the output stream.
    * @param byteOrder the byte order of the value bytes to be used for writing.

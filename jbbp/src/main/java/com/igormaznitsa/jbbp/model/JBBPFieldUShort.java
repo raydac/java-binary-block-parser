@@ -20,7 +20,7 @@ import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
- * Describes a unsigned short value field.
+ * Describes an unsigned short value field.
  *
  * @since 1.0
  */

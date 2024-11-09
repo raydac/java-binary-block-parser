@@ -45,7 +45,7 @@ public interface JBBPCountableBitStream {
   void resetCounter();
 
   /**
-   * Get the inside stream bit buffer.
+   * Get the inside stream a bit buffer.
    *
    * @return the value from inside the stream bit buffer
    */

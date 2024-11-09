@@ -517,7 +517,7 @@ public class JBBPDslBuilder {
    *
    * @param type custom type, must not be null
    * @param name name of the array, can be null for anonymous one
-   * @param size size of he array, if less than zero then read till end of stream.
+   * @param size size of the array, if less than zero then read till end of stream.
    * @return the builder instance, must not be null
    */
   public JBBPDslBuilder CustomArray(final String type, final String name, final int size) {

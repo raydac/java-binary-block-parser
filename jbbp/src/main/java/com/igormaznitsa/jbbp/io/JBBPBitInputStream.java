@@ -756,7 +756,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   /**
    * Read a unsigned short value from the stream.
    *
-   * @param byteOrder he order of bytes to be used to decode the read value
+   * @param byteOrder the order of bytes to be used to decode the read value
    * @return the unsigned short value read from stream
    * @throws IOException  it will be thrown for any transport problem during the
    *                      operation
@@ -943,7 +943,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   /**
    * Read number of bits from the input stream. It reads bits from input stream
    * since 0 bit and make reversion to return bits in the right order when 0 bit
-   * is 0 bit. if the stream is completed early than the data read then reading
+   * is 0 bit. if the stream is completed earlier than the data read then reading
    * is just stopped and read value returned. The First read bit is placed as
    * 0th bit.
    *

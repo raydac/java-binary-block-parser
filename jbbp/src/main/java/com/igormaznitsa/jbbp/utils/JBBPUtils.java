@@ -88,7 +88,7 @@ public final class JBBPUtils {
    * Check that a string is a number.
    *
    * @param num a string to be checked, it can be null
-   * @return true if the string represents a number, false if it is not number
+   * @return true if the string represents a number, false if it is not number,
    * or it is null
    */
   public static boolean isNumber(final String num) {
@@ -321,7 +321,7 @@ public final class JBBPUtils {
   }
 
   /**
-   * Convert a byte array into string binary representation with defined bit
+   * Convert a byte array into string binary representation with defined a bit
    * order and possibility to separate bytes.
    *
    * @param values        a byte array to be converted
@@ -454,8 +454,8 @@ public final class JBBPUtils {
    * Split a string for a char used as the delimiter.
    *
    * @param str       a string to be split
-   * @param splitChar a char to be used as delimeter
-   * @return array contains split string parts without delimeter chars
+   * @param splitChar a char to be used as delimiter
+   * @return array contains split string parts without delimiter chars
    */
   public static String[] splitString(final String str, final char splitChar) {
     final int length = str.length();
@@ -501,10 +501,10 @@ public final class JBBPUtils {
   }
 
   /**
-   * Convert an integer number into human readable hexadecimal format.
+   * Convert an integer number into human-readable hexadecimal format.
    *
    * @param number a number to be converted
-   * @return a string with human readable hexadecimal number representation
+   * @return a string with human-readable hexadecimal number representation
    */
   public static String int2msg(final int number) {
     return number + " (0x"
@@ -538,11 +538,11 @@ public final class JBBPUtils {
   }
 
   /**
-   * Convert chars of a string into a byte array contains the unicode codes.
+   * Convert chars of a string into a byte array contains the Unicode codes.
    *
    * @param byteOrder the byte order for the operation, must not be null
    * @param str       the string which chars should be written, must not be null
-   * @return the byte array contains unicodes of the string written as byte
+   * @return the byte array contains uni-codes of the string written as byte
    * pairs
    * @since 1.1
    */

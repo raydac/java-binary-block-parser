@@ -74,7 +74,7 @@ public final class JBBPCompilerUtils {
   }
 
   /**
-   * Check a field in a compiled list defined by its named field info, that the field is not an array and it is not inside a structure array.
+   * Check a field in a compiled list defined by it's named field info, that the field is not an array and it is not inside a structure array.
    *
    * @param fieldToCheck   a named field info to be checked, must not be null
    * @param namedFieldList a named field info list, must not be null.

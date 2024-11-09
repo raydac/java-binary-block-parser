@@ -94,7 +94,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
    */
   private static final int CODE_MOD = 11;
   /**
-   * Code for bit OR '|' operator.
+   * Code for a bit OR '|' operator.
    */
   private static final int CODE_OR = 12;
   /**
@@ -446,7 +446,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
    * Encode code of an operator to code of similar unary operator.
    *
    * @param code a code of operator.
-   * @return code of an unary similar operator if it exists, the same code otherwise
+   * @return code of a unary similar operator if it exists, the same code otherwise
    */
   private static int codeToUnary(final int code) {
     final int result;

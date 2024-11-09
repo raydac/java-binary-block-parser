@@ -126,10 +126,10 @@ public final class JBBPTokenizer implements Iterable<JBBPToken>, Iterator<JBBPTo
   }
 
   /**
-   * Case sensitive check that the name is among global reserved ones.
+   * Case-sensitive check that the name is among global reserved ones.
    *
    * @param name the name to check, must not be null
-   * @return true if the name is global reserved one, false otherwise.
+   * @return true if the name is globally reserved one, false otherwise.
    */
   public static boolean isGlobalReservedName(final String name) {
     return GLOBAL_RESERVED_TYPE_NAMES.contains(name);

@@ -198,7 +198,7 @@ public class JBBPTextWriter extends FilterWriter {
   /**
    * The Current first value at line prefix.
    */
-  private String prefixFirtValueAtLine;
+  private String prefixFirstValueAtLine;
 
   /**
    * The Current value prefix.
@@ -411,7 +411,7 @@ public class JBBPTextWriter extends FilterWriter {
           e.onBeforeFirstValue(this);
         }
         writeIndent();
-        this.write(this.prefixFirtValueAtLine);
+        this.write(this.prefixFirstValueAtLine);
       }
       break;
       case MODE_COMMENTS: {
@@ -421,7 +421,7 @@ public class JBBPTextWriter extends FilterWriter {
         for (final Extra e : extras) {
           e.onBeforeFirstValue(this);
         }
-        this.write(this.prefixFirtValueAtLine);
+        this.write(this.prefixFirstValueAtLine);
       }
       break;
       case MODE_VALUES:
@@ -432,7 +432,7 @@ public class JBBPTextWriter extends FilterWriter {
   }
 
   /**
-   * Write current indent to line as bunch of spaces.
+   * Write current indent to line as a bunch of spaces.
    *
    * @throws IOException it will be thrown for transport errors
    */
@@ -669,7 +669,7 @@ public class JBBPTextWriter extends FilterWriter {
    * @return the context
    */
   public final JBBPTextWriter SetValueLinePrefix(final String text) {
-    this.prefixFirtValueAtLine = text == null ? "" : text;
+    this.prefixFirstValueAtLine = text == null ? "" : text;
     return this;
   }
 

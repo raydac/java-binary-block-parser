@@ -20,7 +20,7 @@ import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
- * Describes a unsigned short array.
+ * Describes an unsigned short array.
  *
  * @since 1.0
  */

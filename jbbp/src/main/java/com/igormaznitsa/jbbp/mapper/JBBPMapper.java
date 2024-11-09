@@ -58,7 +58,7 @@ public final class JBBPMapper {
    *
    * @param <T>           the mapping class type
    * @param root          a parsed structure to be used as the root, must not be null
-   * @param structPath    the path of a structure inside of the root to be mapped
+   * @param structPath    the path of a structure inside the root to be mapped
    *                      to the class, must not be null
    * @param instance      object to be filled by values, must not be null
    * @param instantiators functions to produce class instance by request, must not be null
@@ -78,7 +78,7 @@ public final class JBBPMapper {
    *
    * @param <T>           the mapping class type
    * @param root          a parsed structure to be used as the root, must not be null
-   * @param structPath    the path of a structure inside of the root to be mapped
+   * @param structPath    the path of a structure inside the root to be mapped
    *                      to the class, must not be null
    * @param instance      object to be filled by values, must not be null
    * @param flags         special flags to tune mapping process
@@ -101,7 +101,7 @@ public final class JBBPMapper {
    *
    * @param <T>                  the mapping class type
    * @param root                 a parsed structure to be used as the root, must not be null
-   * @param structPath           the path of a structure inside of the root to be mapped
+   * @param structPath           the path of a structure inside the root to be mapped
    *                             to the class, must not be null
    * @param instance             instance to be filled by values, must not be null
    * @param customFieldProcessor a custom field processor to provide custom
@@ -126,7 +126,7 @@ public final class JBBPMapper {
    *
    * @param <T>                  the mapping class type
    * @param root                 a parsed structure to be used as the root, must not be null
-   * @param structPath           the path of a structure inside of the root to be mapped
+   * @param structPath           the path of a structure inside the root to be mapped
    *                             to the class, must not be null
    * @param instance             object to be filled by values, must not be null
    * @param customFieldProcessor a custom field processor to provide custom

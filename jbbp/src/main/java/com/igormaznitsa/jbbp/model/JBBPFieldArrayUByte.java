@@ -19,7 +19,7 @@ package com.igormaznitsa.jbbp.model;
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 
 /**
- * Describes a unsigned byte array.
+ * Describes an unsigned byte array.
  *
  * @since 1.0
  */

@@ -138,7 +138,7 @@ public final class JBBPParser {
    *
    * @param source                   the source script to parse binary blocks and streams, must
    *                                 not be null
-   * @param bitOrder                 the bit order for bit reading operations, must not be null
+   * @param bitOrder                 the bit order for a bit reading operations, must not be null
    * @param customFieldTypeProcessor custom field type processor for the parser instance, it can be null
    * @param flags                    special flags for parsing process
    * @see #FLAG_SKIP_REMAINING_FIELDS_IF_EOF
@@ -185,7 +185,7 @@ public final class JBBPParser {
   }
 
   /**
-   * Prepare a parser for a script with defined bit order and special flags.
+   * Prepare a parser for a script with defined a bit order and special flags.
    *
    * @param script   a text script contains field order and types reference, it
    *                 must not be null
@@ -203,7 +203,7 @@ public final class JBBPParser {
   }
 
   /**
-   * Prepare a parser for a script with defined bit order and special flags.
+   * Prepare a parser for a script with defined a bit order and special flags.
    *
    * @param script                   a text script contains field order and types reference, it
    *                                 must not be null
@@ -297,7 +297,7 @@ public final class JBBPParser {
    * @param inStream                      the input stream, must not be null
    * @param positionAtCompiledBlock       the current position in the compiled script
    *                                      block
-   * @param varFieldProcessor             a processor to process var fields, it can be null
+   * @param varFieldProcessor             a processor to process var fields, it can be null,
    *                                      but it will thrown NPE if a var field is met
    * @param namedNumericFieldMap          the named numeric field map
    * @param positionAtNamedFieldList      the current position at the named field

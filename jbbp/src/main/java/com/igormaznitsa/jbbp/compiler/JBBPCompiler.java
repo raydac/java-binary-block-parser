@@ -114,12 +114,12 @@ public final class JBBPCompiler {
    */
   public static final int FLAG_NAMED = 0x10;
   /**
-   * The Byte-Code Flag shows that the field is an array but it must be omitted
+   * The Byte-Code Flag shows that the field is an array, but it must be omitted
    * for unlimited field arrays.
    */
   public static final int FLAG_ARRAY = 0x20;
   /**
-   * The Byte-Code Flag shows that a multi-byte field must be decoded as
+   * The Byte-Code Flag shows that a multibyte field must be decoded as
    * Little-endian one.
    */
   public static final int FLAG_LITTLE_ENDIAN = 0x40;
@@ -726,7 +726,7 @@ public final class JBBPCompiler {
      *                             start
      * @param startStructureOffset the offset of the start structure byte-code
      *                             instruction
-     * @param arrayToReadTillEnd   if true then it is array to read till end
+     * @param arrayToReadTillEnd   if true then it is an array to read till end
      * @param code                 the start byte code
      * @param token                the token
      */

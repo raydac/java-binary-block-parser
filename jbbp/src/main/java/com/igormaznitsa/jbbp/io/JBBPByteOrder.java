@@ -17,7 +17,7 @@
 package com.igormaznitsa.jbbp.io;
 
 /**
- * Constants define byte order for multi-byte values to be read or written into streams.
+ * Constants define byte order for multibyte values to be read or written into streams.
  *
  * @since 1.0
  */

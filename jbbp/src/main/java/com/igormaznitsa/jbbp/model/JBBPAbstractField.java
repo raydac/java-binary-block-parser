@@ -35,7 +35,7 @@ public abstract class JBBPAbstractField implements Serializable, JBBPNamedField 
 
   /**
    * The Variable can hold some payload. It is not used by JBBP and can be used
-   * without restrictions. By default it is null. The Field is not thread safe.
+   * without restrictions. By default, it is null. The Field is not thread safe.
    *
    * @since 1.2.0
    */

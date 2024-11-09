@@ -20,7 +20,7 @@ import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 
 /**
- * Describes a unsigned byte value field.
+ * Describes an unsigned byte value field.
  *
  * @since 1.0
  */

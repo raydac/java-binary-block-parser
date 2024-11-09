@@ -17,7 +17,7 @@
 package com.igormaznitsa.jbbp.io;
 
 /**
- * Constants for bit order of reading operations.
+ * Constants for a bit order of reading operations.
  *
  * @since 1.0
  */

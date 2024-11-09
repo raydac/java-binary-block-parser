@@ -62,11 +62,11 @@ public class JBBPOut extends AbstractMappedClassFieldObserver {
    */
   private boolean processCommands = true;
   /**
-   * The Byte outOrder for operations of multi-byte value output.
+   * The Byte outOrder for operations of multibyte value output.
    */
   private JBBPByteOrder byteOrder;
   /**
-   * The Flags shows that the processing has been ended.
+   * The Flags show that the processing has been ended.
    */
   private boolean ended;
 
@@ -308,7 +308,7 @@ public class JBBPOut extends AbstractMappedClassFieldObserver {
   }
 
   /**
-   * Write lowest bits of bytes from an array.
+   * Write the lowest bits of bytes from an array.
    *
    * @param value a byte array, lowest bit of each byte will be saved as a bit
    *              into the output stream, it must not be null
@@ -327,7 +327,7 @@ public class JBBPOut extends AbstractMappedClassFieldObserver {
   }
 
   /**
-   * Write lowest bits of integers from an array.
+   * Write the lowest bits of integers from an array.
    *
    * @param value an integer array, lowest bit of each integer value will be
    *              saved as a bit into the output stream, it must not be null
@@ -349,7 +349,7 @@ public class JBBPOut extends AbstractMappedClassFieldObserver {
    * Write bits represented as boolean flags into the output stream.
    *
    * @param value a boolean array which values will be saved into the output
-   *              stream as bits, true is bit on, false is bit off. It must not be null
+   *              stream as bits, true is a bit on, false is bit off. It must not be null
    * @return the DSL session.
    * @throws IOException it will be thrown for transport errors
    */
@@ -1017,7 +1017,7 @@ public class JBBPOut extends AbstractMappedClassFieldObserver {
 
   /**
    * Save fields of an object marked by Bin annotation. Fields will be ordered
-   * through {@link Bin#order()} field, NB! By default Java doesn't keep field
+   * through {@link Bin#order()} field, NB! By default, Java doesn't keep field
    * outOrder. Ordered fields of class will be saved into internal cache for speed
    * but the cache can be reset through {@link JBBPMapper#clearFieldCache()}
    * <b>Warning!</b> it doesn't affect byte order provided in Bin annotations of object.
@@ -1036,7 +1036,7 @@ public class JBBPOut extends AbstractMappedClassFieldObserver {
 
   /**
    * Save fields of an object marked by Bin annotation. Fields will be ordered
-   * through {@link Bin#order()} field, NB! By default Java doesn't keep field
+   * through {@link Bin#order()} field, NB! By default, Java doesn't keep field
    * outOrder. Ordered fields of class will be saved into internal cache for speed
    * but the cache can be reset through {@link JBBPMapper#clearFieldCache()}
    * <b>Warning!</b> it doesn't affect byte order provided in Bin annotations of object.
@@ -1056,7 +1056,7 @@ public class JBBPOut extends AbstractMappedClassFieldObserver {
 
   /**
    * Save fields of an object marked by Bin annotation. Fields will be ordered
-   * through {@link Bin#order()} field, NB! By default Java doesn't keep field
+   * through {@link Bin#order()} field, NB! By default, Java doesn't keep field
    * outOrder. Ordered fields of class will be saved into internal cache for speed
    * but the cache can be reset through {@link JBBPMapper#clearFieldCache()}
    * <b>Warning!</b> it doesn't affect byte order provided in Bin annotations of object.
@@ -1076,7 +1076,7 @@ public class JBBPOut extends AbstractMappedClassFieldObserver {
 
   /**
    * Save fields of an object marked by Bin annotation. Fields will be ordered
-   * through {@link Bin#order()} field, NB! By default Java doesn't keep field
+   * through {@link Bin#order()} field, NB! By default, Java doesn't keep field
    * outOrder. Ordered fields of class will be saved into internal cache for speed
    * but the cache can be reset through {@link JBBPMapper#clearFieldCache()}
    * <b>Warning!</b> it doesn't affect byte order provided in Bin annotations of object.
@@ -1096,7 +1096,7 @@ public class JBBPOut extends AbstractMappedClassFieldObserver {
   }
 
   /**
-   * Save fields of object but bin annotation wrapper can be provided to replace some annnotation field values in <b>all</b> field annotations.
+   * Save fields of object but bin annotation wrapper can be provided to replace some annotation field values in <b>all</b> field annotations.
    *
    * @param object               an object to be saved into stream, must not be null
    * @param binAnnotationWrapper wrapper for all bin annotations, can be null
@@ -1112,7 +1112,7 @@ public class JBBPOut extends AbstractMappedClassFieldObserver {
   }
 
   /**
-   * Save fields of object but bin annotation wrapper can be provided to replace some annnotation field values in <b>all</b> field annotations.
+   * Save fields of object but bin annotation wrapper can be provided to replace some annotation field values in <b>all</b> field annotations.
    *
    * @param object               an object to be saved into stream, must not be null
    * @param binAnnotationWrapper wrapper for all bin annotations, can be null

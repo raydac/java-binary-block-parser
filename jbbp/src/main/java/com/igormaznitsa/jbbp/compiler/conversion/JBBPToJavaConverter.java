@@ -1689,7 +1689,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
     /**
      * Disable generate fields, useful if some super class extended and its
      * fields should be used instead of generated ones. If disable then all code
-     * will be generated but without class fields. By default field generate is
+     * will be generated but without class fields. By default, field generate is
      * enabled.
      *
      * @return the builder instance, must not be null
@@ -1701,7 +1701,7 @@ public final class JBBPToJavaConverter extends CompiledBlockVisitor {
     }
 
     /**
-     * Build converter with provided parameters. NB! It locks builder parameters
+     * Build converter with provided parameters. NB! It locks builder parameters,
      * and they can't be changed in future.
      *
      * @return a converter instance.

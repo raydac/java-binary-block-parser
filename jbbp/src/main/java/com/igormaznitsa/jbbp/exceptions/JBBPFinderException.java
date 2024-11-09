@@ -32,7 +32,7 @@ public class JBBPFinderException extends JBBPException {
   private final String nameOrPath;
 
   /**
-   * The Field type of a field to be searched. It may contain null.
+   * The Field type of field to be searched. It may contain null.
    */
   private final Class<? extends JBBPAbstractField> fieldType;
 

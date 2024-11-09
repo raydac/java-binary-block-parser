@@ -252,7 +252,7 @@ public class CompiledBlockVisitor {
    * @param primitiveType          the primitive type
    * @param nullableNameFieldInfo  field info, null if the field is anonymous one
    * @param byteOrder              byte order for the field, must not be null
-   * @param readWholeStreamAsArray if true then it is array with unknown size till the stream end
+   * @param readWholeStreamAsArray if true then it is an array with unknown size till the stream end
    * @param altFieldType           flag shows that field type is alternative one, INT should be recognized as FLOAT and LONG as DOUBLE and BOOL as STRING
    * @param nullableArraySize      array size if the field is array, null if the field is not array or variable length array
    * @see JBBPCompiler#CODE_BYTE
