@@ -47,37 +47,40 @@ public class JBBPUtilsTest {
 
   @Test
   public void testFindMaxStaticArraySize() {
-    assertEquals(0, findMaxStaticArraySize("byte [_] a;", null));
-    assertEquals(1, findMaxStaticArraySize("byte [1] a;", null));
-    assertEquals(0, findMaxStaticArraySize("byte a; byte [a] b;", null));
-    assertEquals(112, findMaxStaticArraySize("byte a; byte [a] b; int [112];", null));
-    assertEquals(1120,
+    assertEquals(0L, findMaxStaticArraySize("byte [_] a;", null));
+    assertEquals(1L, findMaxStaticArraySize("byte [1] a;", null));
+    assertEquals(0L, findMaxStaticArraySize("byte a; byte [a] b;", null));
+    assertEquals(112L, findMaxStaticArraySize("byte a; byte [a] b; int [112];", null));
+    assertEquals(1120L,
         findMaxStaticArraySize("byte a; byte [a] b; some [10] { int [112]; }", null));
-    assertEquals(10230,
+    assertEquals(10230L,
         findMaxStaticArraySize("byte a; byte [a] b; some [10] { int [112]; byte [1023] d;}",
             null));
-    assertEquals(10230, findMaxStaticArraySize(
+    assertEquals(10230L, findMaxStaticArraySize(
         "byte a; byte [a] b; some [10] { int [112]; j [_] {byte [1023] d;}}", null));
-    assertEquals(65535, findMaxStaticArraySize("a [1]{ b[1]{ c[_]{byte[65535] a;}}}", null));
-    assertEquals(65535,
+    assertEquals(65535L, findMaxStaticArraySize("a [1]{ b[1]{ c[_]{byte[65535] a;}}}", null));
+    assertEquals(65535L,
         findMaxStaticArraySize("a [1]{ b[1]{ c[_]{int [128] l; var[65535] a;}}}", null));
-    assertEquals(65535,
+    assertEquals(65535L,
         findMaxStaticArraySize("a [1]{ b[1]{ c[_]{int [128] l; var[65535] a;}}}", null));
-    assertEquals(65535,
+    assertEquals(65535L,
         findMaxStaticArraySize("a [1]{ b[1]{ c[_]{int [128] l; stringj[65535] a;}}}", null));
-    assertEquals(65535,
+    assertEquals(65535L,
         findMaxStaticArraySize("a [1]{ b[1]{ c[_]{int [128] l; floatj[65535] a;}}}", null));
-    assertEquals(273948,
+    assertEquals(273948L,
         findMaxStaticArraySize(
             "a [1]{ b[1]{ c[_]{int [128] l; str [222] { ubyte [1234] p; } doublej[65535] a;}}}",
             null));
-    assertEquals(273948,
+    assertEquals(273948L,
         findMaxStaticArraySize(
             "a [1]{ b[1]{ c[_]{int [128] l; str [222] { bit:3 [1234] p; } doublej[65535] a;}}}",
             null));
-    assertEquals(65535,
+    assertEquals(65535L,
         findMaxStaticArraySize(
             "a [1]{ b[1]{ c[_]{int [128] l; str [222] { val:3 p; } doublej[65535] a;}}}", null));
+    assertEquals(288217182213504000L,
+        findMaxStaticArraySize(
+            "a [65535] { b [65535] { c [65535] { byte [1024]d; }}}", null));
     assertEquals(65535, findMaxStaticArraySize(
         "a [1]{ b[1]{ lala [65534] { long s; } c[1]{int [128] l; cus[65535] a;}}}",
         new JBBPCustomFieldTypeProcessor() {
@@ -103,7 +106,8 @@ public class JBBPUtilsTest {
           }
         }));
     assertThrows(ArithmeticException.class,
-        () -> findMaxStaticArraySize("a [_]{ b[65535]{ c[65535]{byte[65535] a;}}}", null));
+        () -> findMaxStaticArraySize(
+            "a [_]{ b[65535]{ c[65535]{byte[65535] { byte [10000000] d;}}}}", null));
   }
 
   @Test

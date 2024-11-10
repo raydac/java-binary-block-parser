@@ -39,7 +39,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Misc auxiliary methods to be used in the framework.
@@ -1135,13 +1135,13 @@ public final class JBBPUtils {
    *
    * @param script                   script to be processed, must not be null
    * @param customFieldTypeProcessor custom field type processor if needed, can be null if no custom types in use
-   * @return detected biggest static array size with embedded structure awareness
+   * @return calculated biggest static array size with embedded structure awareness
    * @since 3.0.0
    */
-  public static int findMaxStaticArraySize(final String script,
+  public static long findMaxStaticArraySize(final String script,
                                            final JBBPCustomFieldTypeProcessor customFieldTypeProcessor) {
 
-    final AtomicInteger maxFound = new AtomicInteger(0);
+    final AtomicLong maxFound = new AtomicLong();
     final JBBPCompiledBlock compiledBlock =
         JBBPParser.prepare(script, customFieldTypeProcessor).getCompiledBlock();
     final List<Integer> structSizeStack = new ArrayList<>();
@@ -1157,7 +1157,7 @@ public final class JBBPUtils {
       }
 
       private void processSize(final int size) {
-        int accum = size;
+        long accum = size;
         for (Integer i : structSizeStack) {
           accum = Math.multiplyExact(accum, i);
         }
