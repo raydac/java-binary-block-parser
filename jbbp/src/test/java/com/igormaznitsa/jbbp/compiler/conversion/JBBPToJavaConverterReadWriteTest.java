@@ -20,12 +20,13 @@ import static com.igormaznitsa.jbbp.TestUtils.assertPngChunk;
 import static com.igormaznitsa.jbbp.TestUtils.getField;
 import static com.igormaznitsa.jbbp.TestUtils.getFieldThroughGetters;
 import static com.igormaznitsa.jbbp.TestUtils.wavInt2Str;
+import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.igormaznitsa.jbbp.JBBPCustomFieldTypeProcessor;
@@ -45,7 +46,6 @@ import com.igormaznitsa.jbbp.testaux.AbstractJBBPToJavaConverterTest;
 import com.igormaznitsa.jbbp.utils.ReflectUtils;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,8 +58,8 @@ import org.junit.jupiter.api.Test;
 public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverterTest {
 
   private byte[] loadResource(final String name) throws Exception {
-    try (final InputStream result = this.getClass().getClassLoader()
-        .getResourceAsStream("com/igormaznitsa/jbbp/it/" + name)) {
+    try (final InputStream result = requireNonNull(this.getClass().getClassLoader()
+        .getResourceAsStream("com/igormaznitsa/jbbp/it/" + name))) {
       return IOUtils.toByteArray(result);
     }
   }
@@ -111,7 +111,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
     final ClassLoader classLoader = saveAndCompile(new JavaClassContent(fullClassName, text));
 
     final Object instance = ReflectUtils.newInstance(classLoader.loadClass(fullClassName));
-    assertTrue(instance instanceof TestSuperclass);
+    assertInstanceOf(TestSuperclass.class, instance);
 
     final byte[] etalon = new byte[] {
         0,
@@ -206,7 +206,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
   }
 
   @Test
-  public void testReadWite_ByteArrayWholeStream() throws Exception {
+  public void testReadWrite_ByteArrayWholeStream() throws Exception {
     final Object instance = compileAndMakeInstance("byte [_] byteArray;");
     assertNull(getField(instance, "bytearray", byte[].class), "by default must be null");
 
@@ -219,7 +219,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
   }
 
   @Test
-  public void testReadWite_Float_SingleValue() throws Exception {
+  public void testReadWrite_Float_SingleValue() throws Exception {
     final Object instance = compileAndMakeInstance("floatj value;");
     final byte[] etalon = new byte[] {1, 2, 3, 4};
 
@@ -231,7 +231,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
   }
 
   @Test
-  public void testReadWite_FloatArrayWholeStream() throws Exception {
+  public void testReadWrite_FloatArrayWholeStream() throws Exception {
     final Object instance = compileAndMakeInstance("floatj [_] floatArray;");
     assertNull(getField(instance, "floatarray", float[].class), "by default must be null");
 
@@ -245,7 +245,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
   }
 
   @Test
-  public void testReadWite_String_SingleValue() throws Exception {
+  public void testReadWrite_String_SingleValue() throws Exception {
     final Object instance = compileAndMakeInstance("stringj value;");
     final byte[] etalon = new byte[] {3, 65, 66, 67};
 
@@ -256,7 +256,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
   }
 
   @Test
-  public void testReadWite_Val_CalculatedLength() throws Exception {
+  public void testReadWrite_Val_CalculatedLength() throws Exception {
     final Object instance =
         compileAndMakeInstance("ubyte a; ubyte b; val:(a-b) c; val:(c+8) d; byte [d] data;");
     final byte[] etalon = new byte[] {2, 8, 33, 44};
@@ -268,7 +268,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
   }
 
   @Test
-  public void testReadWite_Bit_SingleValueWhichLengthCalclatedThrouhExpression() throws Exception {
+  public void testReadWrite_Bit_SingleValueWhichLengthCalclatedThrouhExpression() throws Exception {
     final Object instance = compileAndMakeInstance("ubyte a; ubyte b; bit:(a+b) c;");
     final byte[] etalon = new byte[] {1, 2, (byte) 0xB4};
 
@@ -279,7 +279,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
   }
 
   @Test
-  public void testReadWite_StringArrayWholeStream() throws Exception {
+  public void testReadWrite_StringArrayWholeStream() throws Exception {
     final Object instance = compileAndMakeInstance("stringj [_] strArray;");
     assertNull(getField(instance, "strarray", String[].class), "by default must be null");
 
@@ -293,7 +293,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
   }
 
   @Test
-  public void testReadWite_Double_SingleValue() throws Exception {
+  public void testReadWrite_Double_SingleValue() throws Exception {
     final Object instance = compileAndMakeInstance("doublej value;");
     final byte[] etalon = new byte[] {1, 2, 3, 4, 5, 6, 7, 8};
 
@@ -305,7 +305,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
   }
 
   @Test
-  public void testReadWite_UInt_SingleValue() throws Exception {
+  public void testReadWrite_UInt_SingleValue() throws Exception {
     final Object instance = compileAndMakeInstance("uint value;");
     final byte[] etalon = new byte[] {(byte) 0xFF, 2, 3, 4};
 
@@ -316,7 +316,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
   }
 
   @Test
-  public void testReadWite_DoubleArrayWholeStream() throws Exception {
+  public void testReadWrite_DoubleArrayWholeStream() throws Exception {
     final Object instance = compileAndMakeInstance("doublej [_] doubleArray;");
     assertNull(getField(instance, "doublearray", double[].class), "by default must be null");
 
@@ -333,7 +333,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
   }
 
   @Test
-  public void testReadWite_UIntArrayWholeStream() throws Exception {
+  public void testReadWrite_UIntArrayWholeStream() throws Exception {
     final Object instance = compileAndMakeInstance("uint [_] uintArray;");
     assertNull(getField(instance, "uintarray", long[].class), "by default must be null");
 
@@ -349,7 +349,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
   }
 
   @Test
-  public void testReadWite_BitArrayWholeStream() throws Exception {
+  public void testReadWrite_BitArrayWholeStream() throws Exception {
     final Object instance = compileAndMakeInstance("bit [_] bitArray;");
     assertNull(getField(instance, "bitarray", byte[].class), "by default must be null");
 
@@ -363,7 +363,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
   }
 
   @Test
-  public void testReadWite_FloatFieldAsCounter() throws Exception {
+  public void testReadWrite_FloatFieldAsCounter() throws Exception {
     final Object instance = compileAndMakeInstance("floatj len; byte [len] data;");
     assertNull(getField(instance, "data", byte[].class), "by default must be null");
 
@@ -377,7 +377,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
   }
 
   @Test
-  public void testReadWite_FloatFieldAsCounter_Expression() throws Exception {
+  public void testReadWrite_FloatFieldAsCounter_Expression() throws Exception {
     final Object instance = compileAndMakeInstance("floatj len; byte [len/2] data;");
     assertNull(getField(instance, "data", byte[].class), "by default must be null");
 
@@ -391,7 +391,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
   }
 
   @Test
-  public void testReadWite_DoubleFloatFieldAsCounter() throws Exception {
+  public void testReadWrite_DoubleFloatFieldAsCounter() throws Exception {
     final Object instance = compileAndMakeInstance("doublej len; byte [len] data;");
     assertNull(getField(instance, "data", byte[].class), "by default must be null");
 
@@ -406,7 +406,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
   }
 
   @Test
-  public void testReadWite_DoubleFloatFieldAsCounter_Expression() throws Exception {
+  public void testReadWrite_DoubleFloatFieldAsCounter_Expression() throws Exception {
     final Object instance = compileAndMakeInstance("doublej len; byte [len/2] data;");
     assertNull(getField(instance, "data", byte[].class), "by default must be null");
 
@@ -447,7 +447,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
   }
 
   @Test
-  public void testReadWite_PNG() throws Exception {
+  public void testReadWrite_PNG() throws Exception {
     final Object instance = compileAndMakeInstance("long header;"
         + "// chunks\n"
         + "chunk [_]{"
@@ -478,7 +478,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
   }
 
   @Test
-  public void testReadWite_WAV() throws Exception {
+  public void testReadWrite_WAV() throws Exception {
     final Object instance = compileAndMakeInstance("<int ChunkID;"
         + "<int ChunkSize;"
         + "<int Format;"
@@ -723,8 +723,7 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
                                                        JBBPFieldTypeParameterContainer customTypeFieldInfo,
                                                        JBBPNamedFieldInfo fieldName, int extraData,
                                                        boolean readWholeStream, int arrayLength,
-                                                       JBBPArraySizeLimiter arraySizeLimiter)
-              throws IOException {
+                                                       JBBPArraySizeLimiter arraySizeLimiter) {
             fail("Must not be called");
             return null;
           }
@@ -736,7 +735,6 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
                 + "import com.igormaznitsa.jbbp.compiler.tokenizer.*;\n"
                 + "import java.io.IOException;\n"
                 + "import java.util.*;\n"
-                + ""
                 + "public class CustomFieldParser extends " + PACKAGE_NAME + '.' + CLASS_NAME + "{"
                 +
                 " private int readThree(JBBPBitInputStream in, JBBPByteOrder byteOrder) throws IOException {"
@@ -837,7 +835,6 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
                 + "import com.igormaznitsa.jbbp.compiler.tokenizer.*;\n"
                 + "import java.io.IOException;\n"
                 + "import java.util.*;\n"
-                + ""
                 + "public class VarFieldParser extends " + PACKAGE_NAME + '.' + CLASS_NAME + "{"
                 +
                 " private int readThree(JBBPBitInputStream in, JBBPByteOrder byteOrder) throws IOException {"
