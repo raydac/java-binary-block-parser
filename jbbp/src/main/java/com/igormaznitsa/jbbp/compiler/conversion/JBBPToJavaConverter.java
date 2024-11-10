@@ -55,7 +55,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since 1.3.0
  */
 @SuppressWarnings("SpellCheckingInspection")
-public final class JBBPToJavaConverter extends CompiledBlockVisitor {
+public class JBBPToJavaConverter extends CompiledBlockVisitor {
 
   private static final int FLAG_DETECTED_CUSTOM_FIELDS = 1;
   private static final int FLAG_DETECTED_EXTERNAL_FIELDS = 2;
