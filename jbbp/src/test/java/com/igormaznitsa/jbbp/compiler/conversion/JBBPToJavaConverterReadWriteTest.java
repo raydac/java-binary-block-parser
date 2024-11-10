@@ -307,11 +307,11 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
   @Test
   public void testReadWite_UInt_SingleValue() throws Exception {
     final Object instance = compileAndMakeInstance("uint value;");
-    final byte[] etalon = new byte[] {1, 2, 3, 4};
+    final byte[] etalon = new byte[] {(byte) 0xFF, 2, 3, 4};
 
     callRead(instance, etalon.clone());
 
-    assertEquals(0x01020304L, getField(instance, "value", Long.class).longValue());
+    assertEquals(0xFF020304L, getField(instance, "value", Long.class).longValue());
     assertArrayEquals(etalon, callWrite(instance));
   }
 
@@ -338,12 +338,12 @@ public class JBBPToJavaConverterReadWriteTest extends AbstractJBBPToJavaConverte
     assertNull(getField(instance, "uintarray", long[].class), "by default must be null");
 
     final byte[] etalon =
-        new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 22, 33};
+        new byte[] {(byte) 0xFF, 2, 3, 4, 5, 6, 7, 8, 9, 0, 22, 33};
 
     callRead(instance, etalon.clone());
 
     assertArrayEquals(
-        new long[] {0x01020304L, 0x05060708L, 0x09001621L},
+        new long[] {0xFF020304L, 0x05060708L, 0x09001621L},
         getField(instance, "uintarray", long[].class));
     assertArrayEquals(etalon, callWrite(instance));
   }
