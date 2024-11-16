@@ -18,12 +18,13 @@ that for Java. So I developed the JBBP library.<br>
 # Change log
 
 - __3.0.0 (16-nov-2024)__
-- __minimal JDK version lifted up to 11.0__
-- __minimal supported Android lifted up to 12 (API 32)__
-- changes in CompiledBlockVisitor API
-- added JBBPUtils#findMaxStaticArraySize to calculate biggest static array size provided by a JBBP script
-- opened some internal API
-- refactoring
+- __Minimum JDK Version: Updated to 11.0.__
+- __Minimum Supported Android: Updated to 12 (API 32).__
+- __API Changes: Modifications made to the CompiledBlockVisitor API.
+- __New Feature:__ Added `JBBPUtils#findMaxStaticArraySize` for calculating the largest static array size defined in a
+  JBBP script.
+- __Internal API:__ Certain internal APIs have been opened.
+- __Codebase Improvements:__ General refactoring performed.
 
 - __2.1.0 (05-nov-2024)__
   - minor changes in API for `JBBPVarFieldProcessor` and `JBBPCustomFieldTypeProcessor`

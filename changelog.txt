@@ -1,10 +1,10 @@
 3.0.0 (16-nov-2024)
- - minimal JDK version lifted up to 11.0
- - minimal supported Android lifted up to 12 (API 32)
- - changes in CompiledBlockVisitor API
- - added JBBPUtils#findMaxStaticArraySize to calculate biggest static array size provided by a JBBP script
- - opened some internal API
- - refactoring
+ - Minimum JDK Version: Updated to 11.0.
+ - Minimum Supported Android: Updated to 12 (API 32).
+ - API Changes: Modifications made to the CompiledBlockVisitor API.
+ - New Feature: Added `JBBPUtils#findMaxStaticArraySize` for calculating the largest static array size defined in a JBBP script.
+ - Internal API: Certain internal APIs have been opened.
+ - Codebase Improvements: General refactoring performed.
 
 2.1.0 (05-nov-2024)
  - minor changes in API for JBBPVarFieldProcessor and JBBPCustomFieldTypeProcessor
