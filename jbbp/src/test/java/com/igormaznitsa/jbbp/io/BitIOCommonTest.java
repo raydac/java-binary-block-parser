@@ -48,16 +48,16 @@ public class BitIOCommonTest {
       outLittl.close();
 
       final byte[] writtenBig = buffBig.toByteArray();
-      final byte[] writtenLittl = buffLittl.toByteArray();
+      final byte[] writtenLittle = buffLittl.toByteArray();
 
       final String restoredBig = new JBBPBitInputStream(new ByteArrayInputStream(writtenBig))
           .readString(JBBPByteOrder.BIG_ENDIAN);
-      final String restoredLittl = new JBBPBitInputStream(new ByteArrayInputStream(writtenLittl))
+      final String restoredLittle = new JBBPBitInputStream(new ByteArrayInputStream(writtenLittle))
           .readString(JBBPByteOrder.LITTLE_ENDIAN);
 
 
       assertEquals(text, restoredBig, "Iteration#" + i);
-      assertEquals(text, restoredLittl, "Iteration#" + i);
+      assertEquals(text, restoredLittle, "Iteration#" + i);
 
       buffer.append((char) ('A' + rnd.nextInt(11)));
       buffer.append((char) ('Б' + rnd.nextInt(22)));

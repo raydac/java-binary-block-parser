@@ -525,17 +525,17 @@ public class JBBPUtilsTest {
   }
 
   @Test
-  public void testReverdeByteOrder_ErrorForZeroByteNumber() {
+  public void testReverseByteOrder_ErrorForZeroByteNumber() {
     assertThrows(IllegalArgumentException.class, () -> JBBPUtils.reverseByteOrder(1234, 0));
   }
 
   @Test
-  public void testReverdeByteOrder_ErrorForTooBigByteNumber() {
+  public void testReverseByteOrder_ErrorForTooBigByteNumber() {
     assertThrows(IllegalArgumentException.class, () -> JBBPUtils.reverseByteOrder(1234, 9));
   }
 
   @Test
-  public void testReverdeByteOrder() {
+  public void testReverseByteOrder() {
     assertEquals(0x0000000000000012L, JBBPUtils.reverseByteOrder(0x0000000000000012L, 1));
     assertEquals(0x0000000000003412L, JBBPUtils.reverseByteOrder(0x0000000000001234L, 2));
     assertEquals(0x0000000000563412L, JBBPUtils.reverseByteOrder(0x0000000000123456L, 3));

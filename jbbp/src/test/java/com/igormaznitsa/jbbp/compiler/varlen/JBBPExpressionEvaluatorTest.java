@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-
 import com.igormaznitsa.jbbp.JBBPNamedNumericFieldMap;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiledBlock;
 import com.igormaznitsa.jbbp.compiler.JBBPCompiler;
@@ -205,7 +204,7 @@ public class JBBPExpressionEvaluatorTest {
   }
 
   @Test
-  public void testExpression_MustNotThrowStackOverfow() throws Exception {
+  public void testExpression_MustNotThrowStackOverflow() throws Exception {
     JBBPExpressionEvaluator expr = new JBBPExpressionEvaluator(
         "1+(2+(3+(4+(5+(6+(7+(8+(9+(10+(11+(12+(13+(14+(15+(16+(17+(18+(19+(20*2)))))))))))))))))))",
         null, null);
