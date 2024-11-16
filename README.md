@@ -20,7 +20,7 @@ that for Java. So I developed the JBBP library.<br>
 - __3.0.0 (16-nov-2024)__
   - __Minimum JDK Version: Updated to 11.0.__
   - __Minimum Supported Android: Updated to 12 (API 32).__
-  - __API Changes: Modifications made to the CompiledBlockVisitor API.
+  - __API Changes:__ Modifications made to the CompiledBlockVisitor API.
   - __New Feature:__ Added `JBBPUtils#findMaxStaticArraySize` for calculating the largest static array size defined in a
     JBBP script.
   - __Internal API:__ Certain internal APIs have been opened.
