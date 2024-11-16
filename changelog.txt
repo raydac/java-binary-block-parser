@@ -1,4 +1,4 @@
-3.0.0 (SNAPSHOT)
+3.0.0 (16-nov-2024)
  - minimal JDK version lifted up to 11.0
  - minimal supported Android lifted up to 12 (API 32)
  - changes in CompiledBlockVisitor API

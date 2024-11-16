@@ -2,8 +2,8 @@
 
 [![License Apache 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-green.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.igormaznitsa/jbbp/badge.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|jbbp|2.1.0|jar)
-[![Java 1.8+](https://img.shields.io/badge/java-1.8%2b-green.svg)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
-[![Android 3.0+](https://img.shields.io/badge/android-3.0%2b-green.svg)](http://developer.android.com/sdk/index.html)
+[![Java 11+](https://img.shields.io/badge/java-11%2b-green.svg)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+[![Android 12+](https://img.shields.io/badge/android-12%2b-green.svg)](http://developer.android.com/sdk/index.html)
 [![PayPal donation](https://img.shields.io/badge/donation-PayPal-cyan.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=AHWJHJFBAWGL2)
 [![YooMoney donation](https://img.shields.io/badge/donation-Yoo.money-blue.svg)](https://yoomoney.ru/to/41001158080699)
 
@@ -17,7 +17,7 @@ that for Java. So I developed the JBBP library.<br>
 
 # Change log
 
-- __3.0.0 (SNAPSHOT)__
+- __3.0.0 (16-nov-2024)__
 - __minimal JDK version lifted up to 11.0__
 - __minimal supported Android lifted up to 12 (API 32)__
 - changes in CompiledBlockVisitor API
@@ -43,12 +43,12 @@ The Framework has been published in the Maven Central and can be easily added as
 <dependency>
   <groupId>com.igormaznitsa</groupId>
   <artifactId>jbbp</artifactId>
-  <version>2.1.0</version>
+  <version>3.0.0</version>
 </dependency>
 ```
 
 the precompiled library jar, javadoc and sources also can be downloaded directly
-from [the Maven central.](https://search.maven.org/artifact/com.igormaznitsa/jbbp/2.1.0/jar)
+from [the Maven central.](https://search.maven.org/artifact/com.igormaznitsa/jbbp/3.0.0/jar)
 
 # Hello world
 
@@ -121,7 +121,7 @@ in Maven it can be used through snippet:
 <plugin>
   <groupId>com.igormaznitsa</groupId>
   <artifactId>jbbp-maven-plugin</artifactId>
-  <version>2.1.0</version>
+  <version>3.0.0</version>
   <executions>
     <execution>
       <id>gen-jbbp-src</id>
