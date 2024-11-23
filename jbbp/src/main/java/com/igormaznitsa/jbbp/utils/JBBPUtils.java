@@ -40,6 +40,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiFunction;
 
 /**
  * Misc auxiliary methods to be used in the framework.
@@ -1132,6 +1133,7 @@ public final class JBBPUtils {
 
   /**
    * Allows to calculate maximum static array size provided by script. It doesn't calculate any expressions, so that <b>byte [1000*1000] a;</b> will not be detected.
+   * <b>Default size of non-static struct arrays will be recognized as 1.</b>
    *
    * @param script                   script to be processed, must not be null
    * @param customFieldTypeProcessor custom field type processor if needed, can be null if no custom types in use
@@ -1139,7 +1141,24 @@ public final class JBBPUtils {
    * @since 3.0.0
    */
   public static long findMaxStaticArraySize(final String script,
-                                           final JBBPCustomFieldTypeProcessor customFieldTypeProcessor) {
+                                            final JBBPCustomFieldTypeProcessor customFieldTypeProcessor) {
+    return findMaxStaticArraySize(script, customFieldTypeProcessor, (fieldName, wholeStream) -> 1);
+  }
+
+  /**
+   * Allows to calculate maximum static array size provided by script. It doesn't calculate any expressions, so that <b>byte [1000*1000] a;</b> will not be detected.
+   *
+   * @param script                          script to be processed, must not be null
+   * @param customFieldTypeProcessor        custom field type processor if needed, can be null if no custom types in use
+   * @param expectedStructArraySizeSupplier supplier of default size for structures which size is noe static but calculable,
+   *                                        it is a function which gets name info for named structure fields or null for anonymous fields
+   *                                        and the flag that a whole stream should be read, as result it should return integer value of approximate expected size.
+   * @return calculated biggest static array size with embedded structure awareness
+   * @since 3.0.1
+   */
+  public static long findMaxStaticArraySize(final String script,
+                                            final JBBPCustomFieldTypeProcessor customFieldTypeProcessor,
+                                            final BiFunction<JBBPNamedFieldInfo, Boolean, Integer> expectedStructArraySizeSupplier) {
 
     final AtomicLong maxFound = new AtomicLong();
     final JBBPCompiledBlock compiledBlock =
@@ -1227,18 +1246,20 @@ public final class JBBPUtils {
       }
 
       @Override
-      public void visitStructureStart(int offsetInCompiledBlock,
-                                      JBBPByteOrder byteOrder,
-                                      boolean readWholeStream,
-                                      JBBPNamedFieldInfo nullableNameFieldInfo,
-                                      JBBPIntegerValueEvaluator nullableArraySize) {
+      public void visitStructureStart(final int offsetInCompiledBlock,
+                                      final JBBPByteOrder byteOrder,
+                                      final boolean readWholeStream,
+                                      final JBBPNamedFieldInfo nullableNameFieldInfo,
+                                      final JBBPIntegerValueEvaluator nullableArraySize) {
         if (readWholeStream) {
-          structSizeStack.add(1);
+          structSizeStack.add(
+              expectedStructArraySizeSupplier.apply(nullableNameFieldInfo, readWholeStream));
         } else {
           final Integer staticSize =
               extractStaticArraySize(offsetInCompiledBlock, nullableArraySize);
           if (staticSize == null) {
-            structSizeStack.add(1);
+            structSizeStack.add(
+                expectedStructArraySizeSupplier.apply(nullableNameFieldInfo, readWholeStream));
           } else {
             processSize(staticSize);
             structSizeStack.add(staticSize);

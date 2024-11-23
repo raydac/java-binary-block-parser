@@ -46,6 +46,35 @@ import org.junit.jupiter.api.Test;
 public class JBBPUtilsTest {
 
   @Test
+  public void testFindMaxStaticArraySize_CustomDefaultSize() {
+    assertEquals(0L, findMaxStaticArraySize("byte [_] a;", null, (name, whole) -> 1000));
+    assertEquals(1L, findMaxStaticArraySize("byte [1] a;", null, (name, whole) -> 1000));
+    assertEquals(0L, findMaxStaticArraySize("byte a; byte [a] b;", null, (name, whole) -> 1000));
+    assertEquals(112L,
+        findMaxStaticArraySize("byte a; byte [a] b; int [112];", null, (name, whole) -> 1000));
+    assertEquals(1120L,
+        findMaxStaticArraySize("byte a; byte [a] b; some [10] { int [112]; }", null,
+            (name, whole) -> {
+              assertNotNull(name);
+              assertFalse(whole);
+              return 1000;
+            }));
+    assertEquals(112000L,
+        findMaxStaticArraySize("byte a; byte [a] b; some [_] { int [112]; }", null,
+            (name, whole) -> {
+              assertNotNull(name);
+              assertTrue(whole);
+              return 1000;
+            }));
+    assertEquals(112000L,
+        findMaxStaticArraySize("byte a; byte [a] b; [_] { int [112]; }", null, (name, whole) -> {
+          assertNull(name);
+          assertTrue(whole);
+          return 1000;
+        }));
+  }
+
+  @Test
   public void testFindMaxStaticArraySize() {
     assertEquals(0L, findMaxStaticArraySize("byte [_] a;", null));
     assertEquals(1L, findMaxStaticArraySize("byte [1] a;", null));
