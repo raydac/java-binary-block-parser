@@ -64,6 +64,16 @@ public class JBBPBitInputStreamTest {
   }
 
   @Test
+  public void testReadLsb0Msb0() throws Exception {
+    final byte[] data = new byte[] {0b0000_0001};
+    assertEquals(0b0000_0001, new JBBPBitInputStream(new ByteArrayInputStream(data)).read());
+    assertEquals(0b0000_0001,
+        new JBBPBitInputStream(new ByteArrayInputStream(data), JBBPBitOrder.LSB0).read());
+    assertEquals(0b1000_0000,
+        new JBBPBitInputStream(new ByteArrayInputStream(data), JBBPBitOrder.MSB0).read());
+  }
+
+  @Test
   public void testReadUnsignedShort_EOFforEmpty_BigEndian_EOFException() throws Exception {
     assertThrows(EOFException.class,
         () -> asInputStream().readUnsignedShort(BIG_ENDIAN));
