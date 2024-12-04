@@ -16,6 +16,8 @@
 
 package com.igormaznitsa.jbbp.io;
 
+import static java.util.Objects.requireNonNull;
+
 import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -28,10 +30,9 @@ import java.io.OutputStream;
  */
 public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCountableBitStream {
   /**
-   * Flag shows that bit operations must be processed for MSB0 (most significant
-   * bit 0) mode.
+   * Contains bit mode for bit operations.
    */
-  private final boolean msb0;
+  private final JBBPBitOrder bitOrderMode;
   /**
    * Inside bit buffer.
    */
@@ -58,13 +59,13 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
    * A Constructor.
    *
    * @param out   an output stream to be filtered.
-   * @param order a bit writing mode to used for writing operations.
+   * @param bitOrderMode a bit writing mode to used for writing operations.
    * @see JBBPBitOrder#LSB0
    * @see JBBPBitOrder#MSB0
    */
-  public JBBPBitOutputStream(final OutputStream out, final JBBPBitOrder order) {
+  public JBBPBitOutputStream(final OutputStream out, final JBBPBitOrder bitOrderMode) {
     super(out);
-    this.msb0 = order == JBBPBitOrder.MSB0;
+    this.bitOrderMode = requireNonNull(bitOrderMode, "Bit order mode must not be null");
   }
 
   /**
@@ -76,7 +77,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
    */
   @Override
   public JBBPBitOrder getBitOrder() {
-    return this.msb0 ? JBBPBitOrder.MSB0 : JBBPBitOrder.LSB0;
+    return this.bitOrderMode;
   }
 
   /**
@@ -249,7 +250,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
 
   @Override
   public void write(final byte[] b, final int off, final int len) throws IOException {
-    if (this.msb0 || this.bitBufferCount != 0) {
+    if (this.bitOrderMode == JBBPBitOrder.MSB0 || this.bitBufferCount != 0) {
       int i = off;
       int cnt = len;
       while (cnt > 0) {
@@ -333,7 +334,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
    * @throws IOException it will be thrown for transport problems
    */
   private void writeByte(int value) throws IOException {
-    if (this.msb0) {
+    if (this.bitOrderMode == JBBPBitOrder.MSB0) {
       value = JBBPUtils.reverseBitsInByte((byte) value) & 0xFF;
     }
     this.out.write(value);
