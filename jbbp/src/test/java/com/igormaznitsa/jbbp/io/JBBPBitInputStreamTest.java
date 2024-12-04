@@ -66,9 +66,21 @@ public class JBBPBitInputStreamTest {
   @Test
   public void testReadLsb0Msb0() throws Exception {
     final byte[] data = new byte[] {0b0000_0001};
+
+    JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(data));
+    assertEquals(0b0001, in.readBits(BITS_4));
+    assertEquals(0b0000, in.readBits(BITS_4));
     assertEquals(0b0000_0001, new JBBPBitInputStream(new ByteArrayInputStream(data)).read());
+
+    in = new JBBPBitInputStream(new ByteArrayInputStream(data), JBBPBitOrder.LSB0);
+    assertEquals(0b0001, in.readBits(BITS_4));
+    assertEquals(0b0000, in.readBits(BITS_4));
     assertEquals(0b0000_0001,
         new JBBPBitInputStream(new ByteArrayInputStream(data), JBBPBitOrder.LSB0).read());
+
+    in = new JBBPBitInputStream(new ByteArrayInputStream(data), JBBPBitOrder.MSB0);
+    assertEquals(0b0000, in.readBits(BITS_4));
+    assertEquals(0b1000, in.readBits(BITS_4));
     assertEquals(0b1000_0000,
         new JBBPBitInputStream(new ByteArrayInputStream(data), JBBPBitOrder.MSB0).read());
   }
