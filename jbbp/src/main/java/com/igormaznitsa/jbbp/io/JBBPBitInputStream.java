@@ -41,10 +41,9 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   protected static final int INITIAL_ARRAY_BUFFER_SIZE =
       JBBPSystemProperty.PROPERTY_INPUT_INITIAL_ARRAY_BUFFER_SIZE.getAsInteger(32);
   /**
-   * Flag shows that bit operations must be processed for MSB0 (most significant
-   * bit 0) mode.
+   * Contains bit mode for bit operations.
    */
-  private final boolean msb0;
+  private final JBBPBitOrder bitOrderMode;
   /**
    * Internal bit buffer,
    */
@@ -119,7 +118,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   public JBBPBitInputStream(final InputStream in, final JBBPBitOrder order) {
     super(in);
     this.bitsInBuffer = 0;
-    this.msb0 = order == JBBPBitOrder.MSB0;
+    this.bitOrderMode = order;
   }
 
   /**
@@ -215,7 +214,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
         this.byteCounter += read;
       }
 
-      if (this.msb0) {
+      if (this.bitOrderMode == JBBPBitOrder.MSB0) {
         int index = offset;
         int number = readBytes;
         while (number > 0) {
@@ -921,7 +920,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    */
   @Override
   public JBBPBitOrder getBitOrder() {
-    return this.msb0 ? JBBPBitOrder.MSB0 : JBBPBitOrder.LSB0;
+    return this.bitOrderMode;
   }
 
   /**
@@ -1174,7 +1173,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    */
   private int readByteFromStream() throws IOException {
     int result = this.in.read();
-    if (result >= 0 && this.msb0) {
+    if (result >= 0 && this.bitOrderMode == JBBPBitOrder.MSB0) {
       result = JBBPUtils.reverseBitsInByte((byte) result) & 0xFF;
     }
     return result;
