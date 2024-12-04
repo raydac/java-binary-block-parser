@@ -24,6 +24,7 @@ package com.igormaznitsa.jbbp.io;
 public enum JBBPBitOrder {
   /**
    * Most Significant Bit First means that the most significant bit will arrive first, the 7th bit will be read as the first one.
+   * Read data wille be presented in reverse format for Java because Java is LSB0.
    */
   MSB0,
   /**

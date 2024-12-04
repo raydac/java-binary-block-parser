@@ -16,6 +16,8 @@
 
 package com.igormaznitsa.jbbp.io;
 
+import static com.igormaznitsa.jbbp.utils.JBBPUtils.assertNotNull;
+
 import com.igormaznitsa.jbbp.exceptions.JBBPIOException;
 import com.igormaznitsa.jbbp.mapper.Bin;
 import com.igormaznitsa.jbbp.mapper.BinFieldFilter;
@@ -81,9 +83,9 @@ public class JBBPOut extends AbstractMappedClassFieldObserver {
    */
   private JBBPOut(final OutputStream outStream, final JBBPByteOrder byteOrder,
                   final JBBPBitOrder bitOrder) {
-    JBBPUtils.assertNotNull(outStream, "Out stream must not be null");
-    JBBPUtils.assertNotNull(byteOrder, "Byte order must not be null");
-    JBBPUtils.assertNotNull(bitOrder, "Bit order must not be null");
+    assertNotNull(outStream, "Out stream must not be null");
+    assertNotNull(byteOrder, "Byte order must not be null");
+    assertNotNull(bitOrder, "Bit order must not be null");
 
     this.outStream = outStream instanceof JBBPBitOutputStream ? (JBBPBitOutputStream) outStream :
             new JBBPBitOutputStream(outStream, bitOrder);
@@ -190,7 +192,7 @@ public class JBBPOut extends AbstractMappedClassFieldObserver {
    * @param array an object to be checked for null.
    */
   private static void assertArrayNotNull(final Object array) {
-    JBBPUtils.assertNotNull(array, "Array must not be null");
+    assertNotNull(array, "Array must not be null");
   }
 
   /**
@@ -199,7 +201,7 @@ public class JBBPOut extends AbstractMappedClassFieldObserver {
    * @param str an object to be checked for null.
    */
   private static void assertStringNotNull(final String str) {
-    JBBPUtils.assertNotNull(str, "String must not be null");
+    assertNotNull(str, "String must not be null");
   }
 
   /**
@@ -269,7 +271,7 @@ public class JBBPOut extends AbstractMappedClassFieldObserver {
    */
   public JBBPOut ByteOrder(final JBBPByteOrder value) {
     assertNotEnded();
-    JBBPUtils.assertNotNull(value, "Byte order must not be null");
+    assertNotNull(value, "Byte order must not be null");
     if (this.processCommands) {
       this.byteOrder = value;
     }
@@ -386,7 +388,7 @@ public class JBBPOut extends AbstractMappedClassFieldObserver {
    */
   public JBBPOut Bits(final JBBPBitNumber numberOfBits, final int value) throws IOException {
     assertNotEnded();
-    JBBPUtils.assertNotNull(numberOfBits, "Number of bits must not be null");
+    assertNotNull(numberOfBits, "Number of bits must not be null");
     if (this.processCommands) {
       _writeBits(numberOfBits, value);
     }
@@ -404,7 +406,7 @@ public class JBBPOut extends AbstractMappedClassFieldObserver {
    */
   public JBBPOut Bits(final JBBPBitNumber numberOfBits, final int... value) throws IOException {
     assertNotEnded();
-    JBBPUtils.assertNotNull(value, "Array must not be null");
+    assertNotNull(value, "Array must not be null");
     if (this.processCommands) {
       for (final int v : value) {
         _writeBits(numberOfBits, v);
@@ -424,7 +426,7 @@ public class JBBPOut extends AbstractMappedClassFieldObserver {
    */
   public JBBPOut Bits(final JBBPBitNumber numberOfBits, final byte[] value) throws IOException {
     assertNotEnded();
-    JBBPUtils.assertNotNull(value, "Array must not be null");
+    assertNotNull(value, "Array must not be null");
     if (this.processCommands) {
       for (final byte b : value) {
         _writeBits(numberOfBits, b);
@@ -958,7 +960,7 @@ public class JBBPOut extends AbstractMappedClassFieldObserver {
    */
   public JBBPOut Var(final JBBPOutVarProcessor processor, final Object... args) throws IOException {
     assertNotEnded();
-    JBBPUtils.assertNotNull(processor, "Var processor must not be null");
+    assertNotNull(processor, "Var processor must not be null");
     if (this.processCommands) {
       this.processCommands = processor.processVarOut(this, this.outStream, args);
     }
