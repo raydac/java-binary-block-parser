@@ -198,6 +198,25 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
 
   @Override
   public int read(final byte[] array, final int offset, final int length) throws IOException {
+    return this.read(array, offset, length, true);
+  }
+
+  /**
+   * Reads up to {@code len} bytes of data from this input stream
+   * into an array of bytes. If {@code len} is not zero, the method
+   * blocks until some input is available; otherwise, no
+   * bytes are read and {@code 0} is returned.
+   *
+   * @param array                     target array
+   * @param offset                    offset in the target array
+   * @param length                    the length of data portion to be read
+   * @param allowEofForMissingBitData if true then allow to stop read if missing data for non-complete read bits operation.
+   * @return number of read bytes from the wrapped input stream
+   * @throws IOException thrown if any transport error
+   * @since 3.0.1
+   */
+  public int read(final byte[] array, final int offset, final int length,
+                  final boolean allowEofForMissingBitData) throws IOException {
     if (this.bitsInBuffer == 0) {
       int readBytes = 0;
       int tempOffset = offset;
@@ -229,7 +248,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       int count = length;
       int i = offset;
       while (count > 0) {
-        final int nextByte = this.readBits(JBBPBitNumber.BITS_8);
+        final int nextByte = this.readBits(JBBPBitNumber.BITS_8, allowEofForMissingBitData);
         if (nextByte < 0) {
           break;
         }
@@ -364,7 +383,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       byte[] buffer = new byte[INITIAL_ARRAY_BUFFER_SIZE];
       // till end
       while (true) {
-        final int next = readByteArray ? read() : readBits(bitNumber);
+        final int next = readByteArray ? read() : this.readBits(bitNumber, true);
         if (next < 0) {
           break;
         }
@@ -396,7 +415,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
         }
       } else {
         for (int i = 0; i < items; i++) {
-          final int next = readBits(bitNumber);
+          final int next = this.readBits(bitNumber, true);
           if (next < 0) {
             throw new EOFException("Have read only " + i + " bit portions instead of " + items);
           }
@@ -932,7 +951,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * @since 1.3.0
    */
   public byte readBitField(final JBBPBitNumber numOfBitsToRead) throws IOException {
-    final int value = this.readBits(numOfBitsToRead);
+    final int value = this.readBits(numOfBitsToRead, true);
     if (value < 0) {
       throw new EOFException("Can't read bits from stream [" + numOfBitsToRead + ']');
     }
@@ -951,7 +970,23 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * @throws IOException          it will be thrown for transport errors to be read
    * @throws NullPointerException if number of bits to be read is null
    */
-  public int readBits(final JBBPBitNumber numOfBitsToRead)
+  public int readBits(final JBBPBitNumber numOfBitsToRead) throws IOException {
+    return this.readBits(numOfBitsToRead, false);
+  }
+
+  /**
+   * Read number of bits from the input stream. It reads bits from input stream
+   * since 0 bit and make reversion to return bits in the order according the thread mode.
+   * Behaviour in case of missing bit data can be tuned by the special argument flag and if it is true then -1 returned otherwise current accumulated bit data returned.
+   *
+   * @param numOfBitsToRead           the number of bits to be read, must be 1..8
+   * @param allowEofForMissingBitData if false then returned current accumulated data as stream ended with missing bits, -1 otherwise
+   * @return the read bits as integer, -1 if the end of stream has been reached or if allowed end of stream flag and not all bits read.
+   * @throws IOException          it will be thrown for transport errors to be read
+   * @throws NullPointerException if number of bits to be read is null
+   * @since 3.0.1
+   */
+  public int readBits(final JBBPBitNumber numOfBitsToRead, final boolean allowEofForMissingBitData)
       throws IOException {
     int result;
 
@@ -993,7 +1028,13 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
               if (i == numOfBitsAsNumber) {
                 return nextByte;
               } else {
-                break;
+                if (allowEofForMissingBitData) {
+                  this.bitBuffer = 0;
+                  this.bitsInBuffer = 0;
+                  return -1;
+                } else {
+                  break;
+                }
               }
             } else {
               theBitBuffer = nextByte;
@@ -1017,7 +1058,13 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
               if (i == numOfBitsAsNumber) {
                 return nextByte;
               } else {
-                break;
+                if (allowEofForMissingBitData) {
+                  this.bitBuffer = 0;
+                  this.bitsInBuffer = 0;
+                  return -1;
+                } else {
+                  break;
+                }
               }
             } else {
               theBitBuffer = nextByte;
