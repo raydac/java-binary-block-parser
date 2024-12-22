@@ -47,6 +47,7 @@ import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import com.igormaznitsa.jbbp.model.JBBPNumericField;
 import com.igormaznitsa.jbbp.utils.JBBPDslBuilder;
 import com.igormaznitsa.jbbp.utils.JBBPTextWriter;
+import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -64,6 +65,68 @@ import org.junit.jupiter.api.Test;
  * Tests based on questions and cases.
  */
 public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest {
+
+  /**
+   * Case 03-dec-2024
+   * <p>
+   * Sequential read of bit sequence
+   * <pre>
+   * 00000001 101 00001000 00000
+   * ________ ___ ________
+   * ^        ^    ^
+   * |        |    byte2
+   * |        bits
+   * byte1
+   * </pre>
+   *
+   * @throws Exception for any error
+   */
+  @Test
+  void testReadMSB0WithoutReverse() throws Exception {
+    class Example {
+
+      protected static final int _ParserFlags_ = 0;
+
+      public byte byte1;
+      public byte bits;
+      public byte byte2;
+
+
+      public Example() {
+      }
+
+      public Example read(final JBBPBitInputStream In) throws IOException {
+        this.byte1 = (byte) In.readByte();
+        this.bits = In.readBitField(JBBPBitNumber.BITS_3);
+        this.byte2 = (byte) In.readByte();
+
+        return this;
+      }
+
+      public Example write(final JBBPBitOutputStream Out) throws IOException {
+        Out.write(this.byte1);
+        Out.writeBits(this.bits, JBBPBitNumber.BITS_3);
+        Out.write(this.byte2);
+
+        return this;
+      }
+    }
+
+    // 00000001 10100001 00000000
+    var data = new byte[] {0x01, (byte) 0xa1, 0x00};
+
+    var example = new Example();
+    example.read(new JBBPBitInputStream(new ByteArrayInputStream(data), JBBPBitOrder.MSB0_DIRECT));
+
+    var expected = new Example();
+    expected.byte1 = 1; // 00000001
+    expected.bits = 5;  // 00000101
+    expected.byte2 = 8; // 00001000
+
+    assertEquals(expected.bits, example.bits);
+    assertEquals(expected.byte1, example.byte1);
+    assertEquals(expected.byte2, example.byte2);
+  }
 
   /**
    * Case 13-aug-2015
@@ -657,6 +720,21 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
     assertEquals(7890, parsed.c);
   }
 
+  /*
+   * Test for reported issue #42 https://github.com/raydac/java-binary-block-parser/issues/42
+   */
+  @Test
+  public void testCase_github_bug42_ThereIsNotAnyOpenedStruct() throws Exception {
+    byte[] data = new byte[] {0x12, 0x34, 0x20, 0x20};
+    final JBBPParser parser =
+        JBBPParser.prepare(JBBPDslBuilder.Begin().AnnotatedClass(Child.class).End());
+    JBBPFieldStruct parsed = parser.parse(data);
+    final Child parsedPackage =
+        parsed.findFieldForNameAndType("Child", JBBPFieldStruct.class).mapTo(new Child());
+    assertEquals(0x1234, parsedPackage.headerSize);
+    assertEquals("  ", parsedPackage.body);
+  }
+
   @Bin
   public class Parent {
     @Bin(order = 1, type = BinType.USHORT, comment = "Size of package header")
@@ -667,19 +745,6 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
   public class Child extends Parent {
     @Bin(order = 2, type = BinType.BYTE_ARRAY, arraySizeExpr = "2")
     public String body;
-  }
-
-  /*
-   * Test for reported issue #42 https://github.com/raydac/java-binary-block-parser/issues/42
-   */
-  @Test
-  public void testCase_github_bug42_ThereIsNotAnyOpenedStruct() throws Exception {
-    byte[] data = new byte[] {0x12, 0x34, 0x20, 0x20};
-    final JBBPParser parser = JBBPParser.prepare(JBBPDslBuilder.Begin().AnnotatedClass(Child.class).End());
-    JBBPFieldStruct parsed = parser.parse(data);
-    final Child parsedPackage = parsed.findFieldForNameAndType("Child", JBBPFieldStruct.class).mapTo(new Child());
-    assertEquals(0x1234, parsedPackage.headerSize);
-    assertEquals("  ", parsedPackage.body);
   }
 
 }

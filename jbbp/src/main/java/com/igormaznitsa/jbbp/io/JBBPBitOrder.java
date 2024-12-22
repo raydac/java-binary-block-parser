@@ -31,5 +31,12 @@ public enum JBBPBitOrder {
    * Least Significant Bit First means that the least significant bit will arrive first, the 0th bit will be read as the first one.
    * It is default order for Java.
    */
-  LSB0
+  LSB0,
+  /**
+   * Most Significant Bit First means that the most significant bit will arrive first, the 7th bit will be read as the first one.
+   * <b>In opposite to MSB0 it doesn't make reverse for data during read and write.</b>
+   *
+   * @since 3.0.1
+   */
+  MSB0_DIRECT
 }

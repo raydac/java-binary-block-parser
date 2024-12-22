@@ -16,6 +16,13 @@
 
 package com.igormaznitsa.jbbp.io;
 
+import static com.igormaznitsa.jbbp.io.JBBPBitNumber.BITS_2;
+import static com.igormaznitsa.jbbp.io.JBBPBitNumber.BITS_3;
+import static com.igormaznitsa.jbbp.io.JBBPBitNumber.BITS_4;
+import static com.igormaznitsa.jbbp.io.JBBPBitNumber.BITS_5;
+import static com.igormaznitsa.jbbp.io.JBBPBitNumber.BITS_8;
+import static com.igormaznitsa.jbbp.utils.JBBPUtils.array2hex;
+import static com.igormaznitsa.jbbp.utils.JBBPUtils.str2bin;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -190,6 +197,18 @@ public class JBBPBitOutputStreamTest {
   }
 
   @Test
+  public void testWriteByte_MSB0DIRECT() throws Exception {
+    final ByteArrayOutputStream outBuffer = new ByteArrayOutputStream();
+    final JBBPBitOutputStream out = new JBBPBitOutputStream(outBuffer, JBBPBitOrder.MSB0_DIRECT);
+    assertEquals(0, out.getCounter());
+    out.write(0b1100_1110);
+    assertEquals(1, out.getCounter());
+    out.flush();
+    assertEquals(1, out.getCounter());
+    assertArrayEquals(new byte[] {(byte) 0b1100_1110}, outBuffer.toByteArray());
+  }
+
+  @Test
   public void testWriteShort_BigEndian() throws Exception {
     final ByteArrayOutputStream outBuffer = new ByteArrayOutputStream();
     final JBBPBitOutputStream out = new JBBPBitOutputStream(outBuffer);
@@ -211,6 +230,57 @@ public class JBBPBitOutputStreamTest {
     out.flush();
     assertEquals(2, out.getCounter());
     assertArrayEquals(new byte[] {0x48, 0x2C}, outBuffer.toByteArray());
+  }
+
+  @Test
+  public void testWrite_MSB0DIRECT() throws Exception {
+    final ByteArrayOutputStream outBuffer = new ByteArrayOutputStream();
+    final JBBPBitOutputStream out = new JBBPBitOutputStream(outBuffer, JBBPBitOrder.MSB0_DIRECT);
+    assertEquals(0, out.getCounter());
+
+    out.writeBits(1, BITS_8);
+    out.writeBits(5, BITS_3);
+    out.writeBits(8, BITS_8);
+    out.writeBits(0, BITS_5);
+    out.writeBits(1, BITS_2);
+    out.writeBits(0, BITS_2);
+    out.writeBits(11, BITS_4);
+    out.writeBits(0, BITS_5);
+    out.writeBits(0, BITS_3);
+
+    out.flush();
+    final byte[] result = outBuffer.toByteArray();
+
+    assertArrayEquals(str2bin("00000001_101_00001000_00000_01_00_1011_00000"), result,
+        JBBPUtils.array2bin(result));
+  }
+
+  @Test
+  public void testWriteShort_BigEndian_MSB0DIRECT() throws Exception {
+    final ByteArrayOutputStream outBuffer = new ByteArrayOutputStream();
+    final JBBPBitOutputStream out = new JBBPBitOutputStream(outBuffer, JBBPBitOrder.MSB0_DIRECT);
+    assertEquals(0, out.getCounter());
+    out.writeShort(0b11010101_01101110, JBBPByteOrder.BIG_ENDIAN);
+    assertEquals(2, out.getCounter());
+    out.flush();
+    assertEquals(2, out.getCounter());
+    final byte[] result = outBuffer.toByteArray();
+    assertArrayEquals(new byte[] {(byte) 0b11010101, (byte) 0b01101110}, result,
+        JBBPUtils.array2bin(result));
+  }
+
+  @Test
+  public void testWriteShort_LittleEndian_MSB0DIRECT() throws Exception {
+    final ByteArrayOutputStream outBuffer = new ByteArrayOutputStream();
+    final JBBPBitOutputStream out = new JBBPBitOutputStream(outBuffer, JBBPBitOrder.MSB0_DIRECT);
+    assertEquals(0, out.getCounter());
+    out.writeShort(0b11010101_01101110, JBBPByteOrder.LITTLE_ENDIAN);
+    assertEquals(2, out.getCounter());
+    out.flush();
+    assertEquals(2, out.getCounter());
+    final byte[] result = outBuffer.toByteArray();
+    assertArrayEquals(new byte[] {(byte) 0b01101110, (byte) 0b11010101}, result,
+        JBBPUtils.array2bin(result));
   }
 
   @Test
@@ -247,6 +317,20 @@ public class JBBPBitOutputStreamTest {
     out.flush();
     assertEquals(4, out.getCounter());
     assertArrayEquals(new byte[] {0x12, 0x34, 0x56, 0x78}, outBuffer.toByteArray());
+  }
+
+  @Test
+  public void testWriteUInt_BigEndian() throws Exception {
+    final ByteArrayOutputStream outBuffer = new ByteArrayOutputStream();
+    final JBBPBitOutputStream out = new JBBPBitOutputStream(outBuffer);
+    assertEquals(0, out.getCounter());
+    out.writeUInt(0xF1E2B3C4, JBBPByteOrder.BIG_ENDIAN);
+    assertEquals(4, out.getCounter());
+    out.flush();
+    assertEquals(4, out.getCounter());
+    final byte[] result = outBuffer.toByteArray();
+    assertArrayEquals(new byte[] {(byte) 0xF1, (byte) 0xE2, (byte) 0xB3, (byte) 0xC4}, result,
+        array2hex(result));
   }
 
   @Test
@@ -412,11 +496,11 @@ public class JBBPBitOutputStreamTest {
 
     assertEquals(0, out.getCounter());
 
-    final byte[] ORIG_ARRAY = JBBPUtils
-        .str2bin("10101001 01100100 10000101 01000010 10010100 10010010 00100100 10001010",
+    final byte[] ORIG_ARRAY =
+        str2bin("10101001 01100100 10000101 01000010 10010100 10010010 00100100 10001010",
             JBBPBitOrder.MSB0);
     final byte[] ARRAY_1BIT_OFFSET =
-        JBBPUtils.str2bin("1 10000101 01000010 10010100 10010010 00100100", JBBPBitOrder.MSB0);
+        str2bin("1 10000101 01000010 10010100 10010010 00100100", JBBPBitOrder.MSB0);
 
     out.writeBits(1, JBBPBitNumber.BITS_1);
     assertEquals(0, out.getCounter());
@@ -452,7 +536,7 @@ public class JBBPBitOutputStreamTest {
   public void testGetBufferedBitsNumber() throws Exception {
     final JBBPBitOutputStream out = new JBBPBitOutputStream(new ByteArrayOutputStream());
     out.writeBits(1, JBBPBitNumber.BITS_1);
-    out.writeBits(3, JBBPBitNumber.BITS_2);
+    out.writeBits(3, BITS_2);
     assertEquals(3, out.getBufferedBitsNumber());
     assertEquals(0, out.getCounter());
   }
@@ -461,7 +545,7 @@ public class JBBPBitOutputStreamTest {
   public void testGetBitBuffer() throws Exception {
     final JBBPBitOutputStream out = new JBBPBitOutputStream(new ByteArrayOutputStream());
     out.writeBits(1, JBBPBitNumber.BITS_1);
-    out.writeBits(3, JBBPBitNumber.BITS_2);
+    out.writeBits(3, BITS_2);
     assertEquals(7, out.getBitBuffer());
     assertEquals(0, out.getCounter());
   }
@@ -492,11 +576,11 @@ public class JBBPBitOutputStreamTest {
     final ByteArrayOutputStream buff = new ByteArrayOutputStream();
     final JBBPBitOutputStream out = new JBBPBitOutputStream(buff);
 
-    final byte[] ORIG_ARRAY = JBBPUtils
-        .str2bin("10101001 01100100 10000101 01000010 10010100 10010010 00100100 10001010",
+    final byte[] ORIG_ARRAY =
+        str2bin("10101001 01100100 10000101 01000010 10010100 10010010 00100100 10001010",
             JBBPBitOrder.MSB0);
-    final byte[] ORIG_ARRAY_1BIT_OFFSET = JBBPUtils
-        .str2bin("1 10101001 01100100 10000101 01000010 10010100 10010010 00100100 10001010",
+    final byte[] ORIG_ARRAY_1BIT_OFFSET =
+        str2bin("1 10101001 01100100 10000101 01000010 10010100 10010010 00100100 10001010",
             JBBPBitOrder.MSB0);
 
     out.writeBits(1, JBBPBitNumber.BITS_1);
@@ -561,7 +645,7 @@ public class JBBPBitOutputStreamTest {
 
     for (int i = 0; i < 256; ) {
       out.write(i++);
-      out.writeBits(i++, JBBPBitNumber.BITS_8);
+      out.writeBits(i++, BITS_8);
     }
     assertEquals(256, out.getCounter());
 

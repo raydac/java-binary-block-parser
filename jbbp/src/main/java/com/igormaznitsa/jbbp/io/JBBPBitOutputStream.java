@@ -34,11 +34,11 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
    */
   private final JBBPBitOrder bitOrderMode;
   /**
-   * Inside bit buffer.
+   * Internal bit buffer.
    */
   private int bitBuffer;
   /**
-   * Number of bits inside the bit buffer.
+   * Number of bits buffered by the bit buffer.
    */
   private int bitBufferCount;
   /**
@@ -58,7 +58,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
   /**
    * A Constructor.
    *
-   * @param out   an output stream to be filtered.
+   * @param out          an output stream to be filtered.
    * @param bitOrderMode a bit writing mode to used for writing operations.
    * @see JBBPBitOrder#LSB0
    * @see JBBPBitOrder#MSB0
@@ -211,9 +211,9 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
   }
 
   /**
-   * Get the inside bit buffer value.
+   * Get the internal bit buffer value.
    *
-   * @return the inside bit buffer value
+   * @return the internal bit buffer value
    */
   @Override
   public int getBitBuffer() {
@@ -221,7 +221,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
   }
 
   /**
-   * Get the number of bits cached in the inside bit buffer.
+   * Get the number of bits cached in the internal bit buffer.
    *
    * @return the number of cached bits in the bit buffer
    */
@@ -278,29 +278,47 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
    */
   public void writeBits(final int value, final JBBPBitNumber bitNumber) throws IOException {
     if (this.bitBufferCount == 0 && bitNumber == JBBPBitNumber.BITS_8) {
-      write(value);
+      this.write(value);
     } else {
-      final int initialMask;
       int mask;
-      initialMask = 1;
-      mask = initialMask << this.bitBufferCount;
-
       int accumulator = value;
       int i = bitNumber.getBitNumber();
 
-      while (i > 0) {
-        this.bitBuffer = this.bitBuffer | ((accumulator & 1) == 0 ? 0 : mask);
-        accumulator >>= 1;
+      if (this.bitOrderMode == JBBPBitOrder.MSB0_DIRECT) {
+        final int initialMask = 0x80;
+        mask = initialMask >> this.bitBufferCount;
+        final int accumulatorMask = 1 << (bitNumber.getBitNumber() - 1);
+        while (i > 0) {
+          this.bitBuffer = this.bitBuffer | ((accumulator & accumulatorMask) == 0 ? 0 : mask);
+          accumulator <<= 1;
+          mask >>= 1;
 
-        mask = mask << 1;
+          i--;
+          this.bitBufferCount++;
+          if (this.bitBufferCount == 8) {
+            this.bitBufferCount = 0;
+            writeByte(this.bitBuffer);
+            mask = initialMask;
+            this.bitBuffer = 0;
+          }
+        }
+      } else {
+        final int initialMask = 1;
+        mask = initialMask << this.bitBufferCount;
+        while (i > 0) {
+          this.bitBuffer = this.bitBuffer | ((accumulator & 1) == 0 ? 0 : mask);
 
-        i--;
-        this.bitBufferCount++;
-        if (this.bitBufferCount == 8) {
-          this.bitBufferCount = 0;
-          writeByte(this.bitBuffer);
-          mask = initialMask;
-          this.bitBuffer = 0;
+          accumulator >>= 1;
+          mask = mask << 1;
+
+          i--;
+          this.bitBufferCount++;
+          if (this.bitBufferCount == 8) {
+            this.bitBufferCount = 0;
+            writeByte(this.bitBuffer);
+            mask = initialMask;
+            this.bitBuffer = 0;
+          }
         }
       }
     }
@@ -328,7 +346,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
   }
 
   /**
-   * Inside method to write a byte into wrapped stream.
+   * Internal method to write a byte into wrapped stream.
    *
    * @param value a byte value to be written
    * @throws IOException it will be thrown for transport problems
@@ -350,9 +368,9 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
   @Override
   public void write(final int value) throws IOException {
     if (this.bitBufferCount == 0) {
-      writeByte(value);
+      this.writeByte(value);
     } else {
-      writeBits(value, JBBPBitNumber.BITS_8);
+      this.writeBits(value, JBBPBitNumber.BITS_8);
     }
   }
 
@@ -379,7 +397,7 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
   }
 
   /**
-   * Reset the byte counter for the stream. The Inside bit buffer will be reset also.
+   * Reset the byte counter for the stream. The internal bit buffer will be reset also.
    */
   @Override
   public void resetCounter() {

@@ -951,7 +951,8 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * @throws IOException          it will be thrown for transport errors to be read
    * @throws NullPointerException if number of bits to be read is null
    */
-  public int readBits(final JBBPBitNumber numOfBitsToRead) throws IOException {
+  public int readBits(final JBBPBitNumber numOfBitsToRead)
+      throws IOException {
     int result;
 
     final int numOfBitsAsNumber = numOfBitsToRead.getBitNumber();
@@ -961,12 +962,14 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       if (result >= 0) {
         this.byteCounter++;
       }
-      return result;
     } else {
       result = 0;
 
       if (numOfBitsAsNumber == this.bitsInBuffer) {
         result = this.bitBuffer;
+        if (this.bitOrderMode == JBBPBitOrder.MSB0_DIRECT) {
+          result >>>= this.bitsInBuffer;
+        }
         this.bitBuffer = 0;
         this.bitsInBuffer = 0;
         this.byteCounter++;
@@ -979,37 +982,63 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
 
       final boolean doIncCounter = theBitBufferCounter != 0;
 
-      while (i > 0) {
-        if (theBitBufferCounter == 0) {
-          if (doIncCounter) {
-            this.byteCounter++;
-          }
-          final int nextByte = this.readByteFromStream();
-          if (nextByte < 0) {
-            if (i == numOfBitsAsNumber) {
-              return nextByte;
-            } else {
-              break;
+      if (this.bitOrderMode == JBBPBitOrder.MSB0_DIRECT) {
+        while (i > 0) {
+          if (theBitBufferCounter == 0) {
+            if (doIncCounter) {
+              this.byteCounter++;
             }
-          } else {
-            theBitBuffer = nextByte;
-            theBitBufferCounter = 8;
+            final int nextByte = this.readByteFromStream();
+            if (nextByte < 0) {
+              if (i == numOfBitsAsNumber) {
+                return nextByte;
+              } else {
+                break;
+              }
+            } else {
+              theBitBuffer = nextByte;
+              theBitBufferCounter = 8;
+            }
           }
-        }
 
-        result = (result << 1) | (theBitBuffer & 1);
-        theBitBuffer >>= 1;
-        theBitBufferCounter--;
-        i--;
+          result = (result << 1) | ((theBitBuffer >>> 7) & 1);
+          theBitBuffer = (theBitBuffer << 1) & 0xFF;
+          theBitBufferCounter--;
+          i--;
+        }
+      } else {
+        while (i > 0) {
+          if (theBitBufferCounter == 0) {
+            if (doIncCounter) {
+              this.byteCounter++;
+            }
+            final int nextByte = this.readByteFromStream();
+            if (nextByte < 0) {
+              if (i == numOfBitsAsNumber) {
+                return nextByte;
+              } else {
+                break;
+              }
+            } else {
+              theBitBuffer = nextByte;
+              theBitBufferCounter = 8;
+            }
+          }
+
+          result = (result << 1) | (theBitBuffer & 1);
+          theBitBuffer >>= 1;
+          theBitBufferCounter--;
+          i--;
+        }
+        result = JBBPUtils.reverseBitsInByte(JBBPBitNumber.decode(numOfBitsAsNumber - i),
+            (byte) result) &
+            0xFF;
       }
 
       this.bitBuffer = theBitBuffer;
       this.bitsInBuffer = theBitBufferCounter;
-
-      return
-          JBBPUtils.reverseBitsInByte(JBBPBitNumber.decode(numOfBitsAsNumber - i), (byte) result) &
-              0xFF;
     }
+    return result;
   }
 
   /**
