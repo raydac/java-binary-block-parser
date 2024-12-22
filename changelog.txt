@@ -1,3 +1,7 @@
+3.1.0 (SNAPSHOT)
+ - changed bit read behavior
+ - added MSB0_DIRECT bit order mode, MSB0 without reverse
+
 3.0.0 (16-nov-2024)
  - Minimum JDK Version: Updated to 11.0.
  - Minimum Supported Android: Updated to 12 (API 32).
