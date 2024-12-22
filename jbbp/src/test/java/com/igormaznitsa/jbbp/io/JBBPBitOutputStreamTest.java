@@ -21,6 +21,7 @@ import static com.igormaznitsa.jbbp.io.JBBPBitNumber.BITS_3;
 import static com.igormaznitsa.jbbp.io.JBBPBitNumber.BITS_4;
 import static com.igormaznitsa.jbbp.io.JBBPBitNumber.BITS_5;
 import static com.igormaznitsa.jbbp.io.JBBPBitNumber.BITS_8;
+import static com.igormaznitsa.jbbp.utils.JBBPUtils.array2bin;
 import static com.igormaznitsa.jbbp.utils.JBBPUtils.array2hex;
 import static com.igormaznitsa.jbbp.utils.JBBPUtils.str2bin;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -28,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.igormaznitsa.jbbp.utils.JBBPUtils;
 import com.igormaznitsa.jbbp.utils.SpecialTestUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -252,7 +252,7 @@ public class JBBPBitOutputStreamTest {
     final byte[] result = outBuffer.toByteArray();
 
     assertArrayEquals(str2bin("00000001_101_00001000_00000_01_00_1011_00000"), result,
-        JBBPUtils.array2bin(result));
+        array2bin(result));
   }
 
   @Test
@@ -266,7 +266,7 @@ public class JBBPBitOutputStreamTest {
     assertEquals(2, out.getCounter());
     final byte[] result = outBuffer.toByteArray();
     assertArrayEquals(new byte[] {(byte) 0b11010101, (byte) 0b01101110}, result,
-        JBBPUtils.array2bin(result));
+        array2bin(result));
   }
 
   @Test
@@ -280,7 +280,7 @@ public class JBBPBitOutputStreamTest {
     assertEquals(2, out.getCounter());
     final byte[] result = outBuffer.toByteArray();
     assertArrayEquals(new byte[] {(byte) 0b01101110, (byte) 0b11010101}, result,
-        JBBPUtils.array2bin(result));
+        array2bin(result));
   }
 
   @Test

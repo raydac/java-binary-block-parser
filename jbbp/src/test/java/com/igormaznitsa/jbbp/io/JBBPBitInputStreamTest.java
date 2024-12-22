@@ -87,7 +87,7 @@ public class JBBPBitInputStreamTest {
   }
 
   @Test
-  public void testReadLsb0Msb0() throws Exception {
+  public void testReadLsb0Msb0Msb0Direct() throws Exception {
     final byte[] data = new byte[] {0b0000_0001};
 
     JBBPBitInputStream in = new JBBPBitInputStream(new ByteArrayInputStream(data));
@@ -106,6 +106,12 @@ public class JBBPBitInputStreamTest {
     assertEquals(0b1000, in.readBits(BITS_4));
     assertEquals(0b1000_0000,
         new JBBPBitInputStream(new ByteArrayInputStream(data), JBBPBitOrder.MSB0).read());
+
+    in = new JBBPBitInputStream(new ByteArrayInputStream(data), JBBPBitOrder.MSB0_DIRECT);
+    assertEquals(0b0000, in.readBits(BITS_4));
+    assertEquals(0b0001, in.readBits(BITS_4));
+    assertEquals(0b0000_0001,
+        new JBBPBitInputStream(new ByteArrayInputStream(data), JBBPBitOrder.MSB0_DIRECT).read());
   }
 
   @Test
