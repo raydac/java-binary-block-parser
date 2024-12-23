@@ -1097,7 +1097,6 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
                 if (returnAccumulatedForBitReadInEof) {
                   break;
                 } else {
-                  this.bitBuffer = 0;
                   this.bitsInBuffer = 0;
                   return -1;
                 }
@@ -1128,7 +1127,6 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
                 if (returnAccumulatedForBitReadInEof) {
                   break;
                 } else {
-                  this.bitBuffer = 0;
                   this.bitsInBuffer = 0;
                   return -1;
                 }

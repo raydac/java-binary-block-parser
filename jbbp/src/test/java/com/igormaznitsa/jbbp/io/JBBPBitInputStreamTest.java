@@ -392,20 +392,38 @@ public class JBBPBitInputStreamTest {
     final JBBPBitInputStream in =
         new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {(byte) 0xDA, 1}));
 
+    assertFalse(in.isDetectedPartlyReadBitField());
+
     assertEquals(0xA, in.readBits(BITS_4));
+    assertFalse(in.isDetectedPartlyReadBitField());
+
     assertEquals(0x1D, in.readBits(BITS_5));
+    assertFalse(in.isDetectedPartlyReadBitField());
+
     assertEquals(0, in.read());
+    assertTrue(in.isDetectedPartlyReadBitField());
+
     assertEquals(-1, in.read());
+    assertFalse(in.isDetectedPartlyReadBitField());
   }
 
   @Test
   public void testRead9bit_MSB0() throws Exception {
     final JBBPBitInputStream in = asInputStreamMSB0(0xD9, 1);
 
+    assertFalse(in.isDetectedPartlyReadBitField());
+
     assertEquals(0x0B, in.readBits(BITS_4));
+    assertFalse(in.isDetectedPartlyReadBitField());
+
     assertEquals(0x09, in.readBits(BITS_5));
+    assertFalse(in.isDetectedPartlyReadBitField());
+
     assertEquals(0x40, in.read());
+    assertTrue(in.isDetectedPartlyReadBitField());
+
     assertEquals(-1, in.read());
+    assertFalse(in.isDetectedPartlyReadBitField());
   }
 
   @Test
