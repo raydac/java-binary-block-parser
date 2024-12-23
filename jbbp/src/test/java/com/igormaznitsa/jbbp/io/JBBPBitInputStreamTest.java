@@ -40,6 +40,7 @@ import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.Random;
+import java.util.function.Supplier;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 
@@ -68,6 +69,38 @@ public class JBBPBitInputStreamTest {
   private static JBBPBitInputStream asInputStreamMSB0(final int... array) {
     return new JBBPBitInputStream(new ByteArrayInputStream(intArrayToByteArray(array)),
         JBBPBitOrder.MSB0);
+  }
+
+  @Test
+  public void testIsDetectedPartlyReadBitField() throws Exception {
+    final Supplier<JBBPBitInputStream> oneByteStream =
+        () -> new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {1}));
+    final Supplier<JBBPBitInputStream> oneByteStreamNoAccumulated =
+        () -> new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {1}), false);
+
+    JBBPBitInputStream in = oneByteStream.get();
+    assertFalse(in.isDetectedPartlyReadBitField());
+    in.read();
+    assertFalse(in.isDetectedPartlyReadBitField());
+
+    in = oneByteStream.get();
+    assertFalse(in.isDetectedPartlyReadBitField());
+    in.readBits(BITS_1);
+    assertFalse(in.isDetectedPartlyReadBitField());
+    in.read();
+    assertTrue(in.isDetectedPartlyReadBitField());
+
+    in = oneByteStreamNoAccumulated.get();
+    assertFalse(in.isDetectedPartlyReadBitField());
+    in.read();
+    assertFalse(in.isDetectedPartlyReadBitField());
+
+    in = oneByteStreamNoAccumulated.get();
+    assertFalse(in.isDetectedPartlyReadBitField());
+    in.readBits(BITS_1);
+    assertFalse(in.isDetectedPartlyReadBitField());
+    in.read();
+    assertTrue(in.isDetectedPartlyReadBitField());
   }
 
   @Test
