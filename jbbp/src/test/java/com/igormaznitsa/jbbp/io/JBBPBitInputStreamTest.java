@@ -1614,9 +1614,10 @@ public class JBBPBitInputStreamTest {
   }
 
   @Test
-  public void testReadNotFullByteArrayAfterBitReading() throws Exception {
+  public void testReadNotFullByteArrayAfterBitReading_disableAccumulatedBitsOnEof()
+      throws Exception {
     final JBBPBitInputStream in = new JBBPBitInputStream(
-        new ByteArrayInputStream(str2bin("00010010_00110100_01010110_11011101")));
+        new ByteArrayInputStream(str2bin("00010010_00110100_01010110_11011101")), false);
     assertEquals(0x2, in.readBits(BITS_4));
     assertEquals(0, in.getCounter());
 
@@ -1634,10 +1635,11 @@ public class JBBPBitInputStreamTest {
   }
 
   @Test
-  public void testReadNotFullByteArrayAfterBitReading_MSB0() throws Exception {
+  public void testReadNotFullByteArrayAfterBitReading_MSB0_disableAccumulatedBitsOnEof()
+      throws Exception {
     final JBBPBitInputStream in = new JBBPBitInputStream(
         new ByteArrayInputStream(str2bin("00010010_00110100_01010110_11011101")),
-        JBBPBitOrder.MSB0);
+        JBBPBitOrder.MSB0, false);
     assertEquals(0x8, in.readBits(BITS_4));
     assertEquals(0, in.getCounter());
 
@@ -1655,7 +1657,7 @@ public class JBBPBitInputStreamTest {
   }
 
   @Test
-  public void testReadNotFullByteArrayAfterBitReading_disableEofForMissingBitData()
+  public void testReadNotFullByteArrayAfterBitReading()
       throws Exception {
     final JBBPBitInputStream in = new JBBPBitInputStream(
         new ByteArrayInputStream(new byte[] {(byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0xDD}));
@@ -1663,7 +1665,7 @@ public class JBBPBitInputStreamTest {
     assertEquals(0, in.getCounter());
 
     final byte[] readarray = new byte[6];
-    final int read = in.read(readarray, 0, readarray.length, false);
+    final int read = in.read(readarray, 0, readarray.length, true);
     assertEquals(4, read);
     assertEquals(4, in.getCounter());
     assertArrayEquals(new byte[] {(byte) 0x41, (byte) 0x63, (byte) 0xD5, (byte) 0x0D, 0, 0},
@@ -1671,7 +1673,7 @@ public class JBBPBitInputStreamTest {
   }
 
   @Test
-  public void testReadNotFullByteArrayAfterBitReading_MSB0_disableEofForMissingBitData()
+  public void testReadNotFullByteArrayAfterBitReading_MSB0()
       throws Exception {
     final JBBPBitInputStream in = new JBBPBitInputStream(
         new ByteArrayInputStream(new byte[] {(byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0xDD}),
@@ -1679,7 +1681,7 @@ public class JBBPBitInputStreamTest {
     assertEquals(0x8, in.readBits(BITS_4));
 
     final byte[] readarray = new byte[6];
-    final int read = in.read(readarray, 0, readarray.length, false);
+    final int read = in.read(readarray, 0, readarray.length);
 
     assertEquals(4, read);
     assertEquals(4, in.getCounter());

@@ -41,6 +41,11 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   protected static final int INITIAL_ARRAY_BUFFER_SIZE =
       JBBPSystemProperty.PROPERTY_INPUT_INITIAL_ARRAY_BUFFER_SIZE.getAsInteger(32);
   /**
+   * Allow return accumulated data during met end of stream and missing part of bits field data.
+   * @since 3.1.0
+   */
+  private final boolean returnAccumulatedForBitReadInEof;
+  /**
    * Contains bit mode for bit operations.
    */
   private final JBBPBitOrder bitOrderMode;
@@ -68,13 +73,71 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * Internal temp variable to keep the byte counter temporarily.
    */
   private long markedByteCounter;
-
   /**
    * Internal flag shows that read stopped for whole stream array read limit reach.
    *
    * @since 2.1.0
    */
   private boolean detectedArrayLimit;
+
+  /**
+   * A Constructor, the LSB0 bit order will be used by default.
+   * <b>By default, if missing part of bit field in the end of stream then current accumulated data will be returned.</b>
+   *
+   * @param in an input stream to be filtered.
+   */
+  public JBBPBitInputStream(final InputStream in) {
+    this(in, JBBPBitOrder.LSB0);
+  }
+
+  /**
+   * A Constructor, the LSB0 bit order will be used by default.
+   *
+   * @param in                               an input stream to be filtered.
+   * @param returnAccumulatedForBitReadInEof if true then end of stream during bit read and some data missing returns accumulated data.
+   */
+  public JBBPBitInputStream(final InputStream in, final boolean returnAccumulatedForBitReadInEof) {
+    this(in, JBBPBitOrder.LSB0, returnAccumulatedForBitReadInEof);
+  }
+
+  /**
+   * A Constructor.
+   * <b>By default, if missing part of bit field in the end of stream then current accumulated data will be returned.</b>
+   *
+   * @param in    an input stream to be filtered.
+   * @param order a bit order mode for the filter.
+   * @see JBBPBitOrder#LSB0
+   * @see JBBPBitOrder#MSB0
+   */
+  public JBBPBitInputStream(final InputStream in, final JBBPBitOrder order) {
+    this(in, order, true);
+  }
+
+  /**
+   * Create wrapping bit input stream.
+   *
+   * @param in                               the base input stream, must not be null
+   * @param order                            a bit order mode for the filter.
+   * @param returnAccumulatedForBitReadInEof if true then end of stream during bit read and some data missing returns accumulated data.
+   * @since 3.1.0
+   */
+  public JBBPBitInputStream(final InputStream in, final JBBPBitOrder order,
+                            final boolean returnAccumulatedForBitReadInEof) {
+    super(in);
+    this.bitsInBuffer = 0;
+    this.bitOrderMode = order;
+    this.returnAccumulatedForBitReadInEof = returnAccumulatedForBitReadInEof;
+  }
+
+  /**
+   * If true then the bit stream returns currently accumulated data for bit read if end of stream and not whole bit data read, -1 otherwise.
+   *
+   * @return boolean flag for the behavior, true if allowed
+   * @since 3.1.0
+   */
+  public boolean isReturnAccumulatedForBitReadInEof() {
+    return this.returnAccumulatedForBitReadInEof;
+  }
 
   /**
    * Flag shows that read of array was stopped for array limiter restrictions.
@@ -96,29 +159,6 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    */
   public void setDetectedArrayLimit(final boolean value) {
     this.detectedArrayLimit = value;
-  }
-
-  /**
-   * A Constructor, the LSB0 bit order will be used by default.
-   *
-   * @param in an input stream to be filtered.
-   */
-  public JBBPBitInputStream(final InputStream in) {
-    this(in, JBBPBitOrder.LSB0);
-  }
-
-  /**
-   * A Constructor.
-   *
-   * @param in    an input stream to be filtered.
-   * @param order a bit order mode for the filter.
-   * @see JBBPBitOrder#LSB0
-   * @see JBBPBitOrder#MSB0
-   */
-  public JBBPBitInputStream(final InputStream in, final JBBPBitOrder order) {
-    super(in);
-    this.bitsInBuffer = 0;
-    this.bitOrderMode = order;
   }
 
   /**
@@ -198,7 +238,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
 
   @Override
   public int read(final byte[] array, final int offset, final int length) throws IOException {
-    return this.read(array, offset, length, true);
+    return this.read(array, offset, length, this.returnAccumulatedForBitReadInEof);
   }
 
   /**
@@ -210,13 +250,13 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * @param array                     target array
    * @param offset                    offset in the target array
    * @param length                    the length of data portion to be read
-   * @param allowEofForMissingBitData if true then allow to stop read if missing data for non-complete read bits operation.
+   * @param returnAccumulatedForBitReadInEof if true then return accumulated data if end of stream during bit read, return -1 otherwise.
    * @return number of read bytes from the wrapped input stream
    * @throws IOException thrown if any transport error
-   * @since 3.0.1
+   * @since 3.1.0
    */
   public int read(final byte[] array, final int offset, final int length,
-                  final boolean allowEofForMissingBitData) throws IOException {
+                  final boolean returnAccumulatedForBitReadInEof) throws IOException {
     if (this.bitsInBuffer == 0) {
       int readBytes = 0;
       int tempOffset = offset;
@@ -248,7 +288,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       int count = length;
       int i = offset;
       while (count > 0) {
-        final int nextByte = this.readBits(JBBPBitNumber.BITS_8, allowEofForMissingBitData);
+        final int nextByte = this.readBits(JBBPBitNumber.BITS_8, returnAccumulatedForBitReadInEof);
         if (nextByte < 0) {
           break;
         }
@@ -383,7 +423,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       byte[] buffer = new byte[INITIAL_ARRAY_BUFFER_SIZE];
       // till end
       while (true) {
-        final int next = readByteArray ? read() : this.readBits(bitNumber, true);
+        final int next = readByteArray ? read() : this.readBits(bitNumber, this.returnAccumulatedForBitReadInEof);
         if (next < 0) {
           break;
         }
@@ -415,7 +455,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
         }
       } else {
         for (int i = 0; i < items; i++) {
-          final int next = this.readBits(bitNumber, true);
+          final int next = this.readBits(bitNumber, this.returnAccumulatedForBitReadInEof);
           if (next < 0) {
             throw new EOFException("Have read only " + i + " bit portions instead of " + items);
           }
@@ -951,7 +991,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * @since 1.3.0
    */
   public byte readBitField(final JBBPBitNumber numOfBitsToRead) throws IOException {
-    final int value = this.readBits(numOfBitsToRead, true);
+    final int value = this.readBits(numOfBitsToRead, this.returnAccumulatedForBitReadInEof);
     if (value < 0) {
       throw new EOFException("Can't read bits from stream [" + numOfBitsToRead + ']');
     }
@@ -971,7 +1011,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * @throws NullPointerException if number of bits to be read is null
    */
   public int readBits(final JBBPBitNumber numOfBitsToRead) throws IOException {
-    return this.readBits(numOfBitsToRead, false);
+    return this.readBits(numOfBitsToRead, this.returnAccumulatedForBitReadInEof);
   }
 
   /**
@@ -980,13 +1020,13 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * Behaviour in case of missing bit data can be tuned by the special argument flag and if it is true then -1 returned otherwise current accumulated bit data returned.
    *
    * @param numOfBitsToRead           the number of bits to be read, must be 1..8
-   * @param allowEofForMissingBitData if false then returned current accumulated data as stream ended with missing bits, -1 otherwise
+   * @param returnAccumulatedForBitReadInEof if false then returned current accumulated data as stream ended with missing bits, -1 otherwise
    * @return the read bits as integer, -1 if the end of stream has been reached or if allowed end of stream flag and not all bits read.
    * @throws IOException          it will be thrown for transport errors to be read
    * @throws NullPointerException if number of bits to be read is null
    * @since 3.0.1
    */
-  public int readBits(final JBBPBitNumber numOfBitsToRead, final boolean allowEofForMissingBitData)
+  public int readBits(final JBBPBitNumber numOfBitsToRead, final boolean returnAccumulatedForBitReadInEof)
       throws IOException {
     int result;
 
@@ -1028,12 +1068,12 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
               if (i == numOfBitsAsNumber) {
                 return nextByte;
               } else {
-                if (allowEofForMissingBitData) {
+                if (returnAccumulatedForBitReadInEof) {
+                  break;
+                } else {
                   this.bitBuffer = 0;
                   this.bitsInBuffer = 0;
                   return -1;
-                } else {
-                  break;
                 }
               }
             } else {
@@ -1058,12 +1098,12 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
               if (i == numOfBitsAsNumber) {
                 return nextByte;
               } else {
-                if (allowEofForMissingBitData) {
+                if (returnAccumulatedForBitReadInEof) {
+                  break;
+                } else {
                   this.bitBuffer = 0;
                   this.bitsInBuffer = 0;
                   return -1;
-                } else {
-                  break;
                 }
               }
             } else {
