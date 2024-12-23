@@ -17,6 +17,13 @@ that for Java. So I developed the JBBP library.<br>
 
 # Change log
 
+- __3.0.1 (SNAPSHOT)__
+  - added MSB0_DIRECT bit order mode, MSB0 without
+    reverse [#46](https://github.com/raydac/java-binary-block-parser/issues/46)
+  - added JBBPBitInputStream#isDetectedPartlyReadBitField to check that only part of bit field read during last
+    operation
+  - added flag into constructor for JBBPBitInputStream to force return -1 instead of partly read bit field data
+
 - __3.0.0 (16-nov-2024)__
   - __Minimum JDK Version: Updated to 11.0.__
   - __Minimum Supported Android: Updated to 12 (API 32).__
@@ -29,9 +36,9 @@ that for Java. So I developed the JBBP library.<br>
 - __2.1.0 (05-nov-2024)__
   - minor changes in API for `JBBPVarFieldProcessor` and `JBBPCustomFieldTypeProcessor`
   - provided way to control size of arrays read as stream
-    rest [#44](https://github.com/raydac/java-binary-block-parser/issues/41)
+    rest [#44](https://github.com/raydac/java-binary-block-parser/issues/44)
   - provided way to control size of arrays which size calculated through
-    expressions [#45](https://github.com/raydac/java-binary-block-parser/issues/41)
+    expressions [#45](https://github.com/raydac/java-binary-block-parser/issues/45)
   - improved tests
 
 [Full changelog](https://github.com/raydac/java-binary-block-parser/blob/master/changelog.txt)

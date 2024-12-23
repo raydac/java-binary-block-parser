@@ -1,5 +1,5 @@
 3.0.1 (SNAPSHOT)
- - added MSB0_DIRECT bit order mode, MSB0 without reverse
+ - added MSB0_DIRECT bit order mode, MSB0 without reverse [#46](https://github.com/raydac/java-binary-block-parser/issues/46)
  - added JBBPBitInputStream#isDetectedPartlyReadBitField to check that only part of bit field read during last operation
  - added flag into constructor for JBBPBitInputStream to force return -1 instead of  partly read bit field data
 
@@ -13,8 +13,8 @@
 
 2.1.0 (05-nov-2024)
  - minor changes in API for JBBPVarFieldProcessor and JBBPCustomFieldTypeProcessor
- - provided way to control size of arrays read as stream rest [#44](https://github.com/raydac/java-binary-block-parser/issues/41)
- - provided way to control size of arrays which size calculated through expressions [#45](https://github.com/raydac/java-binary-block-parser/issues/41)
+ - provided way to control size of arrays read as stream rest [#44](https://github.com/raydac/java-binary-block-parser/issues/44)
+ - provided way to control size of arrays which size calculated through expressions [#45](https://github.com/raydac/java-binary-block-parser/issues/45)
  - improved tests
 
 2.0.6 (01-jul-2023)
