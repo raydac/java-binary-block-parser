@@ -79,6 +79,7 @@ public class JBBPBitInputStreamTest {
         () -> new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {1}), false);
 
     JBBPBitInputStream in = oneByteStream.get();
+    assertTrue(in.isEnablePartialBitsOnEOF());
     assertFalse(in.isDetectedPartlyReadBitField());
     in.read();
     assertFalse(in.isDetectedPartlyReadBitField());
@@ -102,6 +103,7 @@ public class JBBPBitInputStreamTest {
     assertTrue(in.isDetectedPartlyReadBitField());
 
     in = oneByteStreamNoAccumulated.get();
+    assertFalse(in.isEnablePartialBitsOnEOF());
     assertFalse(in.isDetectedPartlyReadBitField());
     in.read();
     assertFalse(in.isDetectedPartlyReadBitField());

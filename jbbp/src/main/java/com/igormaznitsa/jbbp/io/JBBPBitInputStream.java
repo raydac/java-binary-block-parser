@@ -41,10 +41,11 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   protected static final int INITIAL_ARRAY_BUFFER_SIZE =
       JBBPSystemProperty.PROPERTY_INPUT_INITIAL_ARRAY_BUFFER_SIZE.getAsInteger(32);
   /**
-   * Allow return accumulated data during met end of stream and missing part of bits field data.
+   * Allow return accumulated read data if end of stream and not full required bit field read.
+   *
    * @since 3.0.1
    */
-  private final boolean returnAccumulatedForBitReadInEof;
+  private final boolean enablePartialBitsOnEOF;
   /**
    * Contains bit mode for bit operations.
    */
@@ -83,7 +84,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   /**
    * Flag shows that during last read some bit field was not fully read.
    *
-   * @see JBBPBitInputStream#isReturnAccumulatedForBitReadInEof()
+   * @see JBBPBitInputStream#isEnablePartialBitsOnEOF()
    * @since 3.0.1
    */
   private boolean detectedPartlyReadBitField;
@@ -115,33 +116,33 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   /**
    * A Constructor, the LSB0 bit order will be used by default.
    *
-   * @param in                               an input stream to be filtered.
-   * @param returnAccumulatedForBitReadInEof if true then end of stream during bit read and some data missing returns accumulated data.
+   * @param in                     an input stream to be filtered.
+   * @param enablePartialBitsOnEOF if true then partly read bit data is returned in end of stream, -1 returned otherwise even if there is partly read bits data.
    */
-  public JBBPBitInputStream(final InputStream in, final boolean returnAccumulatedForBitReadInEof) {
-    this(in, JBBPBitOrder.LSB0, returnAccumulatedForBitReadInEof);
+  public JBBPBitInputStream(final InputStream in, final boolean enablePartialBitsOnEOF) {
+    this(in, JBBPBitOrder.LSB0, enablePartialBitsOnEOF);
   }
 
   /**
    * Create wrapping bit input stream.
    *
-   * @param in                               the base input stream, must not be null
-   * @param order                            a bit order mode for the filter.
-   * @param returnAccumulatedForBitReadInEof if true then end of stream during bit read and some data missing returns accumulated data.
+   * @param in                     the base input stream, must not be null
+   * @param order                  a bitness order mode for the filter.
+   * @param enablePartialBitsOnEOF if true then partly read bit data is returned in end of stream, -1 returned otherwise even if there is partly read bits data.
    * @since 3.0.1
    */
   public JBBPBitInputStream(final InputStream in, final JBBPBitOrder order,
-                            final boolean returnAccumulatedForBitReadInEof) {
+                            final boolean enablePartialBitsOnEOF) {
     super(in);
     this.bitsInBuffer = 0;
     this.bitOrderMode = order;
-    this.returnAccumulatedForBitReadInEof = returnAccumulatedForBitReadInEof;
+    this.enablePartialBitsOnEOF = enablePartialBitsOnEOF;
   }
 
   /**
    * Shows that during last read some bit field was not fully read.
    *
-   * @see JBBPBitInputStream#isReturnAccumulatedForBitReadInEof()
+   * @see JBBPBitInputStream#isEnablePartialBitsOnEOF()
    * @since 3.0.1
    */
   public boolean isDetectedPartlyReadBitField() {
@@ -149,13 +150,14 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   }
 
   /**
-   * If true then the bit stream returns currently accumulated data for bit read if end of stream and not whole bit data read, -1 otherwise.
+   * Get flag shows behavior if end of file but presented bit data in buffer.
+   * If true then partly read bit data is returned in end of stream, -1 returned otherwise even if there is partly read bits data.
    *
    * @return boolean flag for the behavior, true if allowed
    * @since 3.0.1
    */
-  public boolean isReturnAccumulatedForBitReadInEof() {
-    return this.returnAccumulatedForBitReadInEof;
+  public boolean isEnablePartialBitsOnEOF() {
+    return this.enablePartialBitsOnEOF;
   }
 
   /**
@@ -257,7 +259,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
 
   @Override
   public int read(final byte[] array, final int offset, final int length) throws IOException {
-    return this.read(array, offset, length, this.returnAccumulatedForBitReadInEof);
+    return this.read(array, offset, length, this.enablePartialBitsOnEOF);
   }
 
   /**
@@ -266,9 +268,9 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * blocks until some input is available; otherwise, no
    * bytes are read and {@code 0} is returned.
    *
-   * @param array                     target array
-   * @param offset                    offset in the target array
-   * @param length                    the length of data portion to be read
+   * @param array                            target array
+   * @param offset                           offset in the target array
+   * @param length                           the length of data portion to be read
    * @param returnAccumulatedForBitReadInEof if true then return accumulated data if end of stream during bit read, return -1 otherwise.
    * @return number of read bytes from the wrapped input stream
    * @throws IOException thrown if any transport error
@@ -447,7 +449,8 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       byte[] buffer = new byte[INITIAL_ARRAY_BUFFER_SIZE];
       // till end
       while (true) {
-        final int next = readByteArray ? read() : this.readBits(bitNumber, this.returnAccumulatedForBitReadInEof);
+        final int next =
+            readByteArray ? read() : this.readBits(bitNumber, this.enablePartialBitsOnEOF);
         if (next < 0) {
           break;
         }
@@ -479,7 +482,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
         }
       } else {
         for (int i = 0; i < items; i++) {
-          final int next = this.readBits(bitNumber, this.returnAccumulatedForBitReadInEof);
+          final int next = this.readBits(bitNumber, this.enablePartialBitsOnEOF);
           if (next < 0) {
             throw new EOFException("Have read only " + i + " bit portions instead of " + items);
           }
@@ -1016,7 +1019,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * @since 1.3.0
    */
   public byte readBitField(final JBBPBitNumber numOfBitsToRead) throws IOException {
-    final int value = this.readBits(numOfBitsToRead, this.returnAccumulatedForBitReadInEof);
+    final int value = this.readBits(numOfBitsToRead, this.enablePartialBitsOnEOF);
     if (value < 0 || this.isDetectedPartlyReadBitField()) {
       throw new EOFException("Can't read bits from stream [" + numOfBitsToRead + ']');
     }
@@ -1036,7 +1039,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * @throws NullPointerException if number of bits to be read is null
    */
   public int readBits(final JBBPBitNumber numOfBitsToRead) throws IOException {
-    return this.readBits(numOfBitsToRead, this.returnAccumulatedForBitReadInEof);
+    return this.readBits(numOfBitsToRead, this.enablePartialBitsOnEOF);
   }
 
   /**
@@ -1044,14 +1047,15 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * since 0 bit and make reversion to return bits in the order according the thread mode.
    * Behaviour in case of missing bit data can be tuned by the special argument flag and if it is true then -1 returned otherwise current accumulated bit data returned.
    *
-   * @param numOfBitsToRead           the number of bits to be read, must be 1..8
+   * @param numOfBitsToRead                  the number of bits to be read, must be 1..8
    * @param returnAccumulatedForBitReadInEof if false then returned current accumulated data as stream ended with missing bits, -1 otherwise
    * @return the read bits as integer, -1 if the end of stream has been reached or if allowed end of stream flag and not all bits read.
    * @throws IOException          it will be thrown for transport errors to be read
    * @throws NullPointerException if number of bits to be read is null
    * @since 3.0.1
    */
-  public int readBits(final JBBPBitNumber numOfBitsToRead, final boolean returnAccumulatedForBitReadInEof)
+  public int readBits(final JBBPBitNumber numOfBitsToRead,
+                      final boolean returnAccumulatedForBitReadInEof)
       throws IOException {
     int result;
     this.detectedPartlyReadBitField = false;

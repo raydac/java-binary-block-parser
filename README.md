@@ -22,7 +22,8 @@ that for Java. So I developed the JBBP library.<br>
     revers [#46](https://github.com/raydac/java-binary-block-parser/issues/46)
   - added `JBBPBitInputStream#isDetectedPartlyReadBitField` to check that only part of bit field read during last
     operation
-  - added flag into constructor for JBBPBitInputStream to force return -1 instead of partly read bit field data
+  - added flag into constructors for JBBPBitInputStream to force return -1 instead of partly accumulated bits data if
+    end of field
 
 - __3.0.0 (16-nov-2024)__
   - __Minimum JDK Version: Updated to 11.0.__
