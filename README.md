@@ -18,9 +18,9 @@ that for Java. So I developed the JBBP library.<br>
 # Change log
 
 - __3.0.1 (SNAPSHOT)__
-  - added MSB0_DIRECT bit order mode, MSB0 without
-    reverse [#46](https://github.com/raydac/java-binary-block-parser/issues/46)
-  - added JBBPBitInputStream#isDetectedPartlyReadBitField to check that only part of bit field read during last
+  - added `MSB0_DIRECT` bit order mode, MSB0 without data
+    revers [#46](https://github.com/raydac/java-binary-block-parser/issues/46)
+  - added `JBBPBitInputStream#isDetectedPartlyReadBitField` to check that only part of bit field read during last
     operation
   - added flag into constructor for JBBPBitInputStream to force return -1 instead of partly read bit field data
 
