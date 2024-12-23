@@ -1,5 +1,7 @@
 3.0.1 (SNAPSHOT)
  - added MSB0_DIRECT bit order mode, MSB0 without reverse
+ - added JBBPBitInputStream#isDetectedPartlyReadBitField to check that only part of bit field read during last operation
+ - added flag into constructor for JBBPBitInputStream to force return -1 instead of  partly read bit field data
 
 3.0.0 (16-nov-2024)
  - Minimum JDK Version: Updated to 11.0.
