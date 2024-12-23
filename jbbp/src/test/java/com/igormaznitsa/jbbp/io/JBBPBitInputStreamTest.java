@@ -1622,7 +1622,9 @@ public class JBBPBitInputStreamTest {
     assertEquals(0, in.getCounter());
 
     final byte[] readArray = new byte[6];
+    assertFalse(in.isDetectedPartlyReadBitField());
     final int read = in.read(readArray, 0, readArray.length);
+    assertTrue(in.isDetectedPartlyReadBitField());
     assertEquals(3, read);
     assertEquals(4, in.getCounter());
 
@@ -1644,7 +1646,9 @@ public class JBBPBitInputStreamTest {
     assertEquals(0, in.getCounter());
 
     final byte[] readArray = new byte[6];
+    assertFalse(in.isDetectedPartlyReadBitField());
     final int read = in.read(readArray, 0, readArray.length);
+    assertTrue(in.isDetectedPartlyReadBitField());
     assertEquals(3, read);
     assertEquals(4, in.getCounter());
 
@@ -1665,7 +1669,9 @@ public class JBBPBitInputStreamTest {
     assertEquals(0, in.getCounter());
 
     final byte[] readarray = new byte[6];
+    assertFalse(in.isDetectedPartlyReadBitField());
     final int read = in.read(readarray, 0, readarray.length, true);
+    assertTrue(in.isDetectedPartlyReadBitField());
     assertEquals(4, read);
     assertEquals(4, in.getCounter());
     assertArrayEquals(new byte[] {(byte) 0x41, (byte) 0x63, (byte) 0xD5, (byte) 0x0D, 0, 0},
@@ -1681,8 +1687,9 @@ public class JBBPBitInputStreamTest {
     assertEquals(0x8, in.readBits(BITS_4));
 
     final byte[] readarray = new byte[6];
+    assertFalse(in.isDetectedPartlyReadBitField());
     final int read = in.read(readarray, 0, readarray.length);
-
+    assertTrue(in.isDetectedPartlyReadBitField());
     assertEquals(4, read);
     assertEquals(4, in.getCounter());
 
