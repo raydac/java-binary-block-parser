@@ -74,7 +74,7 @@ public class JBBPBitInputStreamTest {
   @Test
   public void testIsDetectedPartlyReadBitField() throws Exception {
     final Supplier<JBBPBitInputStream> oneByteStream =
-        () -> new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {1}));
+        () -> new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {1}), true);
     final Supplier<JBBPBitInputStream> oneByteStreamNoAccumulated =
         () -> new JBBPBitInputStream(new ByteArrayInputStream(new byte[] {1}), false);
 
@@ -85,9 +85,20 @@ public class JBBPBitInputStreamTest {
 
     in = oneByteStream.get();
     assertFalse(in.isDetectedPartlyReadBitField());
+    assertEquals(1, in.read(new byte[1], 0, 1));
+    assertFalse(in.isDetectedPartlyReadBitField());
+
+    in = oneByteStream.get();
+    assertFalse(in.isDetectedPartlyReadBitField());
     in.readBits(BITS_1);
     assertFalse(in.isDetectedPartlyReadBitField());
     in.read();
+    assertTrue(in.isDetectedPartlyReadBitField());
+
+    in = oneByteStream.get();
+    assertFalse(in.isDetectedPartlyReadBitField());
+    in.readBits(BITS_1);
+    assertEquals(1, in.read(new byte[1], 0, 1));
     assertTrue(in.isDetectedPartlyReadBitField());
 
     in = oneByteStreamNoAccumulated.get();
@@ -97,9 +108,14 @@ public class JBBPBitInputStreamTest {
 
     in = oneByteStreamNoAccumulated.get();
     assertFalse(in.isDetectedPartlyReadBitField());
+    assertEquals(1, in.read(new byte[1], 0, 1));
+    assertFalse(in.isDetectedPartlyReadBitField());
+
+    in = oneByteStreamNoAccumulated.get();
+    assertFalse(in.isDetectedPartlyReadBitField());
     in.readBits(BITS_1);
     assertFalse(in.isDetectedPartlyReadBitField());
-    in.read();
+    assertEquals(0, in.read(new byte[1], 0, 1));
     assertTrue(in.isDetectedPartlyReadBitField());
   }
 
