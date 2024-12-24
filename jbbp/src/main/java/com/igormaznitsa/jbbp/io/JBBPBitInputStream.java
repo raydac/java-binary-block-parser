@@ -117,7 +117,8 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * A Constructor, the LSB0 bit order will be used by default.
    *
    * @param in                     an input stream to be filtered.
-   * @param enablePartialBitsOnEOF if true then partly read bit data is returned in end of stream, -1 returned otherwise even if there is partly read bits data.
+   * @param enablePartialBitsOnEOF if true then already accumulated partly read bit field data returned in case EOF, -1 otherwise.
+   * @since 3.0.1
    */
   public JBBPBitInputStream(final InputStream in, final boolean enablePartialBitsOnEOF) {
     this(in, JBBPBitOrder.LSB0, enablePartialBitsOnEOF);
@@ -271,13 +272,13 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * @param array                            target array
    * @param offset                           offset in the target array
    * @param length                           the length of data portion to be read
-   * @param returnAccumulatedForBitReadInEof if true then return accumulated data if end of stream during bit read, return -1 otherwise.
+   * @param enablePartialBitsOnEOF if true then already accumulated partly read bit field data returned in case EOF, -1 otherwise.
    * @return number of read bytes from the wrapped input stream
    * @throws IOException thrown if any transport error
    * @since 3.0.1
    */
   public int read(final byte[] array, final int offset, final int length,
-                  final boolean returnAccumulatedForBitReadInEof) throws IOException {
+                  final boolean enablePartialBitsOnEOF) throws IOException {
     this.detectedPartlyReadBitField = false;
     if (this.bitsInBuffer == 0) {
       int readBytes = 0;
@@ -311,7 +312,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       int i = offset;
       boolean partlyReadBits = false;
       while (count > 0) {
-        final int nextByte = this.readBits(JBBPBitNumber.BITS_8, returnAccumulatedForBitReadInEof);
+        final int nextByte = this.readBits(JBBPBitNumber.BITS_8, enablePartialBitsOnEOF);
         partlyReadBits |= this.detectedPartlyReadBitField;
         if (nextByte < 0) {
           break;
@@ -1048,14 +1049,14 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * Behaviour in case of missing bit data can be tuned by the special argument flag and if it is true then -1 returned otherwise current accumulated bit data returned.
    *
    * @param numOfBitsToRead                  the number of bits to be read, must be 1..8
-   * @param returnAccumulatedForBitReadInEof if false then returned current accumulated data as stream ended with missing bits, -1 otherwise
+   * @param enablePartialBitsOnEOF if true then already accumulated partly read bit field data returned in case EOF, -1 otherwise.
    * @return the read bits as integer, -1 if the end of stream has been reached or if allowed end of stream flag and not all bits read.
    * @throws IOException          it will be thrown for transport errors to be read
    * @throws NullPointerException if number of bits to be read is null
    * @since 3.0.1
    */
   public int readBits(final JBBPBitNumber numOfBitsToRead,
-                      final boolean returnAccumulatedForBitReadInEof)
+                      final boolean enablePartialBitsOnEOF)
       throws IOException {
     int result;
     this.detectedPartlyReadBitField = false;
@@ -1098,7 +1099,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
                 return nextByte;
               } else {
                 this.detectedPartlyReadBitField = true;
-                if (returnAccumulatedForBitReadInEof) {
+                if (enablePartialBitsOnEOF) {
                   break;
                 } else {
                   this.bitsInBuffer = 0;
@@ -1128,7 +1129,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
                 return nextByte;
               } else {
                 this.detectedPartlyReadBitField = true;
-                if (returnAccumulatedForBitReadInEof) {
+                if (enablePartialBitsOnEOF) {
                   break;
                 } else {
                   this.bitsInBuffer = 0;
