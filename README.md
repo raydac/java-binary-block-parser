@@ -52,12 +52,12 @@ The Framework has been published in the Maven Central and can be easily added as
 <dependency>
   <groupId>com.igormaznitsa</groupId>
   <artifactId>jbbp</artifactId>
-  <version>3.0.0</version>
+  <version>3.0.1</version>
 </dependency>
 ```
 
 the precompiled library jar, javadoc and sources also can be downloaded directly
-from [the Maven central.](https://search.maven.org/artifact/com.igormaznitsa/jbbp/3.0.0/jar)
+from [the Maven central.](https://search.maven.org/artifact/com.igormaznitsa/jbbp/3.0.1/jar)
 
 # Hello world
 
@@ -130,7 +130,7 @@ in Maven it can be used through snippet:
 <plugin>
   <groupId>com.igormaznitsa</groupId>
   <artifactId>jbbp-maven-plugin</artifactId>
-  <version>3.0.0</version>
+  <version>3.0.1</version>
   <executions>
     <execution>
       <id>gen-jbbp-src</id>
