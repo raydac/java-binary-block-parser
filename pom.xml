@@ -14,18 +14,20 @@
     <url>https://github.com/raydac/java-binary-block-parser</url>
 
     <properties>
+        <jbbp.version>3.0.1-SNAPSHOT</jbbp.version>
+        <jbbp.plugin.version>${jbbp.version}</jbbp.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
         <mvn.version>3.0</mvn.version>
         <meta.version>1.2.1</meta.version>
-        <jbbp.version>3.0.1-SNAPSHOT</jbbp.version>
-        <jbbp.plugin.version>${jbbp.version}</jbbp.plugin.version>
         <maven.compiler.release>11</maven.compiler.release>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <junit5.version>5.11.3</junit5.version>
+        <junit5.version>5.11.4</junit5.version>
+        <junit4.version>4.13.2</junit4.version>
+        <commonsio.version>2.17.0</commonsio.version>
         <jmh.version>1.36</jmh.version>
     </properties>
 
@@ -75,6 +77,11 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>org.apache.maven.shared</groupId>
+                <artifactId>maven-verifier</artifactId>
+                <version>2.0.0-M1</version>
+            </dependency>
+            <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
                 <version>${junit5.version}</version>
@@ -92,7 +99,7 @@
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.17.0</version>
+                <version>${commonsio.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
@@ -103,6 +110,11 @@
                 <groupId>net.minidev</groupId>
                 <artifactId>json-smart</artifactId>
                 <version>2.5.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.3.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

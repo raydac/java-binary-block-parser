@@ -13,7 +13,7 @@ repositories {
 
 dependencies {
     implementation "com.igormaznitsa:jbbp:${jbbp_plugin_version}"
-    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation platform("org.junit:junit-bom:${junit_version}")
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
 

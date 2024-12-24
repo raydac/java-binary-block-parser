@@ -94,7 +94,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <id>gradle</id>
@@ -110,6 +109,8 @@
                                 <argument>--no-daemon</argument>
                                 <argument>-Pjbbp_plugin_version=${project.version}</argument>
                                 <argument>-Pmeta_lib_version=${meta.version}</argument>
+                                <argument>-Pcommons_io_version=${commonsio.version}</argument>
+                                <argument>-Pjunit_version=${junit4.version}</argument>
                             </arguments>
                         </configuration>
                         <goals>

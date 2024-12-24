@@ -52,7 +52,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <id>gradle</id>
@@ -66,6 +65,7 @@
                                 <argument>--scan</argument>
                                 <argument>--no-daemon</argument>
                                 <argument>-Pjbbp_plugin_version=${jbbp.test.version}</argument>
+                                <argument>-Pjunit_version=${junit5.version}</argument>
                             </arguments>
                         </configuration>
                         <goals>

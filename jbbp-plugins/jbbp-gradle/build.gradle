@@ -9,6 +9,8 @@ def getProp(name) {
 
 def jbbpVersion = getProp('jbbp_plugin_version')
 def metaLibVersion = getProp('meta_lib_version')
+def commonsIoVersion = getProp('commons_io_version')
+def junitVersion = getProp('junit_version')
 
 group = 'com.igormaznitsa'
 version = jbbpVersion
@@ -24,11 +26,11 @@ dependencies {
     implementation gradleApi()
     implementation localGroovy()
 
-    implementation 'commons-io:commons-io:2.17.0'
+    implementation "commons-io:commons-io:" + commonsIoVersion
     implementation "com.igormaznitsa:meta-annotations:" + metaLibVersion
     implementation "com.igormaznitsa:meta-utils:" + metaLibVersion
 
-    testImplementation 'junit:junit:4.13.2'
+    testImplementation "junit:junit:" + junitVersion
 }
 
 repositories {
