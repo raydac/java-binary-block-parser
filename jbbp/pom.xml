@@ -43,7 +43,6 @@
         <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
-            <version>2.5.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
