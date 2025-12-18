@@ -1073,7 +1073,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       if (numOfBitsAsNumber == this.bitsInBuffer) {
         result = this.bitBuffer;
         if (this.bitOrderMode == JBBPBitOrder.MSB0_DIRECT) {
-          result >>>= this.bitsInBuffer;
+          result >>>= (8-this.bitsInBuffer);
         }
         this.bitBuffer = 0;
         this.bitsInBuffer = 0;

@@ -16,12 +16,7 @@
 
 package com.igormaznitsa.jbbp.io;
 
-import static com.igormaznitsa.jbbp.io.JBBPBitNumber.BITS_1;
-import static com.igormaznitsa.jbbp.io.JBBPBitNumber.BITS_2;
-import static com.igormaznitsa.jbbp.io.JBBPBitNumber.BITS_3;
-import static com.igormaznitsa.jbbp.io.JBBPBitNumber.BITS_4;
-import static com.igormaznitsa.jbbp.io.JBBPBitNumber.BITS_5;
-import static com.igormaznitsa.jbbp.io.JBBPBitNumber.BITS_8;
+import static com.igormaznitsa.jbbp.io.JBBPBitNumber.*;
 import static com.igormaznitsa.jbbp.io.JBBPByteOrder.BIG_ENDIAN;
 import static com.igormaznitsa.jbbp.utils.JBBPUtils.bin2str;
 import static com.igormaznitsa.jbbp.utils.JBBPUtils.str2bin;
@@ -123,10 +118,12 @@ public class JBBPBitInputStreamTest {
 
   @Test
   public void testReadMsb0Direct() throws Exception {
-    byte[] data = str2bin("00000001_101_00001000_00000_01_00_1011_00000");
+    byte[] data = str2bin("10000100_00000001_101_00001000_00000_01_00_1011_00000");
 
     JBBPBitInputStream in =
         new JBBPBitInputStream(new ByteArrayInputStream(data), JBBPBitOrder.MSB0_DIRECT);
+    assertEquals(1, in.readBits(BITS_1));
+    assertEquals(4, in.readBits(BITS_7));
     assertEquals(1, in.readBits(BITS_8));
     assertEquals(5, in.readBits(BITS_3));
     assertEquals(8, in.readBits(BITS_8));
