@@ -269,9 +269,9 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * blocks until some input is available; otherwise, no
    * bytes are read and {@code 0} is returned.
    *
-   * @param array                            target array
-   * @param offset                           offset in the target array
-   * @param length                           the length of data portion to be read
+   * @param array                  target array
+   * @param offset                 offset in the target array
+   * @param length                 the length of data portion to be read
    * @param enablePartialBitsOnEOF if true then already accumulated partly read bit field data returned in case EOF, -1 otherwise.
    * @return number of read bytes from the wrapped input stream
    * @throws IOException thrown if any transport error
@@ -1048,7 +1048,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    * since 0 bit and make reversion to return bits in the order according the thread mode.
    * Behaviour in case of missing bit data can be tuned by the special argument flag and if it is true then -1 returned otherwise current accumulated bit data returned.
    *
-   * @param numOfBitsToRead                  the number of bits to be read, must be 1..8
+   * @param numOfBitsToRead        the number of bits to be read, must be 1..8
    * @param enablePartialBitsOnEOF if true then already accumulated partly read bit field data returned in case EOF, -1 otherwise.
    * @return the read bits as integer, -1 if the end of stream has been reached or if allowed end of stream flag and not all bits read.
    * @throws IOException          it will be thrown for transport errors to be read
@@ -1073,7 +1073,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
       if (numOfBitsAsNumber == this.bitsInBuffer) {
         result = this.bitBuffer;
         if (this.bitOrderMode == JBBPBitOrder.MSB0_DIRECT) {
-          result >>>= (8-this.bitsInBuffer);
+          result >>>= (8 - this.bitsInBuffer);
         }
         this.bitBuffer = 0;
         this.bitsInBuffer = 0;
