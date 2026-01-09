@@ -38,9 +38,6 @@ public class JBBPBitOrderTest {
       while (bitsLeft > 0) {
         final int portion = Math.min(bitsLeft, rnd.nextInt(8) + 1);
         bitsLeft -= portion;
-
-        final JBBPBitNumber bitNumber = JBBPBitNumber.decode(portion);
-
         bitOutputStream.writeBits(acc, JBBPBitNumber.decode(portion));
         acc >>>= portion;
         portions.write(portion);
