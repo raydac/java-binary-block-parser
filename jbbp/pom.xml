@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.igormaznitsa</groupId>
         <artifactId>jbbp-main-pom</artifactId>
-        <version>3.0.2-SNAPSHOT</version>
+        <version>3.0.2</version>
     </parent>
 
     <artifactId>jbbp</artifactId>
@@ -37,7 +37,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.18.0</version>
+            <version>3.20.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -264,7 +264,7 @@
                             <signature>
                                 <groupId>com.toasttab.android</groupId>
                                 <artifactId>gummy-bears-api-32</artifactId>
-                                <version>0.10.0</version>
+                                <version>0.12.0</version>
                             </signature>
                             <ignores>
                                 <ignore>sun.misc.Unsafe</ignore>

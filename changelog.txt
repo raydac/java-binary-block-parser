@@ -1,3 +1,6 @@
+3.0.2 (09-jan-2026)
+  - fixed bug in `MSB0_DIRECT` read, thanks to @Stormregion0
+
 3.0.1 (24-dec-2024)
  - added `MSB0_DIRECT` bit order mode, MSB0 without data revers [#46](https://github.com/raydac/java-binary-block-parser/issues/46)
  - added `JBBPBitInputStream#isDetectedPartlyReadBitField` to check that only part of bit field read during last operation

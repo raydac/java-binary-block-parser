@@ -4,7 +4,7 @@
 
     <groupId>com.igormaznitsa</groupId>
     <artifactId>jbbp-main-pom</artifactId>
-    <version>3.0.2-SNAPSHOT</version>
+    <version>3.0.2</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -14,7 +14,7 @@
     <url>https://github.com/raydac/java-binary-block-parser</url>
 
     <properties>
-        <jbbp.version>3.0.2-SNAPSHOT</jbbp.version>
+        <jbbp.version>3.0.2</jbbp.version>
         <jbbp.plugin.version>${jbbp.version}</jbbp.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -43,7 +43,7 @@
             <id>raydac</id>
             <name>Igor Maznitsa</name>
             <email>rrg4400@gmail.com</email>
-            <url>http://www.igormaznitsa.com</url>
+            <url>https://www.igormaznitsa.com</url>
             <timezone>+3</timezone>
             <roles>
                 <role>developer</role>
@@ -63,13 +63,13 @@
 
     <organization>
         <name>Igor Maznitsa</name>
-        <url>http://www.igormaznitsa.com</url>
+        <url>https://www.igormaznitsa.com</url>
     </organization>
 
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
