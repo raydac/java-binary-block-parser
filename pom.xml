@@ -4,7 +4,7 @@
 
     <groupId>com.igormaznitsa</groupId>
     <artifactId>jbbp-main-pom</artifactId>
-    <version>3.0.2</version>
+    <version>3.0.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -14,7 +14,7 @@
     <url>https://github.com/raydac/java-binary-block-parser</url>
 
     <properties>
-        <jbbp.version>3.0.2</jbbp.version>
+        <jbbp.version>3.0.3-SNAPSHOT</jbbp.version>
         <jbbp.plugin.version>${jbbp.version}</jbbp.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
