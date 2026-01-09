@@ -18,7 +18,7 @@ that for Java. So I developed the JBBP library.<br>
 # Change log
 
 - __3.0.2 (09-jan-2026)__
-  - fixed bug in `MSB0_DIRECT` read, thanks to @Stormregion0
+  - fixed bug in `MSB0_DIRECT` read, thanks to [@Stormregion0]
 
 - __3.0.1 (24-dec-2024)__
   - added `MSB0_DIRECT` bit order mode, MSB0 without data
