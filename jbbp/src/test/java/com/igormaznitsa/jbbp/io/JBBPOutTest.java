@@ -283,7 +283,7 @@ public class JBBPOutTest {
   @Test
   public void testBitArrayAsBytes() throws Exception {
     assertArrayEquals(new byte[] {(byte) 0xE3}, BeginBin().Bit(
-        new byte[] {(byte) 1, (byte) 3, (byte) 0, (byte) 2, (byte) 4, (byte) 1, (byte) 3, (byte) 7})
+            new byte[] {(byte) 1, (byte) 3, (byte) 0, (byte) 2, (byte) 4, (byte) 1, (byte) 3, (byte) 7})
         .End().toByteArray());
     assertArrayEquals(new byte[] {(byte) 0x0B},
         BeginBin().Bit(new byte[] {(byte) 1, (byte) 3, (byte) 0, (byte) 7}).End().toByteArray());
@@ -853,8 +853,8 @@ public class JBBPOutTest {
         this.c = c;
       }
     }
-    assertArrayEquals(new byte[]{1, (byte) 0x40, 3},
-            BeginBin().Bin(new Test((byte) 1, (byte) 2, (byte) 3)).End().toByteArray());
+    assertArrayEquals(new byte[] {1, (byte) 0x40, 3},
+        BeginBin().Bin(new Test((byte) 1, (byte) 2, (byte) 3)).End().toByteArray());
   }
 
   @Test
@@ -874,18 +874,19 @@ public class JBBPOutTest {
         this.c = c;
       }
     }
-    assertArrayEquals(new byte[]{1, 3},
-            BeginBin().Bin(new Test((byte) 1, (byte) 2, (byte) 3), (b, f) -> f == null || !f.getName().equals("b")).End().toByteArray());
+    assertArrayEquals(new byte[] {1, 3},
+        BeginBin().Bin(new Test((byte) 1, (byte) 2, (byte) 3),
+            (b, f) -> f == null || !f.getName().equals("b")).End().toByteArray());
   }
 
   @Test
   public void testBin_Byte_StringAsByteArray() throws Exception {
     assertArrayEquals(new byte[0], BeginBin().Byte("", JBBPBitOrder.LSB0).End().toByteArray());
     assertArrayEquals(new byte[0], BeginBin().Byte("", JBBPBitOrder.MSB0).End().toByteArray());
-    assertArrayEquals(new byte[]{65, 66, 67, 68},
-            BeginBin().Byte("ABCD", JBBPBitOrder.LSB0).End().toByteArray());
-    assertArrayEquals(new byte[]{(byte) 130, 66, (byte) 194, 34},
-            BeginBin().Byte("ABCD", JBBPBitOrder.MSB0).End().toByteArray());
+    assertArrayEquals(new byte[] {65, 66, 67, 68},
+        BeginBin().Byte("ABCD", JBBPBitOrder.LSB0).End().toByteArray());
+    assertArrayEquals(new byte[] {(byte) 130, 66, (byte) 194, 34},
+        BeginBin().Byte("ABCD", JBBPBitOrder.MSB0).End().toByteArray());
   }
 
   @Test
@@ -1042,11 +1043,11 @@ public class JBBPOutTest {
       byte a = (byte) 0b10101010;
     }
 
-    assertArrayEquals(new byte[]{(byte) 0b00001010},
-            BeginBin().Bin(new Test(), null, null, null).End().toByteArray());
-    assertArrayEquals(new byte[]{(byte) 0b10101010}, BeginBin()
-            .Bin(new Test(), new BinAnnotationWrapper().setBitNumber(JBBPBitNumber.BITS_8), null).End()
-            .toByteArray());
+    assertArrayEquals(new byte[] {(byte) 0b00001010},
+        BeginBin().Bin(new Test(), null, null, null).End().toByteArray());
+    assertArrayEquals(new byte[] {(byte) 0b10101010}, BeginBin()
+        .Bin(new Test(), new BinAnnotationWrapper().setBitNumber(JBBPBitNumber.BITS_8), null).End()
+        .toByteArray());
     assertArrayEquals(new byte[] {(byte) 0b00000101},
         BeginBin().Bin(new Test(), new BinAnnotationWrapper().setBitOrder(JBBPBitOrder.MSB0), null)
             .End().toByteArray());
@@ -1242,9 +1243,9 @@ public class JBBPOutTest {
       }
     }
 
-    assertArrayEquals(new byte[]{1, 3, 4, 2},
-            BeginBin().Bin(new Test((byte) 1, (byte) 2, new Inside((byte) 3, (byte) 4))).End()
-                    .toByteArray());
+    assertArrayEquals(new byte[] {1, 3, 4, 2},
+        BeginBin().Bin(new Test((byte) 1, (byte) 2, new Inside((byte) 3, (byte) 4))).End()
+            .toByteArray());
   }
 
   @Test
@@ -1278,10 +1279,11 @@ public class JBBPOutTest {
       }
     }
 
-    assertArrayEquals(new byte[]{1, 4, 2},
-            BeginBin().Bin(new Test((byte) 1, (byte) 2, new Inside((byte) 3, (byte) 4)),
-                            (b, f) -> f == null || !(f.getDeclaringClass().getSimpleName().equals("Inside") && f.getName().equals("a"))).End()
-                    .toByteArray());
+    assertArrayEquals(new byte[] {1, 4, 2},
+        BeginBin().Bin(new Test((byte) 1, (byte) 2, new Inside((byte) 3, (byte) 4)),
+                (b, f) -> f == null || !(f.getDeclaringClass().getSimpleName().equals("Inside") &&
+                    f.getName().equals("a"))).End()
+            .toByteArray());
   }
 
   @Test
@@ -1400,7 +1402,7 @@ public class JBBPOutTest {
         new byte[] {(byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x02, (byte) 0x01, (byte) 0x03,
             (byte) 0xA0, (byte) 0x60, (byte) 0x60, (byte) 0xE0, (byte) 0xE0, (byte) 0x00},
         BeginBin().Bin(
-            new Test(new short[] {0x0101, 0x0102, 0x0103}, new short[] {0x0605, 0x0706, 0x0007}))
+                new Test(new short[] {0x0101, 0x0102, 0x0103}, new short[] {0x0605, 0x0706, 0x0007}))
             .End().toByteArray());
   }
 
@@ -1461,14 +1463,14 @@ public class JBBPOutTest {
       }
     }
     assertArrayEquals(JBBPUtils.concat(
-        JBBPUtils.splitInteger(Float.floatToIntBits(23.4546f), false, null),
-        JBBPUtils.splitInteger(Float.floatToIntBits(123.32f), false, null),
-        JBBPUtils
-            .splitInteger((int) JBBPFieldInt.reverseBits(Float.floatToIntBits(11.98872f)), false,
-                null),
-        JBBPUtils
-            .splitInteger((int) JBBPFieldInt.reverseBits(Float.floatToIntBits(-234.322f)), false,
-                null)
+            JBBPUtils.splitInteger(Float.floatToIntBits(23.4546f), false, null),
+            JBBPUtils.splitInteger(Float.floatToIntBits(123.32f), false, null),
+            JBBPUtils
+                .splitInteger((int) JBBPFieldInt.reverseBits(Float.floatToIntBits(11.98872f)), false,
+                    null),
+            JBBPUtils
+                .splitInteger((int) JBBPFieldInt.reverseBits(Float.floatToIntBits(-234.322f)), false,
+                    null)
         ),
         BeginBin()
             .Bin(new Test(new float[] {23.4546f, 123.32f}, new float[] {11.98872f, -234.322f}))
@@ -1490,10 +1492,10 @@ public class JBBPOutTest {
       }
     }
     assertArrayEquals(JBBPUtils.concat(
-        JBBPUtils.splitLong(0x1122334455667788L, false, null),
-        JBBPUtils.splitLong(0xAABBCCDDEEFF1122L, false, null),
-        JBBPUtils.splitLong(JBBPFieldLong.reverseBits(0x0102030405060708L), false, null),
-        JBBPUtils.splitLong(JBBPFieldLong.reverseBits(0xCAFEBABE12345334L), false, null)
+            JBBPUtils.splitLong(0x1122334455667788L, false, null),
+            JBBPUtils.splitLong(0xAABBCCDDEEFF1122L, false, null),
+            JBBPUtils.splitLong(JBBPFieldLong.reverseBits(0x0102030405060708L), false, null),
+            JBBPUtils.splitLong(JBBPFieldLong.reverseBits(0xCAFEBABE12345334L), false, null)
         ),
         BeginBin().Bin(new Test(new long[] {0x1122334455667788L, 0xAABBCCDDEEFF1122L},
             new long[] {0x0102030405060708L, 0xCAFEBABE12345334L})).End().toByteArray());

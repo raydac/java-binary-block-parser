@@ -50,7 +50,7 @@ public final class JBBPMapper {
    */
   public static final int FLAG_IGNORE_MISSING_VALUES = 1;
   private static final Map<Class<?>, List<MappedFieldRecord>> CACHED_FIELDS =
-          new ConcurrentHashMap<>();
+      new ConcurrentHashMap<>();
 
   /**
    * Create a class instance, map binary data of a structure for its path to its
@@ -148,8 +148,8 @@ public final class JBBPMapper {
     final JBBPFieldStruct struct = root.findFieldForPathAndType(structPath, JBBPFieldStruct.class);
     if (struct == null) {
       throw new JBBPMapperException(
-              "Can't find a structure field for its path [" + structPath + ']', null,
-              instance.getClass(), null, null);
+          "Can't find a structure field for its path [" + structPath + ']', null,
+          instance.getClass(), null, null);
     }
     return map(struct, instance, customFieldProcessor, flags, instantiators);
   }
@@ -225,13 +225,13 @@ public final class JBBPMapper {
   @SafeVarargs
   @SuppressWarnings("varargs")
   private static void processFieldOfMappedClass(
-          final MappedFieldRecord record,
-          final JBBPFieldStruct rootStructure,
-          final Object instance,
-          final JBBPMapperCustomFieldProcessor customFieldProcessor,
-          final int flags,
-          final BinFieldFilter binFieldFilter,
-          final Function<Class<?>, Object>... instantiators
+      final MappedFieldRecord record,
+      final JBBPFieldStruct rootStructure,
+      final Object instance,
+      final JBBPMapperCustomFieldProcessor customFieldProcessor,
+      final int flags,
+      final BinFieldFilter binFieldFilter,
+      final Function<Class<?>, Object>... instantiators
   ) {
     if (record.binAnnotation.custom()) {
       JBBPUtils.assertNotNull(customFieldProcessor,
@@ -245,7 +245,9 @@ public final class JBBPMapper {
       if (record.fieldPath.isEmpty()) {
         binField = record.fieldName.isEmpty() ?
             rootStructure.findFieldForType(record.fieldType.getFieldClass()) : rootStructure
-            .findFieldForNameAndType(record.fieldName, record.fieldType.getFieldClass());
+                                                                               .findFieldForNameAndType(
+                                                                                   record.fieldName,
+                                                                                   record.fieldType.getFieldClass());
       } else {
         binField = rootStructure
             .findFieldForPathAndType(record.fieldPath, record.fieldType.getFieldClass());
@@ -268,7 +270,7 @@ public final class JBBPMapper {
             record.mappingClass, record.mappingField, null);
       }
       record.proc.apply(record, rootStructure, instance, customFieldProcessor, binField, flags,
-              binFieldFilter, instantiators);
+          binFieldFilter, instantiators);
     }
   }
 
@@ -333,13 +335,13 @@ public final class JBBPMapper {
     // Don't use forEach() for Android compatibility!
     for (final MappedFieldRecord record : findAffectedFields(instance, binFieldFilter)) {
       processFieldOfMappedClass(
-              record,
-              rootStructure,
-              instance,
-              customFieldProcessor,
-              flags,
-              binFieldFilter,
-              instantiators
+          record,
+          rootStructure,
+          instance,
+          customFieldProcessor,
+          flags,
+          binFieldFilter,
+          instantiators
       );
     }
     return instance;
@@ -364,7 +366,8 @@ public final class JBBPMapper {
     CACHED_FIELDS.clear();
   }
 
-  public static List<MappedFieldRecord> findAffectedFields(final Object instance, final BinFieldFilter binFieldFilter) {
+  public static List<MappedFieldRecord> findAffectedFields(final Object instance,
+                                                           final BinFieldFilter binFieldFilter) {
     final Class<?> mappingClass = instance.getClass();
 
     List<MappedFieldRecord> result = CACHED_FIELDS.get(mappingClass);
@@ -379,8 +382,8 @@ public final class JBBPMapper {
       while (current != null) {
         final String packageName = current.getPackage().getName();
         if (packageName.startsWith("java.")
-                || packageName.startsWith("javax.")
-                || packageName.startsWith("android.")
+            || packageName.startsWith("javax.")
+            || packageName.startsWith("android.")
         ) {
           break;
         }
@@ -395,15 +398,15 @@ public final class JBBPMapper {
           final Bin fieldAnno = mappingField.getAnnotation(Bin.class);
           final Bin mappedAnno;
           if ((fieldAnno == null && defaultAnno == null) ||
-                  mappingField.getName().indexOf('$') >= 0) {
+              mappingField.getName().indexOf('$') >= 0) {
             continue;
           }
           mappedAnno = fieldAnno == null ? defaultAnno : fieldAnno;
 
           if (fieldAnno == null) {
             if (Modifier.isTransient(fieldModifiers)
-                    || Modifier.isStatic(fieldModifiers)
-                    || Modifier.isFinal(fieldModifiers)) {
+                || Modifier.isStatic(fieldModifiers)
+                || Modifier.isFinal(fieldModifiers)) {
               continue;
             }
           } else {
@@ -417,32 +420,32 @@ public final class JBBPMapper {
             }
             if (disallowedModifier != null) {
               throw new JBBPMapperException("Detected @Bin marked " + disallowedModifier + " field",
-                      null, processingClazz, mappingField, null);
+                  null, processingClazz, mappingField, null);
             }
           }
 
           final NullableTriple<Method, Method, Method> auxMethods =
-                  findAuxFieldMethods(processingClazz, mappingField);
+              findAuxFieldMethods(processingClazz, mappingField);
 
           final Method fieldGenerator = auxMethods.getA();
           final Method fieldGetter = auxMethods.getB();
           final Method fieldSetter = auxMethods.getC();
 
           if (mappingField.getType().isPrimitive() && fieldSetter == null &&
-                  Modifier.isPrivate(mappingField.getModifiers())) {
+              Modifier.isPrivate(mappingField.getModifiers())) {
             throw new JBBPMapperException(
-                    "Detected private primitive field, mapping requires setter", null, processingClazz,
-                    mappingField, null);
+                "Detected private primitive field, mapping requires setter", null, processingClazz,
+                mappingField, null);
           }
 
           if (fieldGetter == null && fieldGenerator == null &&
-                  !ReflectUtils.isPotentiallyAccessibleField(mappingField)) {
+              !ReflectUtils.isPotentiallyAccessibleField(mappingField)) {
             mappingField = ReflectUtils.makeAccessible(mappingField);
           }
 
           try {
             result.add(new MappedFieldRecord(mappingField, fieldGenerator, fieldSetter, fieldGetter,
-                    mappingClass, mappedAnno));
+                mappingClass, mappedAnno));
           } catch (IllegalStateException ex) {
             throw new JBBPMapperException(ex.getMessage(), null, mappingClass, mappingField, ex);
           }
@@ -497,7 +500,7 @@ public final class JBBPMapper {
       }
 
       if (args.length == 1 && setter == null && lcMethodName.equals(setterName) &&
-              field.getType().isAssignableFrom(args[0])) {
+          field.getType().isAssignableFrom(args[0])) {
         setter = m;
       }
 

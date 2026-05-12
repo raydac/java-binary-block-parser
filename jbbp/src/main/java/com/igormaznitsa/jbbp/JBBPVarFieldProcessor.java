@@ -34,19 +34,19 @@ public interface JBBPVarFieldProcessor {
   /**
    * Read a field array from a stream. The Method must read a field array from a stream and return the value with the provided field name info.
    *
-   * @param inStream        the data source bit stream, it must not be null
-   * @param arraySize       the array size, if it is negative one then whole stream must be read
-   * @param fieldName       the field name info for the VAR field, it can be null for anonymous fields
-   * @param extraValue      the extra value for the field, by default it is 0, it is the integer value after ':' char in the field type
-   * @param byteOrder       the byte order for the field, it must not be null
-   * @param numericFieldMap the numeric field map for the session, it must not be null, it can be used for access to already read values of another numeric fields.
+   * @param inStream         the data source bit stream, it must not be null
+   * @param arraySize        the array size, if it is negative one then whole stream must be read
+   * @param fieldName        the field name info for the VAR field, it can be null for anonymous fields
+   * @param extraValue       the extra value for the field, by default it is 0, it is the integer value after ':' char in the field type
+   * @param byteOrder        the byte order for the field, it must not be null
+   * @param numericFieldMap  the numeric field map for the session, it must not be null, it can be used for access to already read values of another numeric fields.
    * @param arraySizeLimiter limiter to check number of elements during whole stream array read, must not be null
    * @return a field array without nulls as values, it must not return null
    * @throws IOException                        it can be thrown for transport errors or another process exceptions
    * @throws JBBPReachedArraySizeLimitException thrown if reached limit for whole stream array
-   * @since 2.1.0
    * @see JBBPArraySizeLimiter#isBreakReadWholeStream(int, JBBPArraySizeLimiter)
    * @see JBBPArraySizeLimiter#NO_LIMIT_FOR_ARRAY_SIZE
+   * @since 2.1.0
    */
   JBBPAbstractArrayField<? extends JBBPAbstractField> readVarArray(JBBPBitInputStream inStream,
                                                                    int arraySize,

@@ -73,6 +73,27 @@ import org.junit.jupiter.api.Test;
 
 public class JBBPParserTest {
 
+  private static void testArrayLimiter_2elementsLimit(final byte[] testData, final String script,
+                                                      final JBBPVarFieldProcessor varFieldProcessor,
+                                                      final JBBPCustomFieldTypeProcessor customFieldTypeProcessor)
+      throws Exception {
+    ByteArrayInputStream dataStream = new ByteArrayInputStream(testData);
+    final JBBPParser parser = JBBPParser.prepare(script, customFieldTypeProcessor);
+    parser.parse(dataStream, varFieldProcessor, null);
+    assertFalse(dataStream.available() > 0);
+
+    final ByteArrayInputStream dataStreamLimit1 = new ByteArrayInputStream(testData);
+    assertThrows(JBBPReachedArraySizeLimitException.class,
+        () -> parser.parse(dataStreamLimit1, varFieldProcessor, null, () -> 2));
+    assertTrue(dataStreamLimit1.available() > 0);
+
+    final ByteArrayInputStream dataStreamLimit2 = new ByteArrayInputStream(testData);
+    assertEquals(2,
+        ((JBBPAbstractArrayField<?>) parser.parse(dataStreamLimit2, varFieldProcessor, null,
+            () -> -2).getArray()[0]).size());
+    assertTrue(dataStreamLimit2.available() > 0);
+  }
+
   @Test
   public void testErrorDuringReadingOfNamedField() throws Exception {
     try {
@@ -1199,27 +1220,6 @@ public class JBBPParserTest {
     final JBBPFieldStruct parsed =
         JBBPParser.prepare("byte; bit:4[_] array;").parse(new byte[] {1});
     assertEquals(0, parsed.findFieldForNameAndType("array", JBBPFieldArrayBit.class).size());
-  }
-
-  private static void testArrayLimiter_2elementsLimit(final byte[] testData, final String script,
-                                                      final JBBPVarFieldProcessor varFieldProcessor,
-                                                      final JBBPCustomFieldTypeProcessor customFieldTypeProcessor)
-      throws Exception {
-    ByteArrayInputStream dataStream = new ByteArrayInputStream(testData);
-    final JBBPParser parser = JBBPParser.prepare(script, customFieldTypeProcessor);
-    parser.parse(dataStream, varFieldProcessor, null);
-    assertFalse(dataStream.available() > 0);
-
-    final ByteArrayInputStream dataStreamLimit1 = new ByteArrayInputStream(testData);
-    assertThrows(JBBPReachedArraySizeLimitException.class,
-        () -> parser.parse(dataStreamLimit1, varFieldProcessor, null, () -> 2));
-    assertTrue(dataStreamLimit1.available() > 0);
-
-    final ByteArrayInputStream dataStreamLimit2 = new ByteArrayInputStream(testData);
-    assertEquals(2,
-        ((JBBPAbstractArrayField<?>) parser.parse(dataStreamLimit2, varFieldProcessor, null,
-            () -> -2).getArray()[0]).size());
-    assertTrue(dataStreamLimit2.available() > 0);
   }
 
   @Test

@@ -12,15 +12,6 @@ public class JBBPNumericFieldValueConversionException extends JBBPException {
   private final JBBPNumericField source;
 
   /**
-   * Get source field.
-   *
-   * @return source field for exception, can be null
-   */
-  public JBBPNumericField getSource() {
-    return this.source;
-  }
-
-  /**
    * Constructor to provide source field and message.
    *
    * @param source  source field. can be null
@@ -42,6 +33,15 @@ public class JBBPNumericFieldValueConversionException extends JBBPException {
                                                   final String message, final Throwable cause) {
     super(message, cause);
     this.source = source;
+  }
+
+  /**
+   * Get source field.
+   *
+   * @return source field for exception, can be null
+   */
+  public JBBPNumericField getSource() {
+    return this.source;
   }
 
   @Override

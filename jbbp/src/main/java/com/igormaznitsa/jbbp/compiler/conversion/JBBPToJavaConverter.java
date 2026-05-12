@@ -715,15 +715,15 @@ public class JBBPToJavaConverter extends CompiledBlockVisitor {
     if (array) {
       this.getCurrentStruct()
           .getGettersSetters().indent().printf(
-          "public %1$s[] make%2$s(int _Len_){ this.%3$s = new %1$s[_Len_]; for(int i=0;i < _Len_;i++) this.%3$s[i]=new %1$s(%4$s); return this.%3$s; }",
-          rawFieldType, fieldName.toUpperCase(Locale.ENGLISH), fieldName, pathToRootObject
-      );
+              "public %1$s[] make%2$s(int _Len_){ this.%3$s = new %1$s[_Len_]; for(int i=0;i < _Len_;i++) this.%3$s[i]=new %1$s(%4$s); return this.%3$s; }",
+              rawFieldType, fieldName.toUpperCase(Locale.ENGLISH), fieldName, pathToRootObject
+          );
     } else {
       this.getCurrentStruct()
           .getGettersSetters().indent().printf(
-          "public %1$s make%2$s(){ this.%3$s = new %1$s(%4$s); return this.%3$s; }",
-          rawFieldType, fieldName.toUpperCase(Locale.ENGLISH), fieldName, pathToRootObject
-      );
+              "public %1$s make%2$s(){ this.%3$s = new %1$s(%4$s); return this.%3$s; }",
+              rawFieldType, fieldName.toUpperCase(Locale.ENGLISH), fieldName, pathToRootObject
+          );
     }
   }
 
@@ -1787,7 +1787,7 @@ public class JBBPToJavaConverter extends CompiledBlockVisitor {
           superClass != null ? " extends " + superClass + ' ' : "",
           interfaceForGetSet == null ?
               implementedInterfaces != null && !implementedInterfaces.isEmpty() ?
-                  " implements " + interfaces2str(implementedInterfaces) + ' ' : "" :
+              " implements " + interfaces2str(implementedInterfaces) + ' ' : "" :
               " implements " + interfaceForGetSet
       );
       buffer.incIndent();

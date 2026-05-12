@@ -642,7 +642,7 @@ public final class JBBPExpressionEvaluator implements JBBPIntegerValueEvaluator 
           if (code == CODE_EXTVAR) {
             value = "$".equals(this.externalValueNames[index]) ? (int) inStream.getCounter() :
                 fieldMap
-                    .getExternalFieldValue(this.externalValueNames[index], compiledBlockData, this);
+                .getExternalFieldValue(this.externalValueNames[index], compiledBlockData, this);
           } else {
             final JBBPNamedFieldInfo namedField = compiledBlockData.getNamedFields()[index];
             final JBBPNumericField numericField = fieldMap.get(namedField);

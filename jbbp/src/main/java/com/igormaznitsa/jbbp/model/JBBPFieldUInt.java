@@ -44,6 +44,10 @@ public final strictfp class JBBPFieldUInt extends JBBPAbstractField implements J
     this.value = (int) value;
   }
 
+  public static long reverseBits(final long value) {
+    return JBBPFieldInt.reverseBits((int) value) & 0xFFFFFFFFL;
+  }
+
   @Override
   public int getAsInt() {
     if (this.value >= 0) {
@@ -78,10 +82,6 @@ public final strictfp class JBBPFieldUInt extends JBBPAbstractField implements J
   @Override
   public long getAsInvertedBitOrder() {
     return reverseBits(this.value & 0xFFFFFFFFL);
-  }
-
-  public static long reverseBits(final long value) {
-    return JBBPFieldInt.reverseBits((int) value) & 0xFFFFFFFFL;
   }
 
   @Override

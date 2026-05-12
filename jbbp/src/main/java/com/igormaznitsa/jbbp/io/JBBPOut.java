@@ -88,12 +88,12 @@ public class JBBPOut extends AbstractMappedClassFieldObserver {
     assertNotNull(bitOrder, "Bit order must not be null");
 
     this.outStream = outStream instanceof JBBPBitOutputStream ? (JBBPBitOutputStream) outStream :
-            new JBBPBitOutputStream(outStream, bitOrder);
+        new JBBPBitOutputStream(outStream, bitOrder);
     this.bitOrder = this.outStream.getBitOrder();
     if (this.bitOrder != bitOrder) {
       throw new IllegalArgumentException(
-              "Detected JBBPBitOutputStream as argument with already defined different bit order [" +
-                      this.bitOrder + ']');
+          "Detected JBBPBitOutputStream as argument with already defined different bit order [" +
+              this.bitOrder + ']');
     }
     this.byteOrder = byteOrder;
 
@@ -150,7 +150,7 @@ public class JBBPOut extends AbstractMappedClassFieldObserver {
    */
   public static JBBPOut BeginBin(final int initialSize) {
     return new JBBPOut(new ByteArrayOutputStream(initialSize), DEFAULT_BYTE_ORDER,
-            DEFAULT_BIT_ORDER);
+        DEFAULT_BIT_ORDER);
   }
 
   /**
@@ -1093,7 +1093,8 @@ public class JBBPOut extends AbstractMappedClassFieldObserver {
    * @see #BinForceByteOrder(Object, JBBPCustomFieldWriter)
    * @since 2.0.4
    */
-  public JBBPOut Bin(final Object object, final JBBPCustomFieldWriter customFieldWriter, final BinFieldFilter binFieldFilter) {
+  public JBBPOut Bin(final Object object, final JBBPCustomFieldWriter customFieldWriter,
+                     final BinFieldFilter binFieldFilter) {
     return this.Bin(object, null, customFieldWriter, binFieldFilter);
   }
 
@@ -1163,7 +1164,7 @@ public class JBBPOut extends AbstractMappedClassFieldObserver {
   public JBBPOut BinForceByteOrder(final Object object,
                                    final JBBPCustomFieldWriter customFieldWriter) {
     return this
-            .Bin(object, new BinAnnotationWrapper().setByteOrder(this.byteOrder), customFieldWriter);
+        .Bin(object, new BinAnnotationWrapper().setByteOrder(this.byteOrder), customFieldWriter);
   }
 
   @Override

@@ -396,7 +396,7 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
    *                  stream till the end
    * @param byteOrder big-endian or little-endian for this field's byte sequence
    * @return read byte items as a byte array; for {@code LITTLE_ENDIAN}, the buffer is reversed
-   *         after read
+   * after read
    * @throws IOException it will be thrown for any transport problem during the
    *                     operation
    * @see JBBPByteOrder

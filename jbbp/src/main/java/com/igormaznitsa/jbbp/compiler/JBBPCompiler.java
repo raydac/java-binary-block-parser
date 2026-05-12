@@ -602,7 +602,9 @@ public final class JBBPCompiler {
         final boolean hasExpressionAsExtraNumber = descriptor.hasExpressionAsExtraData();
 
         result |= token.getArraySizeAsString() == null ? 0 : (token.isVarArrayLength() ?
-            FLAG_ARRAY | FLAG_WIDE | (EXT_FLAG_EXPRESSION_OR_WHOLESTREAM << 8) : FLAG_ARRAY);
+                                                              FLAG_ARRAY | FLAG_WIDE |
+                                                              (EXT_FLAG_EXPRESSION_OR_WHOLESTREAM <<
+                                                               8) : FLAG_ARRAY);
         result |= hasExpressionAsExtraNumber ? FLAG_WIDE | (EXT_FLAG_EXTRA_AS_EXPRESSION << 8) : 0;
         result |= token.getFieldTypeParameters().isSpecialField() ?
             FLAG_WIDE | (EXT_FLAG_EXTRA_DIFF_TYPE << 8) : 0;
@@ -676,7 +678,9 @@ public final class JBBPCompiler {
       break;
       case STRUCT_START: {
         result = token.getArraySizeAsString() == null ? 0 : (token.isVarArrayLength() ?
-            FLAG_ARRAY | FLAG_WIDE | (EXT_FLAG_EXPRESSION_OR_WHOLESTREAM << 8) : FLAG_ARRAY);
+                                                             FLAG_ARRAY | FLAG_WIDE |
+                                                             (EXT_FLAG_EXPRESSION_OR_WHOLESTREAM <<
+                                                              8) : FLAG_ARRAY);
         result |= token.getFieldName() == null ? 0 : FLAG_NAMED;
         result |= CODE_STRUCT_START;
       }

@@ -2143,7 +2143,7 @@ public class JBBPDslBuilder {
     }
 
     void addAllFromContainerExcludeEndStruct(final BinFieldContainer container) {
-      for(final BinField field : container.fields) {
+      for (final BinField field : container.fields) {
         if (field != END_STRUCT) {
           this.fields.add(field);
         }

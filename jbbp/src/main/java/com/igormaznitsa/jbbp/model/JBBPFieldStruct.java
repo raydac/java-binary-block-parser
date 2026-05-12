@@ -77,7 +77,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
   @Override
   public JBBPAbstractField findFieldForPath(final String fieldPath) {
     final String[] parsedName =
-            JBBPUtils.splitString(JBBPUtils.normalizeFieldNameOrPath(fieldPath), '.');
+        JBBPUtils.splitString(JBBPUtils.normalizeFieldNameOrPath(fieldPath), '.');
 
     JBBPAbstractField found = this;
     final int firstIndex;
@@ -95,8 +95,8 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
         found = ((JBBPFieldStruct) found).findFieldForName(parsedName[i]);
       } else {
         throw new JBBPFinderException(
-                "Detected a field instead of a structure as one of nodes in the path '" + fieldPath +
-                        '\'', fieldPath, null);
+            "Detected a field instead of a structure as one of nodes in the path '" + fieldPath +
+                '\'', fieldPath, null);
       }
     }
 
@@ -134,7 +134,7 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
     }
     if (counter > 1) {
       throw new JBBPTooManyFieldsFoundException(counter, "Detected more than one field", null,
-              fieldType);
+          fieldType);
     }
     return result;
   }
@@ -329,7 +329,8 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
    * @since 2.0.4
    */
   @SafeVarargs
-  public final <T> T mapTo(final T objectToMap, final BinFieldFilter binFieldFilter, final Function<Class<?>, Object>... instantiators) {
+  public final <T> T mapTo(final T objectToMap, final BinFieldFilter binFieldFilter,
+                           final Function<Class<?>, Object>... instantiators) {
     return this.mapTo(objectToMap, null, binFieldFilter, instantiators);
   }
 
@@ -410,11 +411,11 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
                            final BinFieldFilter binFieldFilter,
                            final Function<Class<?>, Object>... instantiators) {
     return JBBPMapper.map(this,
-            instance,
-            customFieldProcessor,
-            0,
-            binFieldFilter,
-            instantiators);
+        instance,
+        customFieldProcessor,
+        0,
+        binFieldFilter,
+        instantiators);
   }
 
   /**
@@ -458,8 +459,10 @@ public final class JBBPFieldStruct extends JBBPAbstractField implements JBBPFiel
   @SafeVarargs
   public final <T> T mapTo(final T objectToMap,
                            final JBBPMapperCustomFieldProcessor customFieldProcessor,
-                           final int flags, final BinFieldFilter binFieldFilter, final Function<Class<?>, Object>... instantiators) {
-    return JBBPMapper.map(this, objectToMap, customFieldProcessor, flags, binFieldFilter, instantiators);
+                           final int flags, final BinFieldFilter binFieldFilter,
+                           final Function<Class<?>, Object>... instantiators) {
+    return JBBPMapper.map(this, objectToMap, customFieldProcessor, flags, binFieldFilter,
+        instantiators);
   }
 
   @Override

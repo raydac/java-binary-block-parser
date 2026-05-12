@@ -61,13 +61,13 @@ public interface JBBPCustomFieldTypeProcessor {
    * @param extraData           extra numeric value for the field, followed by ':', if not presented then 0
    * @param readWholeStream     if true then the field is array which should contain parse data for whole stream till the end
    * @param arrayLength         -1 if it is not array else length of the array to be read.
-   * @param arraySizeLimiter limiter to check number of elements during whole stream array read, must not be null
+   * @param arraySizeLimiter    limiter to check number of elements during whole stream array read, must not be null
    * @return parsed data as JBBP field, must not be null
    * @throws IOException                        it can be thrown for transport errors
    * @throws JBBPReachedArraySizeLimitException thrown if reached limit for a whole stream array
-   * @since 2.1.0
    * @see JBBPArraySizeLimiter#isBreakReadWholeStream(int, JBBPArraySizeLimiter)
    * @see JBBPArraySizeLimiter#NO_LIMIT_FOR_ARRAY_SIZE
+   * @since 2.1.0
    */
   JBBPAbstractField readCustomFieldType(JBBPBitInputStream in, JBBPBitOrder bitOrder,
                                         int parserFlags,

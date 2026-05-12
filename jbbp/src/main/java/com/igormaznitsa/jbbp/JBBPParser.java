@@ -133,6 +133,7 @@ public final class JBBPParser {
    * The Variable contains the last parsing counter value.
    */
   private long finalStreamByteCounter;
+
   /**
    * Constructor.
    *

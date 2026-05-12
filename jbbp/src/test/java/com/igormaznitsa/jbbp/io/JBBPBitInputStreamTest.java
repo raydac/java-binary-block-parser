@@ -16,7 +16,13 @@
 
 package com.igormaznitsa.jbbp.io;
 
-import static com.igormaznitsa.jbbp.io.JBBPBitNumber.*;
+import static com.igormaznitsa.jbbp.io.JBBPBitNumber.BITS_1;
+import static com.igormaznitsa.jbbp.io.JBBPBitNumber.BITS_2;
+import static com.igormaznitsa.jbbp.io.JBBPBitNumber.BITS_3;
+import static com.igormaznitsa.jbbp.io.JBBPBitNumber.BITS_4;
+import static com.igormaznitsa.jbbp.io.JBBPBitNumber.BITS_5;
+import static com.igormaznitsa.jbbp.io.JBBPBitNumber.BITS_7;
+import static com.igormaznitsa.jbbp.io.JBBPBitNumber.BITS_8;
 import static com.igormaznitsa.jbbp.io.JBBPByteOrder.BIG_ENDIAN;
 import static com.igormaznitsa.jbbp.utils.JBBPUtils.bin2str;
 import static com.igormaznitsa.jbbp.utils.JBBPUtils.str2bin;
