@@ -388,15 +388,18 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   }
 
   /**
-   * Read number of bytes for the stream. Invert their order if byte order is LITTLE_ENDIAN
+   * Read bytes into an array using {@link JBBPByteOrder}. {@link JBBPByteOrder#BIG_ENDIAN} (default
+   * in the DSL; optional {@code >}) keeps stream order in the result. {@link JBBPByteOrder#LITTLE_ENDIAN}
+   * ({@code <}) reverses the read chunk so the byte sequence matches little-endian value layout.
    *
    * @param items     number of items to be read, if less than zero then read whole
    *                  stream till the end
-   * @param byteOrder desired order of bytes
-   * @return read byte items as a byte array, if byte order is LITTLE_ENDIAN then the result array will be reversed one
+   * @param byteOrder big-endian or little-endian for this field's byte sequence
+   * @return read byte items as a byte array; for {@code LITTLE_ENDIAN}, the buffer is reversed
+   *         after read
    * @throws IOException it will be thrown for any transport problem during the
    *                     operation
-   * @see JBBPByteOrder#LITTLE_ENDIAN
+   * @see JBBPByteOrder
    * @since 1.3.0
    */
   public byte[] readByteArray(final int items, final JBBPByteOrder byteOrder) throws IOException {
@@ -404,17 +407,18 @@ public class JBBPBitInputStream extends FilterInputStream implements JBBPCountab
   }
 
   /**
-   * Read number of bytes for the stream. Invert their order if byte order is LITTLE_ENDIAN
+   * Read bytes into an array using {@link JBBPByteOrder}. {@link JBBPByteOrder#BIG_ENDIAN} keeps
+   * stream order; {@link JBBPByteOrder#LITTLE_ENDIAN} reverses the read chunk after read.
    *
    * @param items            number of items to be read, if less than zero then read whole
    *                         stream till the end
-   * @param byteOrder        desired order of bytes
+   * @param byteOrder        big-endian or little-endian for this field's byte sequence
    * @param arraySizeLimiter limiter provides number of allowed array items for non-limited array, must not be null
-   * @return read byte items as a byte array, if byte order is LITTLE_ENDIAN then the result array will be reversed one
+   * @return read byte items as a byte array
    * @throws IOException                        it will be thrown for any transport problem during the
    *                                            operation
    * @throws JBBPReachedArraySizeLimitException if reached limit of array read
-   * @see JBBPByteOrder#LITTLE_ENDIAN
+   * @see JBBPByteOrder
    * @since 2.1.0
    */
   public byte[] readByteArray(

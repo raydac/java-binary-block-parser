@@ -375,13 +375,16 @@ public class JBBPBitOutputStream extends FilterOutputStream implements JBBPCount
   }
 
   /**
-   * Write number of items from byte array into stream
+   * Write bytes using {@link JBBPByteOrder}. {@link JBBPByteOrder#BIG_ENDIAN} (DSL default; optional
+   * {@code >}) writes elements in ascending index order. {@link JBBPByteOrder#LITTLE_ENDIAN}
+   * ({@code <}) writes the same logical chunk in reverse index order (inverse of
+   * {@link JBBPBitInputStream#readByteArray(int, JBBPByteOrder)} with {@code LITTLE_ENDIAN}).
    *
    * @param array     array, must not be null
    * @param length    number of items to be written, if -1 then whole array
-   * @param byteOrder order of bytes, if LITTLE_ENDIAN then array will be reversed
+   * @param byteOrder big-endian or little-endian for this field's byte sequence
    * @throws IOException it will be thrown if any transport error
-   * @see JBBPByteOrder#LITTLE_ENDIAN
+   * @see JBBPByteOrder
    * @since 1.3.0
    */
   public void writeBytes(final byte[] array, final int length, final JBBPByteOrder byteOrder)

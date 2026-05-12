@@ -17,20 +17,26 @@
 package com.igormaznitsa.jbbp.io;
 
 /**
- * Constants define byte order for multibyte values to be read or written into streams.
+ * Byte order for multi-byte numeric values and for <b>raw byte/ubyte array chunks</b> in the DSL.
+ * <p>
+ * In scripts, {@code >} selects {@link #BIG_ENDIAN} and may be omitted (default). {@code <}
+ * selects {@link #LITTLE_ENDIAN}. For {@link JBBPBitInputStream#readByteArray(int, JBBPByteOrder)}
+ * and {@link JBBPBitOutputStream#writeBytes(byte[], int, JBBPByteOrder)}, the chunk is treated as
+ * one byte sequence: big-endian keeps stream index order; little-endian reverses that sequence
+ * so the logical value matches usual LE layout (least significant byte at the lowest index).
  *
  * @since 1.0
  */
 public enum JBBPByteOrder {
   /**
-   * The Big-Endian order. Big-endian systems store the most significant byte of
-   * a word in the smallest address and the least significant byte is stored in
-   * the largest address. The Default order for Java and Network.
+   * Big-endian: most significant byte first. Default in the DSL when no {@code >}/{@code <} prefix
+   * is written; explicit {@code >} is equivalent.
    */
   BIG_ENDIAN,
   /**
-   * The Little-Endian order. Little-endian systems store the
-   * least significant byte in the smallest address.
+   * Little-endian: for multi-byte scalars, least significant byte is read/written first. For
+   * {@code byte[]}/{@code ubyte[]} array fields, the read or written chunk is reversed end-to-end
+   * so index {@code 0} holds the least significant byte of the sequence.
    */
   LITTLE_ENDIAN
 }
