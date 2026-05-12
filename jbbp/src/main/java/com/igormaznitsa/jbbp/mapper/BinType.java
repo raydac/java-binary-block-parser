@@ -229,7 +229,10 @@ public enum BinType {
           result = null;
         }
       } else {
-        result = type == String.class ? STRING_ARRAY : STRUCT_ARRAY;
+        result = binTypeForWrapperArrayComponent(type);
+        if (result == null) {
+          result = type == String.class ? STRING_ARRAY : STRUCT_ARRAY;
+        }
       }
     } else if (fieldClazz.isPrimitive()) {
       if (fieldClazz == byte.class) {
@@ -252,13 +255,72 @@ public enum BinType {
         result = null;
       }
     } else {
-      if (fieldClazz == String.class) {
-        result = STRING;
-      } else {
-        result = STRUCT;
+      result = binTypeForWrapper(fieldClazz);
+      if (result == null) {
+        if (fieldClazz == String.class) {
+          result = STRING;
+        } else {
+          result = STRUCT;
+        }
       }
     }
     return result;
+  }
+
+  private static BinType binTypeForWrapper(final Class<?> wrapper) {
+    if (wrapper == Byte.class) {
+      return BYTE;
+    }
+    if (wrapper == Character.class) {
+      return USHORT;
+    }
+    if (wrapper == Boolean.class) {
+      return BOOL;
+    }
+    if (wrapper == Short.class) {
+      return SHORT;
+    }
+    if (wrapper == Integer.class) {
+      return INT;
+    }
+    if (wrapper == Long.class) {
+      return LONG;
+    }
+    if (wrapper == Float.class) {
+      return FLOAT;
+    }
+    if (wrapper == Double.class) {
+      return DOUBLE;
+    }
+    return null;
+  }
+
+  private static BinType binTypeForWrapperArrayComponent(final Class<?> wrapper) {
+    if (wrapper == Byte.class) {
+      return BYTE_ARRAY;
+    }
+    if (wrapper == Character.class) {
+      return USHORT_ARRAY;
+    }
+    if (wrapper == Boolean.class) {
+      return BOOL_ARRAY;
+    }
+    if (wrapper == Short.class) {
+      return SHORT_ARRAY;
+    }
+    if (wrapper == Integer.class) {
+      return INT_ARRAY;
+    }
+    if (wrapper == Long.class) {
+      return LONG_ARRAY;
+    }
+    if (wrapper == Float.class) {
+      return FLOAT_ARRAY;
+    }
+    if (wrapper == Double.class) {
+      return DOUBLE_ARRAY;
+    }
+    return null;
   }
 
   /**

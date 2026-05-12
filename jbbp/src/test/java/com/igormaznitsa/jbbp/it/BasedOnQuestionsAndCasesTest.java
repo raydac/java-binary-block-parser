@@ -40,6 +40,7 @@ import com.igormaznitsa.jbbp.model.JBBPFieldArrayByte;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayString;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayStruct;
+import com.igormaznitsa.jbbp.model.JBBPFieldArrayUByte;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
 import com.igormaznitsa.jbbp.model.JBBPFieldLong;
 import com.igormaznitsa.jbbp.model.JBBPFieldString;
@@ -733,6 +734,54 @@ public class BasedOnQuestionsAndCasesTest extends AbstractParserIntegrationTest 
         parsed.findFieldForNameAndType("Child", JBBPFieldStruct.class).mapTo(new Child());
     assertEquals(0x1234, parsedPackage.headerSize);
     assertEquals("  ", parsedPackage.body);
+  }
+
+  /*
+   * Issue #50: ubyte[] mapped to int[] uses unsigned widen. Parser prefixes: default and {@code >}
+   * are big-endian (stream order); {@code <} is little-endian (this field's byte chunk reversed).
+   * With ubyte[1], LE reverse is a no-op, so v/r/rr still match three consecutive wire bytes.
+   */
+  @Test
+  public void testCase_github_bug50_FailsToMapUbyteArrayToIntArray() throws Exception {
+    JBBPParser parser = JBBPParser.prepare(
+        "ubyte[1] v; >ubyte[1] r; <ubyte[1] rr;"
+    );
+
+    ClassWithUbyteArray parsed = parser.parse(new byte[] {(byte) 255, (byte) 145, (byte) 37})
+        .mapTo(new ClassWithUbyteArray());
+    assertEquals(255, parsed.v[0]);
+    assertEquals(145, parsed.r[0]);
+    assertEquals(37, parsed.rr[0]);
+  }
+
+  /**
+   * {@code <ubyte[n]} reverses the n-byte chunk (LE); {@code ubyte[n]} / {@code >ubyte[n]} keep BE order.
+   */
+  @Test
+  public void testCase_github_bug50_EndianPrefixReordersMultiElementUbyteArrayOnly()
+      throws Exception {
+    final JBBPFieldStruct bigEndian =
+        JBBPParser.prepare("ubyte [2] a;").parse(new byte[] {0x10, 0x20});
+    final JBBPFieldArrayUByte be =
+        bigEndian.findFieldForNameAndType("a", JBBPFieldArrayUByte.class);
+    assertEquals(0x10, be.getAsInt(0));
+    assertEquals(0x20, be.getAsInt(1));
+
+    final JBBPFieldStruct littleEndian =
+        JBBPParser.prepare("<ubyte [2] a;").parse(new byte[] {0x10, 0x20});
+    final JBBPFieldArrayUByte le =
+        littleEndian.findFieldForNameAndType("a", JBBPFieldArrayUByte.class);
+    assertEquals(0x20, le.getAsInt(0));
+    assertEquals(0x10, le.getAsInt(1));
+  }
+
+  public static class ClassWithUbyteArray {
+    @Bin(type = BinType.UBYTE_ARRAY)
+    public int[] v;
+    @Bin(type = BinType.UBYTE_ARRAY)
+    public int[] r;
+    @Bin(type = BinType.UBYTE_ARRAY)
+    public int[] rr;
   }
 
   @Bin

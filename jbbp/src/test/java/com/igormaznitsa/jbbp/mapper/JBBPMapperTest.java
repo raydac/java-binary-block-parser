@@ -35,6 +35,7 @@ import com.igormaznitsa.jbbp.exceptions.JBBPNumericFieldValueConversionException
 import com.igormaznitsa.jbbp.io.JBBPBitNumber;
 import com.igormaznitsa.jbbp.io.JBBPOut;
 import com.igormaznitsa.jbbp.model.JBBPFieldInt;
+import com.igormaznitsa.jbbp.model.JBBPFieldStruct;
 import java.io.ByteArrayInputStream;
 import java.util.Random;
 import org.junit.jupiter.api.Test;
@@ -1378,6 +1379,206 @@ public class JBBPMapperTest {
             .mapTo(new Parsed(), JBBPMapper.FLAG_IGNORE_MISSING_VALUES);
     assertEquals(0x01020304, parsed.a);
     assertEquals(0, parsed.b);
+  }
+
+  @Test
+  void testMap_PairIntScalarPrimitiveAndBoxedSameValue() throws Exception {
+    class MappedPrimitive {
+      @Bin
+      int a;
+    }
+    class MappedBoxed {
+      @Bin
+      Integer a;
+    }
+    final byte[] data = new byte[] {1, 2, 3, 4};
+    final JBBPFieldStruct parsed = JBBPParser.prepare("int a;").parse(data);
+    assertEquals(0x01020304, parsed.mapTo(new MappedPrimitive()).a);
+    assertEquals(Integer.valueOf(0x01020304), parsed.mapTo(new MappedBoxed()).a);
+  }
+
+  @Test
+  void testMap_PairLongScalarPrimitiveAndBoxedSameValue() throws Exception {
+    class MappedPrimitive {
+      @Bin
+      long a;
+    }
+    class MappedBoxed {
+      @Bin
+      Long a;
+    }
+    final byte[] data = new byte[] {0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, (byte) 0x80};
+    final JBBPFieldStruct parsed = JBBPParser.prepare("long a;").parse(data);
+    assertEquals(0x1020304050607080L, parsed.mapTo(new MappedPrimitive()).a);
+    assertEquals(Long.valueOf(0x1020304050607080L), parsed.mapTo(new MappedBoxed()).a);
+  }
+
+  @Test
+  void testMap_PairBooleanScalarPrimitiveAndBoxedSameValue() throws Exception {
+    class MappedPrimitive {
+      @Bin
+      boolean a;
+      @Bin
+      boolean b;
+    }
+    class MappedBoxed {
+      @Bin
+      Boolean a;
+      @Bin
+      Boolean b;
+    }
+    final byte[] data = new byte[] {1, 0};
+    final JBBPFieldStruct parsed = JBBPParser.prepare("bool a; bool b;").parse(data);
+    final MappedPrimitive prim = parsed.mapTo(new MappedPrimitive());
+    final MappedBoxed box = parsed.mapTo(new MappedBoxed());
+    assertTrue(prim.a);
+    assertFalse(prim.b);
+    assertEquals(Boolean.TRUE, box.a);
+    assertEquals(Boolean.FALSE, box.b);
+  }
+
+  @Test
+  void testMap_PairLongToDoublePrimitiveAndBoxedSameBits() throws Exception {
+    class MappedPrimitive {
+      @Bin(type = BinType.LONG)
+      double a;
+    }
+    class MappedBoxed {
+      @Bin(type = BinType.LONG)
+      Double a;
+    }
+    final byte[] data =
+        JBBPOut.BeginBin().Long(Double.doubleToLongBits(1.23456789d)).End().toByteArray();
+    final JBBPFieldStruct parsed = JBBPParser.prepare("long a;").parse(data);
+    assertEquals(1.23456789d, parsed.mapTo(new MappedPrimitive()).a, TestUtils.FLOAT_DELTA);
+    assertEquals(1.23456789d, parsed.mapTo(new MappedBoxed()).a.doubleValue(),
+        TestUtils.FLOAT_DELTA);
+  }
+
+  @Test
+  void testMap_PairIntToFloatPrimitiveAndBoxedSameBits() throws Exception {
+    class MappedPrimitive {
+      @Bin(type = BinType.INT)
+      float a;
+    }
+    class MappedBoxed {
+      @Bin(type = BinType.INT)
+      Float a;
+    }
+    final float expected = -2.7182818f;
+    final byte[] data =
+        JBBPOut.BeginBin().Int(Float.floatToIntBits(expected)).End().toByteArray();
+    final JBBPFieldStruct parsed = JBBPParser.prepare("int a;").parse(data);
+    assertEquals(expected, parsed.mapTo(new MappedPrimitive()).a, TestUtils.FLOAT_DELTA);
+    assertEquals(expected, parsed.mapTo(new MappedBoxed()).a.floatValue(),
+        TestUtils.FLOAT_DELTA);
+  }
+
+  @Test
+  void testMap_PairIntArrayToFloatArrayPrimitiveAndBoxedSameBits() throws Exception {
+    class MappedPrimitive {
+      @Bin(type = BinType.INT_ARRAY)
+      float[] a;
+    }
+    class MappedBoxed {
+      @Bin(type = BinType.INT_ARRAY)
+      Float[] a;
+    }
+    final byte[] data =
+        JBBPOut.BeginBin().Float(-1.5f, 2.5f).End().toByteArray();
+    final JBBPFieldStruct parsed = JBBPParser.prepare("int [_] a;").parse(data);
+    final float[] prim = parsed.mapTo(new MappedPrimitive()).a;
+    final Float[] box = parsed.mapTo(new MappedBoxed()).a;
+    assertEquals(2, prim.length);
+    assertEquals(2, box.length);
+    assertEquals(-1.5f, prim[0], TestUtils.FLOAT_DELTA);
+    assertEquals(2.5f, prim[1], TestUtils.FLOAT_DELTA);
+    assertEquals(-1.5f, box[0].floatValue(), TestUtils.FLOAT_DELTA);
+    assertEquals(2.5f, box[1].floatValue(), TestUtils.FLOAT_DELTA);
+  }
+
+  @Test
+  void testMap_PairLongArrayToDoubleArrayPrimitiveAndBoxedSameBits() throws Exception {
+    class MappedPrimitive {
+      @Bin(type = BinType.LONG_ARRAY)
+      double[] a;
+    }
+    class MappedBoxed {
+      @Bin(type = BinType.LONG_ARRAY)
+      Double[] a;
+    }
+    final byte[] data =
+        JBBPOut.BeginBin().Double(Double.MIN_VALUE, Double.MAX_VALUE).End().toByteArray();
+    final JBBPFieldStruct parsed = JBBPParser.prepare("long [_] a;").parse(data);
+    final double[] prim = parsed.mapTo(new MappedPrimitive()).a;
+    final Double[] box = parsed.mapTo(new MappedBoxed()).a;
+    assertEquals(2, prim.length);
+    assertEquals(2, box.length);
+    assertEquals(Double.MIN_VALUE, prim[0], TestUtils.FLOAT_DELTA);
+    assertEquals(Double.MAX_VALUE, prim[1], TestUtils.FLOAT_DELTA);
+    assertEquals(Double.MIN_VALUE, box[0].doubleValue(), TestUtils.FLOAT_DELTA);
+    assertEquals(Double.MAX_VALUE, box[1].doubleValue(), TestUtils.FLOAT_DELTA);
+  }
+
+  @Test
+  void testMap_PairIntArrayToShortArrayPrimitiveAndBoxedSameCoercion() throws Exception {
+    class MappedPrimitive {
+      @Bin(type = BinType.INT_ARRAY)
+      short[] a;
+    }
+    class MappedBoxed {
+      @Bin(type = BinType.INT_ARRAY)
+      Short[] a;
+    }
+    final byte[] data = JBBPOut.BeginBin().Int(0x0000007F, 0xFFFF8000).End().toByteArray();
+    final JBBPFieldStruct parsed = JBBPParser.prepare("int [_] a;").parse(data);
+    final short[] prim = parsed.mapTo(new MappedPrimitive()).a;
+    final Short[] box = parsed.mapTo(new MappedBoxed()).a;
+    assertArrayEquals(new short[] {0x007F, (short) 0x8000}, prim);
+    assertArrayEquals(new Short[] {Short.valueOf((short) 0x007F), Short.valueOf((short) 0x8000)},
+        box);
+  }
+
+  @Test
+  void testMap_PairUIntArrayToIntArrayPrimitiveAndBoxedSameValue() throws Exception {
+    class MappedPrimitive {
+      @Bin(type = BinType.UINT_ARRAY)
+      int[] a;
+    }
+    class MappedBoxed {
+      @Bin(type = BinType.UINT_ARRAY)
+      Integer[] a;
+    }
+    final byte[] data =
+        JBBPOut.BeginBin().Byte(0xFF, 1, 2, 3, 0x00, 0x10, 0x20, 0x30).End().toByteArray();
+    final JBBPFieldStruct parsed = JBBPParser.prepare("uint [_] a;").parse(data);
+    final int[] prim = parsed.mapTo(new MappedPrimitive()).a;
+    final Integer[] box = parsed.mapTo(new MappedBoxed()).a;
+    assertArrayEquals(new int[] {0xFF010203, 0x00102030}, prim);
+    assertArrayEquals(
+        new Integer[] {Integer.valueOf(0xFF010203), Integer.valueOf(0x00102030)}, box);
+  }
+
+  @Test
+  void testMap_UbyteArrayToIntArray_UsesUnsignedValues() throws Exception {
+    class Mapped {
+      @Bin(type = BinType.UBYTE_ARRAY)
+      int[] a;
+    }
+    final byte[] data = new byte[] {(byte) 0xFF, 0x01};
+    final JBBPFieldStruct parsed = JBBPParser.prepare("ubyte [2] a;").parse(data);
+    assertArrayEquals(new int[] {255, 1}, parsed.mapTo(new Mapped()).a);
+  }
+
+  @Test
+  void testMap_ByteArrayToIntArray_StillSignedCoercion() throws Exception {
+    class Mapped {
+      @Bin(type = BinType.BYTE_ARRAY)
+      int[] a;
+    }
+    final byte[] data = new byte[] {(byte) 0xFF, 0x01};
+    final JBBPFieldStruct parsed = JBBPParser.prepare("byte [2] a;").parse(data);
+    assertArrayEquals(new int[] {-1, 1}, parsed.mapTo(new Mapped()).a);
   }
 
   public static class StaticTop {

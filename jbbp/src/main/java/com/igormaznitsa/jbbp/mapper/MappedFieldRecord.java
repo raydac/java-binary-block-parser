@@ -135,7 +135,7 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
               mapNumericField(instance, record.setter, record.mappingField, (JBBPNumericField) binField,
                       record.binAnnotation.bitOrder() == JBBPBitOrder.MSB0);
             } else if (binField instanceof JBBPFieldString) {
-              if (record.mappingField.getType().isPrimitive()) {
+              if (isPrimitiveOrWrapperNumericField(record.mappingField.getType())) {
                 throw new JBBPMapperException("Can't map string to a primitive mapping field", binField,
                         record.mappingClass, record.mappingField, null);
               } else {
@@ -143,7 +143,7 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
                         ((JBBPFieldString) binField).getAsString());
           }
         } else if (binField instanceof JBBPFieldStruct) {
-          if (record.mappingField.getType().isPrimitive()) {
+              if (isPrimitiveOrWrapperNumericField(record.mappingField.getType())) {
             throw new JBBPMapperException("Can't map structure to a primitive mapping field",
                 binField, record.mappingClass, record.mappingField, null);
           } else {
@@ -256,57 +256,32 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
                                     final JBBPAbstractArrayField<?> arrayField,
                                     final boolean invertBitOrder) {
     try {
+      final Class<?> componentType = mappingField.getType().getComponentType();
+      final Class<?> wrapperPrim = wrapperToPrimitive(componentType);
+      final Class<?> logicalComponent = wrapperPrim != null ? wrapperPrim : componentType;
       final Object value;
-      if (arrayField instanceof JBBPFieldArrayLong &&
-          mappingField.getType().getComponentType() == double.class) {
-        final long[] longArray = (long[]) arrayField.getValueArrayAsObject(invertBitOrder);
-        final double[] doubleArray = new double[longArray.length];
-        for (int i = 0; i < longArray.length; i++) {
-          doubleArray[i] = Double.longBitsToDouble(longArray[i]);
-        }
-        value = doubleArray;
-      } else if (arrayField instanceof JBBPFieldArrayUInt &&
-          mappingField.getType().getComponentType() == double.class) {
-        final long[] longArray = (long[]) arrayField.getValueArrayAsObject(invertBitOrder);
-        final double[] doubleArray = new double[longArray.length];
-        for (int i = 0; i < longArray.length; i++) {
-          doubleArray[i] = Double.longBitsToDouble(longArray[i]);
-        }
-        value = doubleArray;
-      } else if (arrayField instanceof JBBPFieldArrayInt &&
-          mappingField.getType().getComponentType() == float.class) {
-        final int[] intArray = (int[]) arrayField.getValueArrayAsObject(invertBitOrder);
-        final float[] floatArray = new float[intArray.length];
-        for (int i = 0; i < intArray.length; i++) {
-          floatArray[i] = Float.intBitsToFloat(intArray[i]);
-        }
-        value = floatArray;
-      } else if (arrayField instanceof JBBPFieldArrayUInt &&
-          mappingField.getType().getComponentType() == float.class) {
-        final long[] longArray = (long[]) arrayField.getValueArrayAsObject(invertBitOrder);
-        final float[] floatArray = new float[longArray.length];
-        for (int i = 0; i < longArray.length; i++) {
-          floatArray[i] = Float.intBitsToFloat((int) longArray[i]);
-        }
-        value = floatArray;
-      } else if (arrayField instanceof JBBPFieldArrayUInt &&
-          mappingField.getType().getComponentType() == int.class) {
-        final long[] longArray = (long[]) arrayField.getValueArrayAsObject(invertBitOrder);
-        final int[] intArray = new int[longArray.length];
-        for (int i = 0; i < longArray.length; i++) {
-          intArray[i] = (int) longArray[i];
-        }
-        value = intArray;
-      } else if (arrayField instanceof JBBPFieldArrayUShort &&
-          mappingField.getType().getComponentType() == char.class) {
-        final short[] shortArray = (short[]) arrayField.getValueArrayAsObject(invertBitOrder);
-        final char[] charArray = new char[shortArray.length];
-        for (int i = 0; i < shortArray.length; i++) {
-          charArray[i] = (char) shortArray[i];
-        }
-        value = charArray;
-      } else {
+      if (!logicalComponent.isPrimitive()) {
         value = arrayField.getValueArrayAsObject(invertBitOrder);
+      } else {
+        final Object ieeeMapped = mapPrimitiveArrayAsIeeeBits(logicalComponent, arrayField,
+            invertBitOrder);
+        final Object primitiveArray;
+        if (ieeeMapped != null) {
+          primitiveArray = ieeeMapped;
+        } else {
+          final Object rawArray = arrayField.getValueArrayAsObject(invertBitOrder);
+          final Class<?> rawComponentType = rawArray.getClass().getComponentType();
+          if (rawComponentType == logicalComponent) {
+            primitiveArray = rawArray;
+          } else if (arrayField instanceof JBBPFieldArrayUByte && rawComponentType == byte.class) {
+            primitiveArray = widenUnsignedByteArrayToPrimitiveComponent((byte[]) rawArray,
+                logicalComponent);
+          } else {
+            primitiveArray = coercePrimitiveArray(rawArray, rawComponentType, logicalComponent);
+          }
+        }
+        value = wrapperPrim != null ? boxWrapperComponentArray(componentType, primitiveArray)
+            : primitiveArray;
       }
       if (setter == null) {
         mappingField.set(mappingClassInstance, value);
@@ -322,6 +297,236 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
     } catch (InvocationTargetException ex) {
       throw new JBBPMapperException("Can't set argument to field through setter", arrayField,
               mappingClassInstance.getClass(), mappingField, ex);
+    }
+  }
+
+  /**
+   * Same IEEE-754 bit reinterpretation as {@link #mapNumericField} for {@code int}/{@code long}
+   * fields mapped to {@code float}/{@code double}.
+   *
+   * @return mapped array, or {@code null} when generic primitive coercion should be used
+   */
+  private static Object mapPrimitiveArrayAsIeeeBits(final Class<?> componentType,
+                                                    final JBBPAbstractArrayField<?> arrayField,
+                                                    final boolean invertBitOrder) {
+    if (arrayField instanceof JBBPFieldArrayLong && componentType == double.class) {
+      final long[] longArray = (long[]) arrayField.getValueArrayAsObject(invertBitOrder);
+      final double[] result = new double[longArray.length];
+      for (int i = 0; i < longArray.length; i++) {
+        result[i] = Double.longBitsToDouble(longArray[i]);
+      }
+      return result;
+    }
+    if (arrayField instanceof JBBPFieldArrayUInt && componentType == double.class) {
+      final long[] longArray = (long[]) arrayField.getValueArrayAsObject(invertBitOrder);
+      final double[] result = new double[longArray.length];
+      for (int i = 0; i < longArray.length; i++) {
+        result[i] = Double.longBitsToDouble(longArray[i]);
+      }
+      return result;
+    }
+    if (arrayField instanceof JBBPFieldArrayInt && componentType == float.class) {
+      final int[] intArray = (int[]) arrayField.getValueArrayAsObject(invertBitOrder);
+      final float[] result = new float[intArray.length];
+      for (int i = 0; i < intArray.length; i++) {
+        result[i] = Float.intBitsToFloat(intArray[i]);
+      }
+      return result;
+    }
+    if (arrayField instanceof JBBPFieldArrayUInt && componentType == float.class) {
+      final long[] longArray = (long[]) arrayField.getValueArrayAsObject(invertBitOrder);
+      final float[] result = new float[longArray.length];
+      for (int i = 0; i < longArray.length; i++) {
+        result[i] = Float.intBitsToFloat((int) longArray[i]);
+      }
+      return result;
+    }
+    return null;
+  }
+
+  /**
+   * Widen each unsigned byte (0..255) to {@code dstCt}. Used for {@link JBBPFieldArrayUByte} only;
+   * signed {@link JBBPFieldArrayByte} still uses {@link #coercePrimitiveArray} for compatibility.
+   */
+  private static Object widenUnsignedByteArrayToPrimitiveComponent(final byte[] raw,
+                                                                   final Class<?> dstCt) {
+    final int n = raw.length;
+    if (dstCt == boolean.class) {
+      final boolean[] out = new boolean[n];
+      for (int i = 0; i < n; i++) {
+        out[i] = (raw[i] & 0xFF) != 0;
+      }
+      return out;
+    }
+    if (dstCt == char.class) {
+      final char[] out = new char[n];
+      for (int i = 0; i < n; i++) {
+        out[i] = (char) (raw[i] & 0xFF);
+      }
+      return out;
+    }
+    if (dstCt == short.class) {
+      final short[] out = new short[n];
+      for (int i = 0; i < n; i++) {
+        out[i] = (short) (raw[i] & 0xFF);
+      }
+      return out;
+    }
+    if (dstCt == int.class) {
+      final int[] out = new int[n];
+      for (int i = 0; i < n; i++) {
+        out[i] = raw[i] & 0xFF;
+      }
+      return out;
+    }
+    if (dstCt == long.class) {
+      final long[] out = new long[n];
+      for (int i = 0; i < n; i++) {
+        out[i] = raw[i] & 0xFFL;
+      }
+      return out;
+    }
+    if (dstCt == float.class) {
+      final float[] out = new float[n];
+      for (int i = 0; i < n; i++) {
+        out[i] = raw[i] & 0xFF;
+      }
+      return out;
+    }
+    if (dstCt == double.class) {
+      final double[] out = new double[n];
+      for (int i = 0; i < n; i++) {
+        out[i] = raw[i] & 0xFF;
+      }
+      return out;
+    }
+    throw new IllegalStateException("Unsupported unsigned byte widen target: " + dstCt);
+  }
+
+  /**
+   * Cast each element from {@code srcCt} to {@code dstCt} using Java primitive conversion rules.
+   */
+  private static Object coercePrimitiveArray(final Object sourceArray, final Class<?> srcCt,
+                                             final Class<?> dstCt) {
+    final int length = Array.getLength(sourceArray);
+    final Object destArray = Array.newInstance(dstCt, length);
+    for (int i = 0; i < length; i++) {
+      coercePrimitiveElement(sourceArray, srcCt, i, destArray, dstCt, i);
+    }
+    return destArray;
+  }
+
+  private static void coercePrimitiveElement(final Object src, final Class<?> srcCt, final int si,
+                                             final Object dst, final Class<?> dstCt, final int di) {
+    if (dstCt == boolean.class) {
+      Array.setBoolean(dst, di, readAsBool(src, srcCt, si));
+      return;
+    }
+    if (srcCt == boolean.class) {
+      putNumericFromBool(dst, dstCt, di, Array.getBoolean(src, si));
+      return;
+    }
+    final boolean srcFp = srcCt == float.class || srcCt == double.class;
+    final boolean dstFp = dstCt == float.class || dstCt == double.class;
+    if (srcFp || dstFp) {
+      final double d = readAsDouble(src, srcCt, si);
+      if (dstCt == float.class) {
+        Array.setFloat(dst, di, (float) d);
+      } else if (dstCt == double.class) {
+        Array.setDouble(dst, di, d);
+      } else {
+        putIntegralFromDouble(dst, dstCt, di, d);
+      }
+      return;
+    }
+    putIntegralFromLong(dst, dstCt, di, readIntegralAsLong(src, srcCt, si));
+  }
+
+  private static boolean readAsBool(final Object src, final Class<?> srcCt, final int i) {
+    if (srcCt == boolean.class) {
+      return Array.getBoolean(src, i);
+    }
+    if (srcCt == float.class) {
+      return Array.getFloat(src, i) != 0.0f;
+    }
+    if (srcCt == double.class) {
+      return Array.getDouble(src, i) != 0.0d;
+    }
+    return readIntegralAsLong(src, srcCt, i) != 0L;
+  }
+
+  private static void putNumericFromBool(final Object dst, final Class<?> dstCt, final int di,
+                                         final boolean value) {
+    final long lv = value ? 1L : 0L;
+    if (dstCt == float.class) {
+      Array.setFloat(dst, di, (float) lv);
+    } else if (dstCt == double.class) {
+      Array.setDouble(dst, di, (double) lv);
+    } else {
+      putIntegralFromLong(dst, dstCt, di, lv);
+    }
+  }
+
+  private static double readAsDouble(final Object src, final Class<?> srcCt, final int i) {
+    if (srcCt == float.class) {
+      return Array.getFloat(src, i);
+    }
+    if (srcCt == double.class) {
+      return Array.getDouble(src, i);
+    }
+    return readIntegralAsLong(src, srcCt, i);
+  }
+
+  private static long readIntegralAsLong(final Object src, final Class<?> srcCt, final int i) {
+    if (srcCt == byte.class) {
+      return Array.getByte(src, i);
+    }
+    if (srcCt == short.class) {
+      return Array.getShort(src, i);
+    }
+    if (srcCt == char.class) {
+      return Array.getChar(src, i);
+    }
+    if (srcCt == int.class) {
+      return Array.getInt(src, i);
+    }
+    if (srcCt == long.class) {
+      return Array.getLong(src, i);
+    }
+    throw new IllegalStateException("Unsupported primitive component type: " + srcCt);
+  }
+
+  private static void putIntegralFromLong(final Object dst, final Class<?> dstCt, final int di,
+                                          final long value) {
+    if (dstCt == byte.class) {
+      Array.setByte(dst, di, (byte) value);
+    } else if (dstCt == short.class) {
+      Array.setShort(dst, di, (short) value);
+    } else if (dstCt == char.class) {
+      Array.setChar(dst, di, (char) value);
+    } else if (dstCt == int.class) {
+      Array.setInt(dst, di, (int) value);
+    } else if (dstCt == long.class) {
+      Array.setLong(dst, di, value);
+    } else {
+      throw new IllegalStateException("Unsupported integral target component type: " + dstCt);
+    }
+  }
+
+  private static void putIntegralFromDouble(final Object dst, final Class<?> dstCt, final int di,
+                                            final double value) {
+    if (dstCt == byte.class) {
+      Array.setByte(dst, di, (byte) value);
+    } else if (dstCt == short.class) {
+      Array.setShort(dst, di, (short) value);
+    } else if (dstCt == char.class) {
+      Array.setChar(dst, di, (char) value);
+    } else if (dstCt == int.class) {
+      Array.setInt(dst, di, (int) value);
+    } else if (dstCt == long.class) {
+      Array.setLong(dst, di, (long) value);
+    } else {
+      throw new IllegalStateException("Unsupported integral target component type: " + dstCt);
     }
   }
 
@@ -370,8 +575,170 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
     return result == null ? null : result.toString();
   }
 
+  private static Class<?> wrapperToPrimitive(final Class<?> clazz) {
+    if (clazz == Boolean.class) {
+      return boolean.class;
+    }
+    if (clazz == Byte.class) {
+      return byte.class;
+    }
+    if (clazz == Character.class) {
+      return char.class;
+    }
+    if (clazz == Short.class) {
+      return short.class;
+    }
+    if (clazz == Integer.class) {
+      return int.class;
+    }
+    if (clazz == Long.class) {
+      return long.class;
+    }
+    if (clazz == Float.class) {
+      return float.class;
+    }
+    if (clazz == Double.class) {
+      return double.class;
+    }
+    return null;
+  }
+
+  private static boolean isPrimitiveOrWrapperNumericField(final Class<?> clazz) {
+    return clazz.isPrimitive() || wrapperToPrimitive(clazz) != null;
+  }
+
+  private static Object boxWrapperComponentArray(final Class<?> wrapperComponentType,
+                                                 final Object primitiveArray) {
+    final int length = Array.getLength(primitiveArray);
+    final Object boxedArray = Array.newInstance(wrapperComponentType, length);
+    for (int i = 0; i < length; i++) {
+      Array.set(boxedArray, i, Array.get(primitiveArray, i));
+    }
+    return boxedArray;
+  }
+
+  private static void putMappedByte(final Object instance, final Field mappingField,
+                                    final Method setter, final Class<?> declaredType,
+                                    final byte value)
+      throws IllegalAccessException, InvocationTargetException {
+    if (setter != null) {
+      setter.invoke(instance, value);
+      return;
+    }
+    if (declaredType == byte.class) {
+      mappingField.setByte(instance, value);
+    } else {
+      mappingField.set(instance, Byte.valueOf(value));
+    }
+  }
+
+  private static void putMappedBoolean(final Object instance, final Field mappingField,
+                                       final Method setter, final Class<?> declaredType,
+                                       final boolean value)
+      throws IllegalAccessException, InvocationTargetException {
+    if (setter != null) {
+      setter.invoke(instance, value);
+      return;
+    }
+    if (declaredType == boolean.class) {
+      mappingField.setBoolean(instance, value);
+    } else {
+      mappingField.set(instance, Boolean.valueOf(value));
+    }
+  }
+
+  private static void putMappedChar(final Object instance, final Field mappingField,
+                                    final Method setter, final Class<?> declaredType,
+                                    final char value)
+      throws IllegalAccessException, InvocationTargetException {
+    if (setter != null) {
+      setter.invoke(instance, value);
+      return;
+    }
+    if (declaredType == char.class) {
+      mappingField.setChar(instance, value);
+    } else {
+      mappingField.set(instance, Character.valueOf(value));
+    }
+  }
+
+  private static void putMappedShort(final Object instance, final Field mappingField,
+                                     final Method setter, final Class<?> declaredType,
+                                     final short value)
+      throws IllegalAccessException, InvocationTargetException {
+    if (setter != null) {
+      setter.invoke(instance, value);
+      return;
+    }
+    if (declaredType == short.class) {
+      mappingField.setShort(instance, value);
+    } else {
+      mappingField.set(instance, Short.valueOf(value));
+    }
+  }
+
+  private static void putMappedInt(final Object instance, final Field mappingField,
+                                   final Method setter, final Class<?> declaredType,
+                                   final int value)
+      throws IllegalAccessException, InvocationTargetException {
+    if (setter != null) {
+      setter.invoke(instance, value);
+      return;
+    }
+    if (declaredType == int.class) {
+      mappingField.setInt(instance, value);
+    } else {
+      mappingField.set(instance, Integer.valueOf(value));
+    }
+  }
+
+  private static void putMappedLong(final Object instance, final Field mappingField,
+                                    final Method setter, final Class<?> declaredType,
+                                    final long value)
+      throws IllegalAccessException, InvocationTargetException {
+    if (setter != null) {
+      setter.invoke(instance, value);
+      return;
+    }
+    if (declaredType == long.class) {
+      mappingField.setLong(instance, value);
+    } else {
+      mappingField.set(instance, Long.valueOf(value));
+    }
+  }
+
+  private static void putMappedFloat(final Object instance, final Field mappingField,
+                                     final Method setter, final Class<?> declaredType,
+                                     final float value)
+      throws IllegalAccessException, InvocationTargetException {
+    if (setter != null) {
+      setter.invoke(instance, value);
+      return;
+    }
+    if (declaredType == float.class) {
+      mappingField.setFloat(instance, value);
+    } else {
+      mappingField.set(instance, Float.valueOf(value));
+    }
+  }
+
+  private static void putMappedDouble(final Object instance, final Field mappingField,
+                                      final Method setter, final Class<?> declaredType,
+                                      final double value)
+      throws IllegalAccessException, InvocationTargetException {
+    if (setter != null) {
+      setter.invoke(instance, value);
+      return;
+    }
+    if (declaredType == double.class) {
+      mappingField.setDouble(instance, value);
+    } else {
+      mappingField.set(instance, Double.valueOf(value));
+    }
+  }
+
   /**
-   * Map a parsed primitive numeric field to a primitive field in a mapping
+   * Map a parsed primitive numeric field to a primitive or boxed primitive field in a mapping
    * class.
    *
    * @param mappingClassInstance the mapping class instance, must not be null
@@ -385,55 +752,34 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
   private static void mapNumericField(final Object mappingClassInstance, final Method setter,
                                       final Field mappingField, final JBBPNumericField numericField,
                                       final boolean invertBitOrder) {
-    final Class<?> fieldClass = mappingField.getType();
+    final Class<?> declaredType = mappingField.getType();
+    final Class<?> wrapperPrim = wrapperToPrimitive(declaredType);
+    final Class<?> key = wrapperPrim != null ? wrapperPrim : declaredType;
     try {
-      if (fieldClass == byte.class) {
+      if (key == byte.class) {
         final byte value = (byte) (invertBitOrder ? numericField.getAsInvertedBitOrder() :
                 numericField.getAsInt());
-        if (setter == null) {
-          mappingField.setByte(mappingClassInstance, value);
-        } else {
-          setter.invoke(mappingClassInstance, value);
-        }
-      } else if (fieldClass == boolean.class) {
-        if (setter == null) {
-          mappingField.setBoolean(mappingClassInstance, numericField.getAsBool());
-        } else {
-          setter.invoke(mappingClassInstance, numericField.getAsBool());
-        }
-      } else if (fieldClass == char.class) {
+        putMappedByte(mappingClassInstance, mappingField, setter, declaredType, value);
+      } else if (key == boolean.class) {
+        putMappedBoolean(mappingClassInstance, mappingField, setter, declaredType,
+            numericField.getAsBool());
+      } else if (key == char.class) {
         final char value = (char) (invertBitOrder ? numericField.getAsInvertedBitOrder() :
                 numericField.getAsInt());
-        if (setter == null) {
-          mappingField.setChar(mappingClassInstance, value);
-        } else {
-          setter.invoke(mappingClassInstance, value);
-        }
-      } else if (fieldClass == short.class) {
+        putMappedChar(mappingClassInstance, mappingField, setter, declaredType, value);
+      } else if (key == short.class) {
         final short value = (short) (invertBitOrder ? numericField.getAsInvertedBitOrder() :
                 numericField.getAsInt());
-        if (setter == null) {
-          mappingField.setShort(mappingClassInstance, value);
-        } else {
-          setter.invoke(mappingClassInstance, value);
-        }
-      } else if (fieldClass == int.class) {
+        putMappedShort(mappingClassInstance, mappingField, setter, declaredType, value);
+      } else if (key == int.class) {
         final int value =
                 (int) (invertBitOrder ? numericField.getAsInvertedBitOrder() : numericField.getAsInt());
-        if (setter == null) {
-          mappingField.setInt(mappingClassInstance, value);
-        } else {
-          setter.invoke(mappingClassInstance, value);
-        }
-      } else if (fieldClass == long.class) {
+        putMappedInt(mappingClassInstance, mappingField, setter, declaredType, value);
+      } else if (key == long.class) {
         final long value =
                 (invertBitOrder ? numericField.getAsInvertedBitOrder() : numericField.getAsLong());
-        if (setter == null) {
-          mappingField.setLong(mappingClassInstance, value);
-        } else {
-          setter.invoke(mappingClassInstance, value);
-        }
-      } else if (fieldClass == float.class) {
+        putMappedLong(mappingClassInstance, mappingField, setter, declaredType, value);
+      } else if (key == float.class) {
         final float value;
         if (numericField instanceof JBBPFieldInt) {
           value =
@@ -444,12 +790,8 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
                   invertBitOrder ? Float.intBitsToFloat((int) numericField.getAsInvertedBitOrder()) :
                           numericField.getAsFloat();
         }
-        if (setter == null) {
-          mappingField.setFloat(mappingClassInstance, value);
-        } else {
-          setter.invoke(mappingClassInstance, value);
-        }
-      } else if (fieldClass == double.class) {
+        putMappedFloat(mappingClassInstance, mappingField, setter, declaredType, value);
+      } else if (key == double.class) {
         final double value;
         if (numericField instanceof JBBPFieldLong) {
           value = invertBitOrder ? Double.longBitsToDouble(numericField.getAsInvertedBitOrder()) :
@@ -458,11 +800,7 @@ public final class MappedFieldRecord implements Comparable<MappedFieldRecord> {
           value = invertBitOrder ? Double.longBitsToDouble(numericField.getAsInvertedBitOrder()) :
                   numericField.getAsDouble();
         }
-        if (setter == null) {
-          mappingField.setDouble(mappingClassInstance, value);
-        } else {
-          setter.invoke(mappingClassInstance, value);
-        }
+        putMappedDouble(mappingClassInstance, mappingField, setter, declaredType, value);
       } else {
         throw new JBBPMapperException(
                 "Unsupported mapping class field type to be mapped for binary parsed data",
