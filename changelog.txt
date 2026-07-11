@@ -1,3 +1,6 @@
+3.0.3 (SNAPSHOT)
+  - fixed missing array byte types for mapping fields [#50](https://github.com/raydac/java-binary-block-parser/issues/50)
+
 3.0.2 (09-jan-2026)
   - fixed bug in `MSB0_DIRECT` read, thanks to @Stormregion0
 
