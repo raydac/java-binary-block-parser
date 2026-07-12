@@ -17,33 +17,13 @@ that for Java. So I developed the JBBP library.<br>
 
 # Change log
 
+- __3.0.3 (12-jul-2026)__
+  - fixed missing array byte types for mapping
+    fields [#50](https://github.com/raydac/java-binary-block-parser/issues/50)
+  - updated dependencies
+
 - __3.0.2 (09-jan-2026)__
   - fixed bug in `MSB0_DIRECT` read, thanks to [Stormregion0](https://github.com/Stormregion0) 
-
-- __3.0.1 (24-dec-2024)__
-  - added `MSB0_DIRECT` bit order mode, MSB0 without data
-    revers [#46](https://github.com/raydac/java-binary-block-parser/issues/46)
-  - added `JBBPBitInputStream#isDetectedPartlyReadBitField` to check that only part of bit field read during last
-    operation
-  - added flag into constructors for JBBPBitInputStream to force return -1 instead of partly accumulated bits data if
-    end of field
-
-- __3.0.0 (16-nov-2024)__
-  - __Minimum JDK Version: Updated to 11.0.__
-  - __Minimum Supported Android: Updated to 12 (API 32).__
-  - __API Changes:__ Modifications made to the CompiledBlockVisitor API.
-  - __New Feature:__ Added `JBBPUtils#findMaxStaticArraySize` for calculating the largest static array size defined in a
-    JBBP script.
-  - __Internal API:__ Certain internal APIs have been opened.
-  - __Codebase Improvements:__ General refactoring performed.
-
-- __2.1.0 (05-nov-2024)__
-  - minor changes in API for `JBBPVarFieldProcessor` and `JBBPCustomFieldTypeProcessor`
-  - provided way to control size of arrays read as stream
-    rest [#44](https://github.com/raydac/java-binary-block-parser/issues/44)
-  - provided way to control size of arrays which size calculated through
-    expressions [#45](https://github.com/raydac/java-binary-block-parser/issues/45)
-  - improved tests
 
 [Full changelog](https://github.com/raydac/java-binary-block-parser/blob/master/changelog.txt)
 
@@ -55,7 +35,7 @@ The Framework has been published in the Maven Central and can be easily added as
 <dependency>
   <groupId>com.igormaznitsa</groupId>
   <artifactId>jbbp</artifactId>
-  <version>3.0.2</version>
+  <version>3.0.3</version>
 </dependency>
 ```
 
@@ -133,7 +113,7 @@ in Maven it can be used through snippet:
 <plugin>
   <groupId>com.igormaznitsa</groupId>
   <artifactId>jbbp-maven-plugin</artifactId>
-  <version>3.0.1</version>
+  <version>3.0.3</version>
   <executions>
     <execution>
       <id>gen-jbbp-src</id>
