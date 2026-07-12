@@ -1,7 +1,7 @@
-![JBBP Logo](https://github.com/raydac/java-binary-block-parser/blob/master/logo.png)
+![JBBP Logo](./logo.png)
 
 [![License Apache 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-green.svg)](http://www.apache.org/licenses/LICENSE-2.0)
-[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.igormaznitsa/jbbp/badge.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|jbbp|3.0.2|jar)
+[![Maven central](https://img.shields.io/badge/maven_central-3.0.3-green.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|jbbp|3.0.3|jar)
 [![Java 11+](https://img.shields.io/badge/java-11%2b-green.svg)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 [![Android 12+](https://img.shields.io/badge/android-12%2b-green.svg)](http://developer.android.com/sdk/index.html)   
 [![Arthur's acres sanctuary donation](docs/arthur_sanctuary_banner.png)](https://www.arthursacresanimalsanctuary.org/donate)
@@ -13,7 +13,7 @@ Java has some embedded features to parse binary data (for instance ByteBuffer), 
 level and describe binary structures through some DSL(domain specific language). I was impressed by
 the [the Python Struct package](https://docs.python.org/2/library/struct.html) package and wanted to get something like
 that for Java. So I developed the JBBP library.<br>
-![Use cases](https://github.com/raydac/java-binary-block-parser/blob/master/docs/jbbp_mm.png)
+![Use cases](./docs/jbbp_mm.png)
 
 # Change log
 
