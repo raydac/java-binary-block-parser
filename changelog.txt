@@ -1,3 +1,6 @@
+3.0.4 (SNAPSHOT)
+  -
+
 3.0.3 (12-jul-2026)
   - fixed missing array byte types for mapping fields [#50](https://github.com/raydac/java-binary-block-parser/issues/50)
   - updated dependencies
