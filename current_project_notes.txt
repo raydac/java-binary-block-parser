@@ -1,0 +1,30 @@
+## 1. Implementation Progress
+- Project knowledge mind maps under `.projectKnowledge/` aligned with current tree `3.0.4-SNAPSHOT`.
+- `JBBP.mmd`: version, 3rd-party wording, named bit orders (`LSB0`/`MSB0`/`MSB0_DIRECT`), DSL comments/`$`/array-size limits.
+- `JBBP_Types.mmd`: `bit[:1..8]`, skip extra-data colon, `field_type`, Big-Endian, `until`, comments/`$`, array size limiters, `val` extra syntax.
+
+## 2. Architecture & Technical Discoveries
+- Core artifact `jbbp` has no compile/runtime third-party dependencies.
+- Plugins live in a separate reactor enabled by Maven profile `plugins`.
+- Bit width for `bit` fields is 1..8 (default 1). Extra data for `align`/`skip`/`val` is `:number` or `:(expression)`.
+- Bit orders: `LSB0`, `MSB0` (reversed for Java), `MSB0_DIRECT` since 3.0.1 (no reverse).
+
+## 3. Technical Debt & Refactoring
+- `docs/jbbp_mm.png` (README “Use cases”) is an export of the overview map and may be stale versus `.projectKnowledge/JBBP.mmd`. Re-export from Scia Reto if the published image should match.
+
+## 4. Current Work In Progress
+- None.
+
+## 5. Known Issues & Limitations
+- None opened by the knowledge-map update.
+
+## 6. Open Questions & Pending Decisions
+- Whether README `docs/jbbp_mm.png` should be regenerated from the updated overview map.
+
+## 7. Useful References
+- Mind maps: `.projectKnowledge/JBBP.mmd`, `.projectKnowledge/JBBP_Types.mmd`
+- Version source: root `pom.xml` (`3.0.4-SNAPSHOT`)
+- Maven via `mvn22`
+
+## 8. User Advice and Recommendations
+- Edit `.mmd` files through the MMD skill scripts (`parse.py` / `write.py` / `validate.py`), do not freehand-write map markup.
